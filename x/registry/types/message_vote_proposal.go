@@ -9,12 +9,12 @@ const TypeMsgVoteProposal = "vote_proposal"
 
 var _ sdk.Msg = &MsgVoteProposal{}
 
-func NewMsgVoteProposal(creator string, id uint64, bundleId string, support bool) *MsgVoteProposal {
+func NewMsgVoteProposal(creator string, id uint64, bundleId string, vote uint64) *MsgVoteProposal {
 	return &MsgVoteProposal{
 		Creator:  creator,
 		Id:       id,
 		BundleId: bundleId,
-		Support:  support,
+		Vote:  vote,
 	}
 }
 

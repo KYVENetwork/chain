@@ -41,6 +41,11 @@ var (
 	DefaultNetworkFee string = "0.01"
 )
 
+var (
+	KeyMaxPoints            = []byte("MaxPoints")
+	DefaultMaxPoints uint64 = 5
+)
+
 // ParamKeyTable the param Key table for launch module
 func ParamKeyTable() paramtypes.KeyTable {
 	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
@@ -54,6 +59,7 @@ func NewParams(
 	uploadTimeout uint64,
 	storageCost uint64,
 	networkFee string,
+	maxPoints uint64,
 ) Params {
 	return Params{
 		VoteSlash:     voteSlash,
@@ -62,6 +68,7 @@ func NewParams(
 		UploadTimeout: uploadTimeout,
 		StorageCost:   storageCost,
 		NetworkFee:    networkFee,
+		MaxPoints: maxPoints,
 	}
 }
 
@@ -74,6 +81,7 @@ func DefaultParams() Params {
 		DefaultUploadTimeout,
 		DefaultStorageCost,
 		DefaultNetworkFee,
+		DefaultMaxPoints,
 	)
 }
 
@@ -86,6 +94,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyUploadTimeout, &p.UploadTimeout, validateUploadTimeout),
 		paramtypes.NewParamSetPair(KeyStorageCost, &p.StorageCost, validateStorageCost),
 		paramtypes.NewParamSetPair(KeyNetworkFee, &p.NetworkFee, validateNetworkFee),
+		paramtypes.NewParamSetPair(KeyMaxPoints, &p.MaxPoints, validateMaxPoints),
 	}
 }
 
@@ -112,6 +121,10 @@ func (p Params) Validate() error {
 	}
 
 	if err := validateNetworkFee(p.NetworkFee); err != nil {
+		return err
+	}
+
+	if err := validateMaxPoints(p.MaxPoints); err != nil {
 		return err
 	}
 
@@ -168,6 +181,19 @@ func validateStorageCost(v interface{}) error {
 // validateNetworkFee validates the NetworkFee param
 func validateNetworkFee(v interface{}) error {
 	return validatePercentage(v)
+}
+
+// validateMaxPoints validates the MaxPoints param
+func validateMaxPoints(v interface{}) error {
+	maxPoints, ok := v.(uint64)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", v)
+	}
+
+	// TODO implement validation
+	_ = maxPoints
+
+	return nil
 }
 
 // validatePercentage ...

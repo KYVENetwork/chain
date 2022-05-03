@@ -199,6 +199,8 @@ message StakerResponse {
   string website = 8;
   // logo
   string logo = 9;
+  // points
+  uint64 points = 10;
 }
 
 // WARP

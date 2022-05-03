@@ -116,7 +116,7 @@ func EmitBundleVoteEvent(ctx sdk.Context, pool *Pool, msg *MsgVoteProposal) {
 		sdk.NewAttribute(EventPoolId, strconv.FormatUint(pool.Id, 10)),
 		sdk.NewAttribute(EventCreator, msg.Creator),
 		sdk.NewAttribute(VoteEventBundleId, msg.BundleId),
-		sdk.NewAttribute(VoteEventSupport, strconv.FormatBool(msg.Support)),
+		sdk.NewAttribute(VoteEventVote, strconv.FormatUint(uint64(msg.Vote), 10)),
 	)
 }
 

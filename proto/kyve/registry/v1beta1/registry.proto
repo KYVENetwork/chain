@@ -24,6 +24,8 @@ message BundleProposal {
   repeated string voters_valid = 8;
   // voters_invalid ...
   repeated string voters_invalid = 9;
+  // voters_abstain ...
+  repeated string voters_abstain = 10;
 }
 
 // DelegationEntries ...
@@ -177,6 +179,8 @@ message Staker {
   string website = 7;
   // logo
   string logo = 8;
+  // points
+  uint64 points = 9;
 }
 
 // UnbondingEntries ...

@@ -27,7 +27,7 @@ func (k msgServer) VoteProposal(
 	}
 
 	// Check if the sender is a protocol node (aka has staked into this pool).
-	_, isStaker := k.GetStaker(ctx, msg.Creator, msg.Id)
+	staker, isStaker := k.GetStaker(ctx, msg.Creator, msg.Id)
 	if !isStaker {
 		return nil, sdkErrors.Wrap(sdkErrors.ErrUnauthorized, types.ErrNoStaker.Error())
 	}
@@ -45,7 +45,7 @@ func (k msgServer) VoteProposal(
 	}
 
 	// Check if the sender has already voted on the bundle.
-	hasVotedValid, hasVotedInvalid := false, false
+	hasVotedValid, hasVotedInvalid, hasVotedAbstain := false, false, false
 
 	for _, voter := range pool.BundleProposal.VotersValid {
 		if voter == msg.Creator {
@@ -59,21 +59,37 @@ func (k msgServer) VoteProposal(
 		}
 	}
 
-	if hasVotedValid || hasVotedInvalid {
+	for _, voter := range pool.BundleProposal.VotersAbstain {
+		if voter == msg.Creator {
+			hasVotedAbstain = true
+		}
+	}
+
+	if hasVotedValid || hasVotedInvalid || hasVotedAbstain {
 		return nil, sdkErrors.Wrapf(
 			sdkErrors.ErrUnauthorized, types.ErrAlreadyVoted.Error(), pool.BundleProposal.BundleId,
 		)
 	}
 
+	// Update and return.
+	if msg.Vote == 0 {
+		pool.BundleProposal.VotersValid = append(pool.BundleProposal.VotersValid, msg.Creator)
+	} else if msg.Vote == 1 {
+		pool.BundleProposal.VotersInvalid = append(pool.BundleProposal.VotersInvalid, msg.Creator)
+	} else if msg.Vote == 2 {
+		pool.BundleProposal.VotersAbstain = append(pool.BundleProposal.VotersAbstain, msg.Creator)
+	} else {
+		return nil, sdkErrors.Wrapf(
+			sdkErrors.ErrUnauthorized, types.ErrInvalidVote.Error(), msg.Vote,
+		)
+	}
+
+	// reset points
+	staker.Points = 0
+	k.SetStaker(ctx, staker)
+
 	// Emit a vote event.
 	types.EmitBundleVoteEvent(ctx, &pool, msg)
-
-	// Update and return.
-	if msg.Support {
-		pool.BundleProposal.VotersValid = append(pool.BundleProposal.VotersValid, msg.Creator)
-	} else {
-		pool.BundleProposal.VotersInvalid = append(pool.BundleProposal.VotersInvalid, msg.Creator)
-	}
 
 	k.SetPool(ctx, pool)
 

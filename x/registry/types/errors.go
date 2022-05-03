@@ -39,10 +39,11 @@ var (
 	ErrInvalidCommission   = sdkerrors.Register(ModuleName, 1116, "invalid commission %v")
 	ErrSelfDelegation   = sdkerrors.Register(ModuleName, 1117, "self delegation not allowed")
 	ErrFromHeight   = sdkerrors.Register(ModuleName, 1118, "invalid from height")
+	ErrInvalidVote   = sdkerrors.Register(ModuleName, 1119, "invalid vote %v")
 )
 
 // delegation errors
 var (
-	ErrNotADelegator       = sdkerrors.Register(ModuleName, 1119, "not a delegator")
-	ErrNotEnoughDelegation = sdkerrors.Register(ModuleName, 1120, "undelegate-amount is larger than current delegation")
+	ErrNotADelegator       = sdkerrors.Register(ModuleName, 1120, "not a delegator")
+	ErrNotEnoughDelegation = sdkerrors.Register(ModuleName, 1121, "undelegate-amount is larger than current delegation")
 )

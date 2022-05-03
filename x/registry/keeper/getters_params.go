@@ -14,6 +14,7 @@ func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 		k.UploadTimeout(ctx),
 		k.StorageCost(ctx),
 		k.NetworkFee(ctx),
+		5,
 	)
 }
 
@@ -55,5 +56,11 @@ func (k Keeper) StorageCost(ctx sdk.Context) (res uint64) {
 // NetworkFee returns the NetworkFee param
 func (k Keeper) NetworkFee(ctx sdk.Context) (res string) {
 	k.paramstore.Get(ctx, types.KeyNetworkFee, &res)
+	return
+}
+
+// MaxPoints returns the MaxPoints param
+func (k Keeper) MaxPoints(ctx sdk.Context) (res uint64) {
+	k.paramstore.Get(ctx, types.KeyMaxPoints, &res)
 	return
 }

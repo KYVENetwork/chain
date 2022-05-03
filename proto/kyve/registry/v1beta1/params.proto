@@ -22,4 +22,6 @@ message Params {
   uint64 storage_cost = 7;
   // network_fee ...
   string network_fee = 8;
+  // max_points ...
+  uint64 max_points = 9;
 }

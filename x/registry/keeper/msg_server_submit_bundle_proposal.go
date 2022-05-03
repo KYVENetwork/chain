@@ -103,6 +103,16 @@ func (k msgServer) SubmitBundleProposal(
 		invalid = len(pool.BundleProposal.VotersInvalid)*2 >= (len(pool.Stakers) - 1)
 	}
 
+	// Get next uploader
+	voters := append(pool.BundleProposal.VotersValid, pool.BundleProposal.VotersInvalid...)
+	nextUploader := ""
+
+	if len(voters) > 0 {
+		nextUploader = k.getNextUploaderByRandom(ctx, &pool, voters)
+	} else {
+		nextUploader = k.getNextUploaderByRandom(ctx, &pool, pool.Stakers)
+	}
+
 	// If the next-uploader submits the NO_QUORUM_BUNDLE it means that
 	// there was no quorum reached in the current round.
 	if msg.BundleId == types.NO_QUORUM_BUNDLE {
@@ -130,13 +140,15 @@ func (k msgServer) SubmitBundleProposal(
 			// just replace the nextUploader and the createdAt time.
 			pool.BundleProposal.CreatedAt = uint64(ctx.BlockTime().Unix())
 			// select next_uploader from voters and uploader
-			pool.BundleProposal.NextUploader = k.getNextUploaderByRandom(ctx, &pool, pool.Stakers)
+			pool.BundleProposal.NextUploader = nextUploader
 		} else {
 			// If consensus wasn't reached, we drop the bundle and emit an event.
 			types.EmitBundleDroppedQuorumNotReachedEvent(ctx, &pool)
 
+			k.handleNonVoters(ctx, &pool)
+
 			pool.BundleProposal = &types.BundleProposal{
-				NextUploader: k.getNextUploaderByRandom(ctx, &pool, pool.Stakers),
+				NextUploader: nextUploader,
 				FromHeight:   pool.BundleProposal.FromHeight,
 				ToHeight:     pool.BundleProposal.FromHeight,
 				CreatedAt:    uint64(ctx.BlockTime().Unix()),
@@ -256,6 +268,8 @@ func (k msgServer) SubmitBundleProposal(
 			// Recalculate the lowest funder, update, and return.
 			k.updateLowestFunder(ctx, &pool)
 
+			k.handleNonVoters(ctx, &pool)
+
 			pool.BundleProposal = &types.BundleProposal{
 				Uploader:      pool.BundleProposal.Uploader,
 				NextUploader:  pool.BundleProposal.NextUploader,
@@ -333,10 +347,12 @@ func (k msgServer) SubmitBundleProposal(
 		// Emit a valid bundle event.
 		types.EmitBundleValidEvent(ctx, &pool, bundleReward)
 
+		k.handleNonVoters(ctx, &pool)
+
 		// Set submitted bundle as new bundle proposal and select new next_uploader
 		pool.BundleProposal = &types.BundleProposal{
 			Uploader:     msg.Creator,
-			NextUploader: k.getNextUploaderByRandom(ctx, &pool, pool.Stakers),
+			NextUploader: nextUploader,
 			BundleId:     msg.BundleId,
 			ByteSize:     msg.ByteSize,
 			FromHeight:   pool.BundleProposal.ToHeight,
@@ -376,6 +392,8 @@ func (k msgServer) SubmitBundleProposal(
 
 		// Emit an invalid bundle event.
 		types.EmitBundleInvalidEvent(ctx, &pool)
+
+		k.handleNonVoters(ctx, &pool)
 
 		// Update and return.
 		pool.BundleProposal = &types.BundleProposal{

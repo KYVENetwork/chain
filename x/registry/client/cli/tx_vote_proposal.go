@@ -15,7 +15,7 @@ var _ = strconv.Itoa(0)
 
 func CmdVoteProposal() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "vote-proposal [id] [bundle-id] [support]",
+		Use:   "vote-proposal [id] [bundle-id] [vote]",
 		Short: "Broadcast message vote-proposal",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
@@ -24,7 +24,7 @@ func CmdVoteProposal() *cobra.Command {
 				return err
 			}
 			argBundleId := args[1]
-			argSupport, err := cast.ToBoolE(args[2])
+			argVote, err := cast.ToUint64E(args[2])
 			if err != nil {
 				return err
 			}
@@ -38,7 +38,7 @@ func CmdVoteProposal() *cobra.Command {
 				clientCtx.GetFromAddress().String(),
 				argId,
 				argBundleId,
-				argSupport,
+				argVote,
 			)
 			if err := msg.ValidateBasic(); err != nil {
 				return err

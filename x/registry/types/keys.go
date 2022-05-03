@@ -43,7 +43,7 @@ const (
 const (
 	VoteEventKey      = "Voted"
 	VoteEventBundleId = "BundleId"
-	VoteEventSupport  = "Support"
+	VoteEventVote  = "Vote"
 )
 
 // slashing
