@@ -41,7 +41,7 @@ func (k Keeper) handleNonVoters(ctx sdk.Context, pool *types.Pool) {
 
 		if staker.Points < k.MaxPoints(ctx) {
 			// Increase points
-			staker.Points = staker.Points + 1
+			staker.Points += 1
 			k.SetStaker(ctx, staker)
 		} else {
 			// skip timeout slash if staker is not found

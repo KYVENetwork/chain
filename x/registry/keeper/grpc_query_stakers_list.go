@@ -41,6 +41,7 @@ func (k Keeper) StakersList(goCtx context.Context, req *types.QueryStakersListRe
 			Moniker:         staker.Moniker,
 			Website:         staker.Website,
 			Logo:            staker.Logo,
+			Points:          staker.Points,
 		}
 
 		// Fetch total delegation for staker, as it is stored in DelegationPoolData
