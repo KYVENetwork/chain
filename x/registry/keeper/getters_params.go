@@ -14,7 +14,7 @@ func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 		k.UploadTimeout(ctx),
 		k.StorageCost(ctx),
 		k.NetworkFee(ctx),
-		5,
+		k.MaxPoints(ctx),
 	)
 }
 
