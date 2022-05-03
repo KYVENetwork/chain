@@ -39,7 +39,11 @@ func (k Keeper) handleNonVoters(ctx sdk.Context, pool *types.Pool) {
 	for _, voter := range nonVoters {
 		staker, foundStaker := k.GetStaker(ctx, voter, pool.Id)
 
-		if staker.Points >= k.MaxPoints(ctx) {
+		if staker.Points < k.MaxPoints(ctx) {
+			// Increase points
+			staker.Points = staker.Points + 1
+			k.SetStaker(ctx, staker)
+		} else {
 			// skip timeout slash if staker is not found
 			if foundStaker {
 				// slash nonVoter for not uploading in time
@@ -62,10 +66,6 @@ func (k Keeper) handleNonVoters(ctx sdk.Context, pool *types.Pool) {
 				// Update current lowest staker
 				k.updateLowestStaker(ctx, pool)
 			}
-		} else {
-			// Increase points
-			staker.Points = staker.Points + 1
-			k.SetStaker(ctx, staker)
 		}
 	}
 }
