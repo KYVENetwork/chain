@@ -103,6 +103,9 @@ func (k msgServer) SubmitBundleProposal(
 		invalid = len(pool.BundleProposal.VotersInvalid)*2 >= (len(pool.Stakers) - 1)
 	}
 
+	// handle stakers who did not vote at all
+	k.handleNonVoters(ctx, &pool)
+
 	// Get next uploader
 	voters := append(pool.BundleProposal.VotersValid, pool.BundleProposal.VotersInvalid...)
 	nextUploader := ""
@@ -113,7 +116,7 @@ func (k msgServer) SubmitBundleProposal(
 		nextUploader = k.getNextUploaderByRandom(ctx, &pool, pool.Stakers)
 	}
 
-	// If the next-uploader submits the NO_QUORUM_BUNDLE it means that
+	// If the next_uploader submits the NO_QUORUM_BUNDLE it means that
 	// there was no quorum reached in the current round.
 	if msg.BundleId == types.NO_QUORUM_BUNDLE {
 		// Validate bundle args
@@ -144,8 +147,6 @@ func (k msgServer) SubmitBundleProposal(
 		} else {
 			// If consensus wasn't reached, we drop the bundle and emit an event.
 			types.EmitBundleDroppedQuorumNotReachedEvent(ctx, &pool)
-
-			k.handleNonVoters(ctx, &pool)
 
 			pool.BundleProposal = &types.BundleProposal{
 				NextUploader: nextUploader,
@@ -268,8 +269,6 @@ func (k msgServer) SubmitBundleProposal(
 			// Recalculate the lowest funder, update, and return.
 			k.updateLowestFunder(ctx, &pool)
 
-			k.handleNonVoters(ctx, &pool)
-
 			pool.BundleProposal = &types.BundleProposal{
 				Uploader:      pool.BundleProposal.Uploader,
 				NextUploader:  pool.BundleProposal.NextUploader,
@@ -347,8 +346,6 @@ func (k msgServer) SubmitBundleProposal(
 		// Emit a valid bundle event.
 		types.EmitBundleValidEvent(ctx, &pool, bundleReward)
 
-		k.handleNonVoters(ctx, &pool)
-
 		// Set submitted bundle as new bundle proposal and select new next_uploader
 		pool.BundleProposal = &types.BundleProposal{
 			Uploader:     msg.Creator,
@@ -392,8 +389,6 @@ func (k msgServer) SubmitBundleProposal(
 
 		// Emit an invalid bundle event.
 		types.EmitBundleInvalidEvent(ctx, &pool)
-
-		k.handleNonVoters(ctx, &pool)
 
 		// Update and return.
 		pool.BundleProposal = &types.BundleProposal{
