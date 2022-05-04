@@ -103,25 +103,25 @@ func (k msgServer) SubmitBundleProposal(
 		invalid = len(pool.BundleProposal.VotersInvalid)*2 >= (len(pool.Stakers) - 1)
 	}
 
-	// handle stakers who did not vote at all
-	k.handleNonVoters(ctx, &pool)
-
-	// Get next uploader
-	voters := append(pool.BundleProposal.VotersValid, pool.BundleProposal.VotersInvalid...)
-	nextUploader := ""
-
-	if len(voters) > 0 {
-		nextUploader = k.getNextUploaderByRandom(ctx, &pool, voters)
-	} else {
-		nextUploader = k.getNextUploaderByRandom(ctx, &pool, pool.Stakers)
-	}
-
 	// If the next_uploader submits the NO_QUORUM_BUNDLE it means that
 	// there was no quorum reached in the current round.
 	if msg.BundleId == types.NO_QUORUM_BUNDLE {
 		// Validate bundle args
 		if msg.BundleSize != 0 || msg.ByteSize != 0 {
 			return nil, types.ErrInvalidArgs
+		}
+
+		// handle stakers who did not vote at all
+		k.handleNonVoters(ctx, &pool)
+
+		// Get next uploader
+		voters := append(pool.BundleProposal.VotersValid, pool.BundleProposal.VotersInvalid...)
+		nextUploader := ""
+
+		if len(voters) > 0 {
+			nextUploader = k.getNextUploaderByRandom(ctx, &pool, voters)
+		} else {
+			nextUploader = k.getNextUploaderByRandom(ctx, &pool, pool.Stakers)
 		}
 
 		// check if the quorum was actually reached
@@ -192,6 +192,19 @@ func (k msgServer) SubmitBundleProposal(
 	}
 
 	// EVALUATE PREVIOUS ROUND
+
+	// handle stakers who did not vote at all
+	k.handleNonVoters(ctx, &pool)
+
+	// Get next uploader
+	voters := append(pool.BundleProposal.VotersValid, pool.BundleProposal.VotersInvalid...)
+	nextUploader := ""
+
+	if len(voters) > 0 {
+		nextUploader = k.getNextUploaderByRandom(ctx, &pool, voters)
+	} else {
+		nextUploader = k.getNextUploaderByRandom(ctx, &pool, pool.Stakers)
+	}
 
 	// handle valid proposal
 	if valid {
