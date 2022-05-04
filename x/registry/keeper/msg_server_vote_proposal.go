@@ -33,12 +33,19 @@ func (k msgServer) VoteProposal(
 	}
 
 	// Check if the sender is also the bundle's uploader.
-	if pool.BundleProposal.GetUploader() == msg.Creator {
+	if pool.BundleProposal.Uploader == msg.Creator {
 		return nil, sdkErrors.Wrap(sdkErrors.ErrUnauthorized, types.ErrVoterIsUploader.Error())
 	}
 
-	// Check if the sender is voting on a valid bundle.
-	if msg.BundleId == "" || msg.BundleId != pool.BundleProposal.BundleId {
+	// Check if bundle is not dropped or NO_DATA_BUNDLE
+	if pool.BundleProposal.BundleId == "" || pool.BundleProposal.BundleId == types.NO_DATA_BUNDLE {
+		return nil, sdkErrors.Wrapf(
+			sdkErrors.ErrNotFound, types.ErrInvalidBundleId.Error(), pool.BundleProposal.BundleId,
+		)
+	}
+
+	// Check if the sender is voting on the same bundle.
+	if msg.BundleId != pool.BundleProposal.BundleId {
 		return nil, sdkErrors.Wrapf(
 			sdkErrors.ErrNotFound, types.ErrInvalidBundleId.Error(), pool.BundleProposal.BundleId,
 		)

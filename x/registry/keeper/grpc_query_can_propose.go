@@ -83,7 +83,7 @@ func (k Keeper) CanPropose(goCtx context.Context, req *types.QueryCanProposeRequ
 	}
 
 	// Check if next_uploader has to upload NO_QUORUM_BUNDLE
-	if pool.BundleProposal.BundleId != "" {
+	if pool.BundleProposal.BundleId != "" && pool.BundleProposal.BundleId != types.NO_DATA_BUNDLE {
 		if !valid && !invalid {
 			return &types.QueryCanProposeResponse{
 				Possible: true,

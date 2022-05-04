@@ -40,11 +40,19 @@ func (k Keeper) CanVote(goCtx context.Context, req *types.QueryCanVoteRequest) (
 		}, nil
 	}
 
-	// Check if empty bundle
+	// Check if dropped bundle
 	if pool.BundleProposal.BundleId == "" {
 		return &types.QueryCanVoteResponse{
 			Possible: false,
-			Reason:   "Can not vote on empty bundle",
+			Reason:   "Can not vote on dropped bundle",
+		}, nil
+	}
+
+	// Check if empty bundle
+	if pool.BundleProposal.BundleId == types.NO_DATA_BUNDLE {
+		return &types.QueryCanVoteResponse{
+			Possible: false,
+			Reason:   "Can not vote on NO_DATA_BUNDLE",
 		}, nil
 	}
 
@@ -56,8 +64,16 @@ func (k Keeper) CanVote(goCtx context.Context, req *types.QueryCanVoteRequest) (
 		}, nil
 	}
 
+	// check if voter is not uploader
+	if pool.BundleProposal.Uploader == req.Voter {
+		return &types.QueryCanVoteResponse{
+			Possible: false,
+			Reason:   "Voter is uploader",
+		}, nil
+	}
+
 	// Check if sender has not voted yet
-	hasVotedValid, hasVotedInvalid := false, false
+	hasVotedValid, hasVotedInvalid, hasVotedAbstain := false, false, false
 
 	for _, voter := range pool.BundleProposal.VotersValid {
 		if voter == req.Voter {
@@ -71,18 +87,16 @@ func (k Keeper) CanVote(goCtx context.Context, req *types.QueryCanVoteRequest) (
 		}
 	}
 
-	if hasVotedValid || hasVotedInvalid {
+	for _, voter := range pool.BundleProposal.VotersAbstain {
+		if voter == req.Voter {
+			hasVotedAbstain = true
+		}
+	}
+
+	if hasVotedValid || hasVotedInvalid || hasVotedAbstain {
 		return &types.QueryCanVoteResponse{
 			Possible: false,
 			Reason:   "Voter already voted",
-		}, nil
-	}
-
-	// check if voter is not uploader
-	if pool.BundleProposal.GetUploader() == req.Voter {
-		return &types.QueryCanVoteResponse{
-			Possible: false,
-			Reason:   "Voter is uploader",
 		}, nil
 	}
 
