@@ -62,7 +62,7 @@ func (k msgServer) SubmitBundleProposal(
 		return nil, types.ErrNotDesignatedUploader
 	}
 
-	// Check if consensus has already been reached.
+	// Check if quorum has already been reached.
 	valid := false
 	invalid := false
 
@@ -70,64 +70,6 @@ func (k msgServer) SubmitBundleProposal(
 		// subtract one because of uploader
 		valid = len(pool.BundleProposal.VotersValid)*2 > (len(pool.Stakers) - 1)
 		invalid = len(pool.BundleProposal.VotersInvalid)*2 >= (len(pool.Stakers) - 1)
-	}
-
-	// If the next_uploader submits the NO_QUORUM_BUNDLE it means that
-	// there was no quorum reached in the current round.
-	if msg.BundleId == types.NO_QUORUM_BUNDLE {
-		// Validate bundle args
-		if msg.BundleSize != 0 || msg.ByteSize != 0 {
-			return nil, types.ErrInvalidArgs
-		}
-
-		// handle stakers who did not vote at all
-		k.handleNonVoters(ctx, &pool)
-
-		// Get next uploader
-		voters := append(pool.BundleProposal.VotersValid, pool.BundleProposal.VotersInvalid...)
-		nextUploader := ""
-
-		if len(voters) > 0 {
-			nextUploader = k.getNextUploaderByRandom(ctx, &pool, voters)
-		} else {
-			nextUploader = k.getNextUploaderByRandom(ctx, &pool, pool.Stakers)
-		}
-
-		// check if the quorum was actually reached
-		if valid || invalid {
-			// next_uploader is submitting an invalid bundle
-			// because the quorum was reached
-			// TODO add some tolerance -> maybe in pool_parameters
-
-			// slash next_uploader for false NO_QUORUM_BUNDLE submit
-			slashAmount := k.slashStaker(ctx, &pool, msg.Creator, k.UploadSlash(ctx))
-
-			// emit slashing event
-			types.EmitSlashEvent(ctx, pool.Id, msg.Creator, slashAmount)
-
-			// Update current lowest staker
-			k.updateLowestStaker(ctx, &pool)
-
-			// keep the BundleProposal
-			// just replace the nextUploader and the createdAt time.
-			pool.BundleProposal.CreatedAt = uint64(ctx.BlockTime().Unix())
-			// select next_uploader from voters and uploader
-			pool.BundleProposal.NextUploader = nextUploader
-		} else {
-			// If consensus wasn't reached, we drop the bundle and emit an event.
-			types.EmitBundleDroppedQuorumNotReachedEvent(ctx, &pool)
-
-			pool.BundleProposal = &types.BundleProposal{
-				NextUploader: nextUploader,
-				FromHeight:   pool.BundleProposal.FromHeight,
-				ToHeight:     pool.BundleProposal.FromHeight,
-				CreatedAt:    uint64(ctx.BlockTime().Unix()),
-			}
-		}
-
-		k.SetPool(ctx, pool)
-
-		return &types.MsgSubmitBundleProposalResponse{}, nil
 	}
 
 	// Check args of bundle types
@@ -358,7 +300,6 @@ func (k msgServer) SubmitBundleProposal(
 
 		return &types.MsgSubmitBundleProposalResponse{}, nil
 	} else {
-		// Throw error, should register bundle NO_QUORUM_BUNDLE instead.
 		return nil, types.ErrQuorumNotReached
 	}
 }

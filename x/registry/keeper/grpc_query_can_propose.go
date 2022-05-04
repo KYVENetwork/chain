@@ -82,14 +82,11 @@ func (k Keeper) CanPropose(goCtx context.Context, req *types.QueryCanProposeRequ
 		invalid = len(pool.BundleProposal.VotersInvalid)*2 >= (len(pool.Stakers) - 1)
 	}
 
-	// Check if next_uploader has to upload NO_QUORUM_BUNDLE
-	if pool.BundleProposal.BundleId != "" && pool.BundleProposal.BundleId != types.NO_DATA_BUNDLE {
-		if !valid && !invalid {
-			return &types.QueryCanProposeResponse{
-				Possible: true,
-				Reason:   types.NO_QUORUM_BUNDLE,
-			}, nil
-		}
+	if !valid && !invalid {
+		return &types.QueryCanProposeResponse{
+			Possible: false,
+			Reason:   "Quorum not reached yet",
+		}, nil
 	}
 
 	return &types.QueryCanProposeResponse{

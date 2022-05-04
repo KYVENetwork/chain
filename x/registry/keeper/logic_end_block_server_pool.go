@@ -36,6 +36,52 @@ func (k Keeper) HandleUploadTimeout(goCtx context.Context) {
 			continue
 		}
 
+		// Skip if we haven't reached the upload interval.
+		if uint64(ctx.BlockTime().Unix()) < (pool.BundleProposal.CreatedAt + pool.UploadInterval) {
+			continue
+		}
+
+		// Check if bundle needs to be dropped
+		if pool.BundleProposal.BundleId != "" && pool.BundleProposal.BundleId != types.NO_DATA_BUNDLE {
+			// Check if quorum has already been reached.
+			valid := false
+			invalid := false
+
+			if len(pool.Stakers) > 1 {
+				// subtract one because of uploader
+				valid = len(pool.BundleProposal.VotersValid)*2 > (len(pool.Stakers) - 1)
+				invalid = len(pool.BundleProposal.VotersInvalid)*2 >= (len(pool.Stakers) - 1)
+			}
+
+			// check if the quorum was actually reached
+			if !valid && !invalid {
+				// handle stakers who did not vote at all
+				k.handleNonVoters(ctx, &pool)
+
+				// Get next uploader
+				voters := append(pool.BundleProposal.VotersValid, pool.BundleProposal.VotersInvalid...)
+				nextUploader := ""
+
+				if len(voters) > 0 {
+					nextUploader = k.getNextUploaderByRandom(ctx, &pool, voters)
+				} else {
+					nextUploader = k.getNextUploaderByRandom(ctx, &pool, pool.Stakers)
+				}
+
+				// If consensus wasn't reached, we drop the bundle and emit an event.
+				types.EmitBundleDroppedQuorumNotReachedEvent(ctx, &pool)
+
+				pool.BundleProposal = &types.BundleProposal{
+					NextUploader: nextUploader,
+					FromHeight:   pool.BundleProposal.FromHeight,
+					ToHeight:     pool.BundleProposal.FromHeight,
+					CreatedAt:    uint64(ctx.BlockTime().Unix()),
+				}
+
+				k.SetPool(ctx, pool)
+			}
+		}
+
 		// Skip if we haven't reached the upload timeout.
 		if uint64(ctx.BlockTime().Unix()) < (pool.BundleProposal.CreatedAt + pool.UploadInterval + k.UploadTimeout(ctx)) {
 			continue
