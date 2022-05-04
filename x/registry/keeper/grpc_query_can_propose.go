@@ -72,21 +72,23 @@ func (k Keeper) CanPropose(goCtx context.Context, req *types.QueryCanProposeRequ
 		}, nil
 	}
 
-	// Check if consensus has already been reached.
-	valid := false
-	invalid := false
+	if pool.BundleProposal.BundleId != "" && pool.BundleProposal.BundleId != types.NO_DATA_BUNDLE {
+		// Check if consensus has already been reached.
+		valid := false
+		invalid := false
 
-	if len(pool.Stakers) > 1 {
-		// subtract one because of uploader
-		valid = len(pool.BundleProposal.VotersValid)*2 > (len(pool.Stakers) - 1)
-		invalid = len(pool.BundleProposal.VotersInvalid)*2 >= (len(pool.Stakers) - 1)
-	}
+		if len(pool.Stakers) > 1 {
+			// subtract one because of uploader
+			valid = len(pool.BundleProposal.VotersValid)*2 > (len(pool.Stakers) - 1)
+			invalid = len(pool.BundleProposal.VotersInvalid)*2 >= (len(pool.Stakers) - 1)
+		}
 
-	if !valid && !invalid {
-		return &types.QueryCanProposeResponse{
-			Possible: false,
-			Reason:   "Quorum not reached yet",
-		}, nil
+		if !valid && !invalid {
+			return &types.QueryCanProposeResponse{
+				Possible: false,
+				Reason:   "Quorum not reached yet",
+			}, nil
+		}
 	}
 
 	return &types.QueryCanProposeResponse{
