@@ -56,11 +56,11 @@ func (k Keeper) CanPropose(goCtx context.Context, req *types.QueryCanProposeRequ
 		}, nil
 	}
 
-	// Check if upload interval has been surpassed
-	if uint64(ctx.BlockTime().Unix()) < (pool.BundleProposal.CreatedAt + pool.UploadInterval) {
+	// Check if from_height matches
+	if pool.BundleProposal.ToHeight != req.FromHeight {
 		return &types.QueryCanProposeResponse{
 			Possible: false,
-			Reason:   "Upload interval not surpassed",
+			Reason:   "Invalid from_height",
 		}, nil
 	}
 
@@ -72,23 +72,12 @@ func (k Keeper) CanPropose(goCtx context.Context, req *types.QueryCanProposeRequ
 		}, nil
 	}
 
-	if pool.BundleProposal.BundleId != "" && pool.BundleProposal.BundleId != types.NO_DATA_BUNDLE {
-		// Check if consensus has already been reached.
-		valid := false
-		invalid := false
-
-		if len(pool.Stakers) > 1 {
-			// subtract one because of uploader
-			valid = len(pool.BundleProposal.VotersValid)*2 > (len(pool.Stakers) - 1)
-			invalid = len(pool.BundleProposal.VotersInvalid)*2 >= (len(pool.Stakers) - 1)
-		}
-
-		if !valid && !invalid {
-			return &types.QueryCanProposeResponse{
-				Possible: false,
-				Reason:   "Quorum not reached yet",
-			}, nil
-		}
+	// Check if upload interval has been surpassed
+	if uint64(ctx.BlockTime().Unix()) < (pool.BundleProposal.CreatedAt + pool.UploadInterval) {
+		return &types.QueryCanProposeResponse{
+			Possible: false,
+			Reason:   "Upload interval not surpassed",
+		}, nil
 	}
 
 	return &types.QueryCanProposeResponse{

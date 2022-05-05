@@ -484,6 +484,17 @@ func request_Query_CanPropose_0(ctx context.Context, marshaler runtime.Marshaler
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "proposer", err)
 	}
 
+	val, ok = pathParams["from_height"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "from_height")
+	}
+
+	protoReq.FromHeight, err = runtime.Uint64(val)
+
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "from_height", err)
+	}
+
 	msg, err := client.CanPropose(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
@@ -520,6 +531,17 @@ func local_request_Query_CanPropose_0(ctx context.Context, marshaler runtime.Mar
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "proposer", err)
+	}
+
+	val, ok = pathParams["from_height"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "from_height")
+	}
+
+	protoReq.FromHeight, err = runtime.Uint64(val)
+
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "from_height", err)
 	}
 
 	msg, err := server.CanPropose(ctx, &protoReq)
@@ -1957,7 +1979,7 @@ var (
 
 	pattern_Query_ProposalByHeight_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"kyve", "registry", "v1beta1", "proposal_by_height", "pool_id", "height"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_CanPropose_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"kyve", "registry", "v1beta1", "can_propose", "pool_id", "proposer"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_CanPropose_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5, 1, 0, 4, 1, 5, 6}, []string{"kyve", "registry", "v1beta1", "can_propose", "pool_id", "proposer", "from_height"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_Query_CanVote_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5, 1, 0, 4, 1, 5, 6}, []string{"kyve", "registry", "v1beta1", "can_vote", "pool_id", "voter", "bundle_id"}, "", runtime.AssumeColonVerbOpt(true)))
 

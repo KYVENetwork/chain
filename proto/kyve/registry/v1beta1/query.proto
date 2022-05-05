@@ -62,7 +62,7 @@ service Query {
 
   // CanPropose ...
   rpc CanPropose(QueryCanProposeRequest) returns (QueryCanProposeResponse) {
-    option (google.api.http).get = "/kyve/registry/v1beta1/can_propose/{pool_id}/{proposer}";
+    option (google.api.http).get = "/kyve/registry/v1beta1/can_propose/{pool_id}/{proposer}/{from_height}";
   }
 
   // CanVote checks if voter on pool can still vote for the given bundle
@@ -255,6 +255,8 @@ message QueryCanProposeRequest {
   uint64 pool_id = 1;
   // proposer ...
   string proposer = 2;
+  // from_height ...
+  uint64 from_height = 3;
 }
 
 // QueryCanProposeResponse is the response type for the Query/CanPropose RPC method.
