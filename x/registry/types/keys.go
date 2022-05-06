@@ -26,7 +26,7 @@ const (
 	MaxFunders        = 50 // maximum amount of funders which are allowed
 	MaxStakers        = 50 // maximum amount of stakers which are allowed
 	DefaultCommission = "0.9"
-	NO_DATA_BUNDLE    = "NO_DATA_BUNDLE"
+	KYVE_NO_DATA_BUNDLE    = "KYVE_NO_DATA_BUNDLE"
 )
 
 // ========== EVENTS ===================

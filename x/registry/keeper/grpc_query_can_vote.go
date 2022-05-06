@@ -49,7 +49,7 @@ func (k Keeper) CanVote(goCtx context.Context, req *types.QueryCanVoteRequest) (
 	}
 
 	// Check if empty bundle
-	if pool.BundleProposal.BundleId == types.NO_DATA_BUNDLE {
+	if pool.BundleProposal.BundleId == types.KYVE_NO_DATA_BUNDLE {
 		return &types.QueryCanVoteResponse{
 			Possible: false,
 			Reason:   "Can not vote on NO_DATA_BUNDLE",
@@ -93,10 +93,17 @@ func (k Keeper) CanVote(goCtx context.Context, req *types.QueryCanVoteRequest) (
 		}
 	}
 
-	if hasVotedValid || hasVotedInvalid || hasVotedAbstain {
+	if hasVotedValid || hasVotedInvalid {
 		return &types.QueryCanVoteResponse{
 			Possible: false,
 			Reason:   "Voter already voted",
+		}, nil
+	}
+
+	if hasVotedAbstain {
+		return &types.QueryCanVoteResponse{
+			Possible: true,
+			Reason:   "KYVE_VOTE_NO_ABSTAIN_ALLOWED",
 		}, nil
 	}
 

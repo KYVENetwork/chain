@@ -38,7 +38,7 @@ func (k msgServer) VoteProposal(
 	}
 
 	// Check if bundle is not dropped or NO_DATA_BUNDLE
-	if pool.BundleProposal.BundleId == "" || pool.BundleProposal.BundleId == types.NO_DATA_BUNDLE {
+	if pool.BundleProposal.BundleId == "" || pool.BundleProposal.BundleId == types.KYVE_NO_DATA_BUNDLE {
 		return nil, sdkErrors.Wrapf(
 			sdkErrors.ErrNotFound, types.ErrInvalidBundleId.Error(), pool.BundleProposal.BundleId,
 		)
@@ -72,7 +72,13 @@ func (k msgServer) VoteProposal(
 		}
 	}
 
-	if hasVotedValid || hasVotedInvalid || hasVotedAbstain {
+	if hasVotedValid || hasVotedInvalid {
+		return nil, sdkErrors.Wrapf(
+			sdkErrors.ErrUnauthorized, types.ErrAlreadyVoted.Error(), pool.BundleProposal.BundleId,
+		)
+	}
+
+	if hasVotedAbstain && msg.Vote == 2 {
 		return nil, sdkErrors.Wrapf(
 			sdkErrors.ErrUnauthorized, types.ErrAlreadyVoted.Error(), pool.BundleProposal.BundleId,
 		)

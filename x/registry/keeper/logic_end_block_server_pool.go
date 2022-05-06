@@ -42,7 +42,7 @@ func (k Keeper) HandleUploadTimeout(goCtx context.Context) {
 		}
 
 		// Check if bundle needs to be dropped
-		if pool.BundleProposal.BundleId != "" && pool.BundleProposal.BundleId != types.NO_DATA_BUNDLE {
+		if pool.BundleProposal.BundleId != "" && pool.BundleProposal.BundleId != types.KYVE_NO_DATA_BUNDLE {
 			// Check if quorum has already been reached.
 			valid := false
 			invalid := false
