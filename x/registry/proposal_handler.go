@@ -42,6 +42,7 @@ func handleCreatePoolProposal(ctx sdk.Context, k keeper.Keeper, p *types.CreateP
 			FromHeight: p.StartHeight,
 			ToHeight:   p.StartHeight,
 		},
+		MaxBundleSize: p.MaxBundleSize,
 	}
 
 	k.AppendPool(ctx, pool)
@@ -62,6 +63,7 @@ func handleUpdatePoolProposal(ctx sdk.Context, k keeper.Keeper, p *types.UpdateP
 	pool.Config = p.Config
 	pool.UploadInterval = p.UploadInterval
 	pool.OperatingCost = p.OperatingCost
+	pool.MaxBundleSize = p.MaxBundleSize
 
 	k.SetPool(ctx, pool)
 

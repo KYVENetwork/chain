@@ -143,6 +143,9 @@ message Pool {
 
   // bundle_proposal ...
   kyve.registry.v1beta1.BundleProposal bundle_proposal = 23;
+
+  // max_bundle_size
+  uint64 max_bundle_size = 24;
 }
 
 // Proposal ...

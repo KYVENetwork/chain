@@ -29,7 +29,7 @@ var (
 	_ govtypes.Content = &UnpausePoolProposal{}
 )
 
-func NewCreatePoolProposal(title string, description string, name string, runtime string, logo string, versions string, config string, startHeight uint64, uploadInterval uint64, operatingCost uint64) govtypes.Content {
+func NewCreatePoolProposal(title string, description string, name string, runtime string, logo string, versions string, config string, startHeight uint64, uploadInterval uint64, operatingCost uint64, maxBundleSize uint64) govtypes.Content {
 	return &CreatePoolProposal{
 		Title:         title,
 		Description:   description,
@@ -41,6 +41,7 @@ func NewCreatePoolProposal(title string, description string, name string, runtim
 		StartHeight:   startHeight,
 		UploadInterval: uploadInterval,
 		OperatingCost: operatingCost,
+		MaxBundleSize: maxBundleSize,
 	}
 }
 
@@ -59,7 +60,7 @@ func (p *CreatePoolProposal) ValidateBasic() error {
 	return nil
 }
 
-func NewUpdatePoolProposal(title string, description string, id uint64, name string, runtime string, logo string, versions string, config string, uploadInterval uint64, operatingCost uint64) govtypes.Content {
+func NewUpdatePoolProposal(title string, description string, id uint64, name string, runtime string, logo string, versions string, config string, uploadInterval uint64, operatingCost uint64, maxBundleSize uint64) govtypes.Content {
 	return &UpdatePoolProposal{
 		Title:         title,
 		Description:   description,
@@ -71,6 +72,7 @@ func NewUpdatePoolProposal(title string, description string, id uint64, name str
 		Config:        config,
 		UploadInterval: uploadInterval,
 		OperatingCost: operatingCost,
+		MaxBundleSize: maxBundleSize,
 	}
 }
 

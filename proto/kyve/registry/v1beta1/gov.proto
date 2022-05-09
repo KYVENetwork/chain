@@ -26,6 +26,8 @@ message CreatePoolProposal {
   uint64 upload_interval = 9;
   // operating_cost ...
   uint64 operating_cost = 10;
+  // max_bundle_size ...
+  uint64 max_bundle_size = 11;
 }
 
 // UpdatePoolProposal is a gov Content type for updating a pool.
@@ -50,6 +52,8 @@ message UpdatePoolProposal {
   uint64 upload_interval = 9;
   // operating_cost ...
   uint64 operating_cost = 10;
+  // max_bundle_size ...
+  uint64 max_bundle_size = 11;
 }
 
 // PausePoolProposal is a gov Content type for pausing a pool.

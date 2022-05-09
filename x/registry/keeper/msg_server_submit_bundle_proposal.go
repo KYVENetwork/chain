@@ -52,6 +52,11 @@ func (k msgServer) SubmitBundleProposal(
 		return nil, types.ErrFromHeight
 	}
 
+	// Validate bundle size
+	if msg.BundleSize > pool.MaxBundleSize {
+		return nil, types.ErrMaxBundleSize
+	}
+
 	// Check if upload_interval has been surpassed
 	if uint64(ctx.BlockTime().Unix()) < (pool.BundleProposal.CreatedAt + pool.UploadInterval) {
 		return nil, types.ErrUploadInterval

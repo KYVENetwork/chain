@@ -59,7 +59,7 @@ func GetTxCmd() *cobra.Command {
 func CmdSubmitCreatePoolProposal() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-pool [flags]",
-		Args:  cobra.ExactArgs(8),
+		Args:  cobra.ExactArgs(9),
 		Short: "Submit a proposal to create a pool.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -78,6 +78,11 @@ func CmdSubmitCreatePoolProposal() *cobra.Command {
 			}
 
 			operatingCost, err := strconv.ParseUint(args[7], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			maxBundleSize, err := strconv.ParseUint(args[8], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -103,7 +108,7 @@ func CmdSubmitCreatePoolProposal() *cobra.Command {
 				return err
 			}
 
-			content := types.NewCreatePoolProposal(title, description, args[0], args[1], args[2], args[3], args[4], startHeight, uploadInterval, operatingCost)
+			content := types.NewCreatePoolProposal(title, description, args[0], args[1], args[2], args[3], args[4], startHeight, uploadInterval, operatingCost, maxBundleSize)
 
 			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
@@ -130,7 +135,7 @@ func CmdSubmitCreatePoolProposal() *cobra.Command {
 func CmdSubmitUpdatePoolProposal() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-pool [flags]",
-		Args:  cobra.ExactArgs(8),
+		Args:  cobra.ExactArgs(9),
 		Short: "Submit a proposal to update a pool.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -149,6 +154,11 @@ func CmdSubmitUpdatePoolProposal() *cobra.Command {
 			}
 
 			operatingCost, err := strconv.ParseUint(args[7], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			maxBundleSize, err := strconv.ParseUint(args[8], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -174,7 +184,7 @@ func CmdSubmitUpdatePoolProposal() *cobra.Command {
 				return err
 			}
 
-			content := types.NewUpdatePoolProposal(title, description, id, args[1], args[2], args[3], args[4], args[5], uploadInterval, operatingCost)
+			content := types.NewUpdatePoolProposal(title, description, id, args[1], args[2], args[3], args[4], args[5], uploadInterval, operatingCost, maxBundleSize)
 
 			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
