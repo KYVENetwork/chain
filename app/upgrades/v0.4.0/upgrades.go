@@ -1,6 +1,7 @@
 package v0_4_0
 
 import (
+	"github.com/KYVENetwork/chain/x/registry/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
@@ -16,6 +17,8 @@ func CreateUpgradeHandler(
 			pool.MaxBundleSize = 100
 			registryKeeper.SetPool(ctx, pool)
 		}
+
+		registryKeeper.ParamStore().Set(ctx, types.KeyMaxPoints, types.DefaultMaxPoints)
 
 		// Return.
 		return vm, nil

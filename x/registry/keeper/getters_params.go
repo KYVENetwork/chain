@@ -3,6 +3,7 @@ package keeper
 import (
 	"github.com/KYVENetwork/chain/x/registry/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 // GetParams get all parameters as types.Params
@@ -63,4 +64,9 @@ func (k Keeper) NetworkFee(ctx sdk.Context) (res string) {
 func (k Keeper) MaxPoints(ctx sdk.Context) (res uint64) {
 	k.paramstore.Get(ctx, types.KeyMaxPoints, &res)
 	return
+}
+
+// MaxPoints returns the MaxPoints param
+func (k Keeper) ParamStore() (paramStore paramtypes.Subspace) {
+	return k.paramstore
 }
