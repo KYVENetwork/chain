@@ -14,7 +14,10 @@ func CmdListProposal() *cobra.Command {
 		Use:   "list-proposal",
 		Short: "list all proposal",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
 
 			pageReq, err := client.ReadPageRequest(cmd.Flags())
 			if err != nil {
