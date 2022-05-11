@@ -1,8 +1,7 @@
 import axios from "axios";
 import BigNumber from "bignumber.js";
 import { spawn, ChildProcessWithoutNullStreams } from "child_process";
-import {BASE_URL} from "./constants";
-
+import { BASE_URL } from "./constants";
 
 export const sleep = (milliseconds: number) => {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -62,31 +61,16 @@ export const getStakersList = async (id: string | number): Promise<any[]> => {
   return data.stakers;
 };
 
-export const getDelegator = async (
-    delegator: string,
-    staker: string,
-    poolId: string | number
-): Promise<any> => {
-  try {
-    const { data } = await axios.get(
-        `${BASE_URL}/kyve/registry/v1beta1/delegator/${delegator}/${staker}/${poolId}`
-    );
-    return data.delegator;
-  }catch (e) {
-    return undefined;
-  }
-};
-
 export const getDelegationPoolData = async (
-    staker: string,
-    poolId: string | number
+  staker: string,
+  poolId: string | number
 ): Promise<any> => {
   try {
     const { data } = await axios.get(
-        `${BASE_URL}/kyve/registry/v1beta1/delegators_by_pool_and_staker/${poolId}/${staker}`
+      `${BASE_URL}/kyve/registry/v1beta1/delegators_by_pool_and_staker/${poolId}/${staker}`
     );
     return data.delegation_pool_data;
   } catch (e) {
-    return undefined
+    return undefined;
   }
 };

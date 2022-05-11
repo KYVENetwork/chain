@@ -11,9 +11,10 @@ import {
 import {
   getBalanceByAddress,
   getStakersList,
-  getPoolById, sleep,
+  getPoolById,
+  sleep,
 } from "./helpers/utils";
-import {BASE_URL, UNSTAKING_TIME} from "./helpers/constants";
+import { BASE_URL } from "./helpers/constants";
 
 export const staking = () => {
   // disable timeout
@@ -184,8 +185,6 @@ export const staking = () => {
     // 0 means transaction was successful
     expect(receipt.code).toEqual(0);
 
-    // Test unstaking time is
-    await sleep(UNSTAKING_TIME);
     await sleep(10000);
 
     // refetch pool
@@ -271,7 +270,6 @@ export const staking = () => {
     // 0 means transaction was successful
     expect(receipt.code).toEqual(0);
 
-    await sleep(UNSTAKING_TIME);
     await sleep(10000);
 
     // refetch pool
@@ -367,23 +365,25 @@ export const staking = () => {
 
     // stake alice
     const { transactionBroadcast: aliceTx } = await alice.unstake(
-        pool.id,
-        aliceAmount
+      pool.id,
+      aliceAmount
     );
     await aliceTx;
 
     // stake alice
-    const { transactionBroadcast: bobTx } = await bob.unstake(pool.id, bobAmount);
+    const { transactionBroadcast: bobTx } = await bob.unstake(
+      pool.id,
+      bobAmount
+    );
     await bobTx;
 
     // stake alice
     const { transactionBroadcast: charlieTx } = await charlie.unstake(
-        pool.id,
-        charlieAmount
+      pool.id,
+      charlieAmount
     );
     await charlieTx;
 
-    await sleep(UNSTAKING_TIME);
     await sleep(10000);
 
     // refetch pool
@@ -398,6 +398,5 @@ export const staking = () => {
     expect(pool.stakers).toHaveLength(0);
     expect(pool.lowest_staker).toEqual("");
     expect(pool.total_stake).toEqual("0");
-
   });
 };

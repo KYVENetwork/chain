@@ -1,8 +1,8 @@
 import { ChildProcessWithoutNullStreams } from "child_process";
 import { funding } from "./funding";
-import {sleep, startChain} from "./helpers/utils";
+import { sleep, startChain } from "./helpers/utils";
 import { staking } from "./staking";
-import {delegation} from "./delegation";
+import { delegation } from "./delegation";
 
 describe("chain", () => {
   // disable timeout
@@ -15,7 +15,7 @@ describe("chain", () => {
     // start local chain
     chain = await startChain();
 
-    await sleep(5000)
+    await sleep(5000);
   });
 
   // funding

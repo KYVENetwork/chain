@@ -13,7 +13,7 @@ import {
   getFundersList,
   getPoolById,
 } from "./helpers/utils";
-import {BASE_URL, MAX_FUNDERS, UNSTAKING_TIME} from "./helpers/constants";
+import { BASE_URL, MAX_FUNDERS } from "./helpers/constants";
 
 export const funding = () => {
   // disable timeout
@@ -306,7 +306,7 @@ export const funding = () => {
     expect(postBalance.minus(preBalance)).toEqual(amount);
   });
 
-  test("fund with multiple funders", async () => {
+  test.skip("fund with multiple funders", async () => {
     // define amounts
     const aliceAmount = new BigNumber(200).multipliedBy(10 ** 9);
     const bobAmount = new BigNumber(100).multipliedBy(10 ** 9);
@@ -354,20 +354,18 @@ export const funding = () => {
       expect(pool.funders).toContain(ADDRESS_CHARLIE);
       expect(pool.lowest_funder).toBe(ADDRESS_ALICE);
       expect(pool.total_funds).toEqual(
-          aliceAmount.plus(charlieAmount).toString()
+        aliceAmount.plus(charlieAmount).toString()
       );
-    } else if(MAX_FUNDERS >= 3) {
+    } else if (MAX_FUNDERS >= 3) {
       expect(pool.funders).toContain(ADDRESS_ALICE);
       expect(pool.funders).toContain(ADDRESS_BOB);
       expect(pool.funders).toContain(ADDRESS_CHARLIE);
       expect(pool.lowest_funder).toBe(ADDRESS_BOB);
       expect(pool.total_funds).toEqual(
-          aliceAmount.plus(bobAmount).plus(charlieAmount).toString()
+        aliceAmount.plus(bobAmount).plus(charlieAmount).toString()
       );
     }
 
     expect(funders_list).toHaveLength(Math.min(3, MAX_FUNDERS));
-
-
   });
 };
