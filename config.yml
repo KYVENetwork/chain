@@ -2,16 +2,16 @@ accounts:
   - name: dummy
     mnemonic: "expect crisp umbrella hospital firm exhibit future size slot update blood deliver fat happy ghost visa recall usual path purity junior ring ordinary stove"
   - name: alice
-    coins: ["2000000000000000tkyve"]
+    coins: ["2000000000000000000tkyve"]
     mnemonic: "worry grief loyal smoke pencil arrow trap focus high pioneer tomato hedgehog essence purchase dove pond knee custom phone gentle sunset addict mother fabric"
   - name: bob
-    coins: ["1000000000000000tkyve"]
+    coins: ["1000000000000000000tkyve"]
     mnemonic: "crash sick toilet stumble join cash erode glory door weird diagram away lizard solid segment apple urge joy annual able tank define candy demise"
   - name: charlie
-    coins: ["1000000000000000tkyve"]
+    coins: ["1000000000000000000tkyve"]
     mnemonic: "shoot inject fragile width trend satisfy army enact volcano crowd message strike true divorce search rich office shoulder sport relax rhythm symbol gadget size"
   - name: faucet
-    coins: ["1000000000000000tkyve"]
+    coins: ["1000000000000000000tkyve"]
     mnemonic: "open home share route party lake room solution quantum pact model avocado humor dilemma review desert turtle total humor produce rate keen eagle fee"
 client:
   openapi:

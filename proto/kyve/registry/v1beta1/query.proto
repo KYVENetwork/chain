@@ -36,9 +36,19 @@ service Query {
     option (google.api.http).get = "/kyve/registry/v1beta1/funders_list/{pool_id}";
   }
 
+  // Funder returns all funder info
+  rpc Funder(QueryFunderRequest) returns (QueryFunderResponse) {
+    option (google.api.http).get = "/kyve/registry/v1beta1/funder/{pool_id}/{funder}";
+  }
+
   // StakersList returns all staker addresses with their corresponding staking amount for a given pool
   rpc StakersList(QueryStakersListRequest) returns (QueryStakersListResponse) {
     option (google.api.http).get = "/kyve/registry/v1beta1/stakers_list/{pool_id}";
+  }
+
+  // Staker returns all staker info
+  rpc Staker(QueryStakerRequest) returns (QueryStakerResponse) {
+    option (google.api.http).get = "/kyve/registry/v1beta1/staker/{pool_id}/{staker}";
   }
 
   // WARP
@@ -98,6 +108,11 @@ service Query {
   }
 
   // DELEGATION
+
+  // Delegator returns all delegation info
+  rpc Delegator(QueryDelegatorRequest) returns (QueryDelegatorResponse) {
+    option (google.api.http).get = "/kyve/registry/v1beta1/delegator/{pool_id}/{staker}/{delegator}";
+  }
 
   // DelegatorsByPoolAndStaker ...
   rpc DelegatorsByPoolAndStaker(QueryDelegatorsByPoolAndStakerRequest) returns (QueryDelegatorsByPoolAndStakerResponse) {
@@ -167,6 +182,20 @@ message QueryFundersListResponse {
   repeated kyve.registry.v1beta1.Funder funders = 1;
 }
 
+// QueryFunderRequest is the request type for the Query/Funder RPC method.
+message QueryFunderRequest {
+  // pool_id defines the unique ID of the pool.
+  uint64 pool_id = 1;
+  // funder
+  string funder = 2;
+}
+
+// QueryFunderResponse is the response type for the Query/Funder RPC method.
+message QueryFunderResponse {
+  // funder ...
+  kyve.registry.v1beta1.Funder funder = 1;
+}
+
 // QueryStakersListRequest is the request type for the Query/StakersList RPC method.
 message QueryStakersListRequest {
   // pool_id defines the unique ID of the pool.
@@ -177,6 +206,20 @@ message QueryStakersListRequest {
 message QueryStakersListResponse {
   // stakers ...
   repeated kyve.registry.v1beta1.StakerResponse stakers = 1;
+}
+
+// QueryStakerRequest is the request type for the Query/Staker RPC method.
+message QueryStakerRequest {
+  // pool_id defines the unique ID of the pool.
+  uint64 pool_id = 1;
+  // staker ...
+  string staker = 2;
+}
+
+// QueryStakerResponse is the response type for the Query/Staker RPC method.
+message QueryStakerResponse {
+  // staker ...
+  kyve.registry.v1beta1.StakerResponse staker = 1;
 }
 
 // StakerResponse ...
@@ -395,6 +438,22 @@ message QueryAccountDelegationListResponse {
   repeated kyve.registry.v1beta1.DelegatorResponse delegations = 1 [(gogoproto.nullable) = false];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryDelegatorRequest is the request type for the Query/Delegator RPC method.
+message QueryDelegatorRequest {
+  // pool_id defines the unique ID of the pool.
+  uint64 pool_id = 1;
+  // staker ...
+  string staker = 2;
+  // delegator ...
+  string delegator = 3;
+}
+
+// QueryDelegatorResponse is the response type for the Query/Delegator RPC method.
+message QueryDelegatorResponse {
+  // delegator ...
+  kyve.registry.v1beta1.StakerDelegatorResponse delegator = 1;
 }
 
 // DelegatorResponse ...
