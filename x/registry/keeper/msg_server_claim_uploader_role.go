@@ -36,17 +36,22 @@ func (k msgServer) ClaimUploaderRole(
 
 	// Check if enough nodes are online
 	if len(pool.Stakers) < 2 {
-		return nil, sdkErrors.Wrap(types.ErrNotEnoughNodesOnline, types.ErrNoStaker.Error())
+		return nil, types.ErrNotEnoughNodesOnline
 	}
 
-	// Check if pool is funded
-	if pool.TotalFunds == 0 {
-		return nil, sdkErrors.Wrap(types.ErrFundsTooLow, types.ErrNoStaker.Error())
+	// Error if the pool has no funds.
+	if len(pool.Funders) == 0 {
+		return nil, sdkErrors.Wrap(sdkErrors.ErrInsufficientFunds, types.ErrFundsTooLow.Error())
 	}
 
 	// Error if the pool is paused.
 	if pool.Paused {
 		return nil, sdkErrors.Wrap(sdkErrors.ErrUnauthorized, types.ErrPoolPaused.Error())
+	}
+
+	// Error if the pool is upgrading.
+	if pool.UpgradePlan.ScheduledAt > 0 && uint64(ctx.BlockTime().Unix()) >= pool.UpgradePlan.ScheduledAt {
+		return nil, sdkErrors.Wrap(sdkErrors.ErrUnauthorized, types.ErrPoolCurrentlyUpgrading.Error())
 	}
 
 	// Update and return.

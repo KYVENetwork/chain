@@ -62,7 +62,7 @@ genesis:
           total_delegation: "0",
           total_funds: "0",
           total_stake: "0",
-          versions: "\u003e=0.0.0",
+          versions: "",
           bundle_proposal:
             bundle_id: ""
             byte_size: "0"
@@ -72,7 +72,17 @@ genesis:
             to_height: "0"
             uploader: ""
             voters_invalid: [ ]
-            voters_valid: [ ]
+            voters_valid: [ ],
+          max_bundle_size: "100",
+          protocol:
+            version: "0.0.0"
+            binaries: "{\"macos\":\"https://github.com/kyve-org/evm/releases/download/v1.0.5/kyve-evm-macos.zip\"}"
+            last_upgrade: "0",
+          upgrade_plan:
+            version: ""
+            binaries: ""
+            scheduled_at: "0"
+            duration: "0"
         }
       ]
 validator:

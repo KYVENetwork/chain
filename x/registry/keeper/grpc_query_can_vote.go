@@ -23,11 +23,35 @@ func (k Keeper) CanVote(goCtx context.Context, req *types.QueryCanVoteRequest) (
 		return nil, sdkErrors.Wrapf(sdkErrors.ErrNotFound, types.ErrPoolNotFound.Error(), req.PoolId)
 	}
 
+	// Check if enough nodes are online
+	if len(pool.Stakers) < 2 {
+		return &types.QueryCanVoteResponse{
+			Possible: false,
+			Reason:   "Not enough nodes online",
+		}, nil
+	}
+
+	// Check if pool has funds
+	if pool.TotalFunds == 0 {
+		return &types.QueryCanVoteResponse{
+			Possible: false,
+			Reason:   "Pool has run out of funds",
+		}, nil
+	}
+
 	// Check if pool is paused
 	if pool.Paused {
 		return &types.QueryCanVoteResponse{
 			Possible: false,
 			Reason:   "Pool is paused",
+		}, nil
+	}
+
+	// Check if pool is upgrading
+	if pool.UpgradePlan.ScheduledAt > 0 && uint64(ctx.BlockTime().Unix()) >= pool.UpgradePlan.ScheduledAt {
+		return &types.QueryCanVoteResponse{
+			Possible: false,
+			Reason:   "Pool is upgrading",
 		}, nil
 	}
 

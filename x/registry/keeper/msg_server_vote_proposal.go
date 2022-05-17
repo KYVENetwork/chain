@@ -21,9 +21,24 @@ func (k msgServer) VoteProposal(
 		return nil, sdkErrors.Wrapf(sdkErrors.ErrNotFound, types.ErrPoolNotFound.Error(), msg.Id)
 	}
 
+	// Check if enough nodes are online
+	if len(pool.Stakers) < 2 {
+		return nil, types.ErrNotEnoughNodesOnline
+	}
+
+	// Error if the pool has no funds.
+	if len(pool.Funders) == 0 {
+		return nil, sdkErrors.Wrap(sdkErrors.ErrInsufficientFunds, types.ErrFundsTooLow.Error())
+	}
+
 	// Error if the pool is paused.
 	if pool.Paused {
 		return nil, sdkErrors.Wrap(sdkErrors.ErrUnauthorized, types.ErrPoolPaused.Error())
+	}
+
+	// Error if the pool is upgrading.
+	if pool.UpgradePlan.ScheduledAt > 0 && uint64(ctx.BlockTime().Unix()) >= pool.UpgradePlan.ScheduledAt {
+		return nil, sdkErrors.Wrap(sdkErrors.ErrUnauthorized, types.ErrPoolCurrentlyUpgrading.Error())
 	}
 
 	// Check if the sender is a protocol node (aka has staked into this pool).

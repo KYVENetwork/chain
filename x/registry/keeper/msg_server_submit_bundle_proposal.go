@@ -36,6 +36,11 @@ func (k msgServer) SubmitBundleProposal(
 		return nil, sdkErrors.Wrap(sdkErrors.ErrUnauthorized, types.ErrPoolPaused.Error())
 	}
 
+	// Error if the pool is upgrading.
+	if pool.UpgradePlan.ScheduledAt > 0 && uint64(ctx.BlockTime().Unix()) >= pool.UpgradePlan.ScheduledAt {
+		return nil, sdkErrors.Wrap(sdkErrors.ErrUnauthorized, types.ErrPoolCurrentlyUpgrading.Error())
+	}
+
 	// Check if the sender is a protocol node (aka has staked into this pool).
 	_, isStaker := k.GetStaker(ctx, msg.Creator, msg.Id)
 	if !isStaker {

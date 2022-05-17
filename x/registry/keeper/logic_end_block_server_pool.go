@@ -15,6 +15,24 @@ func (k Keeper) HandleUploadTimeout(goCtx context.Context) {
 
 	// Iterate over all pools.
 	for _, pool := range pools {
+		// Check if there is an upcoming pool upgrade
+		if pool.UpgradePlan.ScheduledAt > 0 && uint64(ctx.BlockTime().Unix()) >= pool.UpgradePlan.ScheduledAt {
+			if pool.Protocol.Version != pool.UpgradePlan.Version {
+				// perform pool upgrade
+				pool.Protocol.Version = pool.UpgradePlan.Version
+				pool.Protocol.Binaries = pool.UpgradePlan.Binaries
+				pool.Protocol.LastUpgrade = pool.UpgradePlan.ScheduledAt
+			}
+
+			// Check if upgrade duration was reached
+			if uint64(ctx.BlockTime().Unix()) >= (pool.UpgradePlan.ScheduledAt + pool.UpgradePlan.Duration) {
+				// reset upgrade plan to default values
+				pool.UpgradePlan = &types.UpgradePlan{}
+			}
+	
+			k.SetPool(ctx, pool)
+		}
+
 		// Remove next uploader immediately if not enough nodes are online
 		if len(pool.Stakers) < 2 && pool.BundleProposal.NextUploader != "" {
 			pool.BundleProposal.NextUploader = ""
@@ -31,6 +49,13 @@ func (k Keeper) HandleUploadTimeout(goCtx context.Context) {
 
 		// Remove next uploader immediately if pool is paused
 		if pool.Paused && pool.BundleProposal.NextUploader != "" {
+			pool.BundleProposal.NextUploader = ""
+			k.SetPool(ctx, pool)
+			continue
+		}
+
+		// Remove next uploader immediately if pool is upgrading
+		if pool.UpgradePlan.ScheduledAt > 0 && uint64(ctx.BlockTime().Unix()) >= pool.UpgradePlan.ScheduledAt && pool.BundleProposal.NextUploader != "" {
 			pool.BundleProposal.NextUploader = ""
 			k.SetPool(ctx, pool)
 			continue

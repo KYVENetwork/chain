@@ -20,12 +20,13 @@ type CreatePoolRequest struct {
 	Name          string       `json:"name" yaml:"name"`
 	Runtime       string       `json:"runtime" yaml:"runtime"`
 	Logo          string       `json:"logo" yaml:"logo"`
-	Versions      string       `json:"versions" yaml:"versions"`
 	Config        string       `json:"config" yaml:"config"`
 	StartHeight   uint64       `json:"startHeight" yaml:"startHeight"`
 	UploadInterval uint64       `json:"uploadInterval" yaml:"uploadInterval"`
 	OperatingCost uint64       `json:"operatingCost" yaml:"operatingCost"`
 	MaxBundleSize uint64       `json:"maxBundleSize" yaml:"maxBundleSize"`
+	Version          string       `json:"version" yaml:"version"`
+	Binaries          string       `json:"binaries" yaml:"binaries"`
 }
 
 func ProposalCreatePoolRESTHandler(clientCtx client.Context) govrest.ProposalRESTHandler {
@@ -53,7 +54,7 @@ func newCreatePoolHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		content := types.NewCreatePoolProposal(req.Title, req.Description, req.Name, req.Runtime, req.Logo, req.Versions, req.Config, req.StartHeight, req.UploadInterval, req.OperatingCost, req.MaxBundleSize)
+		content := types.NewCreatePoolProposal(req.Title, req.Description, req.Name, req.Runtime, req.Logo, req.Config, req.StartHeight, req.UploadInterval, req.OperatingCost, req.MaxBundleSize, req.Version, req.Binaries)
 		msg, err := govtypes.NewMsgSubmitProposal(content, req.Deposit, fromAddr)
 		if rest.CheckBadRequestError(w, err) {
 			return
@@ -75,7 +76,6 @@ type UpdatePoolRequest struct {
 	Name          string       `json:"name" yaml:"name"`
 	Runtime       string       `json:"runtime" yaml:"runtime"`
 	Logo          string       `json:"logo" yaml:"logo"`
-	Versions      string       `json:"versions" yaml:"versions"`
 	Config        string       `json:"config" yaml:"config"`
 	UploadInterval uint64       `json:"uploadInterval" yaml:"uploadInterval"`
 	OperatingCost uint64       `json:"operatingCost" yaml:"operatingCost"`
@@ -107,7 +107,7 @@ func newUpdatePoolHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		content := types.NewUpdatePoolProposal(req.Title, req.Description, req.Id, req.Name, req.Runtime, req.Logo, req.Versions, req.Config, req.UploadInterval, req.OperatingCost, req.MaxBundleSize)
+		content := types.NewUpdatePoolProposal(req.Title, req.Description, req.Id, req.Name, req.Runtime, req.Logo, req.Config, req.UploadInterval, req.OperatingCost, req.MaxBundleSize)
 		msg, err := govtypes.NewMsgSubmitProposal(content, req.Deposit, fromAddr)
 		if rest.CheckBadRequestError(w, err) {
 			return
@@ -200,6 +200,102 @@ func newUnpausePoolHandler(clientCtx client.Context) http.HandlerFunc {
 		}
 
 		content := types.NewUnpausePoolProposal(req.Title, req.Description, req.Id)
+		msg, err := govtypes.NewMsgSubmitProposal(content, req.Deposit, fromAddr)
+		if rest.CheckBadRequestError(w, err) {
+			return
+		}
+		if rest.CheckBadRequestError(w, msg.ValidateBasic()) {
+			return
+		}
+
+		tx.WriteGeneratedTxResponse(clientCtx, w, req.BaseReq, msg)
+	}
+}
+
+type SchedulePoolUpgradeRequest struct {
+	BaseReq     rest.BaseReq `json:"base_req" yaml:"base_req"`
+	Title       string       `json:"title" yaml:"title"`
+	Description string       `json:"description" yaml:"description"`
+	Deposit     sdk.Coins    `json:"deposit" yaml:"deposit"`
+	Id          uint64       `json:"id" yaml:"id"`
+	Version          string       `json:"version" yaml:"version"`
+	ScheduledAt          uint64       `json:"scheduled_at" yaml:"scheduled_at"`
+	Duration          uint64       `json:"duration" yaml:"duration"`
+	Binaries          string       `json:"binaries" yaml:"binaries"`
+}
+
+func ProposalSchedulePoolUpgradeRESTHandler(clientCtx client.Context) govrest.ProposalRESTHandler {
+	return govrest.ProposalRESTHandler{
+		SubRoute: "schedule-pool-upgrade",
+		Handler:  newSchedulePoolUpgradeHandler(clientCtx),
+	}
+}
+
+func newSchedulePoolUpgradeHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req SchedulePoolUpgradeRequest
+
+		if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
+			return
+		}
+
+		req.BaseReq = req.BaseReq.Sanitize()
+		if !req.BaseReq.ValidateBasic(w) {
+			return
+		}
+
+		fromAddr, err := sdk.AccAddressFromBech32(req.BaseReq.From)
+		if rest.CheckBadRequestError(w, err) {
+			return
+		}
+
+		content := types.NewSchedulePoolUpgradeProposal(req.Title, req.Description, req.Id, req.Version, req.ScheduledAt, req.Duration, req.Binaries)
+		msg, err := govtypes.NewMsgSubmitProposal(content, req.Deposit, fromAddr)
+		if rest.CheckBadRequestError(w, err) {
+			return
+		}
+		if rest.CheckBadRequestError(w, msg.ValidateBasic()) {
+			return
+		}
+
+		tx.WriteGeneratedTxResponse(clientCtx, w, req.BaseReq, msg)
+	}
+}
+
+type CancelPoolUpgradeRequest struct {
+	BaseReq     rest.BaseReq `json:"base_req" yaml:"base_req"`
+	Title       string       `json:"title" yaml:"title"`
+	Description string       `json:"description" yaml:"description"`
+	Deposit     sdk.Coins    `json:"deposit" yaml:"deposit"`
+	Id          uint64       `json:"id" yaml:"id"`
+}
+
+func ProposalCancelPoolUpgradeRESTHandler(clientCtx client.Context) govrest.ProposalRESTHandler {
+	return govrest.ProposalRESTHandler{
+		SubRoute: "cancel-pool-upgrade",
+		Handler:  newCancelPoolUpgradeHandler(clientCtx),
+	}
+}
+
+func newCancelPoolUpgradeHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req CancelPoolUpgradeRequest
+
+		if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
+			return
+		}
+
+		req.BaseReq = req.BaseReq.Sanitize()
+		if !req.BaseReq.ValidateBasic(w) {
+			return
+		}
+
+		fromAddr, err := sdk.AccAddressFromBech32(req.BaseReq.From)
+		if rest.CheckBadRequestError(w, err) {
+			return
+		}
+
+		content := types.NewCancelPoolUpgradeProposal(req.Title, req.Description, req.Id)
 		msg, err := govtypes.NewMsgSubmitProposal(content, req.Deposit, fromAddr)
 		if rest.CheckBadRequestError(w, err) {
 			return

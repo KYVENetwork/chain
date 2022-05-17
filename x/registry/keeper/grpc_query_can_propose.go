@@ -47,6 +47,14 @@ func (k Keeper) CanPropose(goCtx context.Context, req *types.QueryCanProposeRequ
 		}, nil
 	}
 
+	// Check if pool is upgrading
+	if pool.UpgradePlan.ScheduledAt > 0 && uint64(ctx.BlockTime().Unix()) >= pool.UpgradePlan.ScheduledAt {
+		return &types.QueryCanProposeResponse{
+			Possible: false,
+			Reason:   "Pool is upgrading",
+		}, nil
+	}
+
 	// Check if sender is a staker in pool
 	_, isStaker := k.GetStaker(ctx, req.Proposer, req.PoolId)
 	if !isStaker {

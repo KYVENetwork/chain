@@ -9,6 +9,8 @@ const (
 	ProposalTypeUpdatePool  = "UpdatePool"
 	ProposalTypePausePool   = "PausePool"
 	ProposalTypeUnpausePool = "UnpausePool"
+	ProposalTypeSchedulePoolUpgrade = "SchedulePoolUpgrade"
+	ProposalTypeCancelPoolUpgrade = "CancelPoolUpgrade"
 )
 
 func init() {
@@ -20,6 +22,10 @@ func init() {
 	govtypes.RegisterProposalTypeCodec(&PausePoolProposal{}, "kyve/PausePoolProposal")
 	govtypes.RegisterProposalType(ProposalTypeUnpausePool)
 	govtypes.RegisterProposalTypeCodec(&UnpausePoolProposal{}, "kyve/UnpausePoolProposal")
+	govtypes.RegisterProposalType(ProposalTypeSchedulePoolUpgrade)
+	govtypes.RegisterProposalTypeCodec(&SchedulePoolUpgradeProposal{}, "kyve/SchedulePoolUpgradeProposal")
+	govtypes.RegisterProposalType(ProposalTypeCancelPoolUpgrade)
+	govtypes.RegisterProposalTypeCodec(&CancelPoolUpgradeProposal{}, "kyve/CancelPoolUpgradeProposal")
 }
 
 var (
@@ -27,21 +33,24 @@ var (
 	_ govtypes.Content = &UpdatePoolProposal{}
 	_ govtypes.Content = &PausePoolProposal{}
 	_ govtypes.Content = &UnpausePoolProposal{}
+	_ govtypes.Content = &SchedulePoolUpgradeProposal{}
+	_ govtypes.Content = &CancelPoolUpgradeProposal{}
 )
 
-func NewCreatePoolProposal(title string, description string, name string, runtime string, logo string, versions string, config string, startHeight uint64, uploadInterval uint64, operatingCost uint64, maxBundleSize uint64) govtypes.Content {
+func NewCreatePoolProposal(title string, description string, name string, runtime string, logo string, config string, startHeight uint64, uploadInterval uint64, operatingCost uint64, maxBundleSize uint64, version string, binaries string) govtypes.Content {
 	return &CreatePoolProposal{
 		Title:         title,
 		Description:   description,
 		Name:          name,
 		Runtime:       runtime,
 		Logo:          logo,
-		Versions:      versions,
 		Config:        config,
 		StartHeight:   startHeight,
 		UploadInterval: uploadInterval,
 		OperatingCost: operatingCost,
 		MaxBundleSize: maxBundleSize,
+		Version: version,
+		Binaries: binaries,
 	}
 }
 
@@ -60,7 +69,7 @@ func (p *CreatePoolProposal) ValidateBasic() error {
 	return nil
 }
 
-func NewUpdatePoolProposal(title string, description string, id uint64, name string, runtime string, logo string, versions string, config string, uploadInterval uint64, operatingCost uint64, maxBundleSize uint64) govtypes.Content {
+func NewUpdatePoolProposal(title string, description string, id uint64, name string, runtime string, logo string, config string, uploadInterval uint64, operatingCost uint64, maxBundleSize uint64) govtypes.Content {
 	return &UpdatePoolProposal{
 		Title:         title,
 		Description:   description,
@@ -68,7 +77,6 @@ func NewUpdatePoolProposal(title string, description string, id uint64, name str
 		Name:          name,
 		Runtime:       runtime,
 		Logo:          logo,
-		Versions:      versions,
 		Config:        config,
 		UploadInterval: uploadInterval,
 		OperatingCost: operatingCost,
@@ -129,6 +137,56 @@ func (p *UnpausePoolProposal) ProposalType() string {
 }
 
 func (p *UnpausePoolProposal) ValidateBasic() error {
+	err := govtypes.ValidateAbstract(p)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func NewSchedulePoolUpgradeProposal(title string, description string, id uint64, version string, scheduled_at uint64, duration uint64, binaries string) govtypes.Content {
+	return &SchedulePoolUpgradeProposal{
+		Title:       title,
+		Description: description,
+		Id:          id,
+		Version: version,
+		ScheduledAt: scheduled_at,
+		Duration: duration,
+		Binaries: binaries,
+	}
+}
+
+func (p *SchedulePoolUpgradeProposal) ProposalRoute() string { return RouterKey }
+
+func (p *SchedulePoolUpgradeProposal) ProposalType() string {
+	return ProposalTypeUnpausePool
+}
+
+func (p *SchedulePoolUpgradeProposal) ValidateBasic() error {
+	err := govtypes.ValidateAbstract(p)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func NewCancelPoolUpgradeProposal(title string, description string, id uint64) govtypes.Content {
+	return &CancelPoolUpgradeProposal{
+		Title:       title,
+		Description: description,
+		Id:          id,
+	}
+}
+
+func (p *CancelPoolUpgradeProposal) ProposalRoute() string { return RouterKey }
+
+func (p *CancelPoolUpgradeProposal) ProposalType() string {
+	return ProposalTypeUnpausePool
+}
+
+func (p *CancelPoolUpgradeProposal) ValidateBasic() error {
 	err := govtypes.ValidateAbstract(p)
 	if err != nil {
 		return err

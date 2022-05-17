@@ -34,18 +34,20 @@ type CreatePoolProposal struct {
 	Runtime string `protobuf:"bytes,4,opt,name=runtime,proto3" json:"runtime,omitempty"`
 	// logo ...
 	Logo string `protobuf:"bytes,5,opt,name=logo,proto3" json:"logo,omitempty"`
-	// versions ...
-	Versions string `protobuf:"bytes,6,opt,name=versions,proto3" json:"versions,omitempty"`
 	// config ...
-	Config string `protobuf:"bytes,7,opt,name=config,proto3" json:"config,omitempty"`
+	Config string `protobuf:"bytes,6,opt,name=config,proto3" json:"config,omitempty"`
 	// start_height ...
-	StartHeight uint64 `protobuf:"varint,8,opt,name=start_height,json=startHeight,proto3" json:"start_height,omitempty"`
+	StartHeight uint64 `protobuf:"varint,7,opt,name=start_height,json=startHeight,proto3" json:"start_height,omitempty"`
 	// upload_interval ...
-	UploadInterval uint64 `protobuf:"varint,9,opt,name=upload_interval,json=uploadInterval,proto3" json:"upload_interval,omitempty"`
+	UploadInterval uint64 `protobuf:"varint,8,opt,name=upload_interval,json=uploadInterval,proto3" json:"upload_interval,omitempty"`
 	// operating_cost ...
-	OperatingCost uint64 `protobuf:"varint,10,opt,name=operating_cost,json=operatingCost,proto3" json:"operating_cost,omitempty"`
+	OperatingCost uint64 `protobuf:"varint,9,opt,name=operating_cost,json=operatingCost,proto3" json:"operating_cost,omitempty"`
 	// max_bundle_size ...
-	MaxBundleSize uint64 `protobuf:"varint,11,opt,name=max_bundle_size,json=maxBundleSize,proto3" json:"max_bundle_size,omitempty"`
+	MaxBundleSize uint64 `protobuf:"varint,10,opt,name=max_bundle_size,json=maxBundleSize,proto3" json:"max_bundle_size,omitempty"`
+	// version ...
+	Version string `protobuf:"bytes,11,opt,name=version,proto3" json:"version,omitempty"`
+	// binaries ...
+	Binaries string `protobuf:"bytes,12,opt,name=binaries,proto3" json:"binaries,omitempty"`
 }
 
 func (m *CreatePoolProposal) Reset()         { *m = CreatePoolProposal{} }
@@ -116,13 +118,6 @@ func (m *CreatePoolProposal) GetLogo() string {
 	return ""
 }
 
-func (m *CreatePoolProposal) GetVersions() string {
-	if m != nil {
-		return m.Versions
-	}
-	return ""
-}
-
 func (m *CreatePoolProposal) GetConfig() string {
 	if m != nil {
 		return m.Config
@@ -158,6 +153,20 @@ func (m *CreatePoolProposal) GetMaxBundleSize() uint64 {
 	return 0
 }
 
+func (m *CreatePoolProposal) GetVersion() string {
+	if m != nil {
+		return m.Version
+	}
+	return ""
+}
+
+func (m *CreatePoolProposal) GetBinaries() string {
+	if m != nil {
+		return m.Binaries
+	}
+	return ""
+}
+
 // UpdatePoolProposal is a gov Content type for updating a pool.
 type UpdatePoolProposal struct {
 	// title ...
@@ -172,16 +181,14 @@ type UpdatePoolProposal struct {
 	Runtime string `protobuf:"bytes,5,opt,name=runtime,proto3" json:"runtime,omitempty"`
 	// logo ...
 	Logo string `protobuf:"bytes,6,opt,name=logo,proto3" json:"logo,omitempty"`
-	// versions ...
-	Versions string `protobuf:"bytes,7,opt,name=versions,proto3" json:"versions,omitempty"`
 	// config ...
-	Config string `protobuf:"bytes,8,opt,name=config,proto3" json:"config,omitempty"`
+	Config string `protobuf:"bytes,7,opt,name=config,proto3" json:"config,omitempty"`
 	// upload_interval ...
-	UploadInterval uint64 `protobuf:"varint,9,opt,name=upload_interval,json=uploadInterval,proto3" json:"upload_interval,omitempty"`
+	UploadInterval uint64 `protobuf:"varint,8,opt,name=upload_interval,json=uploadInterval,proto3" json:"upload_interval,omitempty"`
 	// operating_cost ...
-	OperatingCost uint64 `protobuf:"varint,10,opt,name=operating_cost,json=operatingCost,proto3" json:"operating_cost,omitempty"`
+	OperatingCost uint64 `protobuf:"varint,9,opt,name=operating_cost,json=operatingCost,proto3" json:"operating_cost,omitempty"`
 	// max_bundle_size ...
-	MaxBundleSize uint64 `protobuf:"varint,11,opt,name=max_bundle_size,json=maxBundleSize,proto3" json:"max_bundle_size,omitempty"`
+	MaxBundleSize uint64 `protobuf:"varint,10,opt,name=max_bundle_size,json=maxBundleSize,proto3" json:"max_bundle_size,omitempty"`
 }
 
 func (m *UpdatePoolProposal) Reset()         { *m = UpdatePoolProposal{} }
@@ -255,13 +262,6 @@ func (m *UpdatePoolProposal) GetRuntime() string {
 func (m *UpdatePoolProposal) GetLogo() string {
 	if m != nil {
 		return m.Logo
-	}
-	return ""
-}
-
-func (m *UpdatePoolProposal) GetVersions() string {
-	if m != nil {
-		return m.Versions
 	}
 	return ""
 }
@@ -422,44 +422,216 @@ func (m *UnpausePoolProposal) GetId() uint64 {
 	return 0
 }
 
+// SchedulePoolUpgradeProposal is a gov Content type for upgrading a pool.
+type SchedulePoolUpgradeProposal struct {
+	// title ...
+	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	// description ...
+	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	// id ...
+	Id uint64 `protobuf:"varint,3,opt,name=id,proto3" json:"id,omitempty"`
+	// version ...
+	Version string `protobuf:"bytes,4,opt,name=version,proto3" json:"version,omitempty"`
+	// scheduled_at ...
+	ScheduledAt uint64 `protobuf:"varint,5,opt,name=scheduled_at,json=scheduledAt,proto3" json:"scheduled_at,omitempty"`
+	// duration ...
+	Duration uint64 `protobuf:"varint,6,opt,name=duration,proto3" json:"duration,omitempty"`
+	// binaries ...
+	Binaries string `protobuf:"bytes,7,opt,name=binaries,proto3" json:"binaries,omitempty"`
+}
+
+func (m *SchedulePoolUpgradeProposal) Reset()         { *m = SchedulePoolUpgradeProposal{} }
+func (m *SchedulePoolUpgradeProposal) String() string { return proto.CompactTextString(m) }
+func (*SchedulePoolUpgradeProposal) ProtoMessage()    {}
+func (*SchedulePoolUpgradeProposal) Descriptor() ([]byte, []int) {
+	return fileDescriptor_fd0b5a4cb85a3285, []int{4}
+}
+func (m *SchedulePoolUpgradeProposal) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SchedulePoolUpgradeProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SchedulePoolUpgradeProposal.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SchedulePoolUpgradeProposal) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SchedulePoolUpgradeProposal.Merge(m, src)
+}
+func (m *SchedulePoolUpgradeProposal) XXX_Size() int {
+	return m.Size()
+}
+func (m *SchedulePoolUpgradeProposal) XXX_DiscardUnknown() {
+	xxx_messageInfo_SchedulePoolUpgradeProposal.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SchedulePoolUpgradeProposal proto.InternalMessageInfo
+
+func (m *SchedulePoolUpgradeProposal) GetTitle() string {
+	if m != nil {
+		return m.Title
+	}
+	return ""
+}
+
+func (m *SchedulePoolUpgradeProposal) GetDescription() string {
+	if m != nil {
+		return m.Description
+	}
+	return ""
+}
+
+func (m *SchedulePoolUpgradeProposal) GetId() uint64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+func (m *SchedulePoolUpgradeProposal) GetVersion() string {
+	if m != nil {
+		return m.Version
+	}
+	return ""
+}
+
+func (m *SchedulePoolUpgradeProposal) GetScheduledAt() uint64 {
+	if m != nil {
+		return m.ScheduledAt
+	}
+	return 0
+}
+
+func (m *SchedulePoolUpgradeProposal) GetDuration() uint64 {
+	if m != nil {
+		return m.Duration
+	}
+	return 0
+}
+
+func (m *SchedulePoolUpgradeProposal) GetBinaries() string {
+	if m != nil {
+		return m.Binaries
+	}
+	return ""
+}
+
+// CancelPoolUpgradeProposal is a gov Content type for cancelling a scheduled pool upgrade.
+type CancelPoolUpgradeProposal struct {
+	// title ...
+	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	// description ...
+	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	// id ...
+	Id uint64 `protobuf:"varint,3,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (m *CancelPoolUpgradeProposal) Reset()         { *m = CancelPoolUpgradeProposal{} }
+func (m *CancelPoolUpgradeProposal) String() string { return proto.CompactTextString(m) }
+func (*CancelPoolUpgradeProposal) ProtoMessage()    {}
+func (*CancelPoolUpgradeProposal) Descriptor() ([]byte, []int) {
+	return fileDescriptor_fd0b5a4cb85a3285, []int{5}
+}
+func (m *CancelPoolUpgradeProposal) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CancelPoolUpgradeProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CancelPoolUpgradeProposal.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CancelPoolUpgradeProposal) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CancelPoolUpgradeProposal.Merge(m, src)
+}
+func (m *CancelPoolUpgradeProposal) XXX_Size() int {
+	return m.Size()
+}
+func (m *CancelPoolUpgradeProposal) XXX_DiscardUnknown() {
+	xxx_messageInfo_CancelPoolUpgradeProposal.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CancelPoolUpgradeProposal proto.InternalMessageInfo
+
+func (m *CancelPoolUpgradeProposal) GetTitle() string {
+	if m != nil {
+		return m.Title
+	}
+	return ""
+}
+
+func (m *CancelPoolUpgradeProposal) GetDescription() string {
+	if m != nil {
+		return m.Description
+	}
+	return ""
+}
+
+func (m *CancelPoolUpgradeProposal) GetId() uint64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
 func init() {
 	proto.RegisterType((*CreatePoolProposal)(nil), "kyve.registry.v1beta1.CreatePoolProposal")
 	proto.RegisterType((*UpdatePoolProposal)(nil), "kyve.registry.v1beta1.UpdatePoolProposal")
 	proto.RegisterType((*PausePoolProposal)(nil), "kyve.registry.v1beta1.PausePoolProposal")
 	proto.RegisterType((*UnpausePoolProposal)(nil), "kyve.registry.v1beta1.UnpausePoolProposal")
+	proto.RegisterType((*SchedulePoolUpgradeProposal)(nil), "kyve.registry.v1beta1.SchedulePoolUpgradeProposal")
+	proto.RegisterType((*CancelPoolUpgradeProposal)(nil), "kyve.registry.v1beta1.CancelPoolUpgradeProposal")
 }
 
 func init() { proto.RegisterFile("kyve/registry/v1beta1/gov.proto", fileDescriptor_fd0b5a4cb85a3285) }
 
 var fileDescriptor_fd0b5a4cb85a3285 = []byte{
-	// 431 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x93, 0xdd, 0x8a, 0xd3, 0x40,
-	0x14, 0x80, 0x9b, 0x98, 0xfe, 0xec, 0x54, 0xbb, 0x38, 0xfe, 0x30, 0x78, 0x11, 0x6b, 0x41, 0xdd,
-	0x1b, 0x1b, 0x16, 0xdf, 0x60, 0x17, 0x51, 0x11, 0xa4, 0x54, 0x56, 0x50, 0x91, 0x30, 0x4d, 0x8e,
-	0xe9, 0xb0, 0xc9, 0x9c, 0x30, 0x73, 0x12, 0xdb, 0x7d, 0x0a, 0x1f, 0x4b, 0xbc, 0xda, 0x4b, 0x6f,
-	0x04, 0x69, 0x5f, 0x44, 0x3a, 0xed, 0x56, 0x85, 0xdd, 0x3b, 0x8b, 0x77, 0x73, 0xbe, 0xf3, 0x31,
-	0x17, 0x1f, 0x1c, 0x76, 0xff, 0x74, 0x5e, 0x43, 0x64, 0x20, 0x53, 0x96, 0xcc, 0x3c, 0xaa, 0x0f,
-	0x27, 0x40, 0xf2, 0x30, 0xca, 0xb0, 0x1e, 0x96, 0x06, 0x09, 0xf9, 0x9d, 0x95, 0x30, 0xbc, 0x10,
-	0x86, 0x1b, 0x61, 0xf0, 0xc3, 0x67, 0xfc, 0xd8, 0x80, 0x24, 0x18, 0x21, 0xe6, 0x23, 0x83, 0x25,
-	0x5a, 0x99, 0xf3, 0xdb, 0xac, 0x49, 0x8a, 0x72, 0x10, 0x5e, 0xdf, 0x3b, 0xd8, 0x1b, 0xaf, 0x07,
-	0xde, 0x67, 0xdd, 0x14, 0x6c, 0x62, 0x54, 0x49, 0x0a, 0xb5, 0xf0, 0xdd, 0xee, 0x4f, 0xc4, 0x39,
-	0x0b, 0xb4, 0x2c, 0x40, 0x5c, 0x73, 0x2b, 0xf7, 0xe6, 0x82, 0xb5, 0x4d, 0xa5, 0x49, 0x15, 0x20,
-	0x02, 0x87, 0x2f, 0xc6, 0x95, 0x9d, 0x63, 0x86, 0xa2, 0xb9, 0xb6, 0x57, 0x6f, 0x7e, 0x8f, 0x75,
-	0x6a, 0x30, 0x56, 0xa1, 0xb6, 0xa2, 0xe5, 0xf8, 0x76, 0xe6, 0x77, 0x59, 0x2b, 0x41, 0xfd, 0x49,
-	0x65, 0xa2, 0xed, 0x36, 0x9b, 0x89, 0x3f, 0x60, 0xd7, 0x2d, 0x49, 0x43, 0xf1, 0x14, 0x54, 0x36,
-	0x25, 0xd1, 0xe9, 0x7b, 0x07, 0xc1, 0xb8, 0xeb, 0xd8, 0x0b, 0x87, 0xf8, 0x63, 0xb6, 0x5f, 0x95,
-	0x39, 0xca, 0x34, 0x56, 0x9a, 0xc0, 0xd4, 0x32, 0x17, 0x7b, 0xce, 0xea, 0xad, 0xf1, 0xcb, 0x0d,
-	0xe5, 0x0f, 0x59, 0x0f, 0x4b, 0x30, 0x92, 0x94, 0xce, 0xe2, 0x04, 0x2d, 0x09, 0xe6, 0xbc, 0x1b,
-	0x5b, 0x7a, 0x8c, 0x96, 0xf8, 0x23, 0xb6, 0x5f, 0xc8, 0x59, 0x3c, 0xa9, 0x74, 0x9a, 0x43, 0x6c,
-	0xd5, 0x19, 0x88, 0xee, 0xda, 0x2b, 0xe4, 0xec, 0xc8, 0xd1, 0x37, 0xea, 0x0c, 0x06, 0xdf, 0x7c,
-	0xc6, 0x4f, 0xca, 0xf4, 0x5f, 0xf5, 0xed, 0x31, 0x5f, 0xa5, 0xae, 0x6e, 0x30, 0xf6, 0x55, 0xba,
-	0xed, 0x1d, 0x5c, 0xde, 0xbb, 0x79, 0x79, 0xef, 0xd6, 0x15, 0xbd, 0xdb, 0x57, 0xf6, 0xee, 0xfc,
-	0xd5, 0xfb, 0x7f, 0xc5, 0xfc, 0xc0, 0x6e, 0x8e, 0x64, 0x65, 0x77, 0x92, 0x72, 0xf0, 0x91, 0xdd,
-	0x3a, 0xd1, 0xe5, 0xae, 0xbe, 0x3f, 0x7a, 0xfe, 0x75, 0x11, 0x7a, 0xe7, 0x8b, 0xd0, 0xfb, 0xb9,
-	0x08, 0xbd, 0x2f, 0xcb, 0xb0, 0x71, 0xbe, 0x0c, 0x1b, 0xdf, 0x97, 0x61, 0xe3, 0xfd, 0x93, 0x4c,
-	0xd1, 0xb4, 0x9a, 0x0c, 0x13, 0x2c, 0xa2, 0x57, 0xef, 0xde, 0x3e, 0x7b, 0x0d, 0xf4, 0x19, 0xcd,
-	0x69, 0x94, 0x4c, 0xa5, 0xd2, 0xd1, 0xec, 0xf7, 0x51, 0xd3, 0xbc, 0x04, 0x3b, 0x69, 0xb9, 0x7b,
-	0x7e, 0xfa, 0x2b, 0x00, 0x00, 0xff, 0xff, 0x0a, 0xa4, 0xa2, 0x6b, 0xf2, 0x03, 0x00, 0x00,
+	// 514 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x54, 0xdd, 0x8a, 0x13, 0x31,
+	0x18, 0xed, 0xd4, 0x69, 0xbb, 0x9b, 0xae, 0x5d, 0x8c, 0x3f, 0x44, 0x85, 0xb1, 0x16, 0xd4, 0xbd,
+	0xb1, 0xc3, 0xe2, 0x13, 0xb8, 0x45, 0x54, 0x04, 0x29, 0x5d, 0x2a, 0xa8, 0xc8, 0x90, 0x4e, 0x3e,
+	0xa7, 0x61, 0xa7, 0xc9, 0x90, 0x7c, 0x53, 0xdb, 0x7d, 0x0a, 0x9f, 0xc4, 0xe7, 0xf0, 0x72, 0x2f,
+	0xc5, 0x2b, 0x69, 0x1f, 0xc2, 0x5b, 0x99, 0xf4, 0xc7, 0xad, 0xf4, 0x72, 0x8b, 0x77, 0x39, 0xe7,
+	0x3b, 0xb4, 0xf3, 0x9d, 0x73, 0x12, 0xf2, 0xe0, 0x6c, 0x3a, 0x86, 0xd0, 0x40, 0x22, 0x2d, 0x9a,
+	0x69, 0x38, 0x3e, 0x1e, 0x00, 0xf2, 0xe3, 0x30, 0xd1, 0xe3, 0x76, 0x66, 0x34, 0x6a, 0x7a, 0xbb,
+	0x10, 0xb4, 0x57, 0x82, 0xf6, 0x52, 0xd0, 0xfa, 0x5d, 0x26, 0xb4, 0x63, 0x80, 0x23, 0x74, 0xb5,
+	0x4e, 0xbb, 0x46, 0x67, 0xda, 0xf2, 0x94, 0xde, 0x22, 0x15, 0x94, 0x98, 0x02, 0xf3, 0x9a, 0xde,
+	0xd1, 0x7e, 0x6f, 0x01, 0x68, 0x93, 0xd4, 0x05, 0xd8, 0xd8, 0xc8, 0x0c, 0xa5, 0x56, 0xac, 0xec,
+	0x66, 0x97, 0x29, 0x4a, 0x89, 0xaf, 0xf8, 0x08, 0xd8, 0x35, 0x37, 0x72, 0x67, 0xca, 0x48, 0xcd,
+	0xe4, 0x0a, 0xe5, 0x08, 0x98, 0xef, 0xe8, 0x15, 0x2c, 0xd4, 0xa9, 0x4e, 0x34, 0xab, 0x2c, 0xd4,
+	0xc5, 0x99, 0xde, 0x21, 0xd5, 0x58, 0xab, 0xcf, 0x32, 0x61, 0x55, 0xc7, 0x2e, 0x11, 0x7d, 0x48,
+	0x0e, 0x2c, 0x72, 0x83, 0xd1, 0x10, 0x64, 0x32, 0x44, 0x56, 0x6b, 0x7a, 0x47, 0x7e, 0xaf, 0xee,
+	0xb8, 0x57, 0x8e, 0xa2, 0x4f, 0xc8, 0x61, 0x9e, 0xa5, 0x9a, 0x8b, 0x48, 0x2a, 0x04, 0x33, 0xe6,
+	0x29, 0xdb, 0x73, 0xaa, 0xc6, 0x82, 0x7e, 0xbd, 0x64, 0xe9, 0x23, 0xd2, 0xd0, 0x19, 0x18, 0x8e,
+	0x52, 0x25, 0x51, 0xac, 0x2d, 0xb2, 0x7d, 0xa7, 0xbb, 0xbe, 0x66, 0x3b, 0xda, 0x22, 0x7d, 0x4c,
+	0x0e, 0x47, 0x7c, 0x12, 0x0d, 0x72, 0x25, 0x52, 0x88, 0xac, 0x3c, 0x07, 0x46, 0x16, 0xba, 0x11,
+	0x9f, 0x9c, 0x38, 0xf6, 0x54, 0x9e, 0xbb, 0x05, 0xc7, 0x60, 0x6c, 0x61, 0x49, 0x7d, 0xb1, 0xe0,
+	0x12, 0xd2, 0x7b, 0x64, 0x6f, 0x20, 0x15, 0x37, 0x12, 0x2c, 0x3b, 0x70, 0xa3, 0x35, 0x6e, 0x7d,
+	0x2b, 0x13, 0xda, 0xcf, 0xc4, 0x55, 0x39, 0xdf, 0x20, 0x65, 0x29, 0x9c, 0xef, 0x7e, 0xaf, 0x2c,
+	0xc5, 0x3a, 0x09, 0x7f, 0x7b, 0x12, 0x95, 0xed, 0x49, 0x54, 0xb7, 0x26, 0x51, 0xdb, 0x48, 0xe2,
+	0x3f, 0xd9, 0xdc, 0xfa, 0x48, 0x6e, 0x74, 0x79, 0x6e, 0x77, 0x62, 0x57, 0xeb, 0x13, 0xb9, 0xd9,
+	0x57, 0xd9, 0xce, 0x7e, 0xfe, 0xa7, 0x47, 0xee, 0x9f, 0xc6, 0x43, 0x10, 0x79, 0xea, 0xfe, 0xa0,
+	0x9f, 0x25, 0x86, 0x0b, 0xb8, 0xf2, 0xd4, 0x2f, 0x55, 0xd1, 0xdf, 0xac, 0x62, 0x71, 0x7f, 0x96,
+	0x1f, 0x20, 0x22, 0x8e, 0xae, 0x00, 0xc5, 0xfd, 0x59, 0x71, 0xcf, 0xb1, 0x68, 0xab, 0xc8, 0x8b,
+	0x60, 0xb4, 0x72, 0x45, 0xf0, 0x7b, 0x6b, 0xbc, 0xd1, 0xe4, 0xda, 0x3f, 0x4d, 0x8e, 0xc9, 0xdd,
+	0x0e, 0x57, 0x31, 0xa4, 0x3b, 0xdc, 0xec, 0xe4, 0xe5, 0xf7, 0x59, 0xe0, 0x5d, 0xcc, 0x02, 0xef,
+	0xd7, 0x2c, 0xf0, 0xbe, 0xce, 0x83, 0xd2, 0xc5, 0x3c, 0x28, 0xfd, 0x98, 0x07, 0xa5, 0x0f, 0x4f,
+	0x13, 0x89, 0xc3, 0x7c, 0xd0, 0x8e, 0xf5, 0x28, 0x7c, 0xf3, 0xfe, 0xdd, 0x8b, 0xb7, 0x80, 0x5f,
+	0xb4, 0x39, 0x0b, 0xe3, 0x21, 0x97, 0x2a, 0x9c, 0xfc, 0x7d, 0x14, 0x71, 0x9a, 0x81, 0x1d, 0x54,
+	0xdd, 0x7b, 0xf8, 0xec, 0x4f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x3a, 0x3b, 0xfd, 0x62, 0x32, 0x05,
+	0x00, 0x00,
 }
 
 func (m *CreatePoolProposal) Marshal() (dAtA []byte, err error) {
@@ -482,37 +654,44 @@ func (m *CreatePoolProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.Binaries) > 0 {
+		i -= len(m.Binaries)
+		copy(dAtA[i:], m.Binaries)
+		i = encodeVarintGov(dAtA, i, uint64(len(m.Binaries)))
+		i--
+		dAtA[i] = 0x62
+	}
+	if len(m.Version) > 0 {
+		i -= len(m.Version)
+		copy(dAtA[i:], m.Version)
+		i = encodeVarintGov(dAtA, i, uint64(len(m.Version)))
+		i--
+		dAtA[i] = 0x5a
+	}
 	if m.MaxBundleSize != 0 {
 		i = encodeVarintGov(dAtA, i, uint64(m.MaxBundleSize))
 		i--
-		dAtA[i] = 0x58
+		dAtA[i] = 0x50
 	}
 	if m.OperatingCost != 0 {
 		i = encodeVarintGov(dAtA, i, uint64(m.OperatingCost))
 		i--
-		dAtA[i] = 0x50
+		dAtA[i] = 0x48
 	}
 	if m.UploadInterval != 0 {
 		i = encodeVarintGov(dAtA, i, uint64(m.UploadInterval))
 		i--
-		dAtA[i] = 0x48
+		dAtA[i] = 0x40
 	}
 	if m.StartHeight != 0 {
 		i = encodeVarintGov(dAtA, i, uint64(m.StartHeight))
 		i--
-		dAtA[i] = 0x40
+		dAtA[i] = 0x38
 	}
 	if len(m.Config) > 0 {
 		i -= len(m.Config)
 		copy(dAtA[i:], m.Config)
 		i = encodeVarintGov(dAtA, i, uint64(len(m.Config)))
-		i--
-		dAtA[i] = 0x3a
-	}
-	if len(m.Versions) > 0 {
-		i -= len(m.Versions)
-		copy(dAtA[i:], m.Versions)
-		i = encodeVarintGov(dAtA, i, uint64(len(m.Versions)))
 		i--
 		dAtA[i] = 0x32
 	}
@@ -577,29 +756,22 @@ func (m *UpdatePoolProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	if m.MaxBundleSize != 0 {
 		i = encodeVarintGov(dAtA, i, uint64(m.MaxBundleSize))
 		i--
-		dAtA[i] = 0x58
+		dAtA[i] = 0x50
 	}
 	if m.OperatingCost != 0 {
 		i = encodeVarintGov(dAtA, i, uint64(m.OperatingCost))
 		i--
-		dAtA[i] = 0x50
+		dAtA[i] = 0x48
 	}
 	if m.UploadInterval != 0 {
 		i = encodeVarintGov(dAtA, i, uint64(m.UploadInterval))
 		i--
-		dAtA[i] = 0x48
+		dAtA[i] = 0x40
 	}
 	if len(m.Config) > 0 {
 		i -= len(m.Config)
 		copy(dAtA[i:], m.Config)
 		i = encodeVarintGov(dAtA, i, uint64(len(m.Config)))
-		i--
-		dAtA[i] = 0x42
-	}
-	if len(m.Versions) > 0 {
-		i -= len(m.Versions)
-		copy(dAtA[i:], m.Versions)
-		i = encodeVarintGov(dAtA, i, uint64(len(m.Versions)))
 		i--
 		dAtA[i] = 0x3a
 	}
@@ -730,6 +902,114 @@ func (m *UnpausePoolProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *SchedulePoolUpgradeProposal) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SchedulePoolUpgradeProposal) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SchedulePoolUpgradeProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Binaries) > 0 {
+		i -= len(m.Binaries)
+		copy(dAtA[i:], m.Binaries)
+		i = encodeVarintGov(dAtA, i, uint64(len(m.Binaries)))
+		i--
+		dAtA[i] = 0x3a
+	}
+	if m.Duration != 0 {
+		i = encodeVarintGov(dAtA, i, uint64(m.Duration))
+		i--
+		dAtA[i] = 0x30
+	}
+	if m.ScheduledAt != 0 {
+		i = encodeVarintGov(dAtA, i, uint64(m.ScheduledAt))
+		i--
+		dAtA[i] = 0x28
+	}
+	if len(m.Version) > 0 {
+		i -= len(m.Version)
+		copy(dAtA[i:], m.Version)
+		i = encodeVarintGov(dAtA, i, uint64(len(m.Version)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if m.Id != 0 {
+		i = encodeVarintGov(dAtA, i, uint64(m.Id))
+		i--
+		dAtA[i] = 0x18
+	}
+	if len(m.Description) > 0 {
+		i -= len(m.Description)
+		copy(dAtA[i:], m.Description)
+		i = encodeVarintGov(dAtA, i, uint64(len(m.Description)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Title) > 0 {
+		i -= len(m.Title)
+		copy(dAtA[i:], m.Title)
+		i = encodeVarintGov(dAtA, i, uint64(len(m.Title)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *CancelPoolUpgradeProposal) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CancelPoolUpgradeProposal) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CancelPoolUpgradeProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Id != 0 {
+		i = encodeVarintGov(dAtA, i, uint64(m.Id))
+		i--
+		dAtA[i] = 0x18
+	}
+	if len(m.Description) > 0 {
+		i -= len(m.Description)
+		copy(dAtA[i:], m.Description)
+		i = encodeVarintGov(dAtA, i, uint64(len(m.Description)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Title) > 0 {
+		i -= len(m.Title)
+		copy(dAtA[i:], m.Title)
+		i = encodeVarintGov(dAtA, i, uint64(len(m.Title)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintGov(dAtA []byte, offset int, v uint64) int {
 	offset -= sovGov(v)
 	base := offset
@@ -767,10 +1047,6 @@ func (m *CreatePoolProposal) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovGov(uint64(l))
 	}
-	l = len(m.Versions)
-	if l > 0 {
-		n += 1 + l + sovGov(uint64(l))
-	}
 	l = len(m.Config)
 	if l > 0 {
 		n += 1 + l + sovGov(uint64(l))
@@ -786,6 +1062,14 @@ func (m *CreatePoolProposal) Size() (n int) {
 	}
 	if m.MaxBundleSize != 0 {
 		n += 1 + sovGov(uint64(m.MaxBundleSize))
+	}
+	l = len(m.Version)
+	if l > 0 {
+		n += 1 + l + sovGov(uint64(l))
+	}
+	l = len(m.Binaries)
+	if l > 0 {
+		n += 1 + l + sovGov(uint64(l))
 	}
 	return n
 }
@@ -816,10 +1100,6 @@ func (m *UpdatePoolProposal) Size() (n int) {
 		n += 1 + l + sovGov(uint64(l))
 	}
 	l = len(m.Logo)
-	if l > 0 {
-		n += 1 + l + sovGov(uint64(l))
-	}
-	l = len(m.Versions)
 	if l > 0 {
 		n += 1 + l + sovGov(uint64(l))
 	}
@@ -860,6 +1140,60 @@ func (m *PausePoolProposal) Size() (n int) {
 }
 
 func (m *UnpausePoolProposal) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Title)
+	if l > 0 {
+		n += 1 + l + sovGov(uint64(l))
+	}
+	l = len(m.Description)
+	if l > 0 {
+		n += 1 + l + sovGov(uint64(l))
+	}
+	if m.Id != 0 {
+		n += 1 + sovGov(uint64(m.Id))
+	}
+	return n
+}
+
+func (m *SchedulePoolUpgradeProposal) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Title)
+	if l > 0 {
+		n += 1 + l + sovGov(uint64(l))
+	}
+	l = len(m.Description)
+	if l > 0 {
+		n += 1 + l + sovGov(uint64(l))
+	}
+	if m.Id != 0 {
+		n += 1 + sovGov(uint64(m.Id))
+	}
+	l = len(m.Version)
+	if l > 0 {
+		n += 1 + l + sovGov(uint64(l))
+	}
+	if m.ScheduledAt != 0 {
+		n += 1 + sovGov(uint64(m.ScheduledAt))
+	}
+	if m.Duration != 0 {
+		n += 1 + sovGov(uint64(m.Duration))
+	}
+	l = len(m.Binaries)
+	if l > 0 {
+		n += 1 + l + sovGov(uint64(l))
+	}
+	return n
+}
+
+func (m *CancelPoolUpgradeProposal) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1076,38 +1410,6 @@ func (m *CreatePoolProposal) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 6:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Versions", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowGov
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthGov
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthGov
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Versions = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 7:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Config", wireType)
 			}
 			var stringLen uint64
@@ -1138,7 +1440,7 @@ func (m *CreatePoolProposal) Unmarshal(dAtA []byte) error {
 			}
 			m.Config = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 8:
+		case 7:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field StartHeight", wireType)
 			}
@@ -1157,7 +1459,7 @@ func (m *CreatePoolProposal) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 9:
+		case 8:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field UploadInterval", wireType)
 			}
@@ -1176,7 +1478,7 @@ func (m *CreatePoolProposal) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 10:
+		case 9:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field OperatingCost", wireType)
 			}
@@ -1195,7 +1497,7 @@ func (m *CreatePoolProposal) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 11:
+		case 10:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field MaxBundleSize", wireType)
 			}
@@ -1214,6 +1516,70 @@ func (m *CreatePoolProposal) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
+		case 11:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Version", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGov
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGov
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Version = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 12:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Binaries", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGov
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGov
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Binaries = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipGov(dAtA[iNdEx:])
@@ -1445,38 +1811,6 @@ func (m *UpdatePoolProposal) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 7:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Versions", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowGov
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthGov
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthGov
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Versions = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 8:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Config", wireType)
 			}
 			var stringLen uint64
@@ -1507,7 +1841,7 @@ func (m *UpdatePoolProposal) Unmarshal(dAtA []byte) error {
 			}
 			m.Config = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 9:
+		case 8:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field UploadInterval", wireType)
 			}
@@ -1526,7 +1860,7 @@ func (m *UpdatePoolProposal) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 10:
+		case 9:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field OperatingCost", wireType)
 			}
@@ -1545,7 +1879,7 @@ func (m *UpdatePoolProposal) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 11:
+		case 10:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field MaxBundleSize", wireType)
 			}
@@ -1745,6 +2079,374 @@ func (m *UnpausePoolProposal) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: UnpausePoolProposal: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Title", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGov
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGov
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Title = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGov
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGov
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Description = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
+			}
+			m.Id = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Id |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipGov(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthGov
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SchedulePoolUpgradeProposal) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowGov
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SchedulePoolUpgradeProposal: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SchedulePoolUpgradeProposal: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Title", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGov
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGov
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Title = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGov
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGov
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Description = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
+			}
+			m.Id = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Id |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Version", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGov
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGov
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Version = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ScheduledAt", wireType)
+			}
+			m.ScheduledAt = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ScheduledAt |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Duration", wireType)
+			}
+			m.Duration = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Duration |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Binaries", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGov
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGov
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Binaries = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipGov(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthGov
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CancelPoolUpgradeProposal) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowGov
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: CancelPoolUpgradeProposal: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: CancelPoolUpgradeProposal: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

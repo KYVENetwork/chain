@@ -125,6 +125,8 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 		registrymoduleclient.UpdatePoolHandler,
 		registrymoduleclient.PausePoolHandler,
 		registrymoduleclient.UnpausePoolHandler,
+		registrymoduleclient.SchedulePoolUpgradeHandler,
+		registrymoduleclient.CancelPoolUpgradeHandler,
 	)
 
 	return govProposalHandlers
