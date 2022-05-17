@@ -123,8 +123,12 @@ func handleSchedulePoolUpgradeProposal(ctx sdk.Context, k keeper.Keeper, p *type
 		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, types.ErrPoolNotFound.Error(), p.Id)
 	}
 
+	if pool.Protocol.Version == p.Version {
+		return types.ErrInvalidArgs
+	}
+
 	// Cancel upgrade when there is currently an upgrade
-	if (pool.UpgradePlan.Version != "") {
+	if pool.UpgradePlan.ScheduledAt > 0 && uint64(ctx.BlockTime().Unix()) >= pool.UpgradePlan.ScheduledAt {
 		return types.ErrPoolCurrentlyUpgrading
 	}
 
@@ -153,12 +157,12 @@ func handleCancelPoolUpgradeProposal(ctx sdk.Context, k keeper.Keeper, p *types.
 	}
 
 	// Throw error if there is no upgrade scheduled
-	if (pool.UpgradePlan.Version == "") {
+	if pool.UpgradePlan.ScheduledAt == 0 {
 		return types.ErrPoolNoUpgradeScheduled
 	}
 
 	// Throw error if upgrade is currently being applied
-	if (uint64(ctx.BlockTime().Unix()) >= pool.UpgradePlan.ScheduledAt) {
+	if uint64(ctx.BlockTime().Unix()) >= pool.UpgradePlan.ScheduledAt {
 		return types.ErrPoolCurrentlyUpgrading
 	}
 
