@@ -217,7 +217,7 @@ type SchedulePoolUpgradeRequest struct {
 	Title       string       `json:"title" yaml:"title"`
 	Description string       `json:"description" yaml:"description"`
 	Deposit     sdk.Coins    `json:"deposit" yaml:"deposit"`
-	Id          uint64       `json:"id" yaml:"id"`
+	Runtime          string       `json:"runtime" yaml:"runtime"`
 	Version          string       `json:"version" yaml:"version"`
 	ScheduledAt          uint64       `json:"scheduled_at" yaml:"scheduled_at"`
 	Duration          uint64       `json:"duration" yaml:"duration"`
@@ -249,7 +249,7 @@ func newSchedulePoolUpgradeHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		content := types.NewSchedulePoolUpgradeProposal(req.Title, req.Description, req.Id, req.Version, req.ScheduledAt, req.Duration, req.Binaries)
+		content := types.NewSchedulePoolUpgradeProposal(req.Title, req.Description, req.Runtime, req.Version, req.ScheduledAt, req.Duration, req.Binaries)
 		msg, err := govtypes.NewMsgSubmitProposal(content, req.Deposit, fromAddr)
 		if rest.CheckBadRequestError(w, err) {
 			return
@@ -267,7 +267,7 @@ type CancelPoolUpgradeRequest struct {
 	Title       string       `json:"title" yaml:"title"`
 	Description string       `json:"description" yaml:"description"`
 	Deposit     sdk.Coins    `json:"deposit" yaml:"deposit"`
-	Id          uint64       `json:"id" yaml:"id"`
+	Runtime          string       `json:"runtime" yaml:"runtime"`
 }
 
 func ProposalCancelPoolUpgradeRESTHandler(clientCtx client.Context) govrest.ProposalRESTHandler {
@@ -295,7 +295,7 @@ func newCancelPoolUpgradeHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		content := types.NewCancelPoolUpgradeProposal(req.Title, req.Description, req.Id)
+		content := types.NewCancelPoolUpgradeProposal(req.Title, req.Description, req.Runtime)
 		msg, err := govtypes.NewMsgSubmitProposal(content, req.Deposit, fromAddr)
 		if rest.CheckBadRequestError(w, err) {
 			return

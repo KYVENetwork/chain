@@ -76,14 +76,14 @@ message UnpausePoolProposal {
   uint64 id = 3;
 }
 
-// SchedulePoolUpgradeProposal is a gov Content type for upgrading a pool.
+// SchedulePoolUpgradeProposal is a gov Content type for upgrading a pool by the runtime.
 message SchedulePoolUpgradeProposal {
   // title ...
   string title = 1;
   // description ...
   string description = 2;
-  // id ...
-  uint64 id = 3;
+  // runtime ...
+  string runtime = 3;
   // version ...
   string version = 4;
   // scheduled_at ...
@@ -94,12 +94,12 @@ message SchedulePoolUpgradeProposal {
   string binaries = 7;
 }
 
-// CancelPoolUpgradeProposal is a gov Content type for cancelling a scheduled pool upgrade.
+// CancelPoolUpgradeProposal is a gov Content type for cancelling a scheduled pool upgrade by the runtime.
 message CancelPoolUpgradeProposal {
   // title ...
   string title = 1;
   // description ...
   string description = 2;
-  // id ...
-  uint64 id = 3;
+  // runtime ...
+  string runtime = 3;
 }

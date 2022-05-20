@@ -17,7 +17,8 @@ func (k Keeper) HandleUploadTimeout(goCtx context.Context) {
 	for _, pool := range pools {
 		// Check if there is an upcoming pool upgrade
 		if pool.UpgradePlan.ScheduledAt > 0 && uint64(ctx.BlockTime().Unix()) >= pool.UpgradePlan.ScheduledAt {
-			if pool.Protocol.Version != pool.UpgradePlan.Version {
+			// Check if pool upgrade already has been applied
+			if pool.Protocol.Version != pool.UpgradePlan.Version || pool.Protocol.Binaries != pool.UpgradePlan.Binaries {
 				// perform pool upgrade
 				pool.Protocol.Version = pool.UpgradePlan.Version
 				pool.Protocol.Binaries = pool.UpgradePlan.Binaries

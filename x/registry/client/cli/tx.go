@@ -338,11 +338,6 @@ func CmdSubmitSchedulePoolUpgradeProposal() *cobra.Command {
 				return err
 			}
 
-			id, err := strconv.ParseUint(args[0], 10, 64)
-			if err != nil {
-				return err
-			}
-
 			scheduledAt, err := strconv.ParseUint(args[2], 10, 64)
 			if err != nil {
 				return err
@@ -374,7 +369,7 @@ func CmdSubmitSchedulePoolUpgradeProposal() *cobra.Command {
 				return err
 			}
 
-			content := types.NewSchedulePoolUpgradeProposal(title, description, id, args[1], scheduledAt, duration, args[4])
+			content := types.NewSchedulePoolUpgradeProposal(title, description, args[0], args[1], scheduledAt, duration, args[4])
 
 			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
@@ -409,11 +404,6 @@ func CmdSubmitCancelPoolUpgradeProposal() *cobra.Command {
 				return err
 			}
 
-			id, err := strconv.ParseUint(args[0], 10, 64)
-			if err != nil {
-				return err
-			}
-
 			title, err := cmd.Flags().GetString(cli.FlagTitle)
 			if err != nil {
 				return err
@@ -435,7 +425,7 @@ func CmdSubmitCancelPoolUpgradeProposal() *cobra.Command {
 				return err
 			}
 
-			content := types.NewCancelPoolUpgradeProposal(title, description, id)
+			content := types.NewCancelPoolUpgradeProposal(title, description, args[0])
 
 			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {

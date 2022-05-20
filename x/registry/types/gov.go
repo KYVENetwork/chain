@@ -145,11 +145,11 @@ func (p *UnpausePoolProposal) ValidateBasic() error {
 	return nil
 }
 
-func NewSchedulePoolUpgradeProposal(title string, description string, id uint64, version string, scheduled_at uint64, duration uint64, binaries string) govtypes.Content {
+func NewSchedulePoolUpgradeProposal(title string, description string, runtime string, version string, scheduled_at uint64, duration uint64, binaries string) govtypes.Content {
 	return &SchedulePoolUpgradeProposal{
 		Title:       title,
 		Description: description,
-		Id:          id,
+		Runtime:          runtime,
 		Version: version,
 		ScheduledAt: scheduled_at,
 		Duration: duration,
@@ -172,11 +172,11 @@ func (p *SchedulePoolUpgradeProposal) ValidateBasic() error {
 	return nil
 }
 
-func NewCancelPoolUpgradeProposal(title string, description string, id uint64) govtypes.Content {
+func NewCancelPoolUpgradeProposal(title string, description string, runtime string) govtypes.Content {
 	return &CancelPoolUpgradeProposal{
 		Title:       title,
 		Description: description,
-		Id:          id,
+		Runtime:          runtime,
 	}
 }
 

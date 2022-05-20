@@ -117,62 +117,56 @@ func handleUnpausePoolProposal(ctx sdk.Context, k keeper.Keeper, p *types.Unpaus
 }
 
 func handleSchedulePoolUpgradeProposal(ctx sdk.Context, k keeper.Keeper, p *types.SchedulePoolUpgradeProposal) error {
-	// Attempt to fetch the pool, throw an error if not found.
-	pool, found := k.GetPool(ctx, p.Id)
-	if !found {
-		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, types.ErrPoolNotFound.Error(), p.Id)
-	}
-
-	if pool.Protocol.Version == p.Version {
+	// Check if upgrade version and binaries are not empty
+	if p.Version == "" || p.Binaries == "" {
 		return types.ErrInvalidArgs
 	}
 
-	// Cancel upgrade when there is currently an upgrade
-	if pool.UpgradePlan.ScheduledAt > 0 && uint64(ctx.BlockTime().Unix()) >= pool.UpgradePlan.ScheduledAt {
-		return types.ErrPoolCurrentlyUpgrading
-	}
+	var scheduledAt uint64
 
 	// If upgrade time was already surpassed we upgrade immediately
 	if (p.ScheduledAt < uint64(ctx.BlockTime().Unix())) {
-		pool.UpgradePlan.ScheduledAt = uint64(ctx.BlockTime().Unix())
+		scheduledAt = uint64(ctx.BlockTime().Unix())
 	} else {
-		pool.UpgradePlan.ScheduledAt = p.ScheduledAt
+		scheduledAt = p.ScheduledAt
 	}
 
-	pool.UpgradePlan.Version = p.Version
-	pool.UpgradePlan.Binaries = p.Binaries
-	pool.UpgradePlan.Duration = p.Duration
-
-	// Update the pool and return.
-	k.SetPool(ctx, pool)
+	// go through every pool and schedule the upgrade
+	for _, pool := range k.GetAllPool(ctx) {
+		// Skip if pool is currently upgrading
+		if pool.UpgradePlan.ScheduledAt > 0 {
+			continue
+		}
+	
+		// register upgrade plan
+		pool.UpgradePlan = &types.UpgradePlan{
+			Version: p.Version,
+			Binaries: p.Binaries,
+			ScheduledAt: scheduledAt,
+			Duration: p.Duration,
+		}
+	
+		// Update the pool
+		k.SetPool(ctx, pool)
+	}
 
 	return nil
 }
 
 func handleCancelPoolUpgradeProposal(ctx sdk.Context, k keeper.Keeper, p *types.CancelPoolUpgradeProposal) error {
-	// Attempt to fetch the pool, throw an error if not found.
-	pool, found := k.GetPool(ctx, p.Id)
-	if !found {
-		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, types.ErrPoolNotFound.Error(), p.Id)
+	// go through every pool and cancel the upgrade
+	for _, pool := range k.GetAllPool(ctx) {
+		// Continue if there is no upgrade scheduled
+		if pool.UpgradePlan.ScheduledAt == 0 {
+			continue
+		}
+
+		// clear upgrade plan
+		pool.UpgradePlan = &types.UpgradePlan{}
+
+		// Update the pool
+		k.SetPool(ctx, pool)
 	}
-
-	// Throw error if there is no upgrade scheduled
-	if pool.UpgradePlan.ScheduledAt == 0 {
-		return types.ErrPoolNoUpgradeScheduled
-	}
-
-	// Throw error if upgrade is currently being applied
-	if uint64(ctx.BlockTime().Unix()) >= pool.UpgradePlan.ScheduledAt {
-		return types.ErrPoolCurrentlyUpgrading
-	}
-
-	pool.UpgradePlan.Version = ""
-	pool.UpgradePlan.Binaries = ""
-	pool.UpgradePlan.ScheduledAt = 0
-	pool.UpgradePlan.Duration = 0
-
-	// Update the pool and return.
-	k.SetPool(ctx, pool)
 
 	return nil
 }
