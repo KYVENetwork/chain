@@ -133,6 +133,11 @@ func handleSchedulePoolUpgradeProposal(ctx sdk.Context, k keeper.Keeper, p *type
 
 	// go through every pool and schedule the upgrade
 	for _, pool := range k.GetAllPool(ctx) {
+		// Skip if runtime does not match
+		if pool.Runtime != p.Runtime {
+			continue
+		}
+
 		// Skip if pool is currently upgrading
 		if pool.UpgradePlan.ScheduledAt > 0 {
 			continue
@@ -156,6 +161,11 @@ func handleSchedulePoolUpgradeProposal(ctx sdk.Context, k keeper.Keeper, p *type
 func handleCancelPoolUpgradeProposal(ctx sdk.Context, k keeper.Keeper, p *types.CancelPoolUpgradeProposal) error {
 	// go through every pool and cancel the upgrade
 	for _, pool := range k.GetAllPool(ctx) {
+		// Skip if runtime does not match
+		if pool.Runtime != p.Runtime {
+			continue
+		}
+		
 		// Continue if there is no upgrade scheduled
 		if pool.UpgradePlan.ScheduledAt == 0 {
 			continue
