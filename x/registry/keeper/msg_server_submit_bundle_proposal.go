@@ -164,9 +164,9 @@ func (k msgServer) SubmitBundleProposal(
 
 		// Calculate the individual cost for each pool funder.
 		// NOTE: Because of integer division, it is possible that there is a small remainder.
-		//       This remainder is in worst case MaxFundersAmount(tkyve) and is charged to the lowest funder.
+		// This remainder is in worst case MaxFundersAmount(tkyve) and is charged to the lowest funder.
 		fundersCost := bundleReward / uint64(len(pool.Funders))
-		fundersCostRemainder := bundleReward - uint64(len(pool.Funders))*fundersCost
+		fundersCostRemainder := bundleReward - (uint64(len(pool.Funders)) * fundersCost)
 
 		// Fetch the lowest funder, and find a new one if the current one isn't found.
 		lowestFunder, foundLowestFunder := k.GetFunder(ctx, pool.LowestFunder, pool.Id)
@@ -176,63 +176,91 @@ func (k msgServer) SubmitBundleProposal(
 			lowestFunder, _ = k.GetFunder(ctx, pool.LowestFunder, pool.Id)
 		}
 
+		slashedFunds := uint64(0)
+
 		// Remove every funder who can't afford the funder cost.
-		if fundersCost+fundersCostRemainder > lowestFunder.Amount {
-			// First, let's remove the lowest funder.
-			k.removeFunder(ctx, &pool, &lowestFunder)
-
-			err := k.transferToTreasury(ctx, lowestFunder.Amount)
-			if err != nil {
-				return nil, err
-			}
-
+		for fundersCost + fundersCostRemainder > lowestFunder.Amount {
 			// Now, let's remove all other funders who have run out of funds.
 			for _, account := range pool.Funders {
 				funder, _ := k.GetFunder(ctx, account, pool.Id)
 
 				if funder.Amount < fundersCost {
+					// remove funder
 					k.removeFunder(ctx, &pool, &funder)
 
-					err := k.transferToTreasury(ctx, funder.Amount)
+					// transfer amount to treasury
+					slashedFunds += funder.Amount
+
+					// Emit a defund event.
+					types.EmitDefundPoolEvent(ctx, msg.Id, funder.Account, funder.Amount)
+				}
+			}
+
+			if pool.TotalFunds > 0 {
+				fundersCost = bundleReward / uint64(len(pool.Funders))
+				fundersCostRemainder = bundleReward - (uint64(len(pool.Funders)) * fundersCost)
+
+				k.updateLowestFunder(ctx, &pool)
+				lowestFunder, _ = k.GetFunder(ctx, pool.LowestFunder, pool.Id)
+			} else {
+				// Recalculate the lowest funder, update, and return.
+				k.updateLowestFunder(ctx, &pool)
+
+				if slashedFunds > 0 {
+					// transfer slashed funds to treasury
+					err := k.transferToTreasury(ctx, slashedFunds)
 					if err != nil {
 						return nil, err
 					}
 				}
+
+				pool.BundleProposal = &types.BundleProposal{
+					Uploader:      pool.BundleProposal.Uploader,
+					NextUploader:  pool.BundleProposal.NextUploader,
+					BundleId:      pool.BundleProposal.BundleId,
+					ByteSize:      pool.BundleProposal.ByteSize,
+					FromHeight:    pool.BundleProposal.FromHeight,
+					ToHeight:      pool.BundleProposal.ToHeight,
+					CreatedAt:     uint64(ctx.BlockTime().Unix()),
+					VotersValid:   pool.BundleProposal.VotersValid,
+					VotersInvalid: pool.BundleProposal.VotersInvalid,
+				}
+
+				k.SetPool(ctx, pool)
+
+				// Emit a bundle dropped event because of insufficient funds.
+				types.EmitBundleDroppedInsufficientFundsEvent(ctx, &pool)
+
+				return &types.MsgSubmitBundleProposalResponse{}, nil
 			}
+		}
 
-			// Recalculate the lowest funder, update, and return.
-			k.updateLowestFunder(ctx, &pool)
-
-			pool.BundleProposal = &types.BundleProposal{
-				Uploader:      pool.BundleProposal.Uploader,
-				NextUploader:  pool.BundleProposal.NextUploader,
-				BundleId:      pool.BundleProposal.BundleId,
-				ByteSize:      pool.BundleProposal.ByteSize,
-				FromHeight:    pool.BundleProposal.FromHeight,
-				ToHeight:      pool.BundleProposal.ToHeight,
-				CreatedAt:     uint64(ctx.BlockTime().Unix()),
-				VotersValid:   pool.BundleProposal.VotersValid,
-				VotersInvalid: pool.BundleProposal.VotersInvalid,
+		if slashedFunds > 0 {
+			// transfer slashed funds to treasury
+			err := k.transferToTreasury(ctx, slashedFunds)
+			if err != nil {
+				return nil, err
 			}
-
-			k.SetPool(ctx, pool)
-
-			// Emit a bundle dropped event because of insufficient funds.
-			types.EmitBundleDroppedInsufficientFundsEvent(ctx, &pool)
-
-			return &types.MsgSubmitBundleProposalResponse{}, nil
 		}
 
 		// Charge every funder equally.
 		for _, account := range pool.Funders {
 			funder, _ := k.GetFunder(ctx, account, pool.Id)
-			funder.Amount -= fundersCost
+
+			if funder.Amount >= fundersCost {
+				funder.Amount -= fundersCost
+			}
+
 			k.SetFunder(ctx, funder)
 		}
 
 		// Remove any remainder cost from the lowest funder.
 		lowestFunder, _ = k.GetFunder(ctx, pool.LowestFunder, pool.Id)
-		lowestFunder.Amount -= fundersCostRemainder
+
+		if lowestFunder.Amount >= fundersCostRemainder {
+			lowestFunder.Amount -= fundersCostRemainder
+		}
+
 		k.SetFunder(ctx, lowestFunder)
 
 		// Subtract bundle reward from the pool's total funds.

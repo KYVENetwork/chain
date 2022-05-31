@@ -116,7 +116,7 @@ func (k Keeper) removeFunder(ctx sdk.Context, pool *types.Pool, funder *types.Fu
 		}
 	}
 
-	// Return is the funder wasn't found.
+	// Return if the funder wasn't found.
 	if funderIndex < 0 {
 		return
 	}

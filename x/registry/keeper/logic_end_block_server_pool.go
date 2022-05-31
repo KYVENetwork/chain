@@ -130,11 +130,11 @@ func (k Keeper) HandleUploadTimeout(goCtx context.Context) {
 
 			// check if next uploader is still there or already removed
 			if foundStaker {
-				// Transfer remaining stake to account.
-				k.TransferToAddress(ctx, staker.Account, staker.Amount)
-
 				// remove current next_uploader
 				k.removeStaker(ctx, &pool, &staker)
+
+				// Transfer remaining stake to account.
+				k.TransferToAddress(ctx, staker.Account, staker.Amount)
 
 				// Emit an unstake event.
 				types.EmitUnstakeEvent(ctx, pool.Id, staker.Account, staker.Amount)
