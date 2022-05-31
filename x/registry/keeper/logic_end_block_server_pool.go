@@ -135,6 +135,9 @@ func (k Keeper) HandleUploadTimeout(goCtx context.Context) {
 
 				// remove current next_uploader
 				k.removeStaker(ctx, &pool, &staker)
+
+				// Emit an unstake event.
+				types.EmitUnstakeEvent(ctx, pool.Id, staker.Account, staker.Amount)
 			}
 
 			// Update current lowest staker
