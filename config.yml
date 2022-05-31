@@ -75,7 +75,7 @@ genesis:
             voters_valid: [ ],
           max_bundle_size: "100",
           protocol:
-            version: "0.0.0"
+            version: "1.0.5"
             binaries: "{\"macos\":\"https://github.com/kyve-org/evm/releases/download/v1.0.5/kyve-evm-macos.zip\"}"
             last_upgrade: "0",
           upgrade_plan:

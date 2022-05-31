@@ -14,9 +14,6 @@ func CreateUpgradeHandler(
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		for _, pool := range registryKeeper.GetAllPool(ctx) {
-			// deprecate versions
-			pool.Versions = ""
-
 			// set max_bundle_size
 			pool.MaxBundleSize = 100
 
@@ -70,7 +67,7 @@ func CreateUpgradeHandler(
 			}
 
 			pool.UpgradePlan.ScheduledAt = uint64(ctx.BlockTime().Unix())
-			pool.UpgradePlan.Duration = 21600 // 6 hours
+			pool.UpgradePlan.Duration = 300 // 6 hours
 
 			// save changes
 			registryKeeper.SetPool(ctx, pool)
