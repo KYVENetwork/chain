@@ -23,10 +23,10 @@ const (
 
 // registry constants
 const (
-	MaxFunders        = 50 // maximum amount of funders which are allowed
-	MaxStakers        = 50 // maximum amount of stakers which are allowed
-	DefaultCommission = "0.9"
-	KYVE_NO_DATA_BUNDLE    = "KYVE_NO_DATA_BUNDLE"
+	MaxFunders          = 50 // maximum amount of funders which are allowed
+	MaxStakers          = 50 // maximum amount of stakers which are allowed
+	DefaultCommission   = "0.9"
+	KYVE_NO_DATA_BUNDLE = "KYVE_NO_DATA_BUNDLE"
 )
 
 // ========== EVENTS ===================
@@ -42,7 +42,7 @@ const (
 const (
 	VoteEventKey      = "Voted"
 	VoteEventBundleId = "BundleId"
-	VoteEventVote  = "Vote"
+	VoteEventVote     = "Vote"
 )
 
 // slashing
@@ -97,6 +97,11 @@ const (
 	UnbondingEntriesKeyPrefixByDelegator = "UnbondingEntriesByDelegator/value/"
 )
 
+var (
+	// DelegatorKeyPrefixIndex2 is the prefix for a different key order for the DelegatorKeyPrefix
+	DelegatorKeyPrefixIndex2 = []byte{0x04}
+)
+
 // DelegationEntriesKey returns the store Key to retrieve a DelegationEntries from the index fields
 func DelegationEntriesKey(poolId uint64, stakerAddress string, kIndex uint64) []byte {
 	return KeyPrefixBuilder{}.AInt(poolId).AString(stakerAddress).AInt(kIndex).Key
@@ -110,6 +115,11 @@ func DelegationPoolDataKey(poolId uint64, stakerAddress string) []byte {
 // DelegatorKey returns the store Key to retrieve a Delegator from the index fields
 func DelegatorKey(poolId uint64, stakerAddress string, delegatorAddress string) []byte {
 	return KeyPrefixBuilder{}.AInt(poolId).AString(stakerAddress).AString(delegatorAddress).Key
+}
+
+// DelegatorKeyIndex2 returns the store Key to retrieve a Delegator from the index fields
+func DelegatorKeyIndex2(delegatorAddress string, poolId uint64, stakerAddress string) []byte {
+	return KeyPrefixBuilder{}.AString(delegatorAddress).AInt(poolId).AString(stakerAddress).Key
 }
 
 // FunderKey returns the store Key to retrieve a Funder from the index fields

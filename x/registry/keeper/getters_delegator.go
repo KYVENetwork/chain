@@ -15,6 +15,13 @@ func (k Keeper) SetDelegator(ctx sdk.Context, delegator types.Delegator) {
 		delegator.Staker,
 		delegator.Delegator,
 	), b)
+
+	indexStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegatorKeyPrefixIndex2)
+	indexStore.Set(types.DelegatorKeyIndex2(
+		delegator.Delegator,
+		delegator.Id,
+		delegator.Staker,
+	), []byte{0x01})
 }
 
 // GetDelegator returns a delegator from its index
@@ -51,6 +58,12 @@ func (k Keeper) RemoveDelegator(
 		poolId,
 		stakerAddress,
 		delegatorAddress,
+	))
+	indexStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegatorKeyPrefixIndex2)
+	indexStore.Delete(types.DelegatorKeyIndex2(
+		delegatorAddress,
+		poolId,
+		stakerAddress,
 	))
 }
 

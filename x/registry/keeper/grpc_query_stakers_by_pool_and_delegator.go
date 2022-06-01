@@ -1,9 +1,7 @@
 package keeper
 
 import (
-	"bytes"
 	"context"
-
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -31,21 +29,19 @@ func (k Keeper) StakersByPoolAndDelegator(goCtx context.Context, req *types.Quer
 
 	var stakers []types.DelegationForStakerResponse
 
-	store := ctx.KVStore(k.storeKey)
-	// Build prefix. TODO find better solution to increase performance
-	prefixBuilder := types.KeyPrefixBuilder{Key: types.KeyPrefix(types.DelegatorKeyPrefix)}.AInt(pool.Id).Key
-	delegatorStore := prefix.NewStore(store, prefixBuilder)
+	delegatorPrefix := types.KeyPrefixBuilder{Key: types.DelegatorKeyPrefixIndex2}.AString(req.Delegator).AInt(pool.Id).Key
+	delegatorStore := prefix.NewStore(ctx.KVStore(k.storeKey), delegatorPrefix)
 
 	pageRes, err := query.FilteredPaginate(delegatorStore, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
 
-		// Check if entry belongs to given address (delegator)
-		if bytes.Compare(key[44:87], []byte(req.Delegator)) != 0 {
-			return false, nil
-		}
-
 		if accumulate {
-			var delegator types.Delegator
-			if err := k.cdc.Unmarshal(value, &delegator); err != nil {
+
+			staker := string(key[0:43])
+
+			var delegator, found = k.GetDelegator(ctx, req.PoolId, staker, req.Delegator)
+			if !found {
+				k.Logger(ctx).Error("Delegator entry does not exist: {delegator: %s, staker: %s, poolId: %d}",
+					req.Delegator, staker, req.PoolId)
 				return false, nil
 			}
 

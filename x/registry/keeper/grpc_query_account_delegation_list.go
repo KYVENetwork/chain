@@ -1,8 +1,8 @@
 package keeper
 
 import (
-	"bytes"
 	"context"
+	"encoding/binary"
 
 	"github.com/KYVENetwork/chain/x/registry/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
@@ -23,20 +23,19 @@ func (k Keeper) AccountDelegationList(goCtx context.Context, req *types.QueryAcc
 	var delegated []types.DelegatorResponse
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	store := ctx.KVStore(k.storeKey)
-	delegatorStore := prefix.NewStore(store, types.KeyPrefix(types.DelegatorKeyPrefix))
+	delegatorPrefix := types.KeyPrefixBuilder{Key: types.DelegatorKeyPrefixIndex2}.AString(req.Address).Key
+	delegatorStore := prefix.NewStore(ctx.KVStore(k.storeKey), delegatorPrefix)
 
-	// TODO find indexing solution for performance
 	pageRes, err := query.FilteredPaginate(delegatorStore, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
 
-		// Check if entry belongs to given address (delegator)
-		if bytes.Compare(key[53:96], []byte(req.Address)) != 0 {
-			return false, nil
-		}
+		staker := string(key[9:52])
+		poolId := binary.BigEndian.Uint64(key[0:8])
 
 		if accumulate {
-			var delegator types.Delegator
-			if err := k.cdc.Unmarshal(value, &delegator); err != nil {
+			var delegator, found = k.GetDelegator(ctx, poolId, staker, req.Address)
+			if !found {
+				k.Logger(ctx).Error("Delegator entry does not exist: {delegator: %s, staker: %s, poolId: %d}",
+					req.Address, staker, poolId)
 				return false, nil
 			}
 

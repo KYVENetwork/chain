@@ -1,8 +1,8 @@
 package keeper
 
 import (
-	"bytes"
 	"context"
+	"encoding/binary"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 
 	"github.com/KYVENetwork/chain/x/registry/types"
@@ -36,30 +36,34 @@ func (k Keeper) AccountAssets(goCtx context.Context, req *types.QueryAccountAsse
 
 	// Iterate all Delegator entries
 	// Fetches the total delegation and calculates the outstanding rewards
-	// TODO find solution to increase performance
-	delegatorStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DelegatorKeyPrefix))
+	delegatorPrefix := types.KeyPrefixBuilder{Key: types.DelegatorKeyPrefixIndex2}.AString(req.Address).Key
+	delegatorStore := prefix.NewStore(ctx.KVStore(k.storeKey), delegatorPrefix)
 	delegatorIterator := sdk.KVStorePrefixIterator(delegatorStore, nil)
 
 	defer delegatorIterator.Close()
 
 	for ; delegatorIterator.Valid(); delegatorIterator.Next() {
-		if bytes.Compare(delegatorIterator.Key()[53:96], []byte(req.Address)) != 0 {
+
+		key := delegatorIterator.Key()
+		staker := string(key[9:52])
+		poolId := binary.BigEndian.Uint64(key[0:8])
+		var delegator, found = k.GetDelegator(ctx, poolId, staker, req.Address)
+		if !found {
+			k.Logger(ctx).Error("Delegator entry does not exist: {delegator: %s, staker: %s, poolId: %d}",
+				req.Address, staker, poolId)
 			continue
 		}
-
-		var val types.Delegator
-		k.cdc.MustUnmarshal(delegatorIterator.Value(), &val)
 
 		f1 := F1Distribution{
 			k:                k,
 			ctx:              ctx,
-			poolId:           val.Id,
-			stakerAddress:    val.Staker,
-			delegatorAddress: val.Delegator,
+			poolId:           delegator.Id,
+			stakerAddress:    delegator.Staker,
+			delegatorAddress: delegator.Delegator,
 		}
 
 		response.ProtocolRewards += f1.getCurrentReward()
-		response.ProtocolDelegation += val.DelegationAmount
+		response.ProtocolDelegation += delegator.DelegationAmount
 	}
 
 	// Iterate all Staker entries
