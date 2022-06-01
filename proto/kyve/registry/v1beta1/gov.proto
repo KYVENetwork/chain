@@ -16,18 +16,18 @@ message CreatePoolProposal {
   string runtime = 4;
   // logo ...
   string logo = 5;
+  // versions ...
+  string version = 6;
   // config ...
-  string config = 6;
+  string config = 7;
   // start_height ...
-  uint64 start_height = 7;
+  uint64 start_height = 8;
   // upload_interval ...
-  uint64 upload_interval = 8;
+  uint64 upload_interval = 9;
   // operating_cost ...
-  uint64 operating_cost = 9;
+  uint64 operating_cost = 10;
   // max_bundle_size ...
-  uint64 max_bundle_size = 10;
-  // version ...
-  string version = 11;
+  uint64 max_bundle_size = 11;
   // binaries ...
   string binaries = 12;
 }
@@ -46,14 +46,16 @@ message UpdatePoolProposal {
   string runtime = 5;
   // logo ...
   string logo = 6;
+  // versions ... (deprecated)
+  string versions = 7;
   // config ...
-  string config = 7;
+  string config = 8;
   // upload_interval ...
-  uint64 upload_interval = 8;
+  uint64 upload_interval = 9;
   // operating_cost ...
-  uint64 operating_cost = 9;
+  uint64 operating_cost = 10;
   // max_bundle_size ...
-  uint64 max_bundle_size = 10;
+  uint64 max_bundle_size = 11;
 }
 
 // PausePoolProposal is a gov Content type for pausing a pool.
