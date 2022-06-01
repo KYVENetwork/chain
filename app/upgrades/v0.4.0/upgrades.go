@@ -75,7 +75,7 @@ func CreateUpgradeHandler(
 			}
 
 			pool.UpgradePlan.ScheduledAt = uint64(ctx.BlockTime().Unix())
-			pool.UpgradePlan.Duration = 900 // 15 min
+			pool.UpgradePlan.Duration = 1200 // 20 min
 
 			// save changes
 			registryKeeper.SetPool(ctx, pool)
