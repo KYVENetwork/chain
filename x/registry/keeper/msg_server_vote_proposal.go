@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"strings"
 
 	"github.com/KYVENetwork/chain/x/registry/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -53,7 +54,7 @@ func (k msgServer) VoteProposal(
 	}
 
 	// Check if bundle is not dropped or NO_DATA_BUNDLE
-	if pool.BundleProposal.BundleId == "" || pool.BundleProposal.BundleId == types.KYVE_NO_DATA_BUNDLE {
+	if pool.BundleProposal.BundleId == "" || strings.HasPrefix(pool.BundleProposal.BundleId, types.KYVE_NO_DATA_BUNDLE) {
 		return nil, sdkErrors.Wrapf(
 			sdkErrors.ErrNotFound, types.ErrInvalidBundleId.Error(), pool.BundleProposal.BundleId,
 		)

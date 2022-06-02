@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"strings"
 
 	"github.com/KYVENetwork/chain/x/registry/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -73,7 +74,7 @@ func (k Keeper) CanVote(goCtx context.Context, req *types.QueryCanVoteRequest) (
 	}
 
 	// Check if empty bundle
-	if pool.BundleProposal.BundleId == types.KYVE_NO_DATA_BUNDLE {
+	if strings.HasPrefix(pool.BundleProposal.BundleId, types.KYVE_NO_DATA_BUNDLE) {
 		return &types.QueryCanVoteResponse{
 			Possible: false,
 			Reason:   "Can not vote on NO_DATA_BUNDLE",
