@@ -13,13 +13,16 @@ func (k Keeper) SetProposal(ctx sdk.Context, proposal types.Proposal) {
 	store.Set(types.ProposalKey(
 		proposal.BundleId,
 	), b)
+
+	// Insert bundle id for second index
+	storeIndex := prefix.NewStore(ctx.KVStore(k.storeKey), types.ProposalKeyPrefixIndex2)
+	storeIndex.Set(types.ProposalKeyIndex2(proposal.PoolId, proposal.FromHeight), []byte(proposal.BundleId))
 }
 
 // GetProposal returns a proposal from its index
 func (k Keeper) GetProposal(
 	ctx sdk.Context,
 	bundleId string,
-
 ) (val types.Proposal, found bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.ProposalKeyPrefix))
 
@@ -32,18 +35,6 @@ func (k Keeper) GetProposal(
 
 	k.cdc.MustUnmarshal(b, &val)
 	return val, true
-}
-
-// RemoveProposal removes a proposal from the store
-func (k Keeper) RemoveProposal(
-	ctx sdk.Context,
-	bundleId string,
-
-) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.ProposalKeyPrefix))
-	store.Delete(types.ProposalKey(
-		bundleId,
-	))
 }
 
 // GetAllProposal returns all proposal

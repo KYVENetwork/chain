@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 
 	"github.com/KYVENetwork/chain/x/registry/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -16,13 +17,23 @@ func (k Keeper) ProposalByHeight(goCtx context.Context, req *types.QueryProposal
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	proposals := k.GetAllProposal(ctx)
+	proposalPrefixBuilder := types.KeyPrefixBuilder{Key: types.ProposalKeyPrefixIndex2}.AInt(req.PoolId)
+	proposalIndexStore := prefix.NewStore(ctx.KVStore(k.storeKey), proposalPrefixBuilder.Key)
+	proposalIndexIterator := proposalIndexStore.ReverseIterator(nil, types.KeyPrefixBuilder{}.AInt(req.Height+1).Key)
 
-	for _, proposal := range proposals {
-		if proposal.PoolId == req.PoolId && proposal.FromHeight <= req.Height && proposal.ToHeight > req.Height {
-			return &types.QueryProposalByHeightResponse{
-				Proposal: proposal,
-			}, nil
+	defer proposalIndexIterator.Close()
+
+	if proposalIndexIterator.Valid() {
+
+		bundleId := string(proposalIndexIterator.Value())
+
+		proposal, found := k.GetProposal(ctx, bundleId)
+		if found {
+			if proposal.FromHeight <= req.Height && proposal.ToHeight > req.Height {
+				return &types.QueryProposalByHeightResponse{
+					Proposal: proposal,
+				}, nil
+			}
 		}
 	}
 

@@ -98,6 +98,23 @@ func createDelegatorIndex(registryKeeper *registrykeeper.Keeper, ctx sdk.Context
 	fmt.Printf("%sFinished index creation\n", MigrationLoggerPrefix)
 }
 
+func createProposalIndex(registryKeeper *registrykeeper.Keeper, ctx sdk.Context) {
+	fmt.Printf("%sCreating second proposal index\n", MigrationLoggerPrefix)
+
+	// Set all delegators again to create the index
+	proposals := registryKeeper.GetAllProposal(ctx)
+	for index, proposal := range proposals {
+
+		registryKeeper.SetProposal(ctx, proposal)
+
+		if index%1000 == 0 {
+			fmt.Printf("%sProposals processed: %d\n", MigrationLoggerPrefix, index)
+		}
+	}
+
+	fmt.Printf("%sFinished index creation\n", MigrationLoggerPrefix)
+}
+
 func CreateUpgradeHandler(
 	registryKeeper *registrykeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
@@ -106,6 +123,8 @@ func CreateUpgradeHandler(
 		migratePools(registryKeeper, ctx)
 
 		createDelegatorIndex(registryKeeper, ctx)
+
+		createProposalIndex(registryKeeper, ctx)
 
 		// init param
 		registryKeeper.ParamStore().Set(ctx, types.KeyMaxPoints, types.DefaultMaxPoints)
