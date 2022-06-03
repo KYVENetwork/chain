@@ -72,6 +72,8 @@ func (k msgServer) SubmitBundleProposal(
 		return nil, types.ErrNotDesignatedUploader
 	}
 
+	// EVALUATE PREVIOUS ROUND
+
 	// Check if quorum has already been reached.
 	valid := false
 	invalid := false
@@ -111,8 +113,6 @@ func (k msgServer) SubmitBundleProposal(
 
 		return &types.MsgSubmitBundleProposalResponse{}, nil
 	}
-
-	// EVALUATE PREVIOUS ROUND
 
 	// handle stakers who did not vote at all
 	k.handleNonVoters(ctx, &pool)
@@ -179,7 +179,7 @@ func (k msgServer) SubmitBundleProposal(
 		slashedFunds := uint64(0)
 
 		// Remove every funder who can't afford the funder cost.
-		for fundersCost + fundersCostRemainder > lowestFunder.Amount {
+		for fundersCost+fundersCostRemainder > lowestFunder.Amount {
 			// Now, let's remove all other funders who have run out of funds.
 			for _, account := range pool.Funders {
 				funder, _ := k.GetFunder(ctx, account, pool.Id)
