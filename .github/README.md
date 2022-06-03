@@ -1,6 +1,6 @@
 # The KYVE Chain
 
-###### v0.2.0
+###### v0.4.0
 
 The chain nodes are the backbone of KYVE. The chain layer is a completely sovereign
 [Proof of Stake](https://en.wikipedia.org/wiki/Proof_of_stake) blockchain build with
