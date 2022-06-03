@@ -10,12 +10,12 @@ import (
 )
 
 func containsElement(array []string, element string) bool {
-  for _, v := range array {
-    if v == element {
-      return true
-    }
-  }
-  return false
+	for _, v := range array {
+		if v == element {
+			return true
+		}
+	}
+	return false
 }
 
 // updateLowestFunder is an internal function that updates the lowest funder entry in a given pool.
@@ -39,30 +39,35 @@ func (k Keeper) handleNonVoters(ctx sdk.Context, pool *types.Pool) {
 	for _, voter := range nonVoters {
 		staker, foundStaker := k.GetStaker(ctx, voter, pool.Id)
 
-		if staker.Points < k.MaxPoints(ctx) {
-			// Increase points
-			staker.Points += 1
-			k.SetStaker(ctx, staker)
-		} else {
-			// skip timeout slash if staker is not found
-			if foundStaker {
-				// slash nonVoter for not uploading in time
+		// skip timeout slash if staker is not found
+		if foundStaker {
+
+			if staker.Points < k.MaxPoints(ctx) {
+				// Increase points
+				staker.Points += 1
+				k.SetStaker(ctx, staker)
+			} else {
+				// slash nonVoter for not voting in time
 				slashAmount := k.slashStaker(ctx, pool, staker.Account, k.TimeoutSlash(ctx))
-	
+
 				// emit slashing event
 				types.EmitSlashEvent(ctx, pool.Id, staker.Account, slashAmount)
-	
+
+				// Check if staker is still in stakers list and remove staker.
 				staker, foundStaker = k.GetStaker(ctx, voter, pool.Id)
-	
+
 				// check if next uploader is still there or already removed
 				if foundStaker {
 					// Transfer remaining stake to account.
 					k.TransferToAddress(ctx, staker.Account, staker.Amount)
-	
+
 					// remove current next_uploader
 					k.removeStaker(ctx, pool, &staker)
+
+					// emit unstake event
+					types.EmitUnstakeEvent(ctx, pool.Id, staker.Account, staker.Amount)
 				}
-	
+
 				// Update current lowest staker
 				k.updateLowestStaker(ctx, pool)
 			}
