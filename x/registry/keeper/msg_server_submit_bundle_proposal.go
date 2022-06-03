@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"strings"
 
 	"github.com/KYVENetwork/chain/x/registry/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -85,7 +86,7 @@ func (k msgServer) SubmitBundleProposal(
 	}
 
 	// Check args of bundle types
-	if msg.BundleId == types.KYVE_NO_DATA_BUNDLE {
+	if strings.HasPrefix(msg.BundleId, types.KYVE_NO_DATA_BUNDLE) {
 		// Validate bundle args
 		if msg.BundleSize != 0 || msg.ByteSize != 0 {
 			return nil, types.ErrInvalidArgs
@@ -98,7 +99,7 @@ func (k msgServer) SubmitBundleProposal(
 	}
 
 	// If bundle was dropped or is of type KYVE_NO_DATA_BUNDLE just register new bundle.
-	if pool.BundleProposal.BundleId == "" || pool.BundleProposal.BundleId == types.KYVE_NO_DATA_BUNDLE {
+	if pool.BundleProposal.BundleId == "" || strings.HasPrefix(pool.BundleProposal.BundleId, types.KYVE_NO_DATA_BUNDLE) {
 		pool.BundleProposal = &types.BundleProposal{
 			Uploader:     msg.Creator,
 			NextUploader: k.getNextUploaderByRandom(ctx, &pool, pool.Stakers),

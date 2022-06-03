@@ -45,5 +45,8 @@ func (k msgServer) UpdateMetadata(
 
 	k.SetStaker(ctx, staker)
 
+	// Event an event.
+	types.EmitUpdateMetadata(ctx, msg.Creator, msg.Id, msg.Commission, msg.Moniker, msg.Website, msg.Logo)
+
 	return &types.MsgUpdateMetadataResponse{}, nil
 }

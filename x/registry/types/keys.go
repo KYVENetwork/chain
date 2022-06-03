@@ -66,6 +66,14 @@ const (
 	ProposalEventStatus       = "Status"
 )
 
+const (
+	UpdateMetadataEventKey = "UpdateMetadata"
+	UpdateMetadataCommission = "Commission"
+	UpdateMetadataMoniker = "Moniker"
+	UpdateMetadataWebsite = "Website"
+	UpdateMetadataLogo = "Logo"
+)
+
 // ============ KV-STORE ===============
 
 func KeyPrefix(p string) []byte {
