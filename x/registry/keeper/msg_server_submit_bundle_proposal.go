@@ -333,7 +333,7 @@ func (k msgServer) SubmitBundleProposal(
 				PoolId:    pool.Id,
 				Address:   voter,
 				Amount:    slashAmount,
-				SlashType: types.VOTE_SLASH,
+				SlashType: types.SLASH_TYPE_VOTE,
 			})
 			if errEmit != nil {
 				return nil, errEmit
@@ -418,7 +418,7 @@ func (k msgServer) SubmitBundleProposal(
 				PoolId:    pool.Id,
 				Address:   voter,
 				Amount:    slashAmount,
-				SlashType: types.VOTE_SLASH,
+				SlashType: types.SLASH_TYPE_VOTE,
 			})
 			if errEmit != nil {
 				return nil, errEmit
@@ -433,7 +433,7 @@ func (k msgServer) SubmitBundleProposal(
 			PoolId:    pool.Id,
 			Address:   pool.BundleProposal.Uploader,
 			Amount:    slashAmount,
-			SlashType: types.UPLOAD_SLASH,
+			SlashType: types.SLASH_TYPE_UPLOAD,
 		})
 		if errEmit != nil {
 			return nil, errEmit

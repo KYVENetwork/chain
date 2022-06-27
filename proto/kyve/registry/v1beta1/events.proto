@@ -23,15 +23,18 @@ enum BundleStatus {
   BUNDLE_STATUS_NO_QUORUM = 4;
 }
 
+// SlashType ...
 enum SlashType {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  // TIMEOUT_SLASH
-  TIMEOUT_SLASH = 0;
-  // TIMEOUT_SLASH
-  VOTE_SLASH = 1;
-  // TIMEOUT_SLASH
-  UPLOAD_SLASH = 2;
+  // SLASH_TYPE_UNSPECIFIED ...
+  SLASH_TYPE_UNSPECIFIED = 0;
+  // SLASH_TYPE_TIMEOUT ...
+  SLASH_TYPE_TIMEOUT = 1;
+  // SLASH_TYPE_VOTE ...
+  SLASH_TYPE_VOTE = 2;
+  // SLASH_TYPE_UPLOAD ...
+  SLASH_TYPE_UPLOAD = 3;
 }
 
 // ---------- Bundle Events ----------

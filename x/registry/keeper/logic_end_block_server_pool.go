@@ -142,7 +142,7 @@ func (k Keeper) HandleUploadTimeout(goCtx context.Context) {
 				PoolId:    pool.Id,
 				Address:   staker.Account,
 				Amount:    slashAmount,
-				SlashType: types.TIMEOUT_SLASH,
+				SlashType: types.SLASH_TYPE_TIMEOUT,
 			})
 
 			staker, foundStaker = k.GetStaker(ctx, pool.BundleProposal.NextUploader, pool.Id)

@@ -55,7 +55,7 @@ func (k Keeper) handleNonVoters(ctx sdk.Context, pool *types.Pool) {
 					PoolId:    pool.Id,
 					Address:   staker.Account,
 					Amount:    slashAmount,
-					SlashType: types.TIMEOUT_SLASH,
+					SlashType: types.SLASH_TYPE_TIMEOUT,
 				})
 
 				// Check if staker is still in stakers list and remove staker.
