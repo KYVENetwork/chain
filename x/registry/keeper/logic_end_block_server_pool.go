@@ -135,9 +135,10 @@ func (k Keeper) HandleUploadTimeout(goCtx context.Context) {
 
 			// emit slashing event
 			ctx.EventManager().EmitTypedEvent(&types.EventSlash{
-				PoolId:  pool.Id,
-				Address: staker.Account,
-				Amount:  slashAmount,
+				PoolId:    pool.Id,
+				Address:   staker.Account,
+				Amount:    slashAmount,
+				SlashType: types.TIMEOUT_SLASH,
 			})
 
 			staker, foundStaker = k.GetStaker(ctx, pool.BundleProposal.NextUploader, pool.Id)

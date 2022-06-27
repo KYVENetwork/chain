@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package kyve.registry.v1beta1;
 
+import "gogoproto/gogo.proto";
+
 option go_package = "github.com/KYVENetwork/chain/x/registry/types";
 
 // Msg defines the registry Msg service.
@@ -171,6 +173,8 @@ message MsgSubmitBundleProposalResponse {}
 
 // VoteType ...
 enum VoteType {
+  option (gogoproto.goproto_enum_prefix) = false;
+
   // VOTE_TYPE_UNSPECIFIED ...
   VOTE_TYPE_UNSPECIFIED = 0;
   // VOTE_TYPE_YES ...

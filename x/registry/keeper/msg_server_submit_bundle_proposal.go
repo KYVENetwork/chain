@@ -326,9 +326,10 @@ func (k msgServer) SubmitBundleProposal(
 			slashAmount := k.slashStaker(ctx, &pool, voter, k.VoteSlash(ctx))
 
 			errEmit := ctx.EventManager().EmitTypedEvent(&types.EventSlash{
-				PoolId:  pool.Id,
-				Address: voter,
-				Amount:  slashAmount,
+				PoolId:    pool.Id,
+				Address:   voter,
+				Amount:    slashAmount,
+				SlashType: types.VOTE_SLASH,
 			})
 			if errEmit != nil {
 				return nil, errEmit
@@ -351,13 +352,13 @@ func (k msgServer) SubmitBundleProposal(
 		k.SetProposal(ctx, types.Proposal{
 			BundleId:    pool.BundleProposal.BundleId,
 			PoolId:      pool.Id,
-			Id:      pool.TotalBundles,
+			Id:          pool.TotalBundles,
 			Uploader:    pool.BundleProposal.Uploader,
 			FromHeight:  pool.CurrentHeight,
 			ToHeight:    pool.BundleProposal.ToHeight,
 			FinalizedAt: uint64(ctx.BlockHeight()),
-			Key:       pool.BundleProposal.ToKey,
-			Value:     pool.BundleProposal.ToValue,
+			Key:         pool.BundleProposal.ToKey,
+			Value:       pool.BundleProposal.ToValue,
 		})
 
 		// Finalise the proposal, saving useful information.
@@ -407,9 +408,10 @@ func (k msgServer) SubmitBundleProposal(
 			slashAmount := k.slashStaker(ctx, &pool, voter, k.VoteSlash(ctx))
 
 			errEmit := ctx.EventManager().EmitTypedEvent(&types.EventSlash{
-				PoolId:  pool.Id,
-				Address: voter,
-				Amount:  slashAmount,
+				PoolId:    pool.Id,
+				Address:   voter,
+				Amount:    slashAmount,
+				SlashType: types.VOTE_SLASH,
 			})
 			if errEmit != nil {
 				return nil, errEmit
@@ -421,9 +423,10 @@ func (k msgServer) SubmitBundleProposal(
 
 		// emit slash event
 		errEmit := ctx.EventManager().EmitTypedEvent(&types.EventSlash{
-			PoolId:  pool.Id,
-			Address: pool.BundleProposal.Uploader,
-			Amount:  slashAmount,
+			PoolId:    pool.Id,
+			Address:   pool.BundleProposal.Uploader,
+			Amount:    slashAmount,
+			SlashType: types.UPLOAD_SLASH,
 		})
 		if errEmit != nil {
 			return nil, errEmit

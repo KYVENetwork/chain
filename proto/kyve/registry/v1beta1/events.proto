@@ -23,6 +23,17 @@ enum BundleStatus {
   BUNDLE_STATUS_NO_QUORUM = 4;
 }
 
+enum SlashType {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // TIMEOUT_SLASH
+  TIMEOUT_SLASH = 0;
+  // TIMEOUT_SLASH
+  VOTE_SLASH = 1;
+  // TIMEOUT_SLASH
+  UPLOAD_SLASH = 2;
+}
+
 // ---------- Bundle Events ----------
 
 // EventBundleFinalised is an event emitted when a bundle is finalised.
@@ -122,6 +133,8 @@ message EventSlash {
   string address = 2;
   // amount ...
   uint64 amount = 3;
+  // slash_type
+  SlashType slash_type = 4;
 }
 
 // EventUpdateMetadata is an event emitted when a protocol node updates their metadata.

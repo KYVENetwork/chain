@@ -52,9 +52,10 @@ func (k Keeper) handleNonVoters(ctx sdk.Context, pool *types.Pool) {
 
 				// emit slashing event
 				ctx.EventManager().EmitTypedEvent(&types.EventSlash{
-					PoolId:  pool.Id,
-					Address: staker.Account,
-					Amount:  slashAmount,
+					PoolId:    pool.Id,
+					Address:   staker.Account,
+					Amount:    slashAmount,
+					SlashType: types.TIMEOUT_SLASH,
 				})
 
 				// Check if staker is still in stakers list and remove staker.
