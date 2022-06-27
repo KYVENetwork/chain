@@ -77,14 +77,14 @@ func (k Keeper) IterateProtocolBonding(ctx sdk.Context, address sdk.AccAddress, 
 		delegatorStore := prefix.NewStore(ctx.KVStore(k.storeKey), delegatorPrefix)
 		delegatorIterator := sdk.KVStorePrefixIterator(delegatorStore, nil)
 
-		delegatorIterator.Close()
-
 		for ; delegatorIterator.Valid(); delegatorIterator.Next() {
 			key := delegatorIterator.Key()
-			delegator, _ := k.GetDelegator(ctx, pool.Id, string(key[9:52]), address.String())
+			delegator, _ := k.GetDelegator(ctx, pool.Id, string(key[0:43]), address.String())
 
 			total += delegator.DelegationAmount
 		}
+
+		delegatorIterator.Close()
 
 		//
 		stop := fn(pool.Id, sdk.NewIntFromUint64(total))
