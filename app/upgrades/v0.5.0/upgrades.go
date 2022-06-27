@@ -78,32 +78,32 @@ func migratePools(registryKeeper *registrykeeper.Keeper, ctx sdk.Context) {
 		case "@kyve/evm":
 			pool.UpgradePlan = &types.UpgradePlan{
 				Version:  "1.2.0",
-				Binaries: "{\"macos\":\"https://cdn.discordapp.com/attachments/889827445132374036/989552831025516594/kyve-macos.zip?checksum=13a02c291dbe70f559f8513394a27516c685b7567830f76c3bc5fd81b40abf7e\"}",
+				Binaries: "{\"linux\":\"https://github.com/kyve-org/evm/releases/download/v1.2.0/kyve-linux.zip?checksum=a64febdda593950a222c3b884bf4220832f2906cf7923570fd1e51de043ca09e\",\"macos\":\"https://github.com/kyve-org/evm/releases/download/v1.2.0/kyve-macos.zip?checksum=a876fbb41e3fac985880062c5fe824e96d7e6ca10380d262161d460a4bf133e2\"}",
 			}
 		case "@kyve/stacks":
 			pool.UpgradePlan = &types.UpgradePlan{
 				Version:  "0.2.0",
-				Binaries: "{\"linux\":\"https://github.com/kyve-org/stacks/releases/download/v0.2.0/kyve-linux.zip?checksum=1c8b5ec983bccb70cbe435ded2edd7c2e65e9d12c7b032973f4adea6fa68281b\",\"macos\":\"https://github.com/kyve-org/stacks/releases/download/v0.2.0/kyve-macos.zip?checksum=acea13fd91281d545b500c8be5c02f92c0b296fee921516b072ed57b2607ca54\"}",
+				Binaries: "{\"linux\":\"https://github.com/kyve-org/stacks/releases/download/v0.2.0/kyve-linux.zip?checksum=a64febdda593950a222c3b884bf4220832f2906cf7923570fd1e51de043ca09e\",\"macos\":\"https://github.com/kyve-org/stacks/releases/download/v0.2.0/kyve-macos.zip?checksum=a876fbb41e3fac985880062c5fe824e96d7e6ca10380d262161d460a4bf133e2\"}",
 			}
 		case "@kyve/bitcoin":
 			pool.UpgradePlan = &types.UpgradePlan{
 				Version:  "0.2.0",
-				Binaries: "{\"linux\":\"https://github.com/kyve-org/bitcoin/releases/download/v0.2.0/kyve-linux.zip?checksum=0fbeaa64b22ab2ba34b6fa4571d2ff1fe7e573885abba48c15d878c19853bd79\",\"macos\":\"https://github.com/kyve-org/bitcoin/releases/download/v0.2.0/kyve-macos.zip?checksum=de901be709378f6bec81ed3c31d54fdfd67f26215e2614ffc14e80f6f98a29d1\"}",
+				Binaries: "{\"linux\":\"https://github.com/kyve-org/bitcoin/releases/download/v0.2.0/kyve-linux.zip?checksum=36447e50ea9eaa77e81618f45d8c40a57ae73d0a5b6abbe41e3f80879fc5a52f\",\"macos\":\"https://github.com/kyve-org/bitcoin/releases/download/v0.2.0/kyve-macos.zip?checksum=5d6c73021863012a2d22e17b2aed0227776677d1ac23e79786f46a1b3ab72e05\"}",
 			}
 		case "@kyve/solana":
 			pool.UpgradePlan = &types.UpgradePlan{
 				Version:  "0.2.0",
-				Binaries: "{\"linux\":\"https://github.com/kyve-org/solana/releases/download/v0.2.0/kyve-linux.zip?checksum=0e94e710624fb42947f538892160179050f8e99b286ae71668b7f5a48c285af0\",\"macos\":\"https://github.com/kyve-org/solana/releases/download/v0.2.0/kyve-macos.zip?checksum=bf25242be4a99c7b6181b835af7d90969bcdcd9a0473e850aa0ba065d723b038\"}",
+				Binaries: "{\"linux\":\"https://github.com/kyve-org/solana/releases/download/v0.2.0/kyve-linux.zip?checksum=2f4d13d249d890d38beaf1694d91a1fd871798dba8a954d4a96177899b51237c\",\"macos\":\"https://github.com/kyve-org/solana/releases/download/v0.2.0/kyve-macos.zip?checksum=a876fbb41e3fac985880062c5fe824e96d7e6ca10380d262161d460a4bf133e2\"}",
 			}
 		case "@kyve/zilliqa":
 			pool.UpgradePlan = &types.UpgradePlan{
 				Version:  "0.2.0",
-				Binaries: "{\"linux\":\"https://github.com/kyve-org/zilliqa/releases/download/v0.2.0/kyve-linux.zip?checksum=895b090bb2746a29fd4de168280b224353eb33bf7dd3f72fca8a60c250cfef2a\",\"macos\":\"https://github.com/kyve-org/zilliqa/releases/download/v0.2.0/kyve-macos.zip?checksum=5ca1330c922bfefacf1b94c8933930789cd314624aa29a22aaa55d2ab64e7d83\"}",
+				Binaries: "{\"linux\":\"https://github.com/kyve-org/zilliqa/releases/download/v0.2.0/kyve-linux.zip?checksum=3c0a06276ce0162f7d6f0b91f00c0ddcbdf605f952f0c1a7567519aadb6dcf47\",\"macos\":\"https://github.com/kyve-org/zilliqa/releases/download/v0.2.0/kyve-macos.zip?checksum=d5c5343c76e0faac2487e0b4bd5e8f47f42816a5f9813196f8f803a1695d6fe4\"}",
 			}
 		case "@kyve/near":
 			pool.UpgradePlan = &types.UpgradePlan{
 				Version:  "0.2.0",
-				Binaries: "{\"linux\":\"https://github.com/kyve-org/near/releases/download/v0.2.0/kyve-linux.zip?checksum=7d310651e19aedfff9e3360b5e6108a6271314eedf52dd86e8945fd1bb1d3793\",\"macos\":\"https://github.com/kyve-org/near/releases/download/v0.2.0/kyve-macos.zip?checksum=34082976222fd7e8feac57eaf9af828508398e0688b7a3af9e0caf02777ab51d\"}",
+				Binaries: "{\"linux\":\"https://github.com/kyve-org/near/releases/download/v0.2.0/kyve-linux.zip?checksum=57da2ca0fbcac9ddb61b1785dbc82ae1bfe27814158b0934ef0735ebc5e23033\",\"macos\":\"https://github.com/kyve-org/near/releases/download/v0.2.0/kyve-macos.zip?checksum=9a383316940c81cf6f3c5b04d03427d97eacff7d326be5ec24a33b461287fb89\"}",
 			}
 		case "@kyve/celo":
 			pool.UpgradePlan = &types.UpgradePlan{
@@ -113,17 +113,18 @@ func migratePools(registryKeeper *registrykeeper.Keeper, ctx sdk.Context) {
 		case "@kyve/cosmos":
 			pool.UpgradePlan = &types.UpgradePlan{
 				Version:  "0.2.0",
-				Binaries: "{\"linux\":\"https://github.com/kyve-org/cosmos/releases/download/v0.2.0/kyve-linux.zip?checksum=be96d9befd3a1084af6d9de2b49d81834edbf5888fb7dbdcbcaafbe22c1975a5\",\"macos\":\"https://github.com/kyve-org/cosmos/releases/download/v0.2.0/kyve-macos.zip?checksum=fcdd4c561096f7f7ccbf7eeb625c2317c5166b615fa208f92f73a2c704e1966a\"}",
+				Binaries: "{\"linux\":\"https://github.com/kyve-org/celo/releases/download/v0.2.0/kyve-linux.zip?checksum=dd75d1b0d98ca3769befaa9549a10aafe91740844479e6db31e59f63bd64a5b8\",\"macos\":\"https://github.com/kyve-org/celo/releases/download/v0.2.0/kyve-macos.zip?checksum=a7c93222950bc5c6dadb0efa604ab02af452ad23860cf0d70901cacd07115fdb\"}",
 			}
 		case "@kyve/substrate":
 			pool.UpgradePlan = &types.UpgradePlan{
-				Version:  "0.2.0",
-				Binaries: "{\"linux\":\"https://github.com/kyve-org/substrate/releases/download/v0.2.0/kyve-linux.zip?checksum=be96d9befd3a1084af6d9de2b49d81834edbf5888fb7dbdcbcaafbe22c1975a5\",\"macos\":\"https://github.com/kyve-org/substrate/releases/download/v0.2.0/kyve-macos.zip?checksum=fcdd4c561096f7f7ccbf7eeb625c2317c5166b615fa208f92f73a2c704e1966a\"}",
+				Version:  "0.1.0",
+				Binaries: "{\"linux\":\"https://github.com/kyve-org/substrate/releases/download/v0.1.0/kyve-linux.zip?checksum=1071e16e9563eebd76ad2910006795feeff0008e2fe30ed0715e58570cd89875\",\"macos\":\"https://github.com/kyve-org/substrate/releases/download/v0.1.0/kyve-macos.zip?checksum=0135f2bbd4cae57988ae383560d31f323d778719150144bc156ba221570ac403\"}",
 			}
 		default:
 			pool.UpgradePlan = &types.UpgradePlan{}
 		}
 
+		// add pool upgrade info
 		pool.UpgradePlan.ScheduledAt = uint64(ctx.BlockTime().Unix())
 		pool.UpgradePlan.Duration = 300 // 30min
 
