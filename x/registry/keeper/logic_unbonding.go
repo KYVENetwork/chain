@@ -23,7 +23,7 @@ func (k Keeper) StartUnbondingStaker(ctx sdk.Context, poolId uint64, staker stri
 		return errors.New("staker does not exist")
 	}
 
-	if unbondingStaker.UnbondingAmount+amount > poolStaker.Amount {
+	if amount > poolStaker.Amount-unbondingStaker.UnbondingAmount {
 		return errors.New("amount is too high")
 	}
 
