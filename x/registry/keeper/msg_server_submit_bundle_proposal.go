@@ -276,11 +276,15 @@ func (k msgServer) SubmitBundleProposal(
 					ByteSize:     pool.BundleProposal.ByteSize,
 					Uploader:     pool.BundleProposal.Uploader,
 					NextUploader: pool.BundleProposal.NextUploader,
+					Reward:       0,
 					Valid:        uint64(len(pool.BundleProposal.VotersValid)),
 					Invalid:      uint64(len(pool.BundleProposal.VotersInvalid)),
 					FromHeight:   pool.BundleProposal.FromHeight,
 					ToHeight:     pool.BundleProposal.ToHeight,
 					Status:       types.BUNDLE_STATUS_NO_FUNDS,
+					ToKey:        pool.BundleProposal.ToKey,
+					ToValue:      pool.BundleProposal.ToValue,
+					Id:           0,
 				})
 				if errEmit != nil {
 					return nil, errEmit
@@ -382,6 +386,9 @@ func (k msgServer) SubmitBundleProposal(
 			FromHeight:   pool.BundleProposal.FromHeight,
 			ToHeight:     pool.BundleProposal.ToHeight,
 			Status:       types.BUNDLE_STATUS_VALID,
+			ToKey:        pool.BundleProposal.ToKey,
+			ToValue:      pool.BundleProposal.ToValue,
+			Id:           pool.TotalBundles - 1,
 		})
 		if errEmit != nil {
 			return nil, errEmit
@@ -442,11 +449,15 @@ func (k msgServer) SubmitBundleProposal(
 			ByteSize:     pool.BundleProposal.ByteSize,
 			Uploader:     pool.BundleProposal.Uploader,
 			NextUploader: pool.BundleProposal.NextUploader,
+			Reward:       0,
 			Valid:        uint64(len(pool.BundleProposal.VotersValid)),
 			Invalid:      uint64(len(pool.BundleProposal.VotersInvalid)),
 			FromHeight:   pool.BundleProposal.FromHeight,
 			ToHeight:     pool.BundleProposal.ToHeight,
 			Status:       types.BUNDLE_STATUS_INVALID,
+			ToKey:        pool.BundleProposal.ToKey,
+			ToValue:      pool.BundleProposal.ToValue,
+			Id:           0,
 		})
 		if errEmit != nil {
 			return nil, errEmit

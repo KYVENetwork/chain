@@ -102,11 +102,15 @@ func (k Keeper) HandleUploadTimeout(goCtx context.Context) {
 					ByteSize:     pool.BundleProposal.ByteSize,
 					Uploader:     pool.BundleProposal.Uploader,
 					NextUploader: pool.BundleProposal.NextUploader,
+					Reward:       0,
 					Valid:        uint64(len(pool.BundleProposal.VotersValid)),
 					Invalid:      uint64(len(pool.BundleProposal.VotersInvalid)),
 					FromHeight:   pool.BundleProposal.FromHeight,
 					ToHeight:     pool.BundleProposal.ToHeight,
 					Status:       types.BUNDLE_STATUS_NO_QUORUM,
+					ToKey:        pool.BundleProposal.ToKey,
+					ToValue:      pool.BundleProposal.ToValue,
+					Id:           0,
 				})
 
 				pool.BundleProposal = &types.BundleProposal{

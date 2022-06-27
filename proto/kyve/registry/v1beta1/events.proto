@@ -60,7 +60,12 @@ message EventBundleFinalised {
   uint64 to_height = 10;
   // status ...
   BundleStatus status = 11;
-  // TODO add to_key, to_value, id (proposal_id)
+  // to_key ...
+  string to_key = 12;
+  // to_value ...
+  string to_value = 13;
+  // id ...
+  uint64 id = 14;
 }
 
 // EventBundleVote is an event emitted when a protocol node votes on a bundle.
