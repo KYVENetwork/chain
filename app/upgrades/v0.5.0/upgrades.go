@@ -126,7 +126,7 @@ func migratePools(registryKeeper *registrykeeper.Keeper, ctx sdk.Context) {
 
 		// add pool upgrade info
 		pool.UpgradePlan.ScheduledAt = uint64(ctx.BlockTime().Unix())
-		pool.UpgradePlan.Duration = 300 // 30min
+		pool.UpgradePlan.Duration = 1800 // 30min
 
 		// save changes
 		registryKeeper.SetPool(ctx, pool)
