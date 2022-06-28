@@ -48,12 +48,12 @@ var (
 
 var (
 	KeyUnbondingStakingTime            = []byte("UnbondingStakingTime")
-	DefaultUnbondingStakingTime uint64 = 60
+	DefaultUnbondingStakingTime uint64 = 60 * 60 * 24 * 5
 )
 
 var (
 	KeyUnbondingDelegationTime            = []byte("UnbondingDelegationTime")
-	DefaultUnbondingDelegationTime uint64 = 60
+	DefaultUnbondingDelegationTime uint64 = 60 * 60 * 24 * 5
 )
 
 // ParamKeyTable the param Key table for launch module

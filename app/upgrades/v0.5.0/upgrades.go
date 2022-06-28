@@ -19,10 +19,8 @@ import (
 )
 
 func createUnbondingParameters(registryKeeper *registrykeeper.Keeper, ctx sdk.Context) {
-	// init param // TODO: change to 5 days
 	registryKeeper.ParamStore().Set(ctx, types.KeyUnbondingStakingTime, types.DefaultUnbondingStakingTime)
 
-	// init param // TODO: change to 5 days
 	registryKeeper.ParamStore().Set(ctx, types.KeyUnbondingDelegationTime, types.DefaultUnbondingDelegationTime)
 }
 
@@ -203,17 +201,14 @@ func updateGovParams(ctx sdk.Context, govKeeper *govkeeper.Keeper) {
 	})
 
 	govKeeper.SetVotingParams(ctx, govtypes.VotingParams{
-		// TODO: change to 1 day
-		VotingPeriod: time.Minute * 20,
+		VotingPeriod: time.Minute * 60 * 24,
 		ProposalVotingPeriods: []govtypes.ProposalVotingPeriod{
 			{
 				ProposalType: "kyve.registry.v1beta1.CreatePoolProposal",
-				// TODO: change to 2 hours
-				VotingPeriod: time.Minute * 10,
+				VotingPeriod: time.Minute * 60 * 2,
 			},
 		},
-		// TODO: change to 30 min
-		ExpeditedVotingPeriod: time.Minute * 5,
+		ExpeditedVotingPeriod: time.Minute * 30,
 	})
 }
 
