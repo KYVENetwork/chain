@@ -52,7 +52,16 @@ func (k Keeper) Staker(goCtx context.Context, req *types.QueryStakerRequest) (*t
 	}
 
 	if staker.Status == types.STAKER_STATUS_ACTIVE {
-		k.GetUploadProbability(ctx, staker.Account, staker.PoolId).String()
+		stakerResponse.UploadProbability = k.GetUploadProbability(ctx, staker.Account, staker.PoolId).String()
+	}
+
+	commissionChangeEntry, foundCommissionChange := k.GetCommissionChangeQueueEntryByIndex2(ctx, staker.Account, staker.PoolId)
+	if foundCommissionChange {
+		stakerResponse.PendingCommissionChange = &types.PendingCommissionChange{
+			NewCommission: commissionChangeEntry.Commission,
+			CreationDate:  commissionChangeEntry.CreationDate,
+			FinishDate:    commissionChangeEntry.CreationDate + int64(k.CommissionChangeTime(ctx)),
+		}
 	}
 
 	// Fetch total delegation for staker, as it is stored in DelegationPoolData
