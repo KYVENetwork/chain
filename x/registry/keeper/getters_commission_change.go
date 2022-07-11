@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"encoding/binary"
 	"github.com/KYVENetwork/chain/x/registry/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,16 +18,19 @@ func (k Keeper) SetCommissionChangeQueueEntry(ctx sdk.Context, commissionChangeQ
 	store.Set(types.CommissionChangeQueueEntryKey(commissionChangeQueueEntry.Index), b)
 
 	// Insert the same entry with a different key prefix for query lookup
+	indexBytes := make([]byte, 8)
+	binary.BigEndian.PutUint64(indexBytes, commissionChangeQueueEntry.Index)
+
 	indexStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.CommissionChangeQueueEntryKeyPrefixIndex2)
 	indexStore.Set(types.CommissionChangeQueueEntryKeyIndex2(
 		commissionChangeQueueEntry.Staker,
 		commissionChangeQueueEntry.PoolId,
-	), []byte{1})
+	), indexBytes)
 }
 
 // GetCommissionChangeQueueEntry ...
 func (k Keeper) GetCommissionChangeQueueEntry(ctx sdk.Context, index uint64) (val types.CommissionChangeQueueEntry, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CommissionChangeQueueStateKey)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CommissionChangeQueueEntryKeyPrefix)
 
 	b := store.Get(types.CommissionChangeQueueEntryKey(index))
 	if b == nil {
@@ -46,8 +50,9 @@ func (k Keeper) GetCommissionChangeQueueEntryByIndex2(ctx sdk.Context, staker st
 		return val, false
 	}
 
-	k.cdc.MustUnmarshal(b, &val)
-	return val, true
+	index := binary.BigEndian.Uint64(b)
+
+	return k.GetCommissionChangeQueueEntry(ctx, index)
 }
 
 // RemoveCommissionChangeQueueEntry ...
