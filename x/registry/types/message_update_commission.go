@@ -14,7 +14,7 @@ func (msg *MsgUpdateCommission) Route() string {
 }
 
 func (msg *MsgUpdateCommission) Type() string {
-	return TypeMsgUpdateMetadata
+	return TypeMsgUpdateCommission
 }
 
 func (msg *MsgUpdateCommission) GetSigners() []sdk.AccAddress {

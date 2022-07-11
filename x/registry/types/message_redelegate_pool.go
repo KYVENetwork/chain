@@ -14,7 +14,7 @@ func (msg *MsgRedelegatePool) Route() string {
 }
 
 func (msg *MsgRedelegatePool) Type() string {
-	return TypeMsgStakePool
+	return TypeMsgRedelegatePool
 }
 
 func (msg *MsgRedelegatePool) GetSigners() []sdk.AccAddress {
