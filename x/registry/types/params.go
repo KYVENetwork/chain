@@ -66,6 +66,11 @@ var (
 	DefaultRedelegationMaxAmount uint64 = 3 // TODO think about amount?
 )
 
+var (
+	KeyCommissionChangeTime            = []byte("KeyCommissionChangeTime")
+	DefaultCommissionChangeTime uint64 = 60 // TODO CHANGE
+)
+
 // ParamKeyTable the param Key table for launch module
 func ParamKeyTable() paramtypes.KeyTable {
 	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
@@ -84,6 +89,7 @@ func NewParams(
 	unbondingDelegationTime uint64,
 	redelegationCooldown uint64,
 	redelegationMaxAmount uint64,
+	commissionChangeTime uint64,
 ) Params {
 	return Params{
 		VoteSlash:               voteSlash,
@@ -97,6 +103,7 @@ func NewParams(
 		UnbondingDelegationTime: unbondingDelegationTime,
 		RedelegationCooldown:    redelegationCooldown,
 		RedelegationMaxAmount:   redelegationMaxAmount,
+		CommissionChangeTime:    commissionChangeTime,
 	}
 }
 
@@ -114,6 +121,7 @@ func DefaultParams() Params {
 		DefaultUnbondingDelegationTime,
 		DefaultRedelegationCooldown,
 		DefaultRedelegationMaxAmount,
+		DefaultCommissionChangeTime,
 	)
 }
 
@@ -131,6 +139,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyUnbondingDelegationTime, &p.UnbondingDelegationTime, validateUnbondingDelegationTime),
 		paramtypes.NewParamSetPair(KeyRedelegationCooldown, &p.RedelegationCooldown, validateTrue),
 		paramtypes.NewParamSetPair(KeyRedelegationMaxAmount, &p.RedelegationMaxAmount, validateTrue),
+		paramtypes.NewParamSetPair(KeyCommissionChangeTime, &p.CommissionChangeTime, validateTrue),
 	}
 }
 

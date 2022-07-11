@@ -32,4 +32,6 @@ message Params {
   uint64 redelegation_cooldown = 12;
   // unbonding_delegation_time ...
   uint64 redelegation_max_amount = 13;
+  // commission_change_time ...
+  uint64 commission_change_time = 14;
 }

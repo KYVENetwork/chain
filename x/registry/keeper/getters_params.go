@@ -20,6 +20,7 @@ func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 		k.UnbondingStakingTime(ctx),
 		k.RedelegationCooldown(ctx),
 		k.RedelegationMaxAmount(ctx),
+		k.CommissionChangeTime(ctx),
 	)
 }
 
@@ -91,6 +92,12 @@ func (k Keeper) RedelegationCooldown(ctx sdk.Context) (res uint64) {
 // RedelegationMaxAmount ...
 func (k Keeper) RedelegationMaxAmount(ctx sdk.Context) (res uint64) {
 	k.paramstore.Get(ctx, types.KeyRedelegationMaxAmount, &res)
+	return
+}
+
+// CommissionChangeTime ...
+func (k Keeper) CommissionChangeTime(ctx sdk.Context) (res uint64) {
+	k.paramstore.Get(ctx, types.KeyCommissionChangeTime, &res)
 	return
 }
 

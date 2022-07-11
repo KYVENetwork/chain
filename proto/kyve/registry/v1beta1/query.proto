@@ -263,6 +263,16 @@ message QueryStakerResponse {
   kyve.registry.v1beta1.StakerResponse staker = 1;
 }
 
+// PendingCommissionChange ...
+message PendingCommissionChange {
+  // new_commission ...
+  string new_commission = 1;
+  // creation_date ...
+  int64 creation_date = 2;
+  // finish_date ...
+  int64 finish_date = 3;
+}
+
 // StakerResponse ...
 message StakerResponse {
   // staker ...
@@ -291,6 +301,8 @@ message StakerResponse {
   string upload_probability = 12;
   // status
   StakerStatus status = 13;
+  // pending_commission_change
+  PendingCommissionChange pending_commission_change = 14;
 }
 
 // QueryVoteStatusRequest is the request type for the Query/VoteStatus RPC method.
