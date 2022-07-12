@@ -37,18 +37,20 @@ func (k Keeper) Staker(goCtx context.Context, req *types.QueryStakerRequest) (*t
 	}
 
 	stakerResponse := types.StakerResponse{
-		Staker:            staker.Account,
-		PoolId:            staker.PoolId,
-		Account:           staker.Account,
-		Amount:            staker.Amount,
-		TotalDelegation:   0,
-		Commission:        staker.Commission,
-		Moniker:           staker.Moniker,
-		Website:           staker.Website,
-		Logo:              staker.Logo,
-		Points:            staker.Points,
-		UnbondingAmount:   unbondingStaker.UnbondingAmount,
-		UploadProbability: "0",
+		Staker:                  staker.Account,
+		PoolId:                  staker.PoolId,
+		Account:                 staker.Account,
+		Amount:                  staker.Amount,
+		TotalDelegation:         0,
+		Commission:              staker.Commission,
+		Moniker:                 staker.Moniker,
+		Website:                 staker.Website,
+		Logo:                    staker.Logo,
+		Points:                  staker.Points,
+		UnbondingAmount:         unbondingStaker.UnbondingAmount,
+		UploadProbability:       "0",
+		Status:                  staker.Status,
+		PendingCommissionChange: nil,
 	}
 
 	if staker.Status == types.STAKER_STATUS_ACTIVE {

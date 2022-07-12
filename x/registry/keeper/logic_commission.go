@@ -55,7 +55,7 @@ func (k Keeper) ProcessCommissionChangeUnbondingQueue(ctx sdk.Context) {
 				queueState.LowIndex += 1
 				commissionChangePerformed = true
 			}
-		} else if queueEntry.CreationDate+int64(k.CommissionChangeTime(ctx)) < ctx.BlockTime().Unix() {
+		} else if queueEntry.CreationDate+int64(k.CommissionChangeTime(ctx)) <= ctx.BlockTime().Unix() {
 
 			queueState.LowIndex += 1
 			commissionChangePerformed = true

@@ -42,8 +42,8 @@ export const startChain = <StartChainType>(() => {
       chain.stderr.on('data', processError);
     } else {
       //cosmos binary data to stderr
-     chain.stderr.on('data', processData);
-     chain.stdout.on('data', processError)
+      chain.stderr.on('data', processData);
+      chain.stdout.on('data', processError)
     }
   });
 });
