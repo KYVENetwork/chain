@@ -43,9 +43,7 @@ type KeeperTestSuite struct {
 var s *KeeperTestSuite
 
 func (suite *KeeperTestSuite) SetupTest() {
-	println("SetupTest")
 	suite.app = app.Setup()
-	println("App set")
 	suite.SetupApp()
 }
 
@@ -53,6 +51,8 @@ func (suite *KeeperTestSuite) SetupApp() {
 	//t := suite.T()
 
 	suite.denom = "tkyve"
+
+	//sdk.GetConfig().SetBech32PrefixForAccount("kyve", "kyve")
 
 	// consensus key
 	privKey, err := ecdsa.GenerateKey(secp256k1.S256(), rand.Reader)
@@ -111,7 +111,6 @@ func (suite *KeeperTestSuite) SetupApp() {
 	//require.NoError(t, err)
 	validators := s.app.StakingKeeper.GetValidators(s.ctx, 1)
 	suite.validator = validators[0]
-	println("Created")
 }
 
 func (suite *KeeperTestSuite) Commit() {
