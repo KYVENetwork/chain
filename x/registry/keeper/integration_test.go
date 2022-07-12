@@ -2,159 +2,228 @@ package keeper_test
 
 import (
 	"fmt"
-	"github.com/KYVENetwork/chain/x/registry/keeper"
+	"github.com/KYVENetwork/chain/x/registry"
 	"github.com/KYVENetwork/chain/x/registry/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	. "github.com/onsi/ginkgo"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	"github.com/stretchr/testify/require"
 	"testing"
+	"time"
 )
 
-func TestAbs(t *testing.T) {
+const ALICE_ADDR = "cosmos1jq304cthpx0lwhpqzrdjrcza559ukyy347ju8f"
+const BOB_ADDR = "cosmos1hvg7zsnrj6h29q9ss577mhrxa04rn94hfvl2ry"
+const KYVE = uint64(1_000_000_000)
+
+func runTx(msg sdk.Msg) (success bool) {
+	cachedCtx, commit := s.ctx.CacheContext()
+	_, err := registry.NewHandler(s.app.RegistryKeeper)(cachedCtx, msg)
+	if err == nil {
+		commit()
+		return true
+	}
+	return false
+}
+
+func runTxSuccess(t *testing.T, msg sdk.Msg) {
+	success := runTx(msg)
+	require.True(t, success)
+}
+
+func mint(address string, amount uint64) error {
+	coins := sdk.NewCoins(sdk.NewInt64Coin("tkyve", int64(amount)))
+	err := s.app.BankKeeper.MintCoins(s.ctx, types.ModuleName, coins)
+	if err != nil {
+		return err
+	}
+
+	s.Commit()
+
+	sender, err := sdk.AccAddressFromBech32(address)
+	if err != nil {
+		return err
+	}
+
+	err = s.app.BankKeeper.SendCoinsFromModuleToAccount(s.ctx, types.ModuleName, sender, coins)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func TestBlocks(t *testing.T) {
 	s = new(KeeperTestSuite)
 	s.SetupTest()
 
-	//// Create and fund periodic vesting account
-	//vestingStart := s.ctx.BlockTime()
-	//baseAccount := authtypes.NewBaseAccountWithAddress(addr)
-	//funder := sdk.AccAddress(types.ModuleName)
+	currentTime := s.ctx.BlockTime().Unix()
+	s.CommitAfter(time.Second * 60)
+	require.Equal(t, s.ctx.BlockTime().Unix(), currentTime+60)
 
-	ctx := sdk.WrapSDKContext(s.ctx)
+	s.CommitAfter(time.Second * 60)
+	require.Equal(t, s.ctx.BlockTime().Unix(), currentTime+2*60)
 
-	resp, err := keeper.NewMsgServerImpl(s.app.RegistryKeeper).FundPool(ctx, &types.MsgFundPool{
-		Creator: "ich",
+}
+
+func TestFunding(t *testing.T) {
+	pool := types.Pool{
+		Creator:        govtypes.ModuleName,
+		Name:           "Moontest",
+		Runtime:        "@kyve/evm",
+		Logo:           "9FJDam56yBbmvn8rlamEucATH5UcYqSBw468rlCXn8E",
+		Config:         "{\"rpc\":\"https://rpc.api.moonbeam.network\",\"github\":\"https://github.com/KYVENetwork/evm\"}",
+		UploadInterval: 60,
+		OperatingCost:  100,
+		BundleProposal: &types.BundleProposal{},
+		MaxBundleSize:  100,
+		Protocol: &types.Protocol{
+			Version:     "1.3.0",
+			LastUpgrade: uint64(s.ctx.BlockTime().Unix()),
+			Binaries:    "{\"macos\":\"https://github.com/kyve-org/evm/releases/download/v1.0.5/kyve-evm-macos.zip\"}",
+		},
+		UpgradePlan: &types.UpgradePlan{},
+		StartKey:    "0",
+		Status:      types.POOL_STATUS_NOT_ENOUGH_VALIDATORS,
+		MinStake:    0,
+	}
+
+	s.app.RegistryKeeper.AppendPool(s.ctx, pool)
+	s.Commit()
+
+	err := mint(ALICE_ADDR, 1000*KYVE)
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+		return
+	}
+	err = mint(BOB_ADDR, 1000*KYVE)
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+		return
+	}
+
+	fundPool0 := runTx(&types.MsgFundPool{
+		Creator: ALICE_ADDR,
 		Id:      0,
+		Amount:  99 * KYVE,
+	})
+
+	_, foundFunder0 := s.app.RegistryKeeper.GetFunder(s.ctx, ALICE_ADDR, 0)
+	require.True(t, fundPool0)
+	require.True(t, foundFunder0)
+
+	fundPool1 := runTx(&types.MsgFundPool{
+		Creator: ALICE_ADDR,
+		Id:      1,
 		Amount:  0,
 	})
 
-	fmt.Printf("%v\n%b\n", resp, err)
-
-	//s.Require().Equal(vestingAmtTotal, unvested)
-	s.Require().True(err == nil)
+	_, foundFunder1 := s.app.RegistryKeeper.GetFunder(s.ctx, ALICE_ADDR, 1)
+	require.False(t, fundPool1)
+	require.False(t, foundFunder1)
 }
 
-var _ = Describe("Books", func() {
-	// Monthly vesting period
-	stakeDenom := stakingtypes.DefaultParams().BondDenom
-	amt := sdk.NewInt(1)
-	vestingLength := int64(60 * 60 * 24 * 30) // in seconds
-	vestingAmt := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt))
+func TestCommissionChange(t *testing.T) {
 
-	_ = vestingLength
-	_ = vestingAmt
+	QueueTime := time.Duration(s.app.RegistryKeeper.CommissionChangeTime(s.ctx)) * time.Second
+	fmt.Printf("Queue Time: %d\n", QueueTime)
 
-	BeforeEach(func() {
-		s.SetupTest()
+	// Stake into pool
+	stakePool := runTx(&types.MsgStakePool{
+		Creator: ALICE_ADDR,
+		Id:      0,
+		Amount:  10 * KYVE,
+	})
+	require.True(t, stakePool)
+	s.Commit()
+	staker, found := s.app.RegistryKeeper.GetStaker(s.ctx, ALICE_ADDR, 0)
+	require.True(t, found)
+	require.Equal(t, types.DefaultCommission, staker.Commission)
 
-		//// Create and fund periodic vesting account
-		//vestingStart := s.ctx.BlockTime()
-		//baseAccount := authtypes.NewBaseAccountWithAddress(addr)
-		//funder := sdk.AccAddress(types.ModuleName)
+	// Submit commission change
+	s.Commit()
+	changeCommission := runTx(&types.MsgUpdateCommission{
+		Creator:    ALICE_ADDR,
+		Id:         0,
+		Commission: "0.1",
+	})
+	require.True(t, changeCommission)
 
-		resp, err := keeper.NewMsgServerImpl(s.app.RegistryKeeper).FundPool(s.ctx.Context(), &types.MsgFundPool{
-			Creator: "ich",
-			Id:      0,
-			Amount:  0,
-		})
+	fmt.Printf("state: %v\nentires: %v\n", s.app.RegistryKeeper.GetCommissionChangeQueueState(s.ctx), s.app.RegistryKeeper.GetAllCommissionChangeQueueEntries(s.ctx))
 
-		fmt.Printf("%v\n%b\n", resp, err)
+	// Commission should not have changed
+	staker, found = s.app.RegistryKeeper.GetStaker(s.ctx, ALICE_ADDR, 0)
+	require.True(t, found)
+	require.Equal(t, types.DefaultCommission, staker.Commission)
 
-		//s.Require().Equal(vestingAmtTotal, unvested)
-		s.Require().True(err == nil)
+	s.CommitAfter(QueueTime) // Wait timeout
+	s.Commit()               // Execute endblock after time was upgraded
+
+	// Commission should have changed
+	staker, found = s.app.RegistryKeeper.GetStaker(s.ctx, ALICE_ADDR, 0)
+	require.True(t, found)
+	require.Equal(t, "0.1", staker.Commission)
+
+	// =================
+	// Add second staker
+	// =================
+
+	stakePool2 := runTx(&types.MsgStakePool{
+		Creator: BOB_ADDR,
+		Id:      0,
+		Amount:  10 * KYVE,
+	})
+	require.True(t, stakePool2)
+	s.Commit()
+	staker2, found2 := s.app.RegistryKeeper.GetStaker(s.ctx, BOB_ADDR, 0)
+	require.True(t, found2)
+	// Commission should be default
+	require.Equal(t, types.DefaultCommission, staker2.Commission)
+
+	// Create two queue entries
+	runTxSuccess(t, &types.MsgUpdateCommission{
+		Creator:    ALICE_ADDR,
+		Id:         0,
+		Commission: "0.2",
+	})
+	s.CommitAfter(QueueTime / 2)
+	runTxSuccess(t, &types.MsgUpdateCommission{
+		Creator:    BOB_ADDR,
+		Id:         0,
+		Commission: "0.5",
+	})
+	s.CommitAfter(QueueTime / 3)
+
+	fmt.Printf("state: %v\nentires: %v\n", s.app.RegistryKeeper.GetCommissionChangeQueueState(s.ctx), s.app.RegistryKeeper.GetAllCommissionChangeQueueEntries(s.ctx))
+
+	// No change should have been applied yet.
+	aliceStaker, found := s.app.RegistryKeeper.GetStaker(s.ctx, ALICE_ADDR, 0)
+	require.Equal(t, "0.1", aliceStaker.Commission)
+
+	// Overwrite Bob which will reset the timer
+	runTxSuccess(t, &types.MsgUpdateCommission{
+		Creator:    BOB_ADDR,
+		Id:         0,
+		Commission: "0.8",
 	})
 
-	Context("my first test", func() {
-		It("It test", func() {
-			fmt.Printf("Hello World\n")
-		})
-	})
+	// Alice should have become active
+	s.CommitAfter(QueueTime / 2)
+	s.Commit()
 
-	//Context("after first vesting period and before lockup", func() {
-	//	BeforeEach(func() {
-	//		// Surpass cliff but not lockup duration
-	//		cliffDuration := time.Duration(cliffLength)
-	//		s.CommitAfter(cliffDuration * time.Second)
-	//
-	//		// Check if some, but not all tokens are vested
-	//		vested = clawbackAccount.GetVestedOnly(s.ctx.BlockTime())
-	//		expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(cliff))))
-	//		s.Require().NotEqual(vestingAmtTotal, vested)
-	//		s.Require().Equal(expVested, vested)
-	//	})
-	//
-	//	It("can delegate vested tokens", func() {
-	//		err := delegate(clawbackAccount, vested.AmountOf(stakeDenom).Int64())
-	//		Expect(err).To(BeNil())
-	//	})
-	//
-	//	It("cannot delegate unvested tokens", func() {
-	//		err := delegate(clawbackAccount, vestingAmtTotal.AmountOf(stakeDenom).Int64())
-	//		Expect(err).ToNot(BeNil())
-	//	})
-	//
-	//	It("cannot transfer vested tokens", func() {
-	//		err := s.app.BankKeeper.SendCoins(
-	//			s.ctx,
-	//			addr,
-	//			sdk.AccAddress(tests.GenerateAddress().Bytes()),
-	//			vested,
-	//		)
-	//		Expect(err).ToNot(BeNil())
-	//	})
-	//
-	//	It("cannot perform Ethereum tx", func() {
-	//		err := performEthTx(clawbackAccount)
-	//		Expect(err).ToNot(BeNil())
-	//	})
-	//})
-	//
-	//Context("after first vesting period and lockup", func() {
-	//	BeforeEach(func() {
-	//		// Surpass lockup duration
-	//		lockupDuration := time.Duration(lockupLength)
-	//		s.CommitAfter(lockupDuration * time.Second)
-	//
-	//		// Check if some, but not all tokens are vested
-	//		unvested = clawbackAccount.GetUnvestedOnly(s.ctx.BlockTime())
-	//		vested = clawbackAccount.GetVestedOnly(s.ctx.BlockTime())
-	//		expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(lockup))))
-	//		s.Require().NotEqual(vestingAmtTotal, vested)
-	//		s.Require().Equal(expVested, vested)
-	//	})
-	//
-	//	It("can delegate vested tokens", func() {
-	//		err := delegate(clawbackAccount, vested.AmountOf(stakeDenom).Int64())
-	//		Expect(err).To(BeNil())
-	//	})
-	//
-	//	It("cannot delegate unvested tokens", func() {
-	//		err := delegate(clawbackAccount, vestingAmtTotal.AmountOf(stakeDenom).Int64())
-	//		Expect(err).ToNot(BeNil())
-	//	})
-	//
-	//	It("can transfer vested tokens", func() {
-	//		err := s.app.BankKeeper.SendCoins(
-	//			s.ctx,
-	//			addr,
-	//			sdk.AccAddress(tests.GenerateAddress().Bytes()),
-	//			vested,
-	//		)
-	//		Expect(err).To(BeNil())
-	//	})
-	//
-	//	It("cannot transfer unvested tokens", func() {
-	//		err := s.app.BankKeeper.SendCoins(
-	//			s.ctx,
-	//			addr,
-	//			sdk.AccAddress(tests.GenerateAddress().Bytes()),
-	//			unvested,
-	//		)
-	//		Expect(err).ToNot(BeNil())
-	//	})
-	//
-	//	It("can perform ethereum tx", func() {
-	//		err := performEthTx(clawbackAccount)
-	//		Expect(err).To(BeNil())
-	//	})
-	//})
-})
+	// Alice should now be due, bob should be unchanged
+
+	fmt.Printf("state: %v\nentires: %v\n", s.app.RegistryKeeper.GetCommissionChangeQueueState(s.ctx), s.app.RegistryKeeper.GetAllCommissionChangeQueueEntries(s.ctx))
+
+	aliceStaker, _ = s.app.RegistryKeeper.GetStaker(s.ctx, ALICE_ADDR, 0)
+	require.Equal(t, "0.2", aliceStaker.Commission)
+	bobStaker, _ := s.app.RegistryKeeper.GetStaker(s.ctx, BOB_ADDR, 0)
+	require.Equal(t, types.DefaultCommission, bobStaker.Commission)
+
+	s.CommitAfter(QueueTime / 2)
+	s.Commit()
+
+	// bob should now have become active
+	bobStaker, _ = s.app.RegistryKeeper.GetStaker(s.ctx, BOB_ADDR, 0)
+	require.Equal(t, "0.8", bobStaker.Commission)
+
+	fmt.Printf("state: %v\nentires: %v\n", s.app.RegistryKeeper.GetCommissionChangeQueueState(s.ctx), s.app.RegistryKeeper.GetAllCommissionChangeQueueEntries(s.ctx))
+}
