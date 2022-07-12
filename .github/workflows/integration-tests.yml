@@ -1,12 +1,6 @@
 name: integtaion-tests
 
-on:
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - converted_to_draft
-      - edited
+on: pull_request
 
 jobs:
   tests:
@@ -25,6 +19,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           path: "chain"
+          ref: ${{github.event.pull_request.head.ref}}
       - name: "install go"
         uses: actions/setup-go@v3
         with:
