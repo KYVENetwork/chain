@@ -908,7 +908,7 @@
 
 "@kyve/sdk@https://github.com/KYVENetwork/sdk.git#feature/v2":
   version "2.0.0"
-  resolved "https://github.com/KYVENetwork/sdk.git#b2b89abf9448db8cbec79bcb0de016ceab0ecb51"
+  resolved "https://github.com/KYVENetwork/sdk.git#1aa52f8d646e58229ac09adf0ae918b22df767e7"
   dependencies:
     "@cosmjs/amino" "0.28.3"
     "@cosmjs/crypto" "0.27.1"

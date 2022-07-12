@@ -66,7 +66,6 @@ export const staking = () => {
     await expect(request).rejects.toThrow(/insufficient funds/);
     // refetch pool
     pool = await getDefaultPool();
-
     // refetch stakers list
     stakersListResponse = await lcdClient.kyve.registry.v1beta1.stakersList({
       pool_id: "0",
@@ -100,7 +99,6 @@ export const staking = () => {
     let stakersListResponse = await lcdClient.kyve.registry.v1beta1.stakersList(
       { pool_id: "0", status: 1 }
     );
-
     // get balance before staking
     const preBalance = await alice.client.kyve.v1beta1.base.getKyveBalance();
 
@@ -109,13 +107,11 @@ export const staking = () => {
     expect(stakersListResponse.stakers).toHaveLength(0);
     expect(pool.total_stake).toEqual("0");
     expect(pool.lowest_staker).toBe("");
-
     // stake 80 KYVE
     const receipt = await alice.client.kyve.v1beta1.base.stakePool({
       id: pool.id,
       amount: amount.toString(),
     }).then(tx => tx.execute());
-
     // 0 means transaction was successful
     expect(receipt.code).toEqual(0);
 
@@ -127,7 +123,6 @@ export const staking = () => {
       pool_id: "0",
       status: 1,
     });
-
     // get balance before staking
     const postBalance = await alice.client.kyve.v1beta1.base.getKyveBalance();
 
@@ -386,14 +381,13 @@ export const staking = () => {
     expect(pool.stakers).toHaveLength(1);
     expect(stakersListResponse.stakers).toHaveLength(1);
     expect(pool.total_stake).toEqual(totalStaked.toString());
-
-    await alice.client.kyve.v1beta1.base.stakePool({
-      id: pool.id,
-      amount: aliceAmount.toString(),
-    }).then(tx => tx.execute());
     await bob.client.kyve.v1beta1.base.stakePool({
       id: pool.id,
       amount: bobAmount.toString(),
+    }).then(tx => tx.execute());
+    await alice.client.kyve.v1beta1.base.stakePool({
+      id: pool.id,
+      amount: aliceAmount.toString(),
     }).then(tx => tx.execute());
     await charlie.client.kyve.v1beta1.base.stakePool({
       id: pool.id,
