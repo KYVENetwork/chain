@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/stretchr/testify/require"
+	"math/rand"
 	"testing"
 	"time"
 )
@@ -14,6 +15,18 @@ import (
 const ALICE_ADDR = "cosmos1jq304cthpx0lwhpqzrdjrcza559ukyy347ju8f"
 const BOB_ADDR = "cosmos1hvg7zsnrj6h29q9ss577mhrxa04rn94hfvl2ry"
 const KYVE = uint64(1_000_000_000)
+
+var DUMMY_ACCOUNTS []string
+
+func runTxWithResult(msg sdk.Msg) (*sdk.Result, error) {
+	cachedCtx, commit := s.ctx.CacheContext()
+	resp, err := registry.NewHandler(s.app.RegistryKeeper)(cachedCtx, msg)
+	if err == nil {
+		commit()
+		return resp, nil
+	}
+	return nil, err
+}
 
 func runTx(msg sdk.Msg) (success bool) {
 	cachedCtx, commit := s.ctx.CacheContext()
@@ -51,9 +64,25 @@ func mint(address string, amount uint64) error {
 	return nil
 }
 
+func initDummyAccounts() {
+	DUMMY_ACCOUNTS = make([]string, 50)
+	rand.Seed(1)
+	for i := 0; i < 50; i++ {
+		byteAddr := make([]byte, 20)
+		for k := 0; k < 20; k++ {
+			byteAddr[k] = byte(rand.Int())
+		}
+		dummy, _ := sdk.Bech32ifyAddressBytes("cosmos", byteAddr)
+		DUMMY_ACCOUNTS[i] = dummy
+		mint(dummy, 1000*KYVE)
+	}
+}
+
 func TestBlocks(t *testing.T) {
 	s = new(KeeperTestSuite)
 	s.SetupTest()
+
+	initDummyAccounts()
 
 	currentTime := s.ctx.BlockTime().Unix()
 	s.CommitAfter(time.Second * 60)
@@ -226,4 +255,174 @@ func TestCommissionChange(t *testing.T) {
 	require.Equal(t, "0.8", bobStaker.Commission)
 
 	fmt.Printf("state: %v\nentires: %v\n", s.app.RegistryKeeper.GetCommissionChangeQueueState(s.ctx), s.app.RegistryKeeper.GetAllCommissionChangeQueueEntries(s.ctx))
+}
+
+func TestStaking(t *testing.T) {
+	UploadTimeout := s.app.RegistryKeeper.UploadTimeout(s.ctx)
+	UnstakingTime := s.app.RegistryKeeper.UnbondingStakingTime(s.ctx)
+	UndelegationTime := s.app.RegistryKeeper.UnbondingDelegationTime(s.ctx)
+	_ = UndelegationTime
+
+	runTxSuccess(t, &types.MsgClaimUploaderRole{
+		Creator: ALICE_ADDR,
+		Id:      0,
+	})
+
+	pool, found := s.app.RegistryKeeper.GetPool(s.ctx, 0)
+	require.True(t, found)
+
+	require.Equal(t, ALICE_ADDR, pool.BundleProposal.NextUploader)
+
+	s.CommitAfterSeconds(UploadTimeout + pool.UploadInterval + 1)
+	s.Commit()
+
+	pool, found = s.app.RegistryKeeper.GetPool(s.ctx, 0)
+	require.True(t, found)
+	require.Len(t, pool.Stakers, 1)
+	require.Len(t, pool.InactiveStakers, 1)
+
+	alicaStaker, _ := s.app.RegistryKeeper.GetStaker(s.ctx, ALICE_ADDR, 0)
+	require.Equal(t, types.STAKER_STATUS_INACTIVE, alicaStaker.Status)
+
+	bobStaker, _ := s.app.RegistryKeeper.GetStaker(s.ctx, BOB_ADDR, 0)
+	require.Equal(t, types.STAKER_STATUS_ACTIVE, bobStaker.Status)
+
+	// Reactivate Staker
+	runTxSuccess(t, &types.MsgReactivateStaker{
+		Creator: ALICE_ADDR,
+		PoolId:  0,
+	})
+
+	pool, _ = s.app.RegistryKeeper.GetPool(s.ctx, 0)
+	require.Len(t, pool.Stakers, 2)
+	require.Len(t, pool.InactiveStakers, 0)
+
+	alicaStaker, _ = s.app.RegistryKeeper.GetStaker(s.ctx, ALICE_ADDR, 0)
+	require.Equal(t, types.STAKER_STATUS_ACTIVE, alicaStaker.Status)
+
+	bobStaker, _ = s.app.RegistryKeeper.GetStaker(s.ctx, BOB_ADDR, 0)
+	require.Equal(t, types.STAKER_STATUS_ACTIVE, bobStaker.Status)
+
+	s.Commit()
+
+	for i := 0; i < 48; i++ {
+		dummyStake := runTx(&types.MsgStakePool{
+			Creator: DUMMY_ACCOUNTS[i],
+			Id:      0,
+			Amount:  5 * KYVE,
+		})
+		require.True(t, dummyStake)
+	}
+
+	failedStake := runTx(&types.MsgStakePool{
+		Creator: DUMMY_ACCOUNTS[48],
+		Id:      0,
+		Amount:  2 * KYVE,
+	})
+	require.False(t, failedStake)
+	pool, _ = s.app.RegistryKeeper.GetPool(s.ctx, 0)
+	require.Len(t, pool.Stakers, 50)
+	require.Len(t, pool.InactiveStakers, 0)
+
+	//Make Bob to Unstake a few KYVE
+
+	bobStaker, _ = s.app.RegistryKeeper.GetStaker(s.ctx, BOB_ADDR, 0)
+	runTxSuccess(t, &types.MsgUnstakePool{
+		Creator: BOB_ADDR,
+		Id:      0,
+		Amount:  9_800_000_000,
+	})
+
+	s.CommitAfterSeconds(10)
+
+	// bobs stake should still be 10
+	bobStaker, _ = s.app.RegistryKeeper.GetStaker(s.ctx, BOB_ADDR, 0)
+	require.Equal(t, 10*KYVE, bobStaker.Amount)
+
+	// User is currently NextUploader, after this long timeout he will get slashed
+	// Simultaneously the user is unstaking all of his tokens.
+	s.CommitAfterSeconds(UnstakingTime + 1)
+	s.Commit()
+
+	pool, _ = s.app.RegistryKeeper.GetPool(s.ctx, 0)
+	require.NotContains(t, pool.Stakers, BOB_ADDR)
+	require.Len(t, pool.Stakers, 49)
+	require.NotContains(t, pool.InactiveStakers, BOB_ADDR)
+	require.Len(t, pool.InactiveStakers, 0)
+
+	_, found = s.app.RegistryKeeper.GetStaker(s.ctx, BOB_ADDR, 0)
+	require.False(t, found)
+
+	// Check bobs balance.
+	acc, _ := sdk.AccAddressFromBech32(BOB_ADDR)
+	balance := s.app.BankKeeper.GetBalance(s.ctx, acc, "tkyve")
+
+	// Bobs balacne should be 1000KYVE - 0.02 * 10 KYVE
+	require.Equal(t, 1000*KYVE-200_000_000, balance.Amount.Uint64())
+
+	// Overstake lowest staker
+	runTxSuccess(t, &types.MsgStakePool{
+		Creator: DUMMY_ACCOUNTS[48],
+		Id:      0,
+		Amount:  1 * KYVE,
+	})
+
+	s.Commit()
+	// Bob should now be inactive
+	pool, _ = s.app.RegistryKeeper.GetPool(s.ctx, 0)
+	require.Len(t, pool.InactiveStakers, 0)
+	require.Len(t, pool.Stakers, 50)
+	require.NotContains(t, pool.InactiveStakers, BOB_ADDR)
+	require.NotContains(t, pool.Stakers, BOB_ADDR)
+
+	lowestStaker, _ := s.app.RegistryKeeper.GetStaker(s.ctx, pool.LowestStaker, 0)
+	require.Equal(t, DUMMY_ACCOUNTS[48], lowestStaker.Account)
+
+	// Kick out lowest staker and check if staker becomes inactive
+	runTxSuccess(t, &types.MsgStakePool{
+		Creator: DUMMY_ACCOUNTS[49],
+		Id:      0,
+		Amount:  100 * KYVE,
+	})
+
+	s.CommitAfterSeconds(1)
+	pool, _ = s.app.RegistryKeeper.GetPool(s.ctx, 0)
+	require.Len(t, pool.InactiveStakers, 1)
+	require.Len(t, pool.Stakers, 50)
+	require.Contains(t, pool.InactiveStakers, DUMMY_ACCOUNTS[48])
+	require.NotContains(t, pool.Stakers, DUMMY_ACCOUNTS[48])
+
+	d48, _ := s.app.RegistryKeeper.GetStaker(s.ctx, DUMMY_ACCOUNTS[48], 0)
+	fmt.Printf("Dummy48: %v\n", d48)
+	fmt.Printf("Stakers: %v\n", pool.Stakers)
+	fmt.Printf("InactiveStakers: %v\n", pool.InactiveStakers)
+
+	reactiveShouldFail := runTx(&types.MsgReactivateStaker{
+		Creator: DUMMY_ACCOUNTS[48],
+		PoolId:  0,
+	})
+	require.False(t, reactiveShouldFail)
+
+	s.Commit()
+
+	// Increase stake
+	runTxSuccess(t, &types.MsgStakePool{
+		Creator: DUMMY_ACCOUNTS[48],
+		Id:      0,
+		Amount:  100 * KYVE,
+	})
+
+	// Reactivate Staker now
+	runTxSuccess(t, &types.MsgReactivateStaker{
+		Creator: DUMMY_ACCOUNTS[48],
+		PoolId:  0,
+	})
+
+	s.CommitAfterSeconds(1)
+	pool, _ = s.app.RegistryKeeper.GetPool(s.ctx, 0)
+	require.Len(t, pool.InactiveStakers, 1)
+	require.Len(t, pool.Stakers, 50)
+	require.Contains(t, pool.Stakers, DUMMY_ACCOUNTS[48])
+	require.NotContains(t, pool.InactiveStakers, DUMMY_ACCOUNTS[48])
+
 }

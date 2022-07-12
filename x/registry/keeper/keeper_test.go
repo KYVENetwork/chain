@@ -117,6 +117,10 @@ func (suite *KeeperTestSuite) Commit() {
 	suite.CommitAfter(time.Second * 0)
 }
 
+func (suite *KeeperTestSuite) CommitAfterSeconds(seconds uint64) {
+	suite.CommitAfter(time.Second * time.Duration(seconds))
+}
+
 // Commit commits a block at a given time.
 func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	header := suite.ctx.BlockHeader()
