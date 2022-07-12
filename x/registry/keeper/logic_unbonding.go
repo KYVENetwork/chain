@@ -77,7 +77,7 @@ func (k Keeper) ProcessStakerUnbondingQueue(ctx sdk.Context) {
 		unbondingStakingEntry, found := k.GetUnbondingStakingQueueEntry(ctx, unbondingQueueState.LowIndex+1)
 
 		// Check if unbonding time is over
-		if found && unbondingStakingEntry.CreationTime+uint64(k.UnbondingStakingTime(ctx)) < uint64(ctx.BlockTime().Unix()) {
+		if found && unbondingStakingEntry.CreationTime+uint64(k.UnbondingStakingTime(ctx)) <= uint64(ctx.BlockTime().Unix()) {
 
 			// Update internal UnbondingStaker value
 			unbondingStaker, foundUnbondingStaker := k.GetUnbondingStaker(ctx, unbondingStakingEntry.PoolId, unbondingStakingEntry.Staker)

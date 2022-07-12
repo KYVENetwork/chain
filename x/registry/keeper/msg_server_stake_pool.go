@@ -43,6 +43,7 @@ func (k msgServer) StakePool(goCtx context.Context, msg *types.MsgStakePool) (*t
 
 				// Move the lowest staker to inactive staker set
 				deactivateStaker(&pool, &lowestStaker)
+				k.SetStaker(ctx, lowestStaker)
 
 			} else {
 				return nil, sdkErrors.Wrapf(sdkErrors.ErrLogic, types.ErrStakeTooLow.Error(), lowestStaker.Amount)
@@ -76,8 +77,13 @@ func (k msgServer) StakePool(goCtx context.Context, msg *types.MsgStakePool) (*t
 		return nil, errEmit
 	}
 
-	// Update and return.
-	pool.TotalStake += msg.Amount
+	staker, _ = k.GetStaker(ctx, msg.Creator, msg.Id)
+	if staker.Status == types.STAKER_STATUS_ACTIVE {
+		pool.TotalStake += msg.Amount
+	} else if staker.Status == types.STAKER_STATUS_INACTIVE {
+		pool.TotalInactiveStake += msg.Amount
+	}
+
 	k.updateLowestStaker(ctx, &pool)
 	k.SetPool(ctx, pool)
 
