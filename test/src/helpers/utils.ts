@@ -12,7 +12,7 @@ export const startChain = (): Promise<ChildProcessWithoutNullStreams> => {
     console.log("Starting chain on localhost ...");
     console.log("This may take up to a minute");
 
-    const chain = spawn("starport", ["chain", "serve", "--reset-once"]);
+    const chain = spawn("ignite", ["chain", "serve", "--reset-once"]);
 
     chain.stdout.on("data", (data: Buffer) => {
       if (data.toString().includes(`Blockchain API: ${BASE_URL}`)) {

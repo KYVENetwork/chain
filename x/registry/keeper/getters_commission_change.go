@@ -60,7 +60,7 @@ func (k Keeper) RemoveCommissionChangeQueueEntry(ctx sdk.Context, commissionChan
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CommissionChangeQueueEntryKeyPrefix)
 	store.Delete(types.CommissionChangeQueueEntryKey(commissionChangeQueueEntry.Index))
 
-	indexStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.CommissionChangeQueueEntryKeyPrefix)
+	indexStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.CommissionChangeQueueEntryKeyPrefixIndex2)
 	indexStore.Delete(types.CommissionChangeQueueEntryKeyIndex2(
 		commissionChangeQueueEntry.Staker,
 		commissionChangeQueueEntry.PoolId,
