@@ -64,11 +64,11 @@ func (k Keeper) GetProposalByPoolIdAndBundleId(ctx sdk.Context, poolId uint64, b
 func (k Keeper) GetProposalsByPoolIdSinceBundleId(ctx sdk.Context, poolId uint64, minBundleId uint64) (proposals []types.Proposal) {
 	proposalPrefixBuilder := types.KeyPrefixBuilder{Key: types.ProposalKeyPrefixIndex2}.AInt(poolId)
 	proposalIndexStore := prefix.NewStore(ctx.KVStore(k.storeKey), proposalPrefixBuilder.Key)
-	proposalIndexIterator := proposalIndexStore.Iterator(nil, types.KeyPrefixBuilder{}.AInt(minBundleId).Key)
+	proposalIndexIterator := proposalIndexStore.Iterator(types.KeyPrefixBuilder{}.AInt(minBundleId).Key, nil)
 
 	defer proposalIndexIterator.Close()
 
-	if proposalIndexIterator.Valid() {
+	for ; proposalIndexIterator.Valid() ; proposalIndexIterator.Next() {
 		storageId := string(proposalIndexIterator.Value())
 		proposal, _ := k.GetProposal(ctx, storageId)
 		proposals = append(proposals, proposal)

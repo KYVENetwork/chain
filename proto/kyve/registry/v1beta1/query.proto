@@ -51,6 +51,11 @@ service Query {
     option (google.api.http).get = "/kyve/registry/v1beta1/staker/{pool_id}/{staker}";
   }
 
+  // VoteStatus returns all vote info
+  rpc VoteStatus(QueryVoteStatusRequest) returns (QueryVoteStatusResponse) {
+    option (google.api.http).get = "/kyve/registry/v1beta1/vote_status/{pool_id}";
+  }
+
   // WARP
 
   // Proposal ...
@@ -230,12 +235,18 @@ message QueryFunderResponse {
 message QueryStakersListRequest {
   // pool_id defines the unique ID of the pool.
   uint64 pool_id = 1;
+  // status ...
+  StakerStatus status = 2;
+  // pagination ...
+  cosmos.base.query.v1beta1.PageRequest pagination = 3;
 }
 
 // QueryStakersListResponse is the response type for the Query/StakersList RPC method.
 message QueryStakersListResponse {
   // stakers ...
   repeated kyve.registry.v1beta1.StakerResponse stakers = 1;
+  // pagination ...
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // QueryStakerRequest is the request type for the Query/Staker RPC method.
@@ -250,6 +261,16 @@ message QueryStakerRequest {
 message QueryStakerResponse {
   // staker ...
   kyve.registry.v1beta1.StakerResponse staker = 1;
+}
+
+// PendingCommissionChange ...
+message PendingCommissionChange {
+  // new_commission ...
+  string new_commission = 1;
+  // creation_date ...
+  int64 creation_date = 2;
+  // finish_date ...
+  int64 finish_date = 3;
 }
 
 // StakerResponse ...
@@ -278,6 +299,34 @@ message StakerResponse {
   uint64 unbonding_amount = 11;
   // upload_probability
   string upload_probability = 12;
+  // status
+  StakerStatus status = 13;
+  // pending_commission_change
+  PendingCommissionChange pending_commission_change = 14;
+}
+
+// QueryVoteStatusRequest is the request type for the Query/VoteStatus RPC method.
+message QueryVoteStatusRequest {
+  // pool_id defines the unique ID of the pool.
+  uint64 pool_id = 1;
+}
+
+// QueryVoteStatusResponse is the response type for the Query/VoteStatus RPC method.
+message QueryVoteStatusResponse {
+  // staker ...
+  kyve.registry.v1beta1.VoteStatusResponse vote_status = 1;
+}
+
+// VoteStatusResponse ...
+message VoteStatusResponse {
+  // valid ...
+  uint64 valid = 1;
+  // invalid ...
+  uint64 invalid = 2;
+  // abstain ...
+  uint64 abstain = 3;
+  // total ...
+  uint64 total = 4;
 }
 
 // ######################
@@ -416,6 +465,8 @@ message QueryStakeInfoResponse {
   string current_stake = 2;
   // minimum_stake ...
   string minimum_stake = 3;
+  // status ...
+  StakerStatus status = 4;
 }
 
 // ###################

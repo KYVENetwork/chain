@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 	"sort"
@@ -63,17 +64,13 @@ func (k Keeper) handleNonVoters(ctx sdk.Context, pool *types.Pool) {
 
 				// check if next uploader is still there or already removed
 				if foundStaker {
-					// Transfer remaining stake to account.
-					k.TransferToAddress(ctx, staker.Account, staker.Amount)
+					deactivateStaker(pool, &staker)
+					k.SetStaker(ctx, staker)
 
-					// remove current next_uploader
-					k.removeStaker(ctx, pool, &staker)
-
-					// emit unstake event
-					ctx.EventManager().EmitTypedEvent(&types.EventUnstakePool{
+					ctx.EventManager().EmitTypedEvent(&types.EventStakerStatusChanged{
 						PoolId:  pool.Id,
 						Address: staker.Account,
-						Amount:  staker.Amount,
+						Status:  types.STAKER_STATUS_INACTIVE,
 					})
 				}
 
@@ -332,4 +329,79 @@ func (k Keeper) slashStaker(
 	}
 
 	return slash
+}
+
+// getVoteDistribution is an internal function evaulates the quorum status of a bundle proposal.
+func (k Keeper) getVoteDistribution(ctx sdk.Context, pool *types.Pool) (valid uint64, invalid uint64, abstain uint64, total uint64) {
+	// get $KYVE voted for valid
+	for _, voter := range pool.BundleProposal.VotersValid {
+		staker, found := k.GetStaker(ctx, voter, pool.Id)
+		if found && staker.Status == types.STAKER_STATUS_ACTIVE {
+			valid += staker.Amount
+		}
+	}
+
+	// get $KYVE voted for invalid
+	for _, voter := range pool.BundleProposal.VotersInvalid {
+		staker, found := k.GetStaker(ctx, voter, pool.Id)
+		if found && staker.Status == types.STAKER_STATUS_ACTIVE {
+			invalid += staker.Amount
+		}
+	}
+
+	// get $KYVE voted for abstain
+	for _, voter := range pool.BundleProposal.VotersAbstain {
+		staker, found := k.GetStaker(ctx, voter, pool.Id)
+		if found && staker.Status == types.STAKER_STATUS_ACTIVE {
+			abstain += staker.Amount
+		}
+	}
+
+	// subtract uploader stake because he can not vote
+	uploader, found := k.GetStaker(ctx, pool.BundleProposal.Uploader, pool.Id)
+
+	if found {
+		total = pool.TotalStake - uploader.Amount
+	} else {
+		total = pool.TotalStake
+	}
+
+	// halt if nodes voted with more stake than in total
+	if valid+invalid+abstain > total {
+		k.PanicHalt(ctx, fmt.Sprintf("Voted with more $KYVE than staked. Voted = %v, Total Stake = %v", valid+invalid+abstain, total))
+	}
+
+	return
+}
+
+// getQuorumStatus is an internal function evaulates if quorum was reached on a bundle proposal.
+func (k Keeper) getQuorumStatus(valid uint64, invalid uint64, abstain uint64, total uint64) (quorum types.BundleStatus) {
+	if valid*2 > total {
+		return types.BUNDLE_STATUS_VALID
+	}
+
+	if invalid*2 >= total {
+		return types.BUNDLE_STATUS_INVALID
+	}
+
+	return types.BUNDLE_STATUS_NO_QUORUM
+}
+
+func removeStringFromList(list []string, el string) []string {
+	for i, other := range list {
+		if other == el {
+			return append(list[0:i], list[i+1:]...)
+		}
+	}
+	return list
+}
+
+// Contract: assumes stakers list has still a free slot
+func deactivateStaker(pool *types.Pool, staker *types.Staker) {
+	// make user an inactive staker
+	pool.Stakers = removeStringFromList(pool.Stakers, staker.Account)
+	pool.InactiveStakers = append(pool.InactiveStakers, staker.Account)
+	pool.TotalStake -= staker.Amount
+	pool.TotalInactiveStake += staker.Amount
+	staker.Status = types.STAKER_STATUS_INACTIVE
 }

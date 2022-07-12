@@ -27,6 +27,11 @@ func (k msgServer) VoteProposal(
 		return nil, types.ErrNotEnoughNodesOnline
 	}
 
+	// Check if minimum stake is reached
+	if pool.TotalStake < pool.MinStake {
+		return nil, types.ErrNotEnoughStake
+	}
+
 	// Error if the pool has no funds.
 	if len(pool.Funders) == 0 {
 		return nil, sdkErrors.Wrap(sdkErrors.ErrInsufficientFunds, types.ErrFundsTooLow.Error())
@@ -94,10 +99,15 @@ func (k msgServer) VoteProposal(
 		)
 	}
 
-	if hasVotedAbstain && msg.Vote == types.VOTE_TYPE_ABSTAIN {
-		return nil, sdkErrors.Wrapf(
-			sdkErrors.ErrUnauthorized, types.ErrAlreadyVoted.Error(), pool.BundleProposal.StorageId,
-		)
+	if hasVotedAbstain {
+		if msg.Vote == types.VOTE_TYPE_ABSTAIN {
+			return nil, sdkErrors.Wrapf(
+				sdkErrors.ErrUnauthorized, types.ErrAlreadyVoted.Error(), pool.BundleProposal.StorageId,
+			)
+		}
+
+		// remove voter from abstain votes
+		pool.BundleProposal.VotersAbstain = removeStringFromList(pool.BundleProposal.VotersAbstain, msg.Creator)
 	}
 
 	// Update and return.

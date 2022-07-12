@@ -13,29 +13,32 @@ import (
 
 var _ = strconv.Itoa(0)
 
-func CmdUpdateCommission() *cobra.Command {
+func CmdUpdateMetadata() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-commission [id] [commission]",
+		Use:   "update-metadata [id] [moniker] [website] [logo]",
 		Short: "Broadcast message update-metadata",
-		Args:  cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			poolId, err := cast.ToUint64E(args[0])
+			argId, err := cast.ToUint64E(args[0])
 			if err != nil {
 				return err
 			}
-			argCommission := args[1]
+			moniker := args[1]
+			website := args[2]
+			logo := args[3]
 
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			msg := &types.MsgUpdateCommission{
-				Creator:    clientCtx.GetFromAddress().String(),
-				Id:         poolId,
-				Commission: argCommission,
+			msg := &types.MsgUpdateMetadata{
+				Creator: clientCtx.GetFromAddress().String(),
+				Id:      argId,
+				Moniker: moniker,
+				Website: website,
+				Logo:    logo,
 			}
-
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

@@ -56,6 +56,21 @@ var (
 	DefaultUnbondingDelegationTime uint64 = 60 * 60 * 24 * 5
 )
 
+var (
+	KeyRedelegationCooldown            = []byte("RedelegationCooldown")
+	DefaultRedelegationCooldown uint64 = 60 // TODO Change to 5 days
+)
+
+var (
+	KeyRedelegationMaxAmount            = []byte("KeyRedelegationMaxAmount")
+	DefaultRedelegationMaxAmount uint64 = 3 // TODO think about amount?
+)
+
+var (
+	KeyCommissionChangeTime            = []byte("KeyCommissionChangeTime")
+	DefaultCommissionChangeTime uint64 = 60 // TODO CHANGE
+)
+
 // ParamKeyTable the param Key table for launch module
 func ParamKeyTable() paramtypes.KeyTable {
 	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
@@ -72,6 +87,9 @@ func NewParams(
 	maxPoints uint64,
 	unbondingStakingTime uint64,
 	unbondingDelegationTime uint64,
+	redelegationCooldown uint64,
+	redelegationMaxAmount uint64,
+	commissionChangeTime uint64,
 ) Params {
 	return Params{
 		VoteSlash:               voteSlash,
@@ -83,6 +101,9 @@ func NewParams(
 		MaxPoints:               maxPoints,
 		UnbondingStakingTime:    unbondingStakingTime,
 		UnbondingDelegationTime: unbondingDelegationTime,
+		RedelegationCooldown:    redelegationCooldown,
+		RedelegationMaxAmount:   redelegationMaxAmount,
+		CommissionChangeTime:    commissionChangeTime,
 	}
 }
 
@@ -98,6 +119,9 @@ func DefaultParams() Params {
 		DefaultMaxPoints,
 		DefaultUnbondingStakingTime,
 		DefaultUnbondingDelegationTime,
+		DefaultRedelegationCooldown,
+		DefaultRedelegationMaxAmount,
+		DefaultCommissionChangeTime,
 	)
 }
 
@@ -113,6 +137,9 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyMaxPoints, &p.MaxPoints, validateMaxPoints),
 		paramtypes.NewParamSetPair(KeyUnbondingStakingTime, &p.UnbondingStakingTime, validateUnbondingStakingTime),
 		paramtypes.NewParamSetPair(KeyUnbondingDelegationTime, &p.UnbondingDelegationTime, validateUnbondingDelegationTime),
+		paramtypes.NewParamSetPair(KeyRedelegationCooldown, &p.RedelegationCooldown, validateTrue),
+		paramtypes.NewParamSetPair(KeyRedelegationMaxAmount, &p.RedelegationMaxAmount, validateTrue),
+		paramtypes.NewParamSetPair(KeyCommissionChangeTime, &p.CommissionChangeTime, validateTrue),
 	}
 }
 
@@ -154,6 +181,10 @@ func (p Params) Validate() error {
 		return err
 	}
 
+	return nil
+}
+
+func validateTrue(v interface{}) error {
 	return nil
 }
 

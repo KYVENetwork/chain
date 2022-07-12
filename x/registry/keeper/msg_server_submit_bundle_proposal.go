@@ -27,6 +27,11 @@ func (k msgServer) SubmitBundleProposal(
 		return nil, types.ErrNotEnoughNodesOnline
 	}
 
+	// Check if minimum stake is reached
+	if pool.TotalStake < pool.MinStake {
+		return nil, types.ErrNotEnoughStake
+	}
+
 	// Error if the pool has no funds.
 	if len(pool.Funders) == 0 {
 		return nil, sdkErrors.Wrap(sdkErrors.ErrInsufficientFunds, types.ErrFundsTooLow.Error())
@@ -97,16 +102,6 @@ func (k msgServer) SubmitBundleProposal(
 
 	// EVALUATE PREVIOUS ROUND
 
-	// Check if quorum has already been reached.
-	valid := false
-	invalid := false
-
-	if len(pool.Stakers) > 1 {
-		// subtract one because of uploader
-		valid = len(pool.BundleProposal.VotersValid)*2 > (len(pool.Stakers) - 1)
-		invalid = len(pool.BundleProposal.VotersInvalid)*2 >= (len(pool.Stakers) - 1)
-	}
-
 	// Check args of bundle types
 	if strings.HasPrefix(msg.StorageId, types.KYVE_NO_DATA_BUNDLE) {
 		// Validate bundle args
@@ -171,8 +166,12 @@ func (k msgServer) SubmitBundleProposal(
 		nextUploader = k.getNextUploaderByRandom(ctx, &pool, pool.Stakers)
 	}
 
+	// check if the quorum was actually reached
+	valid, invalid, abstain, total := k.getVoteDistribution(ctx, &pool)
+	quorum := k.getQuorumStatus(valid, invalid, abstain, total)
+
 	// handle valid proposal
-	if valid {
+	if quorum == types.BUNDLE_STATUS_VALID {
 		// Calculate the total reward for the bundle, and individual payouts.
 		bundleReward := pool.OperatingCost + (pool.BundleProposal.ByteSize * k.StorageCost(ctx))
 
@@ -289,8 +288,8 @@ func (k msgServer) SubmitBundleProposal(
 					Uploader:     pool.BundleProposal.Uploader,
 					NextUploader: pool.BundleProposal.NextUploader,
 					Reward:       0,
-					Valid:        uint64(len(pool.BundleProposal.VotersValid)),
-					Invalid:      uint64(len(pool.BundleProposal.VotersInvalid)),
+					Valid:        valid,
+					Invalid:      invalid,
 					FromHeight:   pool.CurrentHeight,
 					ToHeight:     pool.BundleProposal.ToHeight,
 					Status:       types.BUNDLE_STATUS_NO_FUNDS,
@@ -298,6 +297,8 @@ func (k msgServer) SubmitBundleProposal(
 					ToValue:      pool.BundleProposal.ToValue,
 					Id:           0,
 					BundleHash: pool.BundleProposal.BundleHash,
+					Abstain: abstain,
+					Total: total,
 				})
 				if errEmit != nil {
 					return nil, errEmit
@@ -396,8 +397,8 @@ func (k msgServer) SubmitBundleProposal(
 			Uploader:     pool.BundleProposal.Uploader,
 			NextUploader: pool.BundleProposal.NextUploader,
 			Reward:       bundleReward,
-			Valid:        uint64(len(pool.BundleProposal.VotersValid)),
-			Invalid:      uint64(len(pool.BundleProposal.VotersInvalid)),
+			Valid:        valid,
+			Invalid:      invalid,
 			FromHeight:   eventFromHeight,
 			ToHeight:     pool.BundleProposal.ToHeight,
 			Status:       types.BUNDLE_STATUS_VALID,
@@ -405,6 +406,8 @@ func (k msgServer) SubmitBundleProposal(
 			ToValue:      pool.BundleProposal.ToValue,
 			Id:           pool.TotalBundles - 1,
 			BundleHash: pool.BundleProposal.BundleHash,
+			Abstain: abstain,
+			Total: total,
 		})
 		if errEmit != nil {
 			return nil, errEmit
@@ -426,7 +429,7 @@ func (k msgServer) SubmitBundleProposal(
 		k.SetPool(ctx, pool)
 
 		return &types.MsgSubmitBundleProposalResponse{}, nil
-	} else if invalid {
+	} else if quorum == types.BUNDLE_STATUS_INVALID {
 		// Partially slash all nodes who voted incorrectly.
 		for _, voter := range pool.BundleProposal.VotersValid {
 			slashAmount := k.slashStaker(ctx, &pool, voter, k.VoteSlash(ctx))
@@ -467,8 +470,8 @@ func (k msgServer) SubmitBundleProposal(
 			Uploader:     pool.BundleProposal.Uploader,
 			NextUploader: pool.BundleProposal.NextUploader,
 			Reward:       0,
-			Valid:        uint64(len(pool.BundleProposal.VotersValid)),
-			Invalid:      uint64(len(pool.BundleProposal.VotersInvalid)),
+			Valid:        valid,
+			Invalid:      invalid,
 			FromHeight:   pool.CurrentHeight,
 			ToHeight:     pool.BundleProposal.ToHeight,
 			Status:       types.BUNDLE_STATUS_INVALID,
@@ -476,6 +479,8 @@ func (k msgServer) SubmitBundleProposal(
 			ToValue:      pool.BundleProposal.ToValue,
 			Id:           0,
 			BundleHash: pool.BundleProposal.BundleHash,
+			Abstain: abstain,
+			Total: total,
 		})
 		if errEmit != nil {
 			return nil, errEmit

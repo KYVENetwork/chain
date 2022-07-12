@@ -177,6 +177,7 @@ func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.Val
 	am.keeper.HandleUploadTimeout(sdk.WrapSDKContext(ctx))
 	am.keeper.ProcessStakerUnbondingQueue(ctx)
 	am.keeper.ProcessDelegatorUnbondingQueue(ctx)
+	am.keeper.ProcessCommissionChangeUnbondingQueue(ctx)
 
 	return []abci.ValidatorUpdate{}
 }

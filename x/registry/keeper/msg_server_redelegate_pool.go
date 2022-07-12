@@ -16,7 +16,7 @@ func (k msgServer) RedelegatePool(goCtx context.Context, msg *types.MsgRedelegat
 	// Check if cooldowns are over
 	for _, block := range k.GetRedelegationCooldownEntries(ctx, msg.Creator) {
 		creationTime := ctx.WithBlockHeight(int64(block)).BlockTime()
-		if ctx.BlockTime().Unix()-creationTime.Unix() > 60*1 /* TODO use params */ {
+		if ctx.BlockTime().Unix()-creationTime.Unix() > int64(k.RedelegationCooldown(ctx)) {
 			k.RemoveRedelegationCooldown(ctx, msg.Creator, block)
 		} else {
 			break
@@ -25,7 +25,7 @@ func (k msgServer) RedelegatePool(goCtx context.Context, msg *types.MsgRedelegat
 
 	blocks := k.GetRedelegationCooldownEntries(ctx, msg.Creator)
 
-	if len(blocks) >= 3 /* TODO use params */ {
+	if len(blocks) >= int(k.RedelegationMaxAmount(ctx)) {
 		return nil, sdkErrors.Wrapf(sdkErrors.ErrLogic, types.ErrRedelegationOnCooldown.Error())
 	}
 	if blocks[len(blocks)-1] == uint64(ctx.BlockHeight()) {

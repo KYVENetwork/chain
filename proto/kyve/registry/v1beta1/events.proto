@@ -3,6 +3,7 @@ syntax = "proto3";
 package kyve.registry.v1beta1;
 
 import "gogoproto/gogo.proto";
+import "kyve/registry/v1beta1/registry.proto";
 import "kyve/registry/v1beta1/tx.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/registry/types";
@@ -71,6 +72,10 @@ message EventBundleFinalised {
   uint64 id = 14;
   // bundle_hash ...
   string bundle_hash = 15;
+  // abstain ...
+  uint64 abstain = 16;
+  // total ...
+  uint64 total = 17;
 }
 
 // EventBundleVote is an event emitted when a protocol node votes on a bundle.
@@ -169,14 +174,22 @@ message EventUpdateMetadata {
   uint64 pool_id = 1;
   // address is the account address of the protocol node.
   string address = 2;
+  // moniker ...
+  string moniker = 3;
+  // website ...
+  string website = 4;
+  // logo ...
+  string logo = 5;
+}
+
+// EventUpdateCommission ...
+message EventUpdateCommission {
+  // pool_id is the unique ID of the pool.
+  uint64 pool_id = 1;
+  // address is the account address of the protocol node.
+  string address = 2;
   // commission ...
   string commission = 3;
-  // moniker ...
-  string moniker = 4;
-  // website ...
-  string website = 5;
-  // logo ...
-  string logo = 6;
 }
 
 // ---------- Staking Events ----------
@@ -199,4 +212,14 @@ message EventUnstakePool {
   string address = 2;
   // amount ...
   uint64 amount = 3;
+}
+
+// EventStakerStatusChanged ...
+message EventStakerStatusChanged {
+  // pool_id is the unique ID of the pool.
+  uint64 pool_id = 1;
+  // address is the account address of the protocol node.
+  string address = 2;
+  // amount ...
+  StakerStatus status = 3;
 }

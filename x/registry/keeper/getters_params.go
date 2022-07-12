@@ -18,6 +18,9 @@ func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 		k.MaxPoints(ctx),
 		k.UnbondingStakingTime(ctx),
 		k.UnbondingStakingTime(ctx),
+		k.RedelegationCooldown(ctx),
+		k.RedelegationMaxAmount(ctx),
+		k.CommissionChangeTime(ctx),
 	)
 }
 
@@ -80,7 +83,25 @@ func (k Keeper) UnbondingDelegationTime(ctx sdk.Context) (res uint64) {
 	return
 }
 
-// MaxPoints returns the MaxPoints param
+// RedelegationCooldown ...
+func (k Keeper) RedelegationCooldown(ctx sdk.Context) (res uint64) {
+	k.paramstore.Get(ctx, types.KeyRedelegationCooldown, &res)
+	return
+}
+
+// RedelegationMaxAmount ...
+func (k Keeper) RedelegationMaxAmount(ctx sdk.Context) (res uint64) {
+	k.paramstore.Get(ctx, types.KeyRedelegationMaxAmount, &res)
+	return
+}
+
+// CommissionChangeTime ...
+func (k Keeper) CommissionChangeTime(ctx sdk.Context) (res uint64) {
+	k.paramstore.Get(ctx, types.KeyCommissionChangeTime, &res)
+	return
+}
+
+// ParamStore ...
 func (k Keeper) ParamStore() (paramStore paramtypes.Subspace) {
 	return k.paramstore
 }

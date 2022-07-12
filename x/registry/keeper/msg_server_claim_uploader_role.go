@@ -39,6 +39,11 @@ func (k msgServer) ClaimUploaderRole(
 		return nil, types.ErrNotEnoughNodesOnline
 	}
 
+	// Check if minimum stake is reached
+	if pool.TotalStake < pool.MinStake {
+		return nil, types.ErrNotEnoughStake
+	}
+
 	// Error if the pool has no funds.
 	if len(pool.Funders) == 0 {
 		return nil, sdkErrors.Wrap(sdkErrors.ErrInsufficientFunds, types.ErrFundsTooLow.Error())

@@ -46,12 +46,13 @@ var (
 	ErrToHeight               = sdkerrors.Register(ModuleName, 1123, "invalid to height")
 	ErrFromKey                = sdkerrors.Register(ModuleName, 1124, "invalid from key")
 	ErrProposalNotFound       = sdkerrors.Register(ModuleName, 1125, "proposal with pool id %v and bundle id %v does not exist")
+	ErrNotEnoughStake   = sdkerrors.Register(ModuleName, 1126, "not enough stake in pool")
 )
 
 // delegation errors
 var (
-	ErrNotADelegator                   = sdkerrors.Register(ModuleName, 1126, "not a delegator")
-	ErrNotEnoughDelegation             = sdkerrors.Register(ModuleName, 1127, "undelegate-amount is larger than current delegation")
-	ErrRedelegationOnCooldown          = sdkerrors.Register(ModuleName, 1128, "all redelegation slots are on cooldown")
-	ErrMultipleRedelegationInSameBlock = sdkerrors.Register(ModuleName, 1129, "only one redelegation per delegator per block")
+	ErrNotADelegator                   = sdkerrors.Register(ModuleName, 1127, "not a delegator")
+	ErrNotEnoughDelegation             = sdkerrors.Register(ModuleName, 1128, "undelegate-amount is larger than current delegation")
+	ErrRedelegationOnCooldown          = sdkerrors.Register(ModuleName, 1129, "all redelegation slots are on cooldown")
+	ErrMultipleRedelegationInSameBlock = sdkerrors.Register(ModuleName, 1130, "only one redelegation per delegator per block")
 )

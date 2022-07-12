@@ -44,6 +44,8 @@ func (k Keeper) StakeInfo(goCtx context.Context, req *types.QueryStakeInfoReques
 		response.CurrentStake = strconv.FormatUint(staker.Amount, 10)
 	}
 
+	response.Status = staker.Status
+
 	// Fetch pool
 	pool, exists := k.GetPool(ctx, req.PoolId)
 	if !exists {

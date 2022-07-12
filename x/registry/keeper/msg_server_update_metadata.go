@@ -27,18 +27,6 @@ func (k msgServer) UpdateMetadata(
 		return nil, sdkErrors.Wrap(sdkErrors.ErrUnauthorized, types.ErrNoStaker.Error())
 	}
 
-	// Validate commission.
-	commission, err := sdk.NewDecFromStr(msg.Commission)
-	if err != nil {
-		return nil, sdkErrors.Wrapf(sdkErrors.ErrLogic, types.ErrInvalidCommission.Error(), msg.Commission)
-	}
-
-	if commission.LT(sdk.NewDec(int64(0))) || commission.GT(sdk.NewDec(int64(1))) {
-		return nil, sdkErrors.Wrapf(sdkErrors.ErrLogic, types.ErrInvalidCommission.Error(), msg.Commission)
-	}
-
-	// Update and return.
-	staker.Commission = msg.Commission
 	staker.Moniker = msg.Moniker
 	staker.Website = msg.Website
 	staker.Logo = msg.Logo
@@ -47,12 +35,11 @@ func (k msgServer) UpdateMetadata(
 
 	// Event an event.
 	errEmit := ctx.EventManager().EmitTypedEvent(&types.EventUpdateMetadata{
-		PoolId:     msg.Id,
-		Address:    msg.Creator,
-		Commission: msg.Commission,
-		Moniker:    msg.Moniker,
-		Website:    msg.Website,
-		Logo:       msg.Logo,
+		PoolId:  msg.Id,
+		Address: msg.Creator,
+		Moniker: msg.Moniker,
+		Website: msg.Website,
+		Logo:    msg.Logo,
 	})
 	if errEmit != nil {
 		return nil, errEmit

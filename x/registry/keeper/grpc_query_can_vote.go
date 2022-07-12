@@ -32,6 +32,14 @@ func (k Keeper) CanVote(goCtx context.Context, req *types.QueryCanVoteRequest) (
 		}, nil
 	}
 
+	// Check if minimum stake is reached
+	if pool.TotalStake < pool.MinStake {
+		return &types.QueryCanVoteResponse{
+			Possible: false,
+			Reason:   "Not enough stake in pool",
+		}, nil
+	}
+
 	// Check if pool has funds
 	if pool.TotalFunds == 0 {
 		return &types.QueryCanVoteResponse{

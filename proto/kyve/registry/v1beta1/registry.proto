@@ -2,7 +2,29 @@ syntax = "proto3";
 
 package kyve.registry.v1beta1;
 
+import "gogoproto/gogo.proto";
+
 option go_package = "github.com/KYVENetwork/chain/x/registry/types";
+
+// PoolStatus ...
+enum PoolStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // POOL_STATUS_UNSPECIFIED ...
+  POOL_STATUS_UNSPECIFIED = 0;
+  // POOL_STATUS_ACTIVE ...
+  POOL_STATUS_ACTIVE = 1;
+  // POOL_STATUS_PAUSED ...
+  POOL_STATUS_PAUSED = 2;
+  // POOL_STATUS_NO_FUNDS ...
+  POOL_STATUS_NO_FUNDS = 3;
+  // POOL_STATUS_NOT_ENOUGH_VALIDATORS ...
+  POOL_STATUS_NOT_ENOUGH_VALIDATORS = 4;
+  // POOL_STATUS_NOT_ENOUGH_STAKE ...
+  POOL_STATUS_NOT_ENOUGH_STAKE = 5;
+  // POOL_STATUS_UPGRADING ...
+  POOL_STATUS_UPGRADING = 6;
+}
 
 // BundleProposal ...
 message BundleProposal {
@@ -186,6 +208,14 @@ message Pool {
   string current_key = 28;
   // current_value ...
   string current_value = 29;
+  // inactive_stakers ...
+  repeated string inactive_stakers = 30;
+  // total_inactive_stake ...
+  uint64 total_inactive_stake = 31;
+  // min_stake ...
+  uint64 min_stake = 32;
+  // status ...
+  PoolStatus status = 33;
 }
 
 // Proposal ...
@@ -212,6 +242,18 @@ message Proposal {
   string bundle_hash = 10;
 }
 
+// StakerStatus ...
+enum StakerStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // STAKER_STATUS_UNSPECIFIED ...
+  STAKER_STATUS_UNSPECIFIED = 0;
+  // STAKER_STATUS_ACTIVE ...
+  STAKER_STATUS_ACTIVE = 1;
+  // STAKER_STATUS_INACTIVE ...
+  STAKER_STATUS_INACTIVE = 2;
+}
+
 // Staker ...
 message Staker {
   // staker ...
@@ -232,6 +274,8 @@ message Staker {
   string logo = 8;
   // points
   uint64 points = 9;
+  // status
+  StakerStatus status = 10;
 }
 
 // UnbondingStakingEntry
@@ -302,4 +346,26 @@ message RedelegationCooldown {
   string address = 1;
   // high_index ...
   uint64 created_block = 2;
+}
+
+// CommissionChangeQueueEntry ...
+message CommissionChangeQueueEntry {
+  // index is a monotonically increasing integer to order the entries
+  uint64 index = 1;
+  // staker ...
+  string staker = 2;
+  // pool_id ...
+  uint64 pool_id = 3;
+  // commission ...
+  string commission = 4;
+  // commission ...
+  int64 creation_date = 5;
+}
+
+// CommissionChangeQueueState ...
+message CommissionChangeQueueState {
+  // low_index ...
+  uint64 low_index = 1;
+  // high_index ...
+  uint64 high_index = 2;
 }

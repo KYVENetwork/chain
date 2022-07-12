@@ -1,6 +1,8 @@
 package registry
 
 import (
+	"fmt"
+
 	"github.com/KYVENetwork/chain/x/registry/keeper"
 	"github.com/KYVENetwork/chain/x/registry/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -50,6 +52,8 @@ func handleCreatePoolProposal(ctx sdk.Context, k keeper.Keeper, p *types.CreateP
 		},
 		UpgradePlan: &types.UpgradePlan{},
 		StartKey:    p.StartKey,
+		Status: types.POOL_STATUS_NOT_ENOUGH_VALIDATORS,
+		MinStake: p.MinStake,
 	}
 
 	k.AppendPool(ctx, pool)
@@ -70,6 +74,7 @@ func handleUpdatePoolProposal(ctx sdk.Context, k keeper.Keeper, p *types.UpdateP
 	pool.UploadInterval = p.UploadInterval
 	pool.OperatingCost = p.OperatingCost
 	pool.MaxBundleSize = p.MaxBundleSize
+	pool.MinStake = p.MinStake
 
 	k.SetPool(ctx, pool)
 
@@ -191,15 +196,20 @@ func handleResetPoolProposal(ctx sdk.Context, k keeper.Keeper, p *types.ResetPoo
 	if !foundProposal {
 		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, types.ErrProposalNotFound.Error(), p.Id, p.BundleId)
 	}
+
+	fmt.Println("proposals")
 	
 	// Delete all proposals created after reset proposal
 	for _, proposal := range k.GetProposalsByPoolIdSinceBundleId(ctx, p.Id, p.BundleId) {
+		fmt.Printf("%v\n", proposal)
 		k.RemoveProposal(ctx, proposal)
 	}
 
 	// Reset pool to latest bundle
 	if p.BundleId == 0 {
 		// if reset pool id is zero reset pool to "genesis state"
+		pool.CurrentHeight = 0
+		pool.TotalBundles = 0
 		pool.CurrentKey = ""
 		pool.CurrentValue = ""
 		pool.BundleProposal = &types.BundleProposal{
@@ -214,6 +224,8 @@ func handleResetPoolProposal(ctx sdk.Context, k keeper.Keeper, p *types.ResetPoo
 		}
 
 		// reset pool to previous valid bundle
+		pool.CurrentHeight = resetProposal.ToHeight
+		pool.TotalBundles = p.BundleId
 		pool.CurrentKey = resetProposal.Key
 		pool.CurrentValue = resetProposal.Value
 		pool.BundleProposal = &types.BundleProposal{

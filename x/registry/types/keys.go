@@ -44,6 +44,9 @@ var (
 
 	// UnbondingDelegationQueueStateKey ...
 	UnbondingDelegationQueueStateKey = []byte{0, 4}
+
+	// CommissionChangeQueueStateKey ...
+	CommissionChangeQueueStateKey = []byte{0, 5}
 )
 
 var (
@@ -85,6 +88,11 @@ var (
 
 	// RedelegationCooldownPrefix ...
 	RedelegationCooldownPrefix = []byte{14}
+
+	// CommissionChangeQueueEntryKeyPrefix ...
+	CommissionChangeQueueEntryKeyPrefix = []byte{15}
+	// CommissionChangeQueueEntryKeyPrefixIndex2 ...
+	CommissionChangeQueueEntryKeyPrefixIndex2 = []byte{16}
 )
 
 // StakerKey returns the store Key to retrieve a Staker from the index fields
@@ -158,6 +166,15 @@ func UnbondingDelegationQueueEntryKeyIndex2(delegator string, index uint64) []by
 
 func RedelegationCooldownKey(delegator string, block uint64) []byte {
 	return KeyPrefixBuilder{}.AString(delegator).AInt(block).Key
+}
+
+func CommissionChangeQueueEntryKey(index uint64) []byte {
+	return KeyPrefixBuilder{}.AInt(index).Key
+}
+
+// Important: only one queue entry per staker+poolId is allowed at a time.
+func CommissionChangeQueueEntryKeyIndex2(staker string, poolId uint64) []byte {
+	return KeyPrefixBuilder{}.AString(staker).AInt(poolId).Key
 }
 
 type KeyPrefixBuilder struct {

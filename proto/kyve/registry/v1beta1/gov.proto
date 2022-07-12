@@ -32,6 +32,8 @@ message CreatePoolProposal {
   string binaries = 12;
   // start_key ...
   string start_key = 13;
+  // min_stake ...
+  uint64 min_stake = 14;
 }
 
 // UpdatePoolProposal is a gov Content type for updating a pool.
@@ -58,6 +60,8 @@ message UpdatePoolProposal {
   uint64 operating_cost = 10;
   // max_bundle_size ...
   uint64 max_bundle_size = 11;
+  // min_stake ...
+  uint64 min_stake = 12;
 }
 
 // PausePoolProposal is a gov Content type for pausing a pool.

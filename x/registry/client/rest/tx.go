@@ -22,12 +22,13 @@ type CreatePoolRequest struct {
 	Runtime        string       `json:"runtime" yaml:"runtime"`
 	Logo           string       `json:"logo" yaml:"logo"`
 	Config         string       `json:"config" yaml:"config"`
-	StartHeight    uint64       `json:"startHeight" yaml:"startHeight"`
 	UploadInterval uint64       `json:"uploadInterval" yaml:"uploadInterval"`
 	OperatingCost  uint64       `json:"operatingCost" yaml:"operatingCost"`
 	MaxBundleSize  uint64       `json:"maxBundleSize" yaml:"maxBundleSize"`
 	Version        string       `json:"version" yaml:"version"`
 	Binaries       string       `json:"binaries" yaml:"binaries"`
+	StartKey       string       `json:"startKey" yaml:"startKey"`
+	MinStake       uint64       `json:"minStake" yaml:"minStake"`
 }
 
 func ProposalCreatePoolRESTHandler(clientCtx client.Context) govrest.ProposalRESTHandler {
@@ -55,7 +56,7 @@ func newCreatePoolHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		content := types.NewCreatePoolProposal(req.Title, req.Description, req.Name, req.Runtime, req.Logo, req.Config, req.StartHeight, req.UploadInterval, req.OperatingCost, req.MaxBundleSize, req.Version, req.Binaries)
+		content := types.NewCreatePoolProposal(req.Title, req.Description, req.Name, req.Runtime, req.Logo, req.Config, req.UploadInterval, req.OperatingCost, req.MaxBundleSize, req.Version, req.Binaries, req.StartKey, req.MinStake)
 		msg, err := govtypes.NewMsgSubmitProposal(content, req.Deposit, fromAddr, req.IsExpedited)
 		if rest.CheckBadRequestError(w, err) {
 			return
@@ -82,6 +83,7 @@ type UpdatePoolRequest struct {
 	UploadInterval uint64       `json:"uploadInterval" yaml:"uploadInterval"`
 	OperatingCost  uint64       `json:"operatingCost" yaml:"operatingCost"`
 	MaxBundleSize  uint64       `json:"maxBundleSize" yaml:"maxBundleSize"`
+	MinStake       uint64       `json:"minStake" yaml:"minStake"`
 }
 
 func ProposalUpdatePoolRESTHandler(clientCtx client.Context) govrest.ProposalRESTHandler {
@@ -109,7 +111,7 @@ func newUpdatePoolHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		content := types.NewUpdatePoolProposal(req.Title, req.Description, req.Id, req.Name, req.Runtime, req.Logo, req.Config, req.UploadInterval, req.OperatingCost, req.MaxBundleSize)
+		content := types.NewUpdatePoolProposal(req.Title, req.Description, req.Id, req.Name, req.Runtime, req.Logo, req.Config, req.UploadInterval, req.OperatingCost, req.MaxBundleSize, req.MinStake)
 		msg, err := govtypes.NewMsgSubmitProposal(content, req.Deposit, fromAddr, req.IsExpedited)
 		if rest.CheckBadRequestError(w, err) {
 			return

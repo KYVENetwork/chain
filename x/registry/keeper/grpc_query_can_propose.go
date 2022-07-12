@@ -31,6 +31,14 @@ func (k Keeper) CanPropose(goCtx context.Context, req *types.QueryCanProposeRequ
 		}, nil
 	}
 
+	// Check if minimum stake is reached
+	if pool.TotalStake < pool.MinStake {
+		return &types.QueryCanProposeResponse{
+			Possible: false,
+			Reason:   "Not enough stake in pool",
+		}, nil
+	}
+
 	// Check if pool has funds
 	if pool.TotalFunds == 0 {
 		return &types.QueryCanProposeResponse{
