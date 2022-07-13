@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"encoding/binary"
-	"fmt"
 	"github.com/KYVENetwork/chain/x/registry/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -46,7 +45,7 @@ func (k Keeper) GetAllRedelegationCooldownEntries(ctx sdk.Context) (list []types
 	for ; iterator.Valid(); iterator.Next() {
 		val := types.RedelegationCooldown{
 			Address:      string(iterator.Key()[0:43]),
-			CreatedBlock: binary.BigEndian.Uint64(iterator.Key()[44:52]),
+			CreationDate: binary.BigEndian.Uint64(iterator.Key()[44:52]),
 		}
 		list = append(list, val)
 	}
