@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"encoding/binary"
+	"fmt"
 	"github.com/KYVENetwork/chain/x/registry/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,19 +13,19 @@ func (k Keeper) SetRedelegationCooldown(ctx sdk.Context, redelegationCooldown ty
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.RedelegationCooldownPrefix)
 	store.Set(types.RedelegationCooldownKey(
 		redelegationCooldown.Address,
-		redelegationCooldown.CreatedBlock,
+		redelegationCooldown.CreationDate,
 	), []byte{1})
 }
 
 // GetRedelegationCooldownEntries ...
-func (k Keeper) GetRedelegationCooldownEntries(ctx sdk.Context, delegatorAddress string) (blocks []uint64) {
+func (k Keeper) GetRedelegationCooldownEntries(ctx sdk.Context, delegatorAddress string) (creationDates []uint64) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.RedelegationCooldownPrefix)
 	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixBuilder{}.AString(delegatorAddress).Key)
 
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		blocks = append(blocks, binary.BigEndian.Uint64(iterator.Key()))
+		creationDates = append(creationDates, binary.BigEndian.Uint64(iterator.Key()))
 	}
 	return
 }

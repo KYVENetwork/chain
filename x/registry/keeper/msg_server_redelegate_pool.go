@@ -13,29 +13,33 @@ func (k msgServer) RedelegatePool(goCtx context.Context, msg *types.MsgRedelegat
 	// Unwrap context and attempt to fetch the pool.
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// Check if cooldowns are over
-	for _, block := range k.GetRedelegationCooldownEntries(ctx, msg.Creator) {
-		creationTime := ctx.WithBlockHeight(int64(block)).BlockTime()
-		if ctx.BlockTime().Unix()-creationTime.Unix() > int64(k.RedelegationCooldown(ctx)) {
-			k.RemoveRedelegationCooldown(ctx, msg.Creator, block)
+	// Check if cooldowns are over,
+	// Remove all expired entries
+	for _, creationDate := range k.GetRedelegationCooldownEntries(ctx, msg.Creator) {
+		if ctx.BlockTime().Unix()-int64(creationDate) > int64(k.RedelegationCooldown(ctx)) {
+			k.RemoveRedelegationCooldown(ctx, msg.Creator, creationDate)
 		} else {
 			break
 		}
 	}
 
-	blocks := k.GetRedelegationCooldownEntries(ctx, msg.Creator)
+	// Get list of active cooldowns
+	creationDates := k.GetRedelegationCooldownEntries(ctx, msg.Creator)
 
-	if len(blocks) >= int(k.RedelegationMaxAmount(ctx)) {
+	// Check if there are still free blocks
+	if len(creationDates) >= int(k.RedelegationMaxAmount(ctx)) {
 		return nil, sdkErrors.Wrapf(sdkErrors.ErrLogic, types.ErrRedelegationOnCooldown.Error())
 	}
-	if len(blocks) > 0 && blocks[len(blocks)-1] == uint64(ctx.BlockHeight()) {
+	// Check that now Redelegation occurred in this block, as it will lead to errors, as
+	// the block-time is used for an index key.
+	if len(creationDates) > 0 && creationDates[len(creationDates)-1] == uint64(ctx.BlockHeight()) {
 		return nil, sdkErrors.Wrapf(sdkErrors.ErrLogic, types.ErrMultipleRedelegationInSameBlock.Error())
 	}
 
 	// All checks passed, create cooldown entry
 	k.SetRedelegationCooldown(ctx, types.RedelegationCooldown{
 		Address:      msg.Creator,
-		CreatedBlock: uint64(ctx.BlockHeight())})
+		CreationDate: uint64(ctx.BlockTime().Unix())})
 
 	// Perform undelegation
 	if err := k.Undelegate(ctx, msg.FromStaker, msg.FromPoolId, msg.Creator, msg.Amount); err != nil {
