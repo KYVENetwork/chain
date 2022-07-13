@@ -53,9 +53,9 @@ func (k Keeper) AccountDelegationList(goCtx context.Context, req *types.QueryAcc
 
 			commissionChangeEntry, foundCommissionChange := k.GetCommissionChangeQueueEntryByIndex2(ctx, staker, pool.Id)
 
-			var pendingCommissionChange types.PendingCommissionChange
+			var pendingCommissionChange *types.PendingCommissionChange = nil
 			if foundCommissionChange {
-				pendingCommissionChange = types.PendingCommissionChange{
+				pendingCommissionChange = &types.PendingCommissionChange{
 					NewCommission: commissionChangeEntry.Commission,
 					CreationDate:  commissionChangeEntry.CreationDate,
 					FinishDate:    commissionChangeEntry.CreationDate + int64(k.CommissionChangeTime(ctx)),
@@ -68,7 +68,7 @@ func (k Keeper) AccountDelegationList(goCtx context.Context, req *types.QueryAcc
 				CurrentReward:           f1.getCurrentReward(),
 				DelegationAmount:        delegator.DelegationAmount,
 				Staker:                  delegator.Staker,
-				PendingCommissionChange: &pendingCommissionChange,
+				PendingCommissionChange: pendingCommissionChange,
 				DelegationPoolData:      &delegationPoolData,
 			})
 		}
