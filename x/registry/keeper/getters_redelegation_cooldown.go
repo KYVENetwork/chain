@@ -18,13 +18,13 @@ func (k Keeper) SetRedelegationCooldown(ctx sdk.Context, redelegationCooldown ty
 
 // GetRedelegationCooldownEntries ...
 func (k Keeper) GetRedelegationCooldownEntries(ctx sdk.Context, delegatorAddress string) (creationDates []uint64) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.RedelegationCooldownPrefix)
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixBuilder{}.AString(delegatorAddress).Key)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixBuilder{Key: types.RedelegationCooldownPrefix}.AString(delegatorAddress).Key)
+	iterator := sdk.KVStorePrefixIterator(store, nil)
 
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		creationDates = append(creationDates, binary.BigEndian.Uint64(iterator.Key()))
+		creationDates = append(creationDates, binary.BigEndian.Uint64(iterator.Key()[0:8]))
 	}
 	return
 }
