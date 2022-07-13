@@ -639,8 +639,10 @@ message DelegatorResponse {
   uint64 delegation_amount = 4;
   // staker ...
   string staker = 5;
+  // pending_commission_change
+  PendingCommissionChange pending_commission_change = 6;
   // delegation_pool_data ...
-  kyve.registry.v1beta1.DelegationPoolData delegation_pool_data = 6;
+  kyve.registry.v1beta1.DelegationPoolData delegation_pool_data = 7;
 }
 
 // QueryAccountDelegationListRequest ...
