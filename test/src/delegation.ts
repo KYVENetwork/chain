@@ -149,18 +149,20 @@ export const delegation = () => {
     const preBalanceCharlie =
       await charlie.client.kyve.v1beta1.base.getKyveBalance();
 
-    const receiptBob = await bob.client.kyve.v1beta1.base.delegatePool({
+    const txBob = await bob.client.kyve.v1beta1.base.delegatePool({
       id: "0",
       amount: bobDelegation.toString(),
       staker: ADDRESS_ALICE,
-    }).then(tx => tx.execute());
+    });
+    const receiptBob = await txBob.execute();
     expect(receiptBob.code).toEqual(0);
 
-    const receiptCharlie = await charlie.client.kyve.v1beta1.base.delegatePool({
+    const txCharlie = await charlie.client.kyve.v1beta1.base.delegatePool({
       id: "0",
       amount: charlieDelegation.toString(),
       staker: ADDRESS_ALICE,
-    }).then(tx => tx.execute());
+    });
+    const receiptCharlie = await txCharlie.execute()
     expect(receiptCharlie.code).toEqual(0);
 
     // Check post balances
@@ -172,11 +174,11 @@ export const delegation = () => {
 
     expect(preBalanceAlice).toEqual(postBalanceAlice);
     expect(
-      new BigNumber(preBalanceBob).minus(bobDelegation).toString()
-    ).toEqual(postBalanceBob.toString());
+        new BigNumber(preBalanceBob).minus(bobDelegation).minus(txBob.fee.amount[0].amount).toString()
+    ).toEqual(postBalanceBob);
     expect(
-      new BigNumber(preBalanceCharlie).minus(charlieDelegation).toString()
-    ).toEqual(postBalanceCharlie.toString());
+        new BigNumber(preBalanceCharlie).minus(charlieDelegation).minus(txCharlie.fee.amount[0].amount).toString()
+    ).toEqual(postBalanceCharlie);
 
     // Check pool delegation entry
     const delegationPoolData =
@@ -208,22 +210,22 @@ export const delegation = () => {
       await charlie.client.kyve.v1beta1.base.getKyveBalance();
 
     // undelegate 100 $KYVE from Bob into Alice
-    const receiptBob = await bob.client.kyve.v1beta1.base.undelegatePool({
+    const txBob = await bob.client.kyve.v1beta1.base.undelegatePool({
       id: "0",
       staker: ADDRESS_ALICE,
       amount: bobDelegation.toString(),
-    }).then(tx => tx.execute());
-
+    });
+    const receiptBob = await txBob.execute()
     expect(receiptBob.code).toEqual(0);
 
     // undelegate 300 $KYVE from Charlie into Alice
-    const receiptCharlie =
+    const txCharlie =
       await charlie.client.kyve.v1beta1.base.undelegatePool({
         id: "0",
         staker: ADDRESS_ALICE,
         amount: charlieDelegation.toString(),
-      }).then(tx => tx.execute());
-
+      });
+    const receiptCharlie = await txCharlie.execute()
     expect(receiptCharlie.code).toEqual(0);
 
     await sleep(5 * 1000);
@@ -255,8 +257,8 @@ export const delegation = () => {
       new BigNumber(0)
     );
     expect(postBalanceAlice).toEqual(preBalanceAlice);
-    expect(postBalanceCharlie).toEqual(preBalanceCharlie);
-    expect(postBalanceBob).toEqual(preBalanceBob);
+    expect(postBalanceCharlie).toEqual(new BigNumber(preBalanceCharlie).minus(txCharlie.fee.amount[0].amount).toString());
+    expect(postBalanceBob).toEqual(new BigNumber(preBalanceBob).minus(txBob.fee.amount[0].amount).toString());
     expect(unbondingsTotalBob.toString()).toEqual(bobDelegation.toString());
     expect(unbondingsTotalCharlie.toString()).toEqual(
       charlieDelegation.toString()

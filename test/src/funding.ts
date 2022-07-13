@@ -100,10 +100,11 @@ export const funding = () => {
     expect(pool.lowest_funder).toBe("");
 
     // fund 80 KYVE
-    const receipt = await alice.client.kyve.v1beta1.base.fundPool({
+    const tx = await alice.client.kyve.v1beta1.base.fundPool({
       amount: amount.toString(),
       id: pool.id,
-    }).then(tx => tx.execute());
+    })
+    const receipt = await tx.execute()
 
     // 0 means transaction was successful
     expect(receipt.code).toEqual(0);
@@ -134,7 +135,7 @@ export const funding = () => {
     expect(pool.total_funds).toEqual(amount.toString());
 
     // check if balance was decreased correct
-    expect(new BigNumber(preBalance).minus(postBalance)).toEqual(amount);
+    expect(new BigNumber(preBalance).minus(postBalance).minus(tx.fee.amount[0].amount)).toEqual(amount);
   });
 
   test("fund additional 20 KYVE with alice", async () => {
@@ -153,11 +154,11 @@ export const funding = () => {
     const preBalance = await alice.client.kyve.v1beta1.base.getKyveBalance();
 
     // fund 100 KYVE
-    const receipt = await alice.client.kyve.v1beta1.base.fundPool({
+    const tx = await alice.client.kyve.v1beta1.base.fundPool({
       id: pool.id,
       amount: amount.toString(),
-    }).then(tx => tx.execute());
-
+    });
+    const receipt = await tx.execute()
     // 0 means transaction was successful
     expect(receipt.code).toEqual(0);
 
@@ -186,7 +187,7 @@ export const funding = () => {
     expect(pool.total_funds).toEqual(total.toString());
 
     // check if balance was decreased correct
-    expect(new BigNumber(preBalance).minus(postBalance)).toEqual(amount);
+    expect(new BigNumber(preBalance).minus(postBalance).minus(tx.fee.amount[0].amount)).toEqual(amount);
   });
 
   test("defund 80 KYVE with alice", async () => {
@@ -205,11 +206,11 @@ export const funding = () => {
     const preBalance = await alice.client.kyve.v1beta1.base.getKyveBalance();
 
     // defund 80 KYVE
-    const receipt = await alice.client.kyve.v1beta1.base.defundPool({
+    const tx = await alice.client.kyve.v1beta1.base.defundPool({
       id: pool.id,
       amount: amount.toString(),
-    }).then(tx => tx.execute());
-
+    });
+    const receipt = await tx.execute()
     // 0 means transaction was successful
     expect(receipt.code).toEqual(0);
 
@@ -239,7 +240,7 @@ export const funding = () => {
     expect(pool.total_funds).toEqual(remaining.toString());
 
     // check if balance was decreased correct
-    expect(new BigNumber(postBalance).minus(preBalance)).toEqual(amount);
+    expect(new BigNumber(postBalance).minus(preBalance)).toEqual(amount.minus(tx.fee.amount[0].amount));
   });
 
   test("defund more than funding balance with alice", async () => {
@@ -308,11 +309,11 @@ export const funding = () => {
     const preBalance = await alice.client.kyve.v1beta1.base.getKyveBalance();
 
     // defund 20 KYVE
-    const receipt = await alice.client.kyve.v1beta1.base.defundPool({
+    const tx = await alice.client.kyve.v1beta1.base.defundPool({
       id: pool.id,
       amount: amount.toString(),
-    }).then(tx => tx.execute());
-
+    });
+    const receipt = await tx.execute()
     // 0 means transaction was successful
     expect(receipt.code).toEqual(0);
 
@@ -334,7 +335,7 @@ export const funding = () => {
     expect(pool.lowest_funder).toBe("");
 
     // check if balance was decreased correct
-    expect(new BigNumber(postBalance).minus(preBalance)).toEqual(amount);
+    expect(new BigNumber(postBalance).minus(preBalance)).toEqual(amount.minus(tx.fee.amount[0].amount));
   });
 
   test("fund with multiple funders", async () => {
