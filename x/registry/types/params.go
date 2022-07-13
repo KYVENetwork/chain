@@ -58,17 +58,17 @@ var (
 
 var (
 	KeyRedelegationCooldown            = []byte("RedelegationCooldown")
-	DefaultRedelegationCooldown uint64 = 60 // TODO Change to 5 days
+	DefaultRedelegationCooldown uint64 = 60 * 60 * 24 * 5
 )
 
 var (
 	KeyRedelegationMaxAmount            = []byte("KeyRedelegationMaxAmount")
-	DefaultRedelegationMaxAmount uint64 = 3 // TODO think about amount?
+	DefaultRedelegationMaxAmount uint64 = 5
 )
 
 var (
 	KeyCommissionChangeTime            = []byte("KeyCommissionChangeTime")
-	DefaultCommissionChangeTime uint64 = 60 // TODO CHANGE
+	DefaultCommissionChangeTime uint64 = 60 * 60 * 24 * 5
 )
 
 // ParamKeyTable the param Key table for launch module
