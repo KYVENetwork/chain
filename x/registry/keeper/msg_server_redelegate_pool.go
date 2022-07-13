@@ -32,7 +32,7 @@ func (k msgServer) RedelegatePool(goCtx context.Context, msg *types.MsgRedelegat
 	}
 	// Check that now Redelegation occurred in this block, as it will lead to errors, as
 	// the block-time is used for an index key.
-	if len(creationDates) > 0 && creationDates[len(creationDates)-1] == uint64(ctx.BlockHeight()) {
+	if len(creationDates) > 0 && creationDates[len(creationDates)-1] == uint64(ctx.BlockTime().Unix()) {
 		return nil, sdkErrors.Wrapf(sdkErrors.ErrLogic, types.ErrMultipleRedelegationInSameBlock.Error())
 	}
 

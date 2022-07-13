@@ -34,6 +34,10 @@ import (
 
 const ALICE_ADDR = "cosmos1jq304cthpx0lwhpqzrdjrcza559ukyy347ju8f"
 const BOB_ADDR = "cosmos1hvg7zsnrj6h29q9ss577mhrxa04rn94hfvl2ry"
+
+//const ALICE_ADDR = "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd"
+//const BOB_ADDR = "kyve1hvg7zsnrj6h29q9ss577mhrxa04rn94h7zjugq"
+
 const KYVE = uint64(1_000_000_000)
 
 var DUMMY_ACCOUNTS []string
@@ -72,10 +76,14 @@ func mint(address string, amount uint64) error {
 
 	s.Commit()
 
+	//accPrefix := cosmostypes.GetConfig().GetBech32AccountAddrPrefix()
+	//pubPrefix := cosmostypes.GetConfig().GetBech32AccountPubPrefix()
+	//cosmostypes.GetConfig().SetBech32PrefixForAccount("kyve", pubPrefix)
 	sender, err := sdk.AccAddressFromBech32(address)
 	if err != nil {
 		return err
 	}
+	//cosmostypes.GetConfig().SetBech32PrefixForAccount(accPrefix, pubPrefix)
 
 	err = s.app.BankKeeper.SendCoinsFromModuleToAccount(s.ctx, types.ModuleName, sender, coins)
 	if err != nil {
@@ -101,8 +109,6 @@ func initDummyAccounts() {
 func createGenesis(t *testing.T) {
 	s = new(KeeperTestSuite)
 	s.SetupTest()
-
-	initDummyAccounts()
 
 	currentTime := s.ctx.BlockTime().Unix()
 	s.CommitAfter(time.Second * 60)
@@ -140,6 +146,7 @@ func createGenesis(t *testing.T) {
 		fmt.Printf("error: %v\n", err)
 		return
 	}
+
 	err = mint(BOB_ADDR, 1000*KYVE)
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
@@ -175,7 +182,16 @@ func (suite *KeeperTestSuite) SetupApp() {
 
 	suite.denom = "tkyve"
 
-	//sdk.GetConfig().SetBech32PrefixForAccount("kyve", "kyve")
+	//fmt.Printf("%s\n", sdk.GetConfig().GetBech32AccountAddrPrefix())
+	//fmt.Printf("%s\n", sdk.GetConfig().GetBech32AccountPubPrefix())
+	//fmt.Printf("%s\n", sdk.GetConfig().GetBech32ValidatorAddrPrefix())
+	//fmt.Printf("%s\n", sdk.GetConfig().GetBech32ValidatorPubPrefix())
+	//fmt.Printf("%s\n", sdk.GetConfig().GetBech32ConsensusAddrPrefix())
+	//fmt.Printf("%s\n", sdk.GetConfig().GetBech32ConsensusPubPrefix())
+
+	//sdk.GetConfig().SetBech32PrefixForAccount("kyve", "kyvepub")
+	//sdk.GetConfig().SetBech32PrefixForValidator("kyvevaloper", "kyvevaloperpub")
+	//sdk.GetConfig().SetBech32PrefixForValidator("kyvevalcons", "kyvevalconspub")
 
 	// consensus key
 	privKey, err := ecdsa.GenerateKey(secp256k1.S256(), rand.Reader)
@@ -219,6 +235,10 @@ func (suite *KeeperTestSuite) SetupApp() {
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.RegistryKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
+
+	mintParams := suite.app.MintKeeper.GetParams(suite.ctx)
+	mintParams.MintDenom = suite.denom
+	suite.app.MintKeeper.SetParams(suite.ctx, mintParams)
 
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = suite.denom
