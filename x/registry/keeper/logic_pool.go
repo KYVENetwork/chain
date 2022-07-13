@@ -144,29 +144,17 @@ func (k Keeper) removeFunder(ctx sdk.Context, pool *types.Pool, funder *types.Fu
 
 // removeStaker is an internal function that removes a staker from a given pool.
 func (k Keeper) removeStaker(ctx sdk.Context, pool *types.Pool, staker *types.Staker) {
-	// Find the index of the given staker.
-	var stakerIndex = -1
 
-	for i, v := range pool.Stakers {
-		if v == staker.Account {
-			stakerIndex = i
-			break
-		}
+	if staker.Status == types.STAKER_STATUS_ACTIVE {
+		pool.Stakers = removeStringFromList(pool.Stakers, staker.Account)
+
+		// Decrease the pool's total stake.
+		pool.TotalStake -= staker.Amount
+
+	} else if staker.Status == types.STAKER_STATUS_INACTIVE {
+		pool.InactiveStakers = removeStringFromList(pool.InactiveStakers, staker.Account)
 	}
-
-	// Return is the staker wasn't found.
-	if stakerIndex < 0 {
-		return
-	}
-
-	// Remove staker from list of stakers (replace with last entry and then slice).
-	pool.Stakers[stakerIndex] = pool.Stakers[len(pool.Stakers)-1]
-	pool.Stakers = pool.Stakers[:len(pool.Stakers)-1]
-
 	k.RemoveStaker(ctx, staker.Account, staker.PoolId)
-
-	// Decrease the pool's total stake.
-	pool.TotalStake -= staker.Amount
 }
 
 // RandomChoiceCandidate ...

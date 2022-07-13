@@ -3,28 +3,151 @@ package keeper_test
 import (
 	"crypto/ecdsa"
 	"crypto/rand"
+	"fmt"
 	"github.com/KYVENetwork/chain/app"
+	"github.com/KYVENetwork/chain/x/registry"
 	"github.com/KYVENetwork/chain/x/registry/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/crypto/secp256k1"
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
+	mrand "math/rand"
+	"testing"
 
 	tmcrypto "github.com/tendermint/tendermint/crypto"
 
 	"github.com/tendermint/tendermint/version"
 	"time"
 )
+
+const ALICE_ADDR = "cosmos1jq304cthpx0lwhpqzrdjrcza559ukyy347ju8f"
+const BOB_ADDR = "cosmos1hvg7zsnrj6h29q9ss577mhrxa04rn94hfvl2ry"
+const KYVE = uint64(1_000_000_000)
+
+var DUMMY_ACCOUNTS []string
+
+func runTxWithResult(msg sdk.Msg) (*sdk.Result, error) {
+	cachedCtx, commit := s.ctx.CacheContext()
+	resp, err := registry.NewHandler(s.app.RegistryKeeper)(cachedCtx, msg)
+	if err == nil {
+		commit()
+		return resp, nil
+	}
+	return nil, err
+}
+
+func runTx(msg sdk.Msg) (success bool) {
+	cachedCtx, commit := s.ctx.CacheContext()
+	_, err := registry.NewHandler(s.app.RegistryKeeper)(cachedCtx, msg)
+	if err == nil {
+		commit()
+		return true
+	}
+	return false
+}
+
+func runTxSuccess(t *testing.T, msg sdk.Msg) {
+	success := runTx(msg)
+	require.True(t, success)
+}
+
+func mint(address string, amount uint64) error {
+	coins := sdk.NewCoins(sdk.NewInt64Coin("tkyve", int64(amount)))
+	err := s.app.BankKeeper.MintCoins(s.ctx, types.ModuleName, coins)
+	if err != nil {
+		return err
+	}
+
+	s.Commit()
+
+	sender, err := sdk.AccAddressFromBech32(address)
+	if err != nil {
+		return err
+	}
+
+	err = s.app.BankKeeper.SendCoinsFromModuleToAccount(s.ctx, types.ModuleName, sender, coins)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func initDummyAccounts() {
+	DUMMY_ACCOUNTS = make([]string, 50)
+	mrand.Seed(1)
+	for i := 0; i < 50; i++ {
+		byteAddr := make([]byte, 20)
+		for k := 0; k < 20; k++ {
+			byteAddr[k] = byte(mrand.Int())
+		}
+		dummy, _ := sdk.Bech32ifyAddressBytes("cosmos", byteAddr)
+		DUMMY_ACCOUNTS[i] = dummy
+		mint(dummy, 1000*KYVE)
+	}
+}
+
+func createGenesis(t *testing.T) {
+	s = new(KeeperTestSuite)
+	s.SetupTest()
+
+	initDummyAccounts()
+
+	currentTime := s.ctx.BlockTime().Unix()
+	s.CommitAfter(time.Second * 60)
+	require.Equal(t, s.ctx.BlockTime().Unix(), currentTime+60)
+
+	s.CommitAfter(time.Second * 60)
+	require.Equal(t, s.ctx.BlockTime().Unix(), currentTime+2*60)
+
+	pool := types.Pool{
+		Creator:        govtypes.ModuleName,
+		Name:           "Moontest",
+		Runtime:        "@kyve/evm",
+		Logo:           "9FJDam56yBbmvn8rlamEucATH5UcYqSBw468rlCXn8E",
+		Config:         "{\"rpc\":\"https://rpc.api.moonbeam.network\",\"github\":\"https://github.com/KYVENetwork/evm\"}",
+		UploadInterval: 60,
+		OperatingCost:  100,
+		BundleProposal: &types.BundleProposal{},
+		MaxBundleSize:  100,
+		Protocol: &types.Protocol{
+			Version:     "1.3.0",
+			LastUpgrade: uint64(s.ctx.BlockTime().Unix()),
+			Binaries:    "{\"macos\":\"https://github.com/kyve-org/evm/releases/download/v1.0.5/kyve-evm-macos.zip\"}",
+		},
+		UpgradePlan: &types.UpgradePlan{},
+		StartKey:    "0",
+		Status:      types.POOL_STATUS_NOT_ENOUGH_VALIDATORS,
+		MinStake:    0,
+	}
+
+	s.app.RegistryKeeper.AppendPool(s.ctx, pool)
+	s.Commit()
+
+	err := mint(ALICE_ADDR, 1000*KYVE)
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+		return
+	}
+	err = mint(BOB_ADDR, 1000*KYVE)
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+		return
+	}
+
+	initDummyAccounts()
+}
 
 type KeeperTestSuite struct {
 	suite.Suite
@@ -115,6 +238,10 @@ func (suite *KeeperTestSuite) SetupApp() {
 
 func (suite *KeeperTestSuite) Commit() {
 	suite.CommitAfter(time.Second * 0)
+}
+
+func (suite *KeeperTestSuite) CommitAfterSeconds(seconds uint64) {
+	suite.CommitAfter(time.Second * time.Duration(seconds))
 }
 
 // Commit commits a block at a given time.

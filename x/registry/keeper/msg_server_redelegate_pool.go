@@ -28,7 +28,7 @@ func (k msgServer) RedelegatePool(goCtx context.Context, msg *types.MsgRedelegat
 	if len(blocks) >= int(k.RedelegationMaxAmount(ctx)) {
 		return nil, sdkErrors.Wrapf(sdkErrors.ErrLogic, types.ErrRedelegationOnCooldown.Error())
 	}
-	if blocks[len(blocks)-1] == uint64(ctx.BlockHeight()) {
+	if len(blocks) > 0 && blocks[len(blocks)-1] == uint64(ctx.BlockHeight()) {
 		return nil, sdkErrors.Wrapf(sdkErrors.ErrLogic, types.ErrMultipleRedelegationInSameBlock.Error())
 	}
 
