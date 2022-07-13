@@ -153,6 +153,8 @@ func (k Keeper) removeStaker(ctx sdk.Context, pool *types.Pool, staker *types.St
 
 	} else if staker.Status == types.STAKER_STATUS_INACTIVE {
 		pool.InactiveStakers = removeStringFromList(pool.InactiveStakers, staker.Account)
+
+		pool.TotalInactiveStake -= staker.Amount
 	}
 	k.RemoveStaker(ctx, staker.Account, staker.PoolId)
 }

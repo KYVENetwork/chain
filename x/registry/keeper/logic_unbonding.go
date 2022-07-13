@@ -108,7 +108,12 @@ func (k Keeper) ProcessStakerUnbondingQueue(ctx sdk.Context) {
 						unstakeAmount = unbondingStakingEntry.Amount
 
 						staker.Amount -= unstakeAmount
-						pool.TotalStake -= unbondingStakingEntry.Amount
+
+						if staker.Status == types.STAKER_STATUS_ACTIVE {
+							pool.TotalStake -= unbondingStakingEntry.Amount
+						} else if staker.Status == types.STAKER_STATUS_INACTIVE {
+							pool.TotalInactiveStake -= unbondingStakingEntry.Amount
+						}
 
 						k.SetStaker(ctx, staker)
 					}

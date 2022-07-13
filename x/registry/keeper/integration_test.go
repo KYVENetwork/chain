@@ -41,6 +41,7 @@ func testIntegrationFunding(t *testing.T) {
 	_, foundFunder1 := s.app.RegistryKeeper.GetFunder(s.ctx, ALICE_ADDR, 1)
 	require.False(t, fundPool1)
 	require.False(t, foundFunder1)
+
 }
 
 func testCommissionChange(t *testing.T) {
@@ -156,6 +157,50 @@ func testStaking(t *testing.T) {
 	UndelegationTime := s.app.RegistryKeeper.UnbondingDelegationTime(s.ctx)
 	_ = UndelegationTime
 
+	// Unstake everything.
+	aliceStaker, _ := s.app.RegistryKeeper.GetStaker(s.ctx, ALICE_ADDR, 0)
+	runTxSuccess(t, &types.MsgUnstakePool{
+		Creator: ALICE_ADDR,
+		Id:      0,
+		Amount:  aliceStaker.Amount,
+	})
+	// Unstake everything.
+	bobStaker, _ := s.app.RegistryKeeper.GetStaker(s.ctx, BOB_ADDR, 0)
+	runTxSuccess(t, &types.MsgUnstakePool{
+		Creator: BOB_ADDR,
+		Id:      0,
+		Amount:  bobStaker.Amount,
+	})
+
+	s.CommitAfterSeconds(UnstakingTime + 1)
+	s.CommitAfterSeconds(1)
+	pool, _ := s.app.RegistryKeeper.GetPool(s.ctx, 0)
+	require.Len(t, pool.Stakers, 0)
+	require.Len(t, pool.InactiveStakers, 0)
+	require.Equal(t, uint64(0), pool.TotalStake)
+	require.Equal(t, uint64(0), pool.TotalInactiveStake)
+
+	s.CommitAfterSeconds(UploadTimeout + 10)
+	pool, _ = s.app.RegistryKeeper.GetPool(s.ctx, 0)
+	// Stake into pool
+	stakePool := runTx(&types.MsgStakePool{
+		Creator: ALICE_ADDR,
+		Id:      0,
+		Amount:  10 * KYVE,
+	})
+	require.True(t, stakePool)
+
+	stakePool2 := runTx(&types.MsgStakePool{
+		Creator: BOB_ADDR,
+		Id:      0,
+		Amount:  10 * KYVE,
+	})
+	require.True(t, stakePool2)
+
+	pool, _ = s.app.RegistryKeeper.GetPool(s.ctx, 0)
+
+	s.CommitAfterSeconds(2)
+
 	runTxSuccess(t, &types.MsgClaimUploaderRole{
 		Creator: ALICE_ADDR,
 		Id:      0,
@@ -174,10 +219,10 @@ func testStaking(t *testing.T) {
 	require.Len(t, pool.Stakers, 1)
 	require.Len(t, pool.InactiveStakers, 1)
 
-	alicaStaker, _ := s.app.RegistryKeeper.GetStaker(s.ctx, ALICE_ADDR, 0)
-	require.Equal(t, types.STAKER_STATUS_INACTIVE, alicaStaker.Status)
+	aliceStaker, _ = s.app.RegistryKeeper.GetStaker(s.ctx, ALICE_ADDR, 0)
+	require.Equal(t, types.STAKER_STATUS_INACTIVE, aliceStaker.Status)
 
-	bobStaker, _ := s.app.RegistryKeeper.GetStaker(s.ctx, BOB_ADDR, 0)
+	bobStaker, _ = s.app.RegistryKeeper.GetStaker(s.ctx, BOB_ADDR, 0)
 	require.Equal(t, types.STAKER_STATUS_ACTIVE, bobStaker.Status)
 
 	// Reactivate Staker
@@ -190,8 +235,8 @@ func testStaking(t *testing.T) {
 	require.Len(t, pool.Stakers, 2)
 	require.Len(t, pool.InactiveStakers, 0)
 
-	alicaStaker, _ = s.app.RegistryKeeper.GetStaker(s.ctx, ALICE_ADDR, 0)
-	require.Equal(t, types.STAKER_STATUS_ACTIVE, alicaStaker.Status)
+	aliceStaker, _ = s.app.RegistryKeeper.GetStaker(s.ctx, ALICE_ADDR, 0)
+	require.Equal(t, types.STAKER_STATUS_ACTIVE, aliceStaker.Status)
 
 	bobStaker, _ = s.app.RegistryKeeper.GetStaker(s.ctx, BOB_ADDR, 0)
 	require.Equal(t, types.STAKER_STATUS_ACTIVE, bobStaker.Status)
