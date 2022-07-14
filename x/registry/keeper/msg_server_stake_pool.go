@@ -28,7 +28,7 @@ func (k msgServer) StakePool(goCtx context.Context, msg *types.MsgStakePool) (*t
 	} else {
 		// Check if we have reached the maximum number of stakers.
 		// If we are staking more than the lowest staker, remove them.
-		if len(pool.Stakers) == types.MaxStakers {
+		if len(pool.Stakers) >= types.MaxStakers {
 			lowestStaker, _ := k.GetStaker(ctx, pool.LowestStaker, msg.Id)
 
 			if msg.Amount > lowestStaker.Amount {

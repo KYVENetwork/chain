@@ -53,7 +53,7 @@ func (k Keeper) StakeInfo(goCtx context.Context, req *types.QueryStakeInfoReques
 	}
 
 	// Fetch current lowest staker only if all stacker slots are occupied
-	if len(pool.Stakers) == types.MaxStakers {
+	if len(pool.Stakers) >= types.MaxStakers {
 		lowestStaker, _ := k.GetStaker(ctx, pool.LowestStaker, req.PoolId)
 		response.MinimumStake = strconv.FormatUint(lowestStaker.Amount, 10)
 	}

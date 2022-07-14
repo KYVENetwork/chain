@@ -32,7 +32,7 @@ func (k msgServer) ReactivateStaker(
 		return nil, sdkErrors.Wrapf(sdkErrors.ErrNotFound, types.ErrNoStaker.Error())
 	}
 
-	if len(pool.Stakers) == types.MaxStakers {
+	if len(pool.Stakers) >= types.MaxStakers {
 		lowestStaker, _ := k.GetStaker(ctx, pool.LowestStaker, msg.PoolId)
 
 		if staker.Amount > lowestStaker.Amount {
