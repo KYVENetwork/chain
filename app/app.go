@@ -3,6 +3,7 @@ package app
 import (
 	v0_5_3 "github.com/KYVENetwork/chain/app/upgrades/v0.5.3"
 	v0_6_1 "github.com/KYVENetwork/chain/app/upgrades/v0.6.1"
+	v0_6_2 "github.com/KYVENetwork/chain/app/upgrades/v0.6.2"
 	"io"
 	"net/http"
 	"os"
@@ -624,4 +625,5 @@ func (app *App) setupUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(v0_5_2.UpgradeName, v0_5_2.CreateUpgradeHandler(&app.GovKeeper, &app.RegistryKeeper))
 	app.UpgradeKeeper.SetUpgradeHandler(v0_5_3.UpgradeName, v0_5_3.CreateUpgradeHandler())
 	app.UpgradeKeeper.SetUpgradeHandler(v0_6_1.UpgradeName, v0_6_1.CreateUpgradeHandler(&app.RegistryKeeper))
+	app.UpgradeKeeper.SetUpgradeHandler(v0_6_2.UpgradeName, v0_6_2.CreateUpgradeHandler(&app.RegistryKeeper))
 }

@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
 	"sort"
@@ -356,10 +355,10 @@ func (k Keeper) getVoteDistribution(ctx sdk.Context, pool *types.Pool) (valid ui
 		total = pool.TotalStake
 	}
 
-	// halt if nodes voted with more stake than in total
-	if valid+invalid+abstain > total {
-		k.PanicHalt(ctx, fmt.Sprintf("Voted with more $KYVE than staked. Voted = %v, Total Stake = %v", valid+invalid+abstain, total))
-	}
+	//// halt if nodes voted with more stake than in total
+	//if valid+invalid+abstain > total {
+	//	k.PanicHalt(ctx, fmt.Sprintf("Voted with more $KYVE than staked. Voted = %v, Total Stake = %v", valid+invalid+abstain, total))
+	//}
 
 	return
 }
