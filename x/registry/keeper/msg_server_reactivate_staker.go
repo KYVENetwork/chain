@@ -61,6 +61,7 @@ func (k msgServer) ReactivateStaker(
 	staker.Status = types.STAKER_STATUS_ACTIVE
 
 	k.SetStaker(ctx, staker)
+	k.updateLowestStaker(ctx, &pool)
 	k.SetPool(ctx, pool)
 
 	// Emit a delegation event.
