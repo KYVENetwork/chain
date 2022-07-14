@@ -1,4 +1,4 @@
-package v0_6_0
+package v0_6_1
 
 import (
 	registrykeeper "github.com/KYVENetwork/chain/x/registry/keeper"

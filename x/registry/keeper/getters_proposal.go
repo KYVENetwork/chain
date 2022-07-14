@@ -68,7 +68,7 @@ func (k Keeper) GetProposalsByPoolIdSinceBundleId(ctx sdk.Context, poolId uint64
 
 	defer proposalIndexIterator.Close()
 
-	for ; proposalIndexIterator.Valid() ; proposalIndexIterator.Next() {
+	for ; proposalIndexIterator.Valid(); proposalIndexIterator.Next() {
 		storageId := string(proposalIndexIterator.Value())
 		proposal, _ := k.GetProposal(ctx, storageId)
 		proposals = append(proposals, proposal)
@@ -106,7 +106,7 @@ func (k Keeper) GetAllProposal(ctx sdk.Context) (list []types.Proposal) {
 	return
 }
 
-// TODO delete this function after v0.6.0 migration
+// TODO delete this function after v0.6.1 migration
 func (k Keeper) UpgradeHelperV060MigrateSecondIndex(ctx sdk.Context) {
 
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.ProposalKeyPrefixIndex2)
