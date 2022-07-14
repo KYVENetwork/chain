@@ -19,6 +19,8 @@ func createRedelegationParameters(registryKeeper *registrykeeper.Keeper, ctx sdk
 	registryKeeper.ParamStore().Set(ctx, types.KeyRedelegationCooldown, types.DefaultRedelegationCooldown)
 
 	registryKeeper.ParamStore().Set(ctx, types.KeyRedelegationMaxAmount, types.DefaultRedelegationMaxAmount)
+
+	registryKeeper.ParamStore().Set(ctx, types.KeyCommissionChangeTime, types.DefaultCommissionChangeTime)
 }
 
 func migratePools(registryKeeper *registrykeeper.Keeper, ctx sdk.Context) {
