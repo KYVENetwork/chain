@@ -39,7 +39,7 @@ func fixPools(registryKeeper *registrykeeper.Keeper, ctx sdk.Context) {
 		}
 
 		// Fix unspecified state
-		activeStakers := make([]string, 50)
+		activeStakers := make([]string, 0)
 
 		for _, stakerAddress := range pool.Stakers {
 			staker, found := registryKeeper.GetStaker(ctx, stakerAddress, pool.Id)
