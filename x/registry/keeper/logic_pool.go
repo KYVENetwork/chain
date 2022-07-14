@@ -97,6 +97,10 @@ func (k Keeper) updateLowestFunder(ctx sdk.Context, pool *types.Pool) {
 	pool.LowestFunder = minFunder
 }
 
+func (k Keeper) UpdateLowestStaker(ctx sdk.Context, pool *types.Pool) {
+	k.updateLowestStaker(ctx, pool)
+}
+
 // updateLowestStaker is an internal function that updates the lowest staker entry in a given pool.
 func (k Keeper) updateLowestStaker(ctx sdk.Context, pool *types.Pool) {
 	minAmount := uint64(math.Inf(0))
