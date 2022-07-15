@@ -50,18 +50,24 @@ export const delegation = () => {
     expect(stakersListResponse.stakers).toHaveLength(0);
     expect(pool.total_stake).toEqual("0");
 
-    await alice.client.kyve.v1beta1.base.stakePool({
-      id: pool.id,
-      amount: aliceAmount.toString(),
-    }).then(tx => tx.execute());
-    await bob.client.kyve.v1beta1.base.stakePool({
-      id: pool.id,
-      amount: bobAmount.toString(),
-    }).then(tx => tx.execute());
-    await charlie.client.kyve.v1beta1.base.stakePool({
-      id: pool.id,
-      amount: charlieAmount.toString(),
-    }).then(tx => tx.execute());
+    await alice.client.kyve.v1beta1.base
+      .stakePool({
+        id: pool.id,
+        amount: aliceAmount.toString(),
+      })
+      .then((tx) => tx.execute());
+    await bob.client.kyve.v1beta1.base
+      .stakePool({
+        id: pool.id,
+        amount: bobAmount.toString(),
+      })
+      .then((tx) => tx.execute());
+    await charlie.client.kyve.v1beta1.base
+      .stakePool({
+        id: pool.id,
+        amount: charlieAmount.toString(),
+      })
+      .then((tx) => tx.execute());
 
     // refetch pool
     pool = await getDefaultPool();
@@ -69,7 +75,7 @@ export const delegation = () => {
     // refetch stakers list
     stakersListResponse = await lcdClient.kyve.registry.v1beta1.stakersList({
       pool_id: "0",
-      status: 1
+      status: 1,
     });
 
     // check if stake went though
@@ -103,23 +109,29 @@ export const delegation = () => {
     const preBalanceCharlie =
       await charlie.client.kyve.v1beta1.base.getKyveBalance();
     const selfDelegationErr = /self delegation not allowed/;
-    const aliceDelegateReq = alice.client.kyve.v1beta1.base.delegatePool({
-      id: pool.id,
-      amount: amount.toString(),
-      staker: ADDRESS_ALICE,
-    }).then(tx => tx.execute());
+    const aliceDelegateReq = alice.client.kyve.v1beta1.base
+      .delegatePool({
+        id: pool.id,
+        amount: amount.toString(),
+        staker: ADDRESS_ALICE,
+      })
+      .then((tx) => tx.execute());
     await expect(aliceDelegateReq).rejects.toThrow(selfDelegationErr);
-    const bobDelegateReq = bob.client.kyve.v1beta1.base.delegatePool({
-      id: pool.id,
-      amount: amount.toString(),
-      staker: ADDRESS_BOB,
-    }).then(tx => tx.execute());
+    const bobDelegateReq = bob.client.kyve.v1beta1.base
+      .delegatePool({
+        id: pool.id,
+        amount: amount.toString(),
+        staker: ADDRESS_BOB,
+      })
+      .then((tx) => tx.execute());
     await expect(bobDelegateReq).rejects.toThrow(selfDelegationErr);
-    const charlieDelegateReq = charlie.client.kyve.v1beta1.base.delegatePool({
-      id: pool.id,
-      amount: amount.toString(),
-      staker: ADDRESS_CHARLIE,
-    }).then(tx => tx.execute());
+    const charlieDelegateReq = charlie.client.kyve.v1beta1.base
+      .delegatePool({
+        id: pool.id,
+        amount: amount.toString(),
+        staker: ADDRESS_CHARLIE,
+      })
+      .then((tx) => tx.execute());
     await expect(charlieDelegateReq).rejects.toThrow(selfDelegationErr);
     const postBalanceAlice =
       await alice.client.kyve.v1beta1.base.getKyveBalance();
@@ -162,7 +174,7 @@ export const delegation = () => {
       amount: charlieDelegation.toString(),
       staker: ADDRESS_ALICE,
     });
-    const receiptCharlie = await txCharlie.execute()
+    const receiptCharlie = await txCharlie.execute();
     expect(receiptCharlie.code).toEqual(0);
 
     // Check post balances
@@ -174,10 +186,16 @@ export const delegation = () => {
 
     expect(preBalanceAlice).toEqual(postBalanceAlice);
     expect(
-        new BigNumber(preBalanceBob).minus(bobDelegation).minus(txBob.fee.amount[0].amount).toString()
+      new BigNumber(preBalanceBob)
+        .minus(bobDelegation)
+        .minus(txBob.fee.amount[0].amount)
+        .toString()
     ).toEqual(postBalanceBob);
     expect(
-        new BigNumber(preBalanceCharlie).minus(charlieDelegation).minus(txCharlie.fee.amount[0].amount).toString()
+      new BigNumber(preBalanceCharlie)
+        .minus(charlieDelegation)
+        .minus(txCharlie.fee.amount[0].amount)
+        .toString()
     ).toEqual(postBalanceCharlie);
 
     // Check pool delegation entry
@@ -215,17 +233,16 @@ export const delegation = () => {
       staker: ADDRESS_ALICE,
       amount: bobDelegation.toString(),
     });
-    const receiptBob = await txBob.execute()
+    const receiptBob = await txBob.execute();
     expect(receiptBob.code).toEqual(0);
 
     // undelegate 300 $KYVE from Charlie into Alice
-    const txCharlie =
-      await charlie.client.kyve.v1beta1.base.undelegatePool({
-        id: "0",
-        staker: ADDRESS_ALICE,
-        amount: charlieDelegation.toString(),
-      });
-    const receiptCharlie = await txCharlie.execute()
+    const txCharlie = await charlie.client.kyve.v1beta1.base.undelegatePool({
+      id: "0",
+      staker: ADDRESS_ALICE,
+      amount: charlieDelegation.toString(),
+    });
+    const receiptCharlie = await txCharlie.execute();
     expect(receiptCharlie.code).toEqual(0);
 
     await sleep(5 * 1000);
@@ -257,8 +274,14 @@ export const delegation = () => {
       new BigNumber(0)
     );
     expect(postBalanceAlice).toEqual(preBalanceAlice);
-    expect(postBalanceCharlie).toEqual(new BigNumber(preBalanceCharlie).minus(txCharlie.fee.amount[0].amount).toString());
-    expect(postBalanceBob).toEqual(new BigNumber(preBalanceBob).minus(txBob.fee.amount[0].amount).toString());
+    expect(postBalanceCharlie).toEqual(
+      new BigNumber(preBalanceCharlie)
+        .minus(txCharlie.fee.amount[0].amount)
+        .toString()
+    );
+    expect(postBalanceBob).toEqual(
+      new BigNumber(preBalanceBob).minus(txBob.fee.amount[0].amount).toString()
+    );
     expect(unbondingsTotalBob.toString()).toEqual(bobDelegation.toString());
     expect(unbondingsTotalCharlie.toString()).toEqual(
       charlieDelegation.toString()

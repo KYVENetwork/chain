@@ -51,10 +51,12 @@ export const funding = () => {
     expect(pool.total_funds).toEqual("0");
     expect(pool.lowest_funder).toBe("");
 
-    const request = alice.client.kyve.v1beta1.base.fundPool({
-      amount: amount.toString(),
-      id: pool.id,
-    }).then(tx => tx.execute());
+    const request = alice.client.kyve.v1beta1.base
+      .fundPool({
+        amount: amount.toString(),
+        id: pool.id,
+      })
+      .then((tx) => tx.execute());
     await expect(request).rejects.toThrow(/insufficient funds/);
     // refetch pool
     pool = await getDefaultPool();
@@ -103,8 +105,8 @@ export const funding = () => {
     const tx = await alice.client.kyve.v1beta1.base.fundPool({
       amount: amount.toString(),
       id: pool.id,
-    })
-    const receipt = await tx.execute()
+    });
+    const receipt = await tx.execute();
 
     // 0 means transaction was successful
     expect(receipt.code).toEqual(0);
@@ -135,7 +137,11 @@ export const funding = () => {
     expect(pool.total_funds).toEqual(amount.toString());
 
     // check if balance was decreased correct
-    expect(new BigNumber(preBalance).minus(postBalance).minus(tx.fee.amount[0].amount)).toEqual(amount);
+    expect(
+      new BigNumber(preBalance)
+        .minus(postBalance)
+        .minus(tx.fee.amount[0].amount)
+    ).toEqual(amount);
   });
 
   test("fund additional 20 KYVE with alice", async () => {
@@ -158,7 +164,7 @@ export const funding = () => {
       id: pool.id,
       amount: amount.toString(),
     });
-    const receipt = await tx.execute()
+    const receipt = await tx.execute();
     // 0 means transaction was successful
     expect(receipt.code).toEqual(0);
 
@@ -187,7 +193,11 @@ export const funding = () => {
     expect(pool.total_funds).toEqual(total.toString());
 
     // check if balance was decreased correct
-    expect(new BigNumber(preBalance).minus(postBalance).minus(tx.fee.amount[0].amount)).toEqual(amount);
+    expect(
+      new BigNumber(preBalance)
+        .minus(postBalance)
+        .minus(tx.fee.amount[0].amount)
+    ).toEqual(amount);
   });
 
   test("defund 80 KYVE with alice", async () => {
@@ -210,7 +220,7 @@ export const funding = () => {
       id: pool.id,
       amount: amount.toString(),
     });
-    const receipt = await tx.execute()
+    const receipt = await tx.execute();
     // 0 means transaction was successful
     expect(receipt.code).toEqual(0);
 
@@ -240,7 +250,9 @@ export const funding = () => {
     expect(pool.total_funds).toEqual(remaining.toString());
 
     // check if balance was decreased correct
-    expect(new BigNumber(postBalance).minus(preBalance)).toEqual(amount.minus(tx.fee.amount[0].amount));
+    expect(new BigNumber(postBalance).minus(preBalance)).toEqual(
+      amount.minus(tx.fee.amount[0].amount)
+    );
   });
 
   test("defund more than funding balance with alice", async () => {
@@ -313,7 +325,7 @@ export const funding = () => {
       id: pool.id,
       amount: amount.toString(),
     });
-    const receipt = await tx.execute()
+    const receipt = await tx.execute();
     // 0 means transaction was successful
     expect(receipt.code).toEqual(0);
 
@@ -335,7 +347,9 @@ export const funding = () => {
     expect(pool.lowest_funder).toBe("");
 
     // check if balance was decreased correct
-    expect(new BigNumber(postBalance).minus(preBalance)).toEqual(amount.minus(tx.fee.amount[0].amount));
+    expect(new BigNumber(postBalance).minus(preBalance)).toEqual(
+      amount.minus(tx.fee.amount[0].amount)
+    );
   });
 
   test("fund with multiple funders", async () => {
@@ -358,22 +372,28 @@ export const funding = () => {
     expect(pool.total_funds).toEqual("0");
 
     // fund alice
-    await alice.client.kyve.v1beta1.base.fundPool({
-      id: pool.id,
-      amount: aliceAmount.toString(),
-    }).then(tx => tx.execute());
+    await alice.client.kyve.v1beta1.base
+      .fundPool({
+        id: pool.id,
+        amount: aliceAmount.toString(),
+      })
+      .then((tx) => tx.execute());
 
     // fund bob
-    await bob.client.kyve.v1beta1.base.fundPool({
-      id: pool.id,
-      amount: bobAmount.toString(),
-    }).then(tx => tx.execute());
+    await bob.client.kyve.v1beta1.base
+      .fundPool({
+        id: pool.id,
+        amount: bobAmount.toString(),
+      })
+      .then((tx) => tx.execute());
 
     // fund charlie
-    await charlie.client.kyve.v1beta1.base.fundPool({
-      id: pool.id,
-      amount: charlieAmount.toString(),
-    }).then(tx => tx.execute());
+    await charlie.client.kyve.v1beta1.base
+      .fundPool({
+        id: pool.id,
+        amount: charlieAmount.toString(),
+      })
+      .then((tx) => tx.execute());
 
     // refetch pool
     pool = await getDefaultPool();

@@ -1,4 +1,8 @@
-import { spawn, ChildProcessWithoutNullStreams, execFileSync } from "child_process";
+import {
+  spawn,
+  ChildProcessWithoutNullStreams,
+  execFileSync,
+} from "child_process";
 import { NETWORK } from "./constants";
 import KyveSDK from "@kyve/sdk";
 
@@ -18,32 +22,41 @@ export const startChain = <StartChainType>(() => {
     console.log(process.env.COSMOS_BINARY);
     console.log("Starting chain on localhost ...");
     console.log("This may take up to a minute");
-    if(startChain.isIgniteMod) {
+    if (startChain.isIgniteMod) {
       global.chain = spawn("ignite", ["chain", "serve", "--reset-once"]);
     } else {
-      execFileSync(process.env.COSMOS_BINARY as string, ["tendermint", "unsafe-reset-all", "--home", process.env.COSMOS_DATA as string])
-      global.chain = spawn(process.env.COSMOS_BINARY as string, ["start", "--home", process.env.COSMOS_DATA as string])
+      execFileSync(process.env.COSMOS_BINARY as string, [
+        "tendermint",
+        "unsafe-reset-all",
+        "--home",
+        process.env.COSMOS_DATA as string,
+      ]);
+      global.chain = spawn(process.env.COSMOS_BINARY as string, [
+        "start",
+        "--home",
+        process.env.COSMOS_DATA as string,
+      ]);
     }
 
     function processData(data: Buffer) {
-      if(startChain.isIgniteMod && data.toString().includes(`Token faucet`)) {
+      if (startChain.isIgniteMod && data.toString().includes(`Token faucet`)) {
         console.log(`Ignite chain started`);
         setTimeout(() => resolve(chain), 1000);
-      } else if(data.toString().includes(`Starting RPC HTTP server`)) {
+      } else if (data.toString().includes(`Starting RPC HTTP server`)) {
         console.log(`Binary chain started`);
         setTimeout(() => resolve(chain), 1000);
       }
     }
     function processError() {
-      reject(new Error("Process error"))
+      reject(new Error("Process error"));
     }
-    if(startChain.isIgniteMod) {
-      chain.stdout.on('data', processData);
-      chain.stderr.on('data', processError);
+    if (startChain.isIgniteMod) {
+      chain.stdout.on("data", processData);
+      chain.stderr.on("data", processError);
     } else {
       //cosmos binary data to stderr
-      chain.stderr.on('data', processData);
-      chain.stdout.on('data', processError)
+      chain.stderr.on("data", processData);
+      chain.stdout.on("data", processError);
     }
   });
 });
