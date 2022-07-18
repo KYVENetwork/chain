@@ -1,3 +1,5 @@
+build:
+  main: ./cmd/kyved
 accounts:
   - name: dummy
     mnemonic: "expect crisp umbrella hospital firm exhibit future size slot update blood deliver fat happy ghost visa recall usual path purity junior ring ordinary stove"
