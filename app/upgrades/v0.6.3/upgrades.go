@@ -105,6 +105,8 @@ func deactivateStakers(registryKeeper *registrykeeper.Keeper, ctx sdk.Context) {
 			registryKeeper.SetStaker(ctx, staker)
 		}
 
+		pool.TotalStake = 0
+
 		pool.BundleProposal = &types.BundleProposal{
 			CreatedAt:    uint64(ctx.BlockTime().Unix()),
 		}
