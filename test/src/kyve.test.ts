@@ -1,32 +1,38 @@
-import { ChildProcessWithoutNullStreams } from "child_process";
 import { funding } from "./funding";
-import { sleep, startChain } from "./helpers/utils";
+import { startChain } from "./helpers/utils";
 import { staking } from "./staking";
+import { alice, bob, charlie } from "./helpers/accounts";
 import { delegation } from "./delegation";
-
+import * as dotenv from "dotenv";
+dotenv.config();
 describe("chain", () => {
   // disable timeout
   jest.setTimeout(24 * 60 * 60 * 1000);
 
-  // define chain process
-  let chain: ChildProcessWithoutNullStreams;
-
   beforeAll(async () => {
-    // start local chain
-    chain = await startChain();
-
-    await sleep(5000);
+    startChain.isIgniteMod = process.env.IGNITE_MODE === "true";
+    if (!startChain.isIgniteMod && !process.env.COSMOS_BINARY?.length) {
+      console.error("COSMOS_BINARY doesn't set");
+      process.exit(1);
+    }
+    if (!startChain.isIgniteMod && !process.env.COSMOS_DATA?.length) {
+      console.error("COSMOS_DATA doesn't set");
+      process.exit(1);
+    }
+    await startChain();
+    await alice.init();
+    await bob.init();
+    await charlie.init();
   });
 
   // funding
   describe("Funding", funding);
   // staking
   describe("Staking", staking);
-  // delegation
+  // // delegation
   describe("Delegation", delegation);
-
   afterAll(() => {
     // stop local chain
-    chain.kill();
+    global.chain.kill();
   });
 });

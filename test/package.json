@@ -1,11 +1,13 @@
 {
   "name": "test",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Test setup for kyve chain",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "test": "jest"
+    "test": "IGNITE_MODE=false jest",
+    "test:ignite": "IGNITE_MODE=true jest",
+    "format": "prettier --write ."
   },
   "jest": {
     "preset": "ts-jest/presets/js-with-ts",
@@ -19,12 +21,14 @@
   },
   "devDependencies": {
     "@types/jest": "^27.4.1",
+    "dotenv": "^16.0.1",
     "jest": "^27.5.1",
+    "prettier": "^2.7.1",
     "ts-jest": "^27.1.4",
     "typescript": "^4.6.3"
   },
   "dependencies": {
-    "@kyve/sdk": "KYVENetwork/sdk",
+    "@kyve/sdk": "https://github.com/KYVENetwork/sdk.git#main",
     "axios": "^0.26.1",
     "bignumber.js": "^9.0.2",
     "execa": "^6.1.0"

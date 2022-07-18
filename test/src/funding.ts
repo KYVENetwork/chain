@@ -1,4 +1,3 @@
-import axios from "axios";
 import BigNumber from "bignumber.js";
 import {
   ADDRESS_ALICE,
@@ -8,62 +7,71 @@ import {
   bob,
   charlie,
 } from "./helpers/accounts";
-import {
-  getBalanceByAddress,
-  getFundersList,
-  getPoolById,
-} from "./helpers/utils";
-import { BASE_URL, MAX_FUNDERS } from "./helpers/constants";
+import { lcdClient, restartChain } from "./helpers/utils";
+import { MAX_FUNDERS } from "./helpers/constants";
+import { constants } from "@kyve/sdk";
+
+const getDefaultPool = async () =>
+  (await lcdClient.kyve.registry.v1beta1.pool({ id: "0" })).pool ??
+  (() => {
+    throw new Error("Pool doesn't exist");
+  })();
 
 export const funding = () => {
   // disable timeout
+  afterAll(async () => {
+    await restartChain();
+    await alice.init();
+    await bob.init();
+    await charlie.init();
+  });
   jest.setTimeout(24 * 60 * 60 * 1000);
 
   test("Test if default pool exist", async () => {
-    const { data } = await axios.get(`${BASE_URL}/kyve/registry/v1beta1/pools`);
-
+    const data = await lcdClient.kyve.registry.v1beta1.pools({ paused: false });
     expect(data.pools).not.toBeUndefined();
     expect(data.pools).toHaveLength(1);
   });
 
   test("fund more than available balance", async () => {
     // get default pool
-    let pool = await getPoolById(0);
-
+    let pool = await getDefaultPool();
     // get funders list
-    let funders_list = await getFundersList(0);
+    let funders_list = await lcdClient.kyve.registry.v1beta1.fundersList({
+      pool_id: "0",
+    });
 
     // get balance before funding
-    const preBalance = await getBalanceByAddress(ADDRESS_ALICE);
-    const amount = preBalance.plus(1);
+    const preBalance = await alice.client.kyve.v1beta1.base.getKyveBalance();
 
+    const amount = new BigNumber(preBalance).plus(1);
     // check if funding amount is zero
     expect(pool.funders).toHaveLength(0);
-    expect(funders_list).toHaveLength(0);
+    expect(funders_list.funders).toHaveLength(0);
     expect(pool.total_funds).toEqual("0");
     expect(pool.lowest_funder).toBe("");
 
-    // fund 100 KYVE
-    const { transactionBroadcast } = await alice.fund(pool.id, amount);
-    const receipt = await transactionBroadcast;
-
-    // 0 means transaction was successful
-    expect(receipt.code).not.toEqual(0);
-
+    const request = alice.client.kyve.v1beta1.base
+      .fundPool({
+        amount: amount.toString(),
+        id: pool.id,
+      })
+      .then((tx) => tx.execute());
+    await expect(request).rejects.toThrow(/insufficient funds/);
     // refetch pool
-    pool = await getPoolById(0);
+    pool = await getDefaultPool();
 
     // refetch funders list
-    funders_list = await getFundersList(0);
-
+    funders_list = await lcdClient.kyve.registry.v1beta1.fundersList({
+      pool_id: "0",
+    });
     // get balance before funding
-    const postBalance = await getBalanceByAddress(ADDRESS_ALICE);
-
+    const postBalance = await alice.client.kyve.v1beta1.base.getKyveBalance();
     // check if funds went though
     expect(pool.funders).toHaveLength(0);
     expect(pool.lowest_funder).toBe("");
 
-    expect(funders_list).toHaveLength(0);
+    expect(funders_list.funders).toHaveLength(0);
     expect(pool.total_funds).toEqual("0");
 
     // check if balance has not changed
@@ -72,46 +80,55 @@ export const funding = () => {
 
   test("fund 80 KYVE with alice", async () => {
     // define amount
-    const amount = new BigNumber(80).multipliedBy(10 ** 9);
+    const amount = new BigNumber(80).multipliedBy(
+      10 ** constants.KYVE_DECIMALS
+    );
 
     // get default pool
-    let pool = await getPoolById(0);
+    let pool = await getDefaultPool();
 
     // get funders list
-    let funders_list = await getFundersList(0);
+    let fundersListResponse = await lcdClient.kyve.registry.v1beta1.fundersList(
+      { pool_id: "0" }
+    );
 
     // get balance before funding
-    const preBalance = await getBalanceByAddress(ADDRESS_ALICE);
+    const preBalance = await alice.client.kyve.v1beta1.base.getKyveBalance();
 
     // check if funding amount is zero
     expect(pool.funders).toHaveLength(0);
-    expect(funders_list).toHaveLength(0);
+    expect(fundersListResponse.funders).toHaveLength(0);
     expect(pool.total_funds).toEqual("0");
     expect(pool.lowest_funder).toBe("");
 
     // fund 80 KYVE
-    const { transactionBroadcast } = await alice.fund(pool.id, amount);
-    const receipt = await transactionBroadcast;
+    const tx = await alice.client.kyve.v1beta1.base.fundPool({
+      amount: amount.toString(),
+      id: pool.id,
+    });
+    const receipt = await tx.execute();
 
     // 0 means transaction was successful
     expect(receipt.code).toEqual(0);
 
     // refetch pool
-    pool = await getPoolById(0);
+    pool = await getDefaultPool();
 
     // refetch funders list
-    funders_list = await getFundersList(0);
+    fundersListResponse = await lcdClient.kyve.registry.v1beta1.fundersList({
+      pool_id: "0",
+    });
 
     // get balance before funding
-    const postBalance = await getBalanceByAddress(ADDRESS_ALICE);
+    const postBalance = await alice.client.kyve.v1beta1.base.getKyveBalance();
 
     // check if funds went though
     expect(pool.funders).toHaveLength(1);
     expect(pool.funders[0]).toEqual(ADDRESS_ALICE);
     expect(pool.lowest_funder).toBe(ADDRESS_ALICE);
 
-    expect(funders_list).toHaveLength(1);
-    expect(funders_list[0]).toEqual({
+    expect(fundersListResponse.funders).toHaveLength(1);
+    expect(fundersListResponse.funders[0]).toEqual({
       account: ADDRESS_ALICE,
       pool_id: "0",
       amount: amount.toString(),
@@ -120,46 +137,54 @@ export const funding = () => {
     expect(pool.total_funds).toEqual(amount.toString());
 
     // check if balance was decreased correct
-    expect(preBalance.minus(postBalance)).toEqual(amount);
+    expect(
+      new BigNumber(preBalance)
+        .minus(postBalance)
+        .minus(tx.fee.amount[0].amount)
+    ).toEqual(amount);
   });
 
   test("fund additional 20 KYVE with alice", async () => {
     // define amount
-    const amount = new BigNumber(20).multipliedBy(10 ** 9);
-    const total = new BigNumber(100).multipliedBy(10 ** 9);
+    const amount = new BigNumber(20).multipliedBy(
+      10 ** constants.KYVE_DECIMALS
+    );
+    const total = new BigNumber(100).multipliedBy(
+      10 ** constants.KYVE_DECIMALS
+    );
 
     // get default pool
-    let pool = await getPoolById(0);
-
-    // get funders list
-    let funders_list = await getFundersList(0);
+    let pool = await getDefaultPool();
 
     // get balance before funding
-    const preBalance = await getBalanceByAddress(ADDRESS_ALICE);
+    const preBalance = await alice.client.kyve.v1beta1.base.getKyveBalance();
 
     // fund 100 KYVE
-    const { transactionBroadcast } = await alice.fund(pool.id, amount);
-    const receipt = await transactionBroadcast;
-
+    const tx = await alice.client.kyve.v1beta1.base.fundPool({
+      id: pool.id,
+      amount: amount.toString(),
+    });
+    const receipt = await tx.execute();
     // 0 means transaction was successful
     expect(receipt.code).toEqual(0);
 
     // refetch pool
-    pool = await getPoolById(0);
+    pool = await getDefaultPool();
 
     // refetch funders list
-    funders_list = await getFundersList(0);
+    const fundersListResponse =
+      await lcdClient.kyve.registry.v1beta1.fundersList({ pool_id: "0" });
 
     // get balance before funding
-    const postBalance = await getBalanceByAddress(ADDRESS_ALICE);
+    const postBalance = await alice.client.kyve.v1beta1.base.getKyveBalance();
 
     // check if funds went though
     expect(pool.funders).toHaveLength(1);
     expect(pool.funders[0]).toEqual(ADDRESS_ALICE);
     expect(pool.lowest_funder).toBe(ADDRESS_ALICE);
 
-    expect(funders_list).toHaveLength(1);
-    expect(funders_list[0]).toEqual({
+    expect(fundersListResponse.funders).toHaveLength(1);
+    expect(fundersListResponse.funders[0]).toEqual({
       account: ADDRESS_ALICE,
       pool_id: "0",
       amount: total.toString(),
@@ -168,46 +193,55 @@ export const funding = () => {
     expect(pool.total_funds).toEqual(total.toString());
 
     // check if balance was decreased correct
-    expect(preBalance.minus(postBalance)).toEqual(amount);
+    expect(
+      new BigNumber(preBalance)
+        .minus(postBalance)
+        .minus(tx.fee.amount[0].amount)
+    ).toEqual(amount);
   });
 
   test("defund 80 KYVE with alice", async () => {
     // define amount
-    const amount = new BigNumber(80).multipliedBy(10 ** 9);
-    const remaining = new BigNumber(20).multipliedBy(10 ** 9);
+    const amount = new BigNumber(80).multipliedBy(
+      10 ** constants.KYVE_DECIMALS
+    );
+    const remaining = new BigNumber(20).multipliedBy(
+      10 ** constants.KYVE_DECIMALS
+    );
 
     // get default pool
-    let pool = await getPoolById(0);
-
-    // get funders list
-    let funders_list = await getFundersList(0);
+    let pool = await getDefaultPool();
 
     // get balance before funding
-    const preBalance = await getBalanceByAddress(ADDRESS_ALICE);
+    const preBalance = await alice.client.kyve.v1beta1.base.getKyveBalance();
 
     // defund 80 KYVE
-    const { transactionBroadcast } = await alice.defund(pool.id, amount);
-    const receipt = await transactionBroadcast;
-
+    const tx = await alice.client.kyve.v1beta1.base.defundPool({
+      id: pool.id,
+      amount: amount.toString(),
+    });
+    const receipt = await tx.execute();
     // 0 means transaction was successful
     expect(receipt.code).toEqual(0);
 
     // refetch pool
-    pool = await getPoolById(0);
+    pool = await getDefaultPool();
 
     // refetch funders list
-    funders_list = await getFundersList(0);
+    let fundersListResponse = await lcdClient.kyve.registry.v1beta1.fundersList(
+      { pool_id: "0" }
+    );
 
     // get balance before funding
-    const postBalance = await getBalanceByAddress(ADDRESS_ALICE);
+    const postBalance = await alice.client.kyve.v1beta1.base.getKyveBalance();
 
     // check if funds went though
     expect(pool.funders).toHaveLength(1);
     expect(pool.funders[0]).toEqual(ADDRESS_ALICE);
     expect(pool.lowest_funder).toBe(ADDRESS_ALICE);
 
-    expect(funders_list).toHaveLength(1);
-    expect(funders_list[0]).toEqual({
+    expect(fundersListResponse.funders).toHaveLength(1);
+    expect(fundersListResponse.funders[0]).toEqual({
       account: ADDRESS_ALICE,
       pool_id: "0",
       amount: remaining.toString(),
@@ -216,46 +250,51 @@ export const funding = () => {
     expect(pool.total_funds).toEqual(remaining.toString());
 
     // check if balance was decreased correct
-    expect(postBalance.minus(preBalance)).toEqual(amount);
+    expect(new BigNumber(postBalance).minus(preBalance)).toEqual(
+      amount.minus(tx.fee.amount[0].amount)
+    );
   });
 
   test("defund more than funding balance with alice", async () => {
     // define amount
-    const amount = new BigNumber(50).multipliedBy(10 ** 9);
-    const remaining = new BigNumber(20).multipliedBy(10 ** 9);
-
+    const amount = new BigNumber(50).multipliedBy(
+      10 ** constants.KYVE_DECIMALS
+    );
+    const remaining = new BigNumber(20).multipliedBy(
+      10 ** constants.KYVE_DECIMALS
+    );
     // get default pool
-    let pool = await getPoolById(0);
-
-    // get funders list
-    let funders_list = await getFundersList(0);
+    let pool = await getDefaultPool();
 
     // get balance before funding
-    const preBalance = await getBalanceByAddress(ADDRESS_ALICE);
+    const preBalance = await alice.client.kyve.v1beta1.base.getKyveBalance();
 
     // defund 50 KYVE
-    const { transactionBroadcast } = await alice.defund(pool.id, amount);
-    const receipt = await transactionBroadcast;
-
-    // 0 means transaction was successful
-    expect(receipt.code).not.toEqual(0);
+    const request = alice.client.kyve.v1beta1.base.defundPool({
+      id: pool.id,
+      amount: amount.toString(),
+    });
+    //check that transaction  unsuccessful
+    await expect(request).rejects.toThrow(/maximum defunding amount of/);
 
     // refetch pool
-    pool = await getPoolById(0);
+    pool = await getDefaultPool();
 
     // refetch funders list
-    funders_list = await getFundersList(0);
+    let fundersListResponse = await lcdClient.kyve.registry.v1beta1.fundersList(
+      { pool_id: "0" }
+    );
 
     // get balance before funding
-    const postBalance = await getBalanceByAddress(ADDRESS_ALICE);
+    const postBalance = await alice.client.kyve.v1beta1.base.getKyveBalance();
 
     // check if funds went though
     expect(pool.funders).toHaveLength(1);
     expect(pool.funders[0]).toEqual(ADDRESS_ALICE);
     expect(pool.lowest_funder).toBe(ADDRESS_ALICE);
 
-    expect(funders_list).toHaveLength(1);
-    expect(funders_list[0]).toEqual({
+    expect(fundersListResponse.funders).toHaveLength(1);
+    expect(fundersListResponse.funders[0]).toEqual({
       account: ADDRESS_ALICE,
       pool_id: "0",
       amount: remaining.toString(),
@@ -269,103 +308,111 @@ export const funding = () => {
 
   test("defund all with alice", async () => {
     // define amount
-    const amount = new BigNumber(20).multipliedBy(10 ** 9);
+    const amount = new BigNumber(20).multipliedBy(
+      10 ** constants.KYVE_DECIMALS
+    );
 
     // get default pool
-    let pool = await getPoolById(0);
+    let pool = await getDefaultPool();
 
     // get funders list
-    let funders_list = await getFundersList(0);
 
     // get balance before funding
-    const preBalance = await getBalanceByAddress(ADDRESS_ALICE);
+    const preBalance = await alice.client.kyve.v1beta1.base.getKyveBalance();
 
     // defund 20 KYVE
-    const { transactionBroadcast } = await alice.defund(pool.id, amount);
-    const receipt = await transactionBroadcast;
-
+    const tx = await alice.client.kyve.v1beta1.base.defundPool({
+      id: pool.id,
+      amount: amount.toString(),
+    });
+    const receipt = await tx.execute();
     // 0 means transaction was successful
     expect(receipt.code).toEqual(0);
 
     // refetch pool
-    pool = await getPoolById(0);
+    pool = await getDefaultPool();
 
     // refetch funders list
-    funders_list = await getFundersList(0);
+    let fundersListResponse = await lcdClient.kyve.registry.v1beta1.fundersList(
+      { pool_id: "0" }
+    );
 
     // get balance before funding
-    const postBalance = await getBalanceByAddress(ADDRESS_ALICE);
+    const postBalance = await alice.client.kyve.v1beta1.base.getKyveBalance();
 
     // check if funds went though
     expect(pool.funders).toHaveLength(0);
-    expect(funders_list).toHaveLength(0);
+    expect(fundersListResponse.funders).toHaveLength(0);
     expect(pool.total_funds).toEqual("0");
     expect(pool.lowest_funder).toBe("");
 
     // check if balance was decreased correct
-    expect(postBalance.minus(preBalance)).toEqual(amount);
+    expect(new BigNumber(postBalance).minus(preBalance)).toEqual(
+      amount.minus(tx.fee.amount[0].amount)
+    );
   });
 
-  test.skip("fund with multiple funders", async () => {
+  test("fund with multiple funders", async () => {
     // define amounts
     const aliceAmount = new BigNumber(200).multipliedBy(10 ** 9);
     const bobAmount = new BigNumber(100).multipliedBy(10 ** 9);
     const charlieAmount = new BigNumber(300).multipliedBy(10 ** 9);
 
     // get default pool
-    let pool = await getPoolById(0);
+    let pool = await getDefaultPool();
 
     // get funders list
-    let funders_list = await getFundersList(0);
+    let fundersListResponse = await lcdClient.kyve.registry.v1beta1.fundersList(
+      { pool_id: "0" }
+    );
 
     // check if funding amount is zero
     expect(pool.funders).toHaveLength(0);
-    expect(funders_list).toHaveLength(0);
+    expect(fundersListResponse.funders).toHaveLength(0);
     expect(pool.total_funds).toEqual("0");
 
     // fund alice
-    const { transactionBroadcast: aliceTx } = await alice.fund(
-      pool.id,
-      aliceAmount
-    );
-    await aliceTx;
+    await alice.client.kyve.v1beta1.base
+      .fundPool({
+        id: pool.id,
+        amount: aliceAmount.toString(),
+      })
+      .then((tx) => tx.execute());
 
-    // fund alice
-    const { transactionBroadcast: bobTx } = await bob.fund(pool.id, bobAmount);
-    await bobTx;
+    // fund bob
+    await bob.client.kyve.v1beta1.base
+      .fundPool({
+        id: pool.id,
+        amount: bobAmount.toString(),
+      })
+      .then((tx) => tx.execute());
 
-    // fund alice
-    const { transactionBroadcast: charlieTx } = await charlie.fund(
-      pool.id,
-      charlieAmount
-    );
-    await charlieTx;
+    // fund charlie
+    await charlie.client.kyve.v1beta1.base
+      .fundPool({
+        id: pool.id,
+        amount: charlieAmount.toString(),
+      })
+      .then((tx) => tx.execute());
 
     // refetch pool
-    pool = await getPoolById(0);
+    pool = await getDefaultPool();
 
     // refetch funders list
-    funders_list = await getFundersList(0);
+    fundersListResponse = await lcdClient.kyve.registry.v1beta1.fundersList({
+      pool_id: "0",
+    });
 
     // check if funds went though
     expect(pool.funders).toHaveLength(Math.min(3, MAX_FUNDERS));
-    if (MAX_FUNDERS == 2) {
-      expect(pool.funders).toContain(ADDRESS_ALICE);
-      expect(pool.funders).toContain(ADDRESS_CHARLIE);
-      expect(pool.lowest_funder).toBe(ADDRESS_ALICE);
-      expect(pool.total_funds).toEqual(
-        aliceAmount.plus(charlieAmount).toString()
-      );
-    } else if (MAX_FUNDERS >= 3) {
-      expect(pool.funders).toContain(ADDRESS_ALICE);
-      expect(pool.funders).toContain(ADDRESS_BOB);
-      expect(pool.funders).toContain(ADDRESS_CHARLIE);
-      expect(pool.lowest_funder).toBe(ADDRESS_BOB);
-      expect(pool.total_funds).toEqual(
-        aliceAmount.plus(bobAmount).plus(charlieAmount).toString()
-      );
-    }
+    expect(pool.funders).toContain(ADDRESS_ALICE);
+    expect(pool.funders).toContain(ADDRESS_BOB);
+    expect(pool.funders).toContain(ADDRESS_CHARLIE);
+    expect(pool.lowest_funder).toBe(ADDRESS_BOB);
+    expect(pool.total_funds).toEqual(
+      new BigNumber(aliceAmount).plus(bobAmount).plus(charlieAmount).toString()
+    );
 
-    expect(funders_list).toHaveLength(Math.min(3, MAX_FUNDERS));
+    expect(fundersListResponse.funders).toHaveLength(Math.min(3, MAX_FUNDERS));
   });
 };

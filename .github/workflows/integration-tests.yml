@@ -1,0 +1,48 @@
+name: integtaion-tests
+
+on: pull_request
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      COSMOS_DATA: ${{github.workspace}}/chain-data/v1/chain
+    steps:
+      - name: "print context"
+        run: echo ${{github.event.pull_request.title}}
+      - name: "copy chain test data"
+        uses: actions/checkout@v3
+        with:
+          repository: "KYVENetwork/chain-test-data"
+          path: "chain-data"
+      - name: "clone chain repo"
+        uses: actions/checkout@v3
+        with:
+          path: "chain"
+          ref: ${{github.event.pull_request.head.ref}}
+      - name: "install go"
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.18'
+      - name: "install ignite"
+        run: curl https://get.ignite.com/cli@v0.22.0! | bash
+      - name: "build binary"
+        run: go build -o chaind cmd/kyved/main.go
+        working-directory: ./chain
+      - name: set chain path
+        run: |
+          echo "COSMOS_BINARY=$(echo ${{github.workspace}}/chain/chaind)" >> $GITHUB_ENV
+      - name: install nodejs
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: install dependency
+        run: yarn install --frozen-lockfile
+        working-directory: ./chain/test
+      # disable for now, because api unstable
+      #      - name: upgrade @kyve/sdk
+      #        run: yarn upgrade @kyve/sdk
+      #        working-directory: ./chain/test
+      - name: run tests
+        run: yarn test
+        working-directory: ./chain/test
