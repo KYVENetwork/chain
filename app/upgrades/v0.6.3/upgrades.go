@@ -95,11 +95,18 @@ func deactivateStaker(pool *types.Pool, staker *types.Staker) {
 func deactivateStakers(registryKeeper *registrykeeper.Keeper, ctx sdk.Context) {
 	for _, pool := range registryKeeper.GetAllPool(ctx) {
 
-		for _, stakerAddress := range pool.Stakers {
+		poolStakers := make([]string, len(pool.Stakers))
+		copy(poolStakers, pool.Stakers)
+
+		for _, stakerAddress := range poolStakers {
 			staker, _ := registryKeeper.GetStaker(ctx, stakerAddress, pool.Id)
 
 			deactivateStaker(&pool, &staker)
 			registryKeeper.SetStaker(ctx, staker)
+		}
+
+		pool.BundleProposal = &types.BundleProposal{
+			CreatedAt:    uint64(ctx.BlockTime().Unix()),
 		}
 
 		registryKeeper.UpdateLowestStaker(ctx, &pool)
