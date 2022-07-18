@@ -11,8 +11,8 @@ import (
 func migratePools(registryKeeper *registrykeeper.Keeper, ctx sdk.Context) {
 	for _, pool := range registryKeeper.GetAllPool(ctx) {
 
-		// set minimum total stake to 50k $KYVE
-		pool.MinStake = 50_000_000_000_000
+		// set minimum total stake to 10k $KYVE
+		pool.MinStake = 10_000_000_000_000
 
 		// schedule upgrades for each runtime
 		switch pool.Runtime {
