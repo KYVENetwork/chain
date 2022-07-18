@@ -16,6 +16,25 @@ func (k Keeper) HandleUploadTimeout(goCtx context.Context) {
 
 	// Iterate over all pools.
 	for _, pool := range pools {
+		// Check if there is an upcoming pool upgrade
+		if pool.UpgradePlan.ScheduledAt > 0 && uint64(ctx.BlockTime().Unix()) >= pool.UpgradePlan.ScheduledAt {
+			// Check if pool upgrade already has been applied
+			if pool.Protocol.Version != pool.UpgradePlan.Version || pool.Protocol.Binaries != pool.UpgradePlan.Binaries {
+				// perform pool upgrade
+				pool.Protocol.Version = pool.UpgradePlan.Version
+				pool.Protocol.Binaries = pool.UpgradePlan.Binaries
+				pool.Protocol.LastUpgrade = pool.UpgradePlan.ScheduledAt
+			}
+
+			// Check if upgrade duration was reached
+			if uint64(ctx.BlockTime().Unix()) >= (pool.UpgradePlan.ScheduledAt + pool.UpgradePlan.Duration) {
+				// reset upgrade plan to default values
+				pool.UpgradePlan = &types.UpgradePlan{}
+			}
+
+			k.SetPool(ctx, pool)
+		}
+
 		// Set pool status
 		if pool.UpgradePlan.ScheduledAt > 0 && uint64(ctx.BlockTime().Unix()) >= pool.UpgradePlan.ScheduledAt {
 			pool.Status = types.POOL_STATUS_UPGRADING
@@ -34,28 +53,8 @@ func (k Keeper) HandleUploadTimeout(goCtx context.Context) {
 		// Remove next uploader if pool is not active
 		if pool.Status != types.POOL_STATUS_ACTIVE {
 			pool.BundleProposal.NextUploader = ""
-		}
-
-		// Update status
-		k.SetPool(ctx, pool)
-
-		// Check if there is an upcoming pool upgrade
-		if pool.UpgradePlan.ScheduledAt > 0 && uint64(ctx.BlockTime().Unix()) >= pool.UpgradePlan.ScheduledAt {
-			// Check if pool upgrade already has been applied
-			if pool.Protocol.Version != pool.UpgradePlan.Version || pool.Protocol.Binaries != pool.UpgradePlan.Binaries {
-				// perform pool upgrade
-				pool.Protocol.Version = pool.UpgradePlan.Version
-				pool.Protocol.Binaries = pool.UpgradePlan.Binaries
-				pool.Protocol.LastUpgrade = pool.UpgradePlan.ScheduledAt
-			}
-
-			// Check if upgrade duration was reached
-			if uint64(ctx.BlockTime().Unix()) >= (pool.UpgradePlan.ScheduledAt + pool.UpgradePlan.Duration) {
-				// reset upgrade plan to default values
-				pool.UpgradePlan = &types.UpgradePlan{}
-			}
-
 			k.SetPool(ctx, pool)
+			continue
 		}
 
 		// Skip if we haven't reached the upload interval.
