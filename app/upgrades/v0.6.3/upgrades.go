@@ -74,16 +74,36 @@ func migratePools(registryKeeper *registrykeeper.Keeper, ctx sdk.Context) {
 	}
 }
 
+func removeStringFromList(list []string, el string) []string {
+	for i, other := range list {
+		if other == el {
+			return append(list[0:i], list[i+1:]...)
+		}
+	}
+	return list
+}
+
+func deactivateStaker(pool *types.Pool, staker *types.Staker) {
+	// make user an inactive staker
+	pool.Stakers = removeStringFromList(pool.Stakers, staker.Account)
+	pool.InactiveStakers = append(pool.InactiveStakers, staker.Account)
+	pool.TotalStake -= staker.Amount
+	pool.TotalInactiveStake += staker.Amount
+	staker.Status = types.STAKER_STATUS_INACTIVE
+}
+
 func deactivateStakers(registryKeeper *registrykeeper.Keeper, ctx sdk.Context) {
-	for _, staker := range registryKeeper.GetAllStaker(ctx) {
+	for _, pool := range registryKeeper.GetAllPool(ctx) {
 
-		// set all stakers to inactive to force exit validators
-		if staker.Status == types.STAKER_STATUS_ACTIVE {
-			staker.Status = types.STAKER_STATUS_INACTIVE
+		for _, stakerAddress := range pool.Stakers {
+			staker, _ := registryKeeper.GetStaker(ctx, stakerAddress, pool.Id)
 
-			// save changes
+			deactivateStaker(&pool, &staker)
 			registryKeeper.SetStaker(ctx, staker)
 		}
+
+		registryKeeper.UpdateLowestStaker(ctx, &pool)
+		registryKeeper.SetPool(ctx, pool)
 	}
 }
 
