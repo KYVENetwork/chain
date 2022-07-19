@@ -1,6 +1,7 @@
 package v0_6_3
 
 import (
+	"fmt"
 	registrykeeper "github.com/KYVENetwork/chain/x/registry/keeper"
 	"github.com/KYVENetwork/chain/x/registry/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -108,12 +109,46 @@ func deactivateStakers(registryKeeper *registrykeeper.Keeper, ctx sdk.Context) {
 		pool.TotalStake = 0
 
 		pool.BundleProposal = &types.BundleProposal{
-			CreatedAt:    uint64(ctx.BlockTime().Unix()),
+			CreatedAt: uint64(ctx.BlockTime().Unix()),
 		}
 
 		registryKeeper.UpdateLowestStaker(ctx, &pool)
 		registryKeeper.SetPool(ctx, pool)
 	}
+}
+
+func correctPools(registryKeeper *registrykeeper.Keeper, ctx sdk.Context) {
+
+	// Check for duplicated
+	for _, pool := range registryKeeper.GetAllPool(ctx) {
+
+		stakersList := make([]string, 0)
+		visitedStakers := make(map[string]bool, 0)
+		var totalInactiveStake uint64 = 0
+		for _, staker := range pool.InactiveStakers {
+			if visitedStakers[staker] == false {
+
+				inactiveStaker, found := registryKeeper.GetStaker(ctx, staker, pool.Id)
+				if !found {
+					fmt.Printf("Error: Staker does not exist. Skipping staker %s\n", staker)
+					continue
+				}
+
+				stakersList = append(stakersList, staker)
+				visitedStakers[staker] = true
+				totalInactiveStake += inactiveStaker.Amount
+
+			} else {
+				fmt.Printf("Duplicate staker: %s\n", staker)
+			}
+		}
+		pool.InactiveStakers = stakersList
+		pool.TotalInactiveStake = totalInactiveStake
+		pool.TotalStake = 0
+
+		registryKeeper.SetPool(ctx, pool)
+	}
+
 }
 
 func CreateUpgradeHandler(
@@ -123,6 +158,7 @@ func CreateUpgradeHandler(
 
 		deactivateStakers(registryKeeper, ctx)
 		migratePools(registryKeeper, ctx)
+		correctPools(registryKeeper, ctx)
 
 		return vm, nil
 	}
