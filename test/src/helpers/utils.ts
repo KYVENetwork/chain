@@ -40,10 +40,10 @@ export const startChain = <StartChainType>(() => {
     function processData(data: Buffer) {
       if (startChain.isIgniteMod && data.toString().includes(`Token faucet`)) {
         console.log(`Ignite chain started`);
-        setTimeout(() => resolve(chain), 1000);
+        setTimeout(() => resolve(chain), 2000);
       } else if (data.toString().includes(`Starting RPC HTTP server`)) {
         console.log(`Binary chain started`);
-        setTimeout(() => resolve(chain), 1000);
+        setTimeout(() => resolve(chain), 2000);
       }
     }
     function processError() {
@@ -66,7 +66,7 @@ export const restartChain = () => {
         await startChain();
         global.chain.removeAllListeners("close");
         resolve(global.chain);
-      }, 1000);
+      }, 2000);
     });
     global.chain.kill();
   });
