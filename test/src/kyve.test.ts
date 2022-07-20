@@ -12,11 +12,11 @@ describe("chain", () => {
   beforeAll(async () => {
     startChain.isIgniteMod = process.env.IGNITE_MODE === "true";
     if (!startChain.isIgniteMod && !process.env.COSMOS_BINARY?.length) {
-      console.error("COSMOS_BINARY doesn't set");
+      console.error("COSMOS_BINARY isn't set");
       process.exit(1);
     }
     if (!startChain.isIgniteMod && !process.env.COSMOS_DATA?.length) {
-      console.error("COSMOS_DATA doesn't set");
+      console.error("COSMOS_DATA isn't set");
       process.exit(1);
     }
     await startChain();
