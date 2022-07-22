@@ -4,6 +4,7 @@ import { staking } from "./staking";
 import { alice, bob, charlie } from "./helpers/accounts";
 import { delegation } from "./delegation";
 import * as dotenv from "dotenv";
+import {lcd} from "./lcd";
 dotenv.config();
 describe("chain", () => {
   // disable timeout
@@ -31,6 +32,7 @@ describe("chain", () => {
   describe("Staking", staking);
   // // delegation
   describe("Delegation", delegation);
+  describe("lcd", lcd);
   afterAll(() => {
     // stop local chain
     global.chain.kill();
