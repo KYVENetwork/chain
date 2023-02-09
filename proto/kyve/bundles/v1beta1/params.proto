@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package kyve.bundles.v1beta1;
+
+option go_package = "github.com/KYVENetwork/chain/x/bundles/types";
+
+// Params defines the bundles module parameters.
+message Params {
+  // upload_timeout ...
+  uint64 upload_timeout = 1;
+  // storage_cost ...
+  uint64 storage_cost = 2;
+  // network_fee ...
+  string network_fee = 3;
+  // max_points ...
+  uint64 max_points = 4;
+}

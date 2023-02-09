@@ -1,0 +1,123 @@
+syntax = "proto3";
+
+package kyve.delegation.v1beta1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/delegation/types";
+
+// Delegator stores the information that one address has delegated to another address
+// It stores important information for the F1-Fee distribution algorithm
+message Delegator {
+  // staker corresponds to a KYVE-staker on the protocol-side
+  string staker = 1;
+  // delegator the user who delegate to the staker.
+  // If staker and delegator are the same we call it: self-delegation
+  string delegator = 2;
+  // k_index is an internal index for the f1-distribution algorithm
+  uint64 k_index = 3;
+  // initial_amount of stake the user had when it delegated.
+  // slashes can cause that the actual stake is lower.
+  uint64 initial_amount = 4;
+}
+
+// DelegationEntry represents an entry according to the F1-Fee-Distribution algorithm.
+// Take a look at x/delegation/keeper/logic_f1distribution.go for more details
+message DelegationEntry {
+  // staker on protocol level
+  string staker = 1;
+
+  // k_index is the of the period this entry ends
+  uint64 k_index = 2;
+
+  // value is the quotient of collected rewards and total stake according to F1-distribution
+  string value = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// DelegationPoolData stores general delegation information for every staker
+message DelegationData {
+  // Primary keys
+
+  // Every staker has one DelegationData
+  string staker = 1;
+
+  // F1Distribution
+
+  // current_rewards ...
+  uint64 current_rewards = 2;
+  // total_delegation ...
+  uint64 total_delegation = 3;
+  // latest_index_k ...
+  uint64 latest_index_k = 4;
+
+  // Stats
+  // These are not required by the f1-algorithm and are
+  // used for queries and state cleanup
+
+  // delegator_count the amount of different addresses delegating to the staker
+  uint64 delegator_count = 5;
+  // latest_index_was_undelegation helps indicates when an entry can be deleted
+  bool latest_index_was_undelegation = 6;
+}
+
+// DelegationSlash represents an f1-slash
+// these entries needs to be iterated to obtain the current amount of the actual stake
+// Every staker can have n slash-entries
+message DelegationSlash {
+  // staker who got slashed
+  string staker = 1;
+  // k_index for f1-algorithm
+  uint64 k_index = 2;
+  // fraction that got slashed
+  string fraction = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// UndelegationQueueEntry ...
+message UndelegationQueueEntry {
+  // index ...
+  uint64 index = 1;
+  // staker ...
+  string staker = 2;
+  // delegator ...
+  string delegator = 3;
+  // amount ...
+  uint64 amount = 4;
+  // creation_time ...
+  uint64 creation_time = 5;
+}
+
+// QueueState ...
+message QueueState {
+  // low_index ...
+  uint64 low_index = 1;
+  // high_index ...
+  uint64 high_index = 2;
+}
+
+// RedelegationCooldown ...
+message RedelegationCooldown {
+  // low_index ...
+  string address = 1;
+  // high_index ...
+  uint64 creation_date = 2;
+}
+
+// SlashType ...
+enum SlashType {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // SLASH_TYPE_UNSPECIFIED ...
+  SLASH_TYPE_UNSPECIFIED = 0;
+  // SLASH_TYPE_TIMEOUT ...
+  SLASH_TYPE_TIMEOUT = 1;
+  // SLASH_TYPE_VOTE ...
+  SLASH_TYPE_VOTE = 2;
+  // SLASH_TYPE_UPLOAD ...
+  SLASH_TYPE_UPLOAD = 3;
+}

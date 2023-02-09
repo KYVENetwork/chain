@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package kyve.global.v1beta1;
+
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/global/types";
+
+// Msg defines the Msg service.
+service Msg {
+  // UpdateParams defines a governance operation for updating the x/global
+  // module parameters. The authority is hard-coded to the x/gov module
+  // account.
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+}
+
+// MsgUpdateParams defines a SDK message for updating the module parameters.
+message MsgUpdateParams {
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // payload defines the x/global parameters to update.
+  string payload = 2;
+}
+
+// MsgUpdateParamsResponse defines the Msg/UpdateParams response type.
+message MsgUpdateParamsResponse {}

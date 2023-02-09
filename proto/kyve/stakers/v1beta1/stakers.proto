@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package kyve.stakers.v1beta1;
+
+option go_package = "github.com/KYVENetwork/chain/x/stakers/types";
+
+// Staker contains all metadata for a staker
+// Every address can only create one staker (itself)
+message Staker {
+  // address ...
+  string address = 1;
+  // commission ...
+  string commission = 2;
+  // moniker ...
+  string moniker = 3;
+  // website ...
+  string website = 4;
+  // logo ...
+  string logo = 5;
+}
+
+// Valaccount gets authorized by a staker to
+// vote in a given pool by favor of the staker.
+message Valaccount {
+  // pool_id defines the pool in which the address
+  // is allowed to vote in.
+  uint64 pool_id = 1;
+  // staker is the address the valaccount is voting for.
+  string staker = 2;
+  // valaddress is the account stored on the protocol
+  // node which votes for the staker in the given pool
+  string valaddress = 3;
+  // When a node is inactive (does not vote at all)
+  // A point is added, after a certain amount of points
+  // is reached the node gets kicked out.
+  uint64 points = 4;
+  // isLeaving indicates if a staker is leaving the given pool.
+  bool is_leaving = 5;
+}
+
+// CommissionChangeEntry stores the information for an
+// upcoming commission change. A commission change is never
+// instant, so delegators have time to redelegate in case
+// they don't agree with the new commission.
+message CommissionChangeEntry {
+  // index is needed for the queue-algorithm which
+  // processes the commission changes
+  uint64 index = 1;
+  // staker is the address of the affected staker
+  string staker = 2;
+  // commission is the new commission which will
+  // be applied after the waiting time is over.
+  string commission = 3;
+  // creation_date is the UNIX-timestamp in seconds
+  // when the entry was created.
+  int64 creation_date = 4;
+}
+
+// LeavePoolEntry stores the information for an upcoming
+// pool leave. A staker can't leave a pool instantly.
+// Instead a the `LeaveTime` needs to be awaited.
+// If a staker start to leave a pool, it will be shown
+// in the UI to the delegators.
+message LeavePoolEntry {
+  // index is needed for the queue-algorithm which
+  // processes the commission changes
+  uint64 index = 1;
+  // staker is the address of the affected staker
+  string staker = 2;
+  // pool_id indicates the pool the staker wants to leave
+  uint64 pool_id = 3;
+  // creation_date is the UNIX-timestamp in seconds
+  // when the entry was created.
+  int64 creation_date = 4;
+}
+
+// UnbondingState stores the state for the unbonding of stakes and delegations.
+message QueueState {
+  // low_index is the tail of the queue. It is the
+  // oldest entry in the queue. If this entry isn't
+  // due, non of the other entries is.
+  uint64 low_index = 1;
+  // high_index is the head of the queue. New entries
+  // are added to the top.
+  uint64 high_index = 2;
+}

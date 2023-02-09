@@ -1,0 +1,129 @@
+syntax = "proto3";
+
+package kyve.query.v1beta1;
+
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "kyve/query/v1beta1/query.proto";
+import "kyve/stakers/v1beta1/stakers.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/query/types";
+
+// QueryStakers ...
+service QueryStakers {
+  // Stakers queries for all stakers.
+  rpc Stakers(QueryStakersRequest) returns (QueryStakersResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/stakers";
+  }
+
+  // Staker queries for all stakers.
+  rpc Staker(QueryStakerRequest) returns (QueryStakerResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/staker/{address}";
+  }
+
+  // StakersByPool queries for all stakers that are currently participating in the given pool
+  rpc StakersByPool(QueryStakersByPoolRequest) returns (QueryStakersByPoolResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/stakers_by_pool/{pool_id}";
+  }
+
+  // StakersByPool queries for all stakers and sorted them first by number of pools participating and
+  // then by delegation
+  rpc StakersByPoolCount(QueryStakersByPoolCountRequest) returns (QueryStakersByPoolCountResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/stakers_by_pool_count";
+  }
+}
+
+// =======
+// stakers
+// =======
+
+// QueryStakersRequest is the request type for the Query/Stakers RPC method.
+message QueryStakersRequest {
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+
+  // status looks whether a staker is participating in pools or not
+  StakerStatus status = 2;
+
+  // search searches for moniker OR address
+  string search = 3;
+}
+
+// StakerStatus ...
+enum StakerStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // STAKER_STATUS_UNSPECIFIED ...
+  STAKER_STATUS_UNSPECIFIED = 0;
+  // STAKER_STATUS_ACTIVE ...
+  STAKER_STATUS_ACTIVE = 1;
+  // STAKER_STATUS_INACTIVE ...
+  STAKER_STATUS_INACTIVE = 2;
+}
+
+// QueryStakersResponse is the response type for the Query/Stakers RPC method.
+message QueryStakersResponse {
+  // stakers ...
+  repeated FullStaker stakers = 1 [(gogoproto.nullable) = false];
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// ================
+// staker/{address}
+// ================
+
+// QueryStakerRequest is the request type for the Query/Staker RPC method.
+message QueryStakerRequest {
+  // address ...
+  string address = 1;
+}
+
+// QueryStakerResponse is the response type for the Query/Staker RPC method.
+message QueryStakerResponse {
+  // staker ...
+  FullStaker staker = 1 [(gogoproto.nullable) = false];
+}
+
+// =========================
+// stakers_by_pool/{pool_id}
+// =========================
+
+// QueryStakersByPoolRequest is the request type for the Query/Staker RPC method.
+message QueryStakersByPoolRequest {
+  // pool_id ...
+  uint64 pool_id = 1;
+}
+
+// QueryStakersByPoolResponse is the response type for the Query/Staker RPC method.
+message QueryStakersByPoolResponse {
+  // stakers ...
+  repeated StakerPoolResponse stakers = 1 [(gogoproto.nullable) = false];
+}
+
+// StakerPoolResponse ...
+message StakerPoolResponse {
+  // staker ...
+  FullStaker staker = 1;
+  // valaccount ...
+  kyve.stakers.v1beta1.Valaccount valaccount = 2;
+}
+
+// =========================
+// stakers_by_pool/{pool_id}
+// =========================
+
+// QueryStakersByPoolCountRequest ...
+message QueryStakersByPoolCountRequest {
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QueryStakersByPoolCountResponse ...
+message QueryStakersByPoolCountResponse {
+  // stakers ...
+  repeated FullStaker stakers = 1 [(gogoproto.nullable) = false];
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}

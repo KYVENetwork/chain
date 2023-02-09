@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package kyve.stakers.v1beta1;
+
+option go_package = "github.com/KYVENetwork/chain/x/stakers/types";
+
+// Params defines the stakers module parameters.
+message Params {
+  // commission_change_time ...
+  uint64 commission_change_time = 1;
+  // commission_change_time ...
+  uint64 leave_pool_time = 2;
+}

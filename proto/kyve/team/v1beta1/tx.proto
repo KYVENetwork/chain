@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package kyve.team.v1beta1;
+
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/team/types";
+
+// Msg defines the Msg service.
+service Msg {
+  // ClaimUnlocked ...
+  rpc ClaimUnlocked(MsgClaimUnlocked) returns (MsgClaimUnlockedResponse);
+  // Clawback ...
+  rpc Clawback(MsgClawback) returns (MsgClawbackResponse);
+  // CreateTeamVestingAccount ...
+  rpc CreateTeamVestingAccount(MsgCreateTeamVestingAccount) returns (MsgCreateTeamVestingAccountResponse);
+  // ClaimAuthorityRewards ...
+  rpc ClaimAuthorityRewards(MsgClaimAuthorityRewards) returns (MsgClaimAuthorityRewardsResponse);
+  // ClaimInflationRewards ...
+  rpc ClaimAccountRewards(MsgClaimAccountRewards) returns (MsgClaimAccountRewardsResponse);
+}
+
+// MsgClaimUnlockedTokens ...
+message MsgClaimUnlocked {
+  // authority is the foundation which is allowed to payout unlocked tokens
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // id is the unique identifier of the team member
+  uint64 id = 2;
+  // amount of $KYVE that will be paid to the recipient and marked as deducted from the unlocked amount.
+  uint64 amount = 3;
+  // recipient is the recipient address chosen by the team member.
+  string recipient = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgClaimUnlockedResponse defines the Msg/ClaimUnlockedTokens response type.
+message MsgClaimUnlockedResponse {}
+
+// MsgClaimAuthorityRewards ...
+message MsgClaimAuthorityRewards {
+  // authority is the foundation which is allowed to payout unlocked tokens
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // amount of $KYVE that will be paid to the recipient and marked as deducted from the authority inflation rewards
+  uint64 amount = 2;
+  // recipient is the recipient address chosen by the team member.
+  string recipient = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgClaimAuthorityRewardsResponse defines the Msg/ClaimAuthorityRewards response type.
+message MsgClaimAuthorityRewardsResponse {}
+
+// MsgClaimAccountRewards ...
+message MsgClaimAccountRewards {
+  // authority is the foundation which is allowed to payout unlocked tokens
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // id is the unique identifier of the team member
+  uint64 id = 2;
+  // amount of $KYVE that will be paid to the recipient and marked as deducted from the inflation rewards
+  uint64 amount = 3;
+  // recipient is the recipient address chosen by the team member.
+  string recipient = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgClaimAccountRewardsResponse defines the Msg/ClaimAccountRewards response type.
+message MsgClaimAccountRewardsResponse {}
+
+// MsgClawback ...
+message MsgClawback {
+  // authority is the foundation which is allowed to modify team accounts
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // id is the unique identifier of the team member
+  uint64 id = 2;
+  // clawback is a unix timestamp (in seconds) of when the clawback should be applied
+  uint64 clawback = 3;
+}
+
+// MsgClawbackResponse defines the Msg/Clawback response type.
+message MsgClawbackResponse {}
+
+// MsgCreateTeamVestingAccount ...
+message MsgCreateTeamVestingAccount {
+  // authority ...
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // total_allocation is the number of tokens reserved for this team member.
+  uint64 total_allocation = 2;
+  // commencement is the unix timestamp of the member's official start date.
+  uint64 commencement = 3;
+}
+
+// MsgCreateTeamVestingAccountResponse defines the Msg/CreateTeamVestingAccount response type.
+message MsgCreateTeamVestingAccountResponse {}

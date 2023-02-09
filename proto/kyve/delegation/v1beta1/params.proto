@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package kyve.delegation.v1beta1;
+
+option go_package = "github.com/KYVENetwork/chain/x/delegation/types";
+
+// Params defines the delegation module parameters.
+message Params {
+  // unbonding_delegation_time ...
+  uint64 unbonding_delegation_time = 1;
+  // unbonding_delegation_time ...
+  uint64 redelegation_cooldown = 2;
+  // unbonding_delegation_time ...
+  uint64 redelegation_max_amount = 3;
+  // vote_slash ...
+  string vote_slash = 4;
+  // upload_slash ...
+  string upload_slash = 5;
+  // timeout_slash ...
+  string timeout_slash = 6;
+}

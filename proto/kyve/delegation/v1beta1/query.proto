@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package kyve.delegation.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "kyve/delegation/v1beta1/params.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/delegation/types";
+
+/**
+   Contains the native params query.
+   Everything else is provided by the query module. The reason for this
+   is that a lot of queries require composite data from all modules.
+*/
+
+// Query defines the gRPC querier service.
+service Query {
+  // Parameters queries the parameters of the module.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/kyve/delegation/v1beta1/params";
+  }
+}
+
+// QueryParamsRequest is request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params holds all the parameters of this module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}

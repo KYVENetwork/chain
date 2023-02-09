@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package kyve.bundles.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "kyve/bundles/v1beta1/bundles.proto";
+import "kyve/bundles/v1beta1/params.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/bundles/types";
+
+// GenesisState defines the bundles module's genesis state.
+message GenesisState {
+  // params defines all the parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+  // bundle_proposal_list ...
+  repeated BundleProposal bundle_proposal_list = 2 [(gogoproto.nullable) = false];
+  // finalized_bundle_list ...
+  repeated FinalizedBundle finalized_bundle_list = 3 [(gogoproto.nullable) = false];
+}

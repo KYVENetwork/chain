@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package kyve.team.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "kyve/team/v1beta1/team.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/team/types";
+
+// GenesisState defines the team module's genesis state.
+message GenesisState {
+  // authority ...
+  Authority authority = 2 [(gogoproto.nullable) = false];
+  // account_list ...
+  repeated TeamVestingAccount account_list = 3 [(gogoproto.nullable) = false];
+  // account_count ...
+  uint64 account_count = 4;
+}

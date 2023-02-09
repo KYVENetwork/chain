@@ -1,0 +1,609 @@
+package global_test
+
+import (
+	"cosmossdk.io/math"
+	i "github.com/KYVENetwork/chain/testutil/integration"
+	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
+	// Auth
+	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	// Global
+	"github.com/KYVENetwork/chain/x/global"
+	"github.com/KYVENetwork/chain/x/global/types"
+
+	govV1Types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	govLegacyTypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+)
+
+/*
+
+TEST CASES - DeductFeeDecorator
+
+* Invalid transaction.
+* consensusGasPrice = 0.0; validatorGasPrice = 0.0 - deliverTX
+* consensusGasPrice = 0.0; validatorGasPrice = 0.0 - checkTX
+* consensusGasPrice = 1.0; validatorGasPrice = 0.0 - deliverTX - not enough fees
+* consensusGasPrice = 1.0; validatorGasPrice = 0.0 - deliverTX - enough fees
+* consensusGasPrice = 1.0; validatorGasPrice = 0.0 - checkTx - not enough fees
+* consensusGasPrice = 1.0; validatorGasPrice = 0.0 - checkTx - enough fees
+* consensusGasPrice = 1.0; validatorGasPrice = 2.0 - deliverTX - not enough fees
+* consensusGasPrice = 1.0; validatorGasPrice = 2.0 - deliverTX - not enough fees for validator but enough for consensus.
+* consensusGasPrice = 1.0; validatorGasPrice = 2.0 - checkTx - not enough fees
+* consensusGasPrice = 1.0; validatorGasPrice = 2.0 - checkTx - not enough fees for validator but enough for consensus.
+
+*/
+
+var _ = Describe("DeductFeeDecorator", Ordered, func() {
+	s := i.NewCleanChain()
+	encodingConfig := BuildEncodingConfig()
+	dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
+	denom := s.App().StakingKeeper.BondDenom(s.Ctx())
+
+	accountBalanceBefore := s.GetBalanceFromAddress(i.DUMMY[0])
+	collectorBalanceBefore := s.GetBalanceFromModule(authTypes.FeeCollectorName)
+
+	BeforeEach(func() {
+		s = i.NewCleanChain()
+		encodingConfig = BuildEncodingConfig()
+		denom = s.App().StakingKeeper.BondDenom(s.Ctx())
+		dfd = global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
+	})
+
+	AfterEach(func() {
+		s.PerformValidityChecks()
+	})
+
+	It("Invalid transaction.", func() {
+		// ARRANGE
+		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
+
+		// ACT
+		_, err := dfd.AnteHandle(s.Ctx(), &InvalidTx{}, false, NextFn)
+
+		// ASSERT
+		Expect(err).Should(HaveOccurred())
+	})
+
+	It("consensusGasPrice = 0.0; validatorGasPrice = 0.0 - deliverTX", func() {
+		// ARRANGE
+		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
+
+		denom := s.App().StakingKeeper.BondDenom(s.Ctx())
+		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
+
+		// ACT
+		_, err := dfd.AnteHandle(s.Ctx().WithIsCheckTx(false), tx, false, NextFn)
+
+		// ASSERT
+		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
+		collectorBalanceAfter := s.GetBalanceFromModule(authTypes.FeeCollectorName)
+
+		Expect(err).Should(Not(HaveOccurred()))
+		Expect(accountBalanceBefore).To(Equal(accountBalanceAfter))
+		Expect(collectorBalanceBefore).To(Equal(collectorBalanceAfter))
+	})
+
+	It("consensusGasPrice = 0.0; validatorGasPrice = 0.0 - checkTX", func() {
+		// ARRANGE
+		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
+
+		denom := s.App().StakingKeeper.BondDenom(s.Ctx())
+		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
+
+		// ACT
+		_, err := dfd.AnteHandle(s.Ctx().WithIsCheckTx(true), tx, false, NextFn)
+
+		// ASSERT
+		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
+		collectorBalanceAfter := s.GetBalanceFromModule(authTypes.FeeCollectorName)
+
+		Expect(err).Should(Not(HaveOccurred()))
+		Expect(accountBalanceBefore).To(Equal(accountBalanceAfter))
+		Expect(collectorBalanceBefore).To(Equal(collectorBalanceAfter))
+	})
+
+	It("consensusGasPrice = 1.0; validatorGasPrice = 0.0 - deliverTX - not enough fees", func() {
+		// ARRANGE
+		params := types.DefaultParams()
+		params.MinGasPrice = sdk.OneDec()
+		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
+		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
+
+		// ACT
+		_, err := dfd.AnteHandle(s.Ctx().WithIsCheckTx(false), tx, false, NextFn)
+
+		// ASSERT
+		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
+		collectorBalanceAfter := s.GetBalanceFromModule(authTypes.FeeCollectorName)
+
+		Expect(err).Should(HaveOccurred())
+		Expect(accountBalanceBefore).To(Equal(accountBalanceAfter))
+		Expect(collectorBalanceBefore).To(Equal(collectorBalanceAfter))
+	})
+
+	It("consensusGasPrice = 1.0; validatorGasPrice = 0.0 - deliverTX - enough fees", func() {
+		// ARRANGE
+		params := types.DefaultParams()
+		params.MinGasPrice = sdk.OneDec()
+		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
+		tx := BuildTestTx(math.NewInt(1), denom, i.DUMMY[0], encodingConfig)
+
+		// ACT
+		_, err := dfd.AnteHandle(s.Ctx().WithIsCheckTx(false), tx, false, NextFn)
+
+		// ASSERT
+		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
+		collectorBalanceAfter := s.GetBalanceFromModule(authTypes.FeeCollectorName)
+
+		Expect(err).Should(Not(HaveOccurred()))
+		Expect(accountBalanceBefore).To(Equal(accountBalanceAfter + 200_000))
+		Expect(collectorBalanceBefore).To(Equal(collectorBalanceAfter - 200_000))
+	})
+
+	It("consensusGasPrice = 1.0; validatorGasPrice = 0.0 - checkTx - not enough fees", func() {
+		// ARRANGE
+		params := types.DefaultParams()
+		params.MinGasPrice = sdk.OneDec()
+		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
+		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
+
+		// ACT
+		_, err := dfd.AnteHandle(s.Ctx().WithIsCheckTx(true), tx, false, NextFn)
+
+		// ASSERT
+		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
+		collectorBalanceAfter := s.GetBalanceFromModule(authTypes.FeeCollectorName)
+
+		Expect(err).Should(HaveOccurred())
+		Expect(accountBalanceBefore).To(Equal(accountBalanceAfter))
+		Expect(collectorBalanceBefore).To(Equal(collectorBalanceAfter))
+	})
+
+	It("consensusGasPrice = 1.0; validatorGasPrice = 0.0 - checkTx - enough fees", func() {
+		// ARRANGE
+		params := types.DefaultParams()
+		params.MinGasPrice = sdk.OneDec()
+		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
+		tx := BuildTestTx(math.NewInt(1), denom, i.DUMMY[0], encodingConfig)
+
+		// ACT
+		_, err := dfd.AnteHandle(s.Ctx().WithIsCheckTx(true), tx, false, NextFn)
+
+		// ASSERT
+		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
+		collectorBalanceAfter := s.GetBalanceFromModule(authTypes.FeeCollectorName)
+
+		Expect(err).Should(Not(HaveOccurred()))
+		Expect(accountBalanceBefore).To(Equal(accountBalanceAfter + 200_000))
+		Expect(collectorBalanceBefore).To(Equal(collectorBalanceAfter - 200_000))
+	})
+
+	It("consensusGasPrice = 1.0; validatorGasPrice = 2.0 - deliverTX - not enough fees", func() {
+		// ARRANGE
+		params := types.DefaultParams()
+		params.MinGasPrice = sdk.OneDec()
+		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
+
+		ctx := s.Ctx().WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(denom, sdk.NewInt(2))))
+		s.SetCtx(ctx)
+		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
+
+		// ACT
+		_, err := dfd.AnteHandle(ctx.WithIsCheckTx(false), tx, false, NextFn)
+
+		// ASSERT
+		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
+		collectorBalanceAfter := s.GetBalanceFromModule(authTypes.FeeCollectorName)
+
+		Expect(err).Should(HaveOccurred())
+		Expect(accountBalanceBefore).To(Equal(accountBalanceAfter))
+		Expect(collectorBalanceBefore).To(Equal(collectorBalanceAfter))
+	})
+
+	It("consensusGasPrice = 1.0; validatorGasPrice = 2.0 - deliverTX - not enough fees for validator but enough for consensus.", func() {
+		// ARRANGE
+		params := types.DefaultParams()
+		params.MinGasPrice = sdk.OneDec()
+		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
+
+		ctx := s.Ctx().WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(denom, sdk.NewInt(2))))
+		s.SetCtx(ctx)
+		tx := BuildTestTx(math.NewInt(1), denom, i.DUMMY[0], encodingConfig)
+
+		// ACT
+		_, err := dfd.AnteHandle(ctx.WithIsCheckTx(false), tx, false, NextFn)
+
+		// ASSERT
+		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
+		collectorBalanceAfter := s.GetBalanceFromModule(authTypes.FeeCollectorName)
+
+		Expect(err).Should(Not(HaveOccurred()))
+		Expect(accountBalanceBefore).To(Equal(accountBalanceAfter + 200_000))
+		Expect(collectorBalanceBefore).To(Equal(collectorBalanceAfter - 200_000))
+	})
+
+	It("consensusGasPrice = 1.0; validatorGasPrice = 2.0 - checkTx - not enough fees", func() {
+		// ARRANGE
+		params := types.DefaultParams()
+		params.MinGasPrice = sdk.OneDec()
+		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
+
+		ctx := s.Ctx().WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(denom, sdk.NewInt(2))))
+		s.SetCtx(ctx)
+		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
+
+		// ACT
+		_, err := dfd.AnteHandle(ctx.WithIsCheckTx(true), tx, false, NextFn)
+
+		// ASSERT
+		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
+		collectorBalanceAfter := s.GetBalanceFromModule(authTypes.FeeCollectorName)
+
+		Expect(err).Should(HaveOccurred())
+		Expect(accountBalanceBefore).To(Equal(accountBalanceAfter))
+		Expect(collectorBalanceBefore).To(Equal(collectorBalanceAfter))
+	})
+
+	It("consensusGasPrice = 1.0; validatorGasPrice = 2.0 - checkTx - not enough fees for validator but enough for consensus.", func() {
+		// ARRANGE
+		params := types.DefaultParams()
+		params.MinGasPrice = sdk.OneDec()
+		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
+
+		ctx := s.Ctx().WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(denom, sdk.NewInt(2))))
+		s.SetCtx(ctx)
+		tx := BuildTestTx(math.NewInt(1), denom, i.DUMMY[0], encodingConfig)
+
+		// ACT
+		_, err := dfd.AnteHandle(ctx.WithIsCheckTx(true), tx, false, NextFn)
+
+		// ASSERT
+		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
+		collectorBalanceAfter := s.GetBalanceFromModule(authTypes.FeeCollectorName)
+
+		Expect(err).Should(HaveOccurred())
+		Expect(accountBalanceBefore).To(Equal(accountBalanceAfter))
+		Expect(collectorBalanceBefore).To(Equal(collectorBalanceAfter))
+	})
+})
+
+/*
+
+TEST CASES - GasAdjustmentDecorator
+
+* Empty transaction.
+* Transaction with a normal message.
+* Transaction with an adjusted message.
+* Transaction with multiple adjusted messages.
+* Transaction with multiple normal and multiple adjusted messages.
+
+*/
+
+var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
+	s := i.NewCleanChain()
+	encodingConfig := BuildEncodingConfig()
+
+	// NOTE: This will change as implementation changes.
+	BaseCost := 32079
+
+	BeforeEach(func() {
+		s = i.NewCleanChain()
+
+		params := types.DefaultParams()
+		params.GasAdjustments = []types.GasAdjustment{
+			{
+				Type:   "/cosmos.staking.v1beta1.MsgCreateValidator",
+				Amount: 2000,
+			},
+			{
+				Type:   "/kyve.stakers.v1beta1.MsgCreateStaker",
+				Amount: 1000,
+			},
+		}
+		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
+	})
+
+	AfterEach(func() {
+		s.PerformValidityChecks()
+	})
+
+	It("Empty transaction.", func() {
+		// ARRANGE
+		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+		tx := txBuilder.GetTx()
+
+		gad := global.NewGasAdjustmentDecorator(s.App().GlobalKeeper)
+
+		// ACT
+		_, err := gad.AnteHandle(s.Ctx(), tx, false, NextFn)
+
+		// ASSERT
+		Expect(err).ToNot(HaveOccurred())
+		Expect(s.Ctx().GasMeter().GasConsumed()).To(BeEquivalentTo(BaseCost))
+	})
+
+	It("Transaction with a normal message.", func() {
+		// ARRANGE
+		msg := bankTypes.MsgSend{}
+
+		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+		_ = txBuilder.SetMsgs(&msg)
+		tx := txBuilder.GetTx()
+
+		gad := global.NewGasAdjustmentDecorator(s.App().GlobalKeeper)
+
+		// ACT
+		_, err := gad.AnteHandle(s.Ctx(), tx, false, NextFn)
+
+		// ASSERT
+		Expect(err).ToNot(HaveOccurred())
+		Expect(s.Ctx().GasMeter().GasConsumed()).To(BeEquivalentTo(BaseCost))
+	})
+
+	It("Transaction with an adjusted message.", func() {
+		// ARRANGE
+		msg := stakingTypes.MsgCreateValidator{}
+
+		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+		_ = txBuilder.SetMsgs(&msg)
+		tx := txBuilder.GetTx()
+
+		gad := global.NewGasAdjustmentDecorator(s.App().GlobalKeeper)
+
+		// ACT
+		_, err := gad.AnteHandle(s.Ctx(), tx, false, NextFn)
+
+		// ASSERT
+		Expect(err).ToNot(HaveOccurred())
+		Expect(s.Ctx().GasMeter().GasConsumed()).To(BeEquivalentTo(BaseCost + 2000))
+	})
+
+	It("Transaction with multiple adjusted messages.", func() {
+		// ARRANGE
+		firstMsg := stakingTypes.MsgCreateValidator{}
+		secondMsg := stakersTypes.MsgCreateStaker{}
+
+		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+		_ = txBuilder.SetMsgs(&firstMsg, &secondMsg)
+		tx := txBuilder.GetTx()
+
+		gad := global.NewGasAdjustmentDecorator(s.App().GlobalKeeper)
+
+		// ACT
+		_, err := gad.AnteHandle(s.Ctx(), tx, false, NextFn)
+
+		// ASSERT
+		Expect(err).ToNot(HaveOccurred())
+		Expect(s.Ctx().GasMeter().GasConsumed()).To(BeEquivalentTo(BaseCost + 3000))
+	})
+
+	It("Transaction with multiple normal and multiple adjusted messages.", func() {
+		// ARRANGE
+		firstMsg := stakersTypes.MsgJoinPool{}
+		secondMsg := stakersTypes.MsgCreateStaker{}
+		thirdMsg := stakingTypes.MsgCreateValidator{}
+
+		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+		_ = txBuilder.SetMsgs(&firstMsg, &secondMsg, &thirdMsg)
+		tx := txBuilder.GetTx()
+
+		gad := global.NewGasAdjustmentDecorator(s.App().GlobalKeeper)
+
+		// ACT
+		_, err := gad.AnteHandle(s.Ctx(), tx, false, NextFn)
+
+		// ASSERT
+		Expect(err).ToNot(HaveOccurred())
+		Expect(s.Ctx().GasMeter().GasConsumed()).To(BeEquivalentTo(BaseCost + 3000))
+	})
+})
+
+/*
+TEST CASES - InitialDepositDecorator
+
+* No Deposit, no min-deposit - v1
+* No Deposit, no min-deposit - legacy
+* Deposit, no min-deposit - v1
+* Deposit, no min-deposit - legacy
+* No Deposit, min-deposit - v1
+* No Deposit, min-deposit - legacy
+* Deposit, min-deposit - v1
+* Deposit, min-deposit - legacy
+*/
+var _ = Describe("InitialDepositDecorator", Ordered, func() {
+	s := i.NewCleanChain()
+	encodingConfig := BuildEncodingConfig()
+	zeroCoins := sdk.NewCoins(sdk.NewCoin(types.Denom, math.ZeroInt()))
+	var emptyMsg []sdk.Msg
+
+	BeforeEach(func() {
+		s = i.NewCleanChain()
+	})
+
+	AfterEach(func() {
+		s.PerformValidityChecks()
+	})
+
+	It("No Deposit, no min-deposit - v1", func() {
+		// ARRANGE
+		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+		submitMsg, govErr := govV1Types.NewMsgSubmitProposal(emptyMsg, zeroCoins, i.ALICE, "metadata")
+		Expect(govErr).ToNot(HaveOccurred())
+		_ = txBuilder.SetMsgs(submitMsg)
+		tx := txBuilder.GetTx()
+
+		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, s.App().GovKeeper)
+
+		// ACT
+		_, err := gid.AnteHandle(s.Ctx(), tx, false, NextFn)
+
+		// ASSERT
+		Expect(err).ToNot(HaveOccurred())
+	})
+
+	It("No Deposit, no min-deposit - legacy", func() {
+		// ARRANGE
+		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+
+		content, created := govLegacyTypes.ContentFromProposalType("Text-test", "Descirption", "Text")
+		Expect(created).To(BeTrue())
+
+		submitMsg, govErr := govLegacyTypes.NewMsgSubmitProposal(content, zeroCoins, sdk.MustAccAddressFromBech32(i.ALICE))
+		Expect(govErr).ToNot(HaveOccurred())
+		_ = txBuilder.SetMsgs(submitMsg)
+		tx := txBuilder.GetTx()
+
+		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, s.App().GovKeeper)
+
+		// ACT
+		_, err := gid.AnteHandle(s.Ctx(), tx, false, NextFn)
+
+		// ASSERT
+		Expect(err).ToNot(HaveOccurred())
+	})
+
+	It("Deposit, no min-deposit - v1", func() {
+		// ARRANGE
+		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+		hundredKyveCoins := sdk.NewCoins(sdk.NewCoin(types.Denom, math.NewInt(100_000_000_000)))
+		submitMsg, govErr := govV1Types.NewMsgSubmitProposal(emptyMsg, hundredKyveCoins, i.ALICE, "metadata")
+		Expect(govErr).ToNot(HaveOccurred())
+		_ = txBuilder.SetMsgs(submitMsg)
+		tx := txBuilder.GetTx()
+
+		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, s.App().GovKeeper)
+
+		// ACT
+		_, err := gid.AnteHandle(s.Ctx(), tx, false, NextFn)
+
+		// ASSERT
+		Expect(err).ToNot(HaveOccurred())
+	})
+
+	It("Deposit, no min-deposit - legacy", func() {
+		// ARRANGE
+		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+
+		content, created := govLegacyTypes.ContentFromProposalType("Text-test", "Descirption", "Text")
+		Expect(created).To(BeTrue())
+
+		hundredKyveCoins := sdk.NewCoins(sdk.NewCoin(types.Denom, math.NewInt(100_000_000_000)))
+		submitMsg, govErr := govLegacyTypes.NewMsgSubmitProposal(content, hundredKyveCoins, sdk.MustAccAddressFromBech32(i.ALICE))
+		Expect(govErr).ToNot(HaveOccurred())
+
+		_ = txBuilder.SetMsgs(submitMsg)
+		tx := txBuilder.GetTx()
+
+		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, s.App().GovKeeper)
+
+		// ACT
+		_, err := gid.AnteHandle(s.Ctx(), tx, false, NextFn)
+
+		// ASSERT
+		Expect(err).ToNot(HaveOccurred())
+	})
+
+	It("No Deposit, min-deposit - v1", func() {
+		// ARRANGE
+		params := types.DefaultParams()
+		params.MinInitialDepositRatio = sdk.NewDec(1).QuoInt64(4)
+		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
+
+		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+		submitMsg, govErr := govV1Types.NewMsgSubmitProposal(emptyMsg, zeroCoins, i.ALICE, "metadata")
+		Expect(govErr).ToNot(HaveOccurred())
+		_ = txBuilder.SetMsgs(submitMsg)
+		tx := txBuilder.GetTx()
+
+		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, s.App().GovKeeper)
+
+		// ACT
+		_, err := gid.AnteHandle(s.Ctx(), tx, false, NextFn)
+
+		// ASSERT
+		Expect(err).To(HaveOccurred())
+	})
+
+	It("No Deposit, min-deposit - legacy", func() {
+		// ARRANGE
+		params := types.DefaultParams()
+		params.MinInitialDepositRatio = sdk.NewDec(1).QuoInt64(4)
+		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
+
+		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+
+		content, created := govLegacyTypes.ContentFromProposalType("Text-test", "Descirption", "Text")
+		Expect(created).To(BeTrue())
+
+		submitMsg, govErr := govLegacyTypes.NewMsgSubmitProposal(content, zeroCoins, sdk.MustAccAddressFromBech32(i.ALICE))
+		Expect(govErr).ToNot(HaveOccurred())
+
+		_ = txBuilder.SetMsgs(submitMsg)
+		tx := txBuilder.GetTx()
+
+		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, s.App().GovKeeper)
+
+		// ACT
+		_, err := gid.AnteHandle(s.Ctx(), tx, false, NextFn)
+
+		// ASSERT
+		Expect(err).To(HaveOccurred())
+	})
+
+	It("Deposit, min-deposit - v1", func() {
+		// ARRANGE
+		params := types.DefaultParams()
+		params.MinInitialDepositRatio = sdk.NewDec(1).QuoInt64(4)
+		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
+
+		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+		twentyFiveKyveCoins := sdk.NewCoins(sdk.NewCoin(types.Denom, math.NewInt(25_000_000_000)))
+
+		submitMsg, govErr := govV1Types.NewMsgSubmitProposal(emptyMsg, twentyFiveKyveCoins, i.ALICE, "metadata")
+		Expect(govErr).ToNot(HaveOccurred())
+		_ = txBuilder.SetMsgs(submitMsg)
+		tx := txBuilder.GetTx()
+
+		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, s.App().GovKeeper)
+
+		// ACT
+		_, err := gid.AnteHandle(s.Ctx(), tx, false, NextFn)
+
+		// ASSERT
+		Expect(err).ToNot(HaveOccurred())
+	})
+
+	It("Deposit, min-deposit - legacy", func() {
+		// ARRANGE
+		params := types.DefaultParams()
+		params.MinInitialDepositRatio = sdk.NewDec(1).QuoInt64(4)
+		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
+
+		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+
+		content, created := govLegacyTypes.ContentFromProposalType("Text-test", "Descirption", "Text")
+		Expect(created).To(BeTrue())
+
+		twentyFiveKyveCoins := sdk.NewCoins(sdk.NewCoin(types.Denom, math.NewInt(25_000_000_000)))
+		submitMsg, govErr := govLegacyTypes.NewMsgSubmitProposal(content, twentyFiveKyveCoins, sdk.MustAccAddressFromBech32(i.ALICE))
+		Expect(govErr).ToNot(HaveOccurred())
+
+		_ = txBuilder.SetMsgs(submitMsg)
+		tx := txBuilder.GetTx()
+
+		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, s.App().GovKeeper)
+
+		// ACT
+		_, err := gid.AnteHandle(s.Ctx(), tx, false, NextFn)
+
+		// ASSERT
+		Expect(err).ToNot(HaveOccurred())
+	})
+})

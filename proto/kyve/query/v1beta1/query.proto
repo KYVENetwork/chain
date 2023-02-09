@@ -1,0 +1,155 @@
+syntax = "proto3";
+
+package kyve.query.v1beta1;
+
+import "kyve/pool/v1beta1/pool.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/query/types";
+
+/*
+   This query-module servers all queries for the following (KYVE-)modules:
+   bundles, pool, delegation, stakers
+   
+   As a lot of request require composition of multiple module-data
+   everything will be served from one single query module.
+   
+   The named packages do not implement their own queries (expect for params)
+   
+   For simplicity all queries and their objects are in the corresponding
+   proto files
+   
+   Messages that are used for across multiple queries are defined here.
+*/
+
+// BasicPool contains the necessary properties need for a pool
+// to be displayed in the UI
+message BasicPool {
+  // id is the ID of the pool
+  uint64 id = 1;
+
+  // name of the pool
+  string name = 2;
+
+  // runtime for the protocol nodes
+  // like evm, bitcoin, etc.
+  string runtime = 3;
+
+  // logo of the pool
+  string logo = 4;
+
+  // operating_cost is the base payout for each bundle reward
+  uint64 operating_cost = 5;
+
+  // upload_interval is the interval bundles get created
+  uint64 upload_interval = 6;
+
+  // total_funds of the pool. If the pool runs
+  // out of funds no more bundles will be produced
+  uint64 total_funds = 7;
+
+  // total_delegation of the pool
+  uint64 total_delegation = 8;
+
+  // status of the pool if pool is able
+  // to produce bundles, etc.
+  kyve.pool.v1beta1.PoolStatus status = 9;
+}
+
+// FullStaker aggregates information from the staker and its delegators
+// as well as pending queue entries into one object.
+// It contains almost all needed information for a convenient usage
+message FullStaker {
+  // address of the staker
+  string address = 1;
+
+  // metadata as logo, moniker, etc.
+  StakerMetadata metadata = 2;
+
+  // amount the staker has delegated to himself
+  uint64 self_delegation = 3;
+
+  // unbonding_amount is the amount the staker is currently unbonding
+  // from the self-delegation.
+  // This amount can be larger than `amount` when the staker
+  // got slashed during unbonding. However, at the end of
+  // the unbonding period this amount is double checked with the
+  // remaining amount.
+  uint64 self_delegation_unbonding = 4;
+
+  // total_delegation returns the sum of all $KYVE users
+  // have delegated to this staker
+  uint64 total_delegation = 5;
+
+  // delegator_count is the total number of individual
+  // delegator addresses for that user.
+  uint64 delegator_count = 6;
+
+  // pools is a list of all pools the staker is currently
+  // participating, i.e. allowed to vote and upload data.
+  repeated PoolMembership pools = 7;
+}
+
+// StakerMetadata contains static information for a staker
+message StakerMetadata {
+  // commission is the percentage of the rewards that will
+  // get transferred to the staker before the remaining
+  // rewards are split across all delegators
+  string commission = 1;
+
+  // moniker is a human-readable name for displaying
+  // the staker in the UI
+  string moniker = 2;
+
+  // website is a https-link to the website of the staker
+  string website = 3;
+
+  // logo is a link to an image file (like jpg or png)
+  string logo = 4;
+
+  // pending_commission_change shows if the staker plans
+  // to change its commission. Delegators will see a warning in
+  // the UI. A Commission change takes some time until
+  // the commission is applied. Users have time to redelegate
+  // if they not agree with the new commission.
+  CommissionChangeEntry pending_commission_change = 5;
+}
+
+// CommissionChangeEntry shows when the old commission
+// of a staker will change to the new commission
+message CommissionChangeEntry {
+  // commission is the new commission that will
+  // become active once the change-time is over
+  string commission = 1;
+
+  // creation_date is the UNIX-timestamp (in seconds)
+  // of when the entry was created.
+  int64 creation_date = 2;
+}
+
+// PoolMembership shows in which pool the staker
+// is participating
+message PoolMembership {
+  // pool contains useful information about the pool
+  BasicPool pool = 1;
+
+  // points indicates if the staker is inactive
+  // If the staker misses a vote, a point is added.
+  // After 5 points the staker is removed from
+  // the stakers set.
+  uint64 points = 2;
+
+  // is_leaving indicates if a user has scheduled a
+  // a PoolLeave entry. After the leave-time is over
+  // the staker will no longer participate in that pool
+  bool is_leaving = 3;
+
+  // Valaddress is the address which is authorized to vote
+  // and submit bundles. If the server gets compromised
+  // the staker can just change the valaddress.
+  string valaddress = 4;
+
+  // balance is the valaddress account balance and indicates
+  // whether or not the valaccount needs additional funds to
+  // pay for gas fees
+  uint64 balance = 5;
+}

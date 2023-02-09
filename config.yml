@@ -1,0 +1,170 @@
+version: 1
+build:
+  main: cmd/kyved
+  proto:
+    path: proto
+    third_party_paths:
+      - third_party/proto
+      - proto_vendor
+accounts:
+  - name: dummy
+    mnemonic: expect crisp umbrella hospital firm exhibit future size slot update blood
+      deliver fat happy ghost visa recall usual path purity junior ring ordinary stove
+  - name: alice
+    coins:
+      - 2000000000000000000tkyve
+    mnemonic: worry grief loyal smoke pencil arrow trap focus high pioneer tomato hedgehog
+      essence purchase dove pond knee custom phone gentle sunset addict mother fabric
+  - name: bob
+    coins:
+      - 1000000000000000000tkyve
+    mnemonic: crash sick toilet stumble join cash erode glory door weird diagram away
+      lizard solid segment apple urge joy annual able tank define candy demise
+  - name: charlie
+    coins:
+      - 1000000000000000000tkyve
+    mnemonic: shoot inject fragile width trend satisfy army enact volcano crowd message
+      strike true divorce search rich office shoulder sport relax rhythm symbol gadget
+      size
+  - name: faucet
+    coins:
+      - 1000000000000000000tkyve
+    mnemonic: open home share route party lake room solution quantum pact model avocado
+      humor dilemma review desert turtle total humor produce rate keen eagle fee
+#  - name: team
+#    coins:
+#      - 165000000000000000tkyve
+#    address: kyve1e29j95xmsw3zmvtrk4st8e89z5n72v7nf70ma4
+  - name: foundation
+    coins:
+      # for fees
+      - 1000000000tkyve
+    mnemonic: evidence taxi material cabin annual phrase practice unhappy safe jealous
+      section drink illness panther bread aim mouse dolphin deliver ready doll finger search cheap
+#    address: kyve1fd4qu868n7arav8vteghcppxxa0p2vna5f5ep8
+  - name: foundation_inflation
+    coins:
+      # for fees
+      - 1000000000tkyve
+    mnemonic: hold urge sustain chef furnace foam oven fall harsh core anchor during crew secret
+      craft rhythm choose gold soft aisle sort phrase enter orphan
+#    address: kyve1tuxsc7ez79aydyee86qxm05zyx0l7d78c2zzsn
+
+faucet:
+  name: faucet
+  coins:
+    - 1000000000000000tkyve
+  host: 0.0.0.0:4500
+client:
+  openapi:
+    path: docs/swagger/swagger.yml
+genesis:
+  app_state:
+    bank:
+      balances:
+        - address: "kyve1e29j95xmsw3zmvtrk4st8e89z5n72v7nf70ma4"
+          coins:
+            - denom: "tkyve"
+              amount: "165000000000000000"
+    delegation:
+      params:
+        unbonding_delegation_time: 10
+    global:
+      params:
+        burn_ratio: "0.5"
+        min_gas_price: "1"
+    gov:
+      deposit_params:
+        max_deposit_period: 300s
+        min_deposit:
+          - amount: "50_000_000_000"
+            denom: tkyve
+      voting_params:
+        voting_period: 120s
+    mint:
+      params:
+        mint_denom: "tkyve"
+    team:
+      account_count: "8"
+      account_list:
+        - id: "0"
+          total_allocation: "1000000000000000"
+          unlocked_claimed: "0"
+          clawback: "1686693600"
+          commencement: "1663106400"
+        - id: "1"
+          total_allocation: "1000000000000000"
+          unlocked_claimed: "0"
+          clawback: "1749852000"
+          commencement: "1694642400"
+        - id: "2"
+          total_allocation: "1000000000000000"
+          unlocked_claimed: "0"
+          clawback: "1694642400"
+          commencement: "1615676400"
+        - id: "3"
+          total_allocation: "1000000000000000"
+          unlocked_claimed: "0"
+          clawback: "1702508400"
+          commencement: "1647212400"
+        - id: "4"
+          total_allocation: "1000000000000000"
+          unlocked_claimed: "0"
+          clawback: "1741906800"
+          commencement: "1663106400"
+        - id: "5"
+          total_allocation: "1000000000000000"
+          unlocked_claimed: "0"
+          clawback: "1804978800"
+          commencement: "1710370800"
+        - id: "6"
+          total_allocation: "1000000000000000"
+          unlocked_claimed: "0"
+          clawback: "1741906800"
+          commencement: "1615676400"
+        - id: "7"
+          total_allocation: "1000000000000000"
+          unlocked_claimed: "0"
+          clawback: "1804978800"
+          commencement: "1647212400"
+    pool:
+      pool_count: "1"
+      pool_list:
+        - config: "ar://tMTrJ8E3QgBNLz0-lyn6QrxasEIX46d14QFVmBWshSI"
+          current_compression_id: "1"
+          current_index: "0"
+          current_key: ""
+          current_storage_provider_id: "1"
+          current_summary: ""
+          funders: []
+          id: "0"
+          logo: "ar://E3jXAOeJ3El7HQgOf_NtSOwVE7Sd0M4g4bYqjCBH9CU"
+          max_bundle_size: "100"
+          min_delegation: "100000000000"
+          name: "Avalanche // C-Chain"
+          operating_cost: "2500000000"
+          disabled: false
+          runtime: '@kyvejs/evm'
+          start_key: "0"
+          total_bundles: "0"
+          total_funds: "0"
+          upload_interval: "60"
+          protocol:
+            version: "1.0.0-beta.5"
+            binaries: "{\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Fevm%401.0.0-beta.5/kyve-macos-x64.zip\"}"
+            last_upgrade: "0"
+          upgrade_plan:
+            version: ""
+            binaries: ""
+            scheduled_at: "0"
+            duration: "0"
+    stakers:
+      params:
+        commission_change_time: 10
+    staking:
+      params:
+        bond_denom: tkyve
+  chain_id: kyve-local
+validators:
+  - name: alice
+    bonded: 1000000000000000tkyve

@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+package kyve.pool.v1beta1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/pool/types";
+
+// PoolStatus ...
+enum PoolStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // POOL_STATUS_UNSPECIFIED ...
+  POOL_STATUS_UNSPECIFIED = 0;
+  // POOL_STATUS_ACTIVE ...
+  POOL_STATUS_ACTIVE = 1;
+  // POOL_STATUS_DISABLED ...
+  POOL_STATUS_DISABLED = 2;
+  // POOL_STATUS_NO_FUNDS ...
+  POOL_STATUS_NO_FUNDS = 3;
+  // POOL_STATUS_NOT_ENOUGH_DELEGATION ...
+  POOL_STATUS_NOT_ENOUGH_DELEGATION = 4;
+  // POOL_STATUS_UPGRADING ...
+  POOL_STATUS_UPGRADING = 5;
+}
+
+// Protocol holds all info about the current pool version and the
+// available binaries for participating as a validator in a pool
+message Protocol {
+  // version holds the current software version tag of the pool binaries
+  string version = 1;
+  // binaries is a stringified json object which holds binaries in the
+  // current version for multiple platforms and architectures
+  string binaries = 2;
+  // last_upgrade is the unix time the pool was upgraded the last time
+  uint64 last_upgrade = 3;
+}
+
+// Upgrade holds all info when a pool has a scheduled upgrade
+message UpgradePlan {
+  // version is the new software version tag of the upgrade
+  string version = 1;
+  // binaries is the new stringified json object which holds binaries in the
+  // upgrade version for multiple platforms and architectures
+  string binaries = 2;
+  // scheduled_at is the unix time the upgrade is supposed to be done
+  uint64 scheduled_at = 3;
+  // duration is the time in seconds how long the pool should halt
+  // during the upgrade to give all validators a chance of switching
+  // to the new binaries
+  uint64 duration = 4;
+}
+
+// Funder is the object which holds info about a single pool funder
+message Funder {
+  // address is the address of the funder
+  string address = 1;
+  // amount is the current amount of funds in ukyve the funder has
+  // still funded the pool with
+  uint64 amount = 2;
+}
+
+// Pool ...
+message Pool {
+  // id - unique identifier of the pool, can not be changed
+  uint64 id = 1;
+  // name is a human readable name for the pool
+  string name = 2;
+  // runtime specified which protocol and which version needs is required
+  string runtime = 3;
+  // logo is a link to an image file
+  string logo = 4;
+  // config is either a JSON encoded string or a link to an external storage provider.
+  // This is up to the implementation of the protocol node.
+  string config = 5;
+
+  // start_key ...
+  string start_key = 6;
+  // current_key ...
+  string current_key = 7;
+  // current_summary ...
+  string current_summary = 8;
+  // current_index ...
+  uint64 current_index = 9;
+
+  // total_bundles is the number of total finalized bundles
+  uint64 total_bundles = 10;
+
+  // upload_interval ...
+  uint64 upload_interval = 11;
+  // operating_cost ...
+  uint64 operating_cost = 12;
+  // min_delegation ...
+  uint64 min_delegation = 13;
+  // max_bundle_size ...
+  uint64 max_bundle_size = 14;
+
+  // disabled is true when the pool is disabled.
+  // Can only be done via governance.
+  bool disabled = 15;
+
+  // funders ...
+  repeated Funder funders = 16;
+  // total_funds ...
+  uint64 total_funds = 17;
+
+  // protocol ...
+  Protocol protocol = 18;
+  // upgrade_plan ...
+  UpgradePlan upgrade_plan = 19;
+
+  // storage_provider_id ...
+  uint32 current_storage_provider_id = 20;
+  // compression_id ...
+  uint32 current_compression_id = 21;
+}

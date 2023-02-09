@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package kyve.delegation.v1beta1;
+
+import "kyve/delegation/v1beta1/delegation.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/delegation/types";
+
+// ---------- Delegating Events ----------
+
+// EventDelegate is an event emitted when someone delegates to a protocol node.
+// emitted_by: MsgDelegate
+message EventDelegate {
+  // address is the account address of the delegator.
+  string address = 1;
+  // staker is the account address of the protocol node.
+  string staker = 2;
+  // amount ...
+  uint64 amount = 3;
+}
+
+// EventUndelegate is an event emitted when someone undelegates from a protocol node.
+// emitted_by: EndBlock
+message EventUndelegate {
+  // address is the account address of the delegator.
+  string address = 1;
+  // staker is the account address of the protocol node.
+  string staker = 2;
+  // amount ...
+  uint64 amount = 3;
+}
+
+// EventRedelegate is an event emitted when someone redelegates from one protocol node to another.
+// emitted_by: MsgRedelegate
+message EventRedelegate {
+  // address is the account address of the delegator.
+  string address = 1;
+  // from_staker ...
+  string from_staker = 2;
+  // to_staker is the account address of the new staker in the the pool
+  string to_staker = 3;
+  // amount ...
+  uint64 amount = 4;
+}
+
+// EventWithdrawRewards ...
+// emitted_by: MsgRedelegate, MsgDelegate, MsgWithdrawRewards, EndBlock
+message EventWithdrawRewards {
+  // address is the account address of the delegator.
+  string address = 1;
+  // staker is the account address of the protocol node the users withdraws from.
+  string staker = 2;
+  // amount ...
+  uint64 amount = 3;
+}
+
+// EventSlash is an event emitted when a protocol node is slashed.
+// emitted_by: MsgSubmitBundleProposal, EndBlock
+message EventSlash {
+  // pool_id is the unique ID of the pool.
+  uint64 pool_id = 1;
+  // staker is the account address of the protocol node.
+  string staker = 2;
+  // amount ...
+  uint64 amount = 3;
+  // slash_type
+  SlashType slash_type = 4;
+}

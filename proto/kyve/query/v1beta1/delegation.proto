@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+package kyve.query.v1beta1;
+
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "kyve/query/v1beta1/query.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/query/types";
+
+// QueryDelegation contains all rpc requests related to direct delegation data
+service QueryDelegation {
+  // Delegator returns delegation information for a specific delegator of a specific staker.
+  rpc Delegator(QueryDelegatorRequest) returns (QueryDelegatorResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/delegator/{staker}/{delegator}";
+  }
+
+  // DelegatorsByStaker returns all delegators that have delegated to the given staker
+  // This query is paginated.
+  rpc DelegatorsByStaker(QueryDelegatorsByStakerRequest) returns (QueryDelegatorsByStakerResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/delegators_by_staker/{staker}";
+  }
+
+  // StakersByPoolAndDelegator returns all stakers the given delegator has delegated to.
+  // This query is paginated.
+  rpc StakersByDelegator(QueryStakersByDelegatorRequest) returns (QueryStakersByDelegatorResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/stakers_by_delegator/{delegator}";
+  }
+}
+
+// ==============================
+// delegator/{staker}/{delegator}
+// ==============================
+
+// QueryDelegatorRequest is the request type for the Query/Delegator RPC method.
+message QueryDelegatorRequest {
+  // staker ...
+  string staker = 1;
+  // delegator ...
+  string delegator = 2;
+}
+
+// QueryDelegatorResponse is the response type for the Query/Delegator RPC method.
+message QueryDelegatorResponse {
+  // delegator ...
+  StakerDelegatorResponse delegator = 1;
+}
+
+// StakerDelegatorResponse ...
+message StakerDelegatorResponse {
+  // delegator ...
+  string delegator = 1;
+  // current_reward ...
+  uint64 current_reward = 2;
+  // delegation_amount ...
+  uint64 delegation_amount = 3;
+  // staker ...
+  string staker = 4;
+}
+
+// =============================
+// delegators_by_staker/{staker}
+// =============================
+
+// QueryDelegatorsByStakerRequest ...
+message QueryDelegatorsByStakerRequest {
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+  // staker ...
+  string staker = 2;
+}
+
+// QueryDelegatorsByStakerResponse ...
+message QueryDelegatorsByStakerResponse {
+  // delegators ...
+  repeated StakerDelegatorResponse delegators = 1 [(gogoproto.nullable) = false];
+  // total_delegation ... (consider metadata object)
+  uint64 total_delegation = 2;
+  // total_delegation ...
+  uint64 total_delegator_count = 3;
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 4;
+}
+
+// ================================
+// stakers_by_delegator/{delegator}
+// ================================
+
+// QueryStakersByDelegatorRequest ...
+message QueryStakersByDelegatorRequest {
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+  // delegator ...
+  string delegator = 2;
+}
+
+// QueryStakersByDelegatorResponse ...
+message QueryStakersByDelegatorResponse {
+  // delegator ...
+  string delegator = 1;
+  // stakers ...
+  repeated DelegationForStakerResponse stakers = 2 [(gogoproto.nullable) = false];
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 3;
+}
+
+// DelegationForStakerResponse ...
+message DelegationForStakerResponse {
+  // staker ...
+  FullStaker staker = 1;
+  // current_reward ...
+  uint64 current_reward = 2;
+  // delegation_amount ...
+  uint64 delegation_amount = 3;
+}

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package kyve.pool.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "kyve/pool/v1beta1/pool.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/pool/types";
+
+// GenesisState defines the pool module's genesis state.
+message GenesisState {
+  reserved 1;
+  reserved "params";
+
+  // pool_list ...
+  repeated kyve.pool.v1beta1.Pool pool_list = 2 [(gogoproto.nullable) = false];
+  // pool_count ...
+  uint64 pool_count = 3;
+}

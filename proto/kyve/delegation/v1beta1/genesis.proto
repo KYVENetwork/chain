@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package kyve.delegation.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "kyve/delegation/v1beta1/delegation.proto";
+import "kyve/delegation/v1beta1/params.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/delegation/types";
+
+// GenesisState defines the delegation module's genesis state.
+message GenesisState {
+  // params defines all the parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+  // delegator_list ...
+  repeated Delegator delegator_list = 2 [(gogoproto.nullable) = false];
+  // delegation_entry_list ...
+  repeated DelegationEntry delegation_entry_list = 3 [(gogoproto.nullable) = false];
+  // delegation_data_list ...
+  repeated DelegationData delegation_data_list = 4 [(gogoproto.nullable) = false];
+  // delegation_slash_list ...
+  repeated DelegationSlash delegation_slash_list = 5 [(gogoproto.nullable) = false];
+  // undelegation_queue_entry_list ...
+  repeated UndelegationQueueEntry undelegation_queue_entry_list = 6 [(gogoproto.nullable) = false];
+  // queue_state_undelegation ...
+  QueueState queue_state_undelegation = 7 [(gogoproto.nullable) = false];
+  // redelegation_cooldown_list ...
+  repeated RedelegationCooldown redelegation_cooldown_list = 8 [(gogoproto.nullable) = false];
+}

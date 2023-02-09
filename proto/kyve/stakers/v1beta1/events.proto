@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package kyve.stakers.v1beta1;
+
+option go_package = "github.com/KYVENetwork/chain/x/stakers/types";
+
+// EventCreateStaker is an event emitted when a protocol node stakes in a pool.
+// emitted_by: MsgCreateStaker
+message EventCreateStaker {
+  // staker is the account address of the protocol node.
+  string staker = 1;
+  // amount ...
+  uint64 amount = 2;
+}
+
+// EventUpdateMetadata is an event emitted when a protocol node updates their metadata.
+// emitted_by: MsgUpdateMetadata
+message EventUpdateMetadata {
+  // staker is the account address of the protocol node.
+  string staker = 1;
+  // moniker ...
+  string moniker = 2;
+  // website ...
+  string website = 3;
+  // logo ...
+  string logo = 4;
+}
+
+// EventUpdateCommission ...
+// emitted_by: EndBlock
+message EventUpdateCommission {
+  // staker is the account address of the protocol node.
+  string staker = 1;
+  // commission ...
+  string commission = 2;
+}
+
+// EventJoinPool ...
+// emitted_by: MsgJoinPool
+message EventJoinPool {
+  // pool_id is the pool the staker joined
+  uint64 pool_id = 1;
+  // staker is the address of the staker
+  string staker = 2;
+  // valaddress is the address of the protocol node which
+  // votes in favor of the staker
+  string valaddress = 3;
+  // amount is the amount of funds transferred to the valaddress
+  uint64 amount = 4;
+}
+
+// EventLeavePool ...
+// emitted_by: EndBlock
+message EventLeavePool {
+  // pool_id ...
+  uint64 pool_id = 1;
+  // staker ...
+  string staker = 2;
+}

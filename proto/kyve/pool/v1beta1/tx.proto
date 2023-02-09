@@ -1,0 +1,160 @@
+syntax = "proto3";
+
+package kyve.pool.v1beta1;
+
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/pool/types";
+
+// Msg defines the Msg service.
+service Msg {
+  // FundPool ...
+  rpc FundPool(MsgFundPool) returns (MsgFundPoolResponse);
+  // DefundPool ...
+  rpc DefundPool(MsgDefundPool) returns (MsgDefundPoolResponse);
+
+  // CreatePool defines a governance operation for creating a new pool.
+  // The authority is hard-coded to the x/gov module account.
+  rpc CreatePool(MsgCreatePool) returns (MsgCreatePoolResponse);
+  // UpdatePool defines a governance operation for updating an existing pool.
+  // The authority is hard-coded to the x/gov module account.
+  rpc UpdatePool(MsgUpdatePool) returns (MsgUpdatePoolResponse);
+  // DisablePool defines a governance operation for disabling an existing pool.
+  // The authority is hard-coded to the x/gov module account.
+  rpc DisablePool(MsgDisablePool) returns (MsgDisablePoolResponse);
+  // EnablePool defines a governance operation for enabling an existing pool.
+  // The authority is hard-coded to the x/gov module account.
+  rpc EnablePool(MsgEnablePool) returns (MsgEnablePoolResponse);
+  // ScheduleRuntimeUpgrade defines a governance operation for scheduling a runtime upgrade.
+  // The authority is hard-coded to the x/gov module account.
+  rpc ScheduleRuntimeUpgrade(MsgScheduleRuntimeUpgrade) returns (MsgScheduleRuntimeUpgradeResponse);
+  // CancelRuntimeUpgrade defines a governance operation for cancelling a runtime upgrade.
+  // The authority is hard-coded to the x/gov module account.
+  rpc CancelRuntimeUpgrade(MsgCancelRuntimeUpgrade) returns (MsgCancelRuntimeUpgradeResponse);
+}
+
+// MsgFundPool defines a SDK message for funding a pool.
+message MsgFundPool {
+  // creator ...
+  string creator = 1;
+  // id ...
+  uint64 id = 2;
+  // amount ...
+  uint64 amount = 3;
+}
+
+// MsgFundPoolResponse defines the Msg/DefundPool response type.
+message MsgFundPoolResponse {}
+
+// MsgDefundPool defines a SDK message for defunding a pool.
+message MsgDefundPool {
+  // creator ...
+  string creator = 1;
+  // id ...
+  uint64 id = 2;
+  // amount ...
+  uint64 amount = 3;
+}
+
+// MsgDefundPoolResponse defines the Msg/DefundPool response type.
+message MsgDefundPoolResponse {}
+
+// MsgCreatePool defines a SDK message for creating a new pool.
+message MsgCreatePool {
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // name ...
+  string name = 2;
+  // runtime ...
+  string runtime = 3;
+  // logo ...
+  string logo = 4;
+  // config ...
+  string config = 5;
+  // start_key ...
+  string start_key = 6;
+  // upload_interval ...
+  uint64 upload_interval = 7;
+  // operating_cost ...
+  uint64 operating_cost = 8;
+  // min_delegation ...
+  uint64 min_delegation = 9;
+  // max_bundle_size ...
+  uint64 max_bundle_size = 10;
+  // version ...
+  string version = 11;
+  // binaries ...
+  string binaries = 12;
+  // storage_provider_id ...
+  uint32 storage_provider_id = 13;
+  // compression_id ...
+  uint32 compression_id = 14;
+}
+
+// MsgCreatePoolResponse defines the Msg/CreatePool response type.
+message MsgCreatePoolResponse {}
+
+// MsgUpdatePool defines a SDK message for updating an existing pool.
+message MsgUpdatePool {
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // id ...
+  uint64 id = 2;
+  // payload ...
+  string payload = 3;
+}
+
+// MsgUpdatePoolResponse defines the Msg/UpdatePool response type.
+message MsgUpdatePoolResponse {}
+
+// MsgDisablePool defines a SDK message for disabling an existing pool.
+message MsgDisablePool {
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // id ...
+  uint64 id = 2;
+}
+
+// MsgDisablePoolResponse defines the Msg/DisablePool response type.
+message MsgDisablePoolResponse {}
+
+// MsgEnablePool defines a SDK message for enabling an existing pool.
+message MsgEnablePool {
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // id ...
+  uint64 id = 2;
+}
+
+// MsgEnablePoolResponse defines the Msg/EnablePool response type.
+message MsgEnablePoolResponse {}
+
+// MsgScheduleRuntimeUpgrade defines a SDK message for scheduling a runtime upgrade.
+message MsgScheduleRuntimeUpgrade {
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // runtime ...
+  string runtime = 2;
+  // version ...
+  string version = 3;
+  // scheduled_at ...
+  uint64 scheduled_at = 4;
+  // duration ...
+  uint64 duration = 5;
+  // binaries ...
+  string binaries = 6;
+}
+
+// MsgScheduleRuntimeUpgradeResponse defines the Msg/ScheduleRuntimeUpgrade response type.
+message MsgScheduleRuntimeUpgradeResponse {}
+
+// MsgCancelRuntimeUpgrade defines a SDK message for cancelling a runtime upgrade.
+message MsgCancelRuntimeUpgrade {
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // runtime ...
+  string runtime = 2;
+}
+
+// MsgCancelRuntimeUpgradeResponse defines the Msg/CancelRuntimeUpgrade response type.
+message MsgCancelRuntimeUpgradeResponse {}

@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package kyve.global.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "kyve/global/v1beta1/global.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/global/types";
+
+// GenesisState defines the global module's genesis state.
+message GenesisState {
+  // params defines all the parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}

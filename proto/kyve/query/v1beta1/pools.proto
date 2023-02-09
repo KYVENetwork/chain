@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package kyve.query.v1beta1;
+
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "kyve/bundles/v1beta1/bundles.proto";
+import "kyve/pool/v1beta1/pool.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/query/types";
+
+// QueryPool ...
+service QueryPool {
+  // Pools queries for all pools.
+  rpc Pools(QueryPoolsRequest) returns (QueryPoolsResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/pools";
+  }
+
+  // Pool queries a pool by its Id.
+  rpc Pool(QueryPoolRequest) returns (QueryPoolResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/pool/{id}";
+  }
+}
+
+// ======
+// /pools
+// ======
+
+// QueryPoolsRequest is the request type for the Query/Pools RPC method.
+message QueryPoolsRequest {
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+  // search ...
+  string search = 2;
+  // runtime ...
+  string runtime = 3;
+  // disabled ...
+  bool disabled = 4;
+  // storage_provider_id ...
+  uint32 storage_provider_id = 5;
+}
+
+// QueryPoolsResponse is the response type for the Query/Pools RPC method.
+message QueryPoolsResponse {
+  // pools ...
+  repeated PoolResponse pools = 1 [(gogoproto.nullable) = false];
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// PoolResponse ...
+message PoolResponse {
+  // id ...
+  uint64 id = 1;
+  // data ...
+  kyve.pool.v1beta1.Pool data = 2;
+  // bundle_proposal ...
+  kyve.bundles.v1beta1.BundleProposal bundle_proposal = 3;
+  // stakers ...
+  repeated string stakers = 4;
+  // total_stake ...
+  uint64 total_self_delegation = 5;
+  // total_delegation ...
+  uint64 total_delegation = 6;
+  // status ...
+  kyve.pool.v1beta1.PoolStatus status = 7;
+}
+
+// =========
+// pool/{id}
+// =========
+
+// QueryPoolRequest is the request type for the Query/Pool RPC method.
+message QueryPoolRequest {
+  // id defines the unique ID of the pool.
+  uint64 id = 1;
+}
+
+// QueryPoolResponse is the response type for the Query/Pool RPC method.
+message QueryPoolResponse {
+  // pool ...
+  PoolResponse pool = 1 [(gogoproto.nullable) = false];
+}

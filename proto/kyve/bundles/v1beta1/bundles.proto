@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package kyve.bundles.v1beta1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/bundles/types";
+
+// BundleStatus represents the status of an evaluated bundle
+// proposal.
+enum BundleStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // BUNDLE_STATUS_UNSPECIFIED ...
+  BUNDLE_STATUS_UNSPECIFIED = 0;
+  // BUNDLE_STATUS_VALID ...
+  BUNDLE_STATUS_VALID = 1;
+  // BUNDLE_STATUS_INVALID ...
+  BUNDLE_STATUS_INVALID = 2;
+  // BUNDLE_STATUS_NO_FUNDS ...
+  BUNDLE_STATUS_NO_FUNDS = 3;
+  // BUNDLE_STATUS_NO_QUORUM ...
+  BUNDLE_STATUS_NO_QUORUM = 4;
+  // BUNDLE_STATUS_DISABLED  ...
+  BUNDLE_STATUS_DISABLED = 5;
+}
+
+// BundleProposal represents the current bundle proposal
+// of a storage pool
+message BundleProposal {
+  // pool_id is the id of the pool for which this proposal is for
+  uint64 pool_id = 1;
+  // storage_id is the id with which the data can be retrieved from
+  string storage_id = 2;
+  // uploader is the address of the staker who submitted the current proposal
+  string uploader = 3;
+  // next_uploader is the address of the staker who should upload the next proposal
+  string next_uploader = 4;
+  // data_size the size of the data in bytes
+  uint64 data_size = 5;
+  // bundle_size the size of the bundle (amount of data items)
+  uint64 bundle_size = 6;
+  // to_key the key of the last data item in the bundle proposal
+  string to_key = 7;
+  // bundle_summary a string summary of the current proposal
+  string bundle_summary = 8;
+  // data_hash a sha256 hash of the raw compressed data
+  string data_hash = 9;
+  // updated_at the last time this proposal was edited
+  uint64 updated_at = 10;
+  // voters_valid list of all stakers who voted in favor for current proposal
+  repeated string voters_valid = 11;
+  // voters_invalid list of all stakers who voted against for current proposal
+  repeated string voters_invalid = 12;
+  // voters_abstain list of all stakers who voted abstain for current proposal
+  repeated string voters_abstain = 13;
+  // from_key the key of the first data item in the bundle proposal
+  string from_key = 14;
+  // storage_provider_id the id of the storage provider where the bundle is stored
+  uint32 storage_provider_id = 15;
+  // compression_id the id of the compression type with which the data was compressed
+  uint32 compression_id = 16;
+}
+
+// FinalizedBundle represents a bundle proposal where the majority
+// agreed on its validity
+message FinalizedBundle {
+  // pool_id is the id of the pool for which this proposal is for
+  uint64 pool_id = 1;
+  // id is a unique identifier for each finalized bundle in a pool
+  uint64 id = 2;
+  // storage_id is the id with which the data can be retrieved from
+  string storage_id = 3;
+  // uploader is the address of the staker who submitted this bundle
+  string uploader = 4;
+  // from_index is the index from where the bundle starts (inclusive)
+  uint64 from_index = 5;
+  // to_index is the index to which the bundle goes (exclusive)
+  uint64 to_index = 6;
+  // to_key the key of the last data item in the bundle proposal
+  string to_key = 7;
+  // bundle_summary a string summary of the current proposal
+  string bundle_summary = 8;
+  // data_hash a sha256 hash of the raw compressed data
+  string data_hash = 9;
+  // finalized_at is the block height at which this bundle got finalized
+  uint64 finalized_at = 10;
+  // from_key the key of the first data item in the bundle proposal
+  string from_key = 11;
+  // storage_provider_id the id of the storage provider where the bundle is stored
+  uint32 storage_provider_id = 12;
+  // compression_id the id of the compression type with which the data was compressed
+  uint32 compression_id = 13;
+}

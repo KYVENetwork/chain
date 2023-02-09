@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package kyve.delegation.v1beta1;
+
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/delegation/types";
+
+// Msg defines the Msg service.
+service Msg {
+  // Delegate ...
+  rpc Delegate(MsgDelegate) returns (MsgDelegateResponse);
+  // Withdraw ...
+  rpc WithdrawRewards(MsgWithdrawRewards) returns (MsgWithdrawRewardsResponse);
+  // Undelegate ...
+  rpc Undelegate(MsgUndelegate) returns (MsgUndelegateResponse);
+  // Redelegate ...
+  rpc Redelegate(MsgRedelegate) returns (MsgRedelegateResponse);
+
+  // UpdateParams defines a governance operation for updating the x/delegation module
+  // parameters. The authority is hard-coded to the x/gov module account.
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+}
+
+// MsgDelegate ...
+message MsgDelegate {
+  // creator ...
+  string creator = 1;
+  // staker ...
+  string staker = 2;
+  // amount ...
+  uint64 amount = 3;
+}
+
+// MsgDelegatePoolResponse defines the Msg/DelegatePool response type.
+message MsgDelegateResponse {}
+
+// MsgWithdrawPool defines a SDK message for withdrawing delegation rewards from a specific pool.
+message MsgWithdrawRewards {
+  // creator ...
+  string creator = 1;
+  // staker ...
+  string staker = 2;
+}
+
+// MsgWithdrawPoolResponse defines the Msg/WithdrawPool response type.
+message MsgWithdrawRewardsResponse {}
+
+// MsgUndelegatePool defines a SDK message for undelegating from a specific pool.
+message MsgUndelegate {
+  // creator ...
+  string creator = 1;
+  // staker ...
+  string staker = 2;
+  // amount ...
+  uint64 amount = 3;
+}
+
+// MsgUndelegatePoolResponse defines the Msg/UndelegatePool response type.
+message MsgUndelegateResponse {}
+
+// MsgRedelegatePool defines a SDK message for redelegating from a
+// staker in a pool to another staker in the same or another pool
+message MsgRedelegate {
+  // creator ...
+  string creator = 1;
+  // staker ...
+  string from_staker = 2;
+  // staker ...
+  string to_staker = 3;
+  // amount ...
+  uint64 amount = 4;
+}
+
+// MsgUndelegatePoolResponse defines the Msg/UndelegatePool response type.
+message MsgRedelegateResponse {}
+
+// MsgUpdateParams defines a SDK message for updating the module parameters.
+message MsgUpdateParams {
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // payload defines the x/delegation parameters to update.
+  string payload = 2;
+}
+
+// MsgUpdateParamsResponse defines the Msg/UpdateParams response type.
+message MsgUpdateParamsResponse {}

@@ -1,0 +1,124 @@
+syntax = "proto3";
+
+package kyve.bundles.v1beta1;
+
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/bundles/types";
+
+// Msg defines the Msg service.
+service Msg {
+  // SubmitBundleProposal ...
+  rpc SubmitBundleProposal(MsgSubmitBundleProposal) returns (MsgSubmitBundleProposalResponse);
+  // VoteBundleProposal ...
+  rpc VoteBundleProposal(MsgVoteBundleProposal) returns (MsgVoteBundleProposalResponse);
+  // ClaimUploaderRole ...
+  rpc ClaimUploaderRole(MsgClaimUploaderRole) returns (MsgClaimUploaderRoleResponse);
+  // SkipUploaderRole ...
+  rpc SkipUploaderRole(MsgSkipUploaderRole) returns (MsgSkipUploaderRoleResponse);
+
+  // UpdateParams defines a governance operation for updating the x/bundles module
+  // parameters. The authority is hard-coded to the x/gov module account.
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+}
+
+// MsgSubmitBundleProposal defines a SDK message for submitting a bundle proposal.
+message MsgSubmitBundleProposal {
+  // creator ...
+  string creator = 1;
+  // staker ...
+  string staker = 2;
+  // pool_id ...
+  uint64 pool_id = 3;
+  // storage_id ...
+  string storage_id = 4;
+  // data_size ...
+  uint64 data_size = 5;
+  // data_hash ...
+  string data_hash = 6;
+  // from_index ...
+  uint64 from_index = 7;
+  // bundle_size ...
+  uint64 bundle_size = 8;
+  // from_key
+  string from_key = 9;
+  // to_key ...
+  string to_key = 10;
+  // bundle_summary ...
+  string bundle_summary = 11;
+}
+
+// MsgSubmitBundleProposalResponse defines the Msg/SubmitBundleProposal response type.
+message MsgSubmitBundleProposalResponse {}
+
+// VoteType ...
+enum VoteType {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // VOTE_TYPE_UNSPECIFIED ...
+  VOTE_TYPE_UNSPECIFIED = 0;
+  // VOTE_TYPE_VALID ...
+  VOTE_TYPE_VALID = 1;
+  // VOTE_TYPE_INVALID ...
+  VOTE_TYPE_INVALID = 2;
+  // VOTE_TYPE_ABSTAIN ...
+  VOTE_TYPE_ABSTAIN = 3;
+}
+
+// MsgVoteBundleProposal defines a SDK message for voting on a bundle proposal.
+message MsgVoteBundleProposal {
+  // creator ...
+  string creator = 1;
+  // staker ...
+  string staker = 2;
+  // id ...
+  uint64 pool_id = 3;
+  // storage_id ...
+  string storage_id = 4;
+  // vote ...
+  VoteType vote = 5;
+}
+
+// MsgVoteBundleProposalResponse defines the Msg/VoteBundleProposal response type.
+message MsgVoteBundleProposalResponse {}
+
+// MsgClaimUploaderRole defines a SDK message for claiming the uploader role.
+message MsgClaimUploaderRole {
+  // creator ...
+  string creator = 1;
+  // staker ...
+  string staker = 2;
+  // id ...
+  uint64 pool_id = 3;
+}
+
+// MsgClaimUploaderRoleResponse defines the Msg/ClaimUploaderRole response type.
+message MsgClaimUploaderRoleResponse {}
+
+// MsgSubmitBundleProposal defines a SDK message for submitting a bundle proposal.
+message MsgSkipUploaderRole {
+  // creator ...
+  string creator = 1;
+  // staker ...
+  string staker = 2;
+  // pool_id ...
+  uint64 pool_id = 3;
+  // from_index ...
+  uint64 from_index = 4;
+}
+
+// MsgSubmitBundleProposalResponse defines the Msg/SubmitBundleProposal response type.
+message MsgSkipUploaderRoleResponse {}
+
+// MsgUpdateParams defines a SDK message for updating the module parameters.
+message MsgUpdateParams {
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // payload defines the x/bundles parameters to update.
+  string payload = 2;
+}
+
+// MsgUpdateParamsResponse defines the Msg/UpdateParams response type.
+message MsgUpdateParamsResponse {}

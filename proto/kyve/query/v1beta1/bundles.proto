@@ -1,0 +1,194 @@
+syntax = "proto3";
+
+package kyve.query.v1beta1;
+
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "kyve/bundles/v1beta1/bundles.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/query/types";
+
+// QueryDelegation contains all rpc requests related to direct delegation data
+service QueryBundles {
+  // FinalizedBundles ...
+  rpc FinalizedBundles(QueryFinalizedBundlesRequest) returns (QueryFinalizedBundlesResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/finalized_bundles/{pool_id}";
+  }
+
+  // FinalizedBundle ...
+  rpc FinalizedBundle(QueryFinalizedBundleRequest) returns (QueryFinalizedBundleResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/finalized_bundle/{pool_id}/{id}";
+  }
+
+  // Queries the bundle which contains the data given height
+  rpc FinalizedBundlesByHeight(QueryFinalizedBundlesByHeightRequest) returns (QueryFinalizedBundlesByHeightResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/finalized_bundle_by_height/{pool_id}/{height}";
+  }
+
+  // CurrentVoteStatus ...
+  rpc CurrentVoteStatus(QueryCurrentVoteStatusRequest) returns (QueryCurrentVoteStatusResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/current_vote_status/{pool_id}";
+  }
+
+  // CanValidate ...
+  rpc CanValidate(QueryCanValidateRequest) returns (QueryCanValidateResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/can_validate/{pool_id}/{valaddress}";
+  }
+
+  // CanPropose ...
+  rpc CanPropose(QueryCanProposeRequest) returns (QueryCanProposeResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/can_propose/{pool_id}/{staker}/{proposer}/{from_index}";
+  }
+
+  // CanVote checks if voter on pool can still vote for the given bundle
+  rpc CanVote(QueryCanVoteRequest) returns (QueryCanVoteResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/can_vote/{pool_id}/{staker}/{voter}/{storage_id}";
+  }
+}
+
+// ===========================
+// finalized_bundles/{pool_id}
+// ===========================
+
+// QueryFinalizedBundlesRequest is the request type for the Query/Staker RPC method.
+message QueryFinalizedBundlesRequest {
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+  // pool_id ...
+  uint64 pool_id = 2;
+}
+
+// QueryStakersByPoolResponse is the response type for the Query/Staker RPC method.
+message QueryFinalizedBundlesResponse {
+  // finalized_bundles ...
+  repeated kyve.bundles.v1beta1.FinalizedBundle finalized_bundles = 1 [(gogoproto.nullable) = false];
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// ===============================
+// finalized_bundle/{pool_id}/{id}
+// ===============================
+
+// QueryFinalizedBundleRequest is the request type for the Query/Staker RPC method.
+message QueryFinalizedBundleRequest {
+  // pool_id ...
+  uint64 pool_id = 1;
+  // id ...
+  uint64 id = 2;
+}
+
+// QueryFinalizedBundleResponse is the response type for the Query/Staker RPC method.
+message QueryFinalizedBundleResponse {
+  // finalized_bundle ...
+  kyve.bundles.v1beta1.FinalizedBundle finalized_bundle = 1 [(gogoproto.nullable) = false];
+}
+
+// ===================================
+// finalized_bundle_by_height/{height}
+// ===================================
+
+// QueryFinalizedBundleRequest is the request type for the Query/Staker RPC method.
+message QueryFinalizedBundlesByHeightRequest {
+  // pool_id ...
+  uint64 pool_id = 1;
+  // id ...
+  uint64 height = 2;
+}
+
+// QueryFinalizedBundleResponse is the response type for the Query/Staker RPC method.
+message QueryFinalizedBundlesByHeightResponse {
+  // finalized_bundle ...
+  kyve.bundles.v1beta1.FinalizedBundle finalized_bundle = 1 [(gogoproto.nullable) = false];
+}
+
+// ===============================
+// current_vote_status/{pool_id}
+// ===============================
+
+// QueryCurrentVoteStatusRequest is the request type for the Query/Staker RPC method.
+message QueryCurrentVoteStatusRequest {
+  // pool_id ...
+  uint64 pool_id = 1;
+}
+
+// QueryCurrentVoteStatusResponse is the response type for the Query/Staker RPC method.
+message QueryCurrentVoteStatusResponse {
+  // valid ...
+  uint64 valid = 1;
+  // invalid ...
+  uint64 invalid = 2;
+  // abstain ...
+  uint64 abstain = 3;
+  // total ...
+  uint64 total = 4;
+}
+
+// ===================================
+// can_validate/{pool_id}/{valaddress}
+// ===================================
+
+// QueryCanProposeRequest is the request type for the Query/CanPropose RPC method.
+message QueryCanValidateRequest {
+  // pool_id defines the unique ID of the pool.
+  uint64 pool_id = 1;
+  // valaddress ...
+  string valaddress = 2;
+}
+
+// QueryCanProposeResponse is the response type for the Query/CanPropose RPC method.
+message QueryCanValidateResponse {
+  // possible ...
+  bool possible = 1;
+  // reason ...
+  string reason = 2;
+}
+
+// ======================================================
+// can_propose/{pool_id}/{staker}/{proposer}/{from_index}
+// ======================================================
+
+// QueryCanProposeRequest is the request type for the Query/CanPropose RPC method.
+message QueryCanProposeRequest {
+  // pool_id defines the unique ID of the pool.
+  uint64 pool_id = 1;
+  // staker ...
+  string staker = 2;
+  // proposer ...
+  string proposer = 3;
+  // from_index ...
+  uint64 from_index = 4;
+}
+
+// QueryCanProposeResponse is the response type for the Query/CanPropose RPC method.
+message QueryCanProposeResponse {
+  // possible ...
+  bool possible = 1;
+  // reason ...
+  string reason = 2;
+}
+
+// ================================================
+// can_vote/{pool_id}/{staker}/{voter}/{storage_id}
+// ================================================
+
+// QueryCanVoteRequest is the request type for the Query/CanVote RPC method.
+message QueryCanVoteRequest {
+  // pool_id defines the unique ID of the pool.
+  uint64 pool_id = 1;
+  // staker ...
+  string staker = 2;
+  // voter ...
+  string voter = 3;
+  // storage_id ...
+  string storage_id = 4;
+}
+
+// QueryCanVoteResponse is the response type for the Query/CanVote RPC method.
+message QueryCanVoteResponse {
+  // possible ...
+  bool possible = 1;
+  // reason ...
+  string reason = 2;
+}

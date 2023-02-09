@@ -1,0 +1,146 @@
+syntax = "proto3";
+
+package kyve.query.v1beta1;
+
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "kyve/query/v1beta1/query.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/query/types";
+
+// QueryDelegation contains all rpc requests related to direct delegation data
+service QueryAccount {
+  // AccountAssets returns an overview of the sum of all balances for a given user. e.g. balance, staking, funding, etc.
+  rpc AccountAssets(QueryAccountAssetsRequest) returns (QueryAccountAssetsResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/account_assets/{address}";
+  }
+
+  // AccountDelegationUnbondings ...
+  rpc AccountDelegationUnbondings(QueryAccountDelegationUnbondingsRequest) returns (QueryAccountDelegationUnbondingsResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/account_delegation_unbondings/{address}";
+  }
+
+  // AccountFundedList returns all pools the given user has funded into.
+  rpc AccountFundedList(QueryAccountFundedListRequest) returns (QueryAccountFundedListResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/account_funded_list/{address}";
+  }
+
+  // AccountRedelegation ...
+  rpc AccountRedelegation(QueryAccountRedelegationRequest) returns (QueryAccountRedelegationResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/account_redelegation/{address}";
+  }
+}
+
+// ========================
+// account_assets/{address}
+// ========================
+
+// QueryAccountAssetsRequest is the request type for the Query/AccountAssets RPC method.
+message QueryAccountAssetsRequest {
+  // address ...
+  string address = 1;
+}
+
+// QueryAccountAssetsResponse is the response type for the Query/AccountAssets RPC method.
+message QueryAccountAssetsResponse {
+  // balance ...
+  uint64 balance = 1;
+  // protocol_staking ...
+  uint64 protocol_self_delegation = 2;
+  // protocol_staking_unbonding
+  uint64 protocol_self_delegation_unbonding = 3;
+  // protocol_delegation ...
+  uint64 protocol_delegation = 4;
+  // protocol_delegation_unbonding
+  uint64 protocol_delegation_unbonding = 5;
+  // protocol_rewards ...
+  uint64 protocol_rewards = 6;
+  // protocol_funding ...
+  uint64 protocol_funding = 7;
+}
+
+// =======================================
+// account_delegation_unbondings/{address}
+// =======================================
+
+// QueryAccountFundedListRequest ...
+message QueryAccountDelegationUnbondingsRequest {
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+  // address ...
+  string address = 2;
+}
+
+// QueryAccountAssetsResponse is the response type for the Query/AccountAssets RPC method.
+message QueryAccountDelegationUnbondingsResponse {
+  // balance ...
+  repeated DelegationUnbonding unbondings = 1 [(gogoproto.nullable) = false];
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryAccountAssetsResponse is the response type for the Query/AccountAssets RPC method.
+message DelegationUnbonding {
+  // amount
+  uint64 amount = 1;
+  // creation_time
+  uint64 creation_time = 2;
+  // staker
+  FullStaker staker = 3;
+}
+
+// =============================
+// account_funded_list/{address}
+// =============================
+
+// QueryAccountFundedListRequest is the request type for the account queries with pagination
+message QueryAccountFundedListRequest {
+  // address ...
+  string address = 1;
+  // pagination defines an optional pagination for the request.
+  //  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryAccountFundedListResponse is the response type for the Query/AccountFundedList RPC method.
+message QueryAccountFundedListResponse {
+  // funded ...
+  repeated Funded funded = 1 [(gogoproto.nullable) = false];
+  // pagination defines the pagination in the response.
+  //  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// Funded ...
+message Funded {
+  // amount ...
+  uint64 amount = 1;
+  // pool ...
+  BasicPool pool = 2;
+}
+
+// ==============================
+// account_redelegation/{address}
+// ==============================
+
+// QueryAccountDelegationListRequest ...
+message QueryAccountRedelegationRequest {
+  // address ...
+  string address = 1;
+}
+
+// QueryAccountDelegationListRequest is the response type for the Query/AccountDelegationList RPC method.
+message QueryAccountRedelegationResponse {
+  // redelegation_cooldown_entries ...
+  repeated RedelegationEntry redelegation_cooldown_entries = 1 [(gogoproto.nullable) = false];
+
+  // availableSlots ...
+  uint64 available_slots = 2;
+}
+
+// RedelegationEntry ...
+message RedelegationEntry {
+  // creation_date ...
+  uint64 creation_date = 1;
+  // finish_date ...
+  uint64 finish_date = 2;
+}

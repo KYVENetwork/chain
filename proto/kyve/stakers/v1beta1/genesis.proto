@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package kyve.stakers.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "kyve/stakers/v1beta1/params.proto";
+import "kyve/stakers/v1beta1/stakers.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/stakers/types";
+
+// GenesisState defines the stakers module's genesis state.
+message GenesisState {
+  // params defines all the parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+  // staker_list ...
+  repeated Staker staker_list = 2 [(gogoproto.nullable) = false];
+  // valaccount_list ...
+  repeated Valaccount valaccount_list = 3 [(gogoproto.nullable) = false];
+  // commission_change_entries ...
+  repeated CommissionChangeEntry commission_change_entries = 4 [(gogoproto.nullable) = false];
+  // queue_state_commission ...
+  QueueState queue_state_commission = 5 [(gogoproto.nullable) = false];
+  // leave_pool_entries ...
+  repeated LeavePoolEntry leave_pool_entries = 6 [(gogoproto.nullable) = false];
+  // queue_state_leave ...
+  QueueState queue_state_leave = 7 [(gogoproto.nullable) = false];
+}

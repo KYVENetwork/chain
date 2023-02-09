@@ -1,0 +1,191 @@
+syntax = "proto3";
+
+package kyve.team.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "kyve/team/v1beta1/team.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/team/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // TeamInfo queries all important information from the team module
+  rpc TeamInfo(QueryTeamInfoRequest) returns (QueryTeamInfoResponse) {
+    option (google.api.http).get = "/kyve/team/v1beta1/team_info";
+  }
+
+  // TeamVestingAccounts queries all team vesting accounts of the module.
+  rpc TeamVestingAccounts(QueryTeamVestingAccountsRequest) returns (QueryTeamVestingAccountsResponse) {
+    option (google.api.http).get = "/kyve/team/v1beta1/team_vesting_accounts";
+  }
+
+  // TeamVestingAccount queries the team vesting accounts of the module.
+  rpc TeamVestingAccount(QueryTeamVestingAccountRequest) returns (QueryTeamVestingAccountResponse) {
+    option (google.api.http).get = "/kyve/team/v1beta1/team_vesting_account/{id}";
+  }
+
+  // TeamCurrentVestingStatus queries the current vesting progress of a team vesting account
+  rpc TeamVestingStatus(QueryTeamVestingStatusRequest) returns (QueryTeamVestingStatusResponse) {
+    option (google.api.http).get = "/kyve/team/v1beta1/team_vesting_status/{id}";
+  }
+
+  // TeamCurrentVestingStatus queries the current vesting progress of a team vesting account
+  rpc TeamVestingStatusByTime(QueryTeamVestingStatusByTimeRequest) returns (QueryTeamVestingStatusByTimeResponse) {
+    option (google.api.http).get = "/kyve/team/v1beta1/team_vesting_status_by_time/{id}/{time}";
+  }
+}
+
+// ======
+// /team_info
+// ======
+
+// QueryAccountsRequest is request type for the Query/TeamInfo RPC method.
+message QueryTeamInfoRequest {}
+
+// QueryAccountsResponse is response type for the Query/TeamInfo RPC method.
+message QueryTeamInfoResponse {
+  // authority is the authorities address
+  string authority = 1;
+  // total_team_allocation is the total allocation in $KYVE the team module has in order to reward team members
+  uint64 total_team_allocation = 2;
+  // issued_team_allocation is the amount in $KYVE tied to team vesting accounts and which are not available anymore
+  uint64 issued_team_allocation = 3;
+  // available_team_allocation is the amount in $KYVE with which further team vesting accounts can be created.
+  // if the available amount is zero no new vesting accounts can be created
+  uint64 available_team_allocation = 4;
+
+  // total_authority_rewards is the amount in $KYVE the authority has earned in total with inflation rewards.
+  // Those rewards can be payed out for different purposes
+  uint64 total_authority_rewards = 5;
+  // claimed_authority_rewards is the amount in $KYVE of how much the authority already claimed
+  uint64 claimed_authority_rewards = 6;
+  // available_authority_rewards is the amount in $KYVE of how much rewards the authority can claim right now
+  uint64 available_authority_rewards = 7;
+
+  // total_account_rewards is the amount in $KYVE all team vesting accounts have ever received
+  uint64 total_account_rewards = 8;
+  // claimed_account_rewards is the amount in $KYVE all team vesting accounts have ever claimed
+  uint64 claimed_account_rewards = 9;
+  // available_account_rewards is the total amount of $KYVE all team vesting accounts can currently claim
+  uint64 available_account_rewards = 10;
+
+  // required_module_balance is the balance the team module should have. If this is less than the module balance
+  // something went wrong
+  uint64 required_module_balance = 11;
+  // team_module_balance is the team module balance in $KYVE
+  uint64 team_module_balance = 12;
+}
+
+// ======
+// /team_vesting_accounts
+// ======
+
+// QueryAccountsRequest is request type for the Query/TeamVestingAccounts RPC method.
+message QueryTeamVestingAccountsRequest {}
+
+// QueryAccountsResponse is response type for the Query/TeamVestingAccounts RPC method.
+message QueryTeamVestingAccountsResponse {
+  // accounts holds all the team vesting accounts of this module.
+  repeated kyve.team.v1beta1.TeamVestingAccount accounts = 1 [(gogoproto.nullable) = false];
+}
+
+// =========
+// team_vesting_account/{id}
+// =========
+
+// QueryTeamVestingAccountRequest is request type for the Query/TeamVestingAccount RPC method.
+message QueryTeamVestingAccountRequest {
+  // id is a unique identify for each vesting account, tied to a single team member.
+  uint64 id = 1;
+}
+
+// QueryTeamVestingAccountResponse is the response type for the Query/TeamVestingAccount RPC method.
+message QueryTeamVestingAccountResponse {
+  // account holds the requested team vesting account
+  kyve.team.v1beta1.TeamVestingAccount account = 1 [(gogoproto.nullable) = false];
+}
+
+// =========
+// team_vesting_status/{id}
+// =========
+
+// QueryTeamCurrentVestingStatusRequest is request type for the Query/TeamCurrentVestingStatus RPC method.
+message QueryTeamVestingStatusRequest {
+  // id is a unique identify for each vesting account, tied to a single team member.
+  uint64 id = 1;
+}
+
+// QueryTeamCurrentVestingStatusResponse is the response type for the Query/TeamCurrentVestingStatus RPC method.
+message QueryTeamVestingStatusResponse {
+  // request_date ..
+  string request_date = 1;
+  // plan ...
+  QueryVestingPlan plan = 2;
+  // status ..
+  QueryVestingStatus status = 3;
+}
+
+// =========
+// team_vesting_status_by_time/{id}/{time}
+// =========
+
+// QueryTeamVestingStatusByTimeRequest is request type for the Query/TeamCurrentVestingByTimeStatus RPC method.
+message QueryTeamVestingStatusByTimeRequest {
+  // id is a unique identify for each vesting account, tied to a single team member.
+  uint64 id = 1;
+  // time is a unix timestamp of the time the vesting progress should be calculated
+  uint64 time = 2;
+}
+
+// QueryTeamVestingStatusByTimeResponse is the response type for the Query/TeamCurrentVestingByTimeStatus RPC method.
+message QueryTeamVestingStatusByTimeResponse {
+  // request_date ..
+  string request_date = 1;
+  // plan ...
+  QueryVestingPlan plan = 2;
+  // status ..
+  QueryVestingStatus status = 3;
+}
+
+// QueryVestingStatus is a type holding information about the account's vesting progress
+message QueryVestingStatus {
+  // total_vested_amount ...
+  uint64 total_vested_amount = 1;
+  // total_unlocked_amount ...
+  uint64 total_unlocked_amount = 2;
+  // current_claimable_amount ...
+  uint64 current_claimable_amount = 3;
+  // locked_vested_amount ...
+  uint64 locked_vested_amount = 4;
+  // remaining_unvested_amount ...
+  uint64 remaining_unvested_amount = 5;
+  // claimed_amount ...
+  uint64 claimed_amount = 6;
+  // total_rewards ...
+  uint64 total_rewards = 7;
+  // claimed_rewards ...
+  uint64 claimed_rewards = 8;
+  // available_rewards ...
+  uint64 available_rewards = 9;
+}
+
+// QueryVestingPlan is a type holding information about the account's vesting data which does not change
+message QueryVestingPlan {
+  // commencement ...
+  string commencement = 1;
+  // token_vesting_start ...
+  string token_vesting_start = 2;
+  // token_vesting_finished ...
+  string token_vesting_finished = 3;
+  // token_unlock_start ...
+  string token_unlock_start = 4;
+  // token_unlock_finished ...
+  string token_unlock_finished = 5;
+  // clawback ...
+  uint64 clawback = 6;
+  // clawback_amount ...
+  uint64 clawback_amount = 7;
+  // maximum_vesting_amount ...
+  uint64 maximum_vesting_amount = 8;
+}

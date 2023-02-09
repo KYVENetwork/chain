@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package kyve.team.v1beta1;
+
+option go_package = "github.com/KYVENetwork/chain/x/team/types";
+
+// Authority ...
+message Authority {
+  // total inflation rewards is the total amount of rewards the authority has received ever
+  uint64 total_rewards = 1;
+  // claimed is the amount of inflation rewards claimed by the authority
+  uint64 rewards_claimed = 2;
+}
+
+// TeamVestingAccount ...
+message TeamVestingAccount {
+  // id is a unique identify for each vesting account, tied to a single team member.
+  uint64 id = 1;
+  // total_allocation is the number of tokens reserved for this team member.
+  uint64 total_allocation = 2;
+  // commencement is the unix timestamp of the member's official start date in seconds
+  uint64 commencement = 3;
+  // clawback is a unix timestamp of a clawback in seconds. If timestamp is zero
+  // it means that the account has not received a clawback
+  uint64 clawback = 4;
+  // unlocked_claimed is the amount of $KYVE already claimed by the account holder
+  uint64 unlocked_claimed = 5;
+  // the last time the unlocked amount was claimed
+  uint64 last_claimed_time = 6;
+  // total rewards is the total amount of rewards the account has received ever
+  uint64 total_rewards = 7;
+  // rewards claimed is the amount inflation rewards claimed by account holder
+  uint64 rewards_claimed = 8;
+}
