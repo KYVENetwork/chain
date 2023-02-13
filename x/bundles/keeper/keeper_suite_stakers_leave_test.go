@@ -217,7 +217,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 		balanceUploader := s.GetBalanceFromAddress(i.STAKER_0)
 
-		totalReward := 100*s.App().BundlesKeeper.GetStorageCost(s.Ctx()) + pool.OperatingCost
+		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
 		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
