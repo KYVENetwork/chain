@@ -115,7 +115,7 @@ var _ = Describe("funding bundles", Ordered, func() {
 		// ASSERT
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
-		totalReward := 100*s.App().BundlesKeeper.GetStorageCost(s.Ctx()) + pool.OperatingCost
+		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
@@ -187,7 +187,7 @@ var _ = Describe("funding bundles", Ordered, func() {
 		// ASSERT
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
-		totalReward := 100*s.App().BundlesKeeper.GetStorageCost(s.Ctx()) + pool.OperatingCost
+		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
@@ -266,7 +266,7 @@ var _ = Describe("funding bundles", Ordered, func() {
 		// ASSERT
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
-		totalReward := 100*s.App().BundlesKeeper.GetStorageCost(s.Ctx()) + pool.OperatingCost
+		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
@@ -345,7 +345,7 @@ var _ = Describe("funding bundles", Ordered, func() {
 		// ASSERT
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
-		totalReward := 100*s.App().BundlesKeeper.GetStorageCost(s.Ctx()) + pool.OperatingCost
+		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
