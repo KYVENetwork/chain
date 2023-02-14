@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
-
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
@@ -419,7 +417,6 @@ var _ = Describe("points", Ordered, func() {
 	It("One validator submits a bundle proposal where he reaches max points because he did not vote before", func() {
 		// ARRANGE
 		maxPoints := int(s.App().BundlesKeeper.GetMaxPoints(s.Ctx())) - 1
-		fmt.Println(maxPoints)
 
 		for r := 1; r <= maxPoints; r++ {
 			s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
