@@ -24,6 +24,9 @@ func CreateUpgradeHandler(
 			return vm, nil
 		}
 
+		// TODO(@john): Do we need to run the ICS27 migration?
+		// We never used ICA Controller features prior to this upgrade.
+
 		ReinitialiseBundlesParams(ctx, bundlesKeeper, bundlesStoreKey)
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
