@@ -311,7 +311,7 @@ var _ = Describe("points", Ordered, func() {
 
 		// check if voter got slashed
 		slashAmountRatio, _ := sdk.NewDecFromStr(s.App().DelegationKeeper.GetTimeoutSlash(s.Ctx()))
-		expectedBalance := 50*i.KYVE - uint64(sdk.NewDec(int64(50*i.KYVE)).Mul(slashAmountRatio).RoundInt64())
+		expectedBalance := 50*i.KYVE - uint64(sdk.NewDec(int64(50*i.KYVE)).Mul(slashAmountRatio).TruncateInt64())
 
 		Expect(expectedBalance).To(Equal(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.STAKER_1)))
 	})
@@ -456,7 +456,7 @@ var _ = Describe("points", Ordered, func() {
 			StorageId:     "18SRvVuCrB8vy_OCLBaNbXONMVGeflGcw4gGTZ1oUt4",
 			DataSize:      100,
 			DataHash:      "test_hash",
-			FromIndex:     500,
+			FromIndex:     2400,
 			BundleSize:    100,
 			FromKey:       "test_key",
 			ToKey:         "test_key",

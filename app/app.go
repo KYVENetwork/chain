@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	v070 "github.com/KYVENetwork/chain/app/upgrades/v0_8_0"
+	v1rc1 "github.com/KYVENetwork/chain/app/upgrades/v1_rc1"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -139,8 +139,6 @@ const (
 	AccountAddressPrefix = "kyve"
 	Name                 = "kyve"
 )
-
-var upgradeInfo upgradetypes.Plan
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
 	var govProposalHandlers []govclient.ProposalHandler
@@ -727,10 +725,6 @@ func NewKYVEApp(
 
 	// initialize BaseApp
 	var err error
-	upgradeInfo, err = app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
-	if err != nil {
-		panic(err)
-	}
 
 	anteHandler, err := NewAnteHandler(
 		app.AccountKeeper,
@@ -763,20 +757,14 @@ func NewKYVEApp(
 	app.SetEndBlocker(app.EndBlocker)
 
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v070.UpgradeName,
-		v070.CreateUpgradeHandler(
+		v1rc1.UpgradeName,
+		v1rc1.CreateUpgradeHandler(
 			app.mm,
 			app.configurator,
-			app.PoolKeeper,
-			app.StakersKeeper,
-			keys[govtypes.StoreKey],
-			app.GlobalKeeper,
+			app.BundlesKeeper,
+			keys[bundlesTypes.StoreKey],
 		),
 	)
-
-	if upgradeInfo.Name == v070.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
-		app.SetStoreLoader(v070.CreateStoreLoader(upgradeInfo.Height))
-	}
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
