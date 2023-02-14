@@ -1,33 +1,24 @@
-# The KYVE Chain
+# The KYVE Network
 
-###### v0.5.3
+###### v1.0.0-rc0
 
-The chain nodes are the backbone of KYVE. The chain layer is a completely sovereign
-[Proof of Stake](https://en.wikipedia.org/wiki/Proof_of_stake) blockchain build with
-[Cosmos SDK](https://github.com/cosmos/cosmos-sdk) using the [Ignite CLI](https://ignt.com/cli). This blockchain is run
-by independent nodes we call _Chain Nodes_ since they're running on the chain level. The native currency of the KYVE
-chain is [$KYVE](https://docs.kyve.network/basics/kyve.html), it secures the chain and allows chain nodes to stake and
-other users to delegate into them.
+The KYVE consensus layer is the backbone of the KYVE ecosystem. The layer is a
+sovereign Delegated Proof of Stake network built using the
+[Cosmos SDK](https://github.com/cosmos/cosmos-sdk) and
+[Tendermint Core (BFT Consensus)](https://github.com/tendermint/tendermint).
 
----
+## Building from Source
 
-## Building from source
-
-To build from source, the [Ignite CLI](https://ignt.com/cli) is required.
-
-```sh
-ignite chain build --release --release.prefix kyve
+```shell
+make build
 ```
 
-The output can be found in `./release`.
+You can find the `kyved` binary in the `./build` directory.
 
-If you need to build for different architectures, use the `-t` flag, e.g. `-t linux:amd64,linux:arm64`.
+If you need binaries for alternative architectures than your host:
 
-## Running a chain node
+```shell
+make release
+```
 
-Full documentation for setting up a chain node are provided [here](https://docs.kyve.network/getting-started/chain-node.html).
-
-
-### Emergency_1295379
-On block #1295379 the chain halts and an emergency upgrade is required.
-This upgrade is not handled by cosmovisor. To manually perform the upgrade visit [Emergency_1295379.md](emergency_1295379.md)
+The different binaries can be found in the `./release` directory.
