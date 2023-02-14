@@ -557,7 +557,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 			StorageId:     "18SRvVuCrB8vy_OCLBaNbXONMVGeflGcw4gGTZ1oUt4",
 			DataSize:      100,
 			DataHash:      "test_hash",
-			FromIndex:     500,
+			FromIndex:     2400,
 			BundleSize:    100,
 			FromKey:       "test_key",
 			ToKey:         "test_key",

@@ -761,6 +761,8 @@ func NewKYVEApp(
 		v1rc1.CreateUpgradeHandler(
 			app.mm,
 			app.configurator,
+			app.BundlesKeeper,
+			keys[bundlesTypes.StoreKey],
 		),
 	)
 

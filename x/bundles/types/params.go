@@ -17,7 +17,7 @@ var DefaultStorageCost = sdk.MustNewDecFromStr("0.025")
 var DefaultNetworkFee = "0.01"
 
 // DefaultMaxPoints ...
-var DefaultMaxPoints = uint64(5)
+var DefaultMaxPoints = uint64(24)
 
 // NewParams creates a new Params instance
 func NewParams(
