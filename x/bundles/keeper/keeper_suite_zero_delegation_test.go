@@ -384,7 +384,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// calculate uploader rewards
-		totalReward := 100*s.App().BundlesKeeper.GetStorageCost(s.Ctx()) + pool.OperatingCost
+		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
 
 		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
@@ -644,7 +644,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// check if voter got slashed
 		slashAmountRatio, _ := sdk.NewDecFromStr(s.App().DelegationKeeper.GetTimeoutSlash(s.Ctx()))
-		expectedBalance := 0*i.KYVE - uint64(sdk.NewDec(int64(0*i.KYVE)).Mul(slashAmountRatio).RoundInt64())
+		expectedBalance := 0*i.KYVE - uint64(sdk.NewDec(int64(0*i.KYVE)).Mul(slashAmountRatio).TruncateInt64())
 
 		Expect(expectedBalance).To(Equal(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.STAKER_1)))
 	})

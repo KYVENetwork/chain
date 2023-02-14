@@ -24,7 +24,6 @@ paths:
                     description: upload_timeout ...
                   storage_cost:
                     type: string
-                    format: uint64
                     description: storage_cost ...
                   network_fee:
                     type: string
@@ -4492,7 +4491,6 @@ paths:
                     description: upload_timeout ...
                   storage_cost:
                     type: string
-                    format: uint64
                     description: storage_cost ...
                   network_fee:
                     type: string

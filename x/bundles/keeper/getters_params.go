@@ -24,7 +24,7 @@ func (k Keeper) GetUploadTimeout(ctx sdk.Context) (res uint64) {
 }
 
 // GetStorageCost returns the StorageCost param
-func (k Keeper) GetStorageCost(ctx sdk.Context) (res uint64) {
+func (k Keeper) GetStorageCost(ctx sdk.Context) (res sdk.Dec) {
 	return k.GetParams(ctx).StorageCost
 }
 
