@@ -178,7 +178,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), valaccountUploader.Staker)
 
 		// calculate uploader rewards
-		totalReward := 100*s.App().BundlesKeeper.GetStorageCost(s.Ctx()) + pool.OperatingCost
+		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
 		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
@@ -294,7 +294,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), valaccountUploader.Staker)
 
 		// calculate uploader rewards
-		totalReward := 100*s.App().BundlesKeeper.GetStorageCost(s.Ctx()) + pool.OperatingCost
+		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
 		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
@@ -443,7 +443,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// calculate uploader rewards
-		totalReward := 100*s.App().BundlesKeeper.GetStorageCost(s.Ctx()) + pool.OperatingCost
+		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
 		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
@@ -598,7 +598,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// calculate uploader rewards
-		totalReward := 100*s.App().BundlesKeeper.GetStorageCost(s.Ctx()) + pool.OperatingCost
+		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
 		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
@@ -758,7 +758,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// calculate uploader rewards
-		totalReward := 100*s.App().BundlesKeeper.GetStorageCost(s.Ctx()) + pool.OperatingCost
+		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
 		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
@@ -926,7 +926,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// calculate uploader rewards
-		totalReward := 100*s.App().BundlesKeeper.GetStorageCost(s.Ctx()) + pool.OperatingCost
+		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
 		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
@@ -1104,7 +1104,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// calculate uploader rewards
-		totalReward := 100*s.App().BundlesKeeper.GetStorageCost(s.Ctx()) + pool.OperatingCost
+		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
 		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 

@@ -106,7 +106,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		// ARRANGE
 		payload := `{
 			"upload_timeout": 20,
-			"storage_cost": 100,
+			"storage_cost": "0.050000000000000000",
 			"network_fee": "0.05",
 			"max_points": 15
 		}`
@@ -138,7 +138,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(voteErr).NotTo(HaveOccurred())
 
 		Expect(updatedParams.UploadTimeout).To(Equal(uint64(20)))
-		Expect(updatedParams.StorageCost).To(Equal(uint64(100)))
+		Expect(updatedParams.StorageCost).To(Equal(sdk.MustNewDecFromStr("0.05")))
 		Expect(updatedParams.NetworkFee).To(Equal("0.05"))
 		Expect(updatedParams.MaxPoints).To(Equal(uint64(15)))
 	})
@@ -284,7 +284,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 	It("Update storage cost", func() {
 		// ARRANGE
 		payload := `{
-			"storage_cost": 100
+			"storage_cost": "0.050000000000000000"
 		}`
 
 		msg := &types.MsgUpdateParams{
@@ -314,7 +314,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(voteErr).NotTo(HaveOccurred())
 
 		Expect(updatedParams.UploadTimeout).To(Equal(types.DefaultUploadTimeout))
-		Expect(updatedParams.StorageCost).To(Equal(uint64(100)))
+		Expect(updatedParams.StorageCost).To(Equal(sdk.MustNewDecFromStr("0.05")))
 		Expect(updatedParams.NetworkFee).To(Equal(types.DefaultNetworkFee))
 		Expect(updatedParams.MaxPoints).To(Equal(types.DefaultMaxPoints))
 	})

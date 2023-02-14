@@ -235,14 +235,14 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64) (bundleReward t
 	}
 
 	// formula for calculating the rewards
-	bundleReward.Total = pool.OperatingCost + (bundleProposal.DataSize * k.GetStorageCost(ctx))
+	bundleReward.Total = pool.OperatingCost + uint64(k.GetStorageCost(ctx).MulInt64(int64(bundleProposal.DataSize)).TruncateInt64())
 
 	networkFee, err := sdk.NewDecFromStr(k.GetNetworkFee(ctx))
 	if err != nil {
 		util.PanicHalt(k.upgradeKeeper, ctx, "Network Fee unparasable - "+k.GetNetworkFee(ctx))
 	}
 	// Add fee to treasury
-	bundleReward.Treasury = uint64(sdk.NewDec(int64(bundleReward.Total)).Mul(networkFee).RoundInt64())
+	bundleReward.Treasury = uint64(sdk.NewDec(int64(bundleReward.Total)).Mul(networkFee).TruncateInt64())
 
 	// Remaining rewards to be split between staker and its delegators
 	totalNodeReward := bundleReward.Total - bundleReward.Treasury
@@ -251,7 +251,7 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64) (bundleReward t
 	if k.delegationKeeper.GetDelegationAmount(ctx, bundleProposal.Uploader) > 0 {
 		commission := k.stakerKeeper.GetCommission(ctx, bundleProposal.Uploader)
 
-		bundleReward.Uploader = uint64(sdk.NewDec(int64(totalNodeReward)).Mul(commission).RoundInt64())
+		bundleReward.Uploader = uint64(sdk.NewDec(int64(totalNodeReward)).Mul(commission).TruncateInt64())
 		bundleReward.Delegation = totalNodeReward - bundleReward.Uploader
 	} else {
 		bundleReward.Uploader = totalNodeReward
