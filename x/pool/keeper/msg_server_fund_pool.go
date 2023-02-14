@@ -3,10 +3,11 @@ package keeper
 import (
 	"context"
 
+	"cosmossdk.io/errors"
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // FundPool handles the logic to fund a pool.
@@ -19,7 +20,7 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 	pool, poolFound := k.GetPool(ctx, msg.Id)
 
 	if !poolFound {
-		return nil, sdkErrors.Wrapf(sdkErrors.ErrNotFound, types.ErrPoolNotFound.Error(), msg.Id)
+		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrPoolNotFound.Error(), msg.Id)
 	}
 
 	// Check if funder already exists
@@ -46,7 +47,7 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 				// Remove from pool
 				pool.RemoveFunder(lowestFunder.Address)
 			} else {
-				return nil, sdkErrors.Wrapf(sdkErrors.ErrLogic, types.ErrFundsTooLow.Error(), lowestFunder.Amount)
+				return nil, errors.Wrapf(errorsTypes.ErrLogic, types.ErrFundsTooLow.Error(), lowestFunder.Amount)
 			}
 		}
 	}

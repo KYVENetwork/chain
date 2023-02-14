@@ -3,9 +3,10 @@ package keeper
 import (
 	"context"
 
+	"cosmossdk.io/errors"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // LeavePool handles the SDK message of preparing a pool leave.
@@ -17,7 +18,7 @@ func (k msgServer) LeavePool(goCtx context.Context, msg *types.MsgLeavePool) (*t
 
 	valaccount, valaccountFound := k.GetValaccount(ctx, msg.PoolId, msg.Creator)
 	if !valaccountFound {
-		return nil, sdkErrors.Wrapf(sdkErrors.ErrInvalidRequest, types.ErrAlreadyLeftPool.Error())
+		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrAlreadyLeftPool.Error())
 	}
 
 	valaccount.IsLeaving = true

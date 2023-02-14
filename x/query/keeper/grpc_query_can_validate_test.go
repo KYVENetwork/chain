@@ -1,12 +1,13 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/errors"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -86,7 +87,7 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 		Expect(err).To(BeNil())
 
 		Expect(canValidate.Possible).To(BeFalse())
-		Expect(canValidate.Reason).To(Equal(sdkErrors.Wrapf(sdkErrors.ErrNotFound, pooltypes.ErrPoolNotFound.Error(), 2).Error()))
+		Expect(canValidate.Reason).To(Equal(errors.Wrapf(errorsTypes.ErrNotFound, pooltypes.ErrPoolNotFound.Error(), 2).Error()))
 	})
 
 	It("Call can validate if valaddress does not exist", func() {

@@ -1,10 +1,11 @@
 package keeper
 
 import (
+	"cosmossdk.io/errors"
 	"github.com/KYVENetwork/chain/x/pool/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // GetPoolWithError returns a pool by its poolId, if the pool does not exist,
@@ -12,7 +13,7 @@ import (
 func (k Keeper) GetPoolWithError(ctx sdk.Context, poolId uint64) (types.Pool, error) {
 	pool, found := k.GetPool(ctx, poolId)
 	if !found {
-		return types.Pool{}, sdkErrors.Wrapf(sdkErrors.ErrNotFound, types.ErrPoolNotFound.Error(), poolId)
+		return types.Pool{}, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrPoolNotFound.Error(), poolId)
 	}
 	return pool, nil
 }
@@ -23,7 +24,7 @@ func (k Keeper) AssertPoolExists(ctx sdk.Context, poolId uint64) error {
 	if store.Has(types.PoolKeyPrefix(poolId)) {
 		return nil
 	}
-	return sdkErrors.Wrapf(sdkErrors.ErrNotFound, types.ErrPoolNotFound.Error(), poolId)
+	return errors.Wrapf(errorsTypes.ErrNotFound, types.ErrPoolNotFound.Error(), poolId)
 }
 
 // IncrementBundleInformation updates the latest finalized bundle of a pool

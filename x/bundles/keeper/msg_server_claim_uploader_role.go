@@ -3,8 +3,9 @@ package keeper
 import (
 	"context"
 
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/KYVENetwork/chain/x/bundles/types"
 )
@@ -39,7 +40,7 @@ func (k msgServer) ClaimUploaderRole(
 
 	// Error if the next uploader is already set.
 	if bundleProposal.NextUploader != "" {
-		return nil, sdkErrors.Wrap(sdkErrors.ErrUnauthorized, types.ErrUploaderAlreadyClaimed.Error())
+		return nil, errors.Wrap(errorsTypes.ErrUnauthorized, types.ErrUploaderAlreadyClaimed.Error())
 	}
 
 	bundleProposal.NextUploader = msg.Staker
