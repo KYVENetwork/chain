@@ -17,8 +17,8 @@ import (
 	// Gov
 	govKeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	// IBC
-	ibcAnte "github.com/cosmos/ibc-go/v5/modules/core/ante"
-	ibcKeeper "github.com/cosmos/ibc-go/v5/modules/core/keeper"
+	ibcAnte "github.com/cosmos/ibc-go/v6/modules/core/ante"
+	ibcKeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
 	// Staking
 	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 )

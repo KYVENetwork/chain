@@ -37,16 +37,19 @@ import (
 	// Group
 	groupKeeper "github.com/cosmos/cosmos-sdk/x/group/keeper"
 	// IBC
-	ibcHost "github.com/cosmos/ibc-go/v5/modules/core/24-host"
-	ibcKeeper "github.com/cosmos/ibc-go/v5/modules/core/keeper"
+	ibcHost "github.com/cosmos/ibc-go/v6/modules/core/24-host"
+	ibcKeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
 	// IBC Fee
-	ibcFeeKeeper "github.com/cosmos/ibc-go/v5/modules/apps/29-fee/keeper"
+	ibcFeeKeeper "github.com/cosmos/ibc-go/v6/modules/apps/29-fee/keeper"
 	// IBC Transfer
-	ibcTransferKeeper "github.com/cosmos/ibc-go/v5/modules/apps/transfer/keeper"
-	ibcTransferTypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	ibcTransferKeeper "github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
+	ibcTransferTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	// ICA Controller
+	icaControllerKeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/keeper"
+	icaControllerTypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/types"
 	// ICA Host
-	icaHostKeeper "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/keeper"
-	icaHostTypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/types"
+	icaHostKeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/keeper"
+	icaHostTypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/types"
 	// Mint
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
@@ -89,10 +92,11 @@ type Keepers struct {
 	UpgradeKeeper      upgradeKeeper.Keeper
 
 	// IBC
-	IBCKeeper         *ibcKeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	IBCFeeKeeper      ibcFeeKeeper.Keeper
-	IBCTransferKeeper ibcTransferKeeper.Keeper
-	ICAHostKeeper     icaHostKeeper.Keeper
+	IBCKeeper           *ibcKeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	IBCFeeKeeper        ibcFeeKeeper.Keeper
+	IBCTransferKeeper   ibcTransferKeeper.Keeper
+	ICAControllerKeeper icaControllerKeeper.Keeper
+	ICAHostKeeper       icaHostKeeper.Keeper
 
 	// KYVE
 	BundlesKeeper    bundlesKeeper.Keeper
@@ -105,9 +109,10 @@ type Keepers struct {
 
 	// ----- Scoped Keepers -----
 	// make scoped keepers public for test purposes
-	ScopedIBCKeeper         capabilityKeeper.ScopedKeeper
-	ScopedIBCTransferKeeper capabilityKeeper.ScopedKeeper
-	ScopedICAHostKeeper     capabilityKeeper.ScopedKeeper
+	ScopedIBCKeeper           capabilityKeeper.ScopedKeeper
+	ScopedIBCTransferKeeper   capabilityKeeper.ScopedKeeper
+	ScopedICAControllerKeeper capabilityKeeper.ScopedKeeper
+	ScopedICAHostKeeper       capabilityKeeper.ScopedKeeper
 }
 
 // initParamsKeeper init params keeper and its subspaces
@@ -124,6 +129,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	keeper.Subspace(crisisTypes.ModuleName)
 	keeper.Subspace(ibcTransferTypes.ModuleName)
 	keeper.Subspace(ibcHost.ModuleName)
+	keeper.Subspace(icaControllerTypes.SubModuleName)
 	keeper.Subspace(icaHostTypes.SubModuleName)
 
 	return keeper

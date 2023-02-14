@@ -77,24 +77,27 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ica "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts"
-	icaHost "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host"
-	icahostkeeper "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/keeper"
-	icaHostTypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/types"
-	icatypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/types"
-	ibcFee "github.com/cosmos/ibc-go/v5/modules/apps/29-fee"
-	ibcFeeKeeper "github.com/cosmos/ibc-go/v5/modules/apps/29-fee/keeper"
-	ibcFeeTypes "github.com/cosmos/ibc-go/v5/modules/apps/29-fee/types"
-	ibcTransfer "github.com/cosmos/ibc-go/v5/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v5/modules/apps/transfer/keeper"
-	ibcTransferTypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v5/modules/core"
-	ibcclient "github.com/cosmos/ibc-go/v5/modules/core/02-client"
-	ibcclientclient "github.com/cosmos/ibc-go/v5/modules/core/02-client/client"
-	ibcclienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
-	ibcPortTypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
-	ibchost "github.com/cosmos/ibc-go/v5/modules/core/24-host"
-	ibckeeper "github.com/cosmos/ibc-go/v5/modules/core/keeper"
+	ica "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts"
+	icaController "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller"
+	icaControllerKeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/keeper"
+	icaControllerTypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/types"
+	icaHost "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host"
+	icahostkeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/keeper"
+	icaHostTypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/types"
+	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
+	ibcFee "github.com/cosmos/ibc-go/v6/modules/apps/29-fee"
+	ibcFeeKeeper "github.com/cosmos/ibc-go/v6/modules/apps/29-fee/keeper"
+	ibcFeeTypes "github.com/cosmos/ibc-go/v6/modules/apps/29-fee/types"
+	ibcTransfer "github.com/cosmos/ibc-go/v6/modules/apps/transfer"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
+	ibcTransferTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	ibc "github.com/cosmos/ibc-go/v6/modules/core"
+	ibcclient "github.com/cosmos/ibc-go/v6/modules/core/02-client"
+	ibcclientclient "github.com/cosmos/ibc-go/v6/modules/core/02-client/client"
+	ibcclienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
+	ibcPortTypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
+	ibchost "github.com/cosmos/ibc-go/v6/modules/core/24-host"
+	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
 	"github.com/spf13/cast"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmjson "github.com/tendermint/tendermint/libs/json"
@@ -232,8 +235,9 @@ func NewKYVEApp(
 		authtypes.StoreKey, authzTypes.ModuleName, banktypes.StoreKey, stakingtypes.StoreKey,
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey, govtypes.StoreKey,
 		paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
-		evidencetypes.StoreKey, ibcFeeTypes.StoreKey, ibcTransferTypes.StoreKey, icaHostTypes.StoreKey,
-		capabilitytypes.StoreKey, groupTypes.StoreKey,
+		evidencetypes.StoreKey, ibcFeeTypes.StoreKey, ibcTransferTypes.StoreKey,
+		icaControllerTypes.StoreKey, icaHostTypes.StoreKey, capabilitytypes.StoreKey,
+		groupTypes.StoreKey,
 
 		bundlesTypes.StoreKey,
 		delegationTypes.StoreKey,
@@ -277,6 +281,7 @@ func NewKYVEApp(
 	// grant capabilities for the ibc and ibc-transfer modules
 	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
 	scopedIBCTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibcTransferTypes.ModuleName)
+	scopedICAControllerKeeper := app.CapabilityKeeper.ScopeToModule(icaControllerTypes.SubModuleName)
 	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icaHostTypes.SubModuleName)
 	// this line is used by starport scaffolding # stargate/app/scopedKeeper
 
@@ -459,7 +464,6 @@ func NewKYVEApp(
 
 	app.IBCFeeKeeper = ibcFeeKeeper.NewKeeper(
 		appCodec, keys[ibcFeeTypes.StoreKey],
-		app.GetSubspace(ibcFeeTypes.ModuleName),
 		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
@@ -476,6 +480,16 @@ func NewKYVEApp(
 		app.AccountKeeper,
 		app.BankKeeper,
 		scopedIBCTransferKeeper,
+	)
+
+	app.ICAControllerKeeper = icaControllerKeeper.NewKeeper(
+		appCodec, keys[icaControllerTypes.StoreKey],
+		app.GetSubspace(icaControllerTypes.SubModuleName),
+		app.IBCKeeper.ChannelKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		scopedICAControllerKeeper,
+		app.MsgServiceRouter(),
 	)
 
 	app.ICAHostKeeper = icahostkeeper.NewKeeper(
@@ -544,12 +558,17 @@ func NewKYVEApp(
 	ibcTransferStack = ibcTransfer.NewIBCModule(app.IBCTransferKeeper)
 	ibcTransferStack = ibcFee.NewIBCMiddleware(ibcTransferStack, app.IBCFeeKeeper)
 
+	var icaControllerStack ibcPortTypes.IBCModule
+	icaControllerStack = icaController.NewIBCMiddleware(icaControllerStack, app.ICAControllerKeeper)
+	icaControllerStack = ibcFee.NewIBCMiddleware(icaControllerStack, app.IBCFeeKeeper)
+
 	var icaHostStack ibcPortTypes.IBCModule
 	icaHostStack = icaHost.NewIBCModule(app.ICAHostKeeper)
 	icaHostStack = ibcFee.NewIBCMiddleware(icaHostStack, app.IBCFeeKeeper)
 
 	ibcRouter := ibcPortTypes.NewRouter()
 	ibcRouter.AddRoute(ibcTransferTypes.ModuleName, ibcTransferStack).
+		AddRoute(icaControllerTypes.SubModuleName, icaControllerStack).
 		AddRoute(icaHostTypes.SubModuleName, icaHostStack)
 	app.IBCKeeper.SetRouter(ibcRouter)
 
@@ -589,7 +608,7 @@ func NewKYVEApp(
 		ibc.NewAppModule(app.IBCKeeper),
 		ibcFee.NewAppModule(app.IBCFeeKeeper),
 		ibcTransfer.NewAppModule(app.IBCTransferKeeper),
-		ica.NewAppModule(nil, &app.ICAHostKeeper),
+		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 
 		// KYVE
 		bundles.NewAppModule(appCodec, app.BundlesKeeper, app.AccountKeeper, app.BankKeeper),
@@ -786,6 +805,7 @@ func NewKYVEApp(
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedIBCTransferKeeper = scopedIBCTransferKeeper
+	app.ScopedICAControllerKeeper = scopedICAControllerKeeper
 	app.ScopedICAHostKeeper = scopedICAHostKeeper
 
 	return app
