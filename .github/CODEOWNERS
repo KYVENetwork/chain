@@ -1,0 +1,15 @@
+# https://help.github.com/articles/about-codeowners
+
+* @johnletey @mbreithecker
+
+# CODEOWNERS for x/bundles
+
+/x/bundles @johnletey @troykessler @mbreithecker
+
+# CODEOWNERS for x/pool
+
+/x/pool @johnletey @troykessler @mbreithecker
+
+# CODEOWNERS for x/team
+
+/x/team @johnletey @troykessler @mbreithecker
