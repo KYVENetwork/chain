@@ -5,12 +5,13 @@ import (
 	"math/rand"
 	"sort"
 
+	"cosmossdk.io/errors"
+
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
 
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/bundles/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // AssertPoolCanRun checks whether the given pool fulfils all
@@ -102,17 +103,17 @@ func (k Keeper) AssertCanPropose(ctx sdk.Context, poolId uint64, staker string, 
 
 	// Check if designated uploader
 	if bundleProposal.NextUploader != staker {
-		return sdkErrors.Wrapf(types.ErrNotDesignatedUploader, "expected %v received %v", bundleProposal.NextUploader, staker)
+		return errors.Wrapf(types.ErrNotDesignatedUploader, "expected %v received %v", bundleProposal.NextUploader, staker)
 	}
 
 	// Check if upload interval has been surpassed
 	if uint64(ctx.BlockTime().Unix()) < (bundleProposal.UpdatedAt + pool.UploadInterval) {
-		return sdkErrors.Wrapf(types.ErrUploadInterval, "expected %v < %v", ctx.BlockTime().Unix(), bundleProposal.UpdatedAt+pool.UploadInterval)
+		return errors.Wrapf(types.ErrUploadInterval, "expected %v < %v", ctx.BlockTime().Unix(), bundleProposal.UpdatedAt+pool.UploadInterval)
 	}
 
 	// Check if from_index matches
 	if pool.CurrentIndex+bundleProposal.BundleSize != fromIndex {
-		return sdkErrors.Wrapf(types.ErrFromIndex, "expected %v received %v", pool.CurrentIndex+bundleProposal.BundleSize, fromIndex)
+		return errors.Wrapf(types.ErrFromIndex, "expected %v received %v", pool.CurrentIndex+bundleProposal.BundleSize, fromIndex)
 	}
 
 	return nil
@@ -133,7 +134,7 @@ func (k Keeper) validateSubmitBundleArgs(ctx sdk.Context, bundleProposal *types.
 
 	// Validate from index
 	if pool.CurrentIndex+bundleProposal.BundleSize != msg.FromIndex {
-		return sdkErrors.Wrapf(types.ErrFromIndex, "expected %v received %v", pool.CurrentIndex+bundleProposal.BundleSize, msg.FromIndex)
+		return errors.Wrapf(types.ErrFromIndex, "expected %v received %v", pool.CurrentIndex+bundleProposal.BundleSize, msg.FromIndex)
 	}
 
 	// Validate if bundle is bigger than zero
@@ -143,7 +144,7 @@ func (k Keeper) validateSubmitBundleArgs(ctx sdk.Context, bundleProposal *types.
 
 	// Validate if bundle is not too big
 	if msg.BundleSize > pool.MaxBundleSize {
-		return sdkErrors.Wrapf(types.ErrMaxBundleSize, "expected %v received %v", pool.MaxBundleSize, msg.BundleSize)
+		return errors.Wrapf(types.ErrMaxBundleSize, "expected %v received %v", pool.MaxBundleSize, msg.BundleSize)
 	}
 
 	// Validate key values

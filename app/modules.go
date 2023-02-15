@@ -39,16 +39,16 @@ import (
 	// Group
 	group "github.com/cosmos/cosmos-sdk/x/group/module"
 	// IBC
-	ibc "github.com/cosmos/ibc-go/v5/modules/core"
+	ibc "github.com/cosmos/ibc-go/v6/modules/core"
 	// IBC Fee
-	ibcFee "github.com/cosmos/ibc-go/v5/modules/apps/29-fee"
-	ibcFeeTypes "github.com/cosmos/ibc-go/v5/modules/apps/29-fee/types"
+	ibcFee "github.com/cosmos/ibc-go/v6/modules/apps/29-fee"
+	ibcFeeTypes "github.com/cosmos/ibc-go/v6/modules/apps/29-fee/types"
 	// IBC Transfer
-	ibcTransfer "github.com/cosmos/ibc-go/v5/modules/apps/transfer"
-	ibcTransferTypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	ibcTransfer "github.com/cosmos/ibc-go/v6/modules/apps/transfer"
+	ibcTransferTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	// ICA
-	ica "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts"
-	icaTypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/types"
+	ica "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts"
+	icaTypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
 	// Mint
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"

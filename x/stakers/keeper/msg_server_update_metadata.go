@@ -3,9 +3,10 @@ package keeper
 import (
 	"context"
 
+	"cosmossdk.io/errors"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // UpdateMetadata allows a staker to change basic metadata like moniker, address, logo, etc.
@@ -15,7 +16,7 @@ func (k msgServer) UpdateMetadata(goCtx context.Context, msg *types.MsgUpdateMet
 
 	// Check if the sender is a protocol node (aka has staked into this pool).
 	if !k.DoesStakerExist(ctx, msg.Creator) {
-		return nil, sdkErrors.Wrap(sdkErrors.ErrUnauthorized, types.ErrNoStaker.Error())
+		return nil, errors.Wrap(errorsTypes.ErrUnauthorized, types.ErrNoStaker.Error())
 	}
 
 	// Apply new metadata to staker

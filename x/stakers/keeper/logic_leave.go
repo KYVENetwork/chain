@@ -1,15 +1,16 @@
 package keeper
 
 import (
+	"cosmossdk.io/errors"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 func (k Keeper) orderLeavePool(ctx sdk.Context, staker string, poolId uint64) error {
 	// Remove existing queue entry
 	if k.DoesLeavePoolEntryExistByIndex2(ctx, staker, poolId) {
-		return sdkErrors.Wrapf(sdkErrors.ErrLogic, types.ErrPoolLeaveAlreadyInProgress.Error())
+		return errors.Wrapf(errorsTypes.ErrLogic, types.ErrPoolLeaveAlreadyInProgress.Error())
 	}
 
 	queueIndex := k.getNextQueueSlot(ctx, types.QUEUE_IDENTIFIER_LEAVE)

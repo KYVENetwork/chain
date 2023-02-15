@@ -3,10 +3,11 @@ package keeper
 import (
 	"context"
 
+	"cosmossdk.io/errors"
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/bundles/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // VoteBundleProposal handles the logic of an SDK message that allows protocol nodes to vote on a pool's bundle proposal.
@@ -39,7 +40,7 @@ func (k msgServer) VoteBundleProposal(
 	case types.VOTE_TYPE_ABSTAIN:
 		bundleProposal.VotersAbstain = append(bundleProposal.VotersAbstain, msg.Staker)
 	default:
-		return nil, sdkErrors.Wrapf(sdkErrors.ErrUnauthorized, types.ErrInvalidVote.Error(), msg.Vote)
+		return nil, errors.Wrapf(errorsTypes.ErrUnauthorized, types.ErrInvalidVote.Error(), msg.Vote)
 	}
 
 	k.SetBundleProposal(ctx, bundleProposal)
