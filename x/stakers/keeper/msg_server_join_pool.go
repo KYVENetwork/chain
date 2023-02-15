@@ -5,9 +5,10 @@ import (
 
 	"github.com/KYVENetwork/chain/util"
 
+	"cosmossdk.io/errors"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // JoinPool handles the SDK message of joining a pool.
@@ -27,24 +28,24 @@ func (k msgServer) JoinPool(goCtx context.Context, msg *types.MsgJoinPool) (*typ
 		return nil, poolErr
 	}
 	if pool.Disabled {
-		return nil, sdkErrors.Wrapf(sdkErrors.ErrLogic, types.ErrCanNotJoinDisabledPool.Error())
+		return nil, errors.Wrapf(errorsTypes.ErrLogic, types.ErrCanNotJoinDisabledPool.Error())
 	}
 
 	// throw error if staker was not found
 	staker, stakerFound := k.GetStaker(ctx, msg.Creator)
 	if !stakerFound {
-		return nil, sdkErrors.Wrapf(sdkErrors.ErrNotFound, types.ErrNoStaker.Error())
+		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrNoStaker.Error())
 	}
 
 	// Stakers are not allowed to use their own address, to prevent
 	// users from putting their staker private key on the protocol node server.
 	if msg.Creator == msg.Valaddress {
-		return nil, sdkErrors.Wrapf(sdkErrors.ErrInvalidRequest, types.ErrValaddressSameAsStaker.Error())
+		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrValaddressSameAsStaker.Error())
 	}
 
 	// Stakers are not allowed to join a pool twice.
 	if _, valaccountFound := k.GetValaccount(ctx, msg.PoolId, msg.Creator); valaccountFound {
-		return nil, sdkErrors.Wrapf(sdkErrors.ErrInvalidRequest, types.ErrAlreadyJoinedPool.Error())
+		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrAlreadyJoinedPool.Error())
 	}
 
 	// Every valaddress can only be used for one pool. It is not allowed
@@ -52,7 +53,7 @@ func (k msgServer) JoinPool(goCtx context.Context, msg *types.MsgJoinPool) (*typ
 	// when two processes try so submit transactions simultaneously)
 	for _, valaccount := range k.GetValaccountsFromStaker(ctx, msg.Creator) {
 		if valaccount.Valaddress == msg.Valaddress {
-			return nil, sdkErrors.Wrapf(sdkErrors.ErrInvalidRequest, types.ValaddressAlreadyUsed.Error())
+			return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ValaddressAlreadyUsed.Error())
 		}
 	}
 
@@ -61,7 +62,7 @@ func (k msgServer) JoinPool(goCtx context.Context, msg *types.MsgJoinPool) (*typ
 		valaccount, _ := k.GetValaccount(ctx, msg.PoolId, poolStaker)
 
 		if valaccount.Valaddress == msg.Valaddress {
-			return nil, sdkErrors.Wrapf(sdkErrors.ErrInvalidRequest, types.ValaddressAlreadyUsed.Error())
+			return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ValaddressAlreadyUsed.Error())
 		}
 	}
 

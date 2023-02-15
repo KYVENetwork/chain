@@ -1,8 +1,9 @@
 package types
 
 import (
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 const TypeMsgClawback = "clawback"
@@ -33,7 +34,7 @@ func (msg *MsgClawback) GetSignBytes() []byte {
 func (msg *MsgClawback) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Authority)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid authority address (%s)", err)
+		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid authority address (%s)", err)
 	}
 	return nil
 }
