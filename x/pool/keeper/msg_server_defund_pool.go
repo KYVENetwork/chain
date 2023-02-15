@@ -3,10 +3,11 @@ package keeper
 import (
 	"context"
 
+	"cosmossdk.io/errors"
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // DefundPool handles the logic to defund a pool.
@@ -19,18 +20,18 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 
 	// Pool has to exist
 	if !found {
-		return nil, sdkErrors.Wrapf(sdkErrors.ErrNotFound, types.ErrPoolNotFound.Error(), msg.Id)
+		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrPoolNotFound.Error(), msg.Id)
 	}
 
 	// Sender needs to be a funder in the pool
 	funderAmount := pool.GetFunderAmount(msg.Creator)
 	if funderAmount == 0 {
-		return nil, sdkErrors.ErrNotFound
+		return nil, errorsTypes.ErrNotFound
 	}
 
 	// Check if the sender is trying to defund more than they have funded.
 	if msg.Amount > funderAmount {
-		return nil, sdkErrors.Wrapf(sdkErrors.ErrLogic, types.ErrDefundTooHigh.Error(), msg.Creator)
+		return nil, errors.Wrapf(errorsTypes.ErrLogic, types.ErrDefundTooHigh.Error(), msg.Creator)
 	}
 
 	// Update state variables (or completely remove if fully defunding).

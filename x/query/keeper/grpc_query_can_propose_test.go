@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/errors"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
@@ -8,7 +9,7 @@ import (
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -125,7 +126,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(err).To(BeNil())
 
 		Expect(canPropose.Possible).To(BeFalse())
-		Expect(canPropose.Reason).To(Equal(sdkErrors.Wrapf(sdkErrors.ErrNotFound, pooltypes.ErrPoolNotFound.Error(), 1).Error()))
+		Expect(canPropose.Reason).To(Equal(errors.Wrapf(errorsTypes.ErrNotFound, pooltypes.ErrPoolNotFound.Error(), 1).Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_1,
@@ -375,9 +376,9 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(canPropose.Possible).To(BeFalse())
 
 		if bundleProposal.NextUploader == i.STAKER_0 {
-			Expect(canPropose.Reason).To(Equal(sdkErrors.Wrapf(bundletypes.ErrNotDesignatedUploader, "expected %v received %v", i.STAKER_0, i.STAKER_1).Error()))
+			Expect(canPropose.Reason).To(Equal(errors.Wrapf(bundletypes.ErrNotDesignatedUploader, "expected %v received %v", i.STAKER_0, i.STAKER_1).Error()))
 		} else {
-			Expect(canPropose.Reason).To(Equal(sdkErrors.Wrapf(bundletypes.ErrNotDesignatedUploader, "expected %v received %v", i.STAKER_1, i.STAKER_0).Error()))
+			Expect(canPropose.Reason).To(Equal(errors.Wrapf(bundletypes.ErrNotDesignatedUploader, "expected %v received %v", i.STAKER_1, i.STAKER_0).Error()))
 		}
 
 		var txErr error
@@ -438,7 +439,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		bundleProposal, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
 
 		Expect(canPropose.Possible).To(BeFalse())
-		Expect(canPropose.Reason).To(Equal(sdkErrors.Wrapf(bundletypes.ErrUploadInterval, "expected %v < %v", s.Ctx().BlockTime().Unix(), bundleProposal.UpdatedAt+pool.UploadInterval).Error()))
+		Expect(canPropose.Reason).To(Equal(errors.Wrapf(bundletypes.ErrUploadInterval, "expected %v < %v", s.Ctx().BlockTime().Unix(), bundleProposal.UpdatedAt+pool.UploadInterval).Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_1,
@@ -482,10 +483,10 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		bundleProposal, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
 
 		Expect(canPropose_1.Possible).To(BeFalse())
-		Expect(canPropose_1.Reason).To(Equal(sdkErrors.Wrapf(bundletypes.ErrFromIndex, "expected %v received %v", pool.CurrentIndex+bundleProposal.BundleSize, 99).Error()))
+		Expect(canPropose_1.Reason).To(Equal(errors.Wrapf(bundletypes.ErrFromIndex, "expected %v received %v", pool.CurrentIndex+bundleProposal.BundleSize, 99).Error()))
 
 		Expect(canPropose_2.Possible).To(BeFalse())
-		Expect(canPropose_2.Reason).To(Equal(sdkErrors.Wrapf(bundletypes.ErrFromIndex, "expected %v received %v", pool.CurrentIndex+bundleProposal.BundleSize, 101).Error()))
+		Expect(canPropose_2.Reason).To(Equal(errors.Wrapf(bundletypes.ErrFromIndex, "expected %v received %v", pool.CurrentIndex+bundleProposal.BundleSize, 101).Error()))
 
 		_, txErr_1 := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_1,

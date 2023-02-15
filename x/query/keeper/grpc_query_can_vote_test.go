@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/errors"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
@@ -8,7 +9,7 @@ import (
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -116,7 +117,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		Expect(err).To(BeNil())
 
 		Expect(canVote.Possible).To(BeFalse())
-		Expect(canVote.Reason).To(Equal(sdkErrors.Wrapf(sdkErrors.ErrNotFound, pooltypes.ErrPoolNotFound.Error(), 1).Error()))
+		Expect(canVote.Reason).To(Equal(errors.Wrapf(errorsTypes.ErrNotFound, pooltypes.ErrPoolNotFound.Error(), 1).Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgVoteBundleProposal{
 			Creator:   i.VALADDRESS_1,

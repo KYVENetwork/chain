@@ -3,9 +3,10 @@ package keeper
 import (
 	"math"
 
+	"cosmossdk.io/errors"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // getLowestStaker returns the staker with the lowest total stake
@@ -47,7 +48,7 @@ func (k Keeper) ensureFreeSlot(ctx sdk.Context, poolId uint64, stakerAddress str
 			// remove lowest staker from pool
 			k.LeavePool(ctx, lowestStaker.Address, poolId)
 		} else {
-			return sdkErrors.Wrapf(sdkErrors.ErrLogic, types.ErrStakeTooLow.Error(), k.delegationKeeper.GetDelegationAmount(ctx, lowestStaker.Address))
+			return errors.Wrapf(errorsTypes.ErrLogic, types.ErrStakeTooLow.Error(), k.delegationKeeper.GetDelegationAmount(ctx, lowestStaker.Address))
 		}
 	}
 
