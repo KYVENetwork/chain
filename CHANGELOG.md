@@ -16,8 +16,8 @@
 
 ### Improvements
 
-- (deps) [#3](https://github.com/KYVENetwork/chain/pull/1) Bump Cosmos SDK to [v0.46.9](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.9) ([`v0.46.9-kyve-rc0`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.46.9-kyve-rc0)).
-- (deps) [#3](https://github.com/KYVENetwork/chain/pull/1) Bump IBC to [v6.1.0](https://github.com/cosmos/ibc-go/releases/tag/v6.1.0).
+- (deps) [#3](https://github.com/KYVENetwork/chain/pull/3) Bump Cosmos SDK to [v0.46.9](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.9) ([`v0.46.9-kyve-rc0`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.46.9-kyve-rc0)).
+- (deps) [#3](https://github.com/KYVENetwork/chain/pull/3) Bump IBC to [v6.1.0](https://github.com/cosmos/ibc-go/releases/tag/v6.1.0).
 
 ### State Machine Breaking
 
