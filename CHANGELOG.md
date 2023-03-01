@@ -16,8 +16,9 @@
 
 ### Improvements
 
-- (deps) [#3](https://github.com/KYVENetwork/chain/pull/3) Bump Cosmos SDK to [v0.46.9](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.9) ([`v0.46.9-kyve-rc0`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.46.9-kyve-rc0)).
+- (deps) [#3](https://github.com/KYVENetwork/chain/pull/3), [#7](https://github.com/KYVENetwork/chain/pull/7) Bump Cosmos SDK to [v0.46.10](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.10) ([`v0.46.10-kyve-rc0`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.46.10-kyve-rc0)).
 - (deps) [#3](https://github.com/KYVENetwork/chain/pull/3) Bump IBC to [v6.1.0](https://github.com/cosmos/ibc-go/releases/tag/v6.1.0).
+- (deps) [#7](https://github.com/KYVENetwork/chain/pull/7) Bump Tendermint to [v0.34.26](https://github.com/informalsystems/tendermint/releases/tag/v0.34.26).
 - (`x/team`) [#7](https://github.com/KYVENetwork/chain/pull/7) Switched to a co-minting approach.
 
 ### State Machine Breaking
