@@ -25,12 +25,14 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 // MsgCreateTeamVestingAccount is an event emitted when a new team vesting account gets created.
 // emitted_by: MsgCreateTeamVestingAccount
 type EventCreateTeamVestingAccount struct {
+	// authority which initiated this action
+	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
 	// id is a unique identify for each vesting account, tied to a single team member.
-	Id uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id uint64 `protobuf:"varint,2,opt,name=id,proto3" json:"id,omitempty"`
 	// total_allocation is the number of tokens reserved for this team member.
-	TotalAllocation uint64 `protobuf:"varint,2,opt,name=total_allocation,json=totalAllocation,proto3" json:"total_allocation,omitempty"`
+	TotalAllocation uint64 `protobuf:"varint,3,opt,name=total_allocation,json=totalAllocation,proto3" json:"total_allocation,omitempty"`
 	// commencement is the unix timestamp of the member's official start date.
-	Commencement uint64 `protobuf:"varint,3,opt,name=commencement,proto3" json:"commencement,omitempty"`
+	Commencement uint64 `protobuf:"varint,4,opt,name=commencement,proto3" json:"commencement,omitempty"`
 }
 
 func (m *EventCreateTeamVestingAccount) Reset()         { *m = EventCreateTeamVestingAccount{} }
@@ -66,6 +68,13 @@ func (m *EventCreateTeamVestingAccount) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventCreateTeamVestingAccount proto.InternalMessageInfo
 
+func (m *EventCreateTeamVestingAccount) GetAuthority() string {
+	if m != nil {
+		return m.Authority
+	}
+	return ""
+}
+
 func (m *EventCreateTeamVestingAccount) GetId() uint64 {
 	if m != nil {
 		return m.Id
@@ -90,13 +99,15 @@ func (m *EventCreateTeamVestingAccount) GetCommencement() uint64 {
 // EventClawback is an event emitted when the authority claws back tokens from a team vesting account.
 // emitted_by: MsgClawback
 type EventClawback struct {
+	// authority which initiated this action
+	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
 	// id is a unique identify for each vesting account, tied to a single team member.
-	Id uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id uint64 `protobuf:"varint,2,opt,name=id,proto3" json:"id,omitempty"`
 	// clawback is a unix timestamp of a clawback. If timestamp is zero
 	// it means that the account has not received a clawback
-	Clawback uint64 `protobuf:"varint,2,opt,name=clawback,proto3" json:"clawback,omitempty"`
+	Clawback uint64 `protobuf:"varint,3,opt,name=clawback,proto3" json:"clawback,omitempty"`
 	// amount which got clawed back.
-	Amount uint64 `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`
+	Amount uint64 `protobuf:"varint,4,opt,name=amount,proto3" json:"amount,omitempty"`
 }
 
 func (m *EventClawback) Reset()         { *m = EventClawback{} }
@@ -132,6 +143,13 @@ func (m *EventClawback) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventClawback proto.InternalMessageInfo
 
+func (m *EventClawback) GetAuthority() string {
+	if m != nil {
+		return m.Authority
+	}
+	return ""
+}
+
 func (m *EventClawback) GetId() uint64 {
 	if m != nil {
 		return m.Id
@@ -156,12 +174,14 @@ func (m *EventClawback) GetAmount() uint64 {
 // EventClaimedUnlocked is an event emitted when the authority claims unlocked $KYVE for a recipient.
 // emitted_by: MsgClaimUnlocked
 type EventClaimedUnlocked struct {
+	// authority which initiated this action
+	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
 	// id is a unique identify for each vesting account, tied to a single team member.
-	Id uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id uint64 `protobuf:"varint,2,opt,name=id,proto3" json:"id,omitempty"`
 	// amount is the number of tokens claimed from the unlocked amount.
-	Amount uint64 `protobuf:"varint,2,opt,name=amount,proto3" json:"amount,omitempty"`
+	Amount uint64 `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`
 	// recipient is the receiver address of the claim.
-	Recipient string `protobuf:"bytes,3,opt,name=recipient,proto3" json:"recipient,omitempty"`
+	Recipient string `protobuf:"bytes,4,opt,name=recipient,proto3" json:"recipient,omitempty"`
 }
 
 func (m *EventClaimedUnlocked) Reset()         { *m = EventClaimedUnlocked{} }
@@ -197,6 +217,13 @@ func (m *EventClaimedUnlocked) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventClaimedUnlocked proto.InternalMessageInfo
 
+func (m *EventClaimedUnlocked) GetAuthority() string {
+	if m != nil {
+		return m.Authority
+	}
+	return ""
+}
+
 func (m *EventClaimedUnlocked) GetId() uint64 {
 	if m != nil {
 		return m.Id
@@ -221,12 +248,14 @@ func (m *EventClaimedUnlocked) GetRecipient() string {
 // EventClaimInflationRewards is an event emitted when the authority claims inflation rewards for a recipient.
 // emitted_by: MsgClaimInflationRewards
 type EventClaimInflationRewards struct {
+	// authority which initiated this action
+	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
 	// id is a unique identify for each vesting account, tied to a single team member.
-	Id uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id uint64 `protobuf:"varint,2,opt,name=id,proto3" json:"id,omitempty"`
 	// amount is the amount of inflation rewards the authority should claim for the account holder
-	Amount uint64 `protobuf:"varint,2,opt,name=amount,proto3" json:"amount,omitempty"`
+	Amount uint64 `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`
 	// recipient is the receiver address of the claim.
-	Recipient string `protobuf:"bytes,3,opt,name=recipient,proto3" json:"recipient,omitempty"`
+	Recipient string `protobuf:"bytes,4,opt,name=recipient,proto3" json:"recipient,omitempty"`
 }
 
 func (m *EventClaimInflationRewards) Reset()         { *m = EventClaimInflationRewards{} }
@@ -262,6 +291,13 @@ func (m *EventClaimInflationRewards) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventClaimInflationRewards proto.InternalMessageInfo
 
+func (m *EventClaimInflationRewards) GetAuthority() string {
+	if m != nil {
+		return m.Authority
+	}
+	return ""
+}
+
 func (m *EventClaimInflationRewards) GetId() uint64 {
 	if m != nil {
 		return m.Id
@@ -286,10 +322,12 @@ func (m *EventClaimInflationRewards) GetRecipient() string {
 // EventClaimAuthorityRewards is an event emitted when the authority claims its inflation rewards for a recipient.
 // emitted_by: MsgClaimAuthorityRewards
 type EventClaimAuthorityRewards struct {
+	// authority which initiated this action
+	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
 	// amount is the amount of inflation rewards the authority should claim for the account holder
-	Amount uint64 `protobuf:"varint,1,opt,name=amount,proto3" json:"amount,omitempty"`
+	Amount uint64 `protobuf:"varint,2,opt,name=amount,proto3" json:"amount,omitempty"`
 	// recipient is the receiver address of the claim.
-	Recipient string `protobuf:"bytes,2,opt,name=recipient,proto3" json:"recipient,omitempty"`
+	Recipient string `protobuf:"bytes,3,opt,name=recipient,proto3" json:"recipient,omitempty"`
 }
 
 func (m *EventClaimAuthorityRewards) Reset()         { *m = EventClaimAuthorityRewards{} }
@@ -325,6 +363,13 @@ func (m *EventClaimAuthorityRewards) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventClaimAuthorityRewards proto.InternalMessageInfo
 
+func (m *EventClaimAuthorityRewards) GetAuthority() string {
+	if m != nil {
+		return m.Authority
+	}
+	return ""
+}
+
 func (m *EventClaimAuthorityRewards) GetAmount() uint64 {
 	if m != nil {
 		return m.Amount
@@ -350,29 +395,31 @@ func init() {
 func init() { proto.RegisterFile("kyve/team/v1beta1/events.proto", fileDescriptor_198acea0777f469a) }
 
 var fileDescriptor_198acea0777f469a = []byte{
-	// 348 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x92, 0x4f, 0x4b, 0xf3, 0x40,
-	0x10, 0xc6, 0x9b, 0xbc, 0x2f, 0xc5, 0x2e, 0xfe, 0x0d, 0x22, 0xa5, 0xe8, 0x22, 0x39, 0xd9, 0x4b,
-	0x42, 0xf1, 0x13, 0xd4, 0xd2, 0x83, 0x08, 0x1e, 0xa2, 0x16, 0x14, 0x41, 0x36, 0x9b, 0xb1, 0x5d,
-	0x92, 0xdd, 0x2d, 0xc9, 0xb4, 0xb5, 0x17, 0x3f, 0x83, 0x1f, 0xcb, 0x63, 0x8f, 0x1e, 0xa5, 0xfd,
-	0x22, 0x92, 0x34, 0x69, 0xaa, 0xc5, 0x9b, 0xc7, 0x79, 0x9e, 0x99, 0xdf, 0x33, 0x03, 0x43, 0x68,
-	0x38, 0x1d, 0x83, 0x8b, 0xc0, 0xa4, 0x3b, 0x6e, 0xf9, 0x80, 0xac, 0xe5, 0xc2, 0x18, 0x14, 0x26,
-	0xce, 0x30, 0xd6, 0xa8, 0xad, 0x83, 0xd4, 0x77, 0x52, 0xdf, 0xc9, 0x7d, 0xfb, 0x95, 0x9c, 0x74,
-	0xd3, 0x96, 0x4e, 0x0c, 0x0c, 0xe1, 0x16, 0x98, 0xec, 0x41, 0x82, 0x42, 0xf5, 0xdb, 0x9c, 0xeb,
-	0x91, 0x42, 0x6b, 0x97, 0x98, 0x22, 0xa8, 0x1b, 0xa7, 0xc6, 0xd9, 0x7f, 0xcf, 0x14, 0x81, 0xd5,
-	0x24, 0xfb, 0xa8, 0x91, 0x45, 0x4f, 0x2c, 0x8a, 0x34, 0x67, 0x28, 0xb4, 0xaa, 0x9b, 0x99, 0xbb,
-	0x97, 0xe9, 0xed, 0x95, 0x6c, 0xd9, 0x64, 0x9b, 0x6b, 0x29, 0x41, 0x71, 0x90, 0xa0, 0xb0, 0xfe,
-	0x2f, 0x6b, 0xfb, 0xa6, 0xd9, 0x37, 0x64, 0x67, 0x99, 0x1f, 0xb1, 0x89, 0xcf, 0x78, 0xb8, 0x91,
-	0xd7, 0x20, 0x5b, 0x3c, 0xf7, 0xf2, 0x9c, 0x55, 0x6d, 0x1d, 0x91, 0x2a, 0x93, 0xe9, 0x96, 0x39,
-	0x3a, 0xaf, 0xec, 0x47, 0x72, 0x58, 0x40, 0x85, 0x84, 0xe0, 0x4e, 0x45, 0x9a, 0x87, 0x10, 0x6c,
-	0xb0, 0xcb, 0x79, 0x73, 0x7d, 0xde, 0x3a, 0x26, 0xb5, 0x18, 0xb8, 0x18, 0x8a, 0x62, 0xeb, 0x9a,
-	0x57, 0x0a, 0xb6, 0x4f, 0x1a, 0x25, 0xfd, 0x52, 0x3d, 0x47, 0xd9, 0xb5, 0x1e, 0x4c, 0x58, 0x1c,
-	0x24, 0x7f, 0x94, 0xe1, 0xad, 0x67, 0xb4, 0x47, 0x38, 0xd0, 0xb1, 0xc0, 0x69, 0x91, 0x51, 0x32,
-	0x8d, 0xdf, 0x99, 0xe6, 0x0f, 0xe6, 0x45, 0xe7, 0x7d, 0x4e, 0x8d, 0xd9, 0x9c, 0x1a, 0x9f, 0x73,
-	0x6a, 0xbc, 0x2d, 0x68, 0x65, 0xb6, 0xa0, 0x95, 0x8f, 0x05, 0xad, 0x3c, 0x34, 0xfb, 0x02, 0x07,
-	0x23, 0xdf, 0xe1, 0x5a, 0xba, 0x57, 0xf7, 0xbd, 0xee, 0x35, 0xe0, 0x44, 0xc7, 0xa1, 0xcb, 0x07,
-	0x4c, 0x28, 0xf7, 0x65, 0xf9, 0x51, 0x38, 0x1d, 0x42, 0xe2, 0x57, 0xb3, 0x4f, 0x3a, 0xff, 0x0a,
-	0x00, 0x00, 0xff, 0xff, 0x5f, 0x05, 0x1f, 0x86, 0x6b, 0x02, 0x00, 0x00,
+	// 372 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x92, 0xcf, 0x6a, 0xe2, 0x50,
+	0x14, 0xc6, 0xbd, 0x51, 0x64, 0xbc, 0xcc, 0xdf, 0x30, 0x0c, 0x41, 0x66, 0x82, 0x64, 0xa5, 0x9b,
+	0x04, 0x99, 0x27, 0x70, 0xc4, 0xc5, 0x30, 0x30, 0x8b, 0x30, 0x23, 0xb4, 0x9b, 0x72, 0x73, 0x73,
+	0xaa, 0x97, 0xe4, 0xde, 0x9b, 0x26, 0x47, 0xad, 0x5d, 0xf5, 0x11, 0xfa, 0x00, 0x7d, 0xa0, 0x2e,
+	0x5d, 0x76, 0x59, 0xf4, 0x45, 0x4a, 0x62, 0x34, 0xb6, 0x50, 0xa8, 0x9b, 0x2e, 0xef, 0xf7, 0x9d,
+	0x7c, 0xbf, 0xef, 0x84, 0x43, 0xed, 0x68, 0x39, 0x07, 0x0f, 0x81, 0x49, 0x6f, 0xde, 0x0f, 0x00,
+	0x59, 0xdf, 0x83, 0x39, 0x28, 0xcc, 0xdc, 0x24, 0xd5, 0xa8, 0xcd, 0x2f, 0xb9, 0xef, 0xe6, 0xbe,
+	0x5b, 0xfa, 0xce, 0x2d, 0xa1, 0x3f, 0x46, 0xf9, 0xcc, 0x30, 0x05, 0x86, 0xf0, 0x0f, 0x98, 0x1c,
+	0x43, 0x86, 0x42, 0x4d, 0x06, 0x9c, 0xeb, 0x99, 0x42, 0xf3, 0x3b, 0x6d, 0xb1, 0x19, 0x4e, 0x75,
+	0x2a, 0x70, 0x69, 0x91, 0x0e, 0xe9, 0xb6, 0xfc, 0x4a, 0x30, 0x3f, 0x52, 0x43, 0x84, 0x96, 0xd1,
+	0x21, 0xdd, 0x86, 0x6f, 0x88, 0xd0, 0xec, 0xd1, 0xcf, 0xa8, 0x91, 0xc5, 0x67, 0x2c, 0x8e, 0x35,
+	0x67, 0x28, 0xb4, 0xb2, 0xea, 0x85, 0xfb, 0xa9, 0xd0, 0x07, 0x7b, 0xd9, 0x74, 0xe8, 0x7b, 0xae,
+	0xa5, 0x04, 0xc5, 0x41, 0x82, 0x42, 0xab, 0x51, 0x8c, 0x3d, 0xd1, 0x9c, 0x0b, 0xfa, 0x61, 0xdb,
+	0x2e, 0x66, 0x8b, 0x80, 0xf1, 0xe8, 0xc8, 0x36, 0x6d, 0xfa, 0x8e, 0x97, 0x5f, 0x96, 0x2d, 0xf6,
+	0x6f, 0xf3, 0x1b, 0x6d, 0x32, 0x99, 0x6f, 0x58, 0x82, 0xcb, 0x97, 0x73, 0x45, 0xbf, 0xee, 0x90,
+	0x42, 0x42, 0xf8, 0x5f, 0xc5, 0x9a, 0x47, 0x10, 0x1e, 0x49, 0xae, 0xd2, 0xeb, 0x87, 0xe9, 0x79,
+	0x4a, 0x0a, 0x5c, 0x24, 0x62, 0xb7, 0x71, 0xcb, 0xaf, 0x04, 0xe7, 0x9a, 0xd0, 0x76, 0x05, 0xff,
+	0xad, 0xce, 0xe3, 0xe2, 0x57, 0xf9, 0xb0, 0x60, 0x69, 0x98, 0xbd, 0x49, 0x85, 0xe4, 0xb0, 0xc1,
+	0x60, 0x17, 0xfe, 0xba, 0x06, 0x15, 0xd1, 0x78, 0x99, 0x58, 0x7f, 0x46, 0xfc, 0x35, 0xbc, 0x5b,
+	0xdb, 0x64, 0xb5, 0xb6, 0xc9, 0xc3, 0xda, 0x26, 0x37, 0x1b, 0xbb, 0xb6, 0xda, 0xd8, 0xb5, 0xfb,
+	0x8d, 0x5d, 0x3b, 0xed, 0x4d, 0x04, 0x4e, 0x67, 0x81, 0xcb, 0xb5, 0xf4, 0xfe, 0x9c, 0x8c, 0x47,
+	0x7f, 0x01, 0x17, 0x3a, 0x8d, 0x3c, 0x3e, 0x65, 0x42, 0x79, 0x97, 0xdb, 0x4b, 0xc7, 0x65, 0x02,
+	0x59, 0xd0, 0x2c, 0x2e, 0xfc, 0xe7, 0x63, 0x00, 0x00, 0x00, 0xff, 0xff, 0xfe, 0x6f, 0xd8, 0x00,
+	0x03, 0x03, 0x00, 0x00,
 }
 
 func (m *EventCreateTeamVestingAccount) Marshal() (dAtA []byte, err error) {
@@ -398,17 +445,24 @@ func (m *EventCreateTeamVestingAccount) MarshalToSizedBuffer(dAtA []byte) (int, 
 	if m.Commencement != 0 {
 		i = encodeVarintEvents(dAtA, i, uint64(m.Commencement))
 		i--
-		dAtA[i] = 0x18
+		dAtA[i] = 0x20
 	}
 	if m.TotalAllocation != 0 {
 		i = encodeVarintEvents(dAtA, i, uint64(m.TotalAllocation))
 		i--
-		dAtA[i] = 0x10
+		dAtA[i] = 0x18
 	}
 	if m.Id != 0 {
 		i = encodeVarintEvents(dAtA, i, uint64(m.Id))
 		i--
-		dAtA[i] = 0x8
+		dAtA[i] = 0x10
+	}
+	if len(m.Authority) > 0 {
+		i -= len(m.Authority)
+		copy(dAtA[i:], m.Authority)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Authority)))
+		i--
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -436,17 +490,24 @@ func (m *EventClawback) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	if m.Amount != 0 {
 		i = encodeVarintEvents(dAtA, i, uint64(m.Amount))
 		i--
-		dAtA[i] = 0x18
+		dAtA[i] = 0x20
 	}
 	if m.Clawback != 0 {
 		i = encodeVarintEvents(dAtA, i, uint64(m.Clawback))
 		i--
-		dAtA[i] = 0x10
+		dAtA[i] = 0x18
 	}
 	if m.Id != 0 {
 		i = encodeVarintEvents(dAtA, i, uint64(m.Id))
 		i--
-		dAtA[i] = 0x8
+		dAtA[i] = 0x10
+	}
+	if len(m.Authority) > 0 {
+		i -= len(m.Authority)
+		copy(dAtA[i:], m.Authority)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Authority)))
+		i--
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -476,17 +537,24 @@ func (m *EventClaimedUnlocked) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.Recipient)
 		i = encodeVarintEvents(dAtA, i, uint64(len(m.Recipient)))
 		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x22
 	}
 	if m.Amount != 0 {
 		i = encodeVarintEvents(dAtA, i, uint64(m.Amount))
 		i--
-		dAtA[i] = 0x10
+		dAtA[i] = 0x18
 	}
 	if m.Id != 0 {
 		i = encodeVarintEvents(dAtA, i, uint64(m.Id))
 		i--
-		dAtA[i] = 0x8
+		dAtA[i] = 0x10
+	}
+	if len(m.Authority) > 0 {
+		i -= len(m.Authority)
+		copy(dAtA[i:], m.Authority)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Authority)))
+		i--
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -516,17 +584,24 @@ func (m *EventClaimInflationRewards) MarshalToSizedBuffer(dAtA []byte) (int, err
 		copy(dAtA[i:], m.Recipient)
 		i = encodeVarintEvents(dAtA, i, uint64(len(m.Recipient)))
 		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x22
 	}
 	if m.Amount != 0 {
 		i = encodeVarintEvents(dAtA, i, uint64(m.Amount))
 		i--
-		dAtA[i] = 0x10
+		dAtA[i] = 0x18
 	}
 	if m.Id != 0 {
 		i = encodeVarintEvents(dAtA, i, uint64(m.Id))
 		i--
-		dAtA[i] = 0x8
+		dAtA[i] = 0x10
+	}
+	if len(m.Authority) > 0 {
+		i -= len(m.Authority)
+		copy(dAtA[i:], m.Authority)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Authority)))
+		i--
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -556,12 +631,19 @@ func (m *EventClaimAuthorityRewards) MarshalToSizedBuffer(dAtA []byte) (int, err
 		copy(dAtA[i:], m.Recipient)
 		i = encodeVarintEvents(dAtA, i, uint64(len(m.Recipient)))
 		i--
-		dAtA[i] = 0x12
+		dAtA[i] = 0x1a
 	}
 	if m.Amount != 0 {
 		i = encodeVarintEvents(dAtA, i, uint64(m.Amount))
 		i--
-		dAtA[i] = 0x8
+		dAtA[i] = 0x10
+	}
+	if len(m.Authority) > 0 {
+		i -= len(m.Authority)
+		copy(dAtA[i:], m.Authority)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Authority)))
+		i--
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -583,6 +665,10 @@ func (m *EventCreateTeamVestingAccount) Size() (n int) {
 	}
 	var l int
 	_ = l
+	l = len(m.Authority)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
 	if m.Id != 0 {
 		n += 1 + sovEvents(uint64(m.Id))
 	}
@@ -601,6 +687,10 @@ func (m *EventClawback) Size() (n int) {
 	}
 	var l int
 	_ = l
+	l = len(m.Authority)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
 	if m.Id != 0 {
 		n += 1 + sovEvents(uint64(m.Id))
 	}
@@ -619,6 +709,10 @@ func (m *EventClaimedUnlocked) Size() (n int) {
 	}
 	var l int
 	_ = l
+	l = len(m.Authority)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
 	if m.Id != 0 {
 		n += 1 + sovEvents(uint64(m.Id))
 	}
@@ -638,6 +732,10 @@ func (m *EventClaimInflationRewards) Size() (n int) {
 	}
 	var l int
 	_ = l
+	l = len(m.Authority)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
 	if m.Id != 0 {
 		n += 1 + sovEvents(uint64(m.Id))
 	}
@@ -657,6 +755,10 @@ func (m *EventClaimAuthorityRewards) Size() (n int) {
 	}
 	var l int
 	_ = l
+	l = len(m.Authority)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
 	if m.Amount != 0 {
 		n += 1 + sovEvents(uint64(m.Amount))
 	}
@@ -703,6 +805,38 @@ func (m *EventCreateTeamVestingAccount) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Authority", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Authority = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
 			}
@@ -721,7 +855,7 @@ func (m *EventCreateTeamVestingAccount) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 2:
+		case 3:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field TotalAllocation", wireType)
 			}
@@ -740,7 +874,7 @@ func (m *EventCreateTeamVestingAccount) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 3:
+		case 4:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Commencement", wireType)
 			}
@@ -810,6 +944,38 @@ func (m *EventClawback) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Authority", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Authority = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
 			}
@@ -828,7 +994,7 @@ func (m *EventClawback) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 2:
+		case 3:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Clawback", wireType)
 			}
@@ -847,7 +1013,7 @@ func (m *EventClawback) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 3:
+		case 4:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
 			}
@@ -917,6 +1083,38 @@ func (m *EventClaimedUnlocked) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Authority", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Authority = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
 			}
@@ -935,7 +1133,7 @@ func (m *EventClaimedUnlocked) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 2:
+		case 3:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
 			}
@@ -954,7 +1152,7 @@ func (m *EventClaimedUnlocked) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 3:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Recipient", wireType)
 			}
@@ -1037,6 +1235,38 @@ func (m *EventClaimInflationRewards) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Authority", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Authority = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
 			}
@@ -1055,7 +1285,7 @@ func (m *EventClaimInflationRewards) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 2:
+		case 3:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
 			}
@@ -1074,7 +1304,7 @@ func (m *EventClaimInflationRewards) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 3:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Recipient", wireType)
 			}
@@ -1157,6 +1387,38 @@ func (m *EventClaimAuthorityRewards) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Authority", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Authority = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
 			}
@@ -1175,7 +1437,7 @@ func (m *EventClaimAuthorityRewards) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 2:
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Recipient", wireType)
 			}

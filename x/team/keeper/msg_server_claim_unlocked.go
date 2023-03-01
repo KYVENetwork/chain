@@ -13,8 +13,8 @@ import (
 func (k msgServer) ClaimUnlocked(goCtx context.Context, msg *types.MsgClaimUnlocked) (*types.MsgClaimUnlockedResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if types.AUTHORITY_ADDRESS != msg.Authority {
-		return nil, errors.Wrapf(sdkErrors.ErrLogic, types.ErrInvalidAuthority.Error(), types.AUTHORITY_ADDRESS, msg.Authority)
+	if types.FOUNDATION_ADDRESS != msg.Authority && types.BCP_ADDRESS != msg.Authority {
+		return nil, errors.Wrapf(sdkErrors.ErrLogic, types.ErrInvalidAuthority.Error(), types.FOUNDATION_ADDRESS, types.BCP_ADDRESS, msg.Authority)
 	}
 
 	account, found := k.GetTeamVestingAccount(ctx, msg.Id)
@@ -42,6 +42,7 @@ func (k msgServer) ClaimUnlocked(goCtx context.Context, msg *types.MsgClaimUnloc
 	k.SetTeamVestingAccount(ctx, account)
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventClaimedUnlocked{
+		Authority: msg.Authority,
 		Id:        account.Id,
 		Amount:    msg.Amount,
 		Recipient: msg.Recipient,

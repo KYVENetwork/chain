@@ -12,8 +12,8 @@ import (
 func (k msgServer) CreateTeamVestingAccount(goCtx context.Context, msg *types.MsgCreateTeamVestingAccount) (*types.MsgCreateTeamVestingAccountResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if types.AUTHORITY_ADDRESS != msg.Authority {
-		return nil, errors.Wrapf(errorsTypes.ErrLogic, types.ErrInvalidAuthority.Error(), types.AUTHORITY_ADDRESS, msg.Authority)
+	if types.FOUNDATION_ADDRESS != msg.Authority && types.BCP_ADDRESS != msg.Authority {
+		return nil, errors.Wrapf(errorsTypes.ErrLogic, types.ErrInvalidAuthority.Error(), types.FOUNDATION_ADDRESS, types.BCP_ADDRESS, msg.Authority)
 	}
 
 	if msg.TotalAllocation == 0 || msg.Commencement == 0 {
@@ -31,6 +31,7 @@ func (k msgServer) CreateTeamVestingAccount(goCtx context.Context, msg *types.Ms
 	})
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventCreateTeamVestingAccount{
+		Authority:       msg.Authority,
 		Id:              id,
 		TotalAllocation: msg.TotalAllocation,
 		Commencement:    msg.Commencement,

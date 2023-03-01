@@ -14,8 +14,8 @@ import (
 func (k msgServer) ClaimAuthorityRewards(goCtx context.Context, msg *types.MsgClaimAuthorityRewards) (*types.MsgClaimAuthorityRewardsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if types.AUTHORITY_ADDRESS != msg.Authority {
-		return nil, errors.Wrapf(sdkErrors.ErrLogic, types.ErrInvalidAuthority.Error(), types.AUTHORITY_ADDRESS, msg.Authority)
+	if types.FOUNDATION_ADDRESS != msg.Authority {
+		return nil, errors.Wrapf(sdkErrors.ErrLogic, types.ErrInvalidAuthority.Error(), types.FOUNDATION_ADDRESS, msg.Authority)
 	}
 
 	authority := k.GetAuthority(ctx)
@@ -35,6 +35,7 @@ func (k msgServer) ClaimAuthorityRewards(goCtx context.Context, msg *types.MsgCl
 	k.SetAuthority(ctx, authority)
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventClaimAuthorityRewards{
+		Authority: msg.Authority,
 		Amount:    msg.Amount,
 		Recipient: msg.Recipient,
 	})
