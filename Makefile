@@ -1,11 +1,19 @@
 COMMIT := $(shell git log -1 --format='%H')
-DENOM := tkyve
-VERSION := 1.0.0-rc0 # $(shell echo $(shell git describe --tags) | sed 's/^v//')
+VERSION := v1.0.0-rc0 # $(shell echo $(shell git describe --tags) | sed 's/^v//')
 
-# Team Module
-TEAM_AUTHORITY_ADDRESS := kyve1vut528et85755xsncjwl6dx8xakuv26hxgyv0n
-TEAM_ALLOCATION := 165000000000000
+DENOM ?= ukyve
+TEAM_TGE ?= 2023-03-14T14:03:14
+TEAM_ALLOCATION ?= 165000000000000
+# TODO(@john): Update this to the mainnet parameter.
+TEAM_AUTHORITY_ADDRESS ?= kyve1vut528et85755xsncjwl6dx8xakuv26hxgyv0n
+ifeq ($(ENV),kaon)
+$(info 📑 Using Kaon environment...)
+DENOM := tkyve
 TEAM_TGE := 2023-02-07T14:00:00
+TEAM_AUTHORITY_ADDRESS := kyve1vut528et85755xsncjwl6dx8xakuv26hxgyv0n
+else
+$(info 📑 Using default environment...)
+endif
 
 ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=kyve \
 		  -X github.com/cosmos/cosmos-sdk/version.AppName=kyved \
@@ -16,7 +24,6 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=kyve \
 		  -X github.com/KYVENetwork/chain/x/team/types.TEAM_ALLOCATION_STRING=$(TEAM_ALLOCATION) \
 		  -X github.com/KYVENetwork/chain/x/team/types.TGE_STRING=$(TEAM_TGE)
 
-# TODO(@john): Are the missing flags needed?
 BUILD_FLAGS := -ldflags '$(ldflags)' -tags 'ledger' -trimpath
 
 .PHONY: proto-setup proto-format proto-lint proto-gen \
