@@ -22,3 +22,15 @@ make release
 ```
 
 The different binaries can be found in the `./release` directory.
+
+### Building for Kaon testnet
+If you want to build the binary for the official Kaon testnet, you need to 
+specify the environment. This is important because mainnet and testnet use
+different denoms for the native token.
+```shell
+make build ENV=kaon
+```
+One can verify the build information of the compiled binary with
+```shell
+./kyved info
+```
