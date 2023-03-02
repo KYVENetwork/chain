@@ -56,7 +56,8 @@ func (k Keeper) GetIssuedTeamAllocation(ctx sdk.Context) (used uint64) {
 func (k Keeper) GetTeamInfo(ctx sdk.Context) (info *types.QueryTeamInfoResponse) {
 	info = &types.QueryTeamInfoResponse{}
 
-	info.Authority = types.AUTHORITY_ADDRESS
+	info.FoundationAuthority = types.FOUNDATION_ADDRESS
+	info.BcpAuthority = types.BCP_ADDRESS
 	info.TotalTeamAllocation = types.TEAM_ALLOCATION
 
 	info.IssuedTeamAllocation = k.GetIssuedTeamAllocation(ctx)

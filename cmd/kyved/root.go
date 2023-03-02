@@ -170,7 +170,8 @@ func infoCommand() *cobra.Command {
 			fmt.Println("Information about build variables:")
 			fmt.Printf("Version: %s\n", version.Version)
 			fmt.Printf("Denom: %s\n", globalTypes.Denom)
-			fmt.Printf("Team-Authority: %s\n", teamTypes.AUTHORITY_ADDRESS)
+			fmt.Printf("Team-Foundation-Authority: %s\n", teamTypes.FOUNDATION_ADDRESS)
+			fmt.Printf("Team-BCP-Authority: %s\n", teamTypes.BCP_ADDRESS)
 			fmt.Printf("Team-Allocation: %s\n", formatInt(teamTypes.TEAM_ALLOCATION))
 			fmt.Printf("Team-TGE: %s\n", time.Unix(int64(teamTypes.TGE), 0).String())
 			return nil

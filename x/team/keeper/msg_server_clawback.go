@@ -12,8 +12,8 @@ import (
 func (k msgServer) Clawback(goCtx context.Context, msg *types.MsgClawback) (*types.MsgClawbackResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if types.AUTHORITY_ADDRESS != msg.Authority {
-		return nil, errors.Wrapf(sdkErrors.ErrLogic, types.ErrInvalidAuthority.Error(), types.AUTHORITY_ADDRESS, msg.Authority)
+	if types.FOUNDATION_ADDRESS != msg.Authority && types.BCP_ADDRESS != msg.Authority {
+		return nil, errors.Wrapf(sdkErrors.ErrLogic, types.ErrInvalidAuthority.Error(), types.FOUNDATION_ADDRESS, types.BCP_ADDRESS, msg.Authority)
 	}
 
 	account, found := k.GetTeamVestingAccount(ctx, msg.Id)
@@ -35,9 +35,10 @@ func (k msgServer) Clawback(goCtx context.Context, msg *types.MsgClawback) (*typ
 	k.SetTeamVestingAccount(ctx, account)
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventClawback{
-		Id:       account.Id,
-		Clawback: msg.Clawback,
-		Amount:   account.TotalAllocation - getVestingMaxAmount(account),
+		Authority: msg.Authority,
+		Id:        account.Id,
+		Clawback:  msg.Clawback,
+		Amount:    account.TotalAllocation - getVestingMaxAmount(account),
 	})
 
 	return &types.MsgClawbackResponse{}, nil

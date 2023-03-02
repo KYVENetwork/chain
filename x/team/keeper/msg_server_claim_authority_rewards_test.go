@@ -12,6 +12,7 @@ import (
 TEST CASES - msg_server_claim_authority_rewards.go
 
 * invalid_authority
+* invalid_second_authority
 * claim_more_rewards_than_available
 * partially_claim_rewards_once
 * claim_rewards_with_3_months_interval
@@ -45,13 +46,28 @@ var _ = Describe("msg_server_claim_authority_rewards.go", Ordered, func() {
 		Expect(err).To(HaveOccurred())
 	})
 
+	It("invalid_second_authority", func() {
+		// ARRANGE
+		info := s.App().TeamKeeper.GetTeamInfo(s.Ctx())
+
+		// ACT
+		_, err := s.RunTx(&types.MsgClaimAuthorityRewards{
+			Authority: types.BCP_ADDRESS,
+			Amount:    info.AvailableAuthorityRewards,
+			Recipient: i.BOB,
+		})
+
+		// ASSERT
+		Expect(err).To(HaveOccurred())
+	})
+
 	It("claim_more_rewards_than_available", func() {
 		// ARRANGE
 		info := s.App().TeamKeeper.GetTeamInfo(s.Ctx())
 
 		// ACT
 		_, err := s.RunTx(&types.MsgClaimAuthorityRewards{
-			Authority: types.AUTHORITY_ADDRESS,
+			Authority: types.FOUNDATION_ADDRESS,
 			Amount:    info.AvailableAuthorityRewards + 1,
 			Recipient: i.ALICE,
 		})
@@ -63,7 +79,7 @@ var _ = Describe("msg_server_claim_authority_rewards.go", Ordered, func() {
 	It("partially_claim_rewards_once", func() {
 		// ACT
 		s.RunTxTeamSuccess(&types.MsgClaimAuthorityRewards{
-			Authority: types.AUTHORITY_ADDRESS,
+			Authority: types.FOUNDATION_ADDRESS,
 			Amount:    100,
 			Recipient: i.ALICE,
 		})
@@ -89,7 +105,7 @@ var _ = Describe("msg_server_claim_authority_rewards.go", Ordered, func() {
 			info := s.App().TeamKeeper.GetTeamInfo(s.Ctx())
 
 			s.RunTxTeamSuccess(&types.MsgClaimAuthorityRewards{
-				Authority: types.AUTHORITY_ADDRESS,
+				Authority: types.FOUNDATION_ADDRESS,
 				Amount:    info.AvailableAuthorityRewards,
 				Recipient: i.ALICE,
 			})
