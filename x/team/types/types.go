@@ -41,22 +41,33 @@ type VestingStatus struct {
 }
 
 var (
-	TEAM_AUTHORITY_STRING  = "kyve1fd4qu868n7arav8vteghcppxxa0p2vna5f5ep8"
+	TEAM_FOUNDATION_STRING = "kyve1u7ukf2nv6v5j5y2yqprm8yqruue2rlmrkx4xgq"
+	TEAM_BCP_STRING        = "kyve1ruxaec07ca3dh0amkzxjap7av3xjt5vjgnd424"
 	TEAM_ALLOCATION_STRING = "165000000000000000"
 	TGE_STRING             = "2023-02-01T10:34:15"
 )
 
 // Convert passed build variables (string) to the corresponding int values
 func init() {
-	// Authority needs to be a valid Bech32 address
-	prefix, _, err := bech32.DecodeAndConvert(TEAM_AUTHORITY_STRING)
+	// Foundation needs to be a valid Bech32 address
+	foundationPrefix, _, err := bech32.DecodeAndConvert(TEAM_FOUNDATION_STRING)
 	if err != nil {
 		panic(err)
 	}
-	if prefix != "kyve" {
-		panic(errors.New("team authority address is not a KYVE address"))
+	if foundationPrefix != "kyve" {
+		panic(errors.New("team foundation address is not a KYVE address"))
 	}
-	AUTHORITY_ADDRESS = TEAM_AUTHORITY_STRING
+	FOUNDATION_ADDRESS = TEAM_FOUNDATION_STRING
+
+	// BCP needs to be a valid Bech32 address
+	bcpPrefix, _, err := bech32.DecodeAndConvert(TEAM_BCP_STRING)
+	if err != nil {
+		panic(err)
+	}
+	if bcpPrefix != "kyve" {
+		panic(errors.New("team foundation address is not a KYVE address"))
+	}
+	BCP_ADDRESS = TEAM_BCP_STRING
 
 	// TEAM_ALLOCATION must be a valid integer
 	parsedAllocation, err := strconv.ParseUint(TEAM_ALLOCATION_STRING, 10, 64)

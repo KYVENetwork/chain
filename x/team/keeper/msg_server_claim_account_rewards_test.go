@@ -15,6 +15,7 @@ TEST CASES - msg_server_claim_account_rewards.go
 * invalid_authority
 * claim_more_rewards_than_available
 * partially_claim_rewards_once
+* partially_claim_rewards_once_with_other_authority
 * claim_rewards_with_3_months_interval
 
 */
@@ -34,7 +35,7 @@ var _ = Describe("msg_server_claim_account_rewards.go", Ordered, func() {
 	It("invalid_authority", func() {
 		// ARRANGE
 		s.RunTxTeamSuccess(&types.MsgCreateTeamVestingAccount{
-			Authority:       types.AUTHORITY_ADDRESS,
+			Authority:       types.FOUNDATION_ADDRESS,
 			TotalAllocation: 1_000_000 * i.KYVE, // 1m
 			Commencement:    types.TGE,
 		})
@@ -61,7 +62,7 @@ var _ = Describe("msg_server_claim_account_rewards.go", Ordered, func() {
 	It("claim_more_rewards_than_available", func() {
 		// ARRANGE
 		s.RunTxTeamSuccess(&types.MsgCreateTeamVestingAccount{
-			Authority:       types.AUTHORITY_ADDRESS,
+			Authority:       types.FOUNDATION_ADDRESS,
 			TotalAllocation: 1_000_000 * i.KYVE, // 1m
 			Commencement:    types.TGE,
 		})
@@ -75,7 +76,7 @@ var _ = Describe("msg_server_claim_account_rewards.go", Ordered, func() {
 
 		// ACT
 		_, err := s.RunTx(&types.MsgClaimAccountRewards{
-			Authority: types.AUTHORITY_ADDRESS,
+			Authority: types.FOUNDATION_ADDRESS,
 			Id:        0,
 			Amount:    tva.TotalRewards + 1,
 			Recipient: i.ALICE,
@@ -88,7 +89,7 @@ var _ = Describe("msg_server_claim_account_rewards.go", Ordered, func() {
 	It("partially_claim_rewards_once", func() {
 		// ARRANGE
 		s.RunTxTeamSuccess(&types.MsgCreateTeamVestingAccount{
-			Authority:       types.AUTHORITY_ADDRESS,
+			Authority:       types.FOUNDATION_ADDRESS,
 			TotalAllocation: 1_000_000 * i.KYVE, // 1m
 			Commencement:    types.TGE,
 		})
@@ -103,7 +104,45 @@ var _ = Describe("msg_server_claim_account_rewards.go", Ordered, func() {
 
 		// ACT
 		s.RunTxTeamSuccess(&types.MsgClaimAccountRewards{
-			Authority: types.AUTHORITY_ADDRESS,
+			Authority: types.FOUNDATION_ADDRESS,
+			Id:        0,
+			Amount:    100,
+			Recipient: i.ALICE,
+		})
+
+		// ASSERT
+		Expect(s.GetBalanceFromAddress(i.ALICE)).To(Equal(1_000*i.KYVE + 100))
+
+		tva, _ = s.App().TeamKeeper.GetTeamVestingAccount(s.Ctx(), 0)
+		Expect(tva.TotalRewards).To(BeNumerically(">", uint64(0)))
+		Expect(tva.RewardsClaimed).To(Equal(uint64(100)))
+
+		info := s.App().TeamKeeper.GetTeamInfo(s.Ctx())
+		Expect(info.ClaimedAccountRewards).To(Equal(uint64(100)))
+		Expect(info.AvailableAccountRewards).To(Equal(info.TotalAccountRewards - uint64(100)))
+		Expect(info.RequiredModuleBalance).To(Equal(types.TEAM_ALLOCATION + info.TotalAuthorityRewards + info.TotalAccountRewards - uint64(100)))
+		Expect(info.TeamModuleBalance).To(Equal(info.RequiredModuleBalance))
+	})
+
+	It("partially_claim_rewards_once_with_other_authority", func() {
+		// ARRANGE
+		s.RunTxTeamSuccess(&types.MsgCreateTeamVestingAccount{
+			Authority:       types.BCP_ADDRESS,
+			TotalAllocation: 1_000_000 * i.KYVE, // 1m
+			Commencement:    types.TGE,
+		})
+
+		s.CommitAfterSeconds(2 * YEAR)
+
+		tva, _ := s.App().TeamKeeper.GetTeamVestingAccount(s.Ctx(), 0)
+
+		Expect(tva.TotalRewards).To(BeNumerically(">", uint64(0)))
+		Expect(tva.RewardsClaimed).To(BeZero())
+		s.PerformValidityChecks()
+
+		// ACT
+		s.RunTxTeamSuccess(&types.MsgClaimAccountRewards{
+			Authority: types.BCP_ADDRESS,
 			Id:        0,
 			Amount:    100,
 			Recipient: i.ALICE,
@@ -126,7 +165,7 @@ var _ = Describe("msg_server_claim_account_rewards.go", Ordered, func() {
 	It("claim_rewards_with_3_months_interval", func() {
 		// ARRANGE
 		s.RunTxTeamSuccess(&types.MsgCreateTeamVestingAccount{
-			Authority:       types.AUTHORITY_ADDRESS,
+			Authority:       types.FOUNDATION_ADDRESS,
 			TotalAllocation: 1_000_000 * i.KYVE, // 1m
 			Commencement:    types.TGE,
 		})
@@ -152,14 +191,14 @@ var _ = Describe("msg_server_claim_account_rewards.go", Ordered, func() {
 			}
 
 			s.RunTxTeamSuccess(&types.MsgClaimUnlocked{
-				Authority: types.AUTHORITY_ADDRESS,
+				Authority: types.FOUNDATION_ADDRESS,
 				Id:        0,
 				Amount:    status.CurrentClaimableAmount,
 				Recipient: i.BOB,
 			})
 
 			s.RunTxTeamSuccess(&types.MsgClaimAccountRewards{
-				Authority: types.AUTHORITY_ADDRESS,
+				Authority: types.FOUNDATION_ADDRESS,
 				Id:        0,
 				Amount:    rewards,
 				Recipient: i.ALICE,
