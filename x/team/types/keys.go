@@ -30,8 +30,11 @@ const UNLOCK_DURATION uint64 = 2 * 365 * 24 * 3600 // 2 * 365 * 24 * 3600
 // CLIFF_DURATION 1 year
 const CLIFF_DURATION uint64 = 1 * 365 * 24 * 3600 // 1 * 365 * 24 * 3600
 
-// AUTHORITY_ADDRESS is initialised in types.go by the init function which uses linker flags
-var AUTHORITY_ADDRESS = ""
+// FOUNDATION_ADDRESS is initialised in types.go by the init function which uses linker flags
+var FOUNDATION_ADDRESS = ""
+
+// BCP_ADDRESS is initialised in types.go by the init function which uses linker flags
+var BCP_ADDRESS = ""
 
 // TEAM_ALLOCATION is initialised in types.go by the init function which uses linker flags
 var TEAM_ALLOCATION uint64 = 0

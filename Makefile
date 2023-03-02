@@ -3,7 +3,8 @@ DENOM := tkyve
 VERSION := 1.0.0-rc0 # $(shell echo $(shell git describe --tags) | sed 's/^v//')
 
 # Team Module
-TEAM_AUTHORITY_ADDRESS := kyve1vut528et85755xsncjwl6dx8xakuv26hxgyv0n
+TEAM_FOUNDATION_ADDRESS := kyve1vut528et85755xsncjwl6dx8xakuv26hxgyv0n
+TEAM_BCP_ADDRESS := kyve1vut528et85755xsncjwl6dx8xakuv26hxgyv0n
 TEAM_ALLOCATION := 165000000000000
 TEAM_TGE := 2023-02-07T14:00:00
 
@@ -12,7 +13,8 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=kyve \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 		  -X github.com/KYVENetwork/chain/x/global/types.Denom=$(DENOM) \
-		  -X github.com/KYVENetwork/chain/x/team/types.TEAM_AUTHORITY_STRING=$(TEAM_AUTHORITY_ADDRESS) \
+		  -X github.com/KYVENetwork/chain/x/team/types.TEAM_FOUNDATION_STRING=$(TEAM_FOUNDATION_ADDRESS) \
+		  -X github.com/KYVENetwork/chain/x/team/types.TEAM_BCP_STRING=$(TEAM_BCP_ADDRESS) \
 		  -X github.com/KYVENetwork/chain/x/team/types.TEAM_ALLOCATION_STRING=$(TEAM_ALLOCATION) \
 		  -X github.com/KYVENetwork/chain/x/team/types.TGE_STRING=$(TEAM_TGE)
 

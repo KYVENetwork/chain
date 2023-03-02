@@ -81,14 +81,14 @@ func (suite *KeeperTestSuite) initDummyAccounts() {
 	_ = suite.Mint(STAKER_2, 1000*KYVE)
 	_ = suite.Mint(VALADDRESS_2, 1000*KYVE)
 
-	mrand.Seed(1)
+	mrand.New(mrand.NewSource(1))
 
 	DUMMY = make([]string, 50)
 
 	for i := 0; i < 50; i++ {
 		byteAddr := make([]byte, 20)
 		for k := 0; k < 20; k++ {
-			mrand.Seed(int64(i + k))
+			mrand.New(mrand.NewSource(int64(i + k)))
 			byteAddr[k] = byte(mrand.Int())
 		}
 		dummy, _ := sdk.Bech32ifyAddressBytes("kyve", byteAddr)
@@ -100,7 +100,7 @@ func (suite *KeeperTestSuite) initDummyAccounts() {
 	for i := 0; i < 50; i++ {
 		byteAddr := make([]byte, 20)
 		for k := 0; k < 20; k++ {
-			mrand.Seed(int64(i + k + 100))
+			mrand.New(mrand.NewSource(int64(i + k + 100)))
 			byteAddr[k] = byte(mrand.Int())
 		}
 		dummy, _ := sdk.Bech32ifyAddressBytes("kyve", byteAddr)

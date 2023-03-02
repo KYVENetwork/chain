@@ -7,53 +7,63 @@ option go_package = "github.com/KYVENetwork/chain/x/team/types";
 // MsgCreateTeamVestingAccount is an event emitted when a new team vesting account gets created.
 // emitted_by: MsgCreateTeamVestingAccount
 message EventCreateTeamVestingAccount {
+  // authority which initiated this action
+  string authority = 1;
   // id is a unique identify for each vesting account, tied to a single team member.
-  uint64 id = 1;
+  uint64 id = 2;
   // total_allocation is the number of tokens reserved for this team member.
-  uint64 total_allocation = 2;
+  uint64 total_allocation = 3;
   // commencement is the unix timestamp of the member's official start date.
-  uint64 commencement = 3;
+  uint64 commencement = 4;
 }
 
 // EventClawback is an event emitted when the authority claws back tokens from a team vesting account.
 // emitted_by: MsgClawback
 message EventClawback {
+  // authority which initiated this action
+  string authority = 1;
   // id is a unique identify for each vesting account, tied to a single team member.
-  uint64 id = 1;
+  uint64 id = 2;
   // clawback is a unix timestamp of a clawback. If timestamp is zero
   // it means that the account has not received a clawback
-  uint64 clawback = 2;
+  uint64 clawback = 3;
   // amount which got clawed back.
-  uint64 amount = 3;
+  uint64 amount = 4;
 }
 
 // EventClaimedUnlocked is an event emitted when the authority claims unlocked $KYVE for a recipient.
 // emitted_by: MsgClaimUnlocked
 message EventClaimedUnlocked {
+  // authority which initiated this action
+  string authority = 1;
   // id is a unique identify for each vesting account, tied to a single team member.
-  uint64 id = 1;
+  uint64 id = 2;
   // amount is the number of tokens claimed from the unlocked amount.
-  uint64 amount = 2;
+  uint64 amount = 3;
   // recipient is the receiver address of the claim.
-  string recipient = 3;
+  string recipient = 4;
 }
 
 // EventClaimInflationRewards is an event emitted when the authority claims inflation rewards for a recipient.
 // emitted_by: MsgClaimInflationRewards
 message EventClaimInflationRewards {
+  // authority which initiated this action
+  string authority = 1;
   // id is a unique identify for each vesting account, tied to a single team member.
-  uint64 id = 1;
+  uint64 id = 2;
   // amount is the amount of inflation rewards the authority should claim for the account holder
-  uint64 amount = 2;
+  uint64 amount = 3;
   // recipient is the receiver address of the claim.
-  string recipient = 3;
+  string recipient = 4;
 }
 
 // EventClaimAuthorityRewards is an event emitted when the authority claims its inflation rewards for a recipient.
 // emitted_by: MsgClaimAuthorityRewards
 message EventClaimAuthorityRewards {
+  // authority which initiated this action
+  string authority = 1;
   // amount is the amount of inflation rewards the authority should claim for the account holder
-  uint64 amount = 1;
+  uint64 amount = 2;
   // recipient is the receiver address of the claim.
-  string recipient = 2;
+  string recipient = 3;
 }
