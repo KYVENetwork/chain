@@ -7,7 +7,7 @@ sovereign Delegated Proof of Stake network built using the
 [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) and
 [Tendermint Core (BFT Consensus)](https://github.com/tendermint/tendermint).
 
-## Building from Source
+## Building from source
 
 ```shell
 make build
@@ -22,3 +22,19 @@ make release
 ```
 
 The different binaries can be found in the `./release` directory.
+
+### Building for the Kaon testnet
+
+If you want to build the binary for the Kaon testnet, you will need to specify
+its build environment. This is important because mainnet and testnet use
+different denoms for the native token.
+
+```shell
+make build ENV=kaon
+```
+
+You can verify the build information using the following command:
+
+```shell
+kyved info
+```
