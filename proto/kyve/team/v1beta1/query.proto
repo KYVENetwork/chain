@@ -45,36 +45,38 @@ message QueryTeamInfoRequest {}
 
 // QueryAccountsResponse is response type for the Query/TeamInfo RPC method.
 message QueryTeamInfoResponse {
-  // authority is the authorities address
-  string authority = 1;
+  // foundation is the authority foundation address
+  string foundation_authority = 1;
+  // bcp is the authority bcp address
+  string bcp_authority = 2;
   // total_team_allocation is the total allocation in $KYVE the team module has in order to reward team members
-  uint64 total_team_allocation = 2;
+  uint64 total_team_allocation = 3;
   // issued_team_allocation is the amount in $KYVE tied to team vesting accounts and which are not available anymore
-  uint64 issued_team_allocation = 3;
+  uint64 issued_team_allocation = 4;
   // available_team_allocation is the amount in $KYVE with which further team vesting accounts can be created.
   // if the available amount is zero no new vesting accounts can be created
-  uint64 available_team_allocation = 4;
+  uint64 available_team_allocation = 5;
 
   // total_authority_rewards is the amount in $KYVE the authority has earned in total with inflation rewards.
   // Those rewards can be payed out for different purposes
-  uint64 total_authority_rewards = 5;
+  uint64 total_authority_rewards = 6;
   // claimed_authority_rewards is the amount in $KYVE of how much the authority already claimed
-  uint64 claimed_authority_rewards = 6;
+  uint64 claimed_authority_rewards = 7;
   // available_authority_rewards is the amount in $KYVE of how much rewards the authority can claim right now
-  uint64 available_authority_rewards = 7;
+  uint64 available_authority_rewards = 8;
 
   // total_account_rewards is the amount in $KYVE all team vesting accounts have ever received
-  uint64 total_account_rewards = 8;
+  uint64 total_account_rewards = 9;
   // claimed_account_rewards is the amount in $KYVE all team vesting accounts have ever claimed
-  uint64 claimed_account_rewards = 9;
+  uint64 claimed_account_rewards = 10;
   // available_account_rewards is the total amount of $KYVE all team vesting accounts can currently claim
-  uint64 available_account_rewards = 10;
+  uint64 available_account_rewards = 11;
 
   // required_module_balance is the balance the team module should have. If this is less than the module balance
   // something went wrong
-  uint64 required_module_balance = 11;
+  uint64 required_module_balance = 12;
   // team_module_balance is the team module balance in $KYVE
-  uint64 team_module_balance = 12;
+  uint64 team_module_balance = 13;
 }
 
 // ======

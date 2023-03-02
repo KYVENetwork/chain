@@ -7903,9 +7903,12 @@ paths:
           schema:
             type: object
             properties:
-              authority:
+              foundation_authority:
                 type: string
-                title: authority is the authorities address
+                title: foundation is the authority foundation address
+              bcp_authority:
+                type: string
+                title: bcp is the authority bcp address
               total_team_allocation:
                 type: string
                 format: uint64
