@@ -781,9 +781,21 @@ func NewKYVEApp(
 			app.mm,
 			app.configurator,
 			app.BundlesKeeper,
-			keys[bundlesTypes.StoreKey],
+			app.appCodec,
+			app.keys[capabilitytypes.ModuleName],
+			app.CapabilityKeeper,
+			"",
 		),
 	)
+
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		panic(err)
+	}
+
+	if upgradeInfo.Name == v1rc1.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		app.SetStoreLoader(v1rc1.CreateStoreLoader(upgradeInfo.Height))
+	}
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
