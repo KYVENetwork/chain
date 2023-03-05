@@ -62,7 +62,7 @@ message EventPoolFundsSlashed {
   uint64 pool_id = 1;
   // address is the account address of the pool funder.
   string address = 2;
-  // amount is the amount in ukyve that were transferred to the treasury
+  // amount is the amount in ukyve that were transferred to the treasury.
   uint64 amount = 3;
 }
 ```
