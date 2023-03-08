@@ -14,7 +14,13 @@
 
 ## [Unreleased]
 
+## [v1.0.0](https://github.com/KYVENetwork/chain/releases/tag/v1.0.0) - 2023-03-09
+
+Release for the KYVE network launch.
+
 ## [v1.0.0-rc1](https://github.com/KYVENetwork/chain/releases/tag/v1.0.0-rc1) - 2023-03-07
+
+Second `v1.0.0` release candidate for a Kaon network upgrade.
 
 ### Improvements
 
