@@ -4,7 +4,6 @@ VERSION := v1.0.0 # $(shell echo $(shell git describe --tags) | sed 's/^v//')
 DENOM ?= ukyve
 TEAM_TGE ?= 2023-03-14T14:03:14
 TEAM_ALLOCATION ?= 165000000000000
-# TODO(@john): Update these to the mainnet parameters.
 TEAM_FOUNDATION_ADDRESS ?= kyve1xjpl57p7f49y5gueu7rlfytaw9ramcn5zhjy2g
 TEAM_BCP_ADDRESS ?= kyve1fnh4kghr25tppskap50zk5j385pt65tyyjaraa
 ifeq ($(ENV),kaon)
