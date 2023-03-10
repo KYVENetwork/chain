@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	serverCfg "github.com/cosmos/cosmos-sdk/server/config"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	tmCfg "github.com/tendermint/tendermint/config"
@@ -8,7 +11,7 @@ import (
 
 func initAppConfig() (string, *serverCfg.Config) {
 	cfg := serverCfg.DefaultConfig()
-	cfg.MinGasPrices = "0.001tkyve"
+	cfg.MinGasPrices = fmt.Sprintf("0.001%s", globalTypes.Denom)
 
 	return serverCfg.DefaultConfigTemplate, cfg
 }
