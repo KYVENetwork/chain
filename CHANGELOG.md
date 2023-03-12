@@ -14,6 +14,11 @@
 
 ## [Unreleased]
 
+### Improvements
+
+- (deps) Switch to CometBFT from Informal Systems' Tendermint fork.
+- (deps) Bump Cosmos SDK to [v0.46.11](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.11) ([`v0.46.11-kyve-rc0`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.46.11-kyve-rc0)).
+
 ## [v1.0.0](https://github.com/KYVENetwork/chain/releases/tag/v1.0.0) - 2023-03-10
 
 Release for the KYVE network launch.
