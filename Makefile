@@ -1,5 +1,6 @@
 COMMIT := $(shell git log -1 --format='%H')
-VERSION := v1.0.0 # $(shell echo $(shell git describe --tags) | sed 's/^v//')
+VERSION := v1.0.0
+# $(shell echo $(shell git describe --tags) | sed 's/^v//')
 
 DENOM ?= ukyve
 TEAM_TGE ?= 2023-03-14T14:03:14
@@ -69,6 +70,36 @@ release:
 
 	@rm kyved
 	@echo "✅ Completed release creation!"
+
+###############################################################################
+###                               Docker Build                              ###
+###############################################################################
+
+# Build a release image
+.PHONY: docker-image
+docker-image:
+	@DOCKER_BUILDKIT=1 docker build -t kyve-network/kyve:${VERSION} .
+
+# Build a release nonroot image
+.PHONY: docker-image-nonroot
+docker-image-nonroot:
+	@DOCKER_BUILDKIT=1 docker build \
+		--build-arg IMG_TAG="nonroot" \
+		-t kyve-network/kyve:${VERSION}-nonroot .
+
+# Build a release debug image
+.PHONY: docker-image-debug
+docker-image-debug:
+	@DOCKER_BUILDKIT=1 docker build \
+		--build-arg IMG_TAG="debug" \
+		-t kyve-network/kyve:${VERSION}-debug .
+
+# Build a release debug-nonroot image
+.PHONY: docker-image-debug-nonroot
+docker-image-debug-nonroot:
+	@DOCKER_BUILDKIT=1 docker build \
+		--build-arg IMG_TAG="debug-nonroot" \
+		-t kyve-network/kyve:${VERSION}-debug-nonroot .
 
 ###############################################################################
 ###                               Development                               ###
