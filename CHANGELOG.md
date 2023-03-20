@@ -18,6 +18,11 @@
 
 - Emit an event when updating module parameters.
 
+### State Machine Breaking
+
+- (`x/bundles`) [#19](https://github.com/KYVENetwork/chain/pull/19) Migrate `NetworkFee` param to type `sdk.Dec`.
+- (`x/delegation`) [#19](https://github.com/KYVENetwork/chain/pull/19) Migrate `VoteSlash`, `UploadSlash`, `TimeoutSlash` params to type `sdk.Dec`.
+
 ## [v1.0.0](https://github.com/KYVENetwork/chain/releases/tag/v1.0.0) - 2023-03-10
 
 Release for the KYVE network launch.
