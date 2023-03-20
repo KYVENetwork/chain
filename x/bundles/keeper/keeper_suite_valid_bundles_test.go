@@ -179,7 +179,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// calculate uploader rewards
 		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
-		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
 		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
@@ -295,7 +295,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// calculate uploader rewards
 		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
-		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
 		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
@@ -444,7 +444,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// calculate uploader rewards
 		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
-		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
 		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
@@ -599,7 +599,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// calculate uploader rewards
 		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
-		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
 		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
@@ -759,7 +759,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// calculate uploader rewards
 		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
-		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
 		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
@@ -927,7 +927,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// calculate uploader rewards
 		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
-		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
 		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
@@ -1084,7 +1084,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), valaccountUploader.Staker)
 
 		// calculate voter slashes
-		fraction, _ := sdk.NewDecFromStr(s.App().DelegationKeeper.GetVoteSlash(s.Ctx()))
+		fraction := s.App().DelegationKeeper.GetVoteSlash(s.Ctx())
 		slashAmountVoter := uint64(sdk.NewDec(int64(200 * i.KYVE)).Mul(fraction).TruncateInt64())
 		slashAmountDelegator := uint64(sdk.NewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 
@@ -1105,7 +1105,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// calculate uploader rewards
 		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
-		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
 		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())

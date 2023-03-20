@@ -3,33 +3,42 @@ package util
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func ValidateUint64(v interface{}) error {
-	_, ok := v.(uint64)
+func ValidateDecimal(i interface{}) error {
+	v, ok := i.(sdk.Dec)
 	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", v)
+		return fmt.Errorf("invalid type: %T", i)
 	}
+
+	if v.IsNil() || v.IsNegative() {
+		return fmt.Errorf("invalid decimal: %s", v)
+	}
+
 	return nil
 }
 
-func ValidatePercentage(v interface{}) error {
-	val, ok := v.(string)
+func ValidateNumber(i uint64) error {
+	v := math.NewIntFromUint64(i)
+
+	if v.IsNil() || v.IsNegative() {
+		return fmt.Errorf("invalid number: %s", v)
+	}
+
+	return nil
+}
+
+func ValidatePercentage(i interface{}) error {
+	v, ok := i.(sdk.Dec)
 	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", v)
+		return fmt.Errorf("invalid type: %T", i)
 	}
 
-	parsedVal, err := sdk.NewDecFromStr(val)
-	if err != nil {
-		return fmt.Errorf("invalid decimal representation: %T", v)
-	}
-
-	if parsedVal.LT(sdk.NewDec(0)) {
-		return fmt.Errorf("percentage should be greater than or equal to 0")
-	}
-	if parsedVal.GT(sdk.NewDec(1)) {
-		return fmt.Errorf("percentage should be less than or equal to 1")
+	if v.IsNil() || v.IsNegative() || v.GT(sdk.OneDec()) {
+		return fmt.Errorf("invalid percentage: %s", v)
 	}
 
 	return nil
