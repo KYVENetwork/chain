@@ -14,6 +14,10 @@
 
 ## [Unreleased]
 
+### Improvements
+
+- Emit an event when updating module parameters.
+
 ## [v1.0.0](https://github.com/KYVENetwork/chain/releases/tag/v1.0.0) - 2023-03-10
 
 Release for the KYVE network launch.
