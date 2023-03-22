@@ -3,6 +3,9 @@ package v1_1
 // UpgradeName is the name of this specific software upgrade used on-chain.
 const UpgradeName = "v1.1.0"
 
+// MainnetChainID is the Chain ID of KYVE mainnet.
+const MainnetChainID = "kyve-1"
+
 // InvestorAccounts is a list of accounts from our second funding round.
 var InvestorAccounts []string
 

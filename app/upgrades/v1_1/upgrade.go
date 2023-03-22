@@ -19,8 +19,10 @@ func CreateUpgradeHandler(
 	accountKeeper authKeeper.AccountKeeper,
 ) upgradeTypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradeTypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		for _, address := range InvestorAccounts {
-			AdjustInvestorVesting(ctx, accountKeeper, sdk.MustAccAddressFromBech32(address))
+		if ctx.ChainID() == MainnetChainID {
+			for _, address := range InvestorAccounts {
+				AdjustInvestorVesting(ctx, accountKeeper, sdk.MustAccAddressFromBech32(address))
+			}
 		}
 
 		return mm.RunMigrations(ctx, configurator, vm)
