@@ -266,7 +266,7 @@ type StakerMetadata struct {
 	Moniker string `protobuf:"bytes,2,opt,name=moniker,proto3" json:"moniker,omitempty"`
 	// website is a https-link to the website of the staker
 	Website string `protobuf:"bytes,3,opt,name=website,proto3" json:"website,omitempty"`
-	// identity form keybase.io
+	// identity from keybase.io
 	Identity string `protobuf:"bytes,4,opt,name=identity,proto3" json:"identity,omitempty"`
 	// security_contact ...
 	SecurityContact string `protobuf:"bytes,5,opt,name=security_contact,json=securityContact,proto3" json:"security_contact,omitempty"`

@@ -149,7 +149,7 @@ var _ = Describe("msg_server_update_metadata.go", Ordered, func() {
 
 	It("Invalid Identity", func() {
 		// ARRANGE
-		var invalidIdentity = "7CD454E228C8F22H"
+		invalidIdentity := "7CD454E228C8F22H"
 
 		// ACT
 		msg := stakerstypes.MsgUpdateMetadata{
@@ -164,7 +164,7 @@ var _ = Describe("msg_server_update_metadata.go", Ordered, func() {
 
 	It("Identity with lower-case hex letters", func() {
 		// ARRANGE
-		var invalidIdentity = "7cd454e228c8f227"
+		invalidIdentity := "7cd454e228c8f227"
 
 		// ACT
 		msg := stakerstypes.MsgUpdateMetadata{

@@ -536,7 +536,7 @@ paths:
                                 staker
                             identity:
                               type: string
-                              title: identity form keybase.io
+                              title: identity from keybase.io
                             security_contact:
                               type: string
                               description: security_contact ...
@@ -4038,7 +4038,7 @@ paths:
                                 staker
                             identity:
                               type: string
-                              title: identity form keybase.io
+                              title: identity from keybase.io
                             security_contact:
                               type: string
                               description: security_contact ...
@@ -6062,7 +6062,7 @@ paths:
                         title: website is a https-link to the website of the staker
                       identity:
                         type: string
-                        title: identity form keybase.io
+                        title: identity from keybase.io
                       security_contact:
                         type: string
                         description: security_contact ...
@@ -6485,7 +6485,7 @@ paths:
                           title: website is a https-link to the website of the staker
                         identity:
                           type: string
-                          title: identity form keybase.io
+                          title: identity from keybase.io
                         security_contact:
                           type: string
                           description: security_contact ...
@@ -7007,7 +7007,7 @@ paths:
                                 staker
                             identity:
                               type: string
-                              title: identity form keybase.io
+                              title: identity from keybase.io
                             security_contact:
                               type: string
                               description: security_contact ...
@@ -7486,7 +7486,7 @@ paths:
                           title: website is a https-link to the website of the staker
                         identity:
                           type: string
-                          title: identity form keybase.io
+                          title: identity from keybase.io
                         security_contact:
                           type: string
                           description: security_contact ...
