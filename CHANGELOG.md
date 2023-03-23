@@ -14,6 +14,11 @@
 
 ## [Unreleased]
 
+### State Machine Breaking
+
+- (`x/stakers`) [#xx](https://github.com/KYVENetwork/chain/pull/xx) Migrate staker `Logo` to type `identity`. Add `SecurityContact` and `Details` field.
+
+
 ### Bug Fixes
 
 - [#20](https://github.com/KYVENetwork/chain/pull/20) Adjust investor vesting schedules from second funding round.
