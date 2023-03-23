@@ -18,6 +18,10 @@
 
 - Emit an event when updating module parameters.
 
+### Bug Fixes
+
+- [#20](https://github.com/KYVENetwork/chain/pull/20) Adjust investor vesting schedules from second funding round.
+
 ### State Machine Breaking
 
 - (`x/bundles`) [#19](https://github.com/KYVENetwork/chain/pull/19) Migrate `NetworkFee` param to type `sdk.Dec`.
@@ -29,14 +33,14 @@ Release for the KYVE network launch.
 
 ## [v1.0.0-rc1](https://github.com/KYVENetwork/chain/releases/tag/v1.0.0-rc1) - 2023-03-07
 
-Second `v1.0.0` release candidate for a Kaon network upgrade.
+`v1.0.0` Release Candidate for a Kaon network upgrade.
 
 ### Improvements
 
 - (deps) [#3](https://github.com/KYVENetwork/chain/pull/3), [#7](https://github.com/KYVENetwork/chain/pull/7) Bump Cosmos SDK to [v0.46.10](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.10) ([`v0.46.10-kyve-rc0`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.46.10-kyve-rc0)).
 - (deps) [#3](https://github.com/KYVENetwork/chain/pull/3) Bump IBC to [v6.1.0](https://github.com/cosmos/ibc-go/releases/tag/v6.1.0).
 - (deps) [#7](https://github.com/KYVENetwork/chain/pull/7) Bump Tendermint to [v0.34.26](https://github.com/informalsystems/tendermint/releases/tag/v0.34.26).
-- (`x/team`) [#7](https://github.com/KYVENetwork/chain/pull/7) Switched to a co-minting approach.
+- (`x/team`) [#7](https://github.com/KYVENetwork/chain/pull/7) Switch to a co-minting approach.
 
 ### State Machine Breaking
 

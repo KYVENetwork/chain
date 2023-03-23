@@ -48,6 +48,11 @@ func (k msgServer) JoinPool(goCtx context.Context, msg *types.MsgJoinPool) (*typ
 		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrAlreadyJoinedPool.Error())
 	}
 
+	// Only join if it is possible
+	if errFreeSlot := k.ensureFreeSlot(ctx, msg.PoolId, staker.Address); errFreeSlot != nil {
+		return nil, errFreeSlot
+	}
+
 	// Every valaddress can only be used for one pool. It is not allowed
 	// to use the same valaddress for multiple pools. (to avoid account sequence errors,
 	// when two processes try so submit transactions simultaneously)
@@ -64,11 +69,6 @@ func (k msgServer) JoinPool(goCtx context.Context, msg *types.MsgJoinPool) (*typ
 		if valaccount.Valaddress == msg.Valaddress {
 			return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ValaddressAlreadyUsed.Error())
 		}
-	}
-
-	// Only join if it is possible
-	if errFreeSlot := k.ensureFreeSlot(ctx, msg.PoolId, staker.Address); errFreeSlot != nil {
-		return nil, errFreeSlot
 	}
 
 	k.AddValaccountToPool(ctx, msg.PoolId, msg.Creator, msg.Valaddress)
