@@ -1,6 +1,7 @@
 package v1_1
 
 import (
+	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
@@ -17,6 +18,7 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	accountKeeper authKeeper.AccountKeeper,
+	stakerKeeper stakersKeeper.Keeper,
 ) upgradeTypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradeTypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		if ctx.ChainID() == MainnetChainID {
@@ -24,6 +26,8 @@ func CreateUpgradeHandler(
 				AdjustInvestorVesting(ctx, accountKeeper, sdk.MustAccAddressFromBech32(address))
 			}
 		}
+
+		MigrateStakerLogo(ctx, stakerKeeper)
 
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
@@ -44,4 +48,13 @@ func AdjustInvestorVesting(ctx sdk.Context, accountKeeper authKeeper.AccountKeep
 	)
 
 	accountKeeper.SetAccount(ctx, updatedAccount)
+}
+
+// MigrateStakerLogo migrates all existing staker metadata. The `Logo` field got replaced by `Identity`
+// and must be a valid hex string. Therefore, all Logo URLs are reset to empty strings and the stakers
+// have to use the UpdateMetadata message to set their identity.
+func MigrateStakerLogo(ctx sdk.Context, keeper stakersKeeper.Keeper) {
+	for _, staker := range keeper.GetAllStakers(ctx) {
+		keeper.UpdateStakerMetadata(ctx, staker.Address, staker.Moniker, staker.Website, "", "", "")
+	}
 }
