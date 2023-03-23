@@ -17,7 +17,7 @@ message Staker {
   string website = 4;
   // identity is the 64 bit keybase.io identity string
   string identity = 5;
-  // security contact ...
+  // security_contact ...
   string security_contact = 6;
   // details are some additional notes the staker finds important
   string details = 7;

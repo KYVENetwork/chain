@@ -16,7 +16,7 @@ var (
 	ErrStakerAlreadyCreated    = errors.Register(ModuleName, 1110, "Staker already created")
 	ErrValaddressSameAsStaker  = errors.Register(ModuleName, 1111, "Valaddress has same address as Valaddress")
 	ErrCanNotJoinDisabledPool  = errors.Register(ModuleName, 1112, "can not join disabled pool")
-	ErrInvalidIdentityString   = errors.Register(ModuleName, 1113, "String is not a valid identity: %s")
+	ErrInvalidIdentityString   = errors.Register(ModuleName, 1113, "invalid identity: %s")
 
 	ErrInvalidCommission          = errors.Register(ModuleName, 1116, "invalid commission %v")
 	ErrPoolLeaveAlreadyInProgress = errors.Register(ModuleName, 1117, "Pool leave is already in progress")

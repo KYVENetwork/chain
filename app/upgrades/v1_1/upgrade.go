@@ -1,7 +1,6 @@
 package v1_1
 
 import (
-	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
@@ -10,6 +9,8 @@ import (
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingExported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	vestingTypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	// Stakers
+	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
 	// Upgrade
 	upgradeTypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
@@ -27,7 +28,7 @@ func CreateUpgradeHandler(
 			}
 		}
 
-		MigrateStakerLogo(ctx, stakerKeeper)
+		MigrateStakerMetadata(ctx, stakerKeeper)
 
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
@@ -36,8 +37,8 @@ func CreateUpgradeHandler(
 // AdjustInvestorVesting correctly adjusts the vesting schedules of investors
 // from our second funding round. In genesis, the accounts were set up with an
 // 18-month cliff instead of a 6-month cliff.
-func AdjustInvestorVesting(ctx sdk.Context, accountKeeper authKeeper.AccountKeeper, address sdk.AccAddress) {
-	rawAccount := accountKeeper.GetAccount(ctx, address)
+func AdjustInvestorVesting(ctx sdk.Context, keeper authKeeper.AccountKeeper, address sdk.AccAddress) {
+	rawAccount := keeper.GetAccount(ctx, address)
 	account := rawAccount.(vestingExported.VestingAccount)
 
 	baseAccount := authTypes.NewBaseAccount(
@@ -47,13 +48,13 @@ func AdjustInvestorVesting(ctx sdk.Context, accountKeeper authKeeper.AccountKeep
 		baseAccount, account.GetOriginalVesting(), StartTime, EndTime,
 	)
 
-	accountKeeper.SetAccount(ctx, updatedAccount)
+	keeper.SetAccount(ctx, updatedAccount)
 }
 
-// MigrateStakerLogo migrates all existing staker metadata. The `Logo` field got replaced by `Identity`
-// and must be a valid hex string. Therefore, all Logo URLs are reset to empty strings and the stakers
-// have to use the UpdateMetadata message to set their identity.
-func MigrateStakerLogo(ctx sdk.Context, keeper stakersKeeper.Keeper) {
+// MigrateStakerMetadata migrates all existing staker metadata. The `Logo`
+// field has been deprecated and replaced by the `Identity` field. This new
+// field must be a valid hex string; therefore, must be set to empty for now.
+func MigrateStakerMetadata(ctx sdk.Context, keeper stakersKeeper.Keeper) {
 	for _, staker := range keeper.GetAllStakers(ctx) {
 		keeper.UpdateStakerMetadata(ctx, staker.Address, staker.Moniker, staker.Website, "", "", "")
 	}

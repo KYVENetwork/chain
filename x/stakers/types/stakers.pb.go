@@ -35,7 +35,7 @@ type Staker struct {
 	Website string `protobuf:"bytes,4,opt,name=website,proto3" json:"website,omitempty"`
 	// identity is the 64 bit keybase.io identity string
 	Identity string `protobuf:"bytes,5,opt,name=identity,proto3" json:"identity,omitempty"`
-	// security contact ...
+	// security_contact ...
 	SecurityContact string `protobuf:"bytes,6,opt,name=security_contact,json=securityContact,proto3" json:"security_contact,omitempty"`
 	// details are some additional notes the staker finds important
 	Details string `protobuf:"bytes,7,opt,name=details,proto3" json:"details,omitempty"`
