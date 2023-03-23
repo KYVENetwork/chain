@@ -103,15 +103,21 @@ message StakerMetadata {
   // website is a https-link to the website of the staker
   string website = 3;
 
-  // logo is a link to an image file (like jpg or png)
-  string logo = 4;
+  // identity from keybase.io
+  string identity = 4;
+
+  // security_contact ...
+  string security_contact = 5;
+
+  // details ...
+  string details = 6;
 
   // pending_commission_change shows if the staker plans
   // to change its commission. Delegators will see a warning in
   // the UI. A Commission change takes some time until
   // the commission is applied. Users have time to redelegate
   // if they not agree with the new commission.
-  CommissionChangeEntry pending_commission_change = 5;
+  CommissionChangeEntry pending_commission_change = 7;
 }
 
 // CommissionChangeEntry shows when the old commission

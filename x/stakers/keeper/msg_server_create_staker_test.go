@@ -59,8 +59,10 @@ var _ = Describe("msg_server_create_staker.go", Ordered, func() {
 		Expect(staker.Commission).To(Equal(types.DefaultCommission))
 
 		Expect(staker.Moniker).To(BeEmpty())
-		Expect(staker.Logo).To(BeEmpty())
+		Expect(staker.Identity).To(BeEmpty())
 		Expect(staker.Website).To(BeEmpty())
+		Expect(staker.SecurityContact).To(BeEmpty())
+		Expect(staker.Details).To(BeEmpty())
 
 		Expect(valaccounts).To(BeEmpty())
 	})
@@ -96,8 +98,10 @@ var _ = Describe("msg_server_create_staker.go", Ordered, func() {
 		Expect(staker.Commission).To(Equal(types.DefaultCommission))
 
 		Expect(staker.Moniker).To(BeEmpty())
-		Expect(staker.Logo).To(BeEmpty())
+		Expect(staker.Identity).To(BeEmpty())
 		Expect(staker.Website).To(BeEmpty())
+		Expect(staker.SecurityContact).To(BeEmpty())
+		Expect(staker.Details).To(BeEmpty())
 
 		Expect(valaccounts).To(HaveLen(0))
 	})
@@ -150,8 +154,10 @@ var _ = Describe("msg_server_create_staker.go", Ordered, func() {
 		Expect(staker.Commission).To(Equal(types.DefaultCommission))
 
 		Expect(staker.Moniker).To(BeEmpty())
-		Expect(staker.Logo).To(BeEmpty())
+		Expect(staker.Identity).To(BeEmpty())
 		Expect(staker.Website).To(BeEmpty())
+		Expect(staker.SecurityContact).To(BeEmpty())
+		Expect(staker.Details).To(BeEmpty())
 
 		Expect(valaccounts).To(BeEmpty())
 	})
@@ -185,8 +191,10 @@ var _ = Describe("msg_server_create_staker.go", Ordered, func() {
 		Expect(staker.Commission).To(Equal(types.DefaultCommission))
 
 		Expect(staker.Moniker).To(BeEmpty())
-		Expect(staker.Logo).To(BeEmpty())
+		Expect(staker.Identity).To(BeEmpty())
 		Expect(staker.Website).To(BeEmpty())
+		Expect(staker.SecurityContact).To(BeEmpty())
+		Expect(staker.Details).To(BeEmpty())
 
 		Expect(valaccounts).To(BeEmpty())
 	})

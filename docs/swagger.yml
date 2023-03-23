@@ -534,11 +534,15 @@ paths:
                               title: >-
                                 website is a https-link to the website of the
                                 staker
-                            logo:
+                            identity:
                               type: string
-                              title: >-
-                                logo is a link to an image file (like jpg or
-                                png)
+                              title: identity form keybase.io
+                            security_contact:
+                              type: string
+                              description: security_contact ...
+                            details:
+                              type: string
+                              description: details ...
                             pending_commission_change:
                               description: >-
                                 pending_commission_change shows if the staker
@@ -4032,11 +4036,15 @@ paths:
                               title: >-
                                 website is a https-link to the website of the
                                 staker
-                            logo:
+                            identity:
                               type: string
-                              title: >-
-                                logo is a link to an image file (like jpg or
-                                png)
+                              title: identity form keybase.io
+                            security_contact:
+                              type: string
+                              description: security_contact ...
+                            details:
+                              type: string
+                              description: details ...
                             pending_commission_change:
                               description: >-
                                 pending_commission_change shows if the staker
@@ -6052,9 +6060,15 @@ paths:
                       website:
                         type: string
                         title: website is a https-link to the website of the staker
-                      logo:
+                      identity:
                         type: string
-                        title: logo is a link to an image file (like jpg or png)
+                        title: identity form keybase.io
+                      security_contact:
+                        type: string
+                        description: security_contact ...
+                      details:
+                        type: string
+                        description: details ...
                       pending_commission_change:
                         description: >-
                           pending_commission_change shows if the staker plans
@@ -6469,9 +6483,15 @@ paths:
                         website:
                           type: string
                           title: website is a https-link to the website of the staker
-                        logo:
+                        identity:
                           type: string
-                          title: logo is a link to an image file (like jpg or png)
+                          title: identity form keybase.io
+                        security_contact:
+                          type: string
+                          description: security_contact ...
+                        details:
+                          type: string
+                          description: details ...
                         pending_commission_change:
                           description: >-
                             pending_commission_change shows if the staker plans
@@ -6985,11 +7005,15 @@ paths:
                               title: >-
                                 website is a https-link to the website of the
                                 staker
-                            logo:
+                            identity:
                               type: string
-                              title: >-
-                                logo is a link to an image file (like jpg or
-                                png)
+                              title: identity form keybase.io
+                            security_contact:
+                              type: string
+                              description: security_contact ...
+                            details:
+                              type: string
+                              description: details ...
                             pending_commission_change:
                               description: >-
                                 pending_commission_change shows if the staker
@@ -7460,9 +7484,15 @@ paths:
                         website:
                           type: string
                           title: website is a https-link to the website of the staker
-                        logo:
+                        identity:
                           type: string
-                          title: logo is a link to an image file (like jpg or png)
+                          title: identity form keybase.io
+                        security_contact:
+                          type: string
+                          description: security_contact ...
+                        details:
+                          type: string
+                          description: details ...
                         pending_commission_change:
                           description: >-
                             pending_commission_change shows if the staker plans

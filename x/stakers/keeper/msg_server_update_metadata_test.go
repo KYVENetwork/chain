@@ -1,6 +1,8 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/errors"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -43,16 +45,20 @@ var _ = Describe("msg_server_update_metadata.go", Ordered, func() {
 
 		Expect(staker.Moniker).To(BeEmpty())
 		Expect(staker.Website).To(BeEmpty())
-		Expect(staker.Logo).To(BeEmpty())
+		Expect(staker.Identity).To(BeEmpty())
+		Expect(staker.SecurityContact).To(BeEmpty())
+		Expect(staker.Details).To(BeEmpty())
 	})
 
 	It("Update metadata with real values of a newly created staker", func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateMetadata{
-			Creator: i.STAKER_0,
-			Moniker: "KYVE Node Runner",
-			Website: "https://kyve.network",
-			Logo:    "https://arweave.net/Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Creator:         i.STAKER_0,
+			Moniker:         "KYVE Node Runner",
+			Website:         "https://kyve.network",
+			Identity:        "7CD454E228C8F227",
+			SecurityContact: "security@kyve.network",
+			Details:         "KYVE Protocol Node",
 		})
 
 		// ASSERT
@@ -60,24 +66,30 @@ var _ = Describe("msg_server_update_metadata.go", Ordered, func() {
 
 		Expect(staker.Moniker).To(Equal("KYVE Node Runner"))
 		Expect(staker.Website).To(Equal("https://kyve.network"))
-		Expect(staker.Logo).To(Equal("https://arweave.net/Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU"))
+		Expect(staker.Identity).To(Equal("7CD454E228C8F227"))
+		Expect(staker.SecurityContact).To(Equal("security@kyve.network"))
+		Expect(staker.Details).To(Equal("KYVE Protocol Node"))
 	})
 
 	It("Reset metadata to empty values", func() {
 		// ARRANGE
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateMetadata{
-			Creator: i.STAKER_0,
-			Moniker: "KYVE Node Runner",
-			Website: "https://kyve.network",
-			Logo:    "https://arweave.net/Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Creator:         i.STAKER_0,
+			Moniker:         "KYVE Node Runner",
+			Website:         "https://kyve.network",
+			Identity:        "7CD454E228C8F227",
+			SecurityContact: "security@kyve.network",
+			Details:         "KYVE Protocol Node",
 		})
 
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateMetadata{
-			Creator: i.STAKER_0,
-			Moniker: "",
-			Website: "",
-			Logo:    "",
+			Creator:         i.STAKER_0,
+			Moniker:         "",
+			Website:         "",
+			Identity:        "",
+			SecurityContact: "",
+			Details:         "",
 		})
 
 		// ASSERT
@@ -85,7 +97,9 @@ var _ = Describe("msg_server_update_metadata.go", Ordered, func() {
 
 		Expect(staker.Moniker).To(BeEmpty())
 		Expect(staker.Website).To(BeEmpty())
-		Expect(staker.Logo).To(BeEmpty())
+		Expect(staker.Identity).To(BeEmpty())
+		Expect(staker.SecurityContact).To(BeEmpty())
+		Expect(staker.Details).To(BeEmpty())
 	})
 
 	It("One below max length", func() {
@@ -97,10 +111,12 @@ var _ = Describe("msg_server_update_metadata.go", Ordered, func() {
 
 		// ACT
 		msg := stakerstypes.MsgUpdateMetadata{
-			Creator: i.STAKER_0,
-			Moniker: stringStillAllowed,
-			Website: stringStillAllowed,
-			Logo:    stringStillAllowed,
+			Creator:         i.STAKER_0,
+			Moniker:         stringStillAllowed,
+			Website:         stringStillAllowed,
+			Identity:        "",
+			SecurityContact: stringStillAllowed,
+			Details:         stringStillAllowed,
 		}
 		err := msg.ValidateBasic()
 
@@ -118,14 +134,46 @@ var _ = Describe("msg_server_update_metadata.go", Ordered, func() {
 
 		// ACT
 		msg := stakerstypes.MsgUpdateMetadata{
-			Creator: i.STAKER_0,
-			Moniker: stringTooLong,
-			Website: stringTooLong,
-			Logo:    stringTooLong,
+			Creator:         i.STAKER_0,
+			Moniker:         stringTooLong,
+			Website:         stringTooLong,
+			Identity:        "",
+			SecurityContact: stringTooLong,
+			Details:         stringTooLong,
 		}
 		err := msg.ValidateBasic()
 
 		// ASSERT
 		Expect(err).ToNot(BeNil())
+	})
+
+	It("Invalid Identity", func() {
+		// ARRANGE
+		var invalidIdentity = "7CD454E228C8F22H"
+
+		// ACT
+		msg := stakerstypes.MsgUpdateMetadata{
+			Creator:  i.STAKER_0,
+			Identity: invalidIdentity,
+		}
+		err := msg.ValidateBasic()
+
+		// ASSERT
+		Expect(err.Error()).To(Equal(errors.Wrapf(errorsTypes.ErrLogic, stakerstypes.ErrInvalidIdentityString.Error(), msg.Identity).Error()))
+	})
+
+	It("Identity with lower-case hex letters", func() {
+		// ARRANGE
+		var invalidIdentity = "7cd454e228c8f227"
+
+		// ACT
+		msg := stakerstypes.MsgUpdateMetadata{
+			Creator:  i.STAKER_0,
+			Identity: invalidIdentity,
+		}
+		err := msg.ValidateBasic()
+
+		// ASSERT
+		Expect(err).To(BeNil())
 	})
 })
