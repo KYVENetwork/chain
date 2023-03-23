@@ -180,12 +180,11 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// calculate uploader rewards
 		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
 		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
 		totalUploaderReward := totalReward - treasuryReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(commission).TruncateInt64())
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert payout transfer
@@ -296,12 +295,11 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// calculate uploader rewards
 		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
 		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
 		totalUploaderReward := totalReward - treasuryReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(commission).TruncateInt64())
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		totalDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// divide with 4 because uploader only has 25% of total delegation
@@ -445,12 +443,11 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// calculate uploader rewards
 		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
 		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
 		totalUploaderReward := totalReward - treasuryReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(commission).TruncateInt64())
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert payout transfer
@@ -600,12 +597,11 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// calculate uploader rewards
 		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
 		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
 		totalUploaderReward := totalReward - treasuryReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(commission).TruncateInt64())
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		totalDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// divide with 4 because uploader only has 25% of total delegation
@@ -760,12 +756,11 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// calculate uploader rewards
 		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
 		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
 		totalUploaderReward := totalReward - treasuryReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(commission).TruncateInt64())
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		totalDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// divide with 4 because uploader only has 25% of total delegation
@@ -928,12 +923,11 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// calculate uploader rewards
 		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
 		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
 		totalUploaderReward := totalReward - treasuryReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(commission).TruncateInt64())
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		totalDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// divide with 4 because uploader only has 25% of total delegation
@@ -1106,12 +1100,11 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// calculate uploader rewards
 		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		commission, _ := sdk.NewDecFromStr(uploader.Commission)
 
 		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
 		totalUploaderReward := totalReward - treasuryReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(commission).TruncateInt64())
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		totalDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// divide with 4 because uploader only has 25% of total delegation

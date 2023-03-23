@@ -46,7 +46,10 @@ message EventUpdateCommission {
   // staker is the account address of the protocol node.
   string staker = 1;
   // commission ...
-  string commission = 2;
+  string commission = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // EventJoinPool ...
