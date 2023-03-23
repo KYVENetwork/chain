@@ -14,14 +14,18 @@
 
 ## [Unreleased]
 
-### State Machine Breaking
+### Improvements
 
-- (`x/stakers`) [#xx](https://github.com/KYVENetwork/chain/pull/xx) Migrate staker `Logo` to type `identity`. Add `SecurityContact` and `Details` field.
-
+- (deps) [#21](https://github.com/KYVENetwork/chain/pull/21) Bump Cosmos SDK to [v0.46.11](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.11) ([`v0.46.11-kyve-rc0`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.46.11-kyve-rc0)).
+- (deps) [#21](https://github.com/KYVENetwork/chain/pull/21) Switch to CometBFT from Informal Systems' Tendermint fork.
 
 ### Bug Fixes
 
 - [#20](https://github.com/KYVENetwork/chain/pull/20) Adjust investor vesting schedules from second funding round.
+
+### State Machine Breaking
+
+- (`x/stakers`) [#23](https://github.com/KYVENetwork/chain/pull/23) Improve metadata by adding `Identity`, `SecurityContact`, `Details` fields, deprecating `Logo`.
 
 ## [v1.0.0](https://github.com/KYVENetwork/chain/releases/tag/v1.0.0) - 2023-03-10
 
