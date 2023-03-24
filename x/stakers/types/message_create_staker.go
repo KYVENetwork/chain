@@ -27,5 +27,13 @@ func (msg *MsgCreateStaker) ValidateBasic() error {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid amount")
 	}
 
+	if msg.Commission.IsNil() {
+		msg.Commission = DefaultCommission
+	}
+
+	if msg.Commission.IsNegative() || msg.Commission.GT(sdk.OneDec()) {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid commission")
+	}
+
 	return nil
 }
