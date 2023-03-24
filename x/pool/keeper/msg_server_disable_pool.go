@@ -13,7 +13,10 @@ import (
 	"github.com/KYVENetwork/chain/x/pool/types"
 )
 
-func (k msgServer) DisablePool(goCtx context.Context, req *types.MsgDisablePool) (*types.MsgDisablePoolResponse, error) {
+func (k msgServer) DisablePool(
+	goCtx context.Context,
+	req *types.MsgDisablePool,
+) (*types.MsgDisablePoolResponse, error) {
 	if k.authority != req.Authority {
 		return nil, errors.Wrapf(govTypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, req.Authority)
 	}
@@ -37,6 +40,8 @@ func (k msgServer) DisablePool(goCtx context.Context, req *types.MsgDisablePool)
 	for _, staker := range poolMembers {
 		k.stakersKeeper.LeavePool(ctx, staker, pool.Id)
 	}
+
+	_ = ctx.EventManager().EmitTypedEvent(&types.EventPoolDisabled{Id: req.Id})
 
 	return &types.MsgDisablePoolResponse{}, nil
 }
