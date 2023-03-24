@@ -22,5 +22,12 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 	// Create and insert unbonding queue entry.
 	k.StartUnbondingDelegator(ctx, msg.Staker, msg.Creator, msg.Amount)
 
+	_ = ctx.EventManager().EmitTypedEvent(&types.EventStartUndelegation{
+		Address:                   msg.Creator,
+		Staker:                    msg.Staker,
+		Amount:                    msg.Amount,
+		EstimatedUndelegationDate: uint64(ctx.BlockTime().Unix()) + k.GetUnbondingDelegationTime(ctx),
+	})
+
 	return &types.MsgUndelegateResponse{}, nil
 }

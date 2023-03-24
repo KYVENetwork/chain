@@ -31,6 +31,7 @@
   - EventRuntimeUpgradeScheduled
   - EventRuntimeUpgradeCancelled
   - EventPoolUpdated
+  - EventStartUndelegation
 
 ## [v1.0.0](https://github.com/KYVENetwork/chain/releases/tag/v1.0.0) - 2023-03-10
 
