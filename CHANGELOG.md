@@ -23,6 +23,15 @@
 
 - [#20](https://github.com/KYVENetwork/chain/pull/20) Adjust investor vesting schedules from second funding round.
 
+### State Machine Breaking
+
+- (`x/pool`) [#24](https://github.com/KYVENetwork/chain/pull/24) For KYVE governance proposals the following new events are emitted, when the corresponding proposal passes:
+  - EventPoolEnabled
+  - EventPoolDisabled
+  - EventRuntimeUpgradeScheduled
+  - EventRuntimeUpgradeCancelled
+  - EventPoolUpdated
+
 ## [v1.0.0](https://github.com/KYVENetwork/chain/releases/tag/v1.0.0) - 2023-03-10
 
 Release for the KYVE network launch.
