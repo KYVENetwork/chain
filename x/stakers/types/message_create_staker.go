@@ -3,6 +3,7 @@ package types
 import (
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
+	"github.com/KYVENetwork/chain/util"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -25,6 +26,13 @@ func (msg *MsgCreateStaker) ValidateBasic() error {
 
 	if amount := math.NewIntFromUint64(msg.Amount); amount.IsNil() || amount.IsNegative() {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid amount")
+	}
+
+	if msg.Commission.IsNil() {
+		msg.Commission = DefaultCommission
+	}
+	if util.ValidatePercentage(msg.Commission) != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid commission")
 	}
 
 	return nil

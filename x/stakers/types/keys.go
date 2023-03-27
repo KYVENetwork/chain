@@ -62,7 +62,7 @@ var (
 
 const MaxStakers = 50
 
-var DefaultCommission = sdk.MustNewDecFromStr("0.9")
+var DefaultCommission = sdk.MustNewDecFromStr("0.1")
 
 // StakerKey returns the store Key to retrieve a Staker from the index fields
 func StakerKey(staker string) []byte {
