@@ -12,12 +12,15 @@ import (
 
 // WithdrawRewards calculates the current rewards of a delegator and transfers the balance to
 // the delegator's wallet. Only the delegator himself can call this transaction.
-func (k msgServer) WithdrawRewards(goCtx context.Context, msg *types.MsgWithdrawRewards) (*types.MsgWithdrawRewardsResponse, error) {
+func (k msgServer) WithdrawRewards(
+	goCtx context.Context,
+	msg *types.MsgWithdrawRewards,
+) (*types.MsgWithdrawRewardsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Check if the sender has delegated to the given staker
 	if !k.DoesDelegatorExist(ctx, msg.Staker, msg.Creator) {
-		return nil, sdkErrors.WithType(types.ErrNotADelegator, msg.Creator)
+		return nil, sdkErrors.Wrapf(types.ErrNotADelegator, "%s does not delegate to %s", msg.Creator, msg.Staker)
 	}
 
 	// Withdraw all rewards of the sender.
