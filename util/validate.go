@@ -21,11 +21,14 @@ func ValidateDecimal(i interface{}) error {
 	return nil
 }
 
-func ValidateNumber(i uint64) error {
-	v := math.NewIntFromUint64(i)
+func ValidateNumber(i interface{}) error {
+	v, ok := i.(uint64)
+	if !ok {
+		return fmt.Errorf("invalid type: %T", i)
+	}
 
-	if v.IsNil() || v.IsNegative() {
-		return fmt.Errorf("invalid number: %s", v)
+	if math.NewIntFromUint64(v).IsNil() || math.NewIntFromUint64(v).IsNegative() {
+		return fmt.Errorf("invalid number: %d", v)
 	}
 
 	return nil

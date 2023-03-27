@@ -30,7 +30,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MsgStakePool defines a SDK message for staking in a pool.
+// MsgCreateStaker defines a SDK message for creating a staker
 type MsgCreateStaker struct {
 	// creator is the address of the staker
 	Creator string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`

@@ -110,20 +110,6 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		Expect(staker.Commission).To(Equal(sdk.OneDec()))
 	})
 
-	// TODO(@troy): In theory we don't need this test anymore.
-	//It("Update commission with an invalid number from previously default commission", func() {
-	//	// ACT
-	//	s.RunTxStakersError(&stakerstypes.MsgUpdateCommission{
-	//		Creator:    i.STAKER_0,
-	//		Commission: "teset",
-	//	})
-	//	s.PerformValidityChecks()
-	//
-	//	// ASSERT
-	//	staker, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-	//	Expect(staker.Commission).To(Equal(stakerstypes.DefaultCommission))
-	//})
-
 	It("Update commission with a negative number from previously default commission", func() {
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgUpdateCommission{
