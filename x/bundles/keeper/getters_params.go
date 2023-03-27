@@ -29,7 +29,7 @@ func (k Keeper) GetStorageCost(ctx sdk.Context) (res sdk.Dec) {
 }
 
 // GetNetworkFee returns the NetworkFee param
-func (k Keeper) GetNetworkFee(ctx sdk.Context) (res string) {
+func (k Keeper) GetNetworkFee(ctx sdk.Context) (res sdk.Dec) {
 	return k.GetParams(ctx).NetworkFee
 }
 

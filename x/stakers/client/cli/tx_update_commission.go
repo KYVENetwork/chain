@@ -5,6 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 )
 
@@ -19,9 +20,14 @@ func CmdUpdateCommission() *cobra.Command {
 				return err
 			}
 
+			commission, err := sdk.NewDecFromStr(args[0])
+			if err != nil {
+				return err
+			}
+
 			msg := types.MsgUpdateCommission{
 				Creator:    clientCtx.GetFromAddress().String(),
-				Commission: args[0],
+				Commission: commission,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {

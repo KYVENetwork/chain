@@ -31,11 +31,11 @@ func DefaultParams() Params {
 
 // Validate validates the set of params
 func (p Params) Validate() error {
-	if err := util.ValidateUint64(p.CommissionChangeTime); err != nil {
+	if err := util.ValidateNumber(p.CommissionChangeTime); err != nil {
 		return err
 	}
 
-	if err := util.ValidateUint64(p.LeavePoolTime); err != nil {
+	if err := util.ValidateNumber(p.LeavePoolTime); err != nil {
 		return err
 	}
 

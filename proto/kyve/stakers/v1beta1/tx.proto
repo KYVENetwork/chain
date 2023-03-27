@@ -3,6 +3,7 @@ syntax = "proto3";
 package kyve.stakers.v1beta1;
 
 import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/stakers/types";
 
@@ -55,7 +56,10 @@ message MsgUpdateCommission {
   // creator ...
   string creator = 1;
   // commission ...
-  string commission = 2;
+  string commission = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // MsgUpdateCommissionResponse ...
