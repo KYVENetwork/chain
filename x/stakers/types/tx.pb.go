@@ -30,14 +30,14 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MsgCreateStaker defines a SDK message for creating a staker
+// MsgCreateStaker defines a SDK message for creating a staker.
 type MsgCreateStaker struct {
-	// creator is the address of the staker
+	// creator is the address of the staker.
 	Creator string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
-	// amount is the initial self-stake to create the staker with
+	// amount is the initial self-stake of the staker.
 	Amount uint64 `protobuf:"varint,2,opt,name=amount,proto3" json:"amount,omitempty"`
-	// commission is a number between 0 and 1 specifying the percentage that is deducted from the rewards
-	// before distributing the rest to the delegators.
+	// commission is the percentage that is deducted from rewards before
+	// distributing the staker's delegators.
 	Commission github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,3,opt,name=commission,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"commission"`
 }
 

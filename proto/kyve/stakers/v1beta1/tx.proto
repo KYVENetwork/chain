@@ -25,14 +25,14 @@ service Msg {
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
-// MsgCreateStaker defines a SDK message for creating a staker
+// MsgCreateStaker defines a SDK message for creating a staker.
 message MsgCreateStaker {
-  // creator is the address of the staker
+  // creator is the address of the staker.
   string creator = 1;
-  // amount is the initial self-stake to create the staker with
+  // amount is the initial self-stake of the staker.
   uint64 amount = 2;
-  // commission is a number between 0 and 1 specifying the percentage that is deducted from the rewards
-  // before distributing the rest to the delegators.
+  // commission is the percentage that is deducted from rewards before
+  // distributing the staker's delegators.
   string commission = 3 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
