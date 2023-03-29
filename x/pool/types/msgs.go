@@ -77,16 +77,22 @@ func (msg *MsgUpdatePool) ValidateBasic() error {
 		return err
 	}
 
-	if err := util.ValidatePositiveNumber(*payload.UploadInterval); err != nil {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid upload interval")
+	if payload.UploadInterval != nil {
+		if err := util.ValidatePositiveNumber(*payload.UploadInterval); err != nil {
+			return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid upload interval")
+		}
 	}
 
-	if err := util.ValidatePositiveNumber(*payload.OperatingCost); err != nil {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid operating cost")
+	if payload.OperatingCost != nil {
+		if err := util.ValidatePositiveNumber(*payload.OperatingCost); err != nil {
+			return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid operating cost")
+		}
 	}
 
-	if err := util.ValidatePositiveNumber(*payload.MinDelegation); err != nil {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid minimum delegation")
+	if payload.MinDelegation != nil {
+		if err := util.ValidatePositiveNumber(*payload.MinDelegation); err != nil {
+			return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid minimum delegation")
+		}
 	}
 
 	return nil
