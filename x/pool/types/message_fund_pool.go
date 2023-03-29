@@ -2,7 +2,7 @@ package types
 
 import (
 	"cosmossdk.io/errors"
-	"cosmossdk.io/math"
+	"github.com/KYVENetwork/chain/util"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -31,7 +31,7 @@ func (msg *MsgFundPool) ValidateBasic() error {
 		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid creator address: %s", err)
 	}
 
-	if amount := math.NewIntFromUint64(msg.Amount); amount.IsNil() || amount.IsNegative() {
+	if util.ValidateNumber(msg.Amount) != nil {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid amount")
 	}
 
