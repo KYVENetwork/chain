@@ -638,7 +638,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 
 		Expect(bundleProposal.StorageId).To(BeEmpty())
 		Expect(bundleProposal.Uploader).To(BeEmpty())
-		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_1))
+		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_0))
 		Expect(bundleProposal.DataSize).To(BeZero())
 		Expect(bundleProposal.DataHash).To(BeEmpty())
 		Expect(bundleProposal.BundleSize).To(BeZero())

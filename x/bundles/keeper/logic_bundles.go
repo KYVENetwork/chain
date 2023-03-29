@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"encoding/binary"
 	"math/rand"
 	"sort"
 
@@ -470,8 +469,7 @@ func (k Keeper) chooseNextUploaderFromSelectedStakers(ctx sdk.Context, poolId ui
 		}
 	}
 
-	seed := int64(binary.BigEndian.Uint64(ctx.BlockHeader().AppHash))
-	return k.getWeightedRandomChoice(_candidates, seed)
+	return k.getWeightedRandomChoice(_candidates, ctx.BlockHeader().Height)
 }
 
 // chooseNextUploaderFromAllStakers selects the next uploader based on all
