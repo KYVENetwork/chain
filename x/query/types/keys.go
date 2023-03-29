@@ -7,7 +7,7 @@ const (
 	// StoreKey defines the primary module store key
 	StoreKey = ModuleName
 
-	// RouterKey is the message route for slashing
+	// RouterKey is the message route for query
 	RouterKey = ModuleName
 
 	// MemStoreKey defines the in-memory store key
