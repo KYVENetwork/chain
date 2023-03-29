@@ -288,23 +288,13 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 			Payload:   "invalid_json_payload\",\"Runtime\":\"@kyve/test\",\"Logo\":\"ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU\",\"Config\":\"ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0\",\"StartKey\":\"0\",\"UploadInterval\":60,\"OperatingCost\":10000,\"MinDelegation\":100000000000,\"MaxBundleSize\":100,\"Version\":\"0.0.0\",\"Binaries\":\"{}\",\"StorageProviderId\":2,\"CompressionId\":1}",
 		}
 
-		p, v := BuildGovernanceTxs(s, []sdk.Msg{msg})
+		p, _ := BuildGovernanceTxs(s, []sdk.Msg{msg})
 
 		// ACT
-		_, submitErr := s.RunTx(&p)
-		_, voteErr := s.RunTx(&v)
-
-		s.CommitAfter(*votingPeriod)
+		_ = s.RunTxError(&p)
 		s.Commit()
 
 		// ASSERT
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
-
-		Expect(submitErr).To(Not(HaveOccurred()))
-		Expect(voteErr).To(Not(HaveOccurred()))
-
-		Expect(proposal.Status).To(Equal(govV1Types.StatusFailed))
-
 		pool, found := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		Expect(found).To(BeTrue())

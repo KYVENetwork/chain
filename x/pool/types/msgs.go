@@ -1,8 +1,13 @@
 package types
 
 import (
+	"encoding/json"
+
 	"cosmossdk.io/errors"
+
+	"github.com/KYVENetwork/chain/util"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 var (
@@ -26,6 +31,18 @@ func (msg *MsgCreatePool) ValidateBasic() error {
 		return errors.Wrap(err, "invalid authority address")
 	}
 
+	if err := util.ValidatePositiveNumber(msg.UploadInterval); err != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid upload interval")
+	}
+
+	if err := util.ValidatePositiveNumber(msg.OperatingCost); err != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid operating cost")
+	}
+
+	if err := util.ValidatePositiveNumber(msg.MinDelegation); err != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid minimum delegation")
+	}
+
 	return nil
 }
 
@@ -35,10 +52,41 @@ func (msg *MsgUpdatePool) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{addr}
 }
 
+// PoolUpdate ...
+type PoolUpdate struct {
+	Name              *string
+	Runtime           *string
+	Logo              *string
+	Config            *string
+	UploadInterval    *uint64
+	OperatingCost     *uint64
+	MinDelegation     *uint64
+	MaxBundleSize     *uint64
+	StorageProviderId *uint32
+	CompressionId     *uint32
+}
+
 // ValidateBasic does a sanity check on the provided data.
 func (msg *MsgUpdatePool) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
 		return errors.Wrap(err, "invalid authority address")
+	}
+
+	var payload PoolUpdate
+	if err := json.Unmarshal([]byte(msg.Payload), &payload); err != nil {
+		return err
+	}
+
+	if err := util.ValidatePositiveNumber(*payload.UploadInterval); err != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid upload interval")
+	}
+
+	if err := util.ValidatePositiveNumber(*payload.OperatingCost); err != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid operating cost")
+	}
+
+	if err := util.ValidatePositiveNumber(*payload.MinDelegation); err != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid minimum delegation")
 	}
 
 	return nil

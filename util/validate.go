@@ -34,6 +34,21 @@ func ValidateNumber(i interface{}) error {
 	return nil
 }
 
+func ValidatePositiveNumber(i interface{}) error {
+	v, ok := i.(uint64)
+	if !ok {
+		return fmt.Errorf("invalid type: %T", i)
+	}
+
+	if math.NewIntFromUint64(v).IsNil() ||
+		math.NewIntFromUint64(v).IsNegative() ||
+		math.NewIntFromUint64(v).IsZero() {
+		return fmt.Errorf("invalid number: %d", v)
+	}
+
+	return nil
+}
+
 func ValidatePercentage(i interface{}) error {
 	v, ok := i.(sdk.Dec)
 	if !ok {
