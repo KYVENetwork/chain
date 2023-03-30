@@ -44,7 +44,7 @@ func DefaultParams() Params {
 
 // Validate validates the set of params
 func (p Params) Validate() error {
-	if err := util.ValidateNumber(p.UploadTimeout); err != nil {
+	if err := util.ValidatePositiveNumber(p.UploadTimeout); err != nil {
 		return err
 	}
 
@@ -56,7 +56,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := util.ValidateNumber(p.MaxPoints); err != nil {
+	if err := util.ValidatePositiveNumber(p.MaxPoints); err != nil {
 		return err
 	}
 
