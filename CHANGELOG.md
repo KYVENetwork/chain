@@ -16,10 +16,10 @@
 
 ### Improvements
 
-- Emit an event when updating module parameters.
 - (deps) [#21](https://github.com/KYVENetwork/chain/pull/21) Bump Cosmos SDK to [v0.46.11](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.11) ([`v0.46.11-kyve-rc0`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.46.11-kyve-rc0)).
 - (deps) [#21](https://github.com/KYVENetwork/chain/pull/21) Switch to CometBFT from Informal Systems' Tendermint fork.
-- [#22](https://github.com/KYVENetwork/chain/pull/22) Various minor code improvements, cleanups and more validations.
+- [#22](https://github.com/KYVENetwork/chain/pull/22) Emit an event when updating module parameters.
+- [#22](https://github.com/KYVENetwork/chain/pull/22) Various minor code improvements, cleanups, and validations.
 
 ### Bug Fixes
 
