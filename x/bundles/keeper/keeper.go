@@ -25,7 +25,6 @@ type (
 		poolKeeper       types.PoolKeeper
 		stakerKeeper     types.StakerKeeper
 		delegationKeeper types.DelegationKeeper
-		upgradeKeeper    types.UpgradeKeeper
 	}
 )
 
@@ -42,7 +41,6 @@ func NewKeeper(
 	poolKeeper types.PoolKeeper,
 	stakerKeeper types.StakerKeeper,
 	delegationKeeper types.DelegationKeeper,
-	upgradeKeeper types.UpgradeKeeper,
 ) *Keeper {
 	return &Keeper{
 		cdc:      cdc,

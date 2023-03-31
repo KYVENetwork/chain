@@ -4,17 +4,17 @@ import (
 	"fmt"
 
 	"github.com/KYVENetwork/chain/util"
-	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
-	"github.com/KYVENetwork/chain/x/team/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	// Auth
+	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	// Bank
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	// Mint
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	// Team
 	"github.com/KYVENetwork/chain/x/team/keeper"
+	"github.com/KYVENetwork/chain/x/team/types"
 	// Upgrade
 	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 )
@@ -51,7 +51,7 @@ func DistributeTeamInflation(ctx sdk.Context, bk bankKeeper.Keeper, mk mintKeepe
 	// distribute team module rewards between vesting accounts based on their vesting progress
 	for _, account := range tk.GetTeamVestingAccounts(ctx) {
 		// get current vesting progress
-		status := teamKeeper.GetVestingStatus(account, uint64(ctx.BlockTime().Unix()))
+		status := keeper.GetVestingStatus(account, uint64(ctx.BlockTime().Unix()))
 		// calculate reward share of account
 		accountShare := sdk.NewDec(int64(status.TotalVestedAmount - account.UnlockedClaimed)).Quo(sdk.NewDec(int64(types.TEAM_ALLOCATION)))
 		// calculate total inflation rewards for account for this block

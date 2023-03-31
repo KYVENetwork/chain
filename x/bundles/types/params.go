@@ -1,8 +1,6 @@
 package types
 
 import (
-	"fmt"
-
 	"github.com/KYVENetwork/chain/util"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -14,7 +12,7 @@ var DefaultUploadTimeout = uint64(600)
 var DefaultStorageCost = sdk.MustNewDecFromStr("0.025")
 
 // DefaultNetworkFee ...
-var DefaultNetworkFee = "0.01"
+var DefaultNetworkFee = sdk.MustNewDecFromStr("0.01")
 
 // DefaultMaxPoints ...
 var DefaultMaxPoints = uint64(24)
@@ -23,7 +21,7 @@ var DefaultMaxPoints = uint64(24)
 func NewParams(
 	uploadTimeout uint64,
 	storageCost sdk.Dec,
-	networkFee string,
+	networkFee sdk.Dec,
 	maxPoints uint64,
 ) Params {
 	return Params{
@@ -46,11 +44,11 @@ func DefaultParams() Params {
 
 // Validate validates the set of params
 func (p Params) Validate() error {
-	if err := util.ValidateUint64(p.UploadTimeout); err != nil {
+	if err := util.ValidatePositiveNumber(p.UploadTimeout); err != nil {
 		return err
 	}
 
-	if err := validateStorageCost(p.StorageCost); err != nil {
+	if err := util.ValidateDecimal(p.StorageCost); err != nil {
 		return err
 	}
 
@@ -58,27 +56,8 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := util.ValidateUint64(p.MaxPoints); err != nil {
+	if err := util.ValidatePositiveNumber(p.MaxPoints); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-// validateStorageCost ...
-func validateStorageCost(i interface{}) error {
-	v, ok := i.(sdk.Dec)
-
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v.IsNil() {
-		return fmt.Errorf("invalid parameter: nil")
-	}
-
-	if v.IsNegative() {
-		return fmt.Errorf("value cannot be negative: %s", i)
 	}
 
 	return nil

@@ -21,16 +21,6 @@ func (k msgServer) UpdateCommission(goCtx context.Context, msg *types.MsgUpdateC
 		return nil, errors.Wrap(errorsTypes.ErrUnauthorized, types.ErrNoStaker.Error())
 	}
 
-	// Validate commission.
-	commission, err := sdk.NewDecFromStr(msg.Commission)
-	if err != nil {
-		return nil, errors.Wrapf(errorsTypes.ErrLogic, types.ErrInvalidCommission.Error(), msg.Commission)
-	}
-
-	if commission.LT(sdk.NewDec(int64(0))) || commission.GT(sdk.NewDec(int64(1))) {
-		return nil, errors.Wrapf(errorsTypes.ErrLogic, types.ErrInvalidCommission.Error(), msg.Commission)
-	}
-
 	// Insert commission change into queue
 	k.orderNewCommissionChange(ctx, msg.Creator, msg.Commission)
 

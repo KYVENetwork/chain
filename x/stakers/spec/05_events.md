@@ -6,6 +6,21 @@ order: 5
 
 The `x/stakers` module contains the following events:
 
+## EventUpdateParams
+
+EventUpdateParams is emitted when the parameters were changed by the governance.
+
+```protobuf
+message EventUpdateParams {
+  // old_params is the module's old parameters.
+  kyve.bundles.v1beta1.Params old_params = 1 [(gogoproto.nullable) = false];
+  // new_params is the module's new parameters.
+  kyve.bundles.v1beta1.Params new_params = 2 [(gogoproto.nullable) = false];
+  // payload is the parameter updates that were performed.
+  string payload = 3;
+}
+```
+
 ## EventCreateStaker
 
 EventBundleProposed indicates that a new staker was created.
@@ -54,7 +69,10 @@ message EventUpdateCommission {
   // staker is the account address of the protocol node.
   string staker = 1;
   // commission ...
-  string commission = 2;
+  string commission = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 ```
 

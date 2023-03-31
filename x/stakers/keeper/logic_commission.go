@@ -9,7 +9,7 @@ import (
 // The queue is checked in every endBlock and when the commissionChangeTime
 // is over the new commission will be applied to the user.
 // If another entry is currently in the queue it will be removed.
-func (k Keeper) orderNewCommissionChange(ctx sdk.Context, staker string, commission string) {
+func (k Keeper) orderNewCommissionChange(ctx sdk.Context, staker string, commission sdk.Dec) {
 	// Remove existing queue entry
 	queueEntry, found := k.GetCommissionChangeEntryByIndex2(ctx, staker)
 	if found {

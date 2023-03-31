@@ -152,9 +152,9 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.UnbondingDelegationTime).To(Equal(uint64(3600)))
 		Expect(updatedParams.RedelegationCooldown).To(Equal(uint64(3600)))
 		Expect(updatedParams.RedelegationMaxAmount).To(Equal(uint64(1)))
-		Expect(updatedParams.VoteSlash).To(Equal("0.05"))
-		Expect(updatedParams.UploadSlash).To(Equal("0.05"))
-		Expect(updatedParams.TimeoutSlash).To(Equal("0.05"))
+		Expect(updatedParams.VoteSlash).To(Equal(sdk.MustNewDecFromStr("0.05")))
+		Expect(updatedParams.UploadSlash).To(Equal(sdk.MustNewDecFromStr("0.05")))
+		Expect(updatedParams.TimeoutSlash).To(Equal(sdk.MustNewDecFromStr("0.05")))
 	})
 
 	It("Update no param", func() {
@@ -488,7 +488,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.RedelegationMaxAmount).To(Equal(types.DefaultRedelegationMaxAmount))
 		Expect(updatedParams.UploadSlash).To(Equal(types.DefaultUploadSlash))
 		Expect(updatedParams.TimeoutSlash).To(Equal(types.DefaultTimeoutSlash))
-		Expect(updatedParams.VoteSlash).To(Equal("0.05"))
+		Expect(updatedParams.VoteSlash).To(Equal(sdk.MustNewDecFromStr("0.05")))
 	})
 
 	It("Update vote slash with invalid value", func() {
@@ -561,7 +561,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.UnbondingDelegationTime).To(Equal(types.DefaultUnbondingDelegationTime))
 		Expect(updatedParams.RedelegationCooldown).To(Equal(types.DefaultRedelegationCooldown))
 		Expect(updatedParams.RedelegationMaxAmount).To(Equal(types.DefaultRedelegationMaxAmount))
-		Expect(updatedParams.UploadSlash).To(Equal("0.05"))
+		Expect(updatedParams.UploadSlash).To(Equal(sdk.MustNewDecFromStr("0.05")))
 		Expect(updatedParams.TimeoutSlash).To(Equal(types.DefaultTimeoutSlash))
 		Expect(updatedParams.VoteSlash).To(Equal(types.DefaultVoteSlash))
 	})
@@ -636,7 +636,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.RedelegationCooldown).To(Equal(types.DefaultRedelegationCooldown))
 		Expect(updatedParams.RedelegationMaxAmount).To(Equal(types.DefaultRedelegationMaxAmount))
 		Expect(updatedParams.UploadSlash).To(Equal(types.DefaultUploadSlash))
-		Expect(updatedParams.TimeoutSlash).To(Equal("0.05"))
+		Expect(updatedParams.TimeoutSlash).To(Equal(sdk.MustNewDecFromStr("0.05")))
 		Expect(updatedParams.VoteSlash).To(Equal(types.DefaultVoteSlash))
 	})
 

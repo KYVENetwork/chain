@@ -2,6 +2,7 @@ package types
 
 import (
 	"github.com/KYVENetwork/chain/util"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // DefaultUnbondingDelegationTime ...
@@ -14,22 +15,22 @@ var DefaultRedelegationCooldown = uint64(60 * 60 * 24 * 5)
 var DefaultRedelegationMaxAmount = uint64(5)
 
 // DefaultVoteSlash ...
-var DefaultVoteSlash = "0.1"
+var DefaultVoteSlash = sdk.MustNewDecFromStr("0.1")
 
 // DefaultUploadSlash ...
-var DefaultUploadSlash = "0.2"
+var DefaultUploadSlash = sdk.MustNewDecFromStr("0.2")
 
 // DefaultTimeoutSlash ...
-var DefaultTimeoutSlash = "0.02"
+var DefaultTimeoutSlash = sdk.MustNewDecFromStr("0.02")
 
 // NewParams creates a new Params instance
 func NewParams(
 	unbondingDelegationTime uint64,
 	redelegationCooldown uint64,
 	redelegationMaxAmount uint64,
-	voteSlash string,
-	uploadSlash string,
-	timeoutSlash string,
+	voteSlash sdk.Dec,
+	uploadSlash sdk.Dec,
+	timeoutSlash sdk.Dec,
 ) Params {
 	return Params{
 		UnbondingDelegationTime: unbondingDelegationTime,
@@ -55,15 +56,15 @@ func DefaultParams() Params {
 
 // Validate validates the set of params
 func (p Params) Validate() error {
-	if err := util.ValidateUint64(p.UnbondingDelegationTime); err != nil {
+	if err := util.ValidateNumber(p.UnbondingDelegationTime); err != nil {
 		return err
 	}
 
-	if err := util.ValidateUint64(p.RedelegationCooldown); err != nil {
+	if err := util.ValidateNumber(p.RedelegationCooldown); err != nil {
 		return err
 	}
 
-	if err := util.ValidateUint64(p.RedelegationMaxAmount); err != nil {
+	if err := util.ValidateNumber(p.RedelegationMaxAmount); err != nil {
 		return err
 	}
 
