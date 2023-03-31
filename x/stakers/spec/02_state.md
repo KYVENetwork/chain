@@ -15,7 +15,7 @@ people can delegate to it and the staker can start joining pools
 type Staker struct {
     Address string
     // Needs to be a valid decimal representation
-    Commission uint64 
+    Commission sdk.Dec 
     Moniker uint64 
     Website uint64
     Logo uint64 
@@ -101,7 +101,7 @@ type CommissionChangeEntry struct {
     Staker string
     // Commission is the new commission which will
     // be applied after the waiting time is over.
-    Commission String
+    Commission sdk.Dec
     // CreationDate is the UNIX-timestamp in seconds
     // when the entry was created.
     CreationDate uint64

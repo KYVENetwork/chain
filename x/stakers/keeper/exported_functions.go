@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"cosmossdk.io/math"
-	"github.com/KYVENetwork/chain/util"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	// Gov
@@ -41,11 +40,7 @@ func (k Keeper) GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (sta
 // GetCommission returns the commission of a staker as a parsed sdk.Dec
 func (k Keeper) GetCommission(ctx sdk.Context, stakerAddress string) sdk.Dec {
 	staker, _ := k.GetStaker(ctx, stakerAddress)
-	uploaderCommission, err := sdk.NewDecFromStr(staker.Commission)
-	if err != nil {
-		util.PanicHalt(k.upgradeKeeper, ctx, "Commission not parsable: "+staker.Commission)
-	}
-	return uploaderCommission
+	return staker.Commission
 }
 
 // AssertValaccountAuthorized checks if the given `valaddress` is allowed to vote in pool

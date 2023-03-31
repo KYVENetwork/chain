@@ -34,17 +34,17 @@ func (k Keeper) GetRedelegationMaxAmount(ctx sdk.Context) (res uint64) {
 }
 
 // GetVoteSlash returns the VoteSlash param
-func (k Keeper) GetVoteSlash(ctx sdk.Context) (res string) {
+func (k Keeper) GetVoteSlash(ctx sdk.Context) (res sdk.Dec) {
 	return k.GetParams(ctx).VoteSlash
 }
 
 // GetUploadSlash returns the UploadSlash param
-func (k Keeper) GetUploadSlash(ctx sdk.Context) (res string) {
+func (k Keeper) GetUploadSlash(ctx sdk.Context) (res sdk.Dec) {
 	return k.GetParams(ctx).UploadSlash
 }
 
 // GetTimeoutSlash returns the TimeoutSlash param
-func (k Keeper) GetTimeoutSlash(ctx sdk.Context) (res string) {
+func (k Keeper) GetTimeoutSlash(ctx sdk.Context) (res sdk.Dec) {
 	return k.GetParams(ctx).TimeoutSlash
 }
 
@@ -52,11 +52,11 @@ func (k Keeper) getSlashFraction(ctx sdk.Context, slashType types.SlashType) (sl
 	// Retrieve slash fraction from params
 	switch slashType {
 	case types.SLASH_TYPE_TIMEOUT:
-		slashAmountRatio, _ = sdk.NewDecFromStr(k.GetTimeoutSlash(ctx))
+		slashAmountRatio = k.GetTimeoutSlash(ctx)
 	case types.SLASH_TYPE_VOTE:
-		slashAmountRatio, _ = sdk.NewDecFromStr(k.GetVoteSlash(ctx))
+		slashAmountRatio = k.GetVoteSlash(ctx)
 	case types.SLASH_TYPE_UPLOAD:
-		slashAmountRatio, _ = sdk.NewDecFromStr(k.GetUploadSlash(ctx))
+		slashAmountRatio = k.GetUploadSlash(ctx)
 	}
 	return
 }

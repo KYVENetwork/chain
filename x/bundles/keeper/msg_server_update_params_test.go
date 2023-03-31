@@ -139,7 +139,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 		Expect(updatedParams.UploadTimeout).To(Equal(uint64(20)))
 		Expect(updatedParams.StorageCost).To(Equal(sdk.MustNewDecFromStr("0.05")))
-		Expect(updatedParams.NetworkFee).To(Equal("0.05"))
+		Expect(updatedParams.NetworkFee).To(Equal(sdk.MustNewDecFromStr("0.05")))
 		Expect(updatedParams.MaxPoints).To(Equal(uint64(15)))
 	})
 
@@ -385,7 +385,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 		Expect(updatedParams.UploadTimeout).To(Equal(types.DefaultUploadTimeout))
 		Expect(updatedParams.StorageCost).To(Equal(types.DefaultStorageCost))
-		Expect(updatedParams.NetworkFee).To(Equal("0.05"))
+		Expect(updatedParams.NetworkFee).To(Equal(sdk.MustNewDecFromStr("0.05")))
 		Expect(updatedParams.MaxPoints).To(Equal(types.DefaultMaxPoints))
 	})
 

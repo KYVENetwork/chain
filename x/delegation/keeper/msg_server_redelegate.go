@@ -19,7 +19,7 @@ func (k msgServer) Redelegate(goCtx context.Context, msg *types.MsgRedelegate) (
 
 	// Check if the sender is a delegator
 	if !k.DoesDelegatorExist(ctx, msg.FromStaker, msg.Creator) {
-		return nil, sdkErrors.WithType(types.ErrNotADelegator, msg.FromStaker)
+		return nil, sdkErrors.Wrapf(types.ErrNotADelegator, "%s does not delegate to %s", msg.Creator, msg.FromStaker)
 	}
 
 	// Check if destination staker exists

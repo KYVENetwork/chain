@@ -196,7 +196,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeZero())
 
 		// calculate uploader slashes
-		fraction, _ := sdk.NewDecFromStr(s.App().DelegationKeeper.GetUploadSlash(s.Ctx()))
+		fraction := s.App().DelegationKeeper.GetUploadSlash(s.Ctx())
 		slashAmount := uint64(sdk.NewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 
 		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100*i.KYVE - slashAmount))
@@ -338,7 +338,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeZero())
 
 		// calculate uploader slashes
-		fraction, _ := sdk.NewDecFromStr(s.App().DelegationKeeper.GetUploadSlash(s.Ctx()))
+		fraction := s.App().DelegationKeeper.GetUploadSlash(s.Ctx())
 		slashAmountUploader := uint64(sdk.NewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 		slashAmountDelegator := uint64(sdk.NewDec(int64(300 * i.KYVE)).Mul(fraction).TruncateInt64())
 
@@ -510,7 +510,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeZero())
 
 		// calculate uploader slashes
-		fraction, _ := sdk.NewDecFromStr(s.App().DelegationKeeper.GetUploadSlash(s.Ctx()))
+		fraction := s.App().DelegationKeeper.GetUploadSlash(s.Ctx())
 		slashAmountUploader := uint64(sdk.NewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 		slashAmountDelegator1 := uint64(sdk.NewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 
@@ -518,7 +518,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.ALICE)).To(Equal(100*i.KYVE - slashAmountDelegator1))
 
 		// calculate voter slashes
-		fraction, _ = sdk.NewDecFromStr(s.App().DelegationKeeper.GetVoteSlash(s.Ctx()))
+		fraction = s.App().DelegationKeeper.GetVoteSlash(s.Ctx())
 		slashAmountVoter := uint64(sdk.NewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 		slashAmountDelegator2 := uint64(sdk.NewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 

@@ -19,6 +19,13 @@ func (suite *KeeperTestSuite) RunTx(msg sdk.Msg) (*sdk.Result, error) {
 	return res, nil
 }
 
+func (suite *KeeperTestSuite) RunTxError(msg sdk.Msg) error {
+	_, err := suite.RunTx(msg)
+	Expect(err).To(HaveOccurred())
+
+	return err
+}
+
 func (suite *KeeperTestSuite) RunTxSuccess(msg sdk.Msg) *sdk.Result {
 	result, err := suite.RunTx(msg)
 	Expect(err).NotTo(HaveOccurred())
