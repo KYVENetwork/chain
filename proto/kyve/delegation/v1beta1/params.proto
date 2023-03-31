@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package kyve.delegation.v1beta1;
 
+import "gogoproto/gogo.proto";
+
 option go_package = "github.com/KYVENetwork/chain/x/delegation/types";
 
 // Params defines the delegation module parameters.
@@ -13,9 +15,18 @@ message Params {
   // unbonding_delegation_time ...
   uint64 redelegation_max_amount = 3;
   // vote_slash ...
-  string vote_slash = 4;
+  string vote_slash = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
   // upload_slash ...
-  string upload_slash = 5;
+  string upload_slash = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
   // timeout_slash ...
-  string timeout_slash = 6;
+  string timeout_slash = 6 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }

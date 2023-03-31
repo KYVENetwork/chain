@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package kyve.stakers.v1beta1;
 
+import "gogoproto/gogo.proto";
+
 option go_package = "github.com/KYVENetwork/chain/x/stakers/types";
 
 // Staker contains all metadata for a staker
@@ -10,7 +12,10 @@ message Staker {
   // address ...
   string address = 1;
   // commission ...
-  string commission = 2;
+  string commission = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
   // moniker ...
   string moniker = 3;
   // website ...
@@ -54,7 +59,10 @@ message CommissionChangeEntry {
   string staker = 2;
   // commission is the new commission which will
   // be applied after the waiting time is over.
-  string commission = 3;
+  string commission = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
   // creation_date is the UNIX-timestamp in seconds
   // when the entry was created.
   int64 creation_date = 4;

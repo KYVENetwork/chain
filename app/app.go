@@ -448,7 +448,6 @@ func NewKYVEApp(
 		app.PoolKeeper,
 		app.StakersKeeper,
 		app.DelegationKeeper,
-		app.UpgradeKeeper,
 	)
 
 	// Create IBC Keepers

@@ -34,7 +34,7 @@ func (k Keeper) UpdateStakerMetadata(
 }
 
 // UpdateStakerCommission ...
-func (k Keeper) UpdateStakerCommission(ctx sdk.Context, address string, commission string) {
+func (k Keeper) UpdateStakerCommission(ctx sdk.Context, address string, commission sdk.Dec) {
 	staker, found := k.GetStaker(ctx, address)
 	if found {
 		staker.Commission = commission

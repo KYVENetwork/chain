@@ -2,10 +2,23 @@ syntax = "proto3";
 
 package kyve.bundles.v1beta1;
 
+import "gogoproto/gogo.proto";
 import "kyve/bundles/v1beta1/bundles.proto";
+import "kyve/bundles/v1beta1/params.proto";
 import "kyve/bundles/v1beta1/tx.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/bundles/types";
+
+// EventUpdateParams is an event emitted when the module parameters are updated.
+// emitted_by: MsgUpdateParams
+message EventUpdateParams {
+  // old_params is the module's old parameters.
+  kyve.bundles.v1beta1.Params old_params = 1 [(gogoproto.nullable) = false];
+  // new_params is the module's new parameters.
+  kyve.bundles.v1beta1.Params new_params = 2 [(gogoproto.nullable) = false];
+  // payload is the parameter updates that were performed.
+  string payload = 3;
+}
 
 // EventBundleVote is an event emitted when a protocol node votes on a bundle.
 // emitted_by: MsgVoteBundleProposal

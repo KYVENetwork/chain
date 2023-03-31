@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"encoding/binary"
 	"math/rand"
 	"sort"
 
@@ -238,12 +237,8 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64) (bundleReward t
 	// formula for calculating the rewards
 	bundleReward.Total = pool.OperatingCost + uint64(k.GetStorageCost(ctx).MulInt64(int64(bundleProposal.DataSize)).TruncateInt64())
 
-	networkFee, err := sdk.NewDecFromStr(k.GetNetworkFee(ctx))
-	if err != nil {
-		util.PanicHalt(k.upgradeKeeper, ctx, "Network Fee unparasable - "+k.GetNetworkFee(ctx))
-	}
 	// Add fee to treasury
-	bundleReward.Treasury = uint64(sdk.NewDec(int64(bundleReward.Total)).Mul(networkFee).TruncateInt64())
+	bundleReward.Treasury = uint64(sdk.NewDec(int64(bundleReward.Total)).Mul(k.GetNetworkFee(ctx)).TruncateInt64())
 
 	// Remaining rewards to be split between staker and its delegators
 	totalNodeReward := bundleReward.Total - bundleReward.Treasury
@@ -474,8 +469,7 @@ func (k Keeper) chooseNextUploaderFromSelectedStakers(ctx sdk.Context, poolId ui
 		}
 	}
 
-	seed := int64(binary.BigEndian.Uint64(ctx.BlockHeader().AppHash))
-	return k.getWeightedRandomChoice(_candidates, seed)
+	return k.getWeightedRandomChoice(_candidates, ctx.BlockHeader().Height)
 }
 
 // chooseNextUploaderFromAllStakers selects the next uploader based on all

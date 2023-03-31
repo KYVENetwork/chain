@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -39,8 +40,9 @@ var _ = Describe("msg_server_create_staker.go", Ordered, func() {
 	It("Create a first new staker and delegate 100 $KYVE", func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
+			Creator:    i.STAKER_0,
+			Amount:     100 * i.KYVE,
+			Commission: sdk.MustNewDecFromStr("0.2"),
 		})
 
 		// ASSERT
@@ -56,7 +58,7 @@ var _ = Describe("msg_server_create_staker.go", Ordered, func() {
 		Expect(staker.Address).To(Equal(i.STAKER_0))
 		Expect(s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_0)).To(Equal(100 * i.KYVE))
 		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100 * i.KYVE))
-		Expect(staker.Commission).To(Equal(types.DefaultCommission))
+		Expect(staker.Commission).To(Equal(sdk.MustNewDecFromStr("0.2")))
 
 		Expect(staker.Moniker).To(BeEmpty())
 		Expect(staker.Identity).To(BeEmpty())
@@ -70,8 +72,9 @@ var _ = Describe("msg_server_create_staker.go", Ordered, func() {
 	It("Do an additional 50 $KYVE self delegation after staker has already delegated 100 $KYVE", func() {
 		// ARRANGE
 		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
+			Creator:    i.STAKER_0,
+			Amount:     100 * i.KYVE,
+			Commission: types.DefaultCommission,
 		})
 
 		// ACT

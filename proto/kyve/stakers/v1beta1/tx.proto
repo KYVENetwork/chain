@@ -3,6 +3,7 @@ syntax = "proto3";
 package kyve.stakers.v1beta1;
 
 import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/stakers/types";
 
@@ -24,12 +25,18 @@ service Msg {
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
-// MsgStakePool defines a SDK message for staking in a pool.
+// MsgCreateStaker defines a SDK message for creating a staker.
 message MsgCreateStaker {
-  // creator ...
+  // creator is the address of the staker.
   string creator = 1;
-  // amount ...
+  // amount is the initial self-stake of the staker.
   uint64 amount = 2;
+  // commission is the percentage that is deducted from rewards before
+  // distributing the staker's delegators.
+  string commission = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // MsgStakePoolResponse defines the Msg/StakePool response type.
@@ -59,7 +66,10 @@ message MsgUpdateCommission {
   // creator ...
   string creator = 1;
   // commission ...
-  string commission = 2;
+  string commission = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // MsgUpdateCommissionResponse ...

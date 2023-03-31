@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -244,7 +245,7 @@ var _ = Describe("msg_server_undelegate.go", Ordered, func() {
 		})
 
 		params := s.App().DelegationKeeper.GetParams(s.Ctx())
-		params.UploadSlash = "0.1"
+		params.UploadSlash = sdk.MustNewDecFromStr("0.1")
 		s.App().DelegationKeeper.SetParams(s.Ctx(), params)
 		s.App().DelegationKeeper.SlashDelegators(s.Ctx(), 0, i.ALICE, types.SLASH_TYPE_UPLOAD)
 
@@ -413,7 +414,7 @@ var _ = Describe("msg_server_undelegate.go", Ordered, func() {
 
 		// Slash 10%
 		params := s.App().DelegationKeeper.GetParams(s.Ctx())
-		params.UploadSlash = "0.1"
+		params.UploadSlash = sdk.MustNewDecFromStr("0.1")
 		s.App().DelegationKeeper.SetParams(s.Ctx(), params)
 		s.App().DelegationKeeper.SlashDelegators(s.Ctx(), 0, i.ALICE, types.SLASH_TYPE_UPLOAD)
 
@@ -464,7 +465,7 @@ var _ = Describe("msg_server_undelegate.go", Ordered, func() {
 		})
 
 		params := s.App().DelegationKeeper.GetParams(s.Ctx())
-		params.UploadSlash = "0.5"
+		params.UploadSlash = sdk.MustNewDecFromStr("0.5")
 		s.App().DelegationKeeper.SetParams(s.Ctx(), params)
 		s.PerformValidityChecks()
 
@@ -512,7 +513,7 @@ var _ = Describe("msg_server_undelegate.go", Ordered, func() {
 
 		// ACT
 		params := s.App().DelegationKeeper.GetParams(s.Ctx())
-		params.UploadSlash = "0.5"
+		params.UploadSlash = sdk.MustNewDecFromStr("0.5")
 		s.App().DelegationKeeper.SetParams(s.Ctx(), params)
 
 		// Slash 50% twice
@@ -557,7 +558,7 @@ var _ = Describe("msg_server_undelegate.go", Ordered, func() {
 
 		// ACT
 		params := s.App().DelegationKeeper.GetParams(s.Ctx())
-		params.UploadSlash = "0.5"
+		params.UploadSlash = sdk.MustNewDecFromStr("0.5")
 		s.App().DelegationKeeper.SetParams(s.Ctx(), params)
 		s.App().DelegationKeeper.SlashDelegators(s.Ctx(), 0, i.ALICE, types.SLASH_TYPE_UPLOAD)
 		s.App().DelegationKeeper.SlashDelegators(s.Ctx(), 0, i.ALICE, types.SLASH_TYPE_UPLOAD)
