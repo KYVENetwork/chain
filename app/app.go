@@ -779,8 +779,9 @@ func NewKYVEApp(
 		v11.CreateUpgradeHandler(
 			app.mm,
 			app.configurator,
+			appCodec,
+			keys[stakersTypes.StoreKey],
 			app.AccountKeeper,
-			app.StakersKeeper,
 		),
 	)
 
