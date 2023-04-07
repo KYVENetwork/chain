@@ -20,6 +20,7 @@
 - (deps) [#21](https://github.com/KYVENetwork/chain/pull/21) Switch to CometBFT from Informal Systems' Tendermint fork.
 - [#22](https://github.com/KYVENetwork/chain/pull/22) Emit an event when updating module parameters.
 - [#22](https://github.com/KYVENetwork/chain/pull/22) Various minor code improvements, cleanups, and validations.
+- (`x/bundles`) [#26](https://github.com/KYVENetwork/chain/pull/26) Include the timestamp of the block that finalized a bundle.
 
 ### Bug Fixes
 
