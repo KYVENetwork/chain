@@ -316,6 +316,10 @@ func (k Keeper) finalizeCurrentBundleProposal(ctx sdk.Context, poolId uint64, vo
 	bundleProposal, _ := k.GetBundleProposal(ctx, poolId)
 
 	// save finalized bundle
+	finalizedAt := types.FinalizedAt{
+		Height:    uint64(ctx.BlockHeight()),
+		Timestamp: uint64(ctx.BlockTime().Unix()),
+	}
 	finalizedBundle := types.FinalizedBundle{
 		StorageId:         bundleProposal.StorageId,
 		PoolId:            pool.Id,
@@ -323,7 +327,7 @@ func (k Keeper) finalizeCurrentBundleProposal(ctx sdk.Context, poolId uint64, vo
 		Uploader:          bundleProposal.Uploader,
 		FromIndex:         pool.CurrentIndex,
 		ToIndex:           pool.CurrentIndex + bundleProposal.BundleSize,
-		FinalizedAt:       uint64(ctx.BlockHeight()),
+		FinalizedAt:       &finalizedAt,
 		FromKey:           bundleProposal.FromKey,
 		ToKey:             bundleProposal.ToKey,
 		BundleSummary:     bundleProposal.BundleSummary,
