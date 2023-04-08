@@ -19,8 +19,8 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 
 // ExportGenesis returns the x/oracle sender module's exported genesis.
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
-	reqs := k.GetRequests(ctx)
-	ress := k.GetResponses(ctx)
+	requests := k.GetRequests(ctx)
+	responses := k.GetResponses(ctx)
 
-	return types.NewGenesisState(reqs, ress)
+	return types.NewGenesisState(requests, responses)
 }

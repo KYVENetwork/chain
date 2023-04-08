@@ -3,11 +3,16 @@ package types
 import (
 	"encoding/json"
 
-	globalTypes "github.com/KYVENetwork/chain/x/global/types"
-	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/gogoproto/jsonpb"
-	transferTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+
+	// Auth
+	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	// Global
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
+	// IBC Core
 	channelTypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
+	// IBC Transfer
+	transferTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 )
 
 func ParseOraclePacket(packet channelTypes.Packet) (

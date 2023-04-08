@@ -10,13 +10,11 @@ import (
 
 	// Capability
 	capabilityTypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-
 	// IBC Core
 	clientTypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
 	channelTypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 	portTypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
 	ibcExported "github.com/cosmos/ibc-go/v6/modules/core/exported"
-
 	// Oracle Host
 	"github.com/KYVENetwork/chain/x/oracle/host/keeper"
 	"github.com/KYVENetwork/chain/x/oracle/host/types"

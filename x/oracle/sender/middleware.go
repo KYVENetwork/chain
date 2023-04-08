@@ -1,7 +1,6 @@
 package sender
 
 import (
-	hostTypes "github.com/KYVENetwork/chain/x/oracle/host/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	// Capability
@@ -11,7 +10,8 @@ import (
 	channelTypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 	portTypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
 	ibcExported "github.com/cosmos/ibc-go/v6/modules/core/exported"
-
+	// Oracle Host
+	hostTypes "github.com/KYVENetwork/chain/x/oracle/host/types"
 	// Oracle Sender
 	"github.com/KYVENetwork/chain/x/oracle/sender/keeper"
 )
