@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package kyve.oracle.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/oracle/types";
+
+// Params ...
+message Params {
+  // price_per_byte ...
+  string price_per_byte = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// OracleMemo ...
+message OracleMemo {
+  // query ...
+  OracleQuery query = 1;
+}
+
+// OracleQuery ...
+message OracleQuery {
+  // query ...
+  oneof query {
+    // latest_summary ...
+    LatestSummaryQuery latest_summary = 1;
+  }
+}
+
+// LatestSummaryQuery ...
+message LatestSummaryQuery {
+  // pool_id ...
+  uint64 pool_id = 1;
+}

@@ -1,7 +1,6 @@
 package app
 
 import (
-	teamTypes "github.com/KYVENetwork/chain/x/team/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	// Auth
@@ -52,6 +51,9 @@ import (
 	// Mint
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	// Oracle
+	"github.com/KYVENetwork/chain/x/oracle"
+	oracleTypes "github.com/KYVENetwork/chain/x/oracle/types"
 	// Parameters
 	"github.com/cosmos/cosmos-sdk/x/params"
 	// Pool
@@ -69,6 +71,7 @@ import (
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	// Team
 	"github.com/KYVENetwork/chain/x/team"
+	teamTypes "github.com/KYVENetwork/chain/x/team/types"
 	// Upgrade
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 )
@@ -104,6 +107,7 @@ var appModuleBasics = []module.AppModuleBasic{
 	bundles.AppModuleBasic{},
 	delegation.AppModuleBasic{},
 	global.AppModuleBasic{},
+	oracle.AppModuleBasic{},
 	pool.AppModuleBasic{},
 	query.AppModuleBasic{},
 	stakers.AppModuleBasic{},
@@ -128,6 +132,7 @@ var moduleAccountPermissions = map[string][]string{
 	// KYVE
 	bundlesTypes.ModuleName:    nil,
 	delegationTypes.ModuleName: nil,
+	oracleTypes.ModuleName:     nil,
 	poolTypes.ModuleName:       nil,
 	stakersTypes.ModuleName:    nil,
 	teamTypes.ModuleName:       nil,
@@ -137,6 +142,8 @@ var moduleAccountPermissions = map[string][]string{
 func (app *App) BlockedModuleAccountAddrs() map[string]bool {
 	modAccAddrs := app.ModuleAccountAddrs()
 	delete(modAccAddrs, authTypes.NewModuleAddress(govTypes.ModuleName).String())
+	// TODO(@john): This is needed, however the account is no longer treated like a module.
+	delete(modAccAddrs, authTypes.NewModuleAddress(oracleTypes.ModuleName).String())
 
 	return modAccAddrs
 }

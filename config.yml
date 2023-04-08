@@ -135,7 +135,7 @@ genesis:
           current_index: "0"
           current_key: ""
           current_storage_provider_id: "1"
-          current_summary: ""
+          current_summary: '{"ADA":0.37775000000000003,"ATOM":11.012049999999999,"AVAX":17.7198,"BAT":0.28585000000000005,"BCH":124.7427,"BTC":27827.334000000003,"BUSD":0.99985,"DAI":1.00035,"DOGE":0.08305,"DOT":6.1640999999999995,"DYDX":2.5103999999999997,"EGLD":40.736450000000005,"ENJ":0.45815,"EOS":1.2001,"ETH":1852.6342,"FIL":5.5360499999999995,"FTM":0.45635,"KAVA":0.87035,"LDO":2.55,"LRC":0.3498,"LTC":89.62100000000001,"MANA":0.6005499999999999,"MATIC":1.0998999999999999,"MKR":701.0113,"NEAR":1.9702,"SAND":0.6326}'
           funders: []
           id: "0"
           logo: "ar://E3jXAOeJ3El7HQgOf_NtSOwVE7Sd0M4g4bYqjCBH9CU"
@@ -146,7 +146,7 @@ genesis:
           disabled: false
           runtime: '@kyvejs/evm'
           start_key: "0"
-          total_bundles: "0"
+          total_bundles: "1"
           total_funds: "0"
           upload_interval: "60"
           protocol:
@@ -164,6 +164,23 @@ genesis:
     staking:
       params:
         bond_denom: tkyve
+    bundles:
+      finalized_bundle_list:
+        - bundle_summary: '{"ADA":0.37775000000000003,"ATOM":11.012049999999999,"AVAX":17.7198,"BAT":0.28585000000000005,"BCH":124.7427,"BTC":27827.334000000003,"BUSD":0.99985,"DAI":1.00035,"DOGE":0.08305,"DOT":6.1640999999999995,"DYDX":2.5103999999999997,"EGLD":40.736450000000005,"ENJ":0.45815,"EOS":1.2001,"ETH":1852.6342,"FIL":5.5360499999999995,"FTM":0.45635,"KAVA":0.87035,"LDO":2.55,"LRC":0.3498,"LTC":89.62100000000001,"MANA":0.6005499999999999,"MATIC":1.0998999999999999,"MKR":701.0113,"NEAR":1.9702,"SAND":0.6326}'
+          compression_id: 1
+          data_hash: ""
+          finalized_at:
+            height: 1984
+            timestamp: 441763200
+          from_index: "42"
+          from_key: "42"
+          id: "0"
+          pool_id: "0"
+          storage_id: ""
+          storage_provider_id: 1
+          to_index: "69"
+          to_key: "69"
+          uploader: ""
   chain_id: kyve-local
 validators:
   - name: alice

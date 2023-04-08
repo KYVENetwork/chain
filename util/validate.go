@@ -21,6 +21,19 @@ func ValidateDecimal(i interface{}) error {
 	return nil
 }
 
+func ValidateLegacyDecimal(i interface{}) error {
+	v, ok := i.(math.LegacyDec)
+	if !ok {
+		return fmt.Errorf("invalid type: %T", i)
+	}
+
+	if v.IsNil() || v.IsNegative() {
+		return fmt.Errorf("invalid decimal: %s", v)
+	}
+
+	return nil
+}
+
 func ValidateNumber(i interface{}) error {
 	v, ok := i.(uint64)
 	if !ok {

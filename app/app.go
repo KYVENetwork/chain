@@ -120,6 +120,10 @@ import (
 	"github.com/KYVENetwork/chain/x/global"
 	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
+	// Oracle
+	"github.com/KYVENetwork/chain/x/oracle"
+	oracleKeeper "github.com/KYVENetwork/chain/x/oracle/keeper"
+	oracleTypes "github.com/KYVENetwork/chain/x/oracle/types"
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
@@ -240,6 +244,7 @@ func NewKYVEApp(
 		bundlesTypes.StoreKey,
 		delegationTypes.StoreKey,
 		globalTypes.StoreKey,
+		oracleTypes.StoreKey,
 		poolTypes.StoreKey,
 		queryTypes.StoreKey,
 		stakersTypes.StoreKey,
@@ -450,6 +455,11 @@ func NewKYVEApp(
 		app.DelegationKeeper,
 	)
 
+	app.OracleKeeper = *oracleKeeper.NewKeeper(
+		appCodec, keys[oracleTypes.StoreKey],
+		app.BundlesKeeper, app.PoolKeeper,
+	)
+
 	// Create IBC Keepers
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec, keys[ibchost.StoreKey],
@@ -554,6 +564,7 @@ func NewKYVEApp(
 	var ibcTransferStack ibcPortTypes.IBCModule
 	ibcTransferStack = ibcTransfer.NewIBCModule(app.IBCTransferKeeper)
 	ibcTransferStack = ibcFee.NewIBCMiddleware(ibcTransferStack, app.IBCFeeKeeper)
+	ibcTransferStack = oracle.NewIBCMiddleware(ibcTransferStack, app.OracleKeeper)
 
 	var icaControllerStack ibcPortTypes.IBCModule
 	icaControllerStack = icaController.NewIBCMiddleware(icaControllerStack, app.ICAControllerKeeper)
@@ -611,6 +622,7 @@ func NewKYVEApp(
 		bundles.NewAppModule(appCodec, app.BundlesKeeper, app.AccountKeeper, app.BankKeeper),
 		delegation.NewAppModule(appCodec, app.DelegationKeeper, app.AccountKeeper, app.BankKeeper),
 		global.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.GlobalKeeper, app.UpgradeKeeper),
+		oracle.NewAppModule(appCodec, app.OracleKeeper),
 		pool.NewAppModule(appCodec, app.PoolKeeper, app.AccountKeeper, app.BankKeeper),
 		query.NewAppModule(appCodec, app.QueryKeeper, app.AccountKeeper, app.BankKeeper),
 		stakers.NewAppModule(appCodec, app.StakersKeeper, app.AccountKeeper, app.BankKeeper),
@@ -654,6 +666,7 @@ func NewKYVEApp(
 		bundlesTypes.ModuleName,
 		queryTypes.ModuleName,
 		globalTypes.ModuleName,
+		oracleTypes.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
@@ -687,6 +700,7 @@ func NewKYVEApp(
 		queryTypes.ModuleName,
 		globalTypes.ModuleName,
 		teamTypes.ModuleName,
+		oracleTypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -725,6 +739,7 @@ func NewKYVEApp(
 		queryTypes.ModuleName,
 		globalTypes.ModuleName,
 		teamTypes.ModuleName,
+		oracleTypes.ModuleName,
 	)
 
 	// Uncomment if you want to set a custom migration order here.

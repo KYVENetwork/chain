@@ -53,6 +53,8 @@ import (
 	// Mint
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	// Oracle
+	oracleKeeper "github.com/KYVENetwork/chain/x/oracle/keeper"
 	// Parameters
 	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	// Pool
@@ -102,6 +104,7 @@ type Keepers struct {
 	BundlesKeeper    bundlesKeeper.Keeper
 	DelegationKeeper delegationKeeper.Keeper
 	GlobalKeeper     globalKeeper.Keeper
+	OracleKeeper     oracleKeeper.Keeper
 	PoolKeeper       poolKeeper.Keeper
 	QueryKeeper      queryKeeper.Keeper
 	StakersKeeper    stakersKeeper.Keeper
