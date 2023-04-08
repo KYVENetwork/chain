@@ -1,25 +1,19 @@
-package host
+package sender
 
 import (
-	"encoding/json"
-	"time"
-
-	"cosmossdk.io/math"
-
+	hostTypes "github.com/KYVENetwork/chain/x/oracle/host/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	// Capability
 	capabilityTypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-
 	// IBC Core
 	clientTypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
 	channelTypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 	portTypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
 	ibcExported "github.com/cosmos/ibc-go/v6/modules/core/exported"
 
-	// Oracle Host
-	"github.com/KYVENetwork/chain/x/oracle/host/keeper"
-	"github.com/KYVENetwork/chain/x/oracle/host/types"
+	// Oracle Sender
+	"github.com/KYVENetwork/chain/x/oracle/sender/keeper"
 )
 
 var _ portTypes.Middleware = &IBCMiddleware{}
@@ -81,66 +75,30 @@ func (im IBCMiddleware) OnChanCloseConfirm(ctx sdk.Context, portID string, chann
 	return im.app.OnChanCloseConfirm(ctx, portID, channelID)
 }
 
-// OnRecvPacket implements the IBCMiddleware interface.
-//
-// This middleware is intended to be used alongside ICS-20 ("IBC Transfer").
-// When receiving an ICS-20 packet, we first check if the tokens are being sent
-// to the x/oracle module. If they are, we ensure that the denom sent is the
-// native KYVE token (ukyve). Note that if the denom is not correct, we simply
-// throw an error, returning the funds. Next, we utilise the memo field to
-// trigger an interchain query request.
 func (im IBCMiddleware) OnRecvPacket(
 	ctx sdk.Context,
 	packet channelTypes.Packet,
 	relayer sdk.AccAddress,
 ) ibcExported.Acknowledgement {
-	data, req, valid, err := types.ParseOraclePacket(packet)
-	if !valid {
-		if err == nil {
-			return im.app.OnRecvPacket(ctx, packet, relayer)
-		} else {
-			return types.NewErrorAcknowledgement(err)
-		}
-	}
-
-	// Execute underlying transfer.
-	if ack := im.app.OnRecvPacket(ctx, packet, relayer); !ack.Success() {
-		return ack
-	}
-
-	// Execute query.
-	var response []byte
-	var timestamp time.Time
-
-	switch query := req.Query.(type) {
-	case *types.OracleQuery_LatestSummary:
-		// TODO(@john): Handle query error.
-		latestSummary, finalisedAt, _ := im.keeper.GetLatestSummary(ctx, query.LatestSummary.PoolId)
-
-		response = []byte(latestSummary)
-		timestamp = finalisedAt
-	}
-
-	// Ensure fee is sufficient.
-	cost := im.keeper.GetPricePerByte(ctx).MulInt64(int64(len(response))).TruncateInt()
-	if amount, _ := math.NewIntFromString(data.Amount); amount.LT(cost) {
-		return types.NewErrorAcknowledgement(types.ErrInsufficientOracleFee)
-	}
-
-	// Return.
-	bz, _ := json.Marshal(types.OracleAcknowledgement{
-		OracleResponse: response,
-		Timestamp:      timestamp,
-	})
-	return channelTypes.NewResultAcknowledgement(bz)
+	return im.app.OnRecvPacket(ctx, packet, relayer)
 }
 
+// OnAcknowledgementPacket implements the IBCMiddleware interface.
 func (im IBCMiddleware) OnAcknowledgementPacket(
 	ctx sdk.Context,
 	packet channelTypes.Packet,
 	acknowledgement []byte,
 	relayer sdk.AccAddress,
 ) error {
+	_, req, valid, _ := hostTypes.ParseOraclePacket(packet)
+	if !valid {
+		return im.app.OnAcknowledgementPacket(ctx, packet, acknowledgement, relayer)
+	}
+
+	im.keeper.SetRequest(ctx, packet.Sequence, *req)
+
+	// TODO(@john): Save response.
+
 	return im.app.OnAcknowledgementPacket(ctx, packet, acknowledgement, relayer)
 }
 

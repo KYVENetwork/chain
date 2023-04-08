@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package kyve.oracle.sender.v1;
+
+import "gogoproto/gogo.proto";
+import "kyve/oracle/host/v1/host.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/oracle/sender/types";
+
+// GenesisState defines the x/oracle sender module's genesis state.
+message GenesisState {
+  // requests ...
+  map<uint64, kyve.oracle.host.v1.OracleQuery> requests = 1 [(gogoproto.nullable) = false];
+  // responses ...
+  map<uint64, kyve.oracle.host.v1.OracleAcknowledgement> responses = 2 [(gogoproto.nullable) = false];
+}

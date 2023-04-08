@@ -18,12 +18,10 @@ message Params {
 
 // OracleAcknowledgement ...
 message OracleAcknowledgement {
-  // ibc_acknowledgement ...
-  bytes ibc_acknowledgement = 1;
   // oracle_response ...
-  bytes oracle_response = 2;
+  bytes oracle_response = 1;
   // timestamp ...
-  google.protobuf.Timestamp timestamp = 3 [
+  google.protobuf.Timestamp timestamp = 2 [
     (gogoproto.nullable) = false,
     (gogoproto.stdtime) = true
   ];
