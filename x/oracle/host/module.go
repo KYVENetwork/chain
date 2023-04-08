@@ -1,11 +1,11 @@
-package oracle
+package host
 
 import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/KYVENetwork/chain/x/oracle/keeper"
-	"github.com/KYVENetwork/chain/x/oracle/types"
+	"github.com/KYVENetwork/chain/x/oracle/host/keeper"
+	"github.com/KYVENetwork/chain/x/oracle/host/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"

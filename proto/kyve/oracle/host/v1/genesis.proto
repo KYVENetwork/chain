@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package kyve.oracle.host.v1;
+
+import "gogoproto/gogo.proto";
+import "kyve/oracle/host/v1/host.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/oracle/host/types";
+
+// GenesisState defines the x/oracle host module's genesis state.
+message GenesisState {
+  // params defines all the parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}

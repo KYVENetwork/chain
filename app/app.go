@@ -120,10 +120,10 @@ import (
 	"github.com/KYVENetwork/chain/x/global"
 	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
-	// Oracle
-	"github.com/KYVENetwork/chain/x/oracle"
-	oracleKeeper "github.com/KYVENetwork/chain/x/oracle/keeper"
-	oracleTypes "github.com/KYVENetwork/chain/x/oracle/types"
+	// Oracle Host
+	oracle "github.com/KYVENetwork/chain/x/oracle/host"
+	oracleKeeper "github.com/KYVENetwork/chain/x/oracle/host/keeper"
+	oracleTypes "github.com/KYVENetwork/chain/x/oracle/host/types"
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"

@@ -1,4 +1,4 @@
-package oracle
+package host
 
 import (
 	"encoding/json"
@@ -22,9 +22,9 @@ import (
 	ibcExported "github.com/cosmos/ibc-go/v6/modules/core/exported"
 	// IBC Transfer
 	transferTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
-	// Oracle
-	"github.com/KYVENetwork/chain/x/oracle/keeper"
-	"github.com/KYVENetwork/chain/x/oracle/types"
+	// Oracle Host
+	"github.com/KYVENetwork/chain/x/oracle/host/keeper"
+	"github.com/KYVENetwork/chain/x/oracle/host/types"
 )
 
 var _ portTypes.Middleware = &IBCMiddleware{}
@@ -156,7 +156,7 @@ func (im IBCMiddleware) OnRecvPacket(
 
 	// Return an acknowledgement with the query response.
 	bz, _ := json.Marshal(types.OracleAcknowledgement{
-		IBCAcknowledgement: ibcAck.Result,
+		IbcAcknowledgement: ibcAck.Result,
 		OracleResponse:     response,
 		Timestamp:          timestamp,
 	})

@@ -2,7 +2,8 @@ package keeper
 
 import (
 	"cosmossdk.io/math"
-	"github.com/KYVENetwork/chain/x/oracle/types"
+
+	"github.com/KYVENetwork/chain/x/oracle/host/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

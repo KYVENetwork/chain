@@ -10,8 +10,8 @@ import (
 
 	// Bundles
 	bundlesKeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
-	// Oracle
-	"github.com/KYVENetwork/chain/x/oracle/types"
+	// Oracle Host
+	"github.com/KYVENetwork/chain/x/oracle/host/types"
 	// Pool
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 )

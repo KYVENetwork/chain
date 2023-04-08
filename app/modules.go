@@ -51,9 +51,9 @@ import (
 	// Mint
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	// Oracle
-	"github.com/KYVENetwork/chain/x/oracle"
-	oracleTypes "github.com/KYVENetwork/chain/x/oracle/types"
+	// Oracle Host
+	oracle "github.com/KYVENetwork/chain/x/oracle/host"
+	oracleTypes "github.com/KYVENetwork/chain/x/oracle/host/types"
 	// Parameters
 	"github.com/cosmos/cosmos-sdk/x/params"
 	// Pool

@@ -1,10 +1,11 @@
 syntax = "proto3";
 
-package kyve.oracle.v1;
+package kyve.oracle.host.v1;
 
 import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/KYVENetwork/chain/x/oracle/types";
+option go_package = "github.com/KYVENetwork/chain/x/oracle/host/types";
 
 // Params ...
 message Params {
@@ -12,6 +13,19 @@ message Params {
   string price_per_byte = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
+  ];
+}
+
+// OracleAcknowledgement ...
+message OracleAcknowledgement {
+  // ibc_acknowledgement ...
+  bytes ibc_acknowledgement = 1;
+  // oracle_response ...
+  bytes oracle_response = 2;
+  // timestamp ...
+  google.protobuf.Timestamp timestamp = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime) = true
   ];
 }
 

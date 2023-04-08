@@ -53,8 +53,8 @@ import (
 	// Mint
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	// Oracle
-	oracleKeeper "github.com/KYVENetwork/chain/x/oracle/keeper"
+	// Oracle Host
+	oracleKeeper "github.com/KYVENetwork/chain/x/oracle/host/keeper"
 	// Parameters
 	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	// Pool
