@@ -83,12 +83,20 @@ message FinalizedBundle {
   string bundle_summary = 8;
   // data_hash a sha256 hash of the raw compressed data
   string data_hash = 9;
-  // finalized_at is the block height at which this bundle got finalized
-  uint64 finalized_at = 10;
+  // finalized_at contains details of the block that finalized this bundle.
+  FinalizedAt finalized_at = 10;
   // from_key the key of the first data item in the bundle proposal
   string from_key = 11;
   // storage_provider_id the id of the storage provider where the bundle is stored
   uint32 storage_provider_id = 12;
   // compression_id the id of the compression type with which the data was compressed
   uint32 compression_id = 13;
+}
+
+// FinalizedAt ...
+message FinalizedAt {
+  // height ...
+  uint64 height = 1;
+  // timestamp ...
+  uint64 timestamp = 2;
 }
