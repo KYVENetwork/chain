@@ -2,6 +2,8 @@ package v1_1
 
 import (
 	"github.com/KYVENetwork/chain/app/upgrades/v1_1/types"
+	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
+	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
 	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
@@ -24,6 +26,8 @@ func CreateUpgradeHandler(
 	configurator module.Configurator,
 	cdc codec.BinaryCodec,
 	stakersStoreKey storetypes.StoreKey,
+	bundlesStoreKey storetypes.StoreKey,
+	delegationStoreKey storetypes.StoreKey,
 	accountKeeper authKeeper.AccountKeeper,
 ) upgradeTypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradeTypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
@@ -35,6 +39,9 @@ func CreateUpgradeHandler(
 
 		MigrateStakerMetadata(ctx, cdc, stakersStoreKey)
 		MigrateStakerCommissionEntries(ctx, cdc, stakersStoreKey)
+
+		MigrateBundleParameters(ctx, cdc, bundlesStoreKey)
+		MigrateDelegationParameters(ctx, cdc, delegationStoreKey)
 
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
@@ -126,4 +133,44 @@ func MigrateStakerCommissionEntries(ctx sdk.Context, cdc codec.BinaryCodec, stak
 		b := cdc.MustMarshal(&newCommissionChangeEntry)
 		store.Set(stakersTypes.CommissionChangeEntryKey(newCommissionChangeEntry.Index), b)
 	}
+}
+
+// MigrateBundleParameters re-encodes the params fields which got converted to sdk.Dec
+func MigrateBundleParameters(ctx sdk.Context, cdc codec.BinaryCodec, bundlesStoreKey storetypes.StoreKey) {
+	store := ctx.KVStore(bundlesStoreKey)
+	bz := store.Get(bundlesTypes.ParamsKey)
+
+	var oldParams types.OldBundlesParams
+	cdc.MustUnmarshal(bz, &oldParams)
+
+	newParams := bundlesTypes.Params{
+		UploadTimeout: oldParams.UploadTimeout,
+		StorageCost:   oldParams.StorageCost,
+		NetworkFee:    sdk.MustNewDecFromStr(oldParams.NetworkFee),
+		MaxPoints:     oldParams.MaxPoints,
+	}
+
+	bz = cdc.MustMarshal(&newParams)
+	store.Set(bundlesTypes.ParamsKey, bz)
+}
+
+// MigrateDelegationParameters re-encodes the params fields which got converted to sdk.Dec
+func MigrateDelegationParameters(ctx sdk.Context, cdc codec.BinaryCodec, delegationStoreKey storetypes.StoreKey) {
+	store := ctx.KVStore(delegationStoreKey)
+	bz := store.Get(delegationTypes.ParamsKey)
+
+	var oldParams types.OldDelegationParams
+	cdc.MustUnmarshal(bz, &oldParams)
+
+	newParams := delegationTypes.Params{
+		UnbondingDelegationTime: oldParams.UnbondingDelegationTime,
+		RedelegationCooldown:    oldParams.RedelegationCooldown,
+		RedelegationMaxAmount:   oldParams.RedelegationMaxAmount,
+		VoteSlash:               sdk.MustNewDecFromStr(oldParams.VoteSlash),
+		UploadSlash:             sdk.MustNewDecFromStr(oldParams.UploadSlash),
+		TimeoutSlash:            sdk.MustNewDecFromStr(oldParams.TimeoutSlash),
+	}
+
+	bz = cdc.MustMarshal(&newParams)
+	store.Set(delegationTypes.ParamsKey, bz)
 }

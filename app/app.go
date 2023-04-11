@@ -781,6 +781,8 @@ func NewKYVEApp(
 			app.configurator,
 			appCodec,
 			keys[stakersTypes.StoreKey],
+			keys[bundlesTypes.StoreKey],
+			keys[delegationTypes.StoreKey],
 			app.AccountKeeper,
 		),
 	)
