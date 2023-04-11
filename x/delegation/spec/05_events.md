@@ -21,6 +21,24 @@ message EventUpdateParams {
 }
 ```
 
+## EventStartUndelegation
+
+EventStartUndelegation is emitted when a user initiates a protocol unbonding.
+
+```protobuf
+message EventStartUndelegation {
+  // address is the address of the delegator.
+  string address = 1;
+  // staker is the address of the protocol node.
+  string staker = 2;
+  // amount is the amount to be undelegated from the protocol node.
+  uint64 amount = 3;
+  // estimated_undelegation_date is the date in UNIX seconds on when the undelegation will be performed.
+  // Note, this number will be incorrect if a governance proposal changes `UnbondingDelegationTime` while unbonding.
+  uint64 estimated_undelegation_date = 4;
+}
+```
+
 ## EndBlocker
 
 | Type              | Attribute Key | Attribute Value    |

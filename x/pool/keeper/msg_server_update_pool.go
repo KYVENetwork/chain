@@ -62,5 +62,20 @@ func (k msgServer) UpdatePool(goCtx context.Context, req *types.MsgUpdatePool) (
 
 	k.SetPool(ctx, pool)
 
+	_ = ctx.EventManager().EmitTypedEvent(&types.EventPoolUpdated{
+		Id:                pool.Id,
+		RawUpdateString:   req.Payload,
+		Name:              pool.Name,
+		Runtime:           pool.Runtime,
+		Logo:              pool.Logo,
+		Config:            pool.Config,
+		UploadInterval:    pool.UploadInterval,
+		OperatingCost:     pool.OperatingCost,
+		MinDelegation:     pool.MinDelegation,
+		MaxBundleSize:     pool.MaxBundleSize,
+		StorageProviderId: pool.CurrentStorageProviderId,
+		CompressionId:     pool.CurrentCompressionId,
+	})
+
 	return &types.MsgUpdatePoolResponse{}, nil
 }
