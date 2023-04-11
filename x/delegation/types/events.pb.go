@@ -156,14 +156,14 @@ func (m *EventDelegate) GetAmount() uint64 {
 // EventStartUndelegation is an event emitted when someone starts an undelegation from a protocol node.
 // emitted_by: EndBlock
 type EventStartUndelegation struct {
-	// address is the account address of the delegator.
+	// address is the address of the delegator.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	// staker is the account address of the protocol node.
+	// staker is the address of the protocol node.
 	Staker string `protobuf:"bytes,2,opt,name=staker,proto3" json:"staker,omitempty"`
-	// amount to be undelegated
+	// amount is the amount to be undelegated from the protocol node.
 	Amount uint64 `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`
-	// estimated_undelegation_date is the data in UNIX seconds on when the undelegation will be performed.
-	// This number will be wrong if a governance proposal changes `UnbondingDelegationTime` during the unbonding.
+	// estimated_undelegation_date is the date in UNIX seconds on when the undelegation will be performed.
+	// Note, this number will be incorrect if a governance proposal changes `UnbondingDelegationTime` while unbonding.
 	EstimatedUndelegationDate uint64 `protobuf:"varint,4,opt,name=estimated_undelegation_date,json=estimatedUndelegationDate,proto3" json:"estimated_undelegation_date,omitempty"`
 }
 
