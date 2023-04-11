@@ -781,6 +781,7 @@ func NewKYVEApp(
 			app.configurator,
 			app.AccountKeeper,
 			app.StakersKeeper,
+			app.IBCTransferKeeper,
 		),
 	)
 
