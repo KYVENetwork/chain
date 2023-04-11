@@ -291,19 +291,19 @@ func (m *EventPoolDisabled) GetId() uint64 {
 // EventRuntimeUpgradeScheduled ...
 // emitted_by: EndBlock(gov)
 type EventRuntimeUpgradeScheduled struct {
-	// runtime is the name of the runtime that will be upgraded. (e.g. evm)
+	// runtime is the name of the runtime that will be upgraded.
 	Runtime string `protobuf:"bytes,1,opt,name=runtime,proto3" json:"runtime,omitempty"`
-	// version is the new version the runtime will be upgraded to
+	// version is the new version that the runtime will be upgraded to.
 	Version string `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
-	// scheduled_at is the UTC timestamp in seconds
+	// scheduled_at is the time in UNIX seconds when the upgrade will occur.
 	ScheduledAt uint64 `protobuf:"varint,3,opt,name=scheduled_at,json=scheduledAt,proto3" json:"scheduled_at,omitempty"`
-	// duration is the amount of seconds to pool will be paused after the
+	// duration is the amount of seconds the pool will be paused after the
 	// scheduled time is reached. This will give node operators time to upgrade
 	// their node.
 	Duration uint64 `protobuf:"varint,4,opt,name=duration,proto3" json:"duration,omitempty"`
-	// binaries contain download links for prebuilt binaries (in JSON)
+	// binaries contain download links for prebuilt binaries (in JSON format).
 	Binaries string `protobuf:"bytes,5,opt,name=binaries,proto3" json:"binaries,omitempty"`
-	// affected_pools contains all poolIds of the pools which will be affected by the runtime upgrade.
+	// affected_pools contains all IDs of pools that will be affected by this runtime upgrade.
 	AffectedPools []uint64 `protobuf:"varint,6,rep,packed,name=affected_pools,json=affectedPools,proto3" json:"affected_pools,omitempty"`
 }
 
@@ -385,9 +385,10 @@ func (m *EventRuntimeUpgradeScheduled) GetAffectedPools() []uint64 {
 // EventRuntimeUpgradeCancelled ...
 // emitted_by: EndBlock(gov)
 type EventRuntimeUpgradeCancelled struct {
-	// runtime is the name of the runtime that will be upgraded. (e.g. evm)
+	// runtime is the name of the runtime that will be upgraded.
 	Runtime string `protobuf:"bytes,1,opt,name=runtime,proto3" json:"runtime,omitempty"`
-	// affected_pools contains all poolIds of the pools which will be affected by the cancellation of the runtime upgrade.
+	// affected_pools contains all IDs of pools that are affected by the
+	// cancellation of this runtime upgrade.
 	AffectedPools []uint64 `protobuf:"varint,2,rep,packed,name=affected_pools,json=affectedPools,proto3" json:"affected_pools,omitempty"`
 }
 

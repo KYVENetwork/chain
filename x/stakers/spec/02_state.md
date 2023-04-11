@@ -16,9 +16,11 @@ type Staker struct {
     Address string
     // Needs to be a valid decimal representation
     Commission sdk.Dec 
-    Moniker uint64 
-    Website uint64
-    Logo uint64 
+    Moniker string 
+    Website string
+    Identity string 
+    SecurityContact string 
+    Details string 
 }
 ```
 

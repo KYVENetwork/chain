@@ -2516,11 +2516,19 @@ paths:
                     type: string
                     title: data_hash a sha256 hash of the raw compressed data
                   finalized_at:
-                    type: string
-                    format: uint64
-                    title: >-
-                      finalized_at is the block height at which this bundle got
-                      finalized
+                    description: >-
+                      finalized_at contains details of the block that finalized
+                      this bundle.
+                    type: object
+                    properties:
+                      height:
+                        type: string
+                        format: uint64
+                        description: height ...
+                      timestamp:
+                        type: string
+                        format: uint64
+                        description: timestamp ...
                   from_key:
                     type: string
                     title: >-
@@ -2813,11 +2821,19 @@ paths:
                     type: string
                     title: data_hash a sha256 hash of the raw compressed data
                   finalized_at:
-                    type: string
-                    format: uint64
-                    title: >-
-                      finalized_at is the block height at which this bundle got
-                      finalized
+                    description: >-
+                      finalized_at contains details of the block that finalized
+                      this bundle.
+                    type: object
+                    properties:
+                      height:
+                        type: string
+                        format: uint64
+                        description: height ...
+                      timestamp:
+                        type: string
+                        format: uint64
+                        description: timestamp ...
                   from_key:
                     type: string
                     title: >-
@@ -3113,11 +3129,19 @@ paths:
                       type: string
                       title: data_hash a sha256 hash of the raw compressed data
                     finalized_at:
-                      type: string
-                      format: uint64
-                      title: >-
-                        finalized_at is the block height at which this bundle
-                        got finalized
+                      description: >-
+                        finalized_at contains details of the block that
+                        finalized this bundle.
+                      type: object
+                      properties:
+                        height:
+                          type: string
+                          format: uint64
+                          description: height ...
+                        timestamp:
+                          type: string
+                          format: uint64
+                          description: timestamp ...
                     from_key:
                       type: string
                       title: >-

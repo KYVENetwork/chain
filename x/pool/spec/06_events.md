@@ -156,7 +156,7 @@ message EventPoolEnabled {
 
 It gets emitted by the following actions:
 
-- MsgEnablePool
+- `MsgEnablePool`
 
 
 ## EventPoolDisabled
@@ -174,7 +174,7 @@ message EventPoolDisabled {
 
 It gets emitted by the following actions:
 
-- MsgDisablePool
+- `MsgDisablePool`
 
 
 ## EventRuntimeUpgradeScheduled
@@ -187,53 +187,54 @@ Then the upgrade is performed.
 syntax = "proto3";
 
 message EventRuntimeUpgradeScheduled {
-  // runtime is the name of the runtime that will be upgraded. (e.g. evm)
+  // runtime is the name of the runtime that will be upgraded.
   string runtime = 1;
-  // version is the new version the runtime will be upgraded to
+  // version is the new version that the runtime will be upgraded to.
   string version = 2;
-  // scheduled_at is the UTC timestamp in seconds
+  // scheduled_at is the time in UNIX seconds when the upgrade will occur.
   uint64 scheduled_at = 3;
-  // duration is the amount of seconds to pool will be paused after the
+  // duration is the amount of seconds the pool will be paused after the
   // scheduled time is reached. This will give node operators time to upgrade
   // their node.
   uint64 duration = 4;
-  // binaries contain download links for prebuilt binaries (in JSON)
+  // binaries contain download links for prebuilt binaries (in JSON format).
   string binaries = 5;
-  // affected_pools contains all poolIds of the pools which will be affected by the runtime upgrade.
+  // affected_pools contains all IDs of pools that will be affected by this runtime upgrade.
   repeated uint64 affected_pools = 6;
 }
 ```
 
 It gets emitted by the following actions:
 
-- MsgScheduleRuntimeUpgrade
+- `MsgScheduleRuntimeUpgrade`
 
 
 ## EventRuntimeUpgradeCancelled
 
 EventRuntimeUpgradeScheduled indicates that previous scheduled runtime upgrade
-got cancelled afterwards.
+was cancelled.
 
 ```protobuf
 syntax = "proto3";
 
 message EventRuntimeUpgradeCancelled {
-  // runtime is the name of the runtime that will be upgraded. (e.g. evm)
+  // runtime is the name of the runtime that will be upgraded.
   string runtime = 1;
-  // affected_pools contains all poolIds of the pools which will be affected by the cancellation of the runtime upgrade.
+  // affected_pools contains all IDs of pools that are affected by the
+  // cancellation of this runtime upgrade.
   repeated uint64 affected_pools = 2;
 }
 ```
 
 It gets emitted by the following actions:
 
-- MsgCancelRuntimeUpgrade
+- `MsgCancelRuntimeUpgrade`
 
 
 ## EventPoolUpdated
 
-EventPoolUpdated indicates that the config of a given pool has been 
-updated. It emits the raw update string as well as the entire current pool config.
+EventPoolUpdated indicates that the config of a given pool has been updated. It
+emits the raw update string as well as the entire current pool config.
 
 ```protobuf
 syntax = "proto3";
@@ -275,4 +276,4 @@ message EventPoolUpdated {
 
 It gets emitted by the following actions:
 
-- MsgUpdatePool
+- `MsgUpdatePool`

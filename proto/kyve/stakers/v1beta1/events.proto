@@ -25,6 +25,11 @@ message EventCreateStaker {
   string staker = 1;
   // amount ...
   uint64 amount = 2;
+  // commission
+  string commission = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // EventUpdateMetadata is an event emitted when a protocol node updates their metadata.
