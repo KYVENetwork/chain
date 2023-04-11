@@ -11,14 +11,17 @@ pools using valaccounts.
 
 ## Code Structure
 
-This module adheres to our global coding structure, defined [here](../../../CodeStructure.md).
+This module adheres to our global coding structure, defined 
+[here](../../../CodeStructure.md).
 
 ## Staker
 Every address can create one staker (itself). A staker has the following
 metadata which can be changed at any time.
 - Moniker
-- Logo
 - Website
+- Identity (keybase.io)
+- Security contact (e.g. email)
+- Details (arbitrary description)
 
 Additionally, a staker can specify a commission. However, this takes 
 `CommissionChangeTime` seconds of time before the change is applied.

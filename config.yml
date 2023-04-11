@@ -12,40 +12,40 @@ accounts:
       deliver fat happy ghost visa recall usual path purity junior ring ordinary stove
   - name: alice
     coins:
-      - 2000000000000000000tkyve
+      - 2000000000000000tkyve
     mnemonic: worry grief loyal smoke pencil arrow trap focus high pioneer tomato hedgehog
       essence purchase dove pond knee custom phone gentle sunset addict mother fabric
   - name: bob
     coins:
-      - 1000000000000000000tkyve
+      - 1000000000000000tkyve
     mnemonic: crash sick toilet stumble join cash erode glory door weird diagram away
       lizard solid segment apple urge joy annual able tank define candy demise
   - name: charlie
     coins:
-      - 1000000000000000000tkyve
+      - 1000000000000000tkyve
     mnemonic: shoot inject fragile width trend satisfy army enact volcano crowd message
       strike true divorce search rich office shoulder sport relax rhythm symbol gadget
       size
   - name: faucet
     coins:
-      - 1000000000000000000tkyve
+      - 1000000000000000tkyve
     mnemonic: open home share route party lake room solution quantum pact model avocado
       humor dilemma review desert turtle total humor produce rate keen eagle fee
 #  - name: team
 #    coins:
-#      - 165000000000000000tkyve
+#      - 165000000000000tkyve
 #    address: kyve1e29j95xmsw3zmvtrk4st8e89z5n72v7nf70ma4
   - name: foundation
     coins:
       # for fees
-      - 1000000000tkyve
+      - 1000000tkyve
     mnemonic: evidence taxi material cabin annual phrase practice unhappy safe jealous
       section drink illness panther bread aim mouse dolphin deliver ready doll finger search cheap
 #    address: kyve1fd4qu868n7arav8vteghcppxxa0p2vna5f5ep8
   - name: foundation_inflation
     coins:
       # for fees
-      - 1000000000tkyve
+      - 1000000tkyve
     mnemonic: hold urge sustain chef furnace foam oven fall harsh core anchor during crew secret
       craft rhythm choose gold soft aisle sort phrase enter orphan
 #    address: kyve1tuxsc7ez79aydyee86qxm05zyx0l7d78c2zzsn
@@ -53,7 +53,7 @@ accounts:
 faucet:
   name: faucet
   coins:
-    - 1000000000000000tkyve
+    - 1000000000000tkyve
   host: 0.0.0.0:4500
 client:
   openapi:
@@ -88,47 +88,47 @@ genesis:
       account_count: "8"
       account_list:
         - id: "0"
-          total_allocation: "1000000000000000"
+          total_allocation: "1000000000000"
           unlocked_claimed: "0"
           clawback: "1686693600"
           commencement: "1663106400"
         - id: "1"
-          total_allocation: "1000000000000000"
+          total_allocation: "1000000000000"
           unlocked_claimed: "0"
           clawback: "1749852000"
           commencement: "1694642400"
         - id: "2"
-          total_allocation: "1000000000000000"
+          total_allocation: "1000000000000"
           unlocked_claimed: "0"
           clawback: "1694642400"
           commencement: "1615676400"
         - id: "3"
-          total_allocation: "1000000000000000"
+          total_allocation: "1000000000000"
           unlocked_claimed: "0"
           clawback: "1702508400"
           commencement: "1647212400"
         - id: "4"
-          total_allocation: "1000000000000000"
+          total_allocation: "1000000000000"
           unlocked_claimed: "0"
           clawback: "1741906800"
           commencement: "1663106400"
         - id: "5"
-          total_allocation: "1000000000000000"
+          total_allocation: "1000000000000"
           unlocked_claimed: "0"
           clawback: "1804978800"
           commencement: "1710370800"
         - id: "6"
-          total_allocation: "1000000000000000"
+          total_allocation: "1000000000000"
           unlocked_claimed: "0"
           clawback: "1741906800"
           commencement: "1615676400"
         - id: "7"
-          total_allocation: "1000000000000000"
+          total_allocation: "1000000000000"
           unlocked_claimed: "0"
           clawback: "1804978800"
           commencement: "1647212400"
     pool:
-      pool_count: "1"
+      pool_count: "2"
       pool_list:
         - config: "ar://tMTrJ8E3QgBNLz0-lyn6QrxasEIX46d14QFVmBWshSI"
           current_compression_id: "1"
@@ -184,4 +184,8 @@ genesis:
   chain_id: kyve-local
 validators:
   - name: alice
-    bonded: 1000000000000000tkyve
+    bonded: 1000000000000tkyve
+    config:
+      consensus:
+        timeout_commit: "2s"
+        timeout_propose: "2s"

@@ -16,23 +16,35 @@
 
 ### Improvements
 
+- [#22](https://github.com/KYVENetwork/chain/pull/22) Various minor code improvements, cleanups, and validations.
 - (deps) [#21](https://github.com/KYVENetwork/chain/pull/21) Bump Cosmos SDK to [v0.46.11](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.11) ([`v0.46.11-kyve-rc0`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.46.11-kyve-rc0)).
 - (deps) [#21](https://github.com/KYVENetwork/chain/pull/21) Switch to CometBFT from Informal Systems' Tendermint fork.
-- [#22](https://github.com/KYVENetwork/chain/pull/22) Emit an event when updating module parameters.
-- [#22](https://github.com/KYVENetwork/chain/pull/22) Various minor code improvements, cleanups, and validations.
-- (`x/bundles`) [#26](https://github.com/KYVENetwork/chain/pull/26) Include the timestamp of the block that finalized a bundle.
+- (ibc) [#27](https://github.com/KYVENetwork/chain/pull/27) Enable tokens to be sent and received via IBC.
 
 ### Bug Fixes
 
 - [#20](https://github.com/KYVENetwork/chain/pull/20) Adjust investor vesting schedules from second funding round.
 
+### Client Breaking
+
+- (`x/query`) [#23](https://github.com/KYVENetwork/chain/pull/23) Update the `StakerMetadata` query to reflect the new `Identity` and metadata fields.
+- (`x/stakers`) [#23](https://github.com/KYVENetwork/chain/pull/23) Update `MsgUpdateMetadata` to reflect the new `Identity` and metadata fields.
+
+### API Breaking
+
+- [#22](https://github.com/KYVENetwork/chain/pull/22) Emit an event when updating module parameters.
+- (`x/delegation`) [#24](https://github.com/KYVENetwork/chain/pull/24) Emit an event when a user initiates a protocol unbonding.
+- (`x/pool`) [#24](https://github.com/KYVENetwork/chain/pull/24) Emit events for all module governance actions.
+- (`x/stakers`) [#23](https://github.com/KYVENetwork/chain/pull/23) Update the event emitted when updating protocol node metadata.
+
 ### State Machine Breaking
 
+- (`x/stakers`) [#23](https://github.com/KYVENetwork/chain/pull/23) Improve metadata by adding `Identity`, `SecurityContact`, `Details` fields, deprecating `Logo`.
 - (`x/bundles`) [#19](https://github.com/KYVENetwork/chain/pull/19) Migrate `NetworkFee` param to type `sdk.Dec`.
+- (`x/bundles`) [#22](https://github.com/KYVENetwork/chain/pull/22) Switch to a non-manipulable pseudo-random source seed for uploader selection.
+- (`x/bundles`) [#26](https://github.com/KYVENetwork/chain/pull/26) Include the timestamp of the block that finalized a bundle.
 - (`x/delegation`) [#19](https://github.com/KYVENetwork/chain/pull/19) Migrate `VoteSlash`, `UploadSlash`, `TimeoutSlash` params to type `sdk.Dec`.
 - (`x/stakers`) [#19](https://github.com/KYVENetwork/chain/pull/19) Migrate `Commission` to type `sdk.Dec`.
-- (`x/bundles`) [#22](https://github.com/KYVENetwork/chain/pull/22) use non-manipulable pseudo-random source seed for uploader selection.
-
 
 ## [v1.0.0](https://github.com/KYVENetwork/chain/releases/tag/v1.0.0) - 2023-03-10
 

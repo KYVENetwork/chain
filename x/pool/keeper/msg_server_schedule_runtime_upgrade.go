@@ -12,7 +12,10 @@ import (
 	"github.com/KYVENetwork/chain/x/pool/types"
 )
 
-func (k msgServer) ScheduleRuntimeUpgrade(goCtx context.Context, req *types.MsgScheduleRuntimeUpgrade) (*types.MsgScheduleRuntimeUpgradeResponse, error) {
+func (k msgServer) ScheduleRuntimeUpgrade(
+	goCtx context.Context,
+	req *types.MsgScheduleRuntimeUpgrade,
+) (*types.MsgScheduleRuntimeUpgradeResponse, error) {
 	if k.authority != req.Authority {
 		return nil, errors.Wrapf(govTypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, req.Authority)
 	}
@@ -31,6 +34,7 @@ func (k msgServer) ScheduleRuntimeUpgrade(goCtx context.Context, req *types.MsgS
 		scheduledAt = req.ScheduledAt
 	}
 
+	affectedPools := make([]uint64, 0)
 	for _, pool := range k.GetAllPools(ctx) {
 		// only schedule upgrade if the runtime matches
 		if pool.Runtime != req.Runtime {
@@ -49,8 +53,19 @@ func (k msgServer) ScheduleRuntimeUpgrade(goCtx context.Context, req *types.MsgS
 			Duration:    req.Duration,
 		}
 
+		affectedPools = append(affectedPools, pool.Id)
+
 		k.SetPool(ctx, pool)
 	}
+
+	_ = ctx.EventManager().EmitTypedEvent(&types.EventRuntimeUpgradeScheduled{
+		Runtime:       req.Runtime,
+		Version:       req.Version,
+		ScheduledAt:   req.ScheduledAt,
+		Duration:      req.Duration,
+		Binaries:      req.Binaries,
+		AffectedPools: affectedPools,
+	})
 
 	return &types.MsgScheduleRuntimeUpgradeResponse{}, nil
 }

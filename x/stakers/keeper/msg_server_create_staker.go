@@ -43,8 +43,9 @@ func (k msgServer) CreateStaker(
 	}
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventCreateStaker{
-		Staker: msg.Creator,
-		Amount: msg.Amount,
+		Staker:     msg.Creator,
+		Amount:     msg.Amount,
+		Commission: msg.Commission,
 	})
 
 	return &types.MsgCreateStakerResponse{}, nil

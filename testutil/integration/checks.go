@@ -425,7 +425,9 @@ func (suite *KeeperTestSuite) verifyFullStaker(fullStaker querytypes.FullStaker,
 	}
 
 	Expect(fullStaker.SelfDelegationUnbonding).To(Equal(selfDelegationUnbonding))
-	Expect(fullStaker.Metadata.Logo).To(Equal(staker.Logo))
+	Expect(fullStaker.Metadata.Identity).To(Equal(staker.Identity))
+	Expect(fullStaker.Metadata.SecurityContact).To(Equal(staker.SecurityContact))
+	Expect(fullStaker.Metadata.Details).To(Equal(staker.Details))
 	Expect(fullStaker.Metadata.Website).To(Equal(staker.Website))
 	Expect(fullStaker.Metadata.Commission).To(Equal(staker.Commission))
 	Expect(fullStaker.Metadata.Moniker).To(Equal(staker.Moniker))

@@ -31,6 +31,11 @@ message EventCreateStaker {
   string staker = 1;
   // amount for inital self-delegation
   uint64 amount = 2;
+  // commission
+  string commission = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 ```
 
@@ -51,8 +56,12 @@ message EventUpdateMetadata {
   string moniker = 2;
   // website ...
   string website = 3;
-  // logo ...
-  string logo = 4;
+  // identity ...
+  string identity = 4;
+  // security_contact ...
+  string security_contact = 5;
+  // details ...
+  string details = 6;
 }
 ```
 
