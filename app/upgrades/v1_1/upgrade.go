@@ -57,8 +57,8 @@ func AdjustInvestorVesting(ctx sdk.Context, keeper authKeeper.AccountKeeper, add
 }
 
 // EnableIBCTransfers updates the parameters of the IBC Transfer module to
-// allow both sending and receiving of IBC tokens. Since default parameters of
-// the module have everything enabled, we simply revert back to the defaults.
+// allow both sending and receiving of IBC tokens. Since the default parameters
+// of the module have everything enabled, we simply switch to the defaults.
 func EnableIBCTransfers(ctx sdk.Context, keeper transferKeeper.Keeper) {
 	params := transferTypes.DefaultParams()
 	keeper.SetParams(ctx, params)
