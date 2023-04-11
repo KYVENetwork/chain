@@ -26,11 +26,13 @@
 - [#20](https://github.com/KYVENetwork/chain/pull/20) Adjust investor vesting schedules from second funding round.
 
 ### Client Breaking
-- (`x/stakers`) [#23](https://github.com/KYVENetwork/chain/pull/23) Message `MsgUpdateMetadata`: replaced `logo` => `identity`, added: `security_contact`, `details`
-- (`x/query`) [#23](https://github.com/KYVENetwork/chain/pull/23) Query `StakerMetadata`: replaced `logo` => `identity`, added: `security_contact`, `details`
+
+- (`x/query`) [#23](https://github.com/KYVENetwork/chain/pull/23) Update the `StakerMetadata` query to reflect the new `Identity` and metadata fields.
+- (`x/stakers`) [#23](https://github.com/KYVENetwork/chain/pull/23) Update `MsgUpdateMetadata` to reflect the new `Identity` and metadata fields.
 
 ### API Breaking
-- (`x/stakers`) [#23](https://github.com/KYVENetwork/chain/pull/23) Event `EventUpdateMetadata`: replaced `logo` => `identity`, added: `security_contact`, `details`
+
+- (`x/stakers`) [#23](https://github.com/KYVENetwork/chain/pull/23) Update the event emitted when updating protocol node metadata.
 
 ### State Machine Breaking
 
