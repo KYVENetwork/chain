@@ -9,6 +9,9 @@ import (
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingExported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	vestingTypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	// IBC Transfer
+	transferKeeper "github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
+	transferTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	// Stakers
 	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
 	// Upgrade
@@ -20,6 +23,7 @@ func CreateUpgradeHandler(
 	configurator module.Configurator,
 	accountKeeper authKeeper.AccountKeeper,
 	stakerKeeper stakersKeeper.Keeper,
+	transferKeeper transferKeeper.Keeper,
 ) upgradeTypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradeTypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		if ctx.ChainID() == MainnetChainID {
@@ -28,6 +32,7 @@ func CreateUpgradeHandler(
 			}
 		}
 
+		EnableIBCTransfers(ctx, transferKeeper)
 		MigrateStakerMetadata(ctx, stakerKeeper)
 
 		return mm.RunMigrations(ctx, configurator, vm)
@@ -49,6 +54,14 @@ func AdjustInvestorVesting(ctx sdk.Context, keeper authKeeper.AccountKeeper, add
 	)
 
 	keeper.SetAccount(ctx, updatedAccount)
+}
+
+// EnableIBCTransfers updates the parameters of the IBC Transfer module to
+// allow both sending and receiving of IBC tokens. Since the default parameters
+// of the module have everything enabled, we simply switch to the defaults.
+func EnableIBCTransfers(ctx sdk.Context, keeper transferKeeper.Keeper) {
+	params := transferTypes.DefaultParams()
+	keeper.SetParams(ctx, params)
 }
 
 // MigrateStakerMetadata migrates all existing staker metadata. The `Logo`
