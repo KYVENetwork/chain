@@ -23,7 +23,9 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 		Commission:              staker.Commission,
 		Moniker:                 staker.Moniker,
 		Website:                 staker.Website,
-		Logo:                    staker.Logo,
+		Identity:                staker.Identity,
+		SecurityContact:         staker.SecurityContact,
+		Details:                 staker.Details,
 		PendingCommissionChange: commissionChangeEntry,
 	}
 
@@ -38,23 +40,25 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 		accountValaddress, _ := sdk.AccAddressFromBech32(valaccount.Valaddress)
 		balanceValaccount := k.bankKeeper.GetBalance(ctx, accountValaddress, globalTypes.Denom).Amount.Uint64()
 
-		poolMemberships = append(poolMemberships, &types.PoolMembership{
-			Pool: &types.BasicPool{
-				Id:              pool.Id,
-				Name:            pool.Name,
-				Runtime:         pool.Runtime,
-				Logo:            pool.Logo,
-				OperatingCost:   pool.OperatingCost,
-				UploadInterval:  pool.UploadInterval,
-				TotalFunds:      pool.TotalFunds,
-				TotalDelegation: k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id),
-				Status:          k.GetPoolStatus(ctx, &pool),
+		poolMemberships = append(
+			poolMemberships, &types.PoolMembership{
+				Pool: &types.BasicPool{
+					Id:              pool.Id,
+					Name:            pool.Name,
+					Runtime:         pool.Runtime,
+					Logo:            pool.Logo,
+					OperatingCost:   pool.OperatingCost,
+					UploadInterval:  pool.UploadInterval,
+					TotalFunds:      pool.TotalFunds,
+					TotalDelegation: k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id),
+					Status:          k.GetPoolStatus(ctx, &pool),
+				},
+				Points:     valaccount.Points,
+				IsLeaving:  valaccount.IsLeaving,
+				Valaddress: valaccount.Valaddress,
+				Balance:    balanceValaccount,
 			},
-			Points:     valaccount.Points,
-			IsLeaving:  valaccount.IsLeaving,
-			Valaddress: valaccount.Valaddress,
-			Balance:    balanceValaccount,
-		})
+		)
 	}
 
 	// Iterate all UnbondingDelegation entries to get total delegation unbonding amount

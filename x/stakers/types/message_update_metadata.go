@@ -1,7 +1,10 @@
 package types
 
 import (
+	"encoding/hex"
+
 	"cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -32,13 +35,14 @@ func (msg *MsgUpdateMetadata) GetSignBytes() []byte {
 }
 
 func (msg *MsgUpdateMetadata) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(msg.Creator)
-	if err != nil {
+	if _, err := sdk.AccAddressFromBech32(msg.Creator); err != nil {
 		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid creator address (%s)", err)
 	}
 
-	if len(msg.Logo) > 255 {
-		return errors.Wrapf(errorsTypes.ErrLogic, ErrStringMaxLengthExceeded.Error(), len(msg.Logo), 255)
+	if len(msg.Identity) > 0 {
+		if hexBytes, identityErr := hex.DecodeString(msg.Identity); identityErr != nil || len(hexBytes) != 8 {
+			return errors.Wrapf(errorsTypes.ErrLogic, ErrInvalidIdentityString.Error(), msg.Identity)
+		}
 	}
 
 	if len(msg.Website) > 255 {
@@ -46,6 +50,14 @@ func (msg *MsgUpdateMetadata) ValidateBasic() error {
 	}
 
 	if len(msg.Moniker) > 255 {
+		return errors.Wrapf(errorsTypes.ErrLogic, ErrStringMaxLengthExceeded.Error(), len(msg.Moniker), 255)
+	}
+
+	if len(msg.SecurityContact) > 255 {
+		return errors.Wrapf(errorsTypes.ErrLogic, ErrStringMaxLengthExceeded.Error(), len(msg.Moniker), 255)
+	}
+
+	if len(msg.Details) > 255 {
 		return errors.Wrapf(errorsTypes.ErrLogic, ErrStringMaxLengthExceeded.Error(), len(msg.Moniker), 255)
 	}
 

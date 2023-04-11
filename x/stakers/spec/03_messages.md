@@ -12,8 +12,8 @@ self-delegation to the given staker.
 
 ## `MsgUpdateMetadata`
 
-This message changes Moniker, Website and Logo of the staker. The message fails
-if the user does not have created a staker yet.
+This message changes Moniker, Website, Identity, SecurityContact and Details
+of the staker. The message fails if the user does not have created a staker yet.
 
 ## `MsgUpdateCommission`
 

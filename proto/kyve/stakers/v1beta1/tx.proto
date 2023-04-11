@@ -50,8 +50,12 @@ message MsgUpdateMetadata {
   string moniker = 2;
   // website ...
   string website = 3;
-  // logo
-  string logo = 4;
+  // identity from keybase.io
+  string identity = 4;
+  // security_contact ...
+  string security_contact = 5;
+  // details ...
+  string details = 6;
 }
 
 // MsgUpdateMetadataResponse defines the Msg/MsgUpdateMetadata response type.
