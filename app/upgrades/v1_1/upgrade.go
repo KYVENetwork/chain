@@ -2,12 +2,9 @@ package v1_1
 
 import (
 	"github.com/KYVENetwork/chain/app/upgrades/v1_1/types"
-	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
-	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
-	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
@@ -16,7 +13,15 @@ import (
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingExported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	vestingTypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-
+	// Bundles
+	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
+	// Delegation
+	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
+	// IBC Transfer
+	transferKeeper "github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
+	transferTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	// Stakers
+	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
 	// Upgrade
 	upgradeTypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
@@ -25,10 +30,11 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	cdc codec.BinaryCodec,
-	stakersStoreKey storetypes.StoreKey,
-	bundlesStoreKey storetypes.StoreKey,
-	delegationStoreKey storetypes.StoreKey,
+	stakersStoreKey storeTypes.StoreKey,
+	bundlesStoreKey storeTypes.StoreKey,
+	delegationStoreKey storeTypes.StoreKey,
 	accountKeeper authKeeper.AccountKeeper,
+	transferKeeper transferKeeper.Keeper,
 ) upgradeTypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradeTypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		if ctx.ChainID() == MainnetChainID {
@@ -36,6 +42,8 @@ func CreateUpgradeHandler(
 				AdjustInvestorVesting(ctx, accountKeeper, sdk.MustAccAddressFromBech32(address))
 			}
 		}
+
+		EnableIBCTransfers(ctx, transferKeeper)
 
 		MigrateStakerMetadata(ctx, cdc, stakersStoreKey)
 		MigrateStakerCommissionEntries(ctx, cdc, stakersStoreKey)
@@ -64,10 +72,18 @@ func AdjustInvestorVesting(ctx sdk.Context, keeper authKeeper.AccountKeeper, add
 	keeper.SetAccount(ctx, updatedAccount)
 }
 
+// EnableIBCTransfers updates the parameters of the IBC Transfer module to
+// allow both sending and receiving of IBC tokens. Since the default parameters
+// of the module have everything enabled, we simply switch to the defaults.
+func EnableIBCTransfers(ctx sdk.Context, keeper transferKeeper.Keeper) {
+	params := transferTypes.DefaultParams()
+	keeper.SetParams(ctx, params)
+}
+
 // MigrateStakerMetadata migrates all existing staker metadata. The `Logo`
 // field has been deprecated and replaced by the `Identity` field. This new
 // field must be a valid hex string; therefore, must be set to empty for now.
-func MigrateStakerMetadata(ctx sdk.Context, cdc codec.BinaryCodec, stakerStoreKey storetypes.StoreKey) {
+func MigrateStakerMetadata(ctx sdk.Context, cdc codec.BinaryCodec, stakerStoreKey storeTypes.StoreKey) {
 	store := prefix.NewStore(ctx.KVStore(stakerStoreKey), stakersTypes.StakerKeyPrefix)
 	iterator := sdk.KVStorePrefixIterator(store, []byte{})
 
@@ -103,7 +119,7 @@ func MigrateStakerMetadata(ctx sdk.Context, cdc codec.BinaryCodec, stakerStoreKe
 }
 
 // MigrateStakerCommissionEntries re-encodes the CommissionChangeEntry fields which got converted to sdk.Dec
-func MigrateStakerCommissionEntries(ctx sdk.Context, cdc codec.BinaryCodec, stakerStoreKey storetypes.StoreKey) {
+func MigrateStakerCommissionEntries(ctx sdk.Context, cdc codec.BinaryCodec, stakerStoreKey storeTypes.StoreKey) {
 	store := prefix.NewStore(ctx.KVStore(stakerStoreKey), stakersTypes.CommissionChangeEntryKeyPrefix)
 	iterator := sdk.KVStorePrefixIterator(store, []byte{})
 
@@ -136,7 +152,7 @@ func MigrateStakerCommissionEntries(ctx sdk.Context, cdc codec.BinaryCodec, stak
 }
 
 // MigrateBundleParameters re-encodes the params fields which got converted to sdk.Dec
-func MigrateBundleParameters(ctx sdk.Context, cdc codec.BinaryCodec, bundlesStoreKey storetypes.StoreKey) {
+func MigrateBundleParameters(ctx sdk.Context, cdc codec.BinaryCodec, bundlesStoreKey storeTypes.StoreKey) {
 	store := ctx.KVStore(bundlesStoreKey)
 	bz := store.Get(bundlesTypes.ParamsKey)
 
@@ -155,7 +171,7 @@ func MigrateBundleParameters(ctx sdk.Context, cdc codec.BinaryCodec, bundlesStor
 }
 
 // MigrateDelegationParameters re-encodes the params fields which got converted to sdk.Dec
-func MigrateDelegationParameters(ctx sdk.Context, cdc codec.BinaryCodec, delegationStoreKey storetypes.StoreKey) {
+func MigrateDelegationParameters(ctx sdk.Context, cdc codec.BinaryCodec, delegationStoreKey storeTypes.StoreKey) {
 	store := ctx.KVStore(delegationStoreKey)
 	bz := store.Get(delegationTypes.ParamsKey)
 
