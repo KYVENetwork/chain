@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -112,8 +113,10 @@ func (im IBCMiddleware) OnRecvPacket(
 
 	switch query := req.Query.(type) {
 	case *types.OracleQuery_LatestSummary:
-		// TODO(@john): Handle query error.
-		latestSummary, finalisedAt, _ := im.keeper.GetLatestSummary(ctx, query.LatestSummary.PoolId)
+		latestSummary, finalisedAt, err := im.keeper.GetLatestSummary(ctx, query.LatestSummary.PoolId)
+		if err != nil {
+			return types.NewErrorAcknowledgement(errors.Wrap(types.QueryError, err.Error()))
+		}
 
 		response = latestSummary
 		timestamp = finalisedAt

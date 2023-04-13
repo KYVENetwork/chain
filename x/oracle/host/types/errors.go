@@ -9,6 +9,7 @@ var (
 	ErrInvalidOracleToken    = errors.Register(ModuleName, 0, "invalid token sent to oracle")
 	ErrInvalidOracleMemo     = errors.Register(ModuleName, 1, "invalid memo sent to oracle")
 	ErrInsufficientOracleFee = errors.Register(ModuleName, 2, "insufficient fee sent to oracle")
+	QueryError               = errors.Register(ModuleName, 3, "an error occurred while executing the query")
 )
 
 // NewErrorAcknowledgement is inspired by channelTypes.NewNewErrorAcknowledgement,
