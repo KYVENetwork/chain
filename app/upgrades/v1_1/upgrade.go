@@ -20,6 +20,12 @@ import (
 	// IBC Transfer
 	transferKeeper "github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
 	transferTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	// ICA Controller
+	icaControllerKeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/keeper"
+	icaControllerTypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/types"
+	// ICA Host
+	icaHostKeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/keeper"
+	icaHostTypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/types"
 	// Stakers
 	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
 	// Upgrade
@@ -34,6 +40,8 @@ func CreateUpgradeHandler(
 	bundlesStoreKey storeTypes.StoreKey,
 	delegationStoreKey storeTypes.StoreKey,
 	accountKeeper authKeeper.AccountKeeper,
+	icaControllerKeeper icaControllerKeeper.Keeper,
+	icaHostKeeper icaHostKeeper.Keeper,
 	transferKeeper transferKeeper.Keeper,
 ) upgradeTypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradeTypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
@@ -44,6 +52,10 @@ func CreateUpgradeHandler(
 		}
 
 		EnableIBCTransfers(ctx, transferKeeper)
+		if ctx.ChainID() == TestnetChainID {
+			InitialiseICAControllerParams(ctx, icaControllerKeeper)
+			UpdateICAHostParams(ctx, icaHostKeeper)
+		}
 
 		MigrateStakerMetadata(ctx, cdc, stakersStoreKey)
 		MigrateStakerCommissionEntries(ctx, cdc, stakersStoreKey)
@@ -77,6 +89,18 @@ func AdjustInvestorVesting(ctx sdk.Context, keeper authKeeper.AccountKeeper, add
 // of the module have everything enabled, we simply switch to the defaults.
 func EnableIBCTransfers(ctx sdk.Context, keeper transferKeeper.Keeper) {
 	params := transferTypes.DefaultParams()
+	keeper.SetParams(ctx, params)
+}
+
+// InitialiseICAControllerParams ...
+func InitialiseICAControllerParams(ctx sdk.Context, keeper icaControllerKeeper.Keeper) {
+	params := icaControllerTypes.DefaultParams()
+	keeper.SetParams(ctx, params)
+}
+
+// UpdateICAHostParams ...
+func UpdateICAHostParams(ctx sdk.Context, keeper icaHostKeeper.Keeper) {
+	params := icaHostTypes.DefaultParams()
 	keeper.SetParams(ctx, params)
 }
 

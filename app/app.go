@@ -784,6 +784,8 @@ func NewKYVEApp(
 			keys[bundlesTypes.StoreKey],
 			keys[delegationTypes.StoreKey],
 			app.AccountKeeper,
+			app.ICAControllerKeeper,
+			app.ICAHostKeeper,
 			app.IBCTransferKeeper,
 		),
 	)
