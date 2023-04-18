@@ -14,6 +14,10 @@
 
 ## [Unreleased]
 
+### Features
+
+- (ibc) [#30](https://github.com/KYVENetwork/chain/pull/30) Integrate [Packet Forward Middleware](https://github.com/strangelove-ventures/packet-forward-middleware).
+
 ## [v1.1.0](https://github.com/KYVENetwork/chain/releases/tag/v1.1.0) - 2023-04-18
 
 ### Improvements
