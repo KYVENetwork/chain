@@ -17,7 +17,7 @@
 ### Improvements
 
 - [#22](https://github.com/KYVENetwork/chain/pull/22) Various minor code improvements, cleanups, and validations.
-- (deps) [#21](https://github.com/KYVENetwork/chain/pull/21) Bump Cosmos SDK to [v0.46.11](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.11) ([`v0.46.11-kyve-rc0`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.46.11-kyve-rc0)).
+- (deps) [#21](https://github.com/KYVENetwork/chain/pull/21), [#28](https://github.com/KYVENetwork/chain/pull/28) Bump Cosmos SDK to [v0.46.12](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.12) ([`v0.46.12-kyve`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.46.12-kyve)).
 - (deps) [#21](https://github.com/KYVENetwork/chain/pull/21) Switch to CometBFT from Informal Systems' Tendermint fork.
 - (ibc) [#27](https://github.com/KYVENetwork/chain/pull/27) Enable tokens to be sent and received via IBC.
 
@@ -39,12 +39,12 @@
 
 ### State Machine Breaking
 
-- (`x/stakers`) [#23](https://github.com/KYVENetwork/chain/pull/23) Improve metadata by adding `Identity`, `SecurityContact`, `Details` fields, deprecating `Logo`.
 - (`x/bundles`) [#19](https://github.com/KYVENetwork/chain/pull/19) Migrate `NetworkFee` param to type `sdk.Dec`.
 - (`x/bundles`) [#22](https://github.com/KYVENetwork/chain/pull/22) Switch to a non-manipulable pseudo-random source seed for uploader selection.
 - (`x/bundles`) [#26](https://github.com/KYVENetwork/chain/pull/26) Include the timestamp of the block that finalized a bundle.
 - (`x/delegation`) [#19](https://github.com/KYVENetwork/chain/pull/19) Migrate `VoteSlash`, `UploadSlash`, `TimeoutSlash` params to type `sdk.Dec`.
 - (`x/stakers`) [#19](https://github.com/KYVENetwork/chain/pull/19) Migrate `Commission` to type `sdk.Dec`.
+- (`x/stakers`) [#23](https://github.com/KYVENetwork/chain/pull/23) Improve metadata by adding `Identity`, `SecurityContact`, `Details` fields, deprecating `Logo`.
 
 ## [v1.0.0](https://github.com/KYVENetwork/chain/releases/tag/v1.0.0) - 2023-03-10
 

@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package kyve.upgrades.v1beta1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/KYVENetwork/chain/app/upgrades/v1_1/types";
+
+// OldBundlesParams defines the bundles module parameters.
+message OldBundlesParams {
+  // upload_timeout ...
+  uint64 upload_timeout = 1;
+  // storage_cost ...
+  string storage_cost = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // network_fee ...
+  string network_fee = 3;
+  // max_points ...
+  uint64 max_points = 4;
+}
+
+// OldDelegationParams defines the delegation module parameters.
+message OldDelegationParams {
+  // unbonding_delegation_time ...
+  uint64 unbonding_delegation_time = 1;
+  // unbonding_delegation_time ...
+  uint64 redelegation_cooldown = 2;
+  // unbonding_delegation_time ...
+  uint64 redelegation_max_amount = 3;
+  // vote_slash ...
+  string vote_slash = 4;
+  // upload_slash ...
+  string upload_slash = 5;
+  // timeout_slash ...
+  string timeout_slash = 6;
+}

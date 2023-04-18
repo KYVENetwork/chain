@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package kyve.upgrades.v1beta1;
+
+option go_package = "github.com/KYVENetwork/chain/app/upgrades/v1_1/types";
+
+// OldStaker contains all metadata for a staker
+// Every address can only create one staker (itself)
+message OldStaker {
+  // address ...
+  string address = 1;
+  // commission ...
+  string commission = 2;
+  // moniker ...
+  string moniker = 3;
+  // website ...
+  string website = 4;
+  // logo ...
+  string logo = 5;
+}
+
+// OldCommissionChangeEntry stores the information for an
+// upcoming commission change. A commission change is never
+// instant, so delegators have time to redelegate in case
+// they don't agree with the new commission.
+message OldCommissionChangeEntry {
+  // index is needed for the queue-algorithm which
+  // processes the commission changes
+  uint64 index = 1;
+  // staker is the address of the affected staker
+  string staker = 2;
+  // commission is the new commission which will
+  // be applied after the waiting time is over.
+  string commission = 3;
+  // creation_date is the UNIX-timestamp in seconds
+  // when the entry was created.
+  int64 creation_date = 4;
+}
