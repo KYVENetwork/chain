@@ -59,6 +59,9 @@ import (
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	// Query
 	queryKeeper "github.com/KYVENetwork/chain/x/query/keeper"
+	// Router
+	routerKeeper "github.com/strangelove-ventures/packet-forward-middleware/v6/router/keeper"
+	routerTypes "github.com/strangelove-ventures/packet-forward-middleware/v6/router/types"
 	// Slashing
 	slashingKeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	slashingTypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
@@ -97,6 +100,7 @@ type Keepers struct {
 	IBCTransferKeeper   ibcTransferKeeper.Keeper
 	ICAControllerKeeper icaControllerKeeper.Keeper
 	ICAHostKeeper       icaHostKeeper.Keeper
+	RouterKeeper        *routerKeeper.Keeper
 
 	// KYVE
 	BundlesKeeper    bundlesKeeper.Keeper
@@ -121,16 +125,18 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 
 	keeper.Subspace(authTypes.ModuleName)
 	keeper.Subspace(bankTypes.ModuleName)
-	keeper.Subspace(stakingTypes.ModuleName)
-	keeper.Subspace(mintTypes.ModuleName)
-	keeper.Subspace(distributionTypes.ModuleName)
-	keeper.Subspace(slashingTypes.ModuleName)
-	keeper.Subspace(govTypes.ModuleName).WithKeyTable(govV1.ParamKeyTable())
 	keeper.Subspace(crisisTypes.ModuleName)
-	keeper.Subspace(ibcTransferTypes.ModuleName)
+	keeper.Subspace(distributionTypes.ModuleName)
+	keeper.Subspace(govTypes.ModuleName).WithKeyTable(govV1.ParamKeyTable())
+	keeper.Subspace(mintTypes.ModuleName)
+	keeper.Subspace(slashingTypes.ModuleName)
+	keeper.Subspace(stakingTypes.ModuleName)
+
 	keeper.Subspace(ibcHost.ModuleName)
+	keeper.Subspace(ibcTransferTypes.ModuleName)
 	keeper.Subspace(icaControllerTypes.SubModuleName)
 	keeper.Subspace(icaHostTypes.SubModuleName)
+	keeper.Subspace(routerTypes.ModuleName)
 
 	return keeper
 }
