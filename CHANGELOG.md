@@ -14,6 +14,8 @@
 
 ## [Unreleased]
 
+## [v1.1.0](https://github.com/KYVENetwork/chain/releases/tag/v1.1.0) - 2023-04-18
+
 ### Improvements
 
 - [#22](https://github.com/KYVENetwork/chain/pull/22) Various minor code improvements, cleanups, and validations.
