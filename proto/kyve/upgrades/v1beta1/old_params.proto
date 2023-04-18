@@ -6,7 +6,7 @@ import "gogoproto/gogo.proto";
 
 option go_package = "github.com/KYVENetwork/chain/app/upgrades/v1_1/types";
 
-// Params defines the bundles module parameters.
+// OldBundlesParams defines the bundles module parameters.
 message OldBundlesParams {
   // upload_timeout ...
   uint64 upload_timeout = 1;
@@ -21,7 +21,7 @@ message OldBundlesParams {
   uint64 max_points = 4;
 }
 
-// Params defines the delegation module parameters.
+// OldDelegationParams defines the delegation module parameters.
 message OldDelegationParams {
   // unbonding_delegation_time ...
   uint64 unbonding_delegation_time = 1;

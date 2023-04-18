@@ -36,9 +36,9 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	cdc codec.BinaryCodec,
-	stakersStoreKey storeTypes.StoreKey,
 	bundlesStoreKey storeTypes.StoreKey,
 	delegationStoreKey storeTypes.StoreKey,
+	stakersStoreKey storeTypes.StoreKey,
 	accountKeeper authKeeper.AccountKeeper,
 	icaControllerKeeper icaControllerKeeper.Keeper,
 	icaHostKeeper icaHostKeeper.Keeper,
@@ -57,11 +57,11 @@ func CreateUpgradeHandler(
 			UpdateICAHostParams(ctx, icaHostKeeper)
 		}
 
+		MigrateBundlesParameters(ctx, cdc, bundlesStoreKey)
+		MigrateDelegationParameters(ctx, cdc, delegationStoreKey)
+
 		MigrateStakerMetadata(ctx, cdc, stakersStoreKey)
 		MigrateStakerCommissionEntries(ctx, cdc, stakersStoreKey)
-
-		MigrateBundleParameters(ctx, cdc, bundlesStoreKey)
-		MigrateDelegationParameters(ctx, cdc, delegationStoreKey)
 
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
@@ -92,16 +92,62 @@ func EnableIBCTransfers(ctx sdk.Context, keeper transferKeeper.Keeper) {
 	keeper.SetParams(ctx, params)
 }
 
-// InitialiseICAControllerParams ...
+// InitialiseICAControllerParams initialises the parameters of the ICA
+// Controller module. This is because when upgrading from IBC v5 to v6 on Kaon
+// (our testnet), we didn't initialise the parameters.
 func InitialiseICAControllerParams(ctx sdk.Context, keeper icaControllerKeeper.Keeper) {
 	params := icaControllerTypes.DefaultParams()
 	keeper.SetParams(ctx, params)
 }
 
-// UpdateICAHostParams ...
+// UpdateICAHostParams updates the parameters of the ICA Host module to allow
+// all messages to be called. This configuration is the new default, which
+// wasn't updated on Kaon (our testnet).
 func UpdateICAHostParams(ctx sdk.Context, keeper icaHostKeeper.Keeper) {
 	params := icaHostTypes.DefaultParams()
 	keeper.SetParams(ctx, params)
+}
+
+// MigrateBundlesParameters re-encodes all parameters of the Bundles module
+// that were converted to sdk.Dec.
+func MigrateBundlesParameters(ctx sdk.Context, cdc codec.BinaryCodec, bundlesStoreKey storeTypes.StoreKey) {
+	store := ctx.KVStore(bundlesStoreKey)
+	bz := store.Get(bundlesTypes.ParamsKey)
+
+	var oldParams types.OldBundlesParams
+	cdc.MustUnmarshal(bz, &oldParams)
+
+	newParams := bundlesTypes.Params{
+		UploadTimeout: oldParams.UploadTimeout,
+		StorageCost:   oldParams.StorageCost,
+		NetworkFee:    sdk.MustNewDecFromStr(oldParams.NetworkFee),
+		MaxPoints:     oldParams.MaxPoints,
+	}
+
+	bz = cdc.MustMarshal(&newParams)
+	store.Set(bundlesTypes.ParamsKey, bz)
+}
+
+// MigrateDelegationParameters re-encodes all parameters of the Delegation
+// module that were converted to sdk.Dec.
+func MigrateDelegationParameters(ctx sdk.Context, cdc codec.BinaryCodec, delegationStoreKey storeTypes.StoreKey) {
+	store := ctx.KVStore(delegationStoreKey)
+	bz := store.Get(delegationTypes.ParamsKey)
+
+	var oldParams types.OldDelegationParams
+	cdc.MustUnmarshal(bz, &oldParams)
+
+	newParams := delegationTypes.Params{
+		UnbondingDelegationTime: oldParams.UnbondingDelegationTime,
+		RedelegationCooldown:    oldParams.RedelegationCooldown,
+		RedelegationMaxAmount:   oldParams.RedelegationMaxAmount,
+		VoteSlash:               sdk.MustNewDecFromStr(oldParams.VoteSlash),
+		UploadSlash:             sdk.MustNewDecFromStr(oldParams.UploadSlash),
+		TimeoutSlash:            sdk.MustNewDecFromStr(oldParams.TimeoutSlash),
+	}
+
+	bz = cdc.MustMarshal(&newParams)
+	store.Set(delegationTypes.ParamsKey, bz)
 }
 
 // MigrateStakerMetadata migrates all existing staker metadata. The `Logo`
@@ -142,7 +188,8 @@ func MigrateStakerMetadata(ctx sdk.Context, cdc codec.BinaryCodec, stakerStoreKe
 	}
 }
 
-// MigrateStakerCommissionEntries re-encodes the CommissionChangeEntry fields which got converted to sdk.Dec
+// MigrateStakerCommissionEntries re-encodes all CommissionChangeEntry
+// entries from the Stakers module that were converted to sdk.Dec.
 func MigrateStakerCommissionEntries(ctx sdk.Context, cdc codec.BinaryCodec, stakerStoreKey storeTypes.StoreKey) {
 	store := prefix.NewStore(ctx.KVStore(stakerStoreKey), stakersTypes.CommissionChangeEntryKeyPrefix)
 	iterator := sdk.KVStorePrefixIterator(store, []byte{})
@@ -157,7 +204,6 @@ func MigrateStakerCommissionEntries(ctx sdk.Context, cdc codec.BinaryCodec, stak
 	}
 
 	for _, oldCommissionEntry := range oldCommissionChangeEntries {
-
 		commission, err := sdk.NewDecFromStr(oldCommissionEntry.Commission)
 		if err != nil {
 			commission = stakersTypes.DefaultCommission
@@ -173,44 +219,4 @@ func MigrateStakerCommissionEntries(ctx sdk.Context, cdc codec.BinaryCodec, stak
 		b := cdc.MustMarshal(&newCommissionChangeEntry)
 		store.Set(stakersTypes.CommissionChangeEntryKey(newCommissionChangeEntry.Index), b)
 	}
-}
-
-// MigrateBundleParameters re-encodes the params fields which got converted to sdk.Dec
-func MigrateBundleParameters(ctx sdk.Context, cdc codec.BinaryCodec, bundlesStoreKey storeTypes.StoreKey) {
-	store := ctx.KVStore(bundlesStoreKey)
-	bz := store.Get(bundlesTypes.ParamsKey)
-
-	var oldParams types.OldBundlesParams
-	cdc.MustUnmarshal(bz, &oldParams)
-
-	newParams := bundlesTypes.Params{
-		UploadTimeout: oldParams.UploadTimeout,
-		StorageCost:   oldParams.StorageCost,
-		NetworkFee:    sdk.MustNewDecFromStr(oldParams.NetworkFee),
-		MaxPoints:     oldParams.MaxPoints,
-	}
-
-	bz = cdc.MustMarshal(&newParams)
-	store.Set(bundlesTypes.ParamsKey, bz)
-}
-
-// MigrateDelegationParameters re-encodes the params fields which got converted to sdk.Dec
-func MigrateDelegationParameters(ctx sdk.Context, cdc codec.BinaryCodec, delegationStoreKey storeTypes.StoreKey) {
-	store := ctx.KVStore(delegationStoreKey)
-	bz := store.Get(delegationTypes.ParamsKey)
-
-	var oldParams types.OldDelegationParams
-	cdc.MustUnmarshal(bz, &oldParams)
-
-	newParams := delegationTypes.Params{
-		UnbondingDelegationTime: oldParams.UnbondingDelegationTime,
-		RedelegationCooldown:    oldParams.RedelegationCooldown,
-		RedelegationMaxAmount:   oldParams.RedelegationMaxAmount,
-		VoteSlash:               sdk.MustNewDecFromStr(oldParams.VoteSlash),
-		UploadSlash:             sdk.MustNewDecFromStr(oldParams.UploadSlash),
-		TimeoutSlash:            sdk.MustNewDecFromStr(oldParams.TimeoutSlash),
-	}
-
-	bz = cdc.MustMarshal(&newParams)
-	store.Set(delegationTypes.ParamsKey, bz)
 }
