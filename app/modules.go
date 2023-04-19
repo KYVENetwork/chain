@@ -53,13 +53,13 @@ import (
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	// Parameters
 	"github.com/cosmos/cosmos-sdk/x/params"
+	// PFM
+	pfm "github.com/strangelove-ventures/packet-forward-middleware/v6/router"
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 	// Query
 	"github.com/KYVENetwork/chain/x/query"
-	// Router
-	"github.com/strangelove-ventures/packet-forward-middleware/v6/router"
 	// Slashing
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	// Stakers
@@ -101,7 +101,7 @@ var appModuleBasics = []module.AppModuleBasic{
 	ibcFee.AppModuleBasic{},
 	ibcTransfer.AppModuleBasic{},
 	ica.AppModuleBasic{},
-	router.AppModuleBasic{},
+	pfm.AppModuleBasic{},
 
 	// KYVE
 	bundles.AppModuleBasic{},

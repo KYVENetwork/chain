@@ -55,13 +55,13 @@ import (
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	// Parameters
 	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
+	// PFM
+	pfmKeeper "github.com/strangelove-ventures/packet-forward-middleware/v6/router/keeper"
+	pfmTypes "github.com/strangelove-ventures/packet-forward-middleware/v6/router/types"
 	// Pool
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	// Query
 	queryKeeper "github.com/KYVENetwork/chain/x/query/keeper"
-	// Router
-	routerKeeper "github.com/strangelove-ventures/packet-forward-middleware/v6/router/keeper"
-	routerTypes "github.com/strangelove-ventures/packet-forward-middleware/v6/router/types"
 	// Slashing
 	slashingKeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	slashingTypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
@@ -100,7 +100,7 @@ type Keepers struct {
 	IBCTransferKeeper   ibcTransferKeeper.Keeper
 	ICAControllerKeeper icaControllerKeeper.Keeper
 	ICAHostKeeper       icaHostKeeper.Keeper
-	RouterKeeper        *routerKeeper.Keeper
+	PFMKeeper           *pfmKeeper.Keeper
 
 	// KYVE
 	BundlesKeeper    bundlesKeeper.Keeper
@@ -136,7 +136,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	keeper.Subspace(ibcTransferTypes.ModuleName)
 	keeper.Subspace(icaControllerTypes.SubModuleName)
 	keeper.Subspace(icaHostTypes.SubModuleName)
-	keeper.Subspace(routerTypes.ModuleName)
+	keeper.Subspace(pfmTypes.ModuleName)
 
 	return keeper
 }

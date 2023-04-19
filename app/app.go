@@ -120,6 +120,10 @@ import (
 	"github.com/KYVENetwork/chain/x/global"
 	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
+	// PFM
+	pfm "github.com/strangelove-ventures/packet-forward-middleware/v6/router"
+	pfmKeeper "github.com/strangelove-ventures/packet-forward-middleware/v6/router/keeper"
+	pfmTypes "github.com/strangelove-ventures/packet-forward-middleware/v6/router/types"
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
@@ -128,10 +132,6 @@ import (
 	"github.com/KYVENetwork/chain/x/query"
 	queryKeeper "github.com/KYVENetwork/chain/x/query/keeper"
 	queryTypes "github.com/KYVENetwork/chain/x/query/types"
-	// Router
-	"github.com/strangelove-ventures/packet-forward-middleware/v6/router"
-	routerKeeper "github.com/strangelove-ventures/packet-forward-middleware/v6/router/keeper"
-	routerTypes "github.com/strangelove-ventures/packet-forward-middleware/v6/router/types"
 	// Stakers
 	"github.com/KYVENetwork/chain/x/stakers"
 	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
@@ -242,7 +242,7 @@ func NewKYVEApp(
 
 		ibchost.StoreKey, ibcFeeTypes.StoreKey, ibcTransferTypes.StoreKey,
 		icaControllerTypes.StoreKey, icaHostTypes.StoreKey,
-		routerTypes.StoreKey,
+		pfmTypes.StoreKey,
 
 		bundlesTypes.StoreKey,
 		delegationTypes.StoreKey,
@@ -507,9 +507,9 @@ func NewKYVEApp(
 		app.MsgServiceRouter(),
 	)
 
-	app.RouterKeeper = routerKeeper.NewKeeper(
-		appCodec, keys[routerTypes.StoreKey],
-		app.GetSubspace(routerTypes.ModuleName),
+	app.PFMKeeper = pfmKeeper.NewKeeper(
+		appCodec, keys[pfmTypes.StoreKey],
+		app.GetSubspace(pfmTypes.ModuleName),
 		app.IBCTransferKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		app.DistributionKeeper,
@@ -571,12 +571,12 @@ func NewKYVEApp(
 	var ibcTransferStack ibcPortTypes.IBCModule
 	ibcTransferStack = ibcTransfer.NewIBCModule(app.IBCTransferKeeper)
 	ibcTransferStack = ibcFee.NewIBCMiddleware(ibcTransferStack, app.IBCFeeKeeper)
-	ibcTransferStack = router.NewIBCMiddleware(
+	ibcTransferStack = pfm.NewIBCMiddleware(
 		ibcTransferStack,
-		app.RouterKeeper,
+		app.PFMKeeper,
 		0,
-		routerKeeper.DefaultForwardTransferPacketTimeoutTimestamp,
-		routerKeeper.DefaultRefundTransferPacketTimeoutTimestamp,
+		pfmKeeper.DefaultForwardTransferPacketTimeoutTimestamp,
+		pfmKeeper.DefaultRefundTransferPacketTimeoutTimestamp,
 	)
 
 	var icaControllerStack ibcPortTypes.IBCModule
