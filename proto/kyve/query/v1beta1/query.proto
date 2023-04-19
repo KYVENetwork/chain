@@ -10,15 +10,15 @@ option go_package = "github.com/KYVENetwork/chain/x/query/types";
 /*
    This query-module servers all queries for the following (KYVE-)modules:
    bundles, pool, delegation, stakers
-   
+
    As a lot of request require composition of multiple module-data
    everything will be served from one single query module.
-   
+
    The named packages do not implement their own queries (expect for params)
-   
+
    For simplicity all queries and their objects are in the corresponding
    proto files
-   
+
    Messages that are used for across multiple queries are defined here.
 */
 
