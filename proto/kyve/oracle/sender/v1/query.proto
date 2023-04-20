@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package kyve.oracle.sender.v1;
+
+import "google/api/annotations.proto";
+import "kyve/oracle/host/v1/host.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/oracle/sender/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Request ...
+  rpc Request(QueryRequest) returns (QueryRequestResponse) {
+    option (google.api.http).get = "/kyve/oracle/sender/v1/request/{sequence}";
+  }
+
+  // Response ...
+  rpc Response(QueryResponse) returns (QueryResponseResponse) {
+    option (google.api.http).get = "/kyve/oracle/sender/v1/response/{sequence}";
+  }
+}
+
+// QueryRequest is request type for the Query/Request RPC method.
+message QueryRequest {
+  // sequence ...
+  uint64 sequence = 1;
+}
+
+// QueryRequestResponse is response type for the Query/Request RPC method.
+message QueryRequestResponse {
+  // request ...
+  kyve.oracle.host.v1.OracleQuery request = 1;
+}
+
+// QueryResponse is request type for the Query/Response RPC method.
+message QueryResponse {
+  // sequence ...
+  uint64 sequence = 1;
+}
+
+// QueryResponseResponse is response type for the Query/Response RPC method.
+message QueryResponseResponse {
+  // response ...
+  kyve.oracle.host.v1.OracleAcknowledgement response = 1;
+}

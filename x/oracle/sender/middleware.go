@@ -90,14 +90,13 @@ func (im IBCMiddleware) OnAcknowledgementPacket(
 	acknowledgement []byte,
 	relayer sdk.AccAddress,
 ) error {
-	_, req, valid, _ := hostTypes.ParseOraclePacket(packet)
-	if !valid {
-		return im.app.OnAcknowledgementPacket(ctx, packet, acknowledgement, relayer)
+	if _, req, valid, _ := hostTypes.ParseOraclePacket(packet); valid {
+		im.keeper.SetRequest(ctx, packet.Sequence, *req)
 	}
 
-	im.keeper.SetRequest(ctx, packet.Sequence, *req)
-
-	// TODO(@john): Save response.
+	if res, valid := hostTypes.ParseOracleAcknowledgement(acknowledgement); valid {
+		im.keeper.SetResponse(ctx, packet.Sequence, *res)
+	}
 
 	return im.app.OnAcknowledgementPacket(ctx, packet, acknowledgement, relayer)
 }

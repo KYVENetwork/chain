@@ -107,7 +107,7 @@ func (im IBCMiddleware) OnRecvPacket(
 	}
 
 	// Execute query.
-	var response []byte
+	var response string
 	var timestamp time.Time
 
 	switch query := req.Query.(type) {
@@ -115,7 +115,7 @@ func (im IBCMiddleware) OnRecvPacket(
 		// TODO(@john): Handle query error.
 		latestSummary, finalisedAt, _ := im.keeper.GetLatestSummary(ctx, query.LatestSummary.PoolId)
 
-		response = []byte(latestSummary)
+		response = latestSummary
 		timestamp = finalisedAt
 	}
 
