@@ -4,9 +4,9 @@ import (
 	"cosmossdk.io/math"
 	amino "github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/simapp/params"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
+	"github.com/cosmos/ibc-go/v7/testing/simapp/params"
 )
 
 // BuildEncodingConfig ...
@@ -17,7 +17,7 @@ func BuildEncodingConfig() params.EncodingConfig {
 
 	encodingConfig := params.EncodingConfig{
 		InterfaceRegistry: interfaceRegistry,
-		Codec:             codec,
+		Marshaler:         codec,
 		TxConfig:          tx.NewTxConfig(codec, tx.DefaultSignModes),
 		Amino:             cdc,
 	}
@@ -49,8 +49,13 @@ type InvalidTx struct{}
 func (InvalidTx) GetMsgs() []sdk.Msg   { return []sdk.Msg{nil} }
 func (InvalidTx) ValidateBasic() error { return nil }
 
-// NextFn ...
-func NextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
+// AnteNextFn ...
+func AnteNextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
+	return ctx, nil
+}
+
+// PostNextFn ...
+func PostNextFn(ctx sdk.Context, _ sdk.Tx, _ bool, _ bool) (sdk.Context, error) {
 	return ctx, nil
 }
 

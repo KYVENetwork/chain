@@ -17,8 +17,8 @@ import (
 	// Gov
 	govKeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	// IBC
-	ibcAnte "github.com/cosmos/ibc-go/v6/modules/core/ante"
-	ibcKeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
+	ibcAnte "github.com/cosmos/ibc-go/v7/modules/core/ante"
+	ibcKeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	// Staking
 	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 )
@@ -69,12 +69,12 @@ func NewPostHandler(
 	bankKeeper bankKeeper.Keeper,
 	feeGrantKeeper feeGrantKeeper.Keeper,
 	globalKeeper globalKeeper.Keeper,
-) (sdk.AnteHandler, error) {
+) (sdk.PostHandler, error) {
 	refundFeeDecorator := global.NewRefundFeeDecorator(bankKeeper, feeGrantKeeper, globalKeeper)
 
-	postDecorators := []sdk.AnteDecorator{
+	postDecorators := []sdk.PostDecorator{
 		refundFeeDecorator,
 	}
 
-	return sdk.ChainAnteDecorators(postDecorators...), nil
+	return sdk.ChainPostDecorators(postDecorators...), nil
 }

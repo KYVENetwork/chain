@@ -111,10 +111,10 @@ func (idd InitialDepositDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	}
 
 	minInitialDepositRatio := idd.globalKeeper.GetMinInitialDepositRatio(ctx)
-	depositParams := idd.govKeeper.GetDepositParams(ctx)
+	govParams := idd.govKeeper.GetParams(ctx)
 
 	requiredDeposit := sdk.NewCoins()
-	for _, coin := range depositParams.MinDeposit {
+	for _, coin := range govParams.MinDeposit {
 		amount := sdk.NewDecFromInt(coin.Amount).Mul(minInitialDepositRatio).TruncateInt()
 		requiredDeposit = requiredDeposit.Add(sdk.NewCoin(coin.Denom, amount))
 	}

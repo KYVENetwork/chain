@@ -32,7 +32,7 @@ var _ = Describe("RefundFeeDecorator", Ordered, func() {
 	s := i.NewCleanChain()
 	encodingConfig := BuildEncodingConfig()
 	rfd := global.NewRefundFeeDecorator(s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper)
-	dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
+	dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
 	denom := s.App().StakingKeeper.BondDenom(s.Ctx())
 
 	accountBalanceBefore := s.GetBalanceFromAddress(i.DUMMY[0])
@@ -42,7 +42,7 @@ var _ = Describe("RefundFeeDecorator", Ordered, func() {
 
 		accountBalanceBefore = s.GetBalanceFromAddress(i.DUMMY[0])
 		rfd = global.NewRefundFeeDecorator(s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper)
-		dfd = global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
+		dfd = global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
 
 		denom = s.App().StakingKeeper.BondDenom(s.Ctx())
 
@@ -84,8 +84,8 @@ var _ = Describe("RefundFeeDecorator", Ordered, func() {
 		tx := txBuilder.GetTx()
 
 		// ACT
-		_, errAnte := dfd.AnteHandle(s.Ctx(), tx, false, NextFn)
-		_, errPost := rfd.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, errAnte := dfd.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
+		_, errPost := rfd.PostHandle(s.Ctx(), tx, false, true, PostNextFn)
 
 		// ASSERT
 		accountBalanceAfter := s.GetBalanceFromAddress(i.ALICE)
@@ -109,8 +109,8 @@ var _ = Describe("RefundFeeDecorator", Ordered, func() {
 		tx := txBuilder.GetTx()
 
 		// ACT
-		_, errAnte := dfd.AnteHandle(s.Ctx(), tx, false, NextFn)
-		_, errPost := rfd.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, errAnte := dfd.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
+		_, errPost := rfd.PostHandle(s.Ctx(), tx, false, true, PostNextFn)
 
 		// ASSERT
 		accountBalanceAfter := s.GetBalanceFromAddress(i.ALICE)
@@ -134,8 +134,8 @@ var _ = Describe("RefundFeeDecorator", Ordered, func() {
 		tx := txBuilder.GetTx()
 
 		// ACT
-		_, errAnte := dfd.AnteHandle(s.Ctx(), tx, false, NextFn)
-		_, errPost := rfd.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, errAnte := dfd.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
+		_, errPost := rfd.PostHandle(s.Ctx(), tx, false, true, PostNextFn)
 
 		// ASSERT
 		accountBalanceAfter := s.GetBalanceFromAddress(i.ALICE)
@@ -159,8 +159,8 @@ var _ = Describe("RefundFeeDecorator", Ordered, func() {
 		tx := txBuilder.GetTx()
 
 		// ACT
-		_, errAnte := dfd.AnteHandle(s.Ctx(), tx, false, NextFn)
-		_, errPost := rfd.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, errAnte := dfd.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
+		_, errPost := rfd.PostHandle(s.Ctx(), tx, false, true, PostNextFn)
 
 		// ASSERT
 		accountBalanceAfter := s.GetBalanceFromAddress(i.ALICE)
@@ -184,8 +184,8 @@ var _ = Describe("RefundFeeDecorator", Ordered, func() {
 		tx := txBuilder.GetTx()
 
 		// ACT
-		_, errAnte := dfd.AnteHandle(s.Ctx(), tx, false, NextFn)
-		_, errPost := rfd.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, errAnte := dfd.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
+		_, errPost := rfd.PostHandle(s.Ctx(), tx, false, true, PostNextFn)
 
 		// ASSERT
 		accountBalanceAfter := s.GetBalanceFromAddress(i.ALICE)
@@ -211,8 +211,8 @@ var _ = Describe("RefundFeeDecorator", Ordered, func() {
 		tx := txBuilder.GetTx()
 
 		// ACT
-		_, errAnte := dfd.AnteHandle(s.Ctx(), tx, false, NextFn)
-		_, errPost := rfd.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, errAnte := dfd.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
+		_, errPost := rfd.PostHandle(s.Ctx(), tx, false, true, PostNextFn)
 
 		// ASSERT
 		accountBalanceAfter := s.GetBalanceFromAddress(i.ALICE)

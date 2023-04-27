@@ -8,6 +8,11 @@ import (
 
 	"github.com/KYVENetwork/chain/app"
 	stakerstypes "github.com/KYVENetwork/chain/x/stakers/types"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
+	"github.com/cometbft/cometbft/version"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -16,11 +21,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
-	"github.com/tendermint/tendermint/version"
 )
 
 const (
@@ -203,21 +203,21 @@ func (suite *KeeperTestSuite) SetupApp(startTime int64) {
 
 	mintParams := suite.app.MintKeeper.GetParams(suite.ctx)
 	mintParams.MintDenom = suite.denom
-	suite.app.MintKeeper.SetParams(suite.ctx, mintParams)
+	_ = suite.app.MintKeeper.SetParams(suite.ctx, mintParams)
 
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = suite.denom
-	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
+	_ = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 
-	depositParams := suite.app.GovKeeper.GetDepositParams(suite.ctx)
-	depositParams.MinDeposit = sdk.NewCoins(sdk.NewInt64Coin(KYVE_DENOM, int64(100_000_000_000))) // set min deposit to 100 KYVE
-	suite.app.GovKeeper.SetDepositParams(suite.ctx, depositParams)
+	govParams := suite.app.GovKeeper.GetParams(suite.ctx)
+	govParams.MinDeposit = sdk.NewCoins(sdk.NewInt64Coin(KYVE_DENOM, int64(100_000_000_000))) // set min deposit to 100 KYVE
+	_ = suite.app.GovKeeper.SetParams(suite.ctx, govParams)
 
 	// Set Validator
 	valAddr := sdk.ValAddress(suite.address.Bytes())
 	validator, _ := stakingtypes.NewValidator(valAddr, ePriv.PubKey(), stakingtypes.Description{})
 	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
-	_ = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	//_ = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
 	_ = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	validators := suite.app.StakingKeeper.GetValidators(suite.ctx, 1)
 	suite.validator = validators[0]

@@ -1,8 +1,7 @@
 version: v1
 name: buf.build/kyve/chain
 deps:
-  # Cosmos SDK v0.46 (https://github.com/cosmos/cosmos-sdk/tree/main/proto#sdk-x-buf)
-  - buf.build/cosmos/cosmos-sdk:8cb30a2c4de74dc9bd8d260b1e75e176
+  - buf.build/cosmos/cosmos-sdk:v0.47.0
   - buf.build/cosmos/gogo-proto
   - buf.build/googleapis/googleapis
 breaking:

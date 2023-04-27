@@ -48,8 +48,8 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 
-	minDeposit := s.App().GovKeeper.GetDepositParams(s.Ctx()).MinDeposit
-	votingPeriod := s.App().GovKeeper.GetVotingParams(s.Ctx()).VotingPeriod
+	minDeposit := s.App().GovKeeper.GetParams(s.Ctx()).MinDeposit
+	votingPeriod := s.App().GovKeeper.GetParams(s.Ctx()).VotingPeriod
 
 	delegations := s.App().StakingKeeper.GetAllDelegations(s.Ctx())
 	voter := sdk.MustAccAddressFromBech32(delegations[0].DelegatorAddress)
@@ -104,7 +104,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		// ACT
@@ -138,7 +138,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -185,7 +185,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -224,7 +224,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		// ACT
@@ -257,7 +257,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -296,7 +296,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		// ACT
@@ -329,7 +329,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -368,7 +368,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		// ACT
@@ -404,7 +404,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -451,7 +451,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		// ACT
@@ -487,7 +487,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -534,7 +534,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		// ACT
@@ -567,7 +567,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -606,7 +606,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		// ACT

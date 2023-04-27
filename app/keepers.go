@@ -16,6 +16,8 @@ import (
 	bundlesKeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
 	// Capability
 	capabilityKeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
+	// Consensus
+	consensusKeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	// Crisis
 	crisisKeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	crisisTypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
@@ -33,23 +35,22 @@ import (
 	// Governance
 	govKeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govTypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	govV1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	// Group
 	groupKeeper "github.com/cosmos/cosmos-sdk/x/group/keeper"
-	// IBC
-	ibcHost "github.com/cosmos/ibc-go/v6/modules/core/24-host"
-	ibcKeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
+	// IBC Core
+	ibcExported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+	ibcKeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	// IBC Fee
-	ibcFeeKeeper "github.com/cosmos/ibc-go/v6/modules/apps/29-fee/keeper"
+	ibcFeeKeeper "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/keeper"
 	// IBC Transfer
-	ibcTransferKeeper "github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
-	ibcTransferTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	ibcTransferKeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
+	ibcTransferTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	// ICA Controller
-	icaControllerKeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/keeper"
-	icaControllerTypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/types"
+	icaControllerKeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/keeper"
+	icaControllerTypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
 	// ICA Host
-	icaHostKeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/keeper"
-	icaHostTypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/types"
+	icaHostKeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/keeper"
+	icaHostTypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 	// Mint
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
@@ -79,17 +80,18 @@ type Keepers struct {
 	AuthzKeeper        authzKeeper.Keeper
 	BankKeeper         bankKeeper.Keeper
 	CapabilityKeeper   *capabilityKeeper.Keeper
-	CrisisKeeper       crisisKeeper.Keeper
+	ConsensusKeeper    consensusKeeper.Keeper
+	CrisisKeeper       *crisisKeeper.Keeper
 	DistributionKeeper distributionKeeper.Keeper
-	EvidenceKeeper     evidenceKeeper.Keeper
+	EvidenceKeeper     *evidenceKeeper.Keeper
 	FeeGrantKeeper     feeGrantKeeper.Keeper
-	GovKeeper          govKeeper.Keeper
+	GovKeeper          *govKeeper.Keeper
 	GroupKeeper        groupKeeper.Keeper
 	MintKeeper         mintKeeper.Keeper
 	ParamsKeeper       paramsKeeper.Keeper
 	SlashingKeeper     slashingKeeper.Keeper
-	StakingKeeper      stakingKeeper.Keeper
-	UpgradeKeeper      upgradeKeeper.Keeper
+	StakingKeeper      *stakingKeeper.Keeper
+	UpgradeKeeper      *upgradeKeeper.Keeper
 
 	// IBC
 	IBCKeeper           *ibcKeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
@@ -125,10 +127,10 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	keeper.Subspace(mintTypes.ModuleName)
 	keeper.Subspace(distributionTypes.ModuleName)
 	keeper.Subspace(slashingTypes.ModuleName)
-	keeper.Subspace(govTypes.ModuleName).WithKeyTable(govV1.ParamKeyTable())
+	keeper.Subspace(govTypes.ModuleName)
 	keeper.Subspace(crisisTypes.ModuleName)
 	keeper.Subspace(ibcTransferTypes.ModuleName)
-	keeper.Subspace(ibcHost.ModuleName)
+	keeper.Subspace(ibcExported.ModuleName)
 	keeper.Subspace(icaControllerTypes.SubModuleName)
 	keeper.Subspace(icaHostTypes.SubModuleName)
 

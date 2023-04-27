@@ -43,7 +43,7 @@ TEST CASES - DeductFeeDecorator
 var _ = Describe("DeductFeeDecorator", Ordered, func() {
 	s := i.NewCleanChain()
 	encodingConfig := BuildEncodingConfig()
-	dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
+	dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
 	denom := s.App().StakingKeeper.BondDenom(s.Ctx())
 
 	accountBalanceBefore := s.GetBalanceFromAddress(i.DUMMY[0])
@@ -53,7 +53,7 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 		s = i.NewCleanChain()
 		encodingConfig = BuildEncodingConfig()
 		denom = s.App().StakingKeeper.BondDenom(s.Ctx())
-		dfd = global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
+		dfd = global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
 	})
 
 	AfterEach(func() {
@@ -62,10 +62,10 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 
 	It("Invalid transaction.", func() {
 		// ARRANGE
-		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
+		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
 
 		// ACT
-		_, err := dfd.AnteHandle(s.Ctx(), &InvalidTx{}, false, NextFn)
+		_, err := dfd.AnteHandle(s.Ctx(), &InvalidTx{}, false, AnteNextFn)
 
 		// ASSERT
 		Expect(err).Should(HaveOccurred())
@@ -73,13 +73,13 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 
 	It("consensusGasPrice = 0.0; validatorGasPrice = 0.0 - deliverTX", func() {
 		// ARRANGE
-		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
+		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
 
 		denom := s.App().StakingKeeper.BondDenom(s.Ctx())
 		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
 
 		// ACT
-		_, err := dfd.AnteHandle(s.Ctx().WithIsCheckTx(false), tx, false, NextFn)
+		_, err := dfd.AnteHandle(s.Ctx().WithIsCheckTx(false), tx, false, AnteNextFn)
 
 		// ASSERT
 		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
@@ -92,13 +92,13 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 
 	It("consensusGasPrice = 0.0; validatorGasPrice = 0.0 - checkTX", func() {
 		// ARRANGE
-		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
+		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
 
 		denom := s.App().StakingKeeper.BondDenom(s.Ctx())
 		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
 
 		// ACT
-		_, err := dfd.AnteHandle(s.Ctx().WithIsCheckTx(true), tx, false, NextFn)
+		_, err := dfd.AnteHandle(s.Ctx().WithIsCheckTx(true), tx, false, AnteNextFn)
 
 		// ASSERT
 		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
@@ -117,7 +117,7 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
 
 		// ACT
-		_, err := dfd.AnteHandle(s.Ctx().WithIsCheckTx(false), tx, false, NextFn)
+		_, err := dfd.AnteHandle(s.Ctx().WithIsCheckTx(false), tx, false, AnteNextFn)
 
 		// ASSERT
 		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
@@ -136,7 +136,7 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 		tx := BuildTestTx(math.NewInt(1), denom, i.DUMMY[0], encodingConfig)
 
 		// ACT
-		_, err := dfd.AnteHandle(s.Ctx().WithIsCheckTx(false), tx, false, NextFn)
+		_, err := dfd.AnteHandle(s.Ctx().WithIsCheckTx(false), tx, false, AnteNextFn)
 
 		// ASSERT
 		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
@@ -155,7 +155,7 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
 
 		// ACT
-		_, err := dfd.AnteHandle(s.Ctx().WithIsCheckTx(true), tx, false, NextFn)
+		_, err := dfd.AnteHandle(s.Ctx().WithIsCheckTx(true), tx, false, AnteNextFn)
 
 		// ASSERT
 		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
@@ -174,7 +174,7 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 		tx := BuildTestTx(math.NewInt(1), denom, i.DUMMY[0], encodingConfig)
 
 		// ACT
-		_, err := dfd.AnteHandle(s.Ctx().WithIsCheckTx(true), tx, false, NextFn)
+		_, err := dfd.AnteHandle(s.Ctx().WithIsCheckTx(true), tx, false, AnteNextFn)
 
 		// ASSERT
 		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
@@ -196,7 +196,7 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
 
 		// ACT
-		_, err := dfd.AnteHandle(ctx.WithIsCheckTx(false), tx, false, NextFn)
+		_, err := dfd.AnteHandle(ctx.WithIsCheckTx(false), tx, false, AnteNextFn)
 
 		// ASSERT
 		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
@@ -218,7 +218,7 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 		tx := BuildTestTx(math.NewInt(1), denom, i.DUMMY[0], encodingConfig)
 
 		// ACT
-		_, err := dfd.AnteHandle(ctx.WithIsCheckTx(false), tx, false, NextFn)
+		_, err := dfd.AnteHandle(ctx.WithIsCheckTx(false), tx, false, AnteNextFn)
 
 		// ASSERT
 		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
@@ -240,7 +240,7 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
 
 		// ACT
-		_, err := dfd.AnteHandle(ctx.WithIsCheckTx(true), tx, false, NextFn)
+		_, err := dfd.AnteHandle(ctx.WithIsCheckTx(true), tx, false, AnteNextFn)
 
 		// ASSERT
 		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
@@ -262,7 +262,7 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 		tx := BuildTestTx(math.NewInt(1), denom, i.DUMMY[0], encodingConfig)
 
 		// ACT
-		_, err := dfd.AnteHandle(ctx.WithIsCheckTx(true), tx, false, NextFn)
+		_, err := dfd.AnteHandle(ctx.WithIsCheckTx(true), tx, false, AnteNextFn)
 
 		// ASSERT
 		accountBalanceAfter := s.GetBalanceFromAddress(i.DUMMY[0])
@@ -322,7 +322,7 @@ var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
 		gad := global.NewGasAdjustmentDecorator(s.App().GlobalKeeper)
 
 		// ACT
-		_, err := gad.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, err := gad.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
 
 		// ASSERT
 		Expect(err).ToNot(HaveOccurred())
@@ -340,7 +340,7 @@ var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
 		gad := global.NewGasAdjustmentDecorator(s.App().GlobalKeeper)
 
 		// ACT
-		_, err := gad.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, err := gad.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
 
 		// ASSERT
 		Expect(err).ToNot(HaveOccurred())
@@ -358,7 +358,7 @@ var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
 		gad := global.NewGasAdjustmentDecorator(s.App().GlobalKeeper)
 
 		// ACT
-		_, err := gad.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, err := gad.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
 
 		// ASSERT
 		Expect(err).ToNot(HaveOccurred())
@@ -377,7 +377,7 @@ var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
 		gad := global.NewGasAdjustmentDecorator(s.App().GlobalKeeper)
 
 		// ACT
-		_, err := gad.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, err := gad.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
 
 		// ASSERT
 		Expect(err).ToNot(HaveOccurred())
@@ -397,7 +397,7 @@ var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
 		gad := global.NewGasAdjustmentDecorator(s.App().GlobalKeeper)
 
 		// ACT
-		_, err := gad.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, err := gad.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
 
 		// ASSERT
 		Expect(err).ToNot(HaveOccurred())
@@ -434,15 +434,15 @@ var _ = Describe("InitialDepositDecorator", Ordered, func() {
 	It("No Deposit, no min-deposit - v1", func() {
 		// ARRANGE
 		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-		submitMsg, govErr := govV1Types.NewMsgSubmitProposal(emptyMsg, zeroCoins, i.ALICE, "metadata")
+		submitMsg, govErr := govV1Types.NewMsgSubmitProposal(emptyMsg, zeroCoins, i.ALICE, "metadata", "title", "summary")
 		Expect(govErr).ToNot(HaveOccurred())
 		_ = txBuilder.SetMsgs(submitMsg)
 		tx := txBuilder.GetTx()
 
-		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, s.App().GovKeeper)
+		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, *s.App().GovKeeper)
 
 		// ACT
-		_, err := gid.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, err := gid.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
 
 		// ASSERT
 		Expect(err).ToNot(HaveOccurred())
@@ -452,7 +452,7 @@ var _ = Describe("InitialDepositDecorator", Ordered, func() {
 		// ARRANGE
 		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 
-		content, created := govLegacyTypes.ContentFromProposalType("Text-test", "Descirption", "Text")
+		content, created := govLegacyTypes.ContentFromProposalType("Text-test", "Description", "Text")
 		Expect(created).To(BeTrue())
 
 		submitMsg, govErr := govLegacyTypes.NewMsgSubmitProposal(content, zeroCoins, sdk.MustAccAddressFromBech32(i.ALICE))
@@ -460,10 +460,10 @@ var _ = Describe("InitialDepositDecorator", Ordered, func() {
 		_ = txBuilder.SetMsgs(submitMsg)
 		tx := txBuilder.GetTx()
 
-		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, s.App().GovKeeper)
+		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, *s.App().GovKeeper)
 
 		// ACT
-		_, err := gid.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, err := gid.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
 
 		// ASSERT
 		Expect(err).ToNot(HaveOccurred())
@@ -473,15 +473,15 @@ var _ = Describe("InitialDepositDecorator", Ordered, func() {
 		// ARRANGE
 		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 		hundredKyveCoins := sdk.NewCoins(sdk.NewCoin(types.Denom, math.NewInt(100_000_000_000)))
-		submitMsg, govErr := govV1Types.NewMsgSubmitProposal(emptyMsg, hundredKyveCoins, i.ALICE, "metadata")
+		submitMsg, govErr := govV1Types.NewMsgSubmitProposal(emptyMsg, hundredKyveCoins, i.ALICE, "metadata", "title", "summary")
 		Expect(govErr).ToNot(HaveOccurred())
 		_ = txBuilder.SetMsgs(submitMsg)
 		tx := txBuilder.GetTx()
 
-		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, s.App().GovKeeper)
+		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, *s.App().GovKeeper)
 
 		// ACT
-		_, err := gid.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, err := gid.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
 
 		// ASSERT
 		Expect(err).ToNot(HaveOccurred())
@@ -491,7 +491,7 @@ var _ = Describe("InitialDepositDecorator", Ordered, func() {
 		// ARRANGE
 		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 
-		content, created := govLegacyTypes.ContentFromProposalType("Text-test", "Descirption", "Text")
+		content, created := govLegacyTypes.ContentFromProposalType("Text-test", "Description", "Text")
 		Expect(created).To(BeTrue())
 
 		hundredKyveCoins := sdk.NewCoins(sdk.NewCoin(types.Denom, math.NewInt(100_000_000_000)))
@@ -501,10 +501,10 @@ var _ = Describe("InitialDepositDecorator", Ordered, func() {
 		_ = txBuilder.SetMsgs(submitMsg)
 		tx := txBuilder.GetTx()
 
-		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, s.App().GovKeeper)
+		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, *s.App().GovKeeper)
 
 		// ACT
-		_, err := gid.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, err := gid.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
 
 		// ASSERT
 		Expect(err).ToNot(HaveOccurred())
@@ -517,15 +517,15 @@ var _ = Describe("InitialDepositDecorator", Ordered, func() {
 		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
 
 		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-		submitMsg, govErr := govV1Types.NewMsgSubmitProposal(emptyMsg, zeroCoins, i.ALICE, "metadata")
+		submitMsg, govErr := govV1Types.NewMsgSubmitProposal(emptyMsg, zeroCoins, i.ALICE, "metadata", "title", "summary")
 		Expect(govErr).ToNot(HaveOccurred())
 		_ = txBuilder.SetMsgs(submitMsg)
 		tx := txBuilder.GetTx()
 
-		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, s.App().GovKeeper)
+		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, *s.App().GovKeeper)
 
 		// ACT
-		_, err := gid.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, err := gid.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
 
 		// ASSERT
 		Expect(err).To(HaveOccurred())
@@ -539,7 +539,7 @@ var _ = Describe("InitialDepositDecorator", Ordered, func() {
 
 		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 
-		content, created := govLegacyTypes.ContentFromProposalType("Text-test", "Descirption", "Text")
+		content, created := govLegacyTypes.ContentFromProposalType("Text-test", "Description", "Text")
 		Expect(created).To(BeTrue())
 
 		submitMsg, govErr := govLegacyTypes.NewMsgSubmitProposal(content, zeroCoins, sdk.MustAccAddressFromBech32(i.ALICE))
@@ -548,10 +548,10 @@ var _ = Describe("InitialDepositDecorator", Ordered, func() {
 		_ = txBuilder.SetMsgs(submitMsg)
 		tx := txBuilder.GetTx()
 
-		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, s.App().GovKeeper)
+		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, *s.App().GovKeeper)
 
 		// ACT
-		_, err := gid.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, err := gid.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
 
 		// ASSERT
 		Expect(err).To(HaveOccurred())
@@ -566,15 +566,15 @@ var _ = Describe("InitialDepositDecorator", Ordered, func() {
 		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 		twentyFiveKyveCoins := sdk.NewCoins(sdk.NewCoin(types.Denom, math.NewInt(25_000_000_000)))
 
-		submitMsg, govErr := govV1Types.NewMsgSubmitProposal(emptyMsg, twentyFiveKyveCoins, i.ALICE, "metadata")
+		submitMsg, govErr := govV1Types.NewMsgSubmitProposal(emptyMsg, twentyFiveKyveCoins, i.ALICE, "metadata", "title", "summary")
 		Expect(govErr).ToNot(HaveOccurred())
 		_ = txBuilder.SetMsgs(submitMsg)
 		tx := txBuilder.GetTx()
 
-		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, s.App().GovKeeper)
+		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, *s.App().GovKeeper)
 
 		// ACT
-		_, err := gid.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, err := gid.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
 
 		// ASSERT
 		Expect(err).ToNot(HaveOccurred())
@@ -588,7 +588,7 @@ var _ = Describe("InitialDepositDecorator", Ordered, func() {
 
 		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 
-		content, created := govLegacyTypes.ContentFromProposalType("Text-test", "Descirption", "Text")
+		content, created := govLegacyTypes.ContentFromProposalType("Text-test", "Description", "Text")
 		Expect(created).To(BeTrue())
 
 		twentyFiveKyveCoins := sdk.NewCoins(sdk.NewCoin(types.Denom, math.NewInt(25_000_000_000)))
@@ -598,10 +598,10 @@ var _ = Describe("InitialDepositDecorator", Ordered, func() {
 		_ = txBuilder.SetMsgs(submitMsg)
 		tx := txBuilder.GetTx()
 
-		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, s.App().GovKeeper)
+		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, *s.App().GovKeeper)
 
 		// ACT
-		_, err := gid.AnteHandle(s.Ctx(), tx, false, NextFn)
+		_, err := gid.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
 
 		// ASSERT
 		Expect(err).ToNot(HaveOccurred())
