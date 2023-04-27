@@ -3,23 +3,22 @@ package global_test
 import (
 	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
-	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	// Auth
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
+	// Bank
+	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	// Global
 	"github.com/KYVENetwork/chain/x/global"
 	"github.com/KYVENetwork/chain/x/global/types"
-
-	govV1Types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	govLegacyTypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	// Stakers
+	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
+	// Staking
+	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 /*
@@ -402,208 +401,5 @@ var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
 		// ASSERT
 		Expect(err).ToNot(HaveOccurred())
 		Expect(s.Ctx().GasMeter().GasConsumed()).To(BeEquivalentTo(BaseCost + 3000))
-	})
-})
-
-/*
-TEST CASES - InitialDepositDecorator
-
-* No Deposit, no min-deposit - v1
-* No Deposit, no min-deposit - legacy
-* Deposit, no min-deposit - v1
-* Deposit, no min-deposit - legacy
-* No Deposit, min-deposit - v1
-* No Deposit, min-deposit - legacy
-* Deposit, min-deposit - v1
-* Deposit, min-deposit - legacy
-*/
-var _ = Describe("InitialDepositDecorator", Ordered, func() {
-	s := i.NewCleanChain()
-	encodingConfig := BuildEncodingConfig()
-	zeroCoins := sdk.NewCoins(sdk.NewCoin(types.Denom, math.ZeroInt()))
-	var emptyMsg []sdk.Msg
-
-	BeforeEach(func() {
-		s = i.NewCleanChain()
-	})
-
-	AfterEach(func() {
-		s.PerformValidityChecks()
-	})
-
-	It("No Deposit, no min-deposit - v1", func() {
-		// ARRANGE
-		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-		submitMsg, govErr := govV1Types.NewMsgSubmitProposal(emptyMsg, zeroCoins, i.ALICE, "metadata", "title", "summary")
-		Expect(govErr).ToNot(HaveOccurred())
-		_ = txBuilder.SetMsgs(submitMsg)
-		tx := txBuilder.GetTx()
-
-		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, *s.App().GovKeeper)
-
-		// ACT
-		_, err := gid.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
-
-		// ASSERT
-		Expect(err).ToNot(HaveOccurred())
-	})
-
-	It("No Deposit, no min-deposit - legacy", func() {
-		// ARRANGE
-		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-		content, created := govLegacyTypes.ContentFromProposalType("Text-test", "Description", "Text")
-		Expect(created).To(BeTrue())
-
-		submitMsg, govErr := govLegacyTypes.NewMsgSubmitProposal(content, zeroCoins, sdk.MustAccAddressFromBech32(i.ALICE))
-		Expect(govErr).ToNot(HaveOccurred())
-		_ = txBuilder.SetMsgs(submitMsg)
-		tx := txBuilder.GetTx()
-
-		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, *s.App().GovKeeper)
-
-		// ACT
-		_, err := gid.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
-
-		// ASSERT
-		Expect(err).ToNot(HaveOccurred())
-	})
-
-	It("Deposit, no min-deposit - v1", func() {
-		// ARRANGE
-		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-		hundredKyveCoins := sdk.NewCoins(sdk.NewCoin(types.Denom, math.NewInt(100_000_000_000)))
-		submitMsg, govErr := govV1Types.NewMsgSubmitProposal(emptyMsg, hundredKyveCoins, i.ALICE, "metadata", "title", "summary")
-		Expect(govErr).ToNot(HaveOccurred())
-		_ = txBuilder.SetMsgs(submitMsg)
-		tx := txBuilder.GetTx()
-
-		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, *s.App().GovKeeper)
-
-		// ACT
-		_, err := gid.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
-
-		// ASSERT
-		Expect(err).ToNot(HaveOccurred())
-	})
-
-	It("Deposit, no min-deposit - legacy", func() {
-		// ARRANGE
-		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-		content, created := govLegacyTypes.ContentFromProposalType("Text-test", "Description", "Text")
-		Expect(created).To(BeTrue())
-
-		hundredKyveCoins := sdk.NewCoins(sdk.NewCoin(types.Denom, math.NewInt(100_000_000_000)))
-		submitMsg, govErr := govLegacyTypes.NewMsgSubmitProposal(content, hundredKyveCoins, sdk.MustAccAddressFromBech32(i.ALICE))
-		Expect(govErr).ToNot(HaveOccurred())
-
-		_ = txBuilder.SetMsgs(submitMsg)
-		tx := txBuilder.GetTx()
-
-		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, *s.App().GovKeeper)
-
-		// ACT
-		_, err := gid.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
-
-		// ASSERT
-		Expect(err).ToNot(HaveOccurred())
-	})
-
-	It("No Deposit, min-deposit - v1", func() {
-		// ARRANGE
-		params := types.DefaultParams()
-		params.MinInitialDepositRatio = sdk.NewDec(1).QuoInt64(4)
-		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
-
-		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-		submitMsg, govErr := govV1Types.NewMsgSubmitProposal(emptyMsg, zeroCoins, i.ALICE, "metadata", "title", "summary")
-		Expect(govErr).ToNot(HaveOccurred())
-		_ = txBuilder.SetMsgs(submitMsg)
-		tx := txBuilder.GetTx()
-
-		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, *s.App().GovKeeper)
-
-		// ACT
-		_, err := gid.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
-
-		// ASSERT
-		Expect(err).To(HaveOccurred())
-	})
-
-	It("No Deposit, min-deposit - legacy", func() {
-		// ARRANGE
-		params := types.DefaultParams()
-		params.MinInitialDepositRatio = sdk.NewDec(1).QuoInt64(4)
-		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
-
-		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-		content, created := govLegacyTypes.ContentFromProposalType("Text-test", "Description", "Text")
-		Expect(created).To(BeTrue())
-
-		submitMsg, govErr := govLegacyTypes.NewMsgSubmitProposal(content, zeroCoins, sdk.MustAccAddressFromBech32(i.ALICE))
-		Expect(govErr).ToNot(HaveOccurred())
-
-		_ = txBuilder.SetMsgs(submitMsg)
-		tx := txBuilder.GetTx()
-
-		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, *s.App().GovKeeper)
-
-		// ACT
-		_, err := gid.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
-
-		// ASSERT
-		Expect(err).To(HaveOccurred())
-	})
-
-	It("Deposit, min-deposit - v1", func() {
-		// ARRANGE
-		params := types.DefaultParams()
-		params.MinInitialDepositRatio = sdk.NewDec(1).QuoInt64(4)
-		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
-
-		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-		twentyFiveKyveCoins := sdk.NewCoins(sdk.NewCoin(types.Denom, math.NewInt(25_000_000_000)))
-
-		submitMsg, govErr := govV1Types.NewMsgSubmitProposal(emptyMsg, twentyFiveKyveCoins, i.ALICE, "metadata", "title", "summary")
-		Expect(govErr).ToNot(HaveOccurred())
-		_ = txBuilder.SetMsgs(submitMsg)
-		tx := txBuilder.GetTx()
-
-		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, *s.App().GovKeeper)
-
-		// ACT
-		_, err := gid.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
-
-		// ASSERT
-		Expect(err).ToNot(HaveOccurred())
-	})
-
-	It("Deposit, min-deposit - legacy", func() {
-		// ARRANGE
-		params := types.DefaultParams()
-		params.MinInitialDepositRatio = sdk.NewDec(1).QuoInt64(4)
-		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
-
-		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-		content, created := govLegacyTypes.ContentFromProposalType("Text-test", "Description", "Text")
-		Expect(created).To(BeTrue())
-
-		twentyFiveKyveCoins := sdk.NewCoins(sdk.NewCoin(types.Denom, math.NewInt(25_000_000_000)))
-		submitMsg, govErr := govLegacyTypes.NewMsgSubmitProposal(content, twentyFiveKyveCoins, sdk.MustAccAddressFromBech32(i.ALICE))
-		Expect(govErr).ToNot(HaveOccurred())
-
-		_ = txBuilder.SetMsgs(submitMsg)
-		tx := txBuilder.GetTx()
-
-		gid := global.NewInitialDepositDecorator(s.App().GlobalKeeper, *s.App().GovKeeper)
-
-		// ACT
-		_, err := gid.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
-
-		// ASSERT
-		Expect(err).ToNot(HaveOccurred())
 	})
 })

@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	v12 "github.com/KYVENetwork/chain/app/upgrades/v1_2"
+	v1p2 "github.com/KYVENetwork/chain/app/upgrades/v1_2"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/log"
@@ -819,7 +819,6 @@ func NewKYVEApp(
 		app.BankKeeper,
 		app.FeeGrantKeeper,
 		app.GlobalKeeper,
-		*app.GovKeeper,
 		app.IBCKeeper,
 		*app.StakingKeeper,
 		ante.DefaultSigVerificationGasConsumer,
@@ -845,10 +844,12 @@ func NewKYVEApp(
 	app.SetEndBlocker(app.EndBlocker)
 
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v12.UpgradeName,
-		v12.CreateUpgradeHandler(
+		v1p2.UpgradeName,
+		v1p2.CreateUpgradeHandler(
 			app.mm,
 			app.configurator,
+			app.ConsensusKeeper,
+			app.ParamsKeeper,
 		),
 	)
 
@@ -857,8 +858,8 @@ func NewKYVEApp(
 		panic(err)
 	}
 
-	if upgradeInfo.Name == v12.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
-		app.SetStoreLoader(v12.CreateStoreLoader(upgradeInfo.Height))
+	if upgradeInfo.Name == v1p2.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		app.SetStoreLoader(v1p2.CreateStoreLoader(upgradeInfo.Height))
 	}
 
 	if loadLatest {
