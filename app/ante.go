@@ -14,8 +14,7 @@ import (
 	// Global
 	"github.com/KYVENetwork/chain/x/global"
 	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
-
-	// IBC
+	// IBC Core
 	ibcAnte "github.com/cosmos/ibc-go/v7/modules/core/ante"
 	ibcKeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	// Staking
