@@ -848,7 +848,9 @@ func NewKYVEApp(
 		v1p2.CreateUpgradeHandler(
 			app.mm,
 			app.configurator,
+			appCodec,
 			app.ConsensusKeeper,
+			*app.IBCKeeper,
 			app.ParamsKeeper,
 		),
 	)

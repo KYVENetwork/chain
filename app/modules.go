@@ -43,6 +43,9 @@ import (
 	// IBC Core
 	ibc "github.com/cosmos/ibc-go/v7/modules/core"
 	ibcClient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
+	// IBC Light Clients
+	ibcSm "github.com/cosmos/ibc-go/v7/modules/light-clients/06-solomachine"
+	ibcTm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	// IBC Fee
 	ibcFee "github.com/cosmos/ibc-go/v7/modules/apps/29-fee"
 	ibcFeeTypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
@@ -109,6 +112,8 @@ var appModuleBasics = []module.AppModuleBasic{
 
 	// IBC
 	ibc.AppModuleBasic{},
+	ibcSm.AppModuleBasic{},
+	ibcTm.AppModuleBasic{},
 	ibcFee.AppModuleBasic{},
 	ibcTransfer.AppModuleBasic{},
 	ica.AppModuleBasic{},
