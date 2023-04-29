@@ -18,7 +18,8 @@ else
 $(error ❌  Please specify a build environment..)
 endif
 
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=kyve \
+ldflags := $(LDFLAGS)
+ldflags += -X github.com/cosmos/cosmos-sdk/version.Name=kyve \
 		  -X github.com/cosmos/cosmos-sdk/version.AppName=kyved \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
@@ -27,6 +28,7 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=kyve \
 		  -X github.com/KYVENetwork/chain/x/team/types.TEAM_BCP_STRING=$(TEAM_BCP_ADDRESS) \
 		  -X github.com/KYVENetwork/chain/x/team/types.TEAM_ALLOCATION_STRING=$(TEAM_ALLOCATION) \
 		  -X github.com/KYVENetwork/chain/x/team/types.TGE_STRING=$(TEAM_TGE)
+ldflags := $(strip $(ldflags))
 
 BUILD_FLAGS := -ldflags '$(ldflags)' -tags 'ledger' -trimpath
 
