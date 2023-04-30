@@ -140,6 +140,22 @@ proto-setup:
 ###                           Tests & Simulation                            ###
 ###############################################################################
 
+heighliner:
+	@echo "🤖 Building Kaon image..."
+	@heighliner build --chain kaon --local 1> /dev/null
+	@echo "✅ Completed build!"
+
+	@echo "🤖 Building KYVE image..."
+	@heighliner build --chain kyve --local 1> /dev/null
+	@echo "✅ Completed build!"
+
+heighliner-setup:
+	@echo "🤖 Installing Heighliner..."
+	@git clone https://github.com/strangelove-ventures/heighliner.git
+	@cd heighliner && go install && cd ..
+	@rm -rf heighliner
+	@echo "✅ Completed installation!"
+
 test:
 	@echo "🤖 Running tests..."
 	@go test -cover -mod=readonly ./x/...

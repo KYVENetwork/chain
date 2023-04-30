@@ -6,27 +6,15 @@ jobs:
   upgrade:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Go
-        uses: actions/setup-go@v4
-      - name: Install Heighliner
-        run: git clone https://github.com/strangelove-ventures/heighliner.git && cd heighliner && go install && cd .. && rm -rf heighliner
-
-      - name: Checkout v1.1
-        uses: actions/checkout@v3
-        with:
-          # NOTE: Change this to release/v1.1.x once PR#34 is merged.
-          ref: john/v1.1-heighliner
-      - name: Build Kaon v1.1
-        run: heighliner build --chain kaon --tag v1.1.0 --local --file heighliner.yaml
-      - name: Build KYVE v1.1
-        run: heighliner build --chain kyve --tag v1.1.0 --local --file heighliner.yaml
-
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Build Kaon
-        run: heighliner build --chain kaon --local --file heighliner.yaml
-      - name: Build KYVE
-        run: heighliner build --chain kyve --local --file heighliner.yaml
+      - name: Install Go
+        uses: actions/setup-go@v4
+
+      - name: Install Heighliner
+        run: make heighliner-setup ENV=mainnet
+      - name: Build Images
+        run: make heighliner ENV=mainnet
 
       - name: Run Upgrade Tests
         run: make test-upgrade ENV=mainnet
