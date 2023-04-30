@@ -1,6 +1,6 @@
 name: Test v1.2 Upgrade
 
-on: pull-request
+on: pull_request
 
 jobs:
   upgrade:
