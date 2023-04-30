@@ -29,4 +29,4 @@ jobs:
         run: heighliner build --chain kyve --local --file heighliner.yaml
 
       - name: Run Upgrade Tests
-        run: make upgrade-tests ENV=mainnet
+        run: make test-upgrade ENV=mainnet
