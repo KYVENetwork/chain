@@ -18,7 +18,8 @@ else
 $(error ❌  Please specify a build environment..)
 endif
 
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=kyve \
+ldflags := $(LDFLAGS)
+ldflags += -X github.com/cosmos/cosmos-sdk/version.Name=kyve \
 		  -X github.com/cosmos/cosmos-sdk/version.AppName=kyved \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
@@ -27,11 +28,12 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=kyve \
 		  -X github.com/KYVENetwork/chain/x/team/types.TEAM_BCP_STRING=$(TEAM_BCP_ADDRESS) \
 		  -X github.com/KYVENetwork/chain/x/team/types.TEAM_ALLOCATION_STRING=$(TEAM_ALLOCATION) \
 		  -X github.com/KYVENetwork/chain/x/team/types.TGE_STRING=$(TEAM_TGE)
+ldflags := $(strip $(ldflags))
 
 BUILD_FLAGS := -ldflags '$(ldflags)' -tags 'ledger' -trimpath
 
 .PHONY: proto-setup proto-format proto-lint proto-gen \
-	format lint vet test build release dev
+	format lint vet test test-upgrade build release dev
 all: proto-all format lint test build
 
 ###############################################################################
@@ -113,7 +115,7 @@ proto-all: proto-format proto-lint proto-gen
 
 proto-format:
 	@echo "🤖 Running protobuf formatter..."
-	@docker run --volume "$(PWD)":/workspace --workdir /workspace \
+	@docker run --rm --volume "$(PWD)":/workspace --workdir /workspace \
 		bufbuild/buf:$(BUF_VERSION) format --diff --write
 	@echo "✅ Completed protobuf formatting!"
 
@@ -125,7 +127,7 @@ proto-gen:
 
 proto-lint:
 	@echo "🤖 Running protobuf linter..."
-	@docker run --volume "$(PWD)":/workspace --workdir /workspace \
+	@docker run --rm --volume "$(PWD)":/workspace --workdir /workspace \
 		bufbuild/buf:$(BUF_VERSION) lint
 	@echo "✅ Completed protobuf linting!"
 
@@ -142,3 +144,8 @@ test:
 	@echo "🤖 Running tests..."
 	@go test -cover -mod=readonly ./x/...
 	@echo "✅ Completed tests!"
+
+test-upgrade:
+	@echo "🤖 Running upgrade tests..."
+	@go test -cover -mod=readonly ./app/upgrades/...
+	@echo "✅ Completed upgrade tests!"

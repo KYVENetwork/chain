@@ -1,8 +1,6 @@
 package v1_2
 
 import (
-	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -30,20 +28,16 @@ func CreateUpgradeHandler(
 	paramsKeeper paramsKeeper.Keeper,
 ) upgradeTypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradeTypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		logger := ctx.Logger().With("upgrade", UpgradeName)
-
 		// Migrate consensus parameters from x/params to dedicated x/consensus module.
 		baseAppSubspace := paramsKeeper.Subspace(baseapp.Paramspace).
 			WithKeyTable(paramsTypes.ConsensusParamsKeyTable())
 		baseapp.MigrateParams(ctx, baseAppSubspace, &consensusKeeper)
 
 		// Prune expired Tendermint consensus states.
-		pruned, err := ibcTmMigrations.PruneExpiredConsensusStates(ctx, cdc, ibcKeeper.ClientKeeper)
+		_, err := ibcTmMigrations.PruneExpiredConsensusStates(ctx, cdc, ibcKeeper.ClientKeeper)
 		if err != nil {
 			return vm, err
 		}
-
-		logger.Info(fmt.Sprintf("pruned %d consensus states from storage", pruned))
 
 		// TODO: Migrate MinInitialDepositRatio from x/global to x/gov.
 

@@ -35,6 +35,7 @@ import (
 	// Governance
 	govKeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govTypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	// Group
 	groupKeeper "github.com/cosmos/cosmos-sdk/x/group/keeper"
 	// IBC Core
@@ -121,14 +122,14 @@ type Keepers struct {
 func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey storeTypes.StoreKey) paramsKeeper.Keeper {
 	keeper := paramsKeeper.NewKeeper(appCodec, legacyAmino, key, tkey)
 
-	keeper.Subspace(authTypes.ModuleName)
-	keeper.Subspace(bankTypes.ModuleName)
-	keeper.Subspace(stakingTypes.ModuleName)
-	keeper.Subspace(mintTypes.ModuleName)
-	keeper.Subspace(distributionTypes.ModuleName)
-	keeper.Subspace(slashingTypes.ModuleName)
-	keeper.Subspace(govTypes.ModuleName)
-	keeper.Subspace(crisisTypes.ModuleName)
+	keeper.Subspace(authTypes.ModuleName).WithKeyTable(authTypes.ParamKeyTable())                 //nolint:staticcheck
+	keeper.Subspace(bankTypes.ModuleName).WithKeyTable(bankTypes.ParamKeyTable())                 //nolint:staticcheck
+	keeper.Subspace(stakingTypes.ModuleName).WithKeyTable(stakingTypes.ParamKeyTable())           //nolint:staticcheck
+	keeper.Subspace(mintTypes.ModuleName).WithKeyTable(mintTypes.ParamKeyTable())                 //nolint:staticcheck
+	keeper.Subspace(distributionTypes.ModuleName).WithKeyTable(distributionTypes.ParamKeyTable()) //nolint:staticcheck
+	keeper.Subspace(slashingTypes.ModuleName).WithKeyTable(slashingTypes.ParamKeyTable())         //nolint:staticcheck
+	keeper.Subspace(govTypes.ModuleName).WithKeyTable(v1.ParamKeyTable())                         //nolint:staticcheck
+	keeper.Subspace(crisisTypes.ModuleName).WithKeyTable(crisisTypes.ParamKeyTable())             //nolint:staticcheck
 	keeper.Subspace(ibcTransferTypes.ModuleName)
 	keeper.Subspace(ibcExported.ModuleName)
 	keeper.Subspace(icaControllerTypes.SubModuleName)
