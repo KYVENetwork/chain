@@ -1,8 +1,6 @@
 package v1_2
 
 import (
-	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,6 +8,10 @@ import (
 
 	// Consensus
 	consensusKeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
+	// Global
+	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
+	// Governance
+	govKeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	// IBC Core
 	ibcKeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	// IBC Light Clients
@@ -26,11 +28,13 @@ func CreateUpgradeHandler(
 	configurator module.Configurator,
 	cdc codec.BinaryCodec,
 	consensusKeeper consensusKeeper.Keeper,
+	globalKeeper globalKeeper.Keeper,
+	govKeeper govKeeper.Keeper,
 	ibcKeeper ibcKeeper.Keeper,
 	paramsKeeper paramsKeeper.Keeper,
 ) upgradeTypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradeTypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		logger := ctx.Logger().With("upgrade", UpgradeName)
+		var err error
 
 		// Migrate consensus parameters from x/params to dedicated x/consensus module.
 		baseAppSubspace := paramsKeeper.Subspace(baseapp.Paramspace).
@@ -38,15 +42,38 @@ func CreateUpgradeHandler(
 		baseapp.MigrateParams(ctx, baseAppSubspace, &consensusKeeper)
 
 		// Prune expired Tendermint consensus states.
-		pruned, err := ibcTmMigrations.PruneExpiredConsensusStates(ctx, cdc, ibcKeeper.ClientKeeper)
+		_, err = ibcTmMigrations.PruneExpiredConsensusStates(ctx, cdc, ibcKeeper.ClientKeeper)
 		if err != nil {
 			return vm, err
 		}
 
-		logger.Info(fmt.Sprintf("pruned %d consensus states from storage", pruned))
+		// Run module migrations.
+		vm, err = mm.RunMigrations(ctx, configurator, vm)
+		if err != nil {
+			return vm, err
+		}
 
-		// TODO: Migrate MinInitialDepositRatio from x/global to x/gov.
+		// Migrate initial deposit ratio.
+		err = MigrateInitialDepositRatio(ctx, globalKeeper, govKeeper)
+		if err != nil {
+			return vm, err
+		}
 
-		return mm.RunMigrations(ctx, configurator, vm)
+		return vm, nil
 	}
+}
+
+// MigrateInitialDepositRatio migrates the MinInitialDepositRatio parameter from
+// our custom x/global module to the x/gov module.
+func MigrateInitialDepositRatio(
+	ctx sdk.Context,
+	globalKeeper globalKeeper.Keeper,
+	govKeeper govKeeper.Keeper,
+) error {
+	minInitialDepositRatio := globalKeeper.GetMinInitialDepositRatio(ctx)
+
+	params := govKeeper.GetParams(ctx)
+	params.MinInitialDepositRatio = minInitialDepositRatio.String()
+
+	return govKeeper.SetParams(ctx, params)
 }

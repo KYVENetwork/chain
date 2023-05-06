@@ -850,6 +850,8 @@ func NewKYVEApp(
 			app.configurator,
 			appCodec,
 			app.ConsensusKeeper,
+			app.GlobalKeeper,
+			*app.GovKeeper,
 			*app.IBCKeeper,
 			app.ParamsKeeper,
 		),
