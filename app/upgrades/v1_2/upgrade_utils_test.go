@@ -64,6 +64,17 @@ func ModifyGenesis(config ibc.ChainConfig, genbz []byte) ([]byte, error) {
 	})
 	_ = dyno.Set(genesis, balances, "app_state", "bank", "balances")
 
+	switch config.ChainID {
+	case "kaon-1":
+		_ = dyno.Set(genesis, math.LegacyMustNewDecFromStr("0.25"),
+			"app_state", "global", "params", "min_initial_deposit_ratio",
+		)
+	case "kyve-1":
+		_ = dyno.Set(genesis, math.LegacyMustNewDecFromStr("0.5"),
+			"app_state", "global", "params", "min_initial_deposit_ratio",
+		)
+	}
+
 	_ = dyno.Set(genesis, "10s",
 		"app_state", "gov", "voting_params", "voting_period",
 	)
