@@ -14,6 +14,10 @@
 
 ## [Unreleased]
 
+### Improvements
+
+- [#34](https://github.com/KYVENetwork/chain/pull/34) Support [Heighliner](https://github.com/strangelove-ventures/heighliner) to enable [interchaintest](https://github.com/strangelove-ventures/interchaintest).
+
 ## [v1.1.0](https://github.com/KYVENetwork/chain/releases/tag/v1.1.0) - 2023-04-18
 
 ### Improvements
