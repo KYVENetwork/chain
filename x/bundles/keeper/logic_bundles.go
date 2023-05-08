@@ -299,7 +299,7 @@ func (k Keeper) registerBundleProposalFromUploader(ctx sdk.Context, msg *types.M
 		CompressionId:     bundleProposal.CompressionId,
 	})
 
-	// Emit a vote event. Uploader automatically votes valid on the own bundle.
+	// Emit a vote event. Uploader automatically votes valid on their bundle.
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventBundleVote{
 		PoolId:    msg.PoolId,
 		Staker:    msg.Staker,
