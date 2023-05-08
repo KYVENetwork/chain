@@ -14,6 +14,47 @@
 
 ## [Unreleased]
 
+<<<<<<< HEAD
+=======
+### Improvements
+
+- [#34](https://github.com/KYVENetwork/chain/pull/34) Support [Heighliner](https://github.com/strangelove-ventures/heighliner) to enable [interchaintest](https://github.com/strangelove-ventures/interchaintest).
+
+## [v1.1.0](https://github.com/KYVENetwork/chain/releases/tag/v1.1.0) - 2023-04-18
+
+### Improvements
+
+- [#22](https://github.com/KYVENetwork/chain/pull/22) Various minor code improvements, cleanups, and validations.
+- (deps) [#21](https://github.com/KYVENetwork/chain/pull/21), [#28](https://github.com/KYVENetwork/chain/pull/28) Bump Cosmos SDK to [v0.46.12](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.12) ([`v0.46.12-kyve`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.46.12-kyve)).
+- (deps) [#21](https://github.com/KYVENetwork/chain/pull/21) Switch to CometBFT from Informal Systems' Tendermint fork.
+- (ibc) [#27](https://github.com/KYVENetwork/chain/pull/27) Enable tokens to be sent and received via IBC.
+
+### Bug Fixes
+
+- [#20](https://github.com/KYVENetwork/chain/pull/20) Adjust investor vesting schedules from second funding round.
+
+### Client Breaking
+
+- (`x/query`) [#23](https://github.com/KYVENetwork/chain/pull/23) Update the `StakerMetadata` query to reflect the new `Identity` and metadata fields.
+- (`x/stakers`) [#23](https://github.com/KYVENetwork/chain/pull/23) Update `MsgUpdateMetadata` to reflect the new `Identity` and metadata fields.
+
+### API Breaking
+
+- [#22](https://github.com/KYVENetwork/chain/pull/22) Emit an event when updating module parameters.
+- (`x/delegation`) [#24](https://github.com/KYVENetwork/chain/pull/24) Emit an event when a user initiates a protocol unbonding.
+- (`x/pool`) [#24](https://github.com/KYVENetwork/chain/pull/24) Emit events for all module governance actions.
+- (`x/stakers`) [#23](https://github.com/KYVENetwork/chain/pull/23) Update the event emitted when updating protocol node metadata.
+
+### State Machine Breaking
+
+- (`x/bundles`) [#19](https://github.com/KYVENetwork/chain/pull/19) Migrate `NetworkFee` param to type `sdk.Dec`.
+- (`x/bundles`) [#22](https://github.com/KYVENetwork/chain/pull/22) Switch to a non-manipulable pseudo-random source seed for uploader selection.
+- (`x/bundles`) [#26](https://github.com/KYVENetwork/chain/pull/26) Include the timestamp of the block that finalized a bundle.
+- (`x/delegation`) [#19](https://github.com/KYVENetwork/chain/pull/19) Migrate `VoteSlash`, `UploadSlash`, `TimeoutSlash` params to type `sdk.Dec`.
+- (`x/stakers`) [#19](https://github.com/KYVENetwork/chain/pull/19) Migrate `Commission` to type `sdk.Dec`.
+- (`x/stakers`) [#23](https://github.com/KYVENetwork/chain/pull/23) Improve metadata by adding `Identity`, `SecurityContact`, `Details` fields, deprecating `Logo`.
+
+>>>>>>> 771a095 (chore: support heighliner (#34))
 ## [v1.0.0](https://github.com/KYVENetwork/chain/releases/tag/v1.0.0) - 2023-03-10
 
 Release for the KYVE network launch.
