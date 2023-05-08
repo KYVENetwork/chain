@@ -1,5 +1,5 @@
 COMMIT := $(shell git log -1 --format='%H')
-VERSION := v1.0.0 # $(shell echo $(shell git describe --tags) | sed 's/^v//')
+VERSION := v1.0.1 # $(shell echo $(shell git describe --tags) | sed 's/^v//')
 
 DENOM ?= ukyve
 TEAM_TGE ?= 2023-03-14T14:03:14
