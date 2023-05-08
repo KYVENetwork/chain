@@ -14,6 +14,10 @@
 
 ## [Unreleased]
 
+### API Breaking
+
+- (`x/bundles`) [#42](https://github.com/KYVENetwork/chain/pull/42) Emit `VoteEvent` after `BundleProposedEvent` when submitting a bundle.
+
 ## [v1.1.1](https://github.com/KYVENetwork/chain/releases/tag/v1.1.1) - 2023-05-08
 
 ### Improvements
