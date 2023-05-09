@@ -16,8 +16,8 @@ var testnetConfig = ibc.ChainConfig{
 	Name:    "kaon",
 	ChainID: "kaon-1",
 	Images: []ibc.DockerImage{{
-		Repository: "ghcr.io/kyvenetwork/chain/kaon",
-		Version:    "v1.1.0",
+		Repository: "ghcr.io/strangelove-ventures/heighliner/kaon",
+		Version:    "v1.1.1",
 		UidGid:     "1025:1025",
 	}},
 	Bin:                 "kyved",
@@ -37,8 +37,8 @@ var mainnetConfig = ibc.ChainConfig{
 	Name:    "kyve",
 	ChainID: "kyve-1",
 	Images: []ibc.DockerImage{{
-		Repository: "ghcr.io/kyvenetwork/chain/kyve",
-		Version:    "v1.1.0",
+		Repository: "ghcr.io/strangelove-ventures/heighliner/kyve",
+		Version:    "v1.1.1",
 		UidGid:     "1025:1025",
 	}},
 	Bin:                 "kyved",
