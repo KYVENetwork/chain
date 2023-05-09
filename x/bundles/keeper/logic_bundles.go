@@ -280,14 +280,6 @@ func (k Keeper) registerBundleProposalFromUploader(ctx sdk.Context, msg *types.M
 		CompressionId:     pool.CurrentCompressionId,
 	}
 
-	// Emit a vote event.
-	_ = ctx.EventManager().EmitTypedEvent(&types.EventBundleVote{
-		PoolId:    msg.PoolId,
-		Staker:    msg.Staker,
-		StorageId: msg.StorageId,
-		Vote:      types.VOTE_TYPE_VALID,
-	})
-
 	k.SetBundleProposal(ctx, bundleProposal)
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventBundleProposed{
@@ -305,6 +297,14 @@ func (k Keeper) registerBundleProposalFromUploader(ctx sdk.Context, msg *types.M
 		ProposedAt:        uint64(ctx.BlockTime().Unix()),
 		StorageProviderId: bundleProposal.StorageProviderId,
 		CompressionId:     bundleProposal.CompressionId,
+	})
+
+	// Emit a vote event. Uploader automatically votes valid on their bundle.
+	_ = ctx.EventManager().EmitTypedEvent(&types.EventBundleVote{
+		PoolId:    msg.PoolId,
+		Staker:    msg.Staker,
+		StorageId: msg.StorageId,
+		Vote:      types.VOTE_TYPE_VALID,
 	})
 }
 
