@@ -18,6 +18,10 @@
 
 - [#33](https://github.com/KYVENetwork/chain/pull/33) Upgrade Cosmos SDK to [v0.47.2](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.47.2) ([`v0.47.2-kyve-rc0`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.47.2-kyve-rc0)).
 
+### API Breaking
+
+- (`x/bundles`) [#42](https://github.com/KYVENetwork/chain/pull/42) Emit `VoteEvent` after `BundleProposedEvent` when submitting a bundle.
+
 ## [v1.1.1](https://github.com/KYVENetwork/chain/releases/tag/v1.1.1) - 2023-05-08
 
 ### Improvements
