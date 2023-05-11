@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 	"github.com/KYVENetwork/chain/util"
-	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
+	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"cosmossdk.io/errors"
@@ -27,8 +27,8 @@ func (k msgServer) ClaimCommissionRewards(goCtx context.Context, msg *types.MsgC
 		return nil, types.ErrNotEnoughRewards.Wrapf("%d > %d", msg.Amount, staker.CommissionRewards)
 	}
 
-	// send commission rewards to claimer
-	if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, pooltypes.ModuleName, msg.Creator, msg.Amount); err != nil {
+	// send commission rewards from stakers module to claimer
+	if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, stakertypes.ModuleName, msg.Creator, msg.Amount); err != nil {
 		return nil, err
 	}
 

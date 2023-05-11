@@ -87,7 +87,24 @@ message EventUpdateCommission {
 
 It gets thrown from the following actions:
 
-- EndBlock
+- MsgUpdateCommission
+
+- ## MsgClaimCommissionRewards
+
+MsgClaimCommissionRewards indicates that a staker has claimed their commission rewards.
+
+```protobuf
+message EventClaimCommissionRewards {
+  // staker is the account address of the protocol node.
+  string staker = 1;
+  // amount ...
+  uint64 amount = 2;
+}
+```
+
+It gets thrown from the following actions:
+
+- MsgClaimCommissionRewards
 
 ## EventJoinPool
 

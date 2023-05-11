@@ -390,8 +390,12 @@ var _ = Describe("valid bundles", Ordered, func() {
 		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
 		totalUploaderReward := totalReward - treasuryReward
 
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+
 		// assert payout transfer
-		Expect(balanceUploader).To(Equal(initialBalanceStaker0 + totalUploaderReward))
+		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
+		// assert commission rewards
+		Expect(uploader.CommissionRewards).To(Equal(totalUploaderReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeZero())
 

@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
 
@@ -89,6 +90,11 @@ func (k msgServer) SubmitBundleProposal(
 		// If staker has no delegators add all delegation rewards to the staker rewards
 		if !delegationPayoutSuccessful {
 			uploaderPayout += bundleReward.Delegation
+		}
+
+		// transfer funds from pool to stakers module
+		if err := util.TransferFromModuleToModule(k.bankKeeper, ctx, pooltypes.ModuleName, stakertypes.ModuleName, uploaderPayout); err != nil {
+			return nil, err
 		}
 
 		// increase commission rewards of uploader
