@@ -19,6 +19,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 func RegisterInterfaces(registry codecTypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgCreateStaker{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgUpdateCommission{})
+	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgClaimCommissionRewards{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgUpdateMetadata{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgJoinPool{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgLeavePool{})

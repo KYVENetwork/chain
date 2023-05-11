@@ -56,8 +56,17 @@ func (suite *KeeperTestSuite) VerifyPoolModuleAssetsIntegrity() {
 	actualBalance := uint64(0)
 
 	for _, pool := range suite.App().PoolKeeper.GetAllPools(suite.Ctx()) {
+		// pool funds should be in pool module
 		for _, funder := range pool.Funders {
 			expectedBalance += funder.Amount
+		}
+
+		// unclaimed commission rewards should be in pool module
+		for _, stakerAddress := range suite.App().StakersKeeper.GetAllStakerAddressesOfPool(suite.Ctx(), pool.Id) {
+			staker, found := suite.App().StakersKeeper.GetStaker(suite.Ctx(), stakerAddress)
+			if found {
+				expectedBalance += staker.CommissionRewards
+			}
 		}
 	}
 
