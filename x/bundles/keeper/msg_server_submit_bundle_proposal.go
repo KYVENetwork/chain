@@ -91,10 +91,8 @@ func (k msgServer) SubmitBundleProposal(
 			uploaderPayout += bundleReward.Delegation
 		}
 
-		// send commission to uploader
-		if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, pooltypes.ModuleName, bundleProposal.Uploader, uploaderPayout); err != nil {
-			return nil, err
-		}
+		// increase commission rewards of uploader
+		k.stakerKeeper.IncreaseStakerCommissionRewards(ctx, bundleProposal.Uploader, uploaderPayout)
 
 		// send network fee to treasury
 		if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrkeeper, ctx, pooltypes.ModuleName, bundleReward.Treasury); err != nil {
