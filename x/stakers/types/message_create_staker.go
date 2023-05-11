@@ -14,7 +14,8 @@ var (
 )
 
 func (msg *MsgCreateStaker) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
 }
 
 func (msg *MsgCreateStaker) GetSigners() []sdk.AccAddress {

@@ -4,18 +4,17 @@ import (
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 )
 
-const TypeMsgLeavePool = "leave_pool"
+var (
+	_ legacytx.LegacyMsg = &MsgLeavePool{}
+	_ sdk.Msg            = &MsgLeavePool{}
+)
 
-var _ sdk.Msg = &MsgLeavePool{}
-
-func (msg *MsgLeavePool) Route() string {
-	return RouterKey
-}
-
-func (msg *MsgLeavePool) Type() string {
-	return TypeMsgLeavePool
+func (msg *MsgLeavePool) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
 }
 
 func (msg *MsgLeavePool) GetSigners() []sdk.AccAddress {
@@ -23,12 +22,16 @@ func (msg *MsgLeavePool) GetSigners() []sdk.AccAddress {
 	if err != nil {
 		panic(err)
 	}
+
 	return []sdk.AccAddress{creator}
 }
 
-func (msg *MsgLeavePool) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
-	return sdk.MustSortJSON(bz)
+func (msg *MsgLeavePool) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgLeavePool) Type() string {
+	return "kyve/stakers/MsgLeavePool"
 }
 
 func (msg *MsgLeavePool) ValidateBasic() error {

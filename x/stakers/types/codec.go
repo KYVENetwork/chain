@@ -9,6 +9,11 @@ import (
 
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgCreateStaker{}, "kyve/stakers/MsgCreateStaker", nil)
+	cdc.RegisterConcrete(&MsgUpdateCommission{}, "kyve/stakers/MsgUpdateCommission", nil)
+	cdc.RegisterConcrete(&MsgUpdateMetadata{}, "kyve/stakers/MsgUpdateMetadata", nil)
+	cdc.RegisterConcrete(&MsgJoinPool{}, "kyve/stakers/MsgJoinPool", nil)
+	cdc.RegisterConcrete(&MsgLeavePool{}, "kyve/stakers/MsgLeavePool", nil)
+	cdc.RegisterConcrete(&MsgUpdateParams{}, "kyve/stakers/MsgUpdateParams", nil)
 }
 
 func RegisterInterfaces(registry codecTypes.InterfaceRegistry) {
@@ -22,7 +27,7 @@ func RegisterInterfaces(registry codecTypes.InterfaceRegistry) {
 
 var (
 	Amino     = codec.NewLegacyAmino()
-	ModuleCdc = codec.NewProtoCodec(codecTypes.NewInterfaceRegistry())
+	ModuleCdc = codec.NewAminoCodec(Amino)
 )
 
 func init() {
