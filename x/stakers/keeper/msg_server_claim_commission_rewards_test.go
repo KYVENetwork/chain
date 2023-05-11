@@ -150,4 +150,196 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		Expect(pool.Funders).To(HaveLen(1))
 		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100*i.KYVE - totalReward))
 	})
+
+	It("Claim with non-staker account", func() {
+		// ACT
+		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
+			Creator: i.STAKER_1,
+			Amount:  1,
+		})
+
+		// ASSERT
+		Expect(err).To(HaveOccurred())
+
+		// assert commission rewards
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+
+		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
+
+		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
+		totalUploaderReward := totalReward - treasuryReward
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+
+		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward))
+
+		Expect(s.GetBalanceFromAddress(i.STAKER_0)).To(Equal(initialBalanceStaker0))
+	})
+
+	It("Claim more rewards than available", func() {
+		// ACT
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+
+		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
+			Creator: i.STAKER_1,
+			Amount:  uploader.CommissionRewards + 1,
+		})
+
+		// ASSERT
+		Expect(err).To(HaveOccurred())
+
+		// assert commission rewards
+		uploader, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+
+		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
+
+		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
+		totalUploaderReward := totalReward - treasuryReward
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+
+		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward))
+	})
+
+	It("Claim zero rewards", func() {
+		// ACT
+		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
+			Creator: i.STAKER_0,
+			Amount:  0,
+		})
+
+		// ASSERT
+		Expect(err).NotTo(HaveOccurred())
+
+		// assert commission rewards
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+
+		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
+
+		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
+		totalUploaderReward := totalReward - treasuryReward
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+
+		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward))
+
+		Expect(s.GetBalanceFromAddress(i.STAKER_0)).To(Equal(initialBalanceStaker0))
+	})
+
+	It("Claim partial rewards", func() {
+		// ACT
+		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
+			Creator: i.STAKER_0,
+			Amount:  100,
+		})
+
+		// ASSERT
+		Expect(err).NotTo(HaveOccurred())
+
+		// assert commission rewards
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+
+		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
+
+		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
+		totalUploaderReward := totalReward - treasuryReward
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+
+		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward - 100))
+
+		Expect(s.GetBalanceFromAddress(i.STAKER_0)).To(Equal(initialBalanceStaker0 + 100))
+	})
+
+	It("Claim partial rewards twice", func() {
+		// ACT
+		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
+			Creator: i.STAKER_0,
+			Amount:  100,
+		})
+
+		// ASSERT
+		Expect(err).NotTo(HaveOccurred())
+
+		// assert commission rewards
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+
+		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
+
+		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
+		totalUploaderReward := totalReward - treasuryReward
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+
+		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward - 100))
+
+		Expect(s.GetBalanceFromAddress(i.STAKER_0)).To(Equal(initialBalanceStaker0 + 100))
+
+		// ACT
+		s.CommitAfterSeconds(60)
+
+		// ACT
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_0,
+			Staker:        i.STAKER_0,
+			PoolId:        0,
+			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
+			DataSize:      100,
+			DataHash:      "test_hash3",
+			FromIndex:     200,
+			BundleSize:    100,
+			FromKey:       "200",
+			ToKey:         "299",
+			BundleSummary: "test_value3",
+		})
+
+		_, err = s.RunTx(&stakertypes.MsgClaimCommissionRewards{
+			Creator: i.STAKER_0,
+			Amount:  200,
+		})
+
+		// ASSERT
+		Expect(err).NotTo(HaveOccurred())
+
+		// assert commission rewards
+		uploader, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+
+		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		totalReward = uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
+		networkFee = s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
+
+		treasuryReward = uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
+		totalUploaderReward = totalReward - treasuryReward
+		uploaderPayoutReward = 2 * uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+
+		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward - 300))
+
+		Expect(s.GetBalanceFromAddress(i.STAKER_0)).To(Equal(initialBalanceStaker0 + 300))
+	})
+
+	It("Claim all rewards", func() {
+		// ACT
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+		rewards := uploader.CommissionRewards
+
+		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
+			Creator: i.STAKER_0,
+			Amount:  rewards,
+		})
+
+		// ASSERT
+		Expect(err).NotTo(HaveOccurred())
+
+		// assert commission rewards
+		uploader, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+
+		Expect(uploader.CommissionRewards).To(BeZero())
+
+		Expect(s.GetBalanceFromAddress(i.STAKER_0)).To(Equal(initialBalanceStaker0 + rewards))
+	})
 })
