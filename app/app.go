@@ -779,6 +779,7 @@ func NewKYVEApp(
 		v12.CreateUpgradeHandler(
 			app.mm,
 			app.configurator,
+			app.TeamKeeper,
 		),
 	)
 
