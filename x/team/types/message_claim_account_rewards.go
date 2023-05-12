@@ -4,18 +4,17 @@ import (
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 )
 
-const TypeMsgClaimAccountRewards = "claim_account_rewards"
+var (
+	_ legacytx.LegacyMsg = &MsgClaimAccountRewards{}
+	_ sdk.Msg            = &MsgClaimAccountRewards{}
+)
 
-var _ sdk.Msg = &MsgClaimAccountRewards{}
-
-func (msg *MsgClaimAccountRewards) Route() string {
-	return RouterKey
-}
-
-func (msg *MsgClaimAccountRewards) Type() string {
-	return TypeMsgClaimAccountRewards
+func (msg *MsgClaimAccountRewards) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
 }
 
 func (msg *MsgClaimAccountRewards) GetSigners() []sdk.AccAddress {
@@ -23,12 +22,16 @@ func (msg *MsgClaimAccountRewards) GetSigners() []sdk.AccAddress {
 	if err != nil {
 		panic(err)
 	}
+
 	return []sdk.AccAddress{creator}
 }
 
-func (msg *MsgClaimAccountRewards) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
-	return sdk.MustSortJSON(bz)
+func (msg *MsgClaimAccountRewards) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgClaimAccountRewards) Type() string {
+	return "kyve/team/MsgClaimAccountRewards"
 }
 
 func (msg *MsgClaimAccountRewards) ValidateBasic() error {
