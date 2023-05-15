@@ -36,9 +36,18 @@ func (k Keeper) AssertPoolCanRun(ctx sdk.Context, poolId uint64) error {
 		return types.ErrPoolOutOfFunds
 	}
 
-	// Error if min delegation is not reached
-	if k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id) < pool.MinDelegation {
-		return types.ErrMinDelegationNotReached
+	// The delegation of a pool must be greater than the max of the global min delegation
+	// and the custom pool min delegation
+	globalMinDelegation := k.poolKeeper.GetParams(ctx).GlobalMinDelegation
+
+	// Error if global min delegation is not reached
+	if k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id) < globalMinDelegation {
+		return types.ErrGlobalMinDelegationNotReached
+	}
+
+	// Error if pool min delegation is not reached
+	if pool.MinDelegation > globalMinDelegation && k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id) < pool.MinDelegation {
+		return types.ErrPoolMinDelegationNotReached
 	}
 
 	return nil
