@@ -2,13 +2,19 @@ package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
-	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptoCodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func RegisterCodec(_ *codec.LegacyAmino) {}
+func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	cdc.RegisterConcrete(&MsgSubmitBundleProposal{}, "kyve/bundles/MsgSubmitBundleProposal", nil)
+	cdc.RegisterConcrete(&MsgVoteBundleProposal{}, "kyve/bundles/MsgVoteBundleProposal", nil)
+	cdc.RegisterConcrete(&MsgClaimUploaderRole{}, "kyve/bundles/MsgClaimUploaderRole", nil)
+	cdc.RegisterConcrete(&MsgSkipUploaderRole{}, "kyve/bundles/MsgSkipUploaderRole", nil)
+}
 
-func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
+func RegisterInterfaces(registry codecTypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgSubmitBundleProposal{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgVoteBundleProposal{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgClaimUploaderRole{})
@@ -18,5 +24,11 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 
 var (
 	Amino     = codec.NewLegacyAmino()
-	ModuleCdc = codec.NewProtoCodec(cdctypes.NewInterfaceRegistry())
+	ModuleCdc = codec.NewAminoCodec(Amino)
 )
+
+func init() {
+	RegisterLegacyAminoCodec(Amino)
+	cryptoCodec.RegisterCrypto(Amino)
+	sdk.RegisterLegacyAminoCodec(Amino)
+}

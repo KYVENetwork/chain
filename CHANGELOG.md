@@ -16,6 +16,7 @@
 
 ### Bug Fixes
 
+- [#48](https://github.com/KYVENetwork/chain/pull/48) Register amino types for full Ledger support.
 - (`x/team`) [#45](https://github.com/KYVENetwork/chain/pull/45) Adjust vesting schedules of multiple KYVE Core Team members.
 
 ### API Breaking

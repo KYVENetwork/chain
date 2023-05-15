@@ -4,11 +4,13 @@ import (
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 )
 
-const TypeMsgVoteBundleProposal = "vote_bundle_proposal"
-
-var _ sdk.Msg = &MsgVoteBundleProposal{}
+var (
+	_ legacytx.LegacyMsg = &MsgVoteBundleProposal{}
+	_ sdk.Msg            = &MsgVoteBundleProposal{}
+)
 
 func NewMsgVoteBundleProposal(creator string, staker string, poolId uint64, storageId string, vote VoteType) *MsgVoteBundleProposal {
 	return &MsgVoteBundleProposal{
@@ -20,12 +22,9 @@ func NewMsgVoteBundleProposal(creator string, staker string, poolId uint64, stor
 	}
 }
 
-func (msg *MsgVoteBundleProposal) Route() string {
-	return RouterKey
-}
-
-func (msg *MsgVoteBundleProposal) Type() string {
-	return TypeMsgVoteBundleProposal
+func (msg *MsgVoteBundleProposal) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
 }
 
 func (msg *MsgVoteBundleProposal) GetSigners() []sdk.AccAddress {
@@ -33,12 +32,16 @@ func (msg *MsgVoteBundleProposal) GetSigners() []sdk.AccAddress {
 	if err != nil {
 		panic(err)
 	}
+
 	return []sdk.AccAddress{creator}
 }
 
-func (msg *MsgVoteBundleProposal) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
-	return sdk.MustSortJSON(bz)
+func (msg *MsgVoteBundleProposal) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgVoteBundleProposal) Type() string {
+	return "kyve/bundles/MsgVoteBundleProposal"
 }
 
 func (msg *MsgVoteBundleProposal) ValidateBasic() error {
