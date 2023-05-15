@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package kyve.pool.v1beta1;
+
+option go_package = "github.com/KYVENetwork/chain/x/pool/types";
+
+// Params defines the stakers module parameters.
+message Params {
+  // min_delegation ...
+  uint64 global_min_delegation = 1;
+}
