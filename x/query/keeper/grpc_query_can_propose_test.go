@@ -10,6 +10,7 @@ import (
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
+	govV1Types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -22,7 +23,8 @@ TEST CASES - grpc_query_can_propose.go
 * Call can propose if pool is currently upgrading
 * Call can propose if pool is disabled
 * Call can propose if pool is out of funds
-* Call can propose if pool has not reached the minimum stake
+* Call can propose if pool has not reached the global minimum delegation
+* TODO: call can propose if pool has not reached the global minimum delegation
 * Call can propose with a valaccount which does not exist
 * Call can propose as a staker who is not the next uploader
 * Call can propose before the upload interval passed
@@ -33,6 +35,9 @@ TEST CASES - grpc_query_can_propose.go
 
 var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 	s := i.NewCleanChain()
+
+	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
+	votingPeriod := s.App().GovKeeper.GetVotingParams(s.Ctx()).VotingPeriod
 
 	BeforeEach(func() {
 		s = i.NewCleanChain()
@@ -269,8 +274,33 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(txErr.Error()).To(Equal(canPropose.Reason))
 	})
 
-	It("Call can propose if pool has not reached the minimum stake", func() {
+	It("Call can propose if pool has not reached the global minimum delegation", func() {
 		// ARRANGE
+		msg := &pooltypes.MsgUpdatePool{
+			Authority: gov,
+			Id:        0,
+			Payload:   "{\"MinDelegation\":100000000}",
+		}
+
+		p, v := BuildGovernanceTxs(s, []sdk.Msg{msg})
+
+		_, submitErr := s.RunTx(&p)
+		_, voteErr := s.RunTx(&v)
+
+		s.CommitAfter(*votingPeriod)
+		s.Commit()
+
+		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
+
+		Expect(submitErr).To(Not(HaveOccurred()))
+		Expect(voteErr).To(Not(HaveOccurred()))
+
+		Expect(proposal.Status).To(Equal(govV1Types.StatusPassed))
+
+		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
+			GlobalMinDelegation: 200 * i.KYVE,
+		})
+
 		s.RunTxDelegatorSuccess(&delegationtypes.MsgUndelegate{
 			Creator: i.STAKER_0,
 			Staker:  i.STAKER_0,
@@ -293,7 +323,64 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(err).To(BeNil())
 
 		Expect(canPropose.Possible).To(BeFalse())
-		Expect(canPropose.Reason).To(Equal(bundletypes.ErrPoolMinDelegationNotReached.Error()))
+		Expect(canPropose.Reason).To(Equal(bundletypes.ErrGlobalMinDelegationNotReached.Error()))
+
+		_, txErr := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_1,
+			Staker:        i.STAKER_1,
+			PoolId:        0,
+			StorageId:     "test_storage_id",
+			DataSize:      100,
+			DataHash:      "test_hash",
+			FromIndex:     100,
+			BundleSize:    100,
+			FromKey:       "100",
+			ToKey:         "199",
+			BundleSummary: "test_value",
+		})
+
+		Expect(txErr).NotTo(BeNil())
+		Expect(txErr.Error()).To(Equal(canPropose.Reason))
+	})
+
+	It("Call can propose if pool has not reached the pool minimum delegation", func() {
+		// ARRANGE
+		s.App().PoolKeeper.SetPool(s.Ctx(), pooltypes.Pool{
+			Name:           "Moontest",
+			MinDelegation:  0,
+			UploadInterval: 60,
+			MaxBundleSize:  100,
+			Protocol:       &pooltypes.Protocol{},
+			UpgradePlan:    &pooltypes.UpgradePlan{},
+		})
+
+		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
+			GlobalMinDelegation: 200 * i.KYVE,
+		})
+
+		s.RunTxDelegatorSuccess(&delegationtypes.MsgUndelegate{
+			Creator: i.STAKER_0,
+			Staker:  i.STAKER_0,
+			Amount:  50 * i.KYVE,
+		})
+
+		// wait for unbonding
+		s.CommitAfterSeconds(s.App().DelegationKeeper.GetUnbondingDelegationTime(s.Ctx()))
+		s.CommitAfterSeconds(1)
+
+		// ACT
+		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
+			PoolId:    0,
+			Staker:    i.STAKER_1,
+			Proposer:  i.VALADDRESS_1,
+			FromIndex: 100,
+		})
+
+		// ASSERT
+		Expect(err).To(BeNil())
+
+		Expect(canPropose.Possible).To(BeFalse())
+		Expect(canPropose.Reason).To(Equal(bundletypes.ErrGlobalMinDelegationNotReached.Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_1,
