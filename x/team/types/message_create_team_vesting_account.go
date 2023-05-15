@@ -4,18 +4,17 @@ import (
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 )
 
-const TypeMsgCreateTeamVestingAccount = "create_team_vesting_account"
+var (
+	_ legacytx.LegacyMsg = &MsgCreateTeamVestingAccount{}
+	_ sdk.Msg            = &MsgCreateTeamVestingAccount{}
+)
 
-var _ sdk.Msg = &MsgCreateTeamVestingAccount{}
-
-func (msg *MsgCreateTeamVestingAccount) Route() string {
-	return RouterKey
-}
-
-func (msg *MsgCreateTeamVestingAccount) Type() string {
-	return TypeMsgCreateTeamVestingAccount
+func (msg *MsgCreateTeamVestingAccount) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
 }
 
 func (msg *MsgCreateTeamVestingAccount) GetSigners() []sdk.AccAddress {
@@ -23,12 +22,16 @@ func (msg *MsgCreateTeamVestingAccount) GetSigners() []sdk.AccAddress {
 	if err != nil {
 		panic(err)
 	}
+
 	return []sdk.AccAddress{creator}
 }
 
-func (msg *MsgCreateTeamVestingAccount) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
-	return sdk.MustSortJSON(bz)
+func (msg *MsgCreateTeamVestingAccount) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgCreateTeamVestingAccount) Type() string {
+	return "kyve/team/MsgCreateTeamVestingAccount"
 }
 
 func (msg *MsgCreateTeamVestingAccount) ValidateBasic() error {
