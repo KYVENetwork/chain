@@ -1,9 +1,5 @@
 COMMIT := $(shell git log -1 --format='%H')
-<<<<<<< HEAD
-VERSION := v1.1.0 # $(shell echo $(shell git describe --tags) | sed 's/^v//')
-=======
 VERSION := v1.2.0 # $(shell echo $(shell git describe --tags) | sed 's/^v//')
->>>>>>> 20f6623 (chore: prepare `v1.2` release (#52))
 
 TEAM_ALLOCATION := 165000000000000
 ifeq ($(ENV),kaon)

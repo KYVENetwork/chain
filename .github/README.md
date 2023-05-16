@@ -1,10 +1,6 @@
 # The KYVE Network
 
-<<<<<<< HEAD
-###### v1.1.0
-=======
 ###### v1.2.0
->>>>>>> 20f6623 (chore: prepare `v1.2` release (#52))
 
 The KYVE consensus layer is the backbone of the KYVE ecosystem. This layer is a
 sovereign Delegated Proof of Stake network built using the
