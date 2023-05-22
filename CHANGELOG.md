@@ -18,6 +18,15 @@
 
 - [#33](https://github.com/KYVENetwork/chain/pull/33) Upgrade Cosmos SDK to [v0.47.2](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.47.2) ([`v0.47.2-kyve-rc0`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.47.2-kyve-rc0)).
 
+## [v1.2.0](https://github.com/KYVENetwork/chain/releases/tag/v1.2.0) - 2023-05-16
+
+### Bug Fixes
+
+- [#48](https://github.com/KYVENetwork/chain/pull/48) Register Amino types for full Ledger support.
+- (`x/team`) [#45](https://github.com/KYVENetwork/chain/pull/45) Adjust vesting schedules of multiple KYVE Core Team members.
+
+## [v1.1.2](https://github.com/KYVENetwork/chain/releases/tag/v1.1.2) - 2023-05-12
+
 ### API Breaking
 
 - (`x/bundles`) [#42](https://github.com/KYVENetwork/chain/pull/42) Emit `VoteEvent` after `BundleProposedEvent` when submitting a bundle.
