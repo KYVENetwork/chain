@@ -5,17 +5,36 @@ import (
 	"github.com/KYVENetwork/chain/util"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 )
 
-var _ sdk.Msg = &MsgUpdateCommission{}
+var (
+	_ legacytx.LegacyMsg = &MsgUpdateCommission{}
+	_ sdk.Msg            = &MsgUpdateCommission{}
+)
 
-// GetSigners returns the expected signers for a MsgUpdateCommission message.
-func (msg *MsgUpdateCommission) GetSigners() []sdk.AccAddress {
-	validator, _ := sdk.AccAddressFromBech32(msg.Creator)
-	return []sdk.AccAddress{validator}
+func (msg *MsgUpdateCommission) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
 }
 
-// ValidateBasic does a sanity check on the provided data.
+func (msg *MsgUpdateCommission) GetSigners() []sdk.AccAddress {
+	creator, err := sdk.AccAddressFromBech32(msg.Creator)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{creator}
+}
+
+func (msg *MsgUpdateCommission) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgUpdateCommission) Type() string {
+	return "kyve/stakers/MsgUpdateCommission"
+}
+
 func (msg *MsgUpdateCommission) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Creator); err != nil {
 		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid validator address: %s", err)

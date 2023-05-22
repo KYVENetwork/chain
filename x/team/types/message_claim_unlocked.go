@@ -4,18 +4,17 @@ import (
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 )
 
-const TypeMsgClaimUnlocked = "claim_unlocked"
+var (
+	_ legacytx.LegacyMsg = &MsgClaimUnlocked{}
+	_ sdk.Msg            = &MsgClaimUnlocked{}
+)
 
-var _ sdk.Msg = &MsgClaimUnlocked{}
-
-func (msg *MsgClaimUnlocked) Route() string {
-	return RouterKey
-}
-
-func (msg *MsgClaimUnlocked) Type() string {
-	return TypeMsgClaimUnlocked
+func (msg *MsgClaimUnlocked) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
 }
 
 func (msg *MsgClaimUnlocked) GetSigners() []sdk.AccAddress {
@@ -23,12 +22,16 @@ func (msg *MsgClaimUnlocked) GetSigners() []sdk.AccAddress {
 	if err != nil {
 		panic(err)
 	}
+
 	return []sdk.AccAddress{creator}
 }
 
-func (msg *MsgClaimUnlocked) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
-	return sdk.MustSortJSON(bz)
+func (msg *MsgClaimUnlocked) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgClaimUnlocked) Type() string {
+	return "kyve/team/MsgClaimUnlocked"
 }
 
 func (msg *MsgClaimUnlocked) ValidateBasic() error {

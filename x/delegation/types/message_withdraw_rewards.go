@@ -1,21 +1,20 @@
 package types
 
 import (
-	sdkErrors "cosmossdk.io/errors"
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 )
 
-const TypeMsgWithdrawRewards = "withdraw_rewards"
+var (
+	_ legacytx.LegacyMsg = &MsgWithdrawRewards{}
+	_ sdk.Msg            = &MsgWithdrawRewards{}
+)
 
-var _ sdk.Msg = &MsgWithdrawRewards{}
-
-func (msg *MsgWithdrawRewards) Route() string {
-	return RouterKey
-}
-
-func (msg *MsgWithdrawRewards) Type() string {
-	return TypeMsgWithdrawRewards
+func (msg *MsgWithdrawRewards) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
 }
 
 func (msg *MsgWithdrawRewards) GetSigners() []sdk.AccAddress {
@@ -23,23 +22,27 @@ func (msg *MsgWithdrawRewards) GetSigners() []sdk.AccAddress {
 	if err != nil {
 		panic(err)
 	}
+
 	return []sdk.AccAddress{creator}
 }
 
-func (msg *MsgWithdrawRewards) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
-	return sdk.MustSortJSON(bz)
+func (msg *MsgWithdrawRewards) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgWithdrawRewards) Type() string {
+	return "kyve/delegation/MsgWithdrawRewards"
 }
 
 func (msg *MsgWithdrawRewards) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
-		return sdkErrors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid creator address (%s)", err)
+		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid creator address (%s)", err)
 	}
 
 	_, err = sdk.AccAddressFromBech32(msg.Staker)
 	if err != nil {
-		return sdkErrors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid staker address (%s)", err)
+		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid staker address (%s)", err)
 	}
 
 	return nil

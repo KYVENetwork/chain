@@ -4,18 +4,17 @@ import (
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 )
 
-const TypeMsgClaimAuthorityRewards = "claim_authority_rewards"
+var (
+	_ legacytx.LegacyMsg = &MsgClaimAuthorityRewards{}
+	_ sdk.Msg            = &MsgClaimAuthorityRewards{}
+)
 
-var _ sdk.Msg = &MsgClaimAuthorityRewards{}
-
-func (msg *MsgClaimAuthorityRewards) Route() string {
-	return RouterKey
-}
-
-func (msg *MsgClaimAuthorityRewards) Type() string {
-	return TypeMsgClaimAuthorityRewards
+func (msg *MsgClaimAuthorityRewards) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
 }
 
 func (msg *MsgClaimAuthorityRewards) GetSigners() []sdk.AccAddress {
@@ -26,9 +25,12 @@ func (msg *MsgClaimAuthorityRewards) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{creator}
 }
 
-func (msg *MsgClaimAuthorityRewards) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
-	return sdk.MustSortJSON(bz)
+func (msg *MsgClaimAuthorityRewards) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgClaimAuthorityRewards) Type() string {
+	return "kyve/team/MsgClaimAuthorityRewards"
 }
 
 func (msg *MsgClaimAuthorityRewards) ValidateBasic() error {

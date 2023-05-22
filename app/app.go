@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	v1p2 "github.com/KYVENetwork/chain/app/upgrades/v1_2"
+	v1p3 "github.com/KYVENetwork/chain/app/upgrades/v1_3"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/log"
@@ -844,8 +844,8 @@ func NewKYVEApp(
 	app.SetEndBlocker(app.EndBlocker)
 
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v1p2.UpgradeName,
-		v1p2.CreateUpgradeHandler(
+		v1p3.UpgradeName,
+		v1p3.CreateUpgradeHandler(
 			app.mm,
 			app.configurator,
 			appCodec,
@@ -862,8 +862,8 @@ func NewKYVEApp(
 		panic(err)
 	}
 
-	if upgradeInfo.Name == v1p2.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
-		app.SetStoreLoader(v1p2.CreateStoreLoader(upgradeInfo.Height))
+	if upgradeInfo.Name == v1p3.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		app.SetStoreLoader(v1p3.CreateStoreLoader(upgradeInfo.Height))
 	}
 
 	if loadLatest {
