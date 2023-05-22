@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	v12 "github.com/KYVENetwork/chain/app/upgrades/v1_2"
+	v1p3 "github.com/KYVENetwork/chain/app/upgrades/v1_3"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -775,11 +775,10 @@ func NewKYVEApp(
 	app.SetEndBlocker(app.EndBlocker)
 
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v12.UpgradeName,
-		v12.CreateUpgradeHandler(
+		v1p3.UpgradeName,
+		v1p3.CreateUpgradeHandler(
 			app.mm,
 			app.configurator,
-			app.TeamKeeper,
 		),
 	)
 
@@ -788,8 +787,8 @@ func NewKYVEApp(
 		panic(err)
 	}
 
-	if upgradeInfo.Name == v12.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
-		app.SetStoreLoader(v12.CreateStoreLoader(upgradeInfo.Height))
+	if upgradeInfo.Name == v1p3.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		app.SetStoreLoader(v1p3.CreateStoreLoader(upgradeInfo.Height))
 	}
 
 	if loadLatest {
