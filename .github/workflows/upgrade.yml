@@ -1,4 +1,4 @@
-name: Test v1.2 Upgrade
+name: Test Upgrade
 
 on: pull_request
 
