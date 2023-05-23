@@ -309,7 +309,7 @@ require (
 
 replace (
 	// use kyve flavored cosmos/cosmos-sdk
-	github.com/cosmos/cosmos-sdk => github.com/KYVENetwork/cosmos-sdk v0.47.2-kyve-rc0
+	github.com/cosmos/cosmos-sdk => github.com/KYVENetwork/cosmos-sdk v0.47.2-kyve-rc1
 
 	// use cosmos flavored gogo/protobuf
 	// https://github.com/cosmos/cosmos-sdk/issues/8469

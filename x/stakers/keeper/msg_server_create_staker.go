@@ -3,8 +3,13 @@ package keeper
 import (
 	"context"
 
-	"github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	// Delegation
+	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
+	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
+	// Stakers
+	"github.com/KYVENetwork/chain/x/stakers/types"
 )
 
 // CreateStaker handles the logic of an SDK message that allows protocol nodes to create
@@ -30,15 +35,14 @@ func (k msgServer) CreateStaker(
 	})
 
 	// Perform initial self delegation
-	// TODO(@john)
-	//delegationMsgServer := delegationKeeper.NewMsgServerImpl(k.delegationKeeper)
-	//if _, err := delegationMsgServer.Delegate(ctx, &delegationTypes.MsgDelegate{
-	//	Creator: msg.Creator,
-	//	Staker:  msg.Creator,
-	//	Amount:  msg.Amount,
-	//}); err != nil {
-	//	return nil, err
-	//}
+	delegationMsgServer := delegationKeeper.NewMsgServerImpl(k.delegationKeeper)
+	if _, err := delegationMsgServer.Delegate(ctx, &delegationTypes.MsgDelegate{
+		Creator: msg.Creator,
+		Staker:  msg.Creator,
+		Amount:  msg.Amount,
+	}); err != nil {
+		return nil, err
+	}
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventCreateStaker{
 		Staker:     msg.Creator,

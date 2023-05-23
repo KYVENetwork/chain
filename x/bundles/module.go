@@ -175,6 +175,7 @@ type BundlesInputs struct {
 	Config *moduleV1.Module
 	Cdc    codec.Codec
 	Key    *storeTypes.KVStoreKey
+	MemKey *storeTypes.MemoryStoreKey
 
 	AccountKeeper      util.AccountKeeper
 	BankKeeper         util.BankKeeper
@@ -201,7 +202,7 @@ func ProvideModule(in BundlesInputs) BundlesOutputs {
 	k := *keeper.NewKeeper(
 		in.Cdc,
 		in.Key,
-		nil, // TODO(@john)
+		in.MemKey,
 		authority.String(),
 		in.AccountKeeper,
 		in.BankKeeper,

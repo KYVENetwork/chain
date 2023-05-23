@@ -4,36 +4,39 @@ import (
 	"fmt"
 
 	"github.com/KYVENetwork/chain/util"
-
 	"github.com/cometbft/cometbft/libs/log"
-
-	"github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	// Delegation
+	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
+	// Stakers
+	"github.com/KYVENetwork/chain/x/stakers/types"
 )
 
 type (
 	Keeper struct {
 		cdc      codec.BinaryCodec
-		storeKey storetypes.StoreKey
-		memKey   storetypes.StoreKey
+		storeKey storeTypes.StoreKey
+		memKey   storeTypes.StoreKey
 
 		authority string
 
-		accountKeeper    util.AccountKeeper
-		bankKeeper       util.BankKeeper
-		distrkeeper      util.DistributionKeeper
-		poolKeeper       types.PoolKeeper
-		upgradeKeeper    util.UpgradeKeeper
-		delegationKeeper util.DelegationKeeper
+		accountKeeper util.AccountKeeper
+		bankKeeper    util.BankKeeper
+		distrkeeper   util.DistributionKeeper
+		poolKeeper    types.PoolKeeper
+		upgradeKeeper util.UpgradeKeeper
+		// TODO(@john): Switch this back once app wiring works.
+		delegationKeeper delegationKeeper.Keeper
 	}
 )
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	storeKey storetypes.StoreKey,
-	memKey storetypes.StoreKey,
+	storeKey storeTypes.StoreKey,
+	memKey storeTypes.StoreKey,
 
 	authority string,
 
@@ -58,7 +61,7 @@ func NewKeeper(
 	}
 }
 
-func (k *Keeper) SetDelegationKeeper(delegationKeeper util.DelegationKeeper) {
+func (k *Keeper) SetDelegationKeeper(delegationKeeper delegationKeeper.Keeper) {
 	k.delegationKeeper = delegationKeeper
 }
 
@@ -66,6 +69,6 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-func (k Keeper) StoreKey() storetypes.StoreKey {
+func (k Keeper) StoreKey() storeTypes.StoreKey {
 	return k.storeKey
 }

@@ -9,26 +9,27 @@ import (
 	"cosmossdk.io/depinject"
 
 	"github.com/KYVENetwork/chain/util"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/codec"
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
-	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govTypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-
-	// this line is used by starport scaffolding # 1
-
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-
+	// Auth
+	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	// Delegation
+	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
+	// Gov
+	govTypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	// Stakers
 	moduleV1 "github.com/KYVENetwork/chain/pulsar/kyve/stakers/module/v1"
 	"github.com/KYVENetwork/chain/x/stakers/client/cli"
 	"github.com/KYVENetwork/chain/x/stakers/keeper"
 	"github.com/KYVENetwork/chain/x/stakers/types"
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec"
-	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
 )
 
 var (
@@ -61,7 +62,7 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 }
 
 // RegisterInterfaces registers a module's interface types and their concrete implementations as proto.Message
-func (a AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
+func (a AppModuleBasic) RegisterInterfaces(reg codecTypes.InterfaceRegistry) {
 	types.RegisterInterfaces(reg)
 }
 
@@ -221,7 +222,7 @@ func ProvideModule(in StakersInputs) StakersOutputs {
 
 func InvokeSetStakersKeeper(
 	keeper keeper.Keeper,
-	delegationKeeper util.DelegationKeeper,
+	delegationKeeper delegationKeeper.Keeper,
 ) error {
 	keeper.SetDelegationKeeper(delegationKeeper)
 	return nil

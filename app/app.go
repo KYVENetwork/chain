@@ -320,14 +320,13 @@ func NewKYVEApp(
 		&app.NFTKeeper,
 		&app.ConsensusParamsKeeper,
 		// KYVE Modules
-		&app.BundlesKeeper,
-		&app.DelegationKeeper,
-		&app.GlobalKeeper,
-		&app.QueryKeeper,
-		&app.TeamKeeper,
-
-		&app.StakersKeeper,
-		&app.PoolKeeper,
+		//&app.BundlesKeeper,
+		//&app.DelegationKeeper,
+		//&app.GlobalKeeper,
+		//&app.PoolKeeper,
+		//&app.QueryKeeper,
+		//&app.StakersKeeper,
+		//&app.TeamKeeper,
 	); err != nil {
 		panic(err)
 	}

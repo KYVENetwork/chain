@@ -19,7 +19,6 @@ import (
 	bankModule "cosmossdk.io/api/cosmos/bank/module/v1"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	// Bundles
-	bundlesModule "github.com/KYVENetwork/chain/pulsar/kyve/bundles/module/v1"
 	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
 	// Capability
 	capabilityModule "cosmossdk.io/api/cosmos/capability/module/v1"
@@ -31,7 +30,6 @@ import (
 	crisisModule "cosmossdk.io/api/cosmos/crisis/module/v1"
 	crisisTypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	// Delegation
-	delegationModule "github.com/KYVENetwork/chain/pulsar/kyve/delegation/module/v1"
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
 	// Distribution
 	distributionModule "cosmossdk.io/api/cosmos/distribution/module/v1"
@@ -46,7 +44,6 @@ import (
 	genUtilModule "cosmossdk.io/api/cosmos/genutil/module/v1"
 	genUtilTypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	// Global
-	globalModule "github.com/KYVENetwork/chain/pulsar/kyve/global/module/v1"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	// Governance
 	govModule "cosmossdk.io/api/cosmos/gov/module/v1"
@@ -72,22 +69,18 @@ import (
 	paramsModule "cosmossdk.io/api/cosmos/params/module/v1"
 	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	// Pool
-	poolModule "github.com/KYVENetwork/chain/pulsar/kyve/pool/module/v1"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 	// Query
-	queryModule "github.com/KYVENetwork/chain/pulsar/kyve/query/module/v1"
 	queryTypes "github.com/KYVENetwork/chain/x/query/types"
 	// Slashing
 	slashingModule "cosmossdk.io/api/cosmos/slashing/module/v1"
 	slashingTypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	// Stakers
-	stakersModule "github.com/KYVENetwork/chain/pulsar/kyve/stakers/module/v1"
 	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
 	// Staking
 	stakingModule "cosmossdk.io/api/cosmos/staking/module/v1"
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	// Team
-	teamModule "github.com/KYVENetwork/chain/pulsar/kyve/team/module/v1"
 	teamTypes "github.com/KYVENetwork/chain/x/team/types"
 	// Upgrade
 	upgradeModule "cosmossdk.io/api/cosmos/upgrade/module/v1"
@@ -98,7 +91,6 @@ import (
 )
 
 var (
-
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
 	// NOTE: The genutils module must also occur after auth so that it can access the params from auth.
@@ -356,34 +348,36 @@ var (
 
 			// ----- KYVE Modules -----
 
-			{
-				Name:   bundlesTypes.ModuleName,
-				Config: appconfig.WrapAny(&bundlesModule.Module{}),
-			},
-			{
-				Name:   delegationTypes.ModuleName,
-				Config: appconfig.WrapAny(&delegationModule.Module{}),
-			},
-			{
-				Name:   globalTypes.ModuleName,
-				Config: appconfig.WrapAny(&globalModule.Module{}),
-			},
-			{
-				Name:   poolTypes.ModuleName,
-				Config: appconfig.WrapAny(&poolModule.Module{}),
-			},
-			{
-				Name:   queryTypes.ModuleName,
-				Config: appconfig.WrapAny(&queryModule.Module{}),
-			},
-			{
-				Name:   stakersTypes.ModuleName,
-				Config: appconfig.WrapAny(&stakersModule.Module{}),
-			},
-			{
-				Name:   teamTypes.ModuleName,
-				Config: appconfig.WrapAny(&teamModule.Module{}),
-			},
+			// TODO(@john)
+
+			//{
+			//	Name:   bundlesTypes.ModuleName,
+			//	Config: appconfig.WrapAny(&bundlesModule.Module{}),
+			//},
+			//{
+			//	Name:   delegationTypes.ModuleName,
+			//	Config: appconfig.WrapAny(&delegationModule.Module{}),
+			//},
+			//{
+			//	Name:   globalTypes.ModuleName,
+			//	Config: appconfig.WrapAny(&globalModule.Module{}),
+			//},
+			//{
+			//	Name:   poolTypes.ModuleName,
+			//	Config: appconfig.WrapAny(&poolModule.Module{}),
+			//},
+			//{
+			//	Name:   queryTypes.ModuleName,
+			//	Config: appconfig.WrapAny(&queryModule.Module{}),
+			//},
+			//{
+			//	Name:   stakersTypes.ModuleName,
+			//	Config: appconfig.WrapAny(&stakersModule.Module{}),
+			//},
+			//{
+			//	Name:   teamTypes.ModuleName,
+			//	Config: appconfig.WrapAny(&teamModule.Module{}),
+			//},
 		},
 	})
 )
