@@ -34,6 +34,7 @@ message Params {
   // governance proposal. This is used to avoid spamming of proposals and
   // polluting the proposals page.
   string min_initial_deposit_ratio = 5 [
+    deprecated = true,
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
