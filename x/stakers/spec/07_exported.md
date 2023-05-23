@@ -61,10 +61,10 @@ type StakersKeeper interface {
     DoesValaccountExist(ctx sdk.Context, poolId uint64, stakerAddress string) bool
 
     DoesStakerExist(ctx sdk.Context, staker string) bool
-	
-	// IncreaseStakerCommissionRewards increases the commission rewards of a staker
-	// by a certain amount. It can not be decreased, only the message MsgClaimCommissionRewards
-	// can decrease this value again.
+
+    // IncreaseStakerCommissionRewards increases the commission rewards of a
+	// staker by a specific amount. It can not be decreased, only the
+	// MsgClaimCommissionRewards message can decrease this value.
     IncreaseStakerCommissionRewards(ctx sdk.Context, address string, amount uint64)
 }
 ```

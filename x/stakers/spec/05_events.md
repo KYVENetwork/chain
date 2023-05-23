@@ -89,9 +89,10 @@ It gets thrown from the following actions:
 
 - MsgUpdateCommission
 
-- ## MsgClaimCommissionRewards
+## EventClaimCommissionRewards
 
-MsgClaimCommissionRewards indicates that a staker has claimed their commission rewards.
+MsgClaimCommissionRewards indicates that a protocol node has claimed a portion
+of their commission rewards.
 
 ```protobuf
 message EventClaimCommissionRewards {
@@ -102,9 +103,9 @@ message EventClaimCommissionRewards {
 }
 ```
 
-It gets thrown from the following actions:
+It gets thrown from the following messages:
 
-- MsgClaimCommissionRewards
+- `MsgClaimCommissionRewards`
 
 ## EventJoinPool
 

@@ -2,13 +2,12 @@ package keeper
 
 import (
 	"context"
-	"github.com/KYVENetwork/chain/util"
-	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
-	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"cosmossdk.io/errors"
+	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // ClaimCommissionRewards ...
@@ -28,7 +27,7 @@ func (k msgServer) ClaimCommissionRewards(goCtx context.Context, msg *types.MsgC
 	}
 
 	// send commission rewards from stakers module to claimer
-	if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, stakertypes.ModuleName, msg.Creator, msg.Amount); err != nil {
+	if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, types.ModuleName, msg.Creator, msg.Amount); err != nil {
 		return nil, err
 	}
 

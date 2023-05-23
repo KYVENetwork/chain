@@ -14,6 +14,10 @@
 
 ## [Unreleased]
 
+### Improvements
+
+- (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Allow protocol validator commission rewards to be claimed.
+
 ## [v1.2.0](https://github.com/KYVENetwork/chain/releases/tag/v1.2.0) - 2023-05-16
 
 ### Bug Fixes

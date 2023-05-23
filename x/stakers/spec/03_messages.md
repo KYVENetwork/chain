@@ -26,9 +26,9 @@ After the `CommissionChangeTime` has passed the new commission is applied.
 
 ## `MsgClaimCommissionRewards`
 
-This message claims the commission rewards of protocol nodes. When a protocol node
-receives a commission reward it is transferred from the pool module to the stakers
-module from where it can be claimed with this message.
+This message claims the commission rewards of a protocol node. When a protocol
+node receives commission rewards, it is transferred from the pool module to the
+stakers module, which can be claimed with this message.
 
 ## `MsgJoinPool`
 

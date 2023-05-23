@@ -2,14 +2,17 @@ package keeper
 
 import (
 	"context"
-	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
-
-	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
 
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/bundles/types"
-	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	// Delegation
+	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
+	// Pool
+	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
+	// Stakers
+	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
 )
 
 // SubmitBundleProposal handles the logic of an SDK message that allows protocol nodes to submit a new bundle proposal.
@@ -74,7 +77,7 @@ func (k msgServer) SubmitBundleProposal(
 			k.SetBundleProposal(ctx, bundleProposal)
 
 			// emit event which indicates that pool has run out of funds
-			_ = ctx.EventManager().EmitTypedEvent(&pooltypes.EventPoolOutOfFunds{
+			_ = ctx.EventManager().EmitTypedEvent(&poolTypes.EventPoolOutOfFunds{
 				PoolId: msg.PoolId,
 			})
 
@@ -86,14 +89,14 @@ func (k msgServer) SubmitBundleProposal(
 
 		uploaderPayout := bundleReward.Uploader
 
-		delegationPayoutSuccessful := k.delegationKeeper.PayoutRewards(ctx, bundleProposal.Uploader, bundleReward.Delegation, pooltypes.ModuleName)
+		delegationPayoutSuccessful := k.delegationKeeper.PayoutRewards(ctx, bundleProposal.Uploader, bundleReward.Delegation, poolTypes.ModuleName)
 		// If staker has no delegators add all delegation rewards to the staker rewards
 		if !delegationPayoutSuccessful {
 			uploaderPayout += bundleReward.Delegation
 		}
 
 		// transfer funds from pool to stakers module
-		if err := util.TransferFromModuleToModule(k.bankKeeper, ctx, pooltypes.ModuleName, stakertypes.ModuleName, uploaderPayout); err != nil {
+		if err := util.TransferFromModuleToModule(k.bankKeeper, ctx, poolTypes.ModuleName, stakersTypes.ModuleName, uploaderPayout); err != nil {
 			return nil, err
 		}
 
@@ -101,7 +104,7 @@ func (k msgServer) SubmitBundleProposal(
 		k.stakerKeeper.IncreaseStakerCommissionRewards(ctx, bundleProposal.Uploader, uploaderPayout)
 
 		// send network fee to treasury
-		if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrkeeper, ctx, pooltypes.ModuleName, bundleReward.Treasury); err != nil {
+		if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrkeeper, ctx, poolTypes.ModuleName, bundleReward.Treasury); err != nil {
 			return nil, err
 		}
 
