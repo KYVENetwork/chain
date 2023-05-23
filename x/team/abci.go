@@ -8,18 +8,13 @@ import (
 
 	// Auth
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	// Bank
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	// Mint
-	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
+
 	// Team
 	"github.com/KYVENetwork/chain/x/team/keeper"
 	"github.com/KYVENetwork/chain/x/team/types"
-	// Upgrade
-	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 )
 
-func DistributeTeamInflation(ctx sdk.Context, bk bankKeeper.Keeper, mk mintKeeper.Keeper, tk keeper.Keeper, uk upgradeKeeper.Keeper) {
+func DistributeTeamInflation(ctx sdk.Context, bk util.BankKeeper, mk util.MintKeeper, tk keeper.Keeper, uk util.UpgradeKeeper) {
 	// Compute team allocation of minted coins.
 	minter := mk.GetMinter(ctx)
 	params := mk.GetParams(ctx)

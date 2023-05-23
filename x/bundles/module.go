@@ -4,6 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
+	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/depinject"
+
+	"github.com/KYVENetwork/chain/util"
+	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
+	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govTypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
 	// this line is used by starport scaffolding # 1
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -11,6 +20,7 @@ import (
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
+	moduleV1 "github.com/KYVENetwork/chain/pulsar/kyve/bundles/module/v1"
 	"github.com/KYVENetwork/chain/x/bundles/client/cli"
 	"github.com/KYVENetwork/chain/x/bundles/keeper"
 	"github.com/KYVENetwork/chain/x/bundles/types"
@@ -22,6 +32,7 @@ import (
 )
 
 var (
+	_ appmodule.AppModule   = AppModule{}
 	_ module.AppModule      = AppModule{}
 	_ module.AppModuleBasic = AppModuleBasic{}
 )
@@ -91,27 +102,24 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 type AppModule struct {
 	AppModuleBasic
 
-	keeper        keeper.Keeper
-	accountKeeper types.AccountKeeper
-	bankKeeper    types.BankKeeper
+	keeper keeper.Keeper
 }
 
 func NewAppModule(
 	cdc codec.Codec,
 	keeper keeper.Keeper,
-	accountKeeper types.AccountKeeper,
-	bankKeeper types.BankKeeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: NewAppModuleBasic(cdc),
 		keeper:         keeper,
-		accountKeeper:  accountKeeper,
-		bankKeeper:     bankKeeper,
 	}
 }
 
-// Deprecated: use RegisterServices
-func (AppModule) QuerierRoute() string { return types.RouterKey }
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (am AppModule) IsOnePerModuleType() {}
+
+// IsAppModule implements the appmodule.AppModule interface.
+func (am AppModule) IsAppModule() {}
 
 // RegisterServices registers a gRPC query service to respond to the module-specific gRPC queries
 func (am AppModule) RegisterServices(cfg module.Configurator) {
@@ -151,4 +159,58 @@ func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	am.keeper.HandleUploadTimeout(sdk.WrapSDKContext(ctx))
 	return []abci.ValidatorUpdate{}
+}
+
+// App Wiring Setup
+
+func init() {
+	appmodule.Register(&moduleV1.Module{},
+		appmodule.Provide(ProvideModule),
+	)
+}
+
+type BundlesInputs struct {
+	depinject.In
+
+	Config *moduleV1.Module
+	Cdc    codec.Codec
+	Key    *storeTypes.KVStoreKey
+
+	AccountKeeper      util.AccountKeeper
+	BankKeeper         util.BankKeeper
+	DelegationKeeper   types.DelegationKeeper
+	DistributionKeeper util.DistributionKeeper
+	PoolKeeper         types.PoolKeeper
+	StakersKeeper      util.StakersKeeper
+	UpgradeKeeper      util.UpgradeKeeper
+}
+
+type BundlesOutputs struct {
+	depinject.Out
+
+	BundlesKeeper keeper.Keeper
+	Module        appmodule.AppModule
+}
+
+func ProvideModule(in BundlesInputs) BundlesOutputs {
+	authority := authTypes.NewModuleAddress(govTypes.ModuleName)
+	if in.Config.Authority != "" {
+		authority = authTypes.NewModuleAddressOrBech32Address(in.Config.Authority)
+	}
+
+	k := *keeper.NewKeeper(
+		in.Cdc,
+		in.Key,
+		nil, // TODO(@john)
+		authority.String(),
+		in.AccountKeeper,
+		in.BankKeeper,
+		in.DistributionKeeper,
+		in.PoolKeeper,
+		in.StakersKeeper,
+		in.DelegationKeeper,
+	)
+	m := NewAppModule(in.Cdc, k)
+
+	return BundlesOutputs{BundlesKeeper: k, Module: m}
 }

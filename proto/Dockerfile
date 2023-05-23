@@ -7,6 +7,8 @@ RUN apk add --no-cache \
   git \
   make
 
+RUN go install github.com/cosmos/cosmos-proto/cmd/protoc-gen-go-pulsar@latest
+RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 RUN go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway@latest
 RUN go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger@latest
 

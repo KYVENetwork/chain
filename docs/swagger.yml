@@ -148,7 +148,7 @@ paths:
                     items:
                       type: object
                       properties:
-                        type:
+                        message:
                           type: string
                           title: type of the sdk-message
                         amount:
@@ -173,7 +173,7 @@ paths:
                     items:
                       type: object
                       properties:
-                        type:
+                        message:
                           type: string
                           title: type of the sdk-message
                         fraction:
@@ -4615,7 +4615,7 @@ paths:
                     items:
                       type: object
                       properties:
-                        type:
+                        message:
                           type: string
                           title: type of the sdk-message
                         amount:
@@ -4640,7 +4640,7 @@ paths:
                     items:
                       type: object
                       properties:
-                        type:
+                        message:
                           type: string
                           title: type of the sdk-message
                         fraction:

@@ -50,7 +50,7 @@ func (rfd RefundFeeDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 	refundPercentage := sdk.ZeroDec()
 	gasRefunds := rfd.globalKeeper.GetGasRefunds(ctx)
 	for _, refund := range gasRefunds {
-		if sdk.MsgTypeURL(msgs[0]) == refund.Type {
+		if sdk.MsgTypeURL(msgs[0]) == refund.Message {
 			refundPercentage = refund.Fraction
 			break
 		}

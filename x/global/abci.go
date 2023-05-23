@@ -5,18 +5,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	// Auth
-	authKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	// Bank
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	// Global
 	"github.com/KYVENetwork/chain/x/global/keeper"
-	// Upgrade
-	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 )
 
 // EndBlocker handles the fee burning if it is configured
-func EndBlocker(ctx sdk.Context, ak authKeeper.AccountKeeper, bk bankKeeper.Keeper, gk keeper.Keeper, uk upgradeKeeper.Keeper) {
+func EndBlocker(ctx sdk.Context, ak util.AccountKeeper, bk util.BankKeeper, gk keeper.Keeper, uk util.UpgradeKeeper) {
 	// Since no fees are paid in the genesis block, skip.
 	// NOTE: This is Tendermint specific.
 	if ctx.BlockHeight() == 1 {

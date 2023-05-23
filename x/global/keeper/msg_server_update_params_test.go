@@ -122,11 +122,11 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 			"min_gas_price": "1.5",
 			"burn_ratio": "0.2",
 			"gas_adjustments": [{
-				"type": "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
+				"message": "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
 				"amount": 20
 			}],
 			"gas_refunds": [{
-				"type": "/kyve.bundles.v1beta1.MsgSubmitBundleProposal",
+				"message": "/kyve.bundles.v1beta1.MsgSubmitBundleProposal",
 				"fraction": "0.75"
 			}],
 			"min_initial_deposit_ratio": "0.2"
@@ -162,13 +162,13 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.BurnRatio).To(Equal(sdk.MustNewDecFromStr("0.2")))
 		Expect(updatedParams.GasAdjustments).To(Equal([]types.GasAdjustment{
 			{
-				Type:   "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
-				Amount: 20,
+				Message: "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
+				Amount:  20,
 			},
 		}))
 		Expect(updatedParams.GasRefunds).To(Equal([]types.GasRefund{
 			{
-				Type:     "/kyve.bundles.v1beta1.MsgSubmitBundleProposal",
+				Message:  "/kyve.bundles.v1beta1.MsgSubmitBundleProposal",
 				Fraction: sdk.MustNewDecFromStr("0.75"),
 			},
 		}))
@@ -393,7 +393,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		// ARRANGE
 		payload := `{
 			"gas_adjustments": [{
-				"type": "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
+				"message": "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
 				"amount": 20
 			}]
 		}`
@@ -428,8 +428,8 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.BurnRatio).To(Equal(types.DefaultBurnRatio))
 		Expect(updatedParams.GasAdjustments).To(Equal([]types.GasAdjustment{
 			{
-				Type:   "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
-				Amount: 20,
+				Message: "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
+				Amount:  20,
 			},
 		}))
 		Expect(updatedParams.GasRefunds).To(BeNil())
@@ -440,7 +440,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		// ARRANGE
 		payload := `{
 			"gas_adjustments": [{
-				"type": "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
+				"message": "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
 				"amount": -20
 			}],
 		}`
@@ -476,7 +476,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		// ARRANGE
 		payload := `{
 			"gas_refunds": [{
-				"type": "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
+				"message": "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
 				"fraction": "0.5"
 			}]
 		}`
@@ -512,7 +512,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.GasAdjustments).To(BeNil())
 		Expect(updatedParams.GasRefunds).To(Equal([]types.GasRefund{
 			{
-				Type:     "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
+				Message:  "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
 				Fraction: sdk.MustNewDecFromStr("0.5"),
 			},
 		}))
@@ -523,7 +523,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		// ARRANGE
 		payload := `{
 			"gas_refunds": [{
-				"type": "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
+				"message": "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
 				"fraction": "-1.5"
 			}]
 		}`

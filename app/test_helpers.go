@@ -125,7 +125,7 @@ func DefaultGenesisWithValSet(codec codec.Codec) map[string]json.RawMessage {
 }
 
 // Setup initializes a new App.
-func Setup() *App {
+func Setup() *KYVEApp {
 	db := dbm.NewMemDB()
 
 	// config := MakeEncodingConfig()

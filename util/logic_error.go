@@ -7,10 +7,6 @@ import (
 	upgradeTypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
-type UpgradeKeeper interface {
-	ScheduleUpgrade(ctx sdk.Context, plan upgradeTypes.Plan) error
-}
-
 // PanicHalt performs an emergency upgrade which immediately halts the chain
 // The Team has to come up with a solution and develop a patch to handle
 // the update.

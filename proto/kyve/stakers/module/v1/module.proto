@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package kyve.stakers.module.v1;
+
+import "cosmos/app/v1alpha1/module.proto";
+
+// Module is the config object of the stakers module.
+message Module {
+  option (cosmos.app.v1alpha1.module) = {go_import: "github.com/KYVENetwork/chain/x/stakers"};
+
+  // authority defines the custom module authority. If not set, defaults to the governance module.
+  string authority = 1;
+}

@@ -43,7 +43,7 @@ message Params {
 // of gas which is added to the message
 message GasAdjustment {
   // type of the sdk-message
-  string type = 1;
+  string message = 1;
   // amount of gas which is added to the message
   uint64 amount = 2;
 }
@@ -53,7 +53,7 @@ message GasAdjustment {
 // This only works if the transaction only includes one message.
 message GasRefund {
   // type of the sdk-message
-  string type = 1;
+  string message = 1;
   // fraction in decimal representation between 0 and 1
   string fraction = 2 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",

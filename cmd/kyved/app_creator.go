@@ -40,7 +40,7 @@ func (ac appCreator) exportApp(
 	appOpts serverTypes.AppOptions,
 	modulesToExport []string,
 ) (serverTypes.ExportedApp, error) {
-	var app *kyveApp.App
+	var app *kyveApp.KYVEApp
 
 	// this check is necessary as we use the flag in x/upgrade.
 	// we can exit more gracefully by checking the flag here.

@@ -3,9 +3,7 @@ package keeper
 import (
 	"fmt"
 
-	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	"github.com/KYVENetwork/chain/util"
 
 	"github.com/cometbft/cometbft/libs/log"
 
@@ -23,11 +21,11 @@ type (
 
 		authority string
 
-		stakersKeeper types.StakersKeeper
-		accountKeeper authkeeper.AccountKeeper
-		bankKeeper    bankkeeper.Keeper
-		distrkeeper   distrkeeper.Keeper
-		upgradeKeeper types.UpgradeKeeper
+		stakersKeeper util.StakersKeeper
+		accountKeeper util.AccountKeeper
+		bankKeeper    util.BankKeeper
+		distrkeeper   util.DistributionKeeper
+		upgradeKeeper util.UpgradeKeeper
 	}
 )
 
@@ -38,10 +36,10 @@ func NewKeeper(
 
 	authority string,
 
-	accountKeeper authkeeper.AccountKeeper,
-	bankKeeper bankkeeper.Keeper,
-	distrKeeper distrkeeper.Keeper,
-	upgradeKeeper types.UpgradeKeeper,
+	accountKeeper util.AccountKeeper,
+	bankKeeper util.BankKeeper,
+	distrKeeper util.DistributionKeeper,
+	upgradeKeeper util.UpgradeKeeper,
 ) *Keeper {
 	return &Keeper{
 		cdc:      cdc,
@@ -57,7 +55,7 @@ func NewKeeper(
 	}
 }
 
-func SetStakersKeeper(k *Keeper, stakersKeeper types.StakersKeeper) {
+func (k *Keeper) SetStakersKeeper(stakersKeeper util.StakersKeeper) {
 	k.stakersKeeper = stakersKeeper
 }
 

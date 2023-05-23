@@ -3,17 +3,12 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/KYVENetwork/chain/util"
+	"github.com/KYVENetwork/chain/x/team/types"
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	// Auth
-	authKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	// Bank
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	// Team
-	"github.com/KYVENetwork/chain/x/team/types"
 )
 
 type (
@@ -21,16 +16,16 @@ type (
 		cdc      codec.BinaryCodec
 		storeKey storeTypes.StoreKey
 
-		accountKeeper authKeeper.AccountKeeper
-		bankKeeper    bankKeeper.Keeper
+		accountKeeper util.AccountKeeper
+		bankKeeper    util.BankKeeper
 	}
 )
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storeTypes.StoreKey,
-	accountKeeper authKeeper.AccountKeeper,
-	bankKeeper bankKeeper.Keeper,
+	accountKeeper util.AccountKeeper,
+	bankKeeper util.BankKeeper,
 ) *Keeper {
 	return &Keeper{
 		cdc:      cdc,

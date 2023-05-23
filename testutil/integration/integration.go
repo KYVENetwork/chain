@@ -140,7 +140,7 @@ type KeeperTestSuite struct {
 
 	ctx sdk.Context
 
-	app         *app.App
+	app         *app.KYVEApp
 	queries     QueryClients
 	address     common.Address
 	consAddress sdk.ConsAddress
@@ -148,7 +148,7 @@ type KeeperTestSuite struct {
 	denom       string
 }
 
-func (suite *KeeperTestSuite) App() *app.App {
+func (suite *KeeperTestSuite) App() *app.KYVEApp {
 	return suite.app
 }
 
@@ -248,6 +248,6 @@ func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 func (suite *KeeperTestSuite) registerQueryClients() {
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 
-	stakerstypes.RegisterQueryServer(queryHelper, suite.app.StakersKeeper)
+	// stakerstypes.RegisterQueryServer(queryHelper, suite.app.StakersKeeper)
 	suite.queries.stakersClient = stakerstypes.NewQueryClient(queryHelper)
 }

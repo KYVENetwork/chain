@@ -5,28 +5,30 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/KYVENetwork/chain/util"
+
+	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/depinject"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	// Bank
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	// Mint
-	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	// Team
+	moduleV1 "github.com/KYVENetwork/chain/pulsar/kyve/team/module/v1"
 	"github.com/KYVENetwork/chain/x/team/client/cli"
 	"github.com/KYVENetwork/chain/x/team/keeper"
 	"github.com/KYVENetwork/chain/x/team/types"
-	// Upgrade
-	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 )
 
 var (
+	_ appmodule.AppModule   = AppModule{}
 	_ module.AppModule      = AppModule{}
 	_ module.AppModuleBasic = AppModuleBasic{}
 )
@@ -96,18 +98,18 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 type AppModule struct {
 	AppModuleBasic
 
-	bk     bankKeeper.Keeper
-	mk     mintKeeper.Keeper
+	bk     util.BankKeeper
+	mk     util.MintKeeper
 	keeper keeper.Keeper
-	uk     upgradeKeeper.Keeper
+	uk     util.UpgradeKeeper
 }
 
 func NewAppModule(
 	cdc codec.Codec,
-	bk bankKeeper.Keeper,
-	mk mintKeeper.Keeper,
+	bk util.BankKeeper,
+	mk util.MintKeeper,
 	keeper keeper.Keeper,
-	uk upgradeKeeper.Keeper,
+	uk util.UpgradeKeeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: NewAppModuleBasic(cdc),
@@ -118,8 +120,11 @@ func NewAppModule(
 	}
 }
 
-// Deprecated: use RegisterServices
-func (AppModule) QuerierRoute() string { return types.RouterKey }
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (am AppModule) IsOnePerModuleType() {}
+
+// IsAppModule implements the appmodule.AppModule interface.
+func (am AppModule) IsAppModule() {}
 
 // RegisterServices registers a gRPC query service to respond to the module-specific gRPC queries
 func (am AppModule) RegisterServices(cfg module.Configurator) {
@@ -158,4 +163,44 @@ func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 // EndBlock contains the logic that is automatically triggered at the end of each block
 func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
+}
+
+// App Wiring Setup
+
+func init() {
+	appmodule.Register(&moduleV1.Module{},
+		appmodule.Provide(ProvideModule),
+	)
+}
+
+type TeamInputs struct {
+	depinject.In
+
+	Config *moduleV1.Module
+	Cdc    codec.Codec
+	Key    *storeTypes.KVStoreKey
+
+	AccountKeeper util.AccountKeeper
+	BankKeeper    util.BankKeeper
+	MintKeeper    util.MintKeeper
+	UpgradeKeeper util.UpgradeKeeper
+}
+
+type TeamOutputs struct {
+	depinject.Out
+
+	TeamKeeper keeper.Keeper
+	Module     appmodule.AppModule
+}
+
+func ProvideModule(in TeamInputs) TeamOutputs {
+	teamKeeper := *keeper.NewKeeper(
+		in.Cdc,
+		in.Key,
+		in.AccountKeeper,
+		in.BankKeeper,
+	)
+	m := NewAppModule(in.Cdc, in.BankKeeper, in.MintKeeper, teamKeeper, in.UpgradeKeeper)
+
+	return TeamOutputs{TeamKeeper: teamKeeper, Module: m}
 }

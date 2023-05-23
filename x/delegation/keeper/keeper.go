@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/KYVENetwork/chain/util"
+
 	"github.com/cometbft/cometbft/libs/log"
 
 	"github.com/KYVENetwork/chain/x/delegation/types"
@@ -19,11 +21,10 @@ type (
 
 		authority string
 
-		accountKeeper types.AccountKeeper
-		bankKeeper    types.BankKeeper
-		distrKeeper   types.DistrKeeper
-		poolKeeper    types.PoolKeeper
-		upgradeKeeper types.UpgradeKeeper
+		accountKeeper util.AccountKeeper
+		bankKeeper    util.BankKeeper
+		distrKeeper   util.DistributionKeeper
+		upgradeKeeper util.UpgradeKeeper
 		stakersKeeper types.StakersKeeper
 	}
 )
@@ -35,11 +36,10 @@ func NewKeeper(
 
 	authority string,
 
-	accountKeeper types.AccountKeeper,
-	bankKeeper types.BankKeeper,
-	distrkeeper types.DistrKeeper,
-	poolKeeper types.PoolKeeper,
-	upgradeKeeper types.UpgradeKeeper,
+	accountKeeper util.AccountKeeper,
+	bankKeeper util.BankKeeper,
+	distrkeeper util.DistributionKeeper,
+	upgradeKeeper util.UpgradeKeeper,
 	stakersKeeper types.StakersKeeper,
 ) *Keeper {
 	return &Keeper{
@@ -52,7 +52,6 @@ func NewKeeper(
 		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
 		distrKeeper:   distrkeeper,
-		poolKeeper:    poolKeeper,
 		upgradeKeeper: upgradeKeeper,
 		stakersKeeper: stakersKeeper,
 	}

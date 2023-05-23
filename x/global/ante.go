@@ -71,8 +71,8 @@ func (gad GasAdjustmentDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 
 	for _, msg := range tx.GetMsgs() {
 		for _, adjustment := range gasAdjustments {
-			if sdk.MsgTypeURL(msg) == adjustment.Type {
-				ctx.GasMeter().ConsumeGas(adjustment.Amount, adjustment.Type)
+			if sdk.MsgTypeURL(msg) == adjustment.Message {
+				ctx.GasMeter().ConsumeGas(adjustment.Amount, adjustment.Message)
 				break
 			}
 		}

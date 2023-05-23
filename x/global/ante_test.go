@@ -298,12 +298,12 @@ var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
 		params := types.DefaultParams()
 		params.GasAdjustments = []types.GasAdjustment{
 			{
-				Type:   "/cosmos.staking.v1beta1.MsgCreateValidator",
-				Amount: 2000,
+				Message: "/cosmos.staking.v1beta1.MsgCreateValidator",
+				Amount:  2000,
 			},
 			{
-				Type:   "/kyve.stakers.v1beta1.MsgCreateStaker",
-				Amount: 1000,
+				Message: "/kyve.stakers.v1beta1.MsgCreateStaker",
+				Amount:  1000,
 			},
 		}
 		s.App().GlobalKeeper.SetParams(s.Ctx(), params)

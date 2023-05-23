@@ -3,25 +3,34 @@ package pool
 import (
 	"encoding/json"
 	"fmt"
-	// this line is used by starport scaffolding # 1
 
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
+	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/depinject"
 
+	"github.com/KYVENetwork/chain/util"
 	abci "github.com/cometbft/cometbft/abci/types"
-
-	"github.com/KYVENetwork/chain/x/pool/client/cli"
-	"github.com/KYVENetwork/chain/x/pool/keeper"
-	"github.com/KYVENetwork/chain/x/pool/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
+
+	// Auth
+	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	// Gov
+	govTypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	// Pool
+	moduleV1 "github.com/KYVENetwork/chain/pulsar/kyve/pool/module/v1"
+	"github.com/KYVENetwork/chain/x/pool/client/cli"
+	"github.com/KYVENetwork/chain/x/pool/keeper"
+	"github.com/KYVENetwork/chain/x/pool/types"
 )
 
 var (
+	_ appmodule.AppModule   = AppModule{}
 	_ module.AppModule      = AppModule{}
 	_ module.AppModuleBasic = AppModuleBasic{}
 )
@@ -90,15 +99,15 @@ type AppModule struct {
 	AppModuleBasic
 
 	keeper        keeper.Keeper
-	accountKeeper types.AccountKeeper
-	bankKeeper    bankKeeper.Keeper
+	accountKeeper util.AccountKeeper
+	bankKeeper    util.BankKeeper
 }
 
 func NewAppModule(
 	cdc codec.Codec,
 	keeper keeper.Keeper,
-	accountKeeper types.AccountKeeper,
-	bankKeeper bankKeeper.Keeper,
+	accountKeeper util.AccountKeeper,
+	bankKeeper util.BankKeeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: NewAppModuleBasic(cdc),
@@ -108,8 +117,11 @@ func NewAppModule(
 	}
 }
 
-// Deprecated: use RegisterServices
-func (AppModule) QuerierRoute() string { return types.RouterKey }
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (am AppModule) IsOnePerModuleType() {}
+
+// IsAppModule implements the appmodule.AppModule interface.
+func (am AppModule) IsAppModule() {}
 
 // RegisterServices registers a gRPC query service to respond to the module-specific gRPC queries
 func (am AppModule) RegisterServices(cfg module.Configurator) {
@@ -146,4 +158,63 @@ func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
 func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	am.keeper.HandlePoolUpgrades(ctx)
 	return []abci.ValidatorUpdate{}
+}
+
+// App Wiring Setup
+
+func init() {
+	appmodule.Register(&moduleV1.Module{},
+		appmodule.Provide(ProvideModule),
+		appmodule.Invoke(InvokeSetStakersKeeper),
+	)
+}
+
+type PoolInputs struct {
+	depinject.In
+
+	Config *moduleV1.Module
+	Cdc    codec.Codec
+	Key    *storeTypes.KVStoreKey
+	MemKey *storeTypes.MemoryStoreKey
+
+	AccountKeeper      util.AccountKeeper
+	BankKeeper         util.BankKeeper
+	DistributionKeeper util.DistributionKeeper
+	UpgradeKeeper      util.UpgradeKeeper
+}
+
+type PoolOutputs struct {
+	depinject.Out
+
+	PoolKeeper keeper.Keeper
+	Module     appmodule.AppModule
+}
+
+func ProvideModule(in PoolInputs) PoolOutputs {
+	authority := authTypes.NewModuleAddress(govTypes.ModuleName)
+	if in.Config.Authority != "" {
+		authority = authTypes.NewModuleAddressOrBech32Address(in.Config.Authority)
+	}
+
+	poolKeeper := *keeper.NewKeeper(
+		in.Cdc,
+		in.Key,
+		in.MemKey,
+		authority.String(),
+		in.AccountKeeper,
+		in.BankKeeper,
+		in.DistributionKeeper,
+		in.UpgradeKeeper,
+	)
+	m := NewAppModule(in.Cdc, poolKeeper, in.AccountKeeper, in.BankKeeper)
+
+	return PoolOutputs{PoolKeeper: poolKeeper, Module: m}
+}
+
+func InvokeSetStakersKeeper(
+	keeper keeper.Keeper,
+	stakersKeeper util.StakersKeeper,
+) error {
+	keeper.SetStakersKeeper(stakersKeeper)
+	return nil
 }

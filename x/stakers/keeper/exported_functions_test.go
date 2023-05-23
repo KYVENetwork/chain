@@ -45,7 +45,7 @@ var _ = Describe("Protocol Governance Voting", Ordered, func() {
 		s = i.NewCleanChain()
 
 		// Create a test proposal.
-		proposeTx := CreateTestProposal(s.Ctx(), s.App().Keepers)
+		proposeTx := CreateTestProposal(s.Ctx(), s.App())
 		_ = s.RunTxSuccess(proposeTx)
 
 		// Initialise a protocol validator.
@@ -165,8 +165,8 @@ var _ = Describe("Protocol Governance Voting", Ordered, func() {
 	})
 })
 
-func CreateTestProposal(ctx sdk.Context, keepers kyveApp.Keepers) sdk.Msg {
-	minDeposit := keepers.GovKeeper.GetParams(ctx).MinDeposit
+func CreateTestProposal(ctx sdk.Context, app *kyveApp.KYVEApp) sdk.Msg {
+	minDeposit := app.GovKeeper.GetParams(ctx).MinDeposit
 
 	proposal, _ := govTypes.NewMsgSubmitProposal(
 		[]sdk.Msg{}, minDeposit, i.DUMMY[0], "metadata", "title", "summary",

@@ -74,12 +74,11 @@ genesis:
         burn_ratio: "0.5"
         min_gas_price: "1"
     gov:
-      deposit_params:
-        max_deposit_period: 300s
+      params:
         min_deposit:
           - amount: "50_000_000_000"
             denom: tkyve
-      voting_params:
+        max_deposit_period: 300s
         voting_period: 120s
     mint:
       params:

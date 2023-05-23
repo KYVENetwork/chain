@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	initSDKConfig(kyveApp.AccountAddressPrefix)
+	initSDKConfig("kyve")
 	rootCmd := NewRootCmd(kyveApp.MakeEncodingConfig())
 	if err := serverCmd.Execute(rootCmd, "", kyveApp.DefaultNodeHome); err != nil {
 		os.Exit(1)
