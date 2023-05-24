@@ -109,7 +109,7 @@ vet:
 ###                                Protobuf                                 ###
 ###############################################################################
 
-BUF_VERSION=1.17.0
+BUF_VERSION=1.19.0
 
 proto-all: proto-format proto-lint proto-gen
 

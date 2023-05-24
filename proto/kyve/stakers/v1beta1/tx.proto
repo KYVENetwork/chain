@@ -28,9 +28,9 @@ service Msg {
 // MsgCreateStaker defines a SDK message for creating a staker.
 message MsgCreateStaker {
   // creator is the address of the staker.
-  string creator = 1;
+  string creator = 1 [(gogoproto.jsontag) = "creator"];
   // amount is the initial self-stake of the staker.
-  uint64 amount = 2;
+  uint64 amount = 2 [(gogoproto.jsontag) = "amount"];
   // commission is the percentage that is deducted from rewards before
   // distributing the staker's delegators.
   string commission = 3 [
@@ -45,17 +45,17 @@ message MsgCreateStakerResponse {}
 // MsgUpdateMetadata defines a SDK message for claiming the uploader role.
 message MsgUpdateMetadata {
   // creator ...
-  string creator = 1;
+  string creator = 1 [(gogoproto.jsontag) = "creator"];
   // moniker ...
-  string moniker = 2;
+  string moniker = 2 [(gogoproto.jsontag) = "moniker"];
   // website ...
-  string website = 3;
+  string website = 3 [(gogoproto.jsontag) = "website"];
   // identity from keybase.io
-  string identity = 4;
+  string identity = 4 [(gogoproto.jsontag) = "identity"];
   // security_contact ...
-  string security_contact = 5;
+  string security_contact = 5 [(gogoproto.jsontag) = "security_contact"];
   // details ...
-  string details = 6;
+  string details = 6 [(gogoproto.jsontag) = "details"];
 }
 
 // MsgUpdateMetadataResponse defines the Msg/MsgUpdateMetadata response type.
@@ -64,7 +64,7 @@ message MsgUpdateMetadataResponse {}
 // MsgUpdateCommission ...
 message MsgUpdateCommission {
   // creator ...
-  string creator = 1;
+  string creator = 1 [(gogoproto.jsontag) = "creator"];
   // commission ...
   string commission = 2 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
@@ -78,13 +78,13 @@ message MsgUpdateCommissionResponse {}
 // MsgJoinPool ...
 message MsgJoinPool {
   // creator ...
-  string creator = 1;
+  string creator = 1 [(gogoproto.jsontag) = "creator"];
   // pool_id ...
-  uint64 pool_id = 2;
+  uint64 pool_id = 2 [(gogoproto.jsontag) = "pool_id"];
   // valaddress ...
-  string valaddress = 3;
+  string valaddress = 3 [(gogoproto.jsontag) = "valaddress"];
   // amount ...
-  uint64 amount = 4;
+  uint64 amount = 4 [(gogoproto.jsontag) = "amount"];
 }
 
 // MsgJoinPoolResponse ...
@@ -93,9 +93,9 @@ message MsgJoinPoolResponse {}
 // MsgLeavePool ...
 message MsgLeavePool {
   // creator ...
-  string creator = 1;
+  string creator = 1 [(gogoproto.jsontag) = "creator"];
   // pool_id ...
-  uint64 pool_id = 2;
+  uint64 pool_id = 2 [(gogoproto.jsontag) = "pool_id"];
 }
 
 // MsgReactivateStakerResponse ...

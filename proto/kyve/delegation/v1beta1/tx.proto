@@ -3,6 +3,7 @@ syntax = "proto3";
 package kyve.delegation.v1beta1;
 
 import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/delegation/types";
 
@@ -25,11 +26,11 @@ service Msg {
 // MsgDelegate ...
 message MsgDelegate {
   // creator ...
-  string creator = 1;
+  string creator = 1 [(gogoproto.jsontag) = "creator"];
   // staker ...
-  string staker = 2;
+  string staker = 2 [(gogoproto.jsontag) = "staker"];
   // amount ...
-  uint64 amount = 3;
+  uint64 amount = 3 [(gogoproto.jsontag) = "amount"];
 }
 
 // MsgDelegatePoolResponse defines the Msg/DelegatePool response type.
@@ -38,9 +39,9 @@ message MsgDelegateResponse {}
 // MsgWithdrawPool defines a SDK message for withdrawing delegation rewards from a specific pool.
 message MsgWithdrawRewards {
   // creator ...
-  string creator = 1;
+  string creator = 1 [(gogoproto.jsontag) = "creator"];
   // staker ...
-  string staker = 2;
+  string staker = 2 [(gogoproto.jsontag) = "staker"];
 }
 
 // MsgWithdrawPoolResponse defines the Msg/WithdrawPool response type.
@@ -49,11 +50,11 @@ message MsgWithdrawRewardsResponse {}
 // MsgUndelegatePool defines a SDK message for undelegating from a specific pool.
 message MsgUndelegate {
   // creator ...
-  string creator = 1;
+  string creator = 1 [(gogoproto.jsontag) = "creator"];
   // staker ...
-  string staker = 2;
+  string staker = 2 [(gogoproto.jsontag) = "staker"];
   // amount ...
-  uint64 amount = 3;
+  uint64 amount = 3 [(gogoproto.jsontag) = "amount"];
 }
 
 // MsgUndelegatePoolResponse defines the Msg/UndelegatePool response type.
@@ -63,13 +64,13 @@ message MsgUndelegateResponse {}
 // staker in a pool to another staker in the same or another pool
 message MsgRedelegate {
   // creator ...
-  string creator = 1;
+  string creator = 1 [(gogoproto.jsontag) = "creator"];
   // staker ...
-  string from_staker = 2;
+  string from_staker = 2 [(gogoproto.jsontag) = "from_staker"];
   // staker ...
-  string to_staker = 3;
+  string to_staker = 3 [(gogoproto.jsontag) = "to_staker"];
   // amount ...
-  uint64 amount = 4;
+  uint64 amount = 4 [(gogoproto.jsontag) = "amount"];
 }
 
 // MsgUndelegatePoolResponse defines the Msg/UndelegatePool response type.

@@ -3,6 +3,7 @@ syntax = "proto3";
 package kyve.pool.v1beta1;
 
 import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/pool/types";
 
@@ -36,11 +37,11 @@ service Msg {
 // MsgFundPool defines a SDK message for funding a pool.
 message MsgFundPool {
   // creator ...
-  string creator = 1;
+  string creator = 1 [(gogoproto.jsontag) = "creator"];
   // id ...
-  uint64 id = 2;
+  uint64 id = 2 [(gogoproto.jsontag) = "id"];
   // amount ...
-  uint64 amount = 3;
+  uint64 amount = 3 [(gogoproto.jsontag) = "amount"];
 }
 
 // MsgFundPoolResponse defines the Msg/DefundPool response type.
@@ -49,11 +50,11 @@ message MsgFundPoolResponse {}
 // MsgDefundPool defines a SDK message for defunding a pool.
 message MsgDefundPool {
   // creator ...
-  string creator = 1;
+  string creator = 1 [(gogoproto.jsontag) = "creator"];
   // id ...
-  uint64 id = 2;
+  uint64 id = 2 [(gogoproto.jsontag) = "id"];
   // amount ...
-  uint64 amount = 3;
+  uint64 amount = 3 [(gogoproto.jsontag) = "amount"];
 }
 
 // MsgDefundPoolResponse defines the Msg/DefundPool response type.

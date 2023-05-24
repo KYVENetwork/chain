@@ -26,27 +26,27 @@ service Msg {
 // MsgSubmitBundleProposal defines a SDK message for submitting a bundle proposal.
 message MsgSubmitBundleProposal {
   // creator ...
-  string creator = 1;
+  string creator = 1 [(gogoproto.jsontag) = "creator"];
   // staker ...
-  string staker = 2;
+  string staker = 2 [(gogoproto.jsontag) = "staker"];
   // pool_id ...
-  uint64 pool_id = 3;
+  uint64 pool_id = 3 [(gogoproto.jsontag) = "pool_id"];
   // storage_id ...
-  string storage_id = 4;
+  string storage_id = 4 [(gogoproto.jsontag) = "storage_id"];
   // data_size ...
-  uint64 data_size = 5;
+  uint64 data_size = 5 [(gogoproto.jsontag) = "data_size"];
   // data_hash ...
-  string data_hash = 6;
+  string data_hash = 6 [(gogoproto.jsontag) = "data_hash"];
   // from_index ...
-  uint64 from_index = 7;
+  uint64 from_index = 7 [(gogoproto.jsontag) = "from_index"];
   // bundle_size ...
-  uint64 bundle_size = 8;
+  uint64 bundle_size = 8 [(gogoproto.jsontag) = "bundle_size"];
   // from_key
-  string from_key = 9;
+  string from_key = 9 [(gogoproto.jsontag) = "from_key"];
   // to_key ...
-  string to_key = 10;
+  string to_key = 10 [(gogoproto.jsontag) = "to_key"];
   // bundle_summary ...
-  string bundle_summary = 11;
+  string bundle_summary = 11 [(gogoproto.jsontag) = "bundle_summary"];
 }
 
 // MsgSubmitBundleProposalResponse defines the Msg/SubmitBundleProposal response type.
@@ -69,15 +69,15 @@ enum VoteType {
 // MsgVoteBundleProposal defines a SDK message for voting on a bundle proposal.
 message MsgVoteBundleProposal {
   // creator ...
-  string creator = 1;
+  string creator = 1 [(gogoproto.jsontag) = "creator"];
   // staker ...
-  string staker = 2;
+  string staker = 2 [(gogoproto.jsontag) = "staker"];
   // id ...
-  uint64 pool_id = 3;
+  uint64 pool_id = 3 [(gogoproto.jsontag) = "pool_id"];
   // storage_id ...
-  string storage_id = 4;
+  string storage_id = 4 [(gogoproto.jsontag) = "storage_id"];
   // vote ...
-  VoteType vote = 5;
+  VoteType vote = 5 [(gogoproto.jsontag) = "vote"];
 }
 
 // MsgVoteBundleProposalResponse defines the Msg/VoteBundleProposal response type.
@@ -86,11 +86,11 @@ message MsgVoteBundleProposalResponse {}
 // MsgClaimUploaderRole defines a SDK message for claiming the uploader role.
 message MsgClaimUploaderRole {
   // creator ...
-  string creator = 1;
+  string creator = 1 [(gogoproto.jsontag) = "creator"];
   // staker ...
-  string staker = 2;
+  string staker = 2 [(gogoproto.jsontag) = "staker"];
   // id ...
-  uint64 pool_id = 3;
+  uint64 pool_id = 3 [(gogoproto.jsontag) = "pool_id"];
 }
 
 // MsgClaimUploaderRoleResponse defines the Msg/ClaimUploaderRole response type.
@@ -99,13 +99,13 @@ message MsgClaimUploaderRoleResponse {}
 // MsgSubmitBundleProposal defines a SDK message for submitting a bundle proposal.
 message MsgSkipUploaderRole {
   // creator ...
-  string creator = 1;
+  string creator = 1 [(gogoproto.jsontag) = "creator"];
   // staker ...
-  string staker = 2;
+  string staker = 2 [(gogoproto.jsontag) = "staker"];
   // pool_id ...
-  uint64 pool_id = 3;
+  uint64 pool_id = 3 [(gogoproto.jsontag) = "pool_id"];
   // from_index ...
-  uint64 from_index = 4;
+  uint64 from_index = 4 [(gogoproto.jsontag) = "from_index"];
 }
 
 // MsgSubmitBundleProposalResponse defines the Msg/SubmitBundleProposal response type.
