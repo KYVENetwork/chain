@@ -1,5 +1,5 @@
 COMMIT := $(shell git log -1 --format='%H')
-VERSION := v1.1.2 # $(shell echo $(shell git describe --tags) | sed 's/^v//')
+VERSION := v1.1.3 # $(shell echo $(shell git describe --tags) | sed 's/^v//')
 
 TEAM_ALLOCATION := 165000000000000
 ifeq ($(ENV),kaon)
