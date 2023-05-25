@@ -4,18 +4,17 @@ import (
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 )
 
-const TypeMsgClawback = "clawback"
+var (
+	_ legacytx.LegacyMsg = &MsgClawback{}
+	_ sdk.Msg            = &MsgClawback{}
+)
 
-var _ sdk.Msg = &MsgClawback{}
-
-func (msg *MsgClawback) Route() string {
-	return RouterKey
-}
-
-func (msg *MsgClawback) Type() string {
-	return TypeMsgClawback
+func (msg *MsgClawback) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
 }
 
 func (msg *MsgClawback) GetSigners() []sdk.AccAddress {
@@ -23,12 +22,16 @@ func (msg *MsgClawback) GetSigners() []sdk.AccAddress {
 	if err != nil {
 		panic(err)
 	}
+
 	return []sdk.AccAddress{creator}
 }
 
-func (msg *MsgClawback) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
-	return sdk.MustSortJSON(bz)
+func (msg *MsgClawback) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgClawback) Type() string {
+	return "kyve/team/MsgClawback"
 }
 
 func (msg *MsgClawback) ValidateBasic() error {

@@ -4,11 +4,13 @@ import (
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 )
 
-const TypeMsgSubmitBundleProposal = "submit_bundle_proposal"
-
-var _ sdk.Msg = &MsgSubmitBundleProposal{}
+var (
+	_ legacytx.LegacyMsg = &MsgSubmitBundleProposal{}
+	_ sdk.Msg            = &MsgSubmitBundleProposal{}
+)
 
 func NewMsgSubmitBundleProposal(creator string, staker string, poolId uint64, storageId string, dataSize uint64, dataHash string, fromIndex uint64, bundleSize uint64, fromKey string, toKey string, bundleSummary string) *MsgSubmitBundleProposal {
 	return &MsgSubmitBundleProposal{
@@ -26,12 +28,9 @@ func NewMsgSubmitBundleProposal(creator string, staker string, poolId uint64, st
 	}
 }
 
-func (msg *MsgSubmitBundleProposal) Route() string {
-	return RouterKey
-}
-
-func (msg *MsgSubmitBundleProposal) Type() string {
-	return TypeMsgSubmitBundleProposal
+func (msg *MsgSubmitBundleProposal) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
 }
 
 func (msg *MsgSubmitBundleProposal) GetSigners() []sdk.AccAddress {
@@ -39,12 +38,16 @@ func (msg *MsgSubmitBundleProposal) GetSigners() []sdk.AccAddress {
 	if err != nil {
 		panic(err)
 	}
+
 	return []sdk.AccAddress{creator}
 }
 
-func (msg *MsgSubmitBundleProposal) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
-	return sdk.MustSortJSON(bz)
+func (msg *MsgSubmitBundleProposal) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgSubmitBundleProposal) Type() string {
+	return "kyve/bundles/MsgSubmitBundleProposal"
 }
 
 func (msg *MsgSubmitBundleProposal) ValidateBasic() error {
