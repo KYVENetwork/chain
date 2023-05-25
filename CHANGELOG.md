@@ -18,6 +18,15 @@
 
 - (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Allow protocol validator commission rewards to be claimed.
 
+### Client Breaking
+
+- (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Include `MsgClaimCommissionRewards` for claiming commission rewards.
+
+### API Breaking
+
+<!-- TODO: Switch this link to the release tag. -->
+- (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Emit an [event](https://github.com/KYVENetwork/chain/blob/main/x/stakers/spec/05_events.md#eventclaimcommissionrewards) when claiming protocol validator commission rewards.
+
 ## [v1.2.0](https://github.com/KYVENetwork/chain/releases/tag/v1.2.0) - 2023-05-16
 
 ### Bug Fixes
