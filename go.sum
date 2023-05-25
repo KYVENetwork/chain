@@ -1132,8 +1132,8 @@ github.com/ssgreg/nlreturn/v2 v2.2.1/go.mod h1:E/iiPB78hV7Szg2YfRgyIrk1AD6JVMTRk
 github.com/status-im/keycard-go v0.0.0-20190316090335-8537d3370df4/go.mod h1:RZLeN1LMWmRsyYjvAu+I6Dm9QmlDaIIt+Y+4Kd7Tp+Q=
 github.com/stbenjam/no-sprintf-host-port v0.1.1 h1:tYugd/yrm1O0dV+ThCbaKZh195Dfm07ysF0U6JQXczc=
 github.com/stbenjam/no-sprintf-host-port v0.1.1/go.mod h1:TLhvtIvONRzdmkFiio4O8LHsN9N74I+PhRquPsxpL0I=
-github.com/strangelove-ventures/packet-forward-middleware/v6 v6.0.2 h1:YzEbpmjBmccYK9rZP6p9L1SdAHJPs2X03zfAJdNwlag=
-github.com/strangelove-ventures/packet-forward-middleware/v6 v6.0.2/go.mod h1:/4sIvoLvNKs7g2ExwRqi8Sfg+5nFqzwGdb+A07FnYYM=
+github.com/strangelove-ventures/packet-forward-middleware/v6 v6.0.3 h1:HOBZ9m5vl5L6BP/oLtZ3xygmj1KmqgJjbWuvlsD52YA=
+github.com/strangelove-ventures/packet-forward-middleware/v6 v6.0.3/go.mod h1:LB5oxowvdkiieyb6NZj4bAbvc8fE9wn1iFeTV4uXF/A=
 github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94/go.mod h1:AZpEONHx3DKn8O/DFsRAY58/XVQiIPMTMB1SddzLXVw=
 github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271/go.mod h1:AZpEONHx3DKn8O/DFsRAY58/XVQiIPMTMB1SddzLXVw=
 github.com/streadway/handy v0.0.0-20190108123426-d5acb3125c2a/go.mod h1:qNTQ5P5JnDBl6z3cMAg/SywNDC5ABu5ApDIw6lUbRmI=

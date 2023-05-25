@@ -18,7 +18,7 @@ require (
 	github.com/onsi/gomega v1.26.0
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.6.1
-	github.com/strangelove-ventures/packet-forward-middleware/v6 v6.0.2
+	github.com/strangelove-ventures/packet-forward-middleware/v6 v6.0.3
 	github.com/stretchr/testify v1.8.2
 	github.com/tendermint/tendermint v0.34.27
 	github.com/tendermint/tm-db v0.6.7
