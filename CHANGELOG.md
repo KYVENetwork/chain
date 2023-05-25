@@ -14,20 +14,10 @@
 
 ## [Unreleased]
 
-<<<<<<< HEAD
-=======
 ### Bug Fixes
 
 - (deps) [#63](https://github.com/KYVENetwork/chain/pull/63) Bump IBC to [v6.1.1](https://github.com/cosmos/ibc-go/releases/tag/v6.1.1) to adhere to the [IBC Huckleberry Security Advisory](https://forum.cosmos.network/t/ibc-security-advisory-huckleberry).
 
-## [v1.2.0](https://github.com/KYVENetwork/chain/releases/tag/v1.2.0) - 2023-05-16
-
-### Bug Fixes
-
-- [#48](https://github.com/KYVENetwork/chain/pull/48) Register Amino types for full Ledger support.
-- (`x/team`) [#45](https://github.com/KYVENetwork/chain/pull/45) Adjust vesting schedules of multiple KYVE Core Team members.
-
->>>>>>> a59a83a (fix: resolve huckleberry advisory (#63))
 ## [v1.1.2](https://github.com/KYVENetwork/chain/releases/tag/v1.1.2) - 2023-05-12
 
 ### API Breaking
