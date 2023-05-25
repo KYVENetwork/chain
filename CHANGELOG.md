@@ -14,6 +14,10 @@
 
 ## [Unreleased]
 
+### Improvements
+
+- [#58](https://github.com/KYVENetwork/chain/pull/58) Add environment name to release builds.
+
 ## [v1.2.0](https://github.com/KYVENetwork/chain/releases/tag/v1.2.0) - 2023-05-16
 
 ### Bug Fixes
