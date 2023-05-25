@@ -217,17 +217,18 @@ var _ = Describe("stakers leave", Ordered, func() {
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 		balanceUploader := s.GetBalanceFromAddress(i.STAKER_0)
 
-		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
+		operatingReward := pool.OperatingCost
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 
-		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
-		totalUploaderReward := totalReward - treasuryReward
+		treasuryReward := uint64(sdk.NewDec(int64(operatingReward)).Mul(networkFee).TruncateInt64())
+		totalUploaderReward := operatingReward - treasuryReward
 
 		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert payout transfer
-		Expect(balanceUploader).To(Equal(initialBalanceStaker0 + uploaderPayoutReward))
+		Expect(balanceUploader).To(Equal(initialBalanceStaker0 + uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 	})
