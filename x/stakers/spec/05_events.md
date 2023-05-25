@@ -87,7 +87,7 @@ message EventUpdateCommission {
 
 It gets thrown from the following actions:
 
-- MsgUpdateCommission
+- EndBlock
 
 ## EventClaimCommissionRewards
 
