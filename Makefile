@@ -1,19 +1,23 @@
 COMMIT := $(shell git log -1 --format='%H')
 VERSION := v1.2.1 # $(shell echo $(shell git describe --tags) | sed 's/^v//')
 
+ifndef ENV
+override ENV = mainnet
+endif
+
 TEAM_ALLOCATION := 165000000000000
-ifeq ($(ENV),kaon)
-$(info 📑 Using Kaon environment...)
-DENOM := tkyve
-TEAM_TGE := 2023-02-07T14:00:00
-TEAM_FOUNDATION_ADDRESS := kyve1vut528et85755xsncjwl6dx8xakuv26hxgyv0n
-TEAM_BCP_ADDRESS := kyve1vut528et85755xsncjwl6dx8xakuv26hxgyv0n
-else ifeq ($(ENV),mainnet)
+ifeq ($(ENV),mainnet)
 $(info 📑 Using mainnet environment...)
 DENOM := ukyve
 TEAM_TGE := 2023-03-14T14:03:14
 TEAM_FOUNDATION_ADDRESS := kyve1xjpl57p7f49y5gueu7rlfytaw9ramcn5zhjy2g
 TEAM_BCP_ADDRESS := kyve1fnh4kghr25tppskap50zk5j385pt65tyyjaraa
+else ifeq ($(ENV),kaon)
+$(info 📑 Using Kaon environment...)
+DENOM := tkyve
+TEAM_TGE := 2023-02-07T14:00:00
+TEAM_FOUNDATION_ADDRESS := kyve1vut528et85755xsncjwl6dx8xakuv26hxgyv0n
+TEAM_BCP_ADDRESS := kyve1vut528et85755xsncjwl6dx8xakuv26hxgyv0n
 else
 $(error ❌  Please specify a build environment..)
 endif
