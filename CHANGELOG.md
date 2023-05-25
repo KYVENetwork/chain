@@ -14,6 +14,10 @@
 
 ## [Unreleased]
 
+### Bug Fixes
+
+- (deps) [#63](https://github.com/KYVENetwork/chain/pull/63) Bump IBC to [v6.1.1](https://github.com/cosmos/ibc-go/releases/tag/v6.1.1) to adhere to the [IBC Huckleberry Security Advisory](https://forum.cosmos.network/t/ibc-security-advisory-huckleberry).
+
 ## [v1.2.0](https://github.com/KYVENetwork/chain/releases/tag/v1.2.0) - 2023-05-16
 
 ### Bug Fixes
