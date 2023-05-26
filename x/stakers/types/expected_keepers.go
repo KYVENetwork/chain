@@ -2,9 +2,17 @@ package types
 
 import (
 	"github.com/KYVENetwork/chain/util"
-	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	// Pool
+	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 )
+
+type DelegationKeeper interface {
+	util.DelegationKeeper
+
+	Delegate(sdk.Context, string, string, uint64) error
+}
 
 type PoolKeeper interface {
 	util.PoolKeeper

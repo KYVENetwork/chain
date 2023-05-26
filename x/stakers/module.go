@@ -172,7 +172,7 @@ func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.Val
 func init() {
 	appmodule.Register(&moduleV1.Module{},
 		appmodule.Provide(ProvideModule),
-		appmodule.Invoke(InvokeSetStakersKeeper),
+		appmodule.Invoke(InvokeSetDelegationKeeper),
 	)
 }
 
@@ -194,7 +194,7 @@ type StakersInputs struct {
 type StakersOutputs struct {
 	depinject.Out
 
-	StakersKeeper keeper.Keeper
+	StakersKeeper *keeper.Keeper
 	Module        appmodule.AppModule
 }
 
@@ -204,7 +204,7 @@ func ProvideModule(in StakersInputs) StakersOutputs {
 		authority = authTypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
 
-	stakersKeeper := *keeper.NewKeeper(
+	stakersKeeper := keeper.NewKeeper(
 		in.Cdc,
 		in.Key,
 		in.MemKey,
@@ -215,13 +215,13 @@ func ProvideModule(in StakersInputs) StakersOutputs {
 		in.PoolKeeper,
 		in.UpgradeKeeper,
 	)
-	m := NewAppModule(in.Cdc, stakersKeeper, in.AccountKeeper, in.BankKeeper)
+	m := NewAppModule(in.Cdc, *stakersKeeper, in.AccountKeeper, in.BankKeeper)
 
 	return StakersOutputs{StakersKeeper: stakersKeeper, Module: m}
 }
 
-func InvokeSetStakersKeeper(
-	keeper keeper.Keeper,
+func InvokeSetDelegationKeeper(
+	keeper *keeper.Keeper,
 	delegationKeeper delegationKeeper.Keeper,
 ) error {
 	keeper.SetDelegationKeeper(delegationKeeper)

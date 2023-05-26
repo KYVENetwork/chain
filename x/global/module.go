@@ -190,7 +190,7 @@ type GlobalInputs struct {
 type GlobalOutputs struct {
 	depinject.Out
 
-	GlobalKeeper keeper.Keeper
+	GlobalKeeper *keeper.Keeper
 	Module       appmodule.AppModule
 }
 
@@ -200,12 +200,12 @@ func ProvideModule(in GlobalInputs) GlobalOutputs {
 		authority = authTypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
 
-	globalKeeper := *keeper.NewKeeper(
+	globalKeeper := keeper.NewKeeper(
 		in.Cdc,
 		in.Key,
 		authority.String(),
 	)
-	m := NewAppModule(in.Cdc, in.AccountKeeper, in.BankKeeper, globalKeeper, in.UpgradeKeeper)
+	m := NewAppModule(in.Cdc, in.AccountKeeper, in.BankKeeper, *globalKeeper, in.UpgradeKeeper)
 
 	return GlobalOutputs{GlobalKeeper: globalKeeper, Module: m}
 }

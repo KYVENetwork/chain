@@ -186,7 +186,7 @@ type PoolInputs struct {
 type PoolOutputs struct {
 	depinject.Out
 
-	PoolKeeper keeper.Keeper
+	PoolKeeper *keeper.Keeper
 	Module     appmodule.AppModule
 }
 
@@ -196,7 +196,7 @@ func ProvideModule(in PoolInputs) PoolOutputs {
 		authority = authTypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
 
-	poolKeeper := *keeper.NewKeeper(
+	poolKeeper := keeper.NewKeeper(
 		in.Cdc,
 		in.Key,
 		in.MemKey,
@@ -206,13 +206,13 @@ func ProvideModule(in PoolInputs) PoolOutputs {
 		in.DistributionKeeper,
 		in.UpgradeKeeper,
 	)
-	m := NewAppModule(in.Cdc, poolKeeper, in.AccountKeeper, in.BankKeeper)
+	m := NewAppModule(in.Cdc, *poolKeeper, in.AccountKeeper, in.BankKeeper)
 
 	return PoolOutputs{PoolKeeper: poolKeeper, Module: m}
 }
 
 func InvokeSetStakersKeeper(
-	keeper keeper.Keeper,
+	keeper *keeper.Keeper,
 	stakersKeeper util.StakersKeeper,
 ) error {
 	keeper.SetStakersKeeper(stakersKeeper)

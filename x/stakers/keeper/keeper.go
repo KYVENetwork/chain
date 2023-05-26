@@ -4,15 +4,11 @@ import (
 	"fmt"
 
 	"github.com/KYVENetwork/chain/util"
+	"github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	// Delegation
-	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
-	// Stakers
-	"github.com/KYVENetwork/chain/x/stakers/types"
 )
 
 type (
@@ -23,13 +19,12 @@ type (
 
 		authority string
 
-		accountKeeper util.AccountKeeper
-		bankKeeper    util.BankKeeper
-		distrkeeper   util.DistributionKeeper
-		poolKeeper    types.PoolKeeper
-		upgradeKeeper util.UpgradeKeeper
-		// TODO(@john): Switch this back once app wiring works.
-		delegationKeeper delegationKeeper.Keeper
+		accountKeeper    util.AccountKeeper
+		bankKeeper       util.BankKeeper
+		distrkeeper      util.DistributionKeeper
+		poolKeeper       types.PoolKeeper
+		upgradeKeeper    util.UpgradeKeeper
+		delegationKeeper types.DelegationKeeper
 	}
 )
 
@@ -61,7 +56,7 @@ func NewKeeper(
 	}
 }
 
-func (k *Keeper) SetDelegationKeeper(delegationKeeper delegationKeeper.Keeper) {
+func (k *Keeper) SetDelegationKeeper(delegationKeeper types.DelegationKeeper) {
 	k.delegationKeeper = delegationKeeper
 }
 

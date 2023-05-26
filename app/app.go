@@ -226,13 +226,13 @@ type KYVEApp struct {
 	ICAHostKeeper       icaHostKeeper.Keeper
 
 	// KYVE Keepers
-	BundlesKeeper    bundlesKeeper.Keeper
-	DelegationKeeper delegationKeeper.Keeper
-	GlobalKeeper     globalKeeper.Keeper
-	PoolKeeper       poolKeeper.Keeper
-	QueryKeeper      queryKeeper.Keeper
-	StakersKeeper    stakersKeeper.Keeper
-	TeamKeeper       teamKeeper.Keeper
+	BundlesKeeper    *bundlesKeeper.Keeper
+	DelegationKeeper *delegationKeeper.Keeper
+	GlobalKeeper     *globalKeeper.Keeper
+	PoolKeeper       *poolKeeper.Keeper
+	QueryKeeper      *queryKeeper.Keeper
+	StakersKeeper    *stakersKeeper.Keeper
+	TeamKeeper       *teamKeeper.Keeper
 
 	// Scoped Keepers
 	ScopedIBCKeeper           capabilityKeeper.ScopedKeeper
@@ -320,13 +320,13 @@ func NewKYVEApp(
 		&app.NFTKeeper,
 		&app.ConsensusParamsKeeper,
 		// KYVE Modules
-		//&app.BundlesKeeper,
-		//&app.DelegationKeeper,
-		//&app.GlobalKeeper,
-		//&app.PoolKeeper,
-		//&app.QueryKeeper,
-		//&app.StakersKeeper,
-		//&app.TeamKeeper,
+		&app.BundlesKeeper,
+		&app.DelegationKeeper,
+		&app.GlobalKeeper,
+		&app.PoolKeeper,
+		&app.QueryKeeper,
+		&app.StakersKeeper,
+		&app.TeamKeeper,
 	); err != nil {
 		panic(err)
 	}

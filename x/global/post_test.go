@@ -31,8 +31,8 @@ TEST CASES - RefundFeeDecorator
 var _ = Describe("RefundFeeDecorator", Ordered, func() {
 	s := i.NewCleanChain()
 	encodingConfig := BuildEncodingConfig()
-	rfd := global.NewRefundFeeDecorator(s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper)
-	dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
+	rfd := global.NewRefundFeeDecorator(s.App().BankKeeper, s.App().FeeGrantKeeper, *s.App().GlobalKeeper)
+	dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, *s.App().GlobalKeeper, *s.App().StakingKeeper)
 	denom := s.App().StakingKeeper.BondDenom(s.Ctx())
 
 	accountBalanceBefore := s.GetBalanceFromAddress(i.DUMMY[0])
@@ -41,8 +41,8 @@ var _ = Describe("RefundFeeDecorator", Ordered, func() {
 		s = i.NewCleanChain()
 
 		accountBalanceBefore = s.GetBalanceFromAddress(i.DUMMY[0])
-		rfd = global.NewRefundFeeDecorator(s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper)
-		dfd = global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
+		rfd = global.NewRefundFeeDecorator(s.App().BankKeeper, s.App().FeeGrantKeeper, *s.App().GlobalKeeper)
+		dfd = global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, *s.App().GlobalKeeper, *s.App().StakingKeeper)
 
 		denom = s.App().StakingKeeper.BondDenom(s.Ctx())
 

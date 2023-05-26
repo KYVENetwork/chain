@@ -179,12 +179,12 @@ type QueryInputs struct {
 type QueryOutputs struct {
 	depinject.Out
 
-	QueryKeeper keeper.Keeper
+	QueryKeeper *keeper.Keeper
 	Module      appmodule.AppModule
 }
 
 func ProvideModule(in QueryInputs) QueryOutputs {
-	queryKeeper := *keeper.NewKeeper(
+	queryKeeper := keeper.NewKeeper(
 		in.Cdc,
 		in.Key,
 		in.MemKey,
@@ -198,7 +198,7 @@ func ProvideModule(in QueryInputs) QueryOutputs {
 		in.GlobalKeeper,
 		in.GovKeeper,
 	)
-	m := NewAppModule(in.Cdc, queryKeeper)
+	m := NewAppModule(in.Cdc, *queryKeeper)
 
 	return QueryOutputs{QueryKeeper: queryKeeper, Module: m}
 }

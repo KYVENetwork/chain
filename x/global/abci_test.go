@@ -28,7 +28,7 @@ TEST CASES - DeductFeeDecorator
 var _ = Describe("AbciEndBlocker", Ordered, func() {
 	s := i.NewCleanChain()
 	encodingConfig := BuildEncodingConfig()
-	dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
+	dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, *s.App().GlobalKeeper, *s.App().StakingKeeper)
 
 	accountBalanceBefore := s.GetBalanceFromAddress(i.DUMMY[0])
 	totalSupplyBefore := s.App().BankKeeper.GetSupply(s.Ctx(), types.Denom).Amount.Uint64()
@@ -43,7 +43,7 @@ var _ = Describe("AbciEndBlocker", Ordered, func() {
 
 		accountBalanceBefore = s.GetBalanceFromAddress(i.DUMMY[0])
 		totalSupplyBefore = s.App().BankKeeper.GetSupply(s.Ctx(), types.Denom).Amount.Uint64()
-		dfd = global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
+		dfd = global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, *s.App().GlobalKeeper, *s.App().StakingKeeper)
 	})
 
 	AfterEach(func() {

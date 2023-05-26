@@ -189,7 +189,7 @@ type BundlesInputs struct {
 type BundlesOutputs struct {
 	depinject.Out
 
-	BundlesKeeper keeper.Keeper
+	BundlesKeeper *keeper.Keeper
 	Module        appmodule.AppModule
 }
 
@@ -199,7 +199,7 @@ func ProvideModule(in BundlesInputs) BundlesOutputs {
 		authority = authTypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
 
-	k := *keeper.NewKeeper(
+	bundlesKeeper := keeper.NewKeeper(
 		in.Cdc,
 		in.Key,
 		in.MemKey,
@@ -211,7 +211,7 @@ func ProvideModule(in BundlesInputs) BundlesOutputs {
 		in.StakersKeeper,
 		in.DelegationKeeper,
 	)
-	m := NewAppModule(in.Cdc, k)
+	m := NewAppModule(in.Cdc, *bundlesKeeper)
 
-	return BundlesOutputs{BundlesKeeper: k, Module: m}
+	return BundlesOutputs{BundlesKeeper: bundlesKeeper, Module: m}
 }

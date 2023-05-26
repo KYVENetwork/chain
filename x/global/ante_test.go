@@ -42,7 +42,7 @@ TEST CASES - DeductFeeDecorator
 var _ = Describe("DeductFeeDecorator", Ordered, func() {
 	s := i.NewCleanChain()
 	encodingConfig := BuildEncodingConfig()
-	dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
+	dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, *s.App().GlobalKeeper, *s.App().StakingKeeper)
 	denom := s.App().StakingKeeper.BondDenom(s.Ctx())
 
 	accountBalanceBefore := s.GetBalanceFromAddress(i.DUMMY[0])
@@ -52,7 +52,7 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 		s = i.NewCleanChain()
 		encodingConfig = BuildEncodingConfig()
 		denom = s.App().StakingKeeper.BondDenom(s.Ctx())
-		dfd = global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
+		dfd = global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, *s.App().GlobalKeeper, *s.App().StakingKeeper)
 	})
 
 	AfterEach(func() {
@@ -61,7 +61,7 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 
 	It("Invalid transaction.", func() {
 		// ARRANGE
-		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
+		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, *s.App().GlobalKeeper, *s.App().StakingKeeper)
 
 		// ACT
 		_, err := dfd.AnteHandle(s.Ctx(), &InvalidTx{}, false, AnteNextFn)
@@ -72,7 +72,7 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 
 	It("consensusGasPrice = 0.0; validatorGasPrice = 0.0 - deliverTX", func() {
 		// ARRANGE
-		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
+		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, *s.App().GlobalKeeper, *s.App().StakingKeeper)
 
 		denom := s.App().StakingKeeper.BondDenom(s.Ctx())
 		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
@@ -91,7 +91,7 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 
 	It("consensusGasPrice = 0.0; validatorGasPrice = 0.0 - checkTX", func() {
 		// ARRANGE
-		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
+		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, *s.App().GlobalKeeper, *s.App().StakingKeeper)
 
 		denom := s.App().StakingKeeper.BondDenom(s.Ctx())
 		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
@@ -318,7 +318,7 @@ var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
 		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 		tx := txBuilder.GetTx()
 
-		gad := global.NewGasAdjustmentDecorator(s.App().GlobalKeeper)
+		gad := global.NewGasAdjustmentDecorator(*s.App().GlobalKeeper)
 
 		// ACT
 		_, err := gad.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
@@ -336,7 +336,7 @@ var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
 		_ = txBuilder.SetMsgs(&msg)
 		tx := txBuilder.GetTx()
 
-		gad := global.NewGasAdjustmentDecorator(s.App().GlobalKeeper)
+		gad := global.NewGasAdjustmentDecorator(*s.App().GlobalKeeper)
 
 		// ACT
 		_, err := gad.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
@@ -354,7 +354,7 @@ var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
 		_ = txBuilder.SetMsgs(&msg)
 		tx := txBuilder.GetTx()
 
-		gad := global.NewGasAdjustmentDecorator(s.App().GlobalKeeper)
+		gad := global.NewGasAdjustmentDecorator(*s.App().GlobalKeeper)
 
 		// ACT
 		_, err := gad.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
@@ -373,7 +373,7 @@ var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
 		_ = txBuilder.SetMsgs(&firstMsg, &secondMsg)
 		tx := txBuilder.GetTx()
 
-		gad := global.NewGasAdjustmentDecorator(s.App().GlobalKeeper)
+		gad := global.NewGasAdjustmentDecorator(*s.App().GlobalKeeper)
 
 		// ACT
 		_, err := gad.AnteHandle(s.Ctx(), tx, false, AnteNextFn)
@@ -393,7 +393,7 @@ var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
 		_ = txBuilder.SetMsgs(&firstMsg, &secondMsg, &thirdMsg)
 		tx := txBuilder.GetTx()
 
-		gad := global.NewGasAdjustmentDecorator(s.App().GlobalKeeper)
+		gad := global.NewGasAdjustmentDecorator(*s.App().GlobalKeeper)
 
 		// ACT
 		_, err := gad.AnteHandle(s.Ctx(), tx, false, AnteNextFn)

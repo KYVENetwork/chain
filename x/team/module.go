@@ -189,18 +189,18 @@ type TeamInputs struct {
 type TeamOutputs struct {
 	depinject.Out
 
-	TeamKeeper keeper.Keeper
+	TeamKeeper *keeper.Keeper
 	Module     appmodule.AppModule
 }
 
 func ProvideModule(in TeamInputs) TeamOutputs {
-	teamKeeper := *keeper.NewKeeper(
+	teamKeeper := keeper.NewKeeper(
 		in.Cdc,
 		in.Key,
 		in.AccountKeeper,
 		in.BankKeeper,
 	)
-	m := NewAppModule(in.Cdc, in.BankKeeper, in.MintKeeper, teamKeeper, in.UpgradeKeeper)
+	m := NewAppModule(in.Cdc, in.BankKeeper, in.MintKeeper, *teamKeeper, in.UpgradeKeeper)
 
 	return TeamOutputs{TeamKeeper: teamKeeper, Module: m}
 }

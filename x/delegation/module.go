@@ -192,7 +192,7 @@ type DelegationInputs struct {
 type DelegationOutputs struct {
 	depinject.Out
 
-	DelegationKeeper keeper.Keeper
+	DelegationKeeper *keeper.Keeper
 	Module           appmodule.AppModule
 }
 
@@ -202,7 +202,7 @@ func ProvideModule(in DelegationInputs) DelegationOutputs {
 		authority = authTypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
 
-	delegationKeeper := *keeper.NewKeeper(
+	delegationKeeper := keeper.NewKeeper(
 		in.Cdc,
 		in.Key,
 		in.MemKey,
@@ -213,7 +213,7 @@ func ProvideModule(in DelegationInputs) DelegationOutputs {
 		in.UpgradeKeeper,
 		in.StakersKeeper,
 	)
-	m := NewAppModule(in.Cdc, delegationKeeper, in.AccountKeeper, in.BankKeeper)
+	m := NewAppModule(in.Cdc, *delegationKeeper, in.AccountKeeper, in.BankKeeper)
 
 	return DelegationOutputs{DelegationKeeper: delegationKeeper, Module: m}
 }
