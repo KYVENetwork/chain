@@ -1,5 +1,5 @@
 COMMIT := $(shell git log -1 --format='%H')
-VERSION := v1.2.0 # $(shell echo $(shell git describe --tags) | sed 's/^v//')
+VERSION := v1.2.1 # $(shell echo $(shell git describe --tags) | sed 's/^v//')
 
 TEAM_ALLOCATION := 165000000000000
 ifeq ($(ENV),kaon)
@@ -56,20 +56,20 @@ release:
 	@mkdir -p release
 
 	@GOOS=darwin GOARCH=amd64 go build $(BUILD_FLAGS) ./cmd/kyved
-	@tar -czf release/kyved_darwin_amd64.tar.gz kyved
-	@sha256sum release/kyved_darwin_amd64.tar.gz >> release/release_checksum
+	@tar -czf release/kyved_$(ENV)_darwin_amd64.tar.gz kyved
+	@sha256sum release/kyved_$(ENV)_darwin_amd64.tar.gz >> release/release_$(ENV)_checksum
 
 	@GOOS=darwin GOARCH=arm64 go build $(BUILD_FLAGS) ./cmd/kyved
-	@tar -czf release/kyved_darwin_arm64.tar.gz kyved
-	@sha256sum release/kyved_darwin_arm64.tar.gz >> release/release_checksum
+	@tar -czf release/kyved_$(ENV)_darwin_arm64.tar.gz kyved
+	@sha256sum release/kyved_$(ENV)_darwin_arm64.tar.gz >> release/release_$(ENV)_checksum
 
 	@GOOS=linux GOARCH=amd64 go build $(BUILD_FLAGS) ./cmd/kyved
-	@tar -czf release/kyved_linux_amd64.tar.gz kyved
-	@sha256sum release/kyved_linux_amd64.tar.gz >> release/release_checksum
+	@tar -czf release/kyved_$(ENV)_linux_amd64.tar.gz kyved
+	@sha256sum release/kyved_$(ENV)_linux_amd64.tar.gz >> release/release_$(ENV)_checksum
 
 	@GOOS=linux GOARCH=arm64 go build $(BUILD_FLAGS) ./cmd/kyved
-	@tar -czf release/kyved_linux_arm64.tar.gz kyved
-	@sha256sum release/kyved_linux_arm64.tar.gz >> release/release_checksum
+	@tar -czf release/kyved_$(ENV)_linux_arm64.tar.gz kyved
+	@sha256sum release/kyved_$(ENV)_linux_arm64.tar.gz >> release/release_$(ENV)_checksum
 
 	@rm kyved
 	@echo "✅ Completed release creation!"
