@@ -14,6 +14,10 @@
 
 ## [Unreleased]
 
+### Improvements
+
+- (`x/bundles`) [#62](https://github.com/KYVENetwork/chain/pull/62) Payout storage cost directly to the bundle uploader.
+
 ## [v1.2.0](https://github.com/KYVENetwork/chain/releases/tag/v1.2.0) - 2023-05-16
 
 ### Bug Fixes
