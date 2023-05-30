@@ -42,6 +42,15 @@ func (k Keeper) UpdateStakerCommission(ctx sdk.Context, address string, commissi
 	}
 }
 
+// IncreaseStakerCommissionRewards ...
+func (k Keeper) IncreaseStakerCommissionRewards(ctx sdk.Context, address string, amount uint64) {
+	staker, found := k.GetStaker(ctx, address)
+	if found {
+		staker.CommissionRewards += amount
+		k.setStaker(ctx, staker)
+	}
+}
+
 // AddValaccountToPool adds a valaccount to a pool.
 // If valaccount already belongs to pool, nothing happens.
 func (k Keeper) AddValaccountToPool(ctx sdk.Context, poolId uint64, stakerAddress string, valaddress string) {
