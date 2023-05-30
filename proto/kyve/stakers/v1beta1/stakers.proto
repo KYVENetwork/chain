@@ -26,6 +26,8 @@ message Staker {
   string security_contact = 6;
   // details are some additional notes the staker finds important
   string details = 7;
+  // commission_rewards are the rewards in $KYVE earned through commission
+  uint64 commission_rewards = 8;
 }
 
 // Valaccount gets authorized by a staker to
