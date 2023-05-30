@@ -14,6 +14,10 @@
 
 ## [Unreleased]
 
+### Bug Fixes
+
+- [#57](https://github.com/KYVENetwork/chain/pull/57) Remove `omitempty` tag to enable further Amino signing.
+
 ## [v1.2.0](https://github.com/KYVENetwork/chain/releases/tag/v1.2.0) - 2023-05-16
 
 ### Bug Fixes
