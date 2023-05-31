@@ -2,13 +2,20 @@ package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
-	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptoCodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func RegisterCodec(_ *codec.LegacyAmino) {}
+func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	cdc.RegisterConcrete(&MsgCreateTeamVestingAccount{}, "kyve/team/MsgCreateTeamVestingAccount", nil)
+	cdc.RegisterConcrete(&MsgClaimUnlocked{}, "kyve/team/MsgClaimUnlocked", nil)
+	cdc.RegisterConcrete(&MsgClawback{}, "kyve/team/MsgClawback", nil)
+	cdc.RegisterConcrete(&MsgClaimAccountRewards{}, "kyve/team/MsgClaimAccountRewards", nil)
+	cdc.RegisterConcrete(&MsgClaimAuthorityRewards{}, "kyve/team/MsgClaimAuthorityRewards", nil)
+}
 
-func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
+func RegisterInterfaces(registry codecTypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgCreateTeamVestingAccount{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgClaimUnlocked{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgClawback{})
@@ -18,5 +25,11 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 
 var (
 	Amino     = codec.NewLegacyAmino()
-	ModuleCdc = codec.NewProtoCodec(cdctypes.NewInterfaceRegistry())
+	ModuleCdc = codec.NewAminoCodec(Amino)
 )
+
+func init() {
+	RegisterLegacyAminoCodec(Amino)
+	cryptoCodec.RegisterCrypto(Amino)
+	sdk.RegisterLegacyAminoCodec(Amino)
+}

@@ -2,13 +2,17 @@ package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
-	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptoCodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func RegisterCodec(_ *codec.LegacyAmino) {}
+func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	cdc.RegisterConcrete(&MsgFundPool{}, "kyve/pool/MsgFundPool", nil)
+	cdc.RegisterConcrete(&MsgDefundPool{}, "kyve/pool/MsgDefundPool", nil)
+}
 
-func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
+func RegisterInterfaces(registry codecTypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgFundPool{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgDefundPool{})
 
@@ -24,5 +28,11 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 
 var (
 	Amino     = codec.NewLegacyAmino()
-	ModuleCdc = codec.NewProtoCodec(cdctypes.NewInterfaceRegistry())
+	ModuleCdc = codec.NewAminoCodec(Amino)
 )
+
+func init() {
+	RegisterLegacyAminoCodec(Amino)
+	cryptoCodec.RegisterCrypto(Amino)
+	sdk.RegisterLegacyAminoCodec(Amino)
+}

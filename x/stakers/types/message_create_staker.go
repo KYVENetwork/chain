@@ -5,9 +5,18 @@ import (
 	"github.com/KYVENetwork/chain/util"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 )
 
-var _ sdk.Msg = &MsgCreateStaker{}
+var (
+	_ legacytx.LegacyMsg = &MsgCreateStaker{}
+	_ sdk.Msg            = &MsgCreateStaker{}
+)
+
+func (msg *MsgCreateStaker) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
 
 func (msg *MsgCreateStaker) GetSigners() []sdk.AccAddress {
 	creator, err := sdk.AccAddressFromBech32(msg.Creator)
@@ -16,6 +25,14 @@ func (msg *MsgCreateStaker) GetSigners() []sdk.AccAddress {
 	}
 
 	return []sdk.AccAddress{creator}
+}
+
+func (msg *MsgCreateStaker) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgCreateStaker) Type() string {
+	return "kyve/stakers/MsgCreateStaker"
 }
 
 func (msg *MsgCreateStaker) ValidateBasic() error {

@@ -8,6 +8,7 @@ import (
 	"github.com/KYVENetwork/chain/x/pool"
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	"github.com/KYVENetwork/chain/x/stakers"
+	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/KYVENetwork/chain/x/team"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	. "github.com/onsi/gomega"
@@ -56,6 +57,7 @@ func (suite *KeeperTestSuite) VerifyPoolModuleAssetsIntegrity() {
 	actualBalance := uint64(0)
 
 	for _, pool := range suite.App().PoolKeeper.GetAllPools(suite.Ctx()) {
+		// pool funds should be in pool module
 		for _, funder := range pool.Funders {
 			expectedBalance += funder.Amount
 		}
@@ -166,17 +168,17 @@ func (suite *KeeperTestSuite) VerifyPoolGenesisImportExport() {
 // =====================
 
 func (suite *KeeperTestSuite) VerifyStakersModuleAssetsIntegrity() {
-	//expectedBalance := uint64(0)
-	//actualBalance := uint64(0)
-	//
-	//for _, staker := range suite.App().StakersKeeper.GetAllStakers(suite.Ctx()) {
-	//	expectedBalance += suite.App().DelegationKeeper
-	//}
-	//
-	//moduleAcc := suite.App().AccountKeeper.GetModuleAccount(suite.Ctx(), stakerstypes.ModuleName).GetAddress()
-	//actualBalance = suite.App().BankKeeper.GetBalance(suite.Ctx(), moduleAcc, globalTypes.Denom).Amount.Uint64()
-	//
-	//Expect(actualBalance).To(Equal(expectedBalance))
+	expectedBalance := uint64(0)
+	actualBalance := uint64(0)
+
+	for _, staker := range suite.App().StakersKeeper.GetAllStakers(suite.Ctx()) {
+		expectedBalance += staker.CommissionRewards
+	}
+
+	moduleAcc := suite.App().AccountKeeper.GetModuleAccount(suite.Ctx(), stakertypes.ModuleName).GetAddress()
+	actualBalance = suite.App().BankKeeper.GetBalance(suite.Ctx(), moduleAcc, globalTypes.Denom).Amount.Uint64()
+
+	Expect(actualBalance).To(Equal(expectedBalance))
 }
 
 func (suite *KeeperTestSuite) VerifyPoolTotalStake() {
