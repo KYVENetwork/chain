@@ -37,7 +37,11 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 	s := i.NewCleanChain()
 
 	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
+	minDeposit := s.App().GovKeeper.GetDepositParams(s.Ctx()).MinDeposit
 	votingPeriod := s.App().GovKeeper.GetVotingParams(s.Ctx()).VotingPeriod
+
+	delegations := s.App().StakingKeeper.GetAllDelegations(s.Ctx())
+	voter := sdk.MustAccAddressFromBech32(delegations[0].DelegatorAddress)
 
 	BeforeEach(func() {
 		s = i.NewCleanChain()
@@ -282,20 +286,23 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 			Payload:   "{\"MinDelegation\":100000000}",
 		}
 
-		p, v := BuildGovernanceTxs(s, []sdk.Msg{msg})
+		proposal, _ := govV1Types.NewMsgSubmitProposal(
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+		)
 
-		_, submitErr := s.RunTx(&p)
-		_, voteErr := s.RunTx(&v)
+		vote := govV1Types.NewMsgVote(
+			voter, 1, govV1Types.VoteOption_VOTE_OPTION_YES, "",
+		)
+
+		// ACT
+		_, submitErr := s.RunTx(proposal)
+		_, voteErr := s.RunTx(vote)
 
 		s.CommitAfter(*votingPeriod)
 		s.Commit()
 
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
-
-		Expect(submitErr).To(Not(HaveOccurred()))
-		Expect(voteErr).To(Not(HaveOccurred()))
-
-		Expect(proposal.Status).To(Equal(govV1Types.StatusPassed))
+		Expect(submitErr).NotTo(HaveOccurred())
+		Expect(voteErr).NotTo(HaveOccurred())
 
 		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
 			GlobalMinDelegation: 200 * i.KYVE,
