@@ -25,6 +25,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // GenesisState defines the pool module's genesis state.
 type GenesisState struct {
+	// params ...
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 	// pool_list ...
 	PoolList []Pool `protobuf:"bytes,2,rep,name=pool_list,json=poolList,proto3" json:"pool_list"`

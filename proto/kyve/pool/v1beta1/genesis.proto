@@ -10,8 +10,8 @@ option go_package = "github.com/KYVENetwork/chain/x/pool/types";
 
 // GenesisState defines the pool module's genesis state.
 message GenesisState {
+  // params ...
   Params params = 1 [(gogoproto.nullable) = false];
-
   // pool_list ...
   repeated kyve.pool.v1beta1.Pool pool_list = 2 [(gogoproto.nullable) = false];
   // pool_count ...
