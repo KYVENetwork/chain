@@ -14,9 +14,23 @@
 
 ## [Unreleased]
 
+### Features
+
+- (ibc) [#30](https://github.com/KYVENetwork/chain/pull/30) Integrate [Packet Forward Middleware](https://github.com/strangelove-ventures/packet-forward-middleware).
+
 ### Improvements
 
 - (`x/bundles`) [#62](https://github.com/KYVENetwork/chain/pull/62) Payout storage cost directly to the bundle uploader.
+- (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Allow protocol validator commission rewards to be claimed.
+
+### Client Breaking
+
+- (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Include `MsgClaimCommissionRewards` for claiming commission rewards.
+
+### API Breaking
+
+<!-- TODO: Switch this link to the release tag. -->
+- (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Emit an [event](https://github.com/KYVENetwork/chain/blob/main/x/stakers/spec/05_events.md#eventclaimcommissionrewards) when claiming protocol validator commission rewards.
 
 ## [v1.2.1](https://github.com/KYVENetwork/chain/releases/tag/v1.2.1) - 2023-05-25
 

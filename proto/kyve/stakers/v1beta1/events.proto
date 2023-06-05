@@ -61,6 +61,15 @@ message EventUpdateCommission {
   ];
 }
 
+// EventClaimCommissionRewards ...
+// emitted_by: MsgClaimCommissionRewards
+message EventClaimCommissionRewards {
+  // staker is the account address of the protocol node.
+  string staker = 1;
+  // amount ...
+  uint64 amount = 2;
+}
+
 // EventJoinPool ...
 // emitted_by: MsgJoinPool
 message EventJoinPool {
