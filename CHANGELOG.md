@@ -14,8 +14,13 @@
 
 ## [Unreleased]
 
+### Features
+
+- (ibc) [#30](https://github.com/KYVENetwork/chain/pull/30) Integrate [Packet Forward Middleware](https://github.com/strangelove-ventures/packet-forward-middleware).
+
 ### Improvements
 
+- (`x/bundles`) [#62](https://github.com/KYVENetwork/chain/pull/62) Payout storage cost directly to the bundle uploader.
 - (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Allow protocol validator commission rewards to be claimed.
 
 ### Client Breaking

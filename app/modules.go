@@ -1,7 +1,6 @@
 package app
 
 import (
-	teamTypes "github.com/KYVENetwork/chain/x/team/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	// Auth
@@ -54,6 +53,8 @@ import (
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	// Parameters
 	"github.com/cosmos/cosmos-sdk/x/params"
+	// PFM
+	pfm "github.com/strangelove-ventures/packet-forward-middleware/v6/router"
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
@@ -69,6 +70,7 @@ import (
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	// Team
 	"github.com/KYVENetwork/chain/x/team"
+	teamTypes "github.com/KYVENetwork/chain/x/team/types"
 	// Upgrade
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 )
@@ -99,6 +101,7 @@ var appModuleBasics = []module.AppModuleBasic{
 	ibcFee.AppModuleBasic{},
 	ibcTransfer.AppModuleBasic{},
 	ica.AppModuleBasic{},
+	pfm.AppModuleBasic{},
 
 	// KYVE
 	bundles.AppModuleBasic{},

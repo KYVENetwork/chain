@@ -243,14 +243,17 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64) (bundleReward t
 		return
 	}
 
+	operatingReward := pool.OperatingCost
+	storageReward := uint64(k.GetStorageCost(ctx).MulInt64(int64(bundleProposal.DataSize)).TruncateInt64())
+
 	// formula for calculating the rewards
-	bundleReward.Total = pool.OperatingCost + uint64(k.GetStorageCost(ctx).MulInt64(int64(bundleProposal.DataSize)).TruncateInt64())
+	bundleReward.Total = operatingReward + storageReward
 
 	// Add fee to treasury
-	bundleReward.Treasury = uint64(sdk.NewDec(int64(bundleReward.Total)).Mul(k.GetNetworkFee(ctx)).TruncateInt64())
+	bundleReward.Treasury = uint64(sdk.NewDec(int64(operatingReward)).Mul(k.GetNetworkFee(ctx)).TruncateInt64())
 
 	// Remaining rewards to be split between staker and its delegators
-	totalNodeReward := bundleReward.Total - bundleReward.Treasury
+	totalNodeReward := operatingReward - bundleReward.Treasury
 
 	// Payout delegators
 	if k.delegationKeeper.GetDelegationAmount(ctx, bundleProposal.Uploader) > 0 {
@@ -262,6 +265,9 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64) (bundleReward t
 		bundleReward.Uploader = totalNodeReward
 		bundleReward.Delegation = 0
 	}
+
+	// the uploader always receives the full storage reward since the uploader paid for storage
+	bundleReward.Uploader += storageReward
 
 	return
 }

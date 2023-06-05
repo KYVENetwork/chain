@@ -120,6 +120,10 @@ import (
 	"github.com/KYVENetwork/chain/x/global"
 	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
+	// PFM
+	pfm "github.com/strangelove-ventures/packet-forward-middleware/v6/router"
+	pfmKeeper "github.com/strangelove-ventures/packet-forward-middleware/v6/router/keeper"
+	pfmTypes "github.com/strangelove-ventures/packet-forward-middleware/v6/router/types"
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
@@ -230,12 +234,15 @@ func NewKYVEApp(
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
 	keys := sdk.NewKVStoreKeys(
-		authtypes.StoreKey, authzTypes.ModuleName, banktypes.StoreKey, stakingtypes.StoreKey,
-		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey, govtypes.StoreKey,
-		paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
-		evidencetypes.StoreKey, ibcFeeTypes.StoreKey, ibcTransferTypes.StoreKey,
-		icaControllerTypes.StoreKey, icaHostTypes.StoreKey, capabilitytypes.StoreKey,
-		groupTypes.StoreKey,
+		authtypes.StoreKey, authzTypes.ModuleName, banktypes.StoreKey,
+		capabilitytypes.StoreKey, distrtypes.StoreKey, evidencetypes.StoreKey,
+		feegrant.StoreKey, govtypes.StoreKey, groupTypes.StoreKey,
+		minttypes.StoreKey, paramstypes.StoreKey, slashingtypes.StoreKey,
+		stakingtypes.StoreKey, upgradetypes.StoreKey,
+
+		ibchost.StoreKey, ibcFeeTypes.StoreKey, ibcTransferTypes.StoreKey,
+		icaControllerTypes.StoreKey, icaHostTypes.StoreKey,
+		pfmTypes.StoreKey,
 
 		bundlesTypes.StoreKey,
 		delegationTypes.StoreKey,
@@ -500,6 +507,16 @@ func NewKYVEApp(
 		app.MsgServiceRouter(),
 	)
 
+	app.PFMKeeper = pfmKeeper.NewKeeper(
+		appCodec, keys[pfmTypes.StoreKey],
+		app.GetSubspace(pfmTypes.ModuleName),
+		app.IBCTransferKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		app.DistributionKeeper,
+		app.BankKeeper,
+		app.IBCKeeper.ChannelKeeper,
+	)
+
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	evidenceKeeper := evidencekeeper.NewKeeper(
 		appCodec,
@@ -554,6 +571,13 @@ func NewKYVEApp(
 	var ibcTransferStack ibcPortTypes.IBCModule
 	ibcTransferStack = ibcTransfer.NewIBCModule(app.IBCTransferKeeper)
 	ibcTransferStack = ibcFee.NewIBCMiddleware(ibcTransferStack, app.IBCFeeKeeper)
+	ibcTransferStack = pfm.NewIBCMiddleware(
+		ibcTransferStack,
+		app.PFMKeeper,
+		0,
+		pfmKeeper.DefaultForwardTransferPacketTimeoutTimestamp,
+		pfmKeeper.DefaultRefundTransferPacketTimeoutTimestamp,
+	)
 
 	var icaControllerStack ibcPortTypes.IBCModule
 	icaControllerStack = icaController.NewIBCMiddleware(icaControllerStack, app.ICAControllerKeeper)
