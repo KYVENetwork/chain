@@ -10,6 +10,7 @@ import (
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgCreateStaker{}, "kyve/stakers/MsgCreateStaker", nil)
 	cdc.RegisterConcrete(&MsgUpdateCommission{}, "kyve/stakers/MsgUpdateCommission", nil)
+	cdc.RegisterConcrete(&MsgClaimCommissionRewards{}, "kyve/stakers/MsgClaimCommissionRewards", nil)
 	cdc.RegisterConcrete(&MsgUpdateMetadata{}, "kyve/stakers/MsgUpdateMetadata", nil)
 	cdc.RegisterConcrete(&MsgJoinPool{}, "kyve/stakers/MsgJoinPool", nil)
 	cdc.RegisterConcrete(&MsgLeavePool{}, "kyve/stakers/MsgLeavePool", nil)
@@ -19,6 +20,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 func RegisterInterfaces(registry codecTypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgCreateStaker{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgUpdateCommission{})
+	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgClaimCommissionRewards{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgUpdateMetadata{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgJoinPool{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgLeavePool{})
