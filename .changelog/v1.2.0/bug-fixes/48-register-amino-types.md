@@ -1,0 +1,1 @@
+- Register Amino types for full Ledger support. ([\#48](https://github.com/KYVENetwork/chain/pull/48))

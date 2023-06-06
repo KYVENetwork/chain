@@ -1,0 +1,1 @@
+- `[deps]` Bump IBC to [v6.1.1](https://github.com/cosmos/ibc-go/releases/tag/v6.1.1) ([\#63](https://github.com/KYVENetwork/chain/pull/63))

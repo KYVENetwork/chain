@@ -1,0 +1,1 @@
+- `[x/team]` Adjust vesting schedules of multiple KYVE Core Team members. ([\#45](https://github.com/KYVENetwork/chain/pull/45))

@@ -1,38 +1,3 @@
-# CHANGELOG
-
-## v1.2.1
-
-*May 25, 2023*
-
-In light of the [IBC Huckleberry Security Advisory](https://forum.cosmos.network/t/ibc-security-advisory-huckleberry), this is a patch release to the `v1.2.x` line. It is non-consensus breaking and doesn't require a network upgrade.
-
-It is recommended to use this release over `v1.2.0`.
-
-### BUG FIXES
-
-- `[deps]` Bump IBC to [v6.1.1](https://github.com/cosmos/ibc-go/releases/tag/v6.1.1) ([\#63](https://github.com/KYVENetwork/chain/pull/63))
-
-## v1.2.0
-
-*May 16, 2023*
-
-### BUG FIXES
-
-- `[x/team]` Adjust vesting schedules of multiple KYVE Core Team members. ([\#45](https://github.com/KYVENetwork/chain/pull/45))
-- Register Amino types for full Ledger support. ([\#48](https://github.com/KYVENetwork/chain/pull/48))
-
-## v1.1.3
-
-*May 25, 2023*
-
-In light of the [IBC Huckleberry Security Advisory](https://forum.cosmos.network/t/ibc-security-advisory-huckleberry), this is a patch release to the `v1.1.x` line. It is non-consensus breaking and doesn't require a network upgrade.
-
-It is recommended to use this release over `v1.1.0`.
-
-### BUG FIXES
-
-- `[deps]` Bump IBC to [v6.1.1](https://github.com/cosmos/ibc-go/releases/tag/v6.1.1) ([\#63](https://github.com/KYVENetwork/chain/pull/63))
-
 ## [v1.1.2](https://github.com/KYVENetwork/chain/releases/tag/v1.1.2) - 2023-05-12
 
 ### API Breaking
@@ -107,4 +72,3 @@ Release for the KYVE network launch.
 ## [v1.0.0-rc0](https://github.com/KYVENetwork/chain/releases/tag/v1.0.0-rc0) - 2023-02-03
 
 `v1.0.0` Release Candidate for the Kaon network launch.
-
