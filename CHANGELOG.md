@@ -23,6 +23,10 @@
 - (`x/bundles`) [#62](https://github.com/KYVENetwork/chain/pull/62) Payout storage cost directly to the bundle uploader.
 - (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Allow protocol validator commission rewards to be claimed.
 
+### Bug Fixes
+
+- (deps) [#82](https://github.com/KYVENetwork/chain/pull/82) Bump Cosmos SDK to [v0.46.13](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.13) ([`v0.46.13-kyve`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.46.13-kyve)) to adhere to the [Cosmos SDK Barberry Security Advisory](https://forum.cosmos.network/t/cosmos-sdk-security-advisory-barberry).
+
 ### Client Breaking
 
 - (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Include `MsgClaimCommissionRewards` for claiming commission rewards.
