@@ -61,6 +61,8 @@ import (
 	// Parameters
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsClient "github.com/cosmos/cosmos-sdk/x/params/client"
+	// PFM
+	pfm "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
@@ -117,6 +119,7 @@ var appModuleBasics = []module.AppModuleBasic{
 	ibcFee.AppModuleBasic{},
 	ibcTransfer.AppModuleBasic{},
 	ica.AppModuleBasic{},
+	pfm.AppModuleBasic{},
 
 	// KYVE
 	bundles.AppModuleBasic{},
