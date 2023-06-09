@@ -1,4 +1,4 @@
-name: Test Upgrade
+name: Test Upgrades
 
 on: pull_request
 
@@ -12,9 +12,9 @@ jobs:
         uses: actions/setup-go@v4
 
       - name: Install Heighliner
-        run: make heighliner-setup ENV=mainnet
+        run: make heighliner-setup
       - name: Build Images
-        run: make heighliner ENV=mainnet
+        run: make heighliner
 
       - name: Run Upgrade Tests
-        run: make test-upgrade ENV=mainnet
+        run: make test-upgrade

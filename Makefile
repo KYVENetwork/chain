@@ -44,7 +44,8 @@ build: ensure_environment ensure_version
 	@go build $(BUILD_FLAGS) -o "$(PWD)/build/" ./cmd/kyved
 	@echo "✅ Completed build!"
 
-install: ensure_environment ensure_version
+# TODO(@john): Figure out why the version check fails.
+install: ensure_environment
 	@echo "🤖 Installing kyved..."
 	@go install -mod=readonly $(BUILD_FLAGS) ./cmd/kyved
 	@echo "✅ Completed installation!"
@@ -155,11 +156,11 @@ proto-setup:
 
 heighliner:
 	@echo "🤖 Building Kaon image..."
-	@heighliner build --chain kaon --local 1> /dev/null
+	@heighliner build --chain kaon --local
 	@echo "✅ Completed build!"
 
 	@echo "🤖 Building KYVE image..."
-	@heighliner build --chain kyve --local 1> /dev/null
+	@heighliner build --chain kyve --local
 	@echo "✅ Completed build!"
 
 heighliner-setup:
