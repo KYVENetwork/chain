@@ -16,7 +16,7 @@
 
 ### Features
 
-- [#33](https://github.com/KYVENetwork/chain/pull/33) Upgrade Cosmos SDK to [v0.47.2](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.47.2) ([`v0.47.2-kyve-rc0`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.47.2-kyve-rc0)).
+- [#33](https://github.com/KYVENetwork/chain/pull/33) Upgrade Cosmos SDK to [v0.47.3](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.47.3) ([`v0.47.3-kyve`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.47.3-kyve)).
 - (ibc) [#30](https://github.com/KYVENetwork/chain/pull/30) Integrate [Packet Forward Middleware](https://github.com/strangelove-ventures/packet-forward-middleware).
 
 ### Improvements
