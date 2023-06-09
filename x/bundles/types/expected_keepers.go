@@ -42,6 +42,7 @@ type PoolKeeper interface {
 type StakerKeeper interface {
 	GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (stakers []string)
 	GetCommission(ctx sdk.Context, stakerAddress string) sdk.Dec
+	IncreaseStakerCommissionRewards(ctx sdk.Context, address string, amount uint64)
 	AssertValaccountAuthorized(ctx sdk.Context, poolId uint64, stakerAddress string, valaddress string) error
 
 	DoesStakerExist(ctx sdk.Context, staker string) bool

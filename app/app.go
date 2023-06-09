@@ -133,6 +133,10 @@ import (
 	"github.com/KYVENetwork/chain/x/pool"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
+	// PFM
+	pfm "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
+	pfmKeeper "github.com/strangelove-ventures/packet-forward-middleware/v7/router/keeper"
+	pfmTypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 	// Query
 	"github.com/KYVENetwork/chain/x/query"
 	queryKeeper "github.com/KYVENetwork/chain/x/query/keeper"
@@ -279,6 +283,7 @@ func NewKYVEApp(
 		ibcTransferTypes.StoreKey,
 		icaControllerTypes.StoreKey,
 		icaHostTypes.StoreKey,
+		pfmTypes.StoreKey,
 
 		bundlesTypes.StoreKey,
 		delegationTypes.StoreKey,
@@ -568,6 +573,16 @@ func NewKYVEApp(
 		app.MsgServiceRouter(),
 	)
 
+	app.PFMKeeper = pfmKeeper.NewKeeper(
+		appCodec, keys[pfmTypes.StoreKey],
+		app.GetSubspace(pfmTypes.ModuleName),
+		app.IBCTransferKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		app.DistributionKeeper,
+		app.BankKeeper,
+		app.IBCKeeper.ChannelKeeper,
+	)
+
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	app.EvidenceKeeper = evidenceKeeper.NewKeeper(
 		appCodec,
@@ -622,6 +637,13 @@ func NewKYVEApp(
 	var ibcTransferStack ibcPortTypes.IBCModule
 	ibcTransferStack = ibcTransfer.NewIBCModule(app.IBCTransferKeeper)
 	ibcTransferStack = ibcFee.NewIBCMiddleware(ibcTransferStack, app.IBCFeeKeeper)
+	ibcTransferStack = pfm.NewIBCMiddleware(
+		ibcTransferStack,
+		app.PFMKeeper,
+		0,
+		pfmKeeper.DefaultForwardTransferPacketTimeoutTimestamp,
+		pfmKeeper.DefaultRefundTransferPacketTimeoutTimestamp,
+	)
 
 	var icaControllerStack ibcPortTypes.IBCModule
 	icaControllerStack = icaController.NewIBCMiddleware(icaControllerStack, app.ICAControllerKeeper)

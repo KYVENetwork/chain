@@ -1,5 +1,6 @@
 COMMIT := $(shell git log -1 --format='%H')
-VERSION := v1.2.0 # $(shell echo $(shell git describe --tags) | sed 's/^v//')
+GO_VERSION := $(shell go version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f1 -f2)
+VERSION := v1.2.1 # $(shell echo $(shell git describe --tags) | sed 's/^v//')
 
 TEAM_ALLOCATION := 165000000000000
 ifeq ($(ENV),kaon)
@@ -14,8 +15,6 @@ DENOM := ukyve
 TEAM_TGE := 2023-03-14T14:03:14
 TEAM_FOUNDATION_ADDRESS := kyve1xjpl57p7f49y5gueu7rlfytaw9ramcn5zhjy2g
 TEAM_BCP_ADDRESS := kyve1fnh4kghr25tppskap50zk5j385pt65tyyjaraa
-else
-$(error ❌  Please specify a build environment..)
 endif
 
 ldflags := $(LDFLAGS)
@@ -34,45 +33,59 @@ BUILD_FLAGS := -ldflags '$(ldflags)' -tags 'ledger' -trimpath
 
 .PHONY: proto-setup proto-format proto-lint proto-gen \
 	format lint vet test test-upgrade build release dev
-all: proto-all format lint test build
+all: ensure_environment ensure_version proto-all format lint test build
 
 ###############################################################################
 ###                                  Build                                  ###
 ###############################################################################
 
-build:
+build: ensure_environment ensure_version
 	@echo "🤖 Building kyved..."
 	@go build $(BUILD_FLAGS) -o "$(PWD)/build/" ./cmd/kyved
 	@echo "✅ Completed build!"
 
-install:
+install: ensure_environment ensure_version
 	@echo "🤖 Installing kyved..."
 	@go install -mod=readonly $(BUILD_FLAGS) ./cmd/kyved
 	@echo "✅ Completed installation!"
 
-release:
+release: ensure_environment ensure_version
 	@echo "🤖 Creating kyved releases..."
 	@rm -rf release
 	@mkdir -p release
 
 	@GOOS=darwin GOARCH=amd64 go build $(BUILD_FLAGS) ./cmd/kyved
-	@tar -czf release/kyved_darwin_amd64.tar.gz kyved
-	@sha256sum release/kyved_darwin_amd64.tar.gz >> release/release_checksum
+	@tar -czf release/kyved_$(ENV)_darwin_amd64.tar.gz kyved
+	@sha256sum release/kyved_$(ENV)_darwin_amd64.tar.gz >> release/release_$(ENV)_checksum
 
 	@GOOS=darwin GOARCH=arm64 go build $(BUILD_FLAGS) ./cmd/kyved
-	@tar -czf release/kyved_darwin_arm64.tar.gz kyved
-	@sha256sum release/kyved_darwin_arm64.tar.gz >> release/release_checksum
+	@tar -czf release/kyved_$(ENV)_darwin_arm64.tar.gz kyved
+	@sha256sum release/kyved_$(ENV)_darwin_arm64.tar.gz >> release/release_$(ENV)_checksum
 
 	@GOOS=linux GOARCH=amd64 go build $(BUILD_FLAGS) ./cmd/kyved
-	@tar -czf release/kyved_linux_amd64.tar.gz kyved
-	@sha256sum release/kyved_linux_amd64.tar.gz >> release/release_checksum
+	@tar -czf release/kyved_$(ENV)_linux_amd64.tar.gz kyved
+	@sha256sum release/kyved_$(ENV)_linux_amd64.tar.gz >> release/release_$(ENV)_checksum
 
 	@GOOS=linux GOARCH=arm64 go build $(BUILD_FLAGS) ./cmd/kyved
-	@tar -czf release/kyved_linux_arm64.tar.gz kyved
-	@sha256sum release/kyved_linux_arm64.tar.gz >> release/release_checksum
+	@tar -czf release/kyved_$(ENV)_linux_arm64.tar.gz kyved
+	@sha256sum release/kyved_$(ENV)_linux_arm64.tar.gz >> release/release_$(ENV)_checksum
 
 	@rm kyved
 	@echo "✅ Completed release creation!"
+
+###############################################################################
+###                                 Checks                                  ###
+###############################################################################
+
+ensure_environment:
+ifndef ENV
+	$(error ❌  Please specify a build environment..)
+endif
+
+ensure_version:
+ifneq ($(GO_VERSION),1.20)
+	$(error ❌  Please run Go v1.20.x..)
+endif
 
 ###############################################################################
 ###                               Development                               ###
@@ -109,7 +122,7 @@ vet:
 ###                                Protobuf                                 ###
 ###############################################################################
 
-BUF_VERSION=1.17.0
+BUF_VERSION=1.20.0
 
 proto-all: proto-format proto-lint proto-gen
 

@@ -57,6 +57,9 @@ import (
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	// Parameters
 	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
+	// PFM
+	pfmKeeper "github.com/strangelove-ventures/packet-forward-middleware/v7/router/keeper"
+	pfmTypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 	// Pool
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	// Query
@@ -100,6 +103,7 @@ type Keepers struct {
 	IBCTransferKeeper   ibcTransferKeeper.Keeper
 	ICAControllerKeeper icaControllerKeeper.Keeper
 	ICAHostKeeper       icaHostKeeper.Keeper
+	PFMKeeper           *pfmKeeper.Keeper
 
 	// KYVE
 	BundlesKeeper    bundlesKeeper.Keeper
@@ -124,16 +128,18 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 
 	keeper.Subspace(authTypes.ModuleName).WithKeyTable(authTypes.ParamKeyTable())                 //nolint:staticcheck
 	keeper.Subspace(bankTypes.ModuleName).WithKeyTable(bankTypes.ParamKeyTable())                 //nolint:staticcheck
-	keeper.Subspace(stakingTypes.ModuleName).WithKeyTable(stakingTypes.ParamKeyTable())           //nolint:staticcheck
-	keeper.Subspace(mintTypes.ModuleName).WithKeyTable(mintTypes.ParamKeyTable())                 //nolint:staticcheck
-	keeper.Subspace(distributionTypes.ModuleName).WithKeyTable(distributionTypes.ParamKeyTable()) //nolint:staticcheck
-	keeper.Subspace(slashingTypes.ModuleName).WithKeyTable(slashingTypes.ParamKeyTable())         //nolint:staticcheck
-	keeper.Subspace(govTypes.ModuleName).WithKeyTable(v1.ParamKeyTable())                         //nolint:staticcheck
 	keeper.Subspace(crisisTypes.ModuleName).WithKeyTable(crisisTypes.ParamKeyTable())             //nolint:staticcheck
-	keeper.Subspace(ibcTransferTypes.ModuleName)
+	keeper.Subspace(distributionTypes.ModuleName).WithKeyTable(distributionTypes.ParamKeyTable()) //nolint:staticcheck
+	keeper.Subspace(govTypes.ModuleName).WithKeyTable(v1.ParamKeyTable())                         //nolint:staticcheck
+	keeper.Subspace(mintTypes.ModuleName).WithKeyTable(mintTypes.ParamKeyTable())                 //nolint:staticcheck
+	keeper.Subspace(slashingTypes.ModuleName).WithKeyTable(slashingTypes.ParamKeyTable())         //nolint:staticcheck
+	keeper.Subspace(stakingTypes.ModuleName).WithKeyTable(stakingTypes.ParamKeyTable())           //nolint:staticcheck
+
 	keeper.Subspace(ibcExported.ModuleName)
+	keeper.Subspace(ibcTransferTypes.ModuleName)
 	keeper.Subspace(icaControllerTypes.SubModuleName)
 	keeper.Subspace(icaHostTypes.SubModuleName)
+	keeper.Subspace(pfmTypes.ModuleName)
 
 	return keeper
 }
