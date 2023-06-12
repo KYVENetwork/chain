@@ -14,25 +14,16 @@
 
 ## [Unreleased]
 
+### API Breaking
+
+- (`x/query`) [#87](https://github.com/KYVENetwork/chain/pull/87) Correctly return pools that an account has funded.
+
 ## [v1.2.2](https://github.com/KYVENetwork/chain/releases/tag/v1.2.2) - 2023-06-08
 
 ### Bug Fixes
 
 - (deps) [#82](https://github.com/KYVENetwork/chain/pull/82) Bump Cosmos SDK to [v0.46.13](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.13) ([`v0.46.13-kyve`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.46.13-kyve)) to adhere to the [Cosmos SDK Barberry Security Advisory](https://forum.cosmos.network/t/cosmos-sdk-security-advisory-barberry).
 
-<<<<<<< HEAD
-=======
-### Client Breaking
-
-- (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Include `MsgClaimCommissionRewards` for claiming commission rewards.
-
-### API Breaking
-
-- (`x/query`) [#87](https://github.com/KYVENetwork/chain/pull/87) Correctly return pools that an account has funded.
-<!-- TODO: Switch this link to the release tag. -->
-- (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Emit an [event](https://github.com/KYVENetwork/chain/blob/main/x/stakers/spec/05_events.md#eventclaimcommissionrewards) when claiming protocol validator commission rewards.
-
->>>>>>> cad0f78 (fix: correctly return funded pools (#87))
 ## [v1.2.1](https://github.com/KYVENetwork/chain/releases/tag/v1.2.1) - 2023-05-25
 
 ### Bug Fixes
