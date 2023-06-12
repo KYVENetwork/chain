@@ -35,6 +35,7 @@
 
 <!-- TODO: Switch this link to the release tag. -->
 - (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Emit an [event](https://github.com/KYVENetwork/chain/blob/main/x/stakers/spec/05_events.md#eventclaimcommissionrewards) when claiming protocol validator commission rewards.
+- (query) [#87](https://github.com/KYVENetwork/chain/pull/87) Only return pools where the account has funded into
 
 ## [v1.2.1](https://github.com/KYVENetwork/chain/releases/tag/v1.2.1) - 2023-05-25
 
