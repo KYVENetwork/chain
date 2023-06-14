@@ -803,6 +803,8 @@ func NewKYVEApp(
 		v1p3.CreateUpgradeHandler(
 			app.mm,
 			app.configurator,
+			app.AccountKeeper,
+			app.PoolKeeper,
 		),
 	)
 
