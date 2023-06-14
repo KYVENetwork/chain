@@ -21,6 +21,7 @@
 ### Improvements
 
 - (`x/bundles`) [#62](https://github.com/KYVENetwork/chain/pull/62) Payout storage cost directly to the bundle uploader.
+- (`x/pool`) [#74](https://github.com/KYVENetwork/chain/pull/74) Improve parameter validation in pool proposals.
 - (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Allow protocol validator commission rewards to be claimed.
 
 ### Bug Fixes
