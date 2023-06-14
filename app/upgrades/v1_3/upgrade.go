@@ -22,14 +22,14 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradeTypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		CheckPoolAddresses(ctx, logger, poolKeeper)
+		CheckPoolAccount(ctx, logger, poolKeeper)
 
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
 }
 
-// CheckPoolAddresses ensures that each pool account exists post upgrade.
-func CheckPoolAddresses(ctx sdk.Context, logger log.Logger, keeper poolKeeper.Keeper) {
+// CheckPoolAccount ensures that each pool account exists post upgrade.
+func CheckPoolAccount(ctx sdk.Context, logger log.Logger, keeper poolKeeper.Keeper) {
 	pools := keeper.GetAllPools(ctx)
 
 	for _, pool := range pools {
