@@ -7,32 +7,68 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// Round Robin implementation
+/*
+
+Weighted Round Robin Uploader Selection
+
+This file implements all necessary logic for a weighted round-robin algorithm. An example introduction can be found
+[here](https://learnblockchain.cn/docs/tendermint/spec/reactors/consensus/proposer-selection.html).
+
+Our implementation additionally has the option of temporarily skipping participants for single rounds.
+They do not advance in the round-robin progress and can not be selected as an uploader.
+The frequencies of uploader selection with respect to the excluded ones can be described as follows.
+
+Let $R$ denote the number of total rounds and $r$ the index of the current round.
+Let $N$ denote the number of total validators and $n$ the index of the n-th validator.
+
+The stake (+ delegation) of each validator for each round is given by
+    $s(n, r)$
+
+Then the total stake for round r is given by
+    $S(r) = \sum_{i=1}^N s(i, r)$
+
+Ignoring the existing progress, the likeliness of being selected in the next round is given by
+    $p(n, r) = s(n, r) / S(r)$
+
+Using this value one can obtain the frequencies for uploader selection over all rounds, which is
+   $P(n) = 1/R * \sum_{r=1}^R p(n, r)$
+
+Except for rounding errors $P(n)$ is independent from $R$ if $p(n, r)$ is constant.
+If validators $i$ is excluded for round $k$, this is denoted by $s(i, k) = 0$. So in general $S(r)$ is
+dependent on validator exclusions and validators set changes.
+
+*/
 
 // RoundRobinValidatorPower contains the total delegation of a validator. It is used as a cache
-// because the calculation of the total delegation requires gas and needs to access
-// the KV Store.
+// because the calculation of the total delegation needs to access the KV-Store and therefore
+// consumes gas everytime it is called.
+// This value is only stored for the current round and only lives inside the memory.
 type RoundRobinValidatorPower struct {
 	Address string
 	Power   int64
 }
 
 // RoundRobinValidatorSet is the in memory-object for working with the round-robin state
-// It can not be stored to the KV-Store as go map iteration is non-deterministic
+// It can not be stored to the KV-Store as go map iteration is non-deterministic.
+// To obtain a deterministic state of the current state call GetRoundRobinProgress().
 type RoundRobinValidatorSet struct {
 	Validators []RoundRobinValidatorPower
 	Progress   map[string]int64
 }
 
-// LoadRoundRobinValidatorSet initialises a validator set out of the current stored progress.
+// LoadRoundRobinValidatorSet initialises a validator set for the given pool id.
+// If available it fetches the current round-robin state. Then it iterates all current pool
+// validators and initialises the set accordingly.
+// If a validator left the pool, the progress will be ignored.
+// If new validators joined the pool, their progress will be zero.
 func (k Keeper) LoadRoundRobinValidatorSet(ctx sdk.Context, poolId uint64) RoundRobinValidatorSet {
 	vs := RoundRobinValidatorSet{}
 	vs.Progress = make(map[string]int64, 0)
-	// Add all current stakers to round-robin set
+	// Add all current validators to round-robin set
 	for _, address := range k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, poolId) {
 		delegation := k.delegationKeeper.GetDelegationAmount(ctx, address)
 		if delegation > 0 {
-			// If staker has no delegation do not add to round-robin set. Staker is basically non-existent.
+			// If a validator has no delegation do not add to round-robin set. Validator is basically non-existent.
 			vs.Validators = append(vs.Validators, RoundRobinValidatorPower{
 				Address: address,
 				Power:   int64(delegation),
@@ -41,11 +77,11 @@ func (k Keeper) LoadRoundRobinValidatorSet(ctx sdk.Context, poolId uint64) Round
 		}
 	}
 
+	// Fetch stored progress
 	roundRobinProgress, _ := k.GetRoundRobinProgress(ctx, poolId)
-	// Now add existing progress.
 	for _, progress := range roundRobinProgress.ProgressList {
 		_, ok := vs.Progress[progress.Address]
-		// If the address is not found it means that the staker left the pool.
+		// If the address is not found it means that the validator left the pool.
 		// Therefore, this entry can be ignored.
 		if ok {
 			vs.Progress[progress.Address] += progress.Progress
@@ -54,7 +90,7 @@ func (k Keeper) LoadRoundRobinValidatorSet(ctx sdk.Context, poolId uint64) Round
 	return vs
 }
 
-// SaveRoundRobinValidatorSet saves the current round-robin progress to the KV-Store
+// SaveRoundRobinValidatorSet saves the current round-robin progress for the given poolId to the KV-Store
 func (k Keeper) SaveRoundRobinValidatorSet(ctx sdk.Context, poolId uint64, vs RoundRobinValidatorSet) {
 	roundRobinProgress := types.RoundRobinProgress{
 		PoolId:       poolId,
@@ -63,7 +99,11 @@ func (k Keeper) SaveRoundRobinValidatorSet(ctx sdk.Context, poolId uint64, vs Ro
 	k.SetRoundRobinProgress(ctx, roundRobinProgress)
 }
 
+// GetRoundRobinProgress returns a deterministic (sorted) list of the current round-robin progress.
+// Due to the fact that maps have no order in Go, we must introduce one by ourselves.
+// This is done by sorting all entries by their addresses alphabetically.
 func (vs *RoundRobinValidatorSet) GetRoundRobinProgress() []*types.RoundRobinSingleValidatorProgress {
+	// Convert map to list
 	result := make([]*types.RoundRobinSingleValidatorProgress, 0)
 	for address, progress := range vs.Progress {
 		singleProgress := types.RoundRobinSingleValidatorProgress{
@@ -72,17 +112,16 @@ func (vs *RoundRobinValidatorSet) GetRoundRobinProgress() []*types.RoundRobinSin
 		}
 		result = append(result, &singleProgress)
 	}
+	// Sort addresses alphabetically
 	sort.Slice(
 		result, func(i, j int) bool {
-			if result[i].Progress == result[j].Progress {
-				return result[i].Address < result[j].Address
-			}
-			return result[i].Progress < result[j].Progress
+			return result[i].Address < result[j].Address
 		},
 	)
 	return result
 }
 
+// getTotalDelegation returns the total delegation power of the current set.
 func (vs *RoundRobinValidatorSet) getTotalDelegation() (total int64) {
 	for _, vp := range vs.Validators {
 		total += vp.Power
@@ -90,6 +129,9 @@ func (vs *RoundRobinValidatorSet) getTotalDelegation() (total int64) {
 	return
 }
 
+// getTotalDelegation returns the sum of all progresses of each validator.
+// This value is supposed to always be zero. However, if new validators join or leave this
+// value might no longer be 0. Have a look at normalize().
 func (vs *RoundRobinValidatorSet) getTotalProgress() (total int64) {
 	for _, vp := range vs.Progress {
 		total += vp
@@ -97,6 +139,8 @@ func (vs *RoundRobinValidatorSet) getTotalProgress() (total int64) {
 	return
 }
 
+// getMinMaxDifference returns the difference of progresses of the two validators with the
+// most and least progress.
 func (vs *RoundRobinValidatorSet) getMinMaxDifference() int64 {
 	if len(vs.Validators) == 0 {
 		return 0
@@ -114,6 +158,7 @@ func (vs *RoundRobinValidatorSet) getMinMaxDifference() int64 {
 	return max - min
 }
 
+// size returns the number of participants in the current round-robin set.
 func (vs *RoundRobinValidatorSet) size() int64 {
 	return int64(len(vs.Validators))
 }
