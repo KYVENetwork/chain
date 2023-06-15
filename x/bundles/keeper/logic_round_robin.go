@@ -1,9 +1,10 @@
 package keeper
 
 import (
+	"sort"
+
 	"github.com/KYVENetwork/chain/x/bundles/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"sort"
 )
 
 // Round Robin implementation
@@ -29,13 +30,15 @@ func (k Keeper) LoadRoundRobinValidatorSet(ctx sdk.Context, poolId uint64) Round
 	vs.Progress = make(map[string]int64, 0)
 	// Add all current stakers to round-robin set
 	for _, address := range k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, poolId) {
-		vs.Validators = append(
-			vs.Validators, RoundRobinValidatorPower{
+		delegation := k.delegationKeeper.GetDelegationAmount(ctx, address)
+		if delegation > 0 {
+			// If staker has no delegation do not add to round-robin set. Staker is basically non-existent.
+			vs.Validators = append(vs.Validators, RoundRobinValidatorPower{
 				Address: address,
-				Power:   int64(k.delegationKeeper.GetDelegationAmount(ctx, address)),
-			},
-		)
-		vs.Progress[address] = 0
+				Power:   int64(delegation),
+			})
+			vs.Progress[address] = 0
+		}
 	}
 
 	roundRobinProgress, _ := k.GetRoundRobinProgress(ctx, poolId)
@@ -116,7 +119,6 @@ func (vs *RoundRobinValidatorSet) size() int64 {
 }
 
 func (vs *RoundRobinValidatorSet) normalize() {
-
 	diff := vs.getMinMaxDifference()
 
 	totalProgress := vs.getTotalProgress()
@@ -125,12 +127,14 @@ func (vs *RoundRobinValidatorSet) normalize() {
 
 		totalProgress = 0
 		for _, val := range vs.Validators {
+			// TODO switch the sdk.Dec
 			vs.Progress[val.Address] = vs.Progress[val.Address] * threshold / diff
 			totalProgress += vs.Progress[val.Address]
 		}
 	}
 
 	// center priorities around zero and update
+	// TODO switch the sdk.Dec
 	avg := totalProgress / vs.size()
 	for key := range vs.Progress {
 		vs.Progress[key] -= avg
@@ -138,6 +142,10 @@ func (vs *RoundRobinValidatorSet) normalize() {
 }
 
 func (vs *RoundRobinValidatorSet) NextProposer(excludedAddresses ...string) string {
+	if vs.size() == 0 {
+		return ""
+	}
+
 	vs.normalize()
 
 	// If all addresses are excluded, then no address should be excluded
