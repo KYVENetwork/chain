@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -15,6 +16,8 @@ import (
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	// Distribution
 	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	// Team
+	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool/types"
 )
@@ -31,7 +34,9 @@ type (
 		accountKeeper authKeeper.AccountKeeper
 		bankKeeper    bankKeeper.Keeper
 		distrkeeper   distributionKeeper.Keeper
+		mintKeeper    mintKeeper.Keeper
 		upgradeKeeper types.UpgradeKeeper
+		teamKeeper    teamKeeper.Keeper
 	}
 )
 
@@ -45,7 +50,9 @@ func NewKeeper(
 	accountKeeper authKeeper.AccountKeeper,
 	bankKeeper bankKeeper.Keeper,
 	distrKeeper distributionKeeper.Keeper,
+	mintKeeper mintKeeper.Keeper,
 	upgradeKeeper types.UpgradeKeeper,
+	teamKeeper teamKeeper.Keeper,
 ) *Keeper {
 	return &Keeper{
 		cdc:      cdc,
@@ -57,7 +64,9 @@ func NewKeeper(
 		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
 		distrkeeper:   distrKeeper,
+		mintKeeper:    mintKeeper,
 		upgradeKeeper: upgradeKeeper,
+		teamKeeper:    teamKeeper,
 	}
 }
 

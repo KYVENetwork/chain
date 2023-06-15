@@ -407,7 +407,9 @@ func NewKYVEApp(
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.DistributionKeeper,
+		app.MintKeeper,
 		app.UpgradeKeeper,
+		app.TeamKeeper,
 	)
 
 	app.StakersKeeper = *stakersKeeper.NewKeeper(
@@ -635,7 +637,7 @@ func NewKYVEApp(
 		bundles.NewAppModule(appCodec, app.BundlesKeeper, app.AccountKeeper, app.BankKeeper),
 		delegation.NewAppModule(appCodec, app.DelegationKeeper, app.AccountKeeper, app.BankKeeper),
 		global.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.GlobalKeeper, app.UpgradeKeeper),
-		pool.NewAppModule(appCodec, app.PoolKeeper, app.AccountKeeper, app.BankKeeper),
+		pool.NewAppModule(appCodec, app.PoolKeeper, app.AccountKeeper, app.BankKeeper, app.DistributionKeeper, app.MintKeeper, app.UpgradeKeeper, app.TeamKeeper),
 		query.NewAppModule(appCodec, app.QueryKeeper, app.AccountKeeper, app.BankKeeper),
 		stakers.NewAppModule(appCodec, app.StakersKeeper, app.AccountKeeper, app.BankKeeper),
 		team.NewAppModule(appCodec, app.BankKeeper, app.MintKeeper, app.TeamKeeper, app.UpgradeKeeper),
@@ -652,6 +654,8 @@ func NewKYVEApp(
 		minttypes.ModuleName,
 		// NOTE: x/team must be run before x/distribution and after x/mint.
 		teamTypes.ModuleName,
+		// NOTE: x/pool must be run before x/distribution and after x/team.
+		poolTypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -672,7 +676,6 @@ func NewKYVEApp(
 		vestingtypes.ModuleName,
 
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
-		poolTypes.ModuleName,
 		stakersTypes.ModuleName,
 		delegationTypes.ModuleName,
 		bundlesTypes.ModuleName,
