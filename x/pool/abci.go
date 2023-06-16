@@ -47,27 +47,49 @@ func SplitInflation(ctx sdk.Context, bk bankKeeper.Keeper, mk mintKeeper.Keeper,
 		util.PanicHalt(uk, ctx, fmt.Sprintf("team module balance %v is higher than total supply %v", teamBalance, totalSupply))
 	}
 
-	// calculate the remaining block provision after x/team took its share
+	// calculate the remaining block provision for chain and protocol after x/team took its share
 	remainingBlockProvision := blockProvision.Amount.Int64() - teamModuleRewardsShare.Mul(sdk.NewDec(blockProvision.Amount.Int64())).TruncateInt64()
-	protocolAmount := sdk.NewDec(remainingBlockProvision).Mul(protocolSplit)
 
+	// calculate block provision for protocol
+	protocolBlockProvision := sdk.NewDec(remainingBlockProvision).Mul(protocolSplit)
+
+	// track actual distributed block provision for protocol
+	distributedBlockProvision := uint64(0)
+
+	// calculate total operating cost of pools to get each pool's reward share
 	totalOperatingCost := uint64(0)
 
 	for _, pool := range pk.GetAllPools(ctx) {
 		totalOperatingCost += pool.OperatingCost
 	}
 
+	// if the total operating cost is zero all rewards go the chain
 	if totalOperatingCost == 0 {
 		return
 	}
 
 	for _, pool := range pk.GetAllPools(ctx) {
-		amount := uint64(sdk.NewDec(int64(pool.OperatingCost)).Quo(sdk.NewDec(int64(totalOperatingCost))).Mul(protocolAmount).TruncateInt64())
+		// calculate pool share based of operating cost
+		amount := uint64(sdk.NewDec(int64(pool.OperatingCost)).Quo(sdk.NewDec(int64(totalOperatingCost))).Mul(protocolBlockProvision).TruncateInt64())
 
+		// transfer funds to pool account
 		if err := util.TransferFromModuleToAddress(bk, ctx, authTypes.FeeCollectorName, pool.GetPoolAccount(), amount); err != nil {
+			util.PanicHalt(uk, ctx, err.Error())
+		}
+
+		// track transferred $KYVE to protocol
+		distributedBlockProvision += amount
+	}
+
+	// calculate if a remainder is left
+	remainder := uint64(protocolBlockProvision.TruncateInt64()) - distributedBlockProvision
+
+	// transfer remaining $KYVE to first pool to fulfill the protocol split
+	if remainder > 0 {
+		if err := util.TransferFromModuleToAddress(bk, ctx, authTypes.FeeCollectorName, pk.GetAllPools(ctx)[0].GetPoolAccount(), remainder); err != nil {
 			util.PanicHalt(uk, ctx, err.Error())
 		}
 	}
 
-	pk.Logger(ctx).Info("split portion of minted coins to protocol", "amount", protocolAmount.TruncateInt64())
+	pk.Logger(ctx).Info("split portion of minted coins to protocol", "amount", protocolBlockProvision.TruncateInt64())
 }
