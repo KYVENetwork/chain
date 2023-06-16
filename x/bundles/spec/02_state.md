@@ -65,3 +65,38 @@ type FinalizedBundle struct {
     CompressionId uint32
 }
 ```
+
+
+## Round-Robin
+For correctly determining the next uploader the current round-robin
+progress needs to be saved in the KV-Store. Every pool keeps track of its
+own round-robin state.
+
+### RoundRobinSingleValidatorProgress
+This struct is not stored directly in the KV-Store but used by the
+RoundRobinProgress struct.
+
+```go
+// RoundRobinSingleValidatorProgress holds the current progress for a 
+// given address.
+type RoundRobinSingleValidatorProgress struct {
+    // address of the validator
+    Address string
+    // progress within the current round-robin set
+    Progress int64
+}
+```
+
+### RoundRobinProgress
+RoundRobinProgress stores the current state of the round-robin selection for a 
+given pool.
+
+- RoundRobinProgress `0x03 | PoolId -> ProtocolBuffer(roundRobinProgress)`
+
+```go
+// RoundRobinProgress stores the current round-robin state for a given pool.
+message RoundRobinProgress {
+    PoolId uint64
+    ProgressList []RoundRobinSingleValidatorProgress
+}
+```
