@@ -11,8 +11,6 @@ import (
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
 	// Pool
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
-	// Stakers
-	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
 )
 
 // SubmitBundleProposal handles the logic of an SDK message that allows protocol nodes to submit a new bundle proposal.
@@ -67,45 +65,54 @@ func (k msgServer) SubmitBundleProposal(
 		// 4. The sender immediately starts the next round by registering
 		//    his new bundle proposal.
 
+		// TODO:
+		// -> subtract operating cost from funders
+		// -> add 10% from inflation pool on top
+		// -> payout storage cost with that to uploader
+		// -> the remaining funds are divided between uploader and delegators
+
 		// Calculate the total reward for the bundle, and individual payouts.
 		bundleReward := k.calculatePayouts(ctx, msg.PoolId)
 
-		if err := k.poolKeeper.ChargeFundersOfPool(ctx, msg.PoolId, bundleReward.Total); err != nil {
-			// update the latest time on bundle to indicate that the bundle is still active
-			// protocol nodes use this to determine the upload timeout
-			bundleProposal.UpdatedAt = uint64(ctx.BlockTime().Unix())
-			k.SetBundleProposal(ctx, bundleProposal)
-
-			// emit event which indicates that pool has run out of funds
-			_ = ctx.EventManager().EmitTypedEvent(&poolTypes.EventPoolOutOfFunds{
-				PoolId: msg.PoolId,
-			})
-
-			return &types.MsgSubmitBundleProposalResponse{}, nil
+		// get the amount we can charge the pool
+		charged, err := k.poolKeeper.ChargeFundersOfPool(ctx, msg.PoolId, bundleReward.Total)
+		if err != nil {
+			return &types.MsgSubmitBundleProposalResponse{}, err
 		}
 
 		pool, _ := k.poolKeeper.GetPool(ctx, msg.PoolId)
-		bundleProposal, _ := k.GetBundleProposal(ctx, msg.PoolId)
 
-		uploaderPayout := bundleReward.Uploader
+		if charged < bundleReward.Treasury {
+			// payout rewards to treasury
+			if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrkeeper, ctx, poolTypes.ModuleName, charged); err != nil {
+				return nil, err
+			}
+		} else if charged < bundleReward.Treasury+bundleReward.Uploader {
+			// payout rewards to treasury
+			if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrkeeper, ctx, poolTypes.ModuleName, bundleReward.Treasury); err != nil {
+				return nil, err
+			}
 
-		delegationPayoutSuccessful := k.delegationKeeper.PayoutRewards(ctx, bundleProposal.Uploader, bundleReward.Delegation, poolTypes.ModuleName)
-		// If staker has no delegators add all delegation rewards to the staker rewards
-		if !delegationPayoutSuccessful {
-			uploaderPayout += bundleReward.Delegation
-		}
+			uploaderPayout := charged - bundleReward.Treasury
 
-		// transfer funds from pool to stakers module
-		if err := util.TransferFromModuleToModule(k.bankKeeper, ctx, poolTypes.ModuleName, stakersTypes.ModuleName, uploaderPayout); err != nil {
-			return nil, err
-		}
+			// payout rewards to uploader through commission rewards
+			k.stakerKeeper.IncreaseStakerCommissionRewards(ctx, bundleProposal.Uploader, uploaderPayout)
+		} else if charged < bundleReward.Treasury+bundleReward.Uploader+bundleReward.Delegation {
+			// payout rewards to treasury
+			if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrkeeper, ctx, poolTypes.ModuleName, bundleReward.Treasury); err != nil {
+				return nil, err
+			}
 
-		// increase commission rewards of uploader
-		k.stakerKeeper.IncreaseStakerCommissionRewards(ctx, bundleProposal.Uploader, uploaderPayout)
+			uploaderPayout := bundleReward.Uploader
+			delegationPayout := charged - bundleReward.Treasury - bundleReward.Uploader
 
-		// send network fee to treasury
-		if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrkeeper, ctx, poolTypes.ModuleName, bundleReward.Treasury); err != nil {
-			return nil, err
+			// payout rewards to delegators of uploader
+			if success := k.delegationKeeper.PayoutRewards(ctx, bundleProposal.Uploader, delegationPayout, poolTypes.ModuleName); !success {
+				uploaderPayout += delegationPayout
+			}
+
+			// payout rewards to uploader through commission rewards
+			k.stakerKeeper.IncreaseStakerCommissionRewards(ctx, bundleProposal.Uploader, uploaderPayout)
 		}
 
 		// slash stakers who voted incorrectly

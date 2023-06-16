@@ -1,8 +1,7 @@
 package keeper
 
 import (
-	"github.com/KYVENetwork/chain/util"
-	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
+	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -10,69 +9,56 @@ import (
 // the appropriate amount from each funder.
 // All funders who can't afford the amount, are kicked out.
 // Their remaining amount is transferred to the Treasury.
-// The function throws an error if pool ran out of funds.
 // This method does not transfer any funds. The bundles-module
 // is responsible for transferring the rewards out of the module.
-func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint64) error {
+func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint64) (charged uint64, err error) {
 	pool, poolErr := k.GetPoolWithError(ctx, poolId)
 	if poolErr != nil {
-		return poolErr
+		return 0, poolErr
+	}
+
+	// if pool has no funders we immediately return
+	if len(pool.Funders) == 0 {
+		return charged, err
 	}
 
 	// This is the amount every funder will be charged
-	var amountPerFunder uint64
+	amountPerFunder := amount / uint64(len(pool.Funders))
 
 	// Due to discrete division there will be a reminder which can not be split
 	// equally among all funders. This amount is charged to the lowest funder
-	var amountRemainder uint64
+	amountRemainder := amount - amountPerFunder*uint64(len(pool.Funders))
 
-	// When a funder is not able to pay, all the remaining funds will be moved
-	// to the treasury.
-	var slashedFunds uint64
+	funders := pool.Funders
 
-	// Remove all funders who can not afford amountPerFunder
-	for len(pool.Funders) > 0 {
-		amountPerFunder = amount / uint64(len(pool.Funders))
-		amountRemainder = amount - amountPerFunder*uint64(len(pool.Funders))
-
-		lowestFunder := pool.GetLowestFunder()
-
-		if amountRemainder+amountPerFunder > lowestFunder.Amount {
-			pool.RemoveFunder(lowestFunder.Address)
-
-			_ = ctx.EventManager().EmitTypedEvent(&pooltypes.EventPoolFundsSlashed{
-				PoolId:  poolId,
-				Address: lowestFunder.Address,
-				Amount:  lowestFunder.Amount,
-			})
-
-			slashedFunds += lowestFunder.Amount
+	for _, funder := range funders {
+		if funder.Amount < amountPerFunder {
+			pool.RemoveFunder(funder.Address)
+			charged += funder.Amount
 		} else {
-			break
+			pool.SubtractAmountFromFunder(funder.Address, amountPerFunder)
+			charged += amountPerFunder
 		}
 	}
 
-	if slashedFunds > 0 {
-		// send slash to treasury
-		if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrkeeper, ctx, pooltypes.ModuleName, slashedFunds); err != nil {
-			util.PanicHalt(k.upgradeKeeper, ctx, "pool module out of funds")
+	lowestFunder := pool.GetLowestFunder()
+
+	if lowestFunder.Address != "" {
+		if lowestFunder.Amount < amountRemainder {
+			pool.RemoveFunder(lowestFunder.Address)
+			charged += lowestFunder.Amount
+		} else {
+			pool.SubtractAmountFromFunder(lowestFunder.Address, amountRemainder)
+			charged += amountRemainder
 		}
 	}
 
 	if len(pool.Funders) == 0 {
-		k.SetPool(ctx, pool)
-		return pooltypes.ErrFundsTooLow
+		_ = ctx.EventManager().EmitTypedEvent(&poolTypes.EventPoolOutOfFunds{
+			PoolId: pool.Id,
+		})
 	}
-
-	// Remove amount from funders
-	for _, funder := range pool.Funders {
-		pool.SubtractAmountFromFunder(funder.Address, amountPerFunder)
-	}
-
-	lowestFunder := pool.GetLowestFunder()
-	pool.SubtractAmountFromFunder(lowestFunder.Address, amountRemainder)
 
 	k.SetPool(ctx, pool)
-
-	return nil
+	return charged, nil
 }
