@@ -1,6 +1,10 @@
 package types
 
-import "math"
+import (
+	"fmt"
+	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"math"
+)
 
 // Handles the funders of a pool. Functions safely add and remove funds to funders.
 // If amount drops to zero the funder is automatically removed from the list.
@@ -56,6 +60,12 @@ func (m *Pool) GetFunderAmount(address string) uint64 {
 		}
 	}
 	return 0
+}
+
+func (m *Pool) GetPoolAccount() string {
+	name := fmt.Sprintf("%s/%d", ModuleName, m.Id)
+
+	return authTypes.NewModuleAddress(name).String()
 }
 
 func (m *Pool) GetLowestFunder() Funder {

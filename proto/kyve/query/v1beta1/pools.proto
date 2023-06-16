@@ -65,6 +65,10 @@ message PoolResponse {
   uint64 total_delegation = 6;
   // status ...
   kyve.pool.v1beta1.PoolStatus status = 7;
+  // account ...
+  string account = 8;
+  // account_balance ...
+  uint64 account_balance = 9;
 }
 
 // =========

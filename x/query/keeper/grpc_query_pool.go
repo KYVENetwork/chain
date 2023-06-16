@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	"github.com/KYVENetwork/chain/x/query/types"
@@ -55,6 +56,10 @@ func (k Keeper) parsePoolResponse(ctx sdk.Context, pool *pooltypes.Pool) types.P
 
 	totalDelegation := k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id)
 
+	poolAccountAddress := pool.GetPoolAccount()
+	poolAccount, _ := sdk.AccAddressFromBech32(poolAccountAddress)
+	poolBalance := k.bankKeeper.GetBalance(ctx, poolAccount, globalTypes.Denom).Amount.Uint64()
+
 	return types.PoolResponse{
 		Id:                  pool.Id,
 		Data:                pool,
@@ -63,5 +68,7 @@ func (k Keeper) parsePoolResponse(ctx sdk.Context, pool *pooltypes.Pool) types.P
 		TotalSelfDelegation: totalSelfDelegation,
 		TotalDelegation:     totalDelegation,
 		Status:              k.GetPoolStatus(ctx, pool),
+		Account:             poolAccountAddress,
+		AccountBalance:      poolBalance,
 	}
 }

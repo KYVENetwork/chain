@@ -5242,6 +5242,13 @@ paths:
                       - POOL_STATUS_NOT_ENOUGH_DELEGATION
                       - POOL_STATUS_UPGRADING
                     default: POOL_STATUS_UNSPECIFIED
+                  account:
+                    type: string
+                    description: account ...
+                  account_balance:
+                    type: string
+                    format: uint64
+                    description: account_balance ...
             description: >-
               QueryPoolResponse is the response type for the Query/Pool RPC
               method.
@@ -5751,6 +5758,13 @@ paths:
                         - POOL_STATUS_NOT_ENOUGH_DELEGATION
                         - POOL_STATUS_UPGRADING
                       default: POOL_STATUS_UNSPECIFIED
+                    account:
+                      type: string
+                      description: account ...
+                    account_balance:
+                      type: string
+                      format: uint64
+                      description: account_balance ...
                   description: PoolResponse ...
                 description: pools ...
               pagination:

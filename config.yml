@@ -128,7 +128,7 @@ genesis:
           clawback: "1804978800"
           commencement: "1647212400"
     pool:
-      pool_count: "2"
+      pool_count: "1"
       pool_list:
         - config: "ar://tMTrJ8E3QgBNLz0-lyn6QrxasEIX46d14QFVmBWshSI"
           current_compression_id: "1"
