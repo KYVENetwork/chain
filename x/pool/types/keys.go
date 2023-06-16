@@ -23,7 +23,13 @@ const (
 )
 
 var (
-	PoolKey      = []byte{1}
+	// ParamsKey is the prefix for all module params defined in params.proto
+	ParamsKey = []byte{0x00}
+
+	// PoolKey is the prefix for all pools defined in pool.proto
+	PoolKey = []byte{1}
+
+	// PoolCountKey is the prefix for the pool counter defined in pool.proto
 	PoolCountKey = []byte{2}
 )
 

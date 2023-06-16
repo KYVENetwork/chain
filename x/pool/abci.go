@@ -23,12 +23,6 @@ func SplitInflation(ctx sdk.Context, bk bankKeeper.Keeper, mk mintKeeper.Keeper,
 	minter := mk.GetMinter(ctx)
 	params := mk.GetParams(ctx)
 
-	// protocol_split TODO: move to pool params
-	protocolSplit, err := sdk.NewDecFromStr("0.04")
-	if err != nil {
-		panic(err)
-	}
-
 	// get total inflation rewards for current block
 	blockProvision := minter.BlockProvision(params)
 
@@ -50,8 +44,8 @@ func SplitInflation(ctx sdk.Context, bk bankKeeper.Keeper, mk mintKeeper.Keeper,
 	// calculate the remaining block provision for chain and protocol after x/team took its share
 	remainingBlockProvision := blockProvision.Amount.Int64() - teamModuleRewardsShare.Mul(sdk.NewDec(blockProvision.Amount.Int64())).TruncateInt64()
 
-	// calculate block provision for protocol
-	protocolBlockProvision := sdk.NewDec(remainingBlockProvision).Mul(protocolSplit)
+	// calculate block provision for protocol based on protocol inflation share
+	protocolBlockProvision := sdk.NewDec(remainingBlockProvision).Mul(pk.GetProtocolInflationShare(ctx))
 
 	// track actual distributed block provision for protocol
 	distributedBlockProvision := uint64(0)
