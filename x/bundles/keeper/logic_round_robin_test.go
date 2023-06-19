@@ -14,20 +14,18 @@ import (
 
 TEST CASES - logic_bundles.go
 
-* Correctly load round robin state
-* Correctly save and load round robin state
-* Empty round robin set
-* Partially filled round robin set (one staker with 0 delegation)
+* Correctly load round-robin state
+* Correctly save and load round-robin state
+* Empty round-robin set
+* Partially filled round-robin set (one staker with 0 delegation)
 * Frequency analysis
 * Frequency analysis (rounding)
 * Frequency analysis (excluded)
 * Exclude everybody
 * Exclude all but one
+* Leave set
+* Join set
 
-* TODO staker leave join
-* TODO check normalize works correctly
-
-TODO spec file
 */
 
 func joinDummy(s *i.KeeperTestSuite, index, kyveAmount uint64) {
@@ -42,6 +40,15 @@ func joinDummy(s *i.KeeperTestSuite, index, kyveAmount uint64) {
 		Valaddress: i.VALDUMMY[index],
 		Amount:     0,
 	})
+}
+
+func leaveDummy(s *i.KeeperTestSuite, index uint64) {
+	s.RunTxStakersSuccess(&stakertypes.MsgLeavePool{
+		Creator: i.DUMMY[index],
+		PoolId:  0,
+	})
+	s.CommitAfterSeconds(s.App().StakersKeeper.GetLeavePoolTime(s.Ctx()))
+	s.CommitAfterSeconds(1)
 }
 
 var _ = Describe("logic_round_robin.go", Ordered, func() {
@@ -80,7 +87,7 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 		s.PerformValidityChecks()
 	})
 
-	It("Correctly load round robin state", func() {
+	It("Correctly load round-robin state", func() {
 		// ARRANGE
 		joinDummy(s, 0, 100)
 		joinDummy(s, 1, 200)
@@ -104,7 +111,7 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 		Expect(rrvs.Progress[i.DUMMY[2]]).To(Equal(int64(0)))
 	})
 
-	It("Correctly save and load round robin state", func() {
+	It("Correctly save and load round-robin state", func() {
 		// ARRANGE
 		joinDummy(s, 0, 100)
 		joinDummy(s, 1, 200)
@@ -118,6 +125,7 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 		s.App().BundlesKeeper.SaveRoundRobinValidatorSet(s.Ctx(), rrvs1)
 
 		state := rrvs1.GetRoundRobinProgress()
+		// loading round-robin performs normalising, which shifts values from 1,2,3 to -1,0,1
 		rrvs := s.App().BundlesKeeper.LoadRoundRobinValidatorSet(s.Ctx(), 0)
 
 		// ASSERT
@@ -134,12 +142,12 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 		Expect(rrvs.Validators[2].Address).To(Equal(i.DUMMY[2]))
 
 		Expect(rrvs.Progress).To(HaveLen(3))
-		Expect(rrvs.Progress[i.DUMMY[0]]).To(Equal(int64(1)))
-		Expect(rrvs.Progress[i.DUMMY[1]]).To(Equal(int64(2)))
-		Expect(rrvs.Progress[i.DUMMY[2]]).To(Equal(int64(3)))
+		Expect(rrvs.Progress[i.DUMMY[0]]).To(Equal(int64(-1)))
+		Expect(rrvs.Progress[i.DUMMY[1]]).To(Equal(int64(0)))
+		Expect(rrvs.Progress[i.DUMMY[2]]).To(Equal(int64(1)))
 	})
 
-	It("Empty round robin set", func() {
+	It("Empty round-robin set", func() {
 		// ARRANGE
 		joinDummy(s, 0, 0)
 		joinDummy(s, 1, 0)
@@ -160,7 +168,7 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 		Expect(nextProposer).To(BeEmpty())
 	})
 
-	It("Partially filled round robin set (one staker with 0 delegation)", func() {
+	It("Partially filled round-robin set (one staker with 0 delegation)", func() {
 		// ARRANGE
 		joinDummy(s, 0, 0)
 		joinDummy(s, 1, 10)
@@ -326,5 +334,63 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 		Expect(rrvs.Progress[i.DUMMY[0]]).To(Equal(0 * int64(i.KYVE)))
 		Expect(rrvs.Progress[i.DUMMY[1]]).To(Equal(0 * int64(i.KYVE)))
 		Expect(rrvs.Progress[i.DUMMY[2]]).To(Equal(0 * int64(i.KYVE)))
+	})
+
+	It("Leave set", func() {
+		// ARRANGE
+		joinDummy(s, 0, 1000)
+		joinDummy(s, 1, 1000)
+		joinDummy(s, 2, 1000)
+		joinDummy(s, 3, 1000)
+		joinDummy(s, 4, 1000)
+
+		rrvs := s.App().BundlesKeeper.LoadRoundRobinValidatorSet(s.Ctx(), 0)
+		nextProposer := rrvs.NextProposer()
+		s.App().BundlesKeeper.SaveRoundRobinValidatorSet(s.Ctx(), rrvs)
+		Expect(nextProposer).To(Equal(i.DUMMY[0]))
+		leaveDummy(s, 2)
+		leaveDummy(s, 3)
+		leaveDummy(s, 4)
+
+		// ACT, ASSERT
+		rrvs = s.App().BundlesKeeper.LoadRoundRobinValidatorSet(s.Ctx(), 0)
+		Expect(rrvs.Progress[i.DUMMY[0]]).To(Equal(-2000 * int64(i.KYVE)))
+		Expect(rrvs.Progress[i.DUMMY[1]]).To(Equal(2000 * int64(i.KYVE)))
+
+		nextProposer = rrvs.NextProposer()
+		Expect(nextProposer).To(Equal(i.DUMMY[1]))
+		Expect(rrvs.Progress[i.DUMMY[0]]).To(Equal(-1000 * int64(i.KYVE)))
+		Expect(rrvs.Progress[i.DUMMY[1]]).To(Equal(1000 * int64(i.KYVE)))
+
+		nextProposer = rrvs.NextProposer()
+		Expect(nextProposer).To(Equal(i.DUMMY[1]))
+		Expect(rrvs.Progress[i.DUMMY[0]]).To(Equal(0 * int64(i.KYVE)))
+		Expect(rrvs.Progress[i.DUMMY[1]]).To(Equal(0 * int64(i.KYVE)))
+	})
+
+	It("Join set", func() {
+		// ARRANGE
+		joinDummy(s, 0, 100)
+		joinDummy(s, 1, 200)
+		joinDummy(s, 2, 300)
+
+		rrvs := s.App().BundlesKeeper.LoadRoundRobinValidatorSet(s.Ctx(), 0)
+		nextProposer := rrvs.NextProposer()
+		Expect(nextProposer).To(Equal(i.DUMMY[2]))
+		Expect(rrvs.Progress[i.DUMMY[0]]).To(Equal(100 * int64(i.KYVE)))
+		Expect(rrvs.Progress[i.DUMMY[1]]).To(Equal(200 * int64(i.KYVE)))
+		Expect(rrvs.Progress[i.DUMMY[2]]).To(Equal(-300 * int64(i.KYVE)))
+		s.App().BundlesKeeper.SaveRoundRobinValidatorSet(s.Ctx(), rrvs)
+
+		// ACT
+		joinDummy(s, 3, 400)
+		rrvs = s.App().BundlesKeeper.LoadRoundRobinValidatorSet(s.Ctx(), 0)
+		shift := int64(1125_000_000_000 / 4)
+
+		// Assert
+		Expect(rrvs.Progress[i.DUMMY[0]]).To(Equal(100*int64(i.KYVE) + shift))
+		Expect(rrvs.Progress[i.DUMMY[1]]).To(Equal(200*int64(i.KYVE) + shift))
+		Expect(rrvs.Progress[i.DUMMY[2]]).To(Equal(-300*int64(i.KYVE) + shift))
+		Expect(rrvs.Progress[i.DUMMY[3]]).To(Equal(-1125*int64(i.KYVE) + shift))
 	})
 })

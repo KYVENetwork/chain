@@ -66,6 +66,9 @@ func (k Keeper) LoadRoundRobinValidatorSet(ctx sdk.Context, poolId uint64) Round
 	vs := RoundRobinValidatorSet{}
 	vs.PoolId = poolId
 	vs.Progress = make(map[string]int64, 0)
+	totalDelegation := int64(0)
+	// Used for calculating the set difference of active validators and existing round-robin set
+	newValidators := make(map[string]bool, 0)
 	// Add all current validators to round-robin set
 	for _, address := range k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, poolId) {
 		delegation := k.delegationKeeper.GetDelegationAmount(ctx, address)
@@ -76,6 +79,8 @@ func (k Keeper) LoadRoundRobinValidatorSet(ctx sdk.Context, poolId uint64) Round
 				Power:   int64(delegation),
 			})
 			vs.Progress[address] = 0
+			totalDelegation += int64(delegation)
+			newValidators[address] = true
 		}
 	}
 
@@ -88,7 +93,17 @@ func (k Keeper) LoadRoundRobinValidatorSet(ctx sdk.Context, poolId uint64) Round
 		if ok {
 			vs.Progress[progress.Address] += progress.Progress
 		}
+
+		newValidators[progress.Address] = false
 	}
+
+	for newAddress, isNew := range newValidators {
+		if isNew {
+			vs.Progress[newAddress] = sdk.MustNewDecFromStr("-1.125").MulInt64(totalDelegation).TruncateInt64()
+		}
+	}
+
+	vs.normalize()
 	return vs
 }
 
@@ -166,6 +181,10 @@ func (vs *RoundRobinValidatorSet) size() int64 {
 }
 
 func (vs *RoundRobinValidatorSet) normalize() {
+	if vs.size() == 0 {
+		return
+	}
+
 	diff := vs.getMinMaxDifference()
 
 	totalProgress := vs.getTotalProgress()
@@ -174,15 +193,14 @@ func (vs *RoundRobinValidatorSet) normalize() {
 
 		totalProgress = 0
 		for _, val := range vs.Validators {
-			// TODO switch the sdk.Dec
-			vs.Progress[val.Address] = vs.Progress[val.Address] * threshold / diff
+			decProgress := sdk.NewDec(vs.Progress[val.Address])
+			vs.Progress[val.Address] = decProgress.MulInt64(threshold).QuoInt64(diff).TruncateInt64()
 			totalProgress += vs.Progress[val.Address]
 		}
 	}
 
 	// center priorities around zero and update
-	// TODO switch the sdk.Dec
-	avg := totalProgress / vs.size()
+	avg := sdk.NewDec(totalProgress).QuoInt64(vs.size()).TruncateInt64()
 	for key := range vs.Progress {
 		vs.Progress[key] -= avg
 	}
