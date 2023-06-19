@@ -5,20 +5,17 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// GetParams returns the current x/pool module parameters.
+// GetParams returns the x/pool params from state.
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
-	store := ctx.KVStore(k.storeKey)
-
-	bz := store.Get(types.ParamsKey)
-	if bz == nil {
-		return params
+	bz := ctx.KVStore(k.storeKey).Get(types.ParamsKey)
+	if bz != nil {
+		k.cdc.MustUnmarshal(bz, &params)
 	}
 
-	k.cdc.MustUnmarshal(bz, &params)
-	return params
+	return
 }
 
-// GetProtocolInflationShare returns the ProtocolInflationShare param
+// GetProtocolInflationShare returns the ProtocolInflationShare param.
 func (k Keeper) GetProtocolInflationShare(ctx sdk.Context) (res sdk.Dec) {
 	return k.GetParams(ctx).ProtocolInflationShare
 }
@@ -28,9 +25,8 @@ func (k Keeper) GetPoolInflationPayoutRate(ctx sdk.Context) (res sdk.Dec) {
 	return k.GetParams(ctx).PoolInflationPayoutRate
 }
 
-// SetParams sets the x/pool module parameters.
+// SetParams stores the x/pool params in state.
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
-	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshal(&params)
-	store.Set(types.ParamsKey, bz)
+	ctx.KVStore(k.storeKey).Set(types.ParamsKey, bz)
 }

@@ -4,25 +4,30 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
-	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
-	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
-
-	abci "github.com/tendermint/tendermint/abci/types"
-
-	"github.com/KYVENetwork/chain/x/pool/client/cli"
-	"github.com/KYVENetwork/chain/x/pool/keeper"
-	"github.com/KYVENetwork/chain/x/pool/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
+	abci "github.com/tendermint/tendermint/abci/types"
+
+	// Bank
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	// Distribution
+	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	// Mint
+	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
+	// Pool
+	"github.com/KYVENetwork/chain/x/pool/client/cli"
+	"github.com/KYVENetwork/chain/x/pool/keeper"
+	"github.com/KYVENetwork/chain/x/pool/types"
+	// Team
+	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
+	// Upgrade
+	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 )
 
 var (
@@ -84,7 +89,7 @@ func (a AppModuleBasic) GetTxCmd() *cobra.Command {
 
 // GetQueryCmd returns the root query command for the module. The subcommands of this root command are used by end-users to generate new queries to the subset of the state defined by the module
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return cli.GetQueryCmd(types.StoreKey)
+	return cli.GetQueryCmd()
 }
 
 // ----------------------------------------------------------------------------
@@ -168,7 +173,7 @@ func (AppModule) ConsensusVersion() uint64 { return 1 }
 
 // BeginBlock contains the logic that is automatically triggered at the beginning of each block
 func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
-	SplitInflation(ctx, am.bankKeeper, am.mintKeeper, am.teamKeeper, am.keeper, am.upgradeKeeper)
+	SplitInflation(ctx, am.bankKeeper, am.mintKeeper, am.keeper, am.teamKeeper, am.upgradeKeeper)
 }
 
 // EndBlock contains the logic that is automatically triggered at the end of each block

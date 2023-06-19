@@ -6,7 +6,7 @@ import (
 )
 
 // DefaultProtocolInflationShare ...
-var DefaultProtocolInflationShare = sdk.MustNewDecFromStr("0")
+var DefaultProtocolInflationShare = sdk.ZeroDec()
 
 // DefaultPoolInflationPayoutRate ...
 var DefaultPoolInflationPayoutRate = sdk.MustNewDecFromStr("0.1")
