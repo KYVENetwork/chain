@@ -6,12 +6,10 @@ import (
 )
 
 // DefaultProtocolInflationShare ...
-var DefaultProtocolInflationShare = sdk.MustNewDecFromStr("0")
+var DefaultProtocolInflationShare = sdk.ZeroDec()
 
 // NewParams creates a new Params instance
-func NewParams(
-	protocolInflationShare sdk.Dec,
-) Params {
+func NewParams(protocolInflationShare sdk.Dec) Params {
 	return Params{
 		ProtocolInflationShare: protocolInflationShare,
 	}
@@ -19,9 +17,7 @@ func NewParams(
 
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
-	return NewParams(
-		DefaultProtocolInflationShare,
-	)
+	return NewParams(DefaultProtocolInflationShare)
 }
 
 // Validate validates the set of params

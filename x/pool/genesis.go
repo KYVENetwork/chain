@@ -22,7 +22,6 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	genesis := types.DefaultGenesis()
 
 	genesis.Params = k.GetParams(ctx)
-
 	genesis.PoolList = k.GetAllPools(ctx)
 	genesis.PoolCount = k.GetPoolCount(ctx)
 

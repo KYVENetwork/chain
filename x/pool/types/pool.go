@@ -2,8 +2,9 @@ package types
 
 import (
 	"fmt"
-	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"math"
+
+	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
 // Handles the funders of a pool. Functions safely add and remove funds to funders.

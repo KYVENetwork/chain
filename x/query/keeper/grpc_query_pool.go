@@ -2,14 +2,18 @@ package keeper
 
 import (
 	"context"
-	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 
-	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
-	"github.com/KYVENetwork/chain/x/query/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	// Global
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
+	// Pool
+	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
+	// Query
+	"github.com/KYVENetwork/chain/x/query/types"
 )
 
 func (k Keeper) Pools(c context.Context, req *types.QueryPoolsRequest) (*types.QueryPoolsResponse, error) {
@@ -39,13 +43,13 @@ func (k Keeper) Pool(c context.Context, req *types.QueryPoolRequest) (*types.Que
 
 	pool, found := k.poolKeeper.GetPool(ctx, req.Id)
 	if !found {
-		return nil, sdkerrors.ErrKeyNotFound
+		return nil, errorsTypes.ErrKeyNotFound
 	}
 
 	return &types.QueryPoolResponse{Pool: k.parsePoolResponse(ctx, &pool)}, nil
 }
 
-func (k Keeper) parsePoolResponse(ctx sdk.Context, pool *pooltypes.Pool) types.PoolResponse {
+func (k Keeper) parsePoolResponse(ctx sdk.Context, pool *poolTypes.Pool) types.PoolResponse {
 	bundleProposal, _ := k.bundleKeeper.GetBundleProposal(ctx, pool.Id)
 	stakers := k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, pool.Id)
 

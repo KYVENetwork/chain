@@ -2,24 +2,25 @@ package pool
 
 import (
 	"fmt"
-	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
-	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/KYVENetwork/chain/util"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	// Auth
+	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	// Bank
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	// Mint
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool/keeper"
+	// Team
+	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
 	// Upgrade
 	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 )
 
-func SplitInflation(ctx sdk.Context, bk bankKeeper.Keeper, mk mintKeeper.Keeper, tk teamKeeper.Keeper, pk keeper.Keeper, uk upgradeKeeper.Keeper) {
-	// Compute team allocation of minted coins.
+func SplitInflation(ctx sdk.Context, bk bankKeeper.Keeper, mk mintKeeper.Keeper, pk keeper.Keeper, tk teamKeeper.Keeper, uk upgradeKeeper.Keeper) {
 	minter := mk.GetMinter(ctx)
 	params := mk.GetParams(ctx)
 

@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -16,10 +15,12 @@ import (
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	// Distribution
 	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	// Team
-	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
+	// Mint
+	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool/types"
+	// Team
+	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
 )
 
 type (
