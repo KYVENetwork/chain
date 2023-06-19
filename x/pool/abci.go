@@ -67,7 +67,7 @@ func SplitInflation(ctx sdk.Context, bk bankKeeper.Keeper, mk mintKeeper.Keeper,
 		amount := uint64(sdk.NewDec(int64(pool.OperatingCost)).Quo(sdk.NewDec(int64(totalOperatingCost))).Mul(protocolBlockProvision).TruncateInt64())
 
 		// transfer funds to pool account
-		if err := util.TransferFromModuleToAddress(bk, ctx, authTypes.FeeCollectorName, pool.GetPoolAccount(), amount); err != nil {
+		if err := util.TransferFromModuleToAddress(bk, ctx, authTypes.FeeCollectorName, pool.GetPoolAccount().String(), amount); err != nil {
 			util.PanicHalt(uk, ctx, err.Error())
 		}
 
@@ -80,7 +80,7 @@ func SplitInflation(ctx sdk.Context, bk bankKeeper.Keeper, mk mintKeeper.Keeper,
 
 	// transfer remaining $KYVE to first pool to fulfill the protocol split
 	if remainder > 0 {
-		if err := util.TransferFromModuleToAddress(bk, ctx, authTypes.FeeCollectorName, pk.GetAllPools(ctx)[0].GetPoolAccount(), remainder); err != nil {
+		if err := util.TransferFromModuleToAddress(bk, ctx, authTypes.FeeCollectorName, pk.GetAllPools(ctx)[0].GetPoolAccount().String(), remainder); err != nil {
 			util.PanicHalt(uk, ctx, err.Error())
 		}
 	}

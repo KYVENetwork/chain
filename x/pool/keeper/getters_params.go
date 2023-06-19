@@ -23,6 +23,11 @@ func (k Keeper) GetProtocolInflationShare(ctx sdk.Context) (res sdk.Dec) {
 	return k.GetParams(ctx).ProtocolInflationShare
 }
 
+// GetPoolInflationPayoutRate returns the GetPoolInflationPayoutRate param
+func (k Keeper) GetPoolInflationPayoutRate(ctx sdk.Context) (res sdk.Dec) {
+	return k.GetParams(ctx).PoolInflationPayoutRate
+}
+
 // SetParams sets the x/pool module parameters.
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	store := ctx.KVStore(k.storeKey)

@@ -36,7 +36,8 @@ type PoolKeeper interface {
 	IncrementBundleInformation(ctx sdk.Context, poolId uint64, currentHeight uint64, currentKey string, currentValue string)
 
 	GetAllPools(ctx sdk.Context) (list []pooltypes.Pool)
-	ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint64) (charged uint64, err error)
+	ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint64) (payout uint64, err error)
+	ChargeInflationPool(ctx sdk.Context, poolId uint64) (payout uint64, err error)
 }
 
 type StakerKeeper interface {

@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"math"
 )
@@ -62,10 +63,10 @@ func (m *Pool) GetFunderAmount(address string) uint64 {
 	return 0
 }
 
-func (m *Pool) GetPoolAccount() string {
+func (m *Pool) GetPoolAccount() sdk.AccAddress {
 	name := fmt.Sprintf("%s/%d", ModuleName, m.Id)
 
-	return authTypes.NewModuleAddress(name).String()
+	return authTypes.NewModuleAddress(name)
 }
 
 func (m *Pool) GetLowestFunder() Funder {

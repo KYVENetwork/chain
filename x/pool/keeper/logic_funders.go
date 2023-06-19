@@ -11,7 +11,7 @@ import (
 // Their remaining amount is transferred to the Treasury.
 // This method does not transfer any funds. The bundles-module
 // is responsible for transferring the rewards out of the module.
-func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint64) (charged uint64, err error) {
+func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint64) (payout uint64, err error) {
 	pool, poolErr := k.GetPoolWithError(ctx, poolId)
 	if poolErr != nil {
 		return 0, poolErr
@@ -19,7 +19,7 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint6
 
 	// if pool has no funders we immediately return
 	if len(pool.Funders) == 0 {
-		return charged, err
+		return payout, err
 	}
 
 	// This is the amount every funder will be charged
@@ -34,10 +34,10 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint6
 	for _, funder := range funders {
 		if funder.Amount < amountPerFunder {
 			pool.RemoveFunder(funder.Address)
-			charged += funder.Amount
+			payout += funder.Amount
 		} else {
 			pool.SubtractAmountFromFunder(funder.Address, amountPerFunder)
-			charged += amountPerFunder
+			payout += amountPerFunder
 		}
 	}
 
@@ -46,10 +46,10 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint6
 	if lowestFunder.Address != "" {
 		if lowestFunder.Amount < amountRemainder {
 			pool.RemoveFunder(lowestFunder.Address)
-			charged += lowestFunder.Amount
+			payout += lowestFunder.Amount
 		} else {
 			pool.SubtractAmountFromFunder(lowestFunder.Address, amountRemainder)
-			charged += amountRemainder
+			payout += amountRemainder
 		}
 	}
 
@@ -60,5 +60,5 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint6
 	}
 
 	k.SetPool(ctx, pool)
-	return charged, nil
+	return payout, nil
 }

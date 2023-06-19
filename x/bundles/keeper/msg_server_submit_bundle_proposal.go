@@ -57,7 +57,8 @@ func (k msgServer) SubmitBundleProposal(
 
 	case types.BUNDLE_STATUS_VALID:
 		// If a bundle is valid the following things happen:
-		// 1. A reward is paid out to the uploader, its delegators and the treasury
+		// 1. Funders and Inflation Pool are charged. The total payout is divided
+		//    between the uploader, its delegators and the treasury.
 		//    The appropriate funds are deducted from the total pool funds
 		// 2. The next uploader is randomly selected based on everybody who
 		//    voted valid on this bundle.
@@ -65,55 +66,33 @@ func (k msgServer) SubmitBundleProposal(
 		// 4. The sender immediately starts the next round by registering
 		//    his new bundle proposal.
 
-		// TODO:
-		// -> subtract operating cost from funders
-		// -> add 10% from inflation pool on top
-		// -> payout storage cost with that to uploader
-		// -> the remaining funds are divided between uploader and delegators
+		pool, _ := k.poolKeeper.GetPool(ctx, msg.PoolId)
 
-		// Calculate the total reward for the bundle, and individual payouts.
-		bundleReward := k.calculatePayouts(ctx, msg.PoolId)
-
-		// get the amount we can charge the pool
-		charged, err := k.poolKeeper.ChargeFundersOfPool(ctx, msg.PoolId, bundleReward.Total)
+		// charge the operating cost from funders
+		fundersPayout, err := k.poolKeeper.ChargeFundersOfPool(ctx, msg.PoolId, pool.OperatingCost)
 		if err != nil {
 			return &types.MsgSubmitBundleProposalResponse{}, err
 		}
 
-		pool, _ := k.poolKeeper.GetPool(ctx, msg.PoolId)
-
-		if charged < bundleReward.Treasury {
-			// payout rewards to treasury
-			if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrkeeper, ctx, poolTypes.ModuleName, charged); err != nil {
-				return nil, err
-			}
-		} else if charged < bundleReward.Treasury+bundleReward.Uploader {
-			// payout rewards to treasury
-			if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrkeeper, ctx, poolTypes.ModuleName, bundleReward.Treasury); err != nil {
-				return nil, err
-			}
-
-			uploaderPayout := charged - bundleReward.Treasury
-
-			// payout rewards to uploader through commission rewards
-			k.stakerKeeper.IncreaseStakerCommissionRewards(ctx, bundleProposal.Uploader, uploaderPayout)
-		} else if charged < bundleReward.Treasury+bundleReward.Uploader+bundleReward.Delegation {
-			// payout rewards to treasury
-			if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrkeeper, ctx, poolTypes.ModuleName, bundleReward.Treasury); err != nil {
-				return nil, err
-			}
-
-			uploaderPayout := bundleReward.Uploader
-			delegationPayout := charged - bundleReward.Treasury - bundleReward.Uploader
-
-			// payout rewards to delegators of uploader
-			if success := k.delegationKeeper.PayoutRewards(ctx, bundleProposal.Uploader, delegationPayout, poolTypes.ModuleName); !success {
-				uploaderPayout += delegationPayout
-			}
-
-			// payout rewards to uploader through commission rewards
-			k.stakerKeeper.IncreaseStakerCommissionRewards(ctx, bundleProposal.Uploader, uploaderPayout)
+		// charge the inflation pool
+		inflationPayout, err := k.poolKeeper.ChargeInflationPool(ctx, msg.PoolId)
+		if err != nil {
+			return &types.MsgSubmitBundleProposalResponse{}, err
 		}
+
+		// calculate payouts to the different stakeholders like treasury, uploader and delegators
+		bundleReward := k.calculatePayouts(ctx, msg.PoolId, fundersPayout+inflationPayout)
+
+		// payout rewards to treasury
+		if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrkeeper, ctx, poolTypes.ModuleName, bundleReward.Treasury); err != nil {
+			return nil, err
+		}
+
+		// payout rewards to uploader through commission rewards
+		k.stakerKeeper.IncreaseStakerCommissionRewards(ctx, bundleProposal.Uploader, bundleReward.Uploader)
+
+		// payout rewards to delegators through delegation rewards
+		k.delegationKeeper.PayoutRewards(ctx, bundleProposal.Uploader, bundleReward.Delegation, poolTypes.ModuleName)
 
 		// slash stakers who voted incorrectly
 		for _, voter := range bundleProposal.VotersInvalid {
@@ -137,13 +116,12 @@ func (k msgServer) SubmitBundleProposal(
 			nextUploader = k.chooseNextUploaderFromAllStakers(ctx, msg.PoolId)
 		}
 
-		k.finalizeCurrentBundleProposal(ctx, pool.Id, voteDistribution, bundleReward, nextUploader)
+		k.finalizeCurrentBundleProposal(ctx, pool.Id, voteDistribution, fundersPayout, inflationPayout, bundleReward, nextUploader)
 
 		// Register the provided bundle as a new proposal for the next round
 		k.registerBundleProposalFromUploader(ctx, msg, nextUploader)
 
 		return &types.MsgSubmitBundleProposalResponse{}, nil
-
 	case types.BUNDLE_STATUS_INVALID:
 		// If the bundles is invalid, everybody who voted incorrectly gets slashed.
 		// The bundle provided by the message-sender is of no mean, because the previous bundle
