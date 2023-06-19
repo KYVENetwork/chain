@@ -52,6 +52,7 @@ type RoundRobinValidatorPower struct {
 // It can not be stored to the KV-Store as go map iteration is non-deterministic.
 // To obtain a deterministic state of the current state call GetRoundRobinProgress().
 type RoundRobinValidatorSet struct {
+	PoolId     uint64
 	Validators []RoundRobinValidatorPower
 	Progress   map[string]int64
 }
@@ -63,6 +64,7 @@ type RoundRobinValidatorSet struct {
 // If new validators joined the pool, their progress will be zero.
 func (k Keeper) LoadRoundRobinValidatorSet(ctx sdk.Context, poolId uint64) RoundRobinValidatorSet {
 	vs := RoundRobinValidatorSet{}
+	vs.PoolId = poolId
 	vs.Progress = make(map[string]int64, 0)
 	// Add all current validators to round-robin set
 	for _, address := range k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, poolId) {
@@ -91,9 +93,9 @@ func (k Keeper) LoadRoundRobinValidatorSet(ctx sdk.Context, poolId uint64) Round
 }
 
 // SaveRoundRobinValidatorSet saves the current round-robin progress for the given poolId to the KV-Store
-func (k Keeper) SaveRoundRobinValidatorSet(ctx sdk.Context, poolId uint64, vs RoundRobinValidatorSet) {
+func (k Keeper) SaveRoundRobinValidatorSet(ctx sdk.Context, vs RoundRobinValidatorSet) {
 	roundRobinProgress := types.RoundRobinProgress{
-		PoolId:       poolId,
+		PoolId:       vs.PoolId,
 		ProgressList: vs.GetRoundRobinProgress(),
 	}
 	k.SetRoundRobinProgress(ctx, roundRobinProgress)

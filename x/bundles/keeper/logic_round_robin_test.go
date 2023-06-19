@@ -115,7 +115,7 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 		rrvs1.Progress[i.DUMMY[0]] = 1
 		rrvs1.Progress[i.DUMMY[1]] = 2
 		rrvs1.Progress[i.DUMMY[2]] = 3
-		s.App().BundlesKeeper.SaveRoundRobinValidatorSet(s.Ctx(), 0, rrvs1)
+		s.App().BundlesKeeper.SaveRoundRobinValidatorSet(s.Ctx(), rrvs1)
 
 		state := rrvs1.GetRoundRobinProgress()
 		rrvs := s.App().BundlesKeeper.LoadRoundRobinValidatorSet(s.Ctx(), 0)

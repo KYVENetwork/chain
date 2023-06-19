@@ -409,7 +409,7 @@ func (k Keeper) calculateVotingPower(delegation uint64) (votingPower uint64) {
 func (k Keeper) chooseNextUploader(ctx sdk.Context, poolId uint64, excluded ...string) (nextUploader string) {
 	vs := k.LoadRoundRobinValidatorSet(ctx, poolId)
 	nextUploader = vs.NextProposer(excluded...)
-	k.SaveRoundRobinValidatorSet(ctx, poolId, vs)
+	k.SaveRoundRobinValidatorSet(ctx, vs)
 	return
 }
 
@@ -431,7 +431,7 @@ func (k Keeper) chooseNextUploaderFromList(ctx sdk.Context, poolId uint64, inclu
 	}
 
 	nextUploader = vs.NextProposer(excluded...)
-	k.SaveRoundRobinValidatorSet(ctx, poolId, vs)
+	k.SaveRoundRobinValidatorSet(ctx, vs)
 	return
 }
 
