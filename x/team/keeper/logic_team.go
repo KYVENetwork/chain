@@ -1,11 +1,41 @@
 package keeper
 
 import (
+	"fmt"
 	"github.com/KYVENetwork/chain/util"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	"github.com/KYVENetwork/chain/x/team/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
+
+// GetTeamBlockProvision gets the total reward amount for the team module
+// for the current block
+func (k Keeper) GetTeamBlockProvision(ctx sdk.Context) int64 {
+	// Compute team allocation of minted coins.
+	minter := k.mintKeeper.GetMinter(ctx)
+	params := k.mintKeeper.GetParams(ctx)
+
+	// get total inflation rewards for current block
+	blockProvision := minter.BlockProvision(params)
+
+	// calculate theoretical team balance. We don't use team module balance because a third party could skew
+	// the team inflation rewards by simply transferring funds to the team module account
+	teamBalance := k.GetTeamInfo(ctx).RequiredModuleBalance
+
+	// calculate total inflation rewards for team module.
+	// We subtract current inflation because it was already applied to the total supply because BeginBlocker
+	// x/mint runs before this method
+	totalSupply := k.bankKeeper.GetSupply(ctx, blockProvision.Denom).Amount.Int64() - blockProvision.Amount.Int64()
+	teamModuleRewardsShare := sdk.NewDec(int64(teamBalance)).Quo(sdk.NewDec(totalSupply))
+
+	// if team module balance is greater than total supply panic
+	if teamModuleRewardsShare.GT(sdk.NewDec(int64(1))) {
+		util.PanicHalt(k.upgradeKeeper, ctx, fmt.Sprintf("team module balance %v is higher than total supply %v", teamBalance, totalSupply))
+	}
+
+	// calculate the total reward in $KYVE the entire team module receives this block
+	return teamModuleRewardsShare.Mul(sdk.NewDec(blockProvision.Amount.Int64())).TruncateInt64()
+}
 
 // GetVestingStatus returns all computed values which are dependent on the time
 // for the given account
