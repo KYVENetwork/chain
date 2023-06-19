@@ -31,11 +31,6 @@ func (k Keeper) AssertPoolCanRun(ctx sdk.Context, poolId uint64) error {
 		return types.ErrPoolDisabled
 	}
 
-	// Error if the pool has no funds.
-	if len(pool.Funders) == 0 {
-		return types.ErrPoolOutOfFunds
-	}
-
 	// Error if min delegation is not reached
 	if k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id) < pool.MinDelegation {
 		return types.ErrMinDelegationNotReached

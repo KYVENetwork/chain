@@ -128,9 +128,11 @@ genesis:
           clawback: "1804978800"
           commencement: "1647212400"
     pool:
+      params:
+        protocol_inflation_share: "0.04"
       pool_count: "1"
       pool_list:
-        - config: "ar://tMTrJ8E3QgBNLz0-lyn6QrxasEIX46d14QFVmBWshSI"
+        - config: "{\"network\":\"kyve-1\",\"rpc\":\"https://rpc-eu-1.kyve.network\"}"
           current_compression_id: "1"
           current_index: "0"
           current_key: ""
@@ -138,20 +140,20 @@ genesis:
           current_summary: ""
           funders: []
           id: "0"
-          logo: "ar://E3jXAOeJ3El7HQgOf_NtSOwVE7Sd0M4g4bYqjCBH9CU"
+          logo: ""
           max_bundle_size: "100"
           min_delegation: "100000000000"
-          name: "Avalanche // C-Chain"
+          name: "KYVE // Mainnet"
           operating_cost: "2500000000"
           disabled: false
-          runtime: '@kyvejs/evm'
-          start_key: "0"
+          runtime: '@kyvejs/tendermint-bsync'
+          start_key: "1"
           total_bundles: "0"
           total_funds: "0"
           upload_interval: "60"
           protocol:
-            version: "1.0.0-beta.5"
-            binaries: "{\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Fevm%401.0.0-beta.5/kyve-macos-x64.zip\"}"
+            version: "1.0.0"
+            binaries: "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.0.0/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.0.0/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.0.0/kyve-macos-x64.zip\"}"
             last_upgrade: "0"
           upgrade_plan:
             version: ""
