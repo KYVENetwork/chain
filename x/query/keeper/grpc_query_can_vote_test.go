@@ -40,7 +40,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		s = i.NewCleanChain()
 
 		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "Moontest",
+			Name:           "PoolTest",
 			MinDelegation:  200 * i.KYVE,
 			UploadInterval: 60,
 			MaxBundleSize:  100,

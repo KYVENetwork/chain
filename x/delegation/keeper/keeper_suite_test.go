@@ -26,7 +26,7 @@ func PayoutRewards(s *i.KeeperTestSuite, staker string, amount uint64) {
 
 func CreateFundedPool(s *i.KeeperTestSuite) {
 	s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-		Name: "Moontest",
+		Name: "PoolTest",
 		Protocol: &pooltypes.Protocol{
 			Version:     "0.0.0",
 			Binaries:    "{}",
