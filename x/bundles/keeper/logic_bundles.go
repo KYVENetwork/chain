@@ -259,7 +259,7 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout uin
 		bundleReward.Uploader += commissionRewards
 		bundleReward.Delegation = totalNodeReward - commissionRewards
 	} else {
-		bundleReward.Uploader = totalNodeReward
+		bundleReward.Uploader += totalNodeReward
 		bundleReward.Delegation = 0
 	}
 

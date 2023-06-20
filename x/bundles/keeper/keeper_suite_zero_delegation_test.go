@@ -241,7 +241,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(100*i.KYVE - slashAmountVoter))
 	})
 
-	PIt("Staker submit bundle proposal with zero delegation", func() {
+	It("Staker submit bundle proposal with zero delegation", func() {
 		// ARRANGE
 		// create zero delegation validator
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
@@ -394,7 +394,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(totalUploaderReward))
+		Expect(uploader.CommissionRewards).To(Equal(totalUploaderReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeZero())
 
