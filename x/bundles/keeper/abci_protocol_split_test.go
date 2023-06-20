@@ -4,6 +4,7 @@ import (
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
+	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -37,6 +38,7 @@ var _ = Describe("abci.go", Ordered, func() {
 			MaxBundleSize:  100,
 			StartKey:       "0",
 			UploadInterval: 60,
+			MinDelegation:  100 * i.KYVE,
 			OperatingCost:  1_000_000,
 			Protocol: &poolTypes.Protocol{
 				Version:     "0.0.0",
@@ -68,6 +70,33 @@ var _ = Describe("abci.go", Ordered, func() {
 		}
 	})
 
+	It("active pool should receive inflation funds", func() {
+		// ARRANGE
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_0,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_0,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_0,
+		})
+
+		b1, b2 := uint64(0), uint64(0)
+
+		for t := 0; t < 100; t++ {
+			// ACT
+			pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+			b1 = uint64(s.App().BankKeeper.GetBalance(s.Ctx(), pool.GetPoolAccount(), globalTypes.Denom).Amount.Int64())
+			s.Commit()
+			b2 = uint64(s.App().BankKeeper.GetBalance(s.Ctx(), pool.GetPoolAccount(), globalTypes.Denom).Amount.Int64())
+
+			// ASSERT
+			Expect(b1).To(BeNumerically("<", b2))
+		}
+	})
+
 	It("pool should split inflation funds depending on operating cost", func() {
 		// ARRANGE
 		s.App().PoolKeeper.AppendPool(s.Ctx(), poolTypes.Pool{
@@ -75,6 +104,7 @@ var _ = Describe("abci.go", Ordered, func() {
 			MaxBundleSize:  100,
 			StartKey:       "0",
 			UploadInterval: 60,
+			MinDelegation:  100 * i.KYVE,
 			OperatingCost:  2_000_000,
 			Protocol: &poolTypes.Protocol{
 				Version:     "0.0.0",
@@ -82,6 +112,28 @@ var _ = Describe("abci.go", Ordered, func() {
 				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
 			},
 			UpgradePlan: &poolTypes.UpgradePlan{},
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_0,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_0,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_0,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_1,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_1,
+			PoolId:     1,
+			Valaddress: i.VALADDRESS_1,
 		})
 
 		// ACT
@@ -97,13 +149,14 @@ var _ = Describe("abci.go", Ordered, func() {
 		Expect(b1 * 2).To(BeNumerically("~", b2, 1))
 	})
 
-	PIt("pools with zero operating cost should receive nothing", func() {
+	It("pools with zero operating cost should receive nothing", func() {
 		// ARRANGE
 		s.App().PoolKeeper.AppendPool(s.Ctx(), poolTypes.Pool{
 			Name:           "PoolTest2",
 			MaxBundleSize:  100,
 			StartKey:       "0",
 			UploadInterval: 60,
+			MinDelegation:  100 * i.KYVE,
 			OperatingCost:  0,
 			Protocol: &poolTypes.Protocol{
 				Version:     "0.0.0",
@@ -111,6 +164,17 @@ var _ = Describe("abci.go", Ordered, func() {
 				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
 			},
 			UpgradePlan: &poolTypes.UpgradePlan{},
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_0,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_0,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_0,
 		})
 
 		// ACT
@@ -127,7 +191,7 @@ var _ = Describe("abci.go", Ordered, func() {
 		Expect(b2).To(BeZero())
 	})
 
-	It("pools with zero operating cost should receive nothing", func() {
+	It("every pool has zero operating cost", func() {
 		// ARRANGE
 		s.App().PoolKeeper.SetPool(s.Ctx(), poolTypes.Pool{
 			Id:             0,

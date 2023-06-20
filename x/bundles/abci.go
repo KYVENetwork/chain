@@ -44,7 +44,7 @@ func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk bankKeeper.Keepe
 
 	for _, pool := range pk.GetAllPools(ctx) {
 		// only include active pools
-		if err := k.AssertPoolCanRun(ctx, pool.Id); err != nil {
+		if err := k.AssertPoolCanRun(ctx, pool.Id); err == nil {
 			totalOperatingCost += pool.OperatingCost
 		}
 	}
@@ -56,7 +56,7 @@ func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk bankKeeper.Keepe
 
 	for _, pool := range pk.GetAllPools(ctx) {
 		// only include active pools
-		if err := k.AssertPoolCanRun(ctx, pool.Id); err != nil {
+		if err := k.AssertPoolCanRun(ctx, pool.Id); err == nil {
 			// calculate pool share based of operating cost
 			amount := uint64(sdk.NewDec(int64(pool.OperatingCost)).Quo(sdk.NewDec(int64(totalOperatingCost))).Mul(sdk.NewDec(protocolBlockProvision)).TruncateInt64())
 
