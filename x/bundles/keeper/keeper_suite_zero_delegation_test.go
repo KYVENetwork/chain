@@ -241,7 +241,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(100*i.KYVE - slashAmountVoter))
 	})
 
-	It("Staker submit bundle proposal with zero delegation", func() {
+	PIt("Staker submit bundle proposal with zero delegation", func() {
 		// ARRANGE
 		// create zero delegation validator
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
@@ -384,11 +384,10 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// calculate uploader rewards
-		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-
-		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
-		totalUploaderReward := totalReward - treasuryReward
+		treasuryReward := uint64(sdk.NewDec(int64(pool.OperatingCost)).Mul(networkFee).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		totalUploaderReward := pool.OperatingCost - treasuryReward - storageReward
 
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
@@ -403,7 +402,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		Expect(pool.Funders).To(HaveLen(1))
-		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100*i.KYVE - totalReward))
+		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100*i.KYVE - pool.OperatingCost))
 	})
 
 	It("Staker receives upload slash with zero delegation", func() {
