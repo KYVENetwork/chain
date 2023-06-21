@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 

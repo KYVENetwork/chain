@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"

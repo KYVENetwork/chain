@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"encoding/binary"
+
 	"github.com/KYVENetwork/chain/util"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 	"github.com/KYVENetwork/chain/x/stakers/types"
