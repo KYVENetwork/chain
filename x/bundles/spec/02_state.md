@@ -77,8 +77,6 @@ This struct is not stored directly in the KV-Store but used by the
 RoundRobinProgress struct.
 
 ```go
-// RoundRobinSingleValidatorProgress holds the current progress for a 
-// given address.
 type RoundRobinSingleValidatorProgress struct {
     // address of the validator
     Address string
@@ -94,7 +92,6 @@ given pool.
 - RoundRobinProgress `0x03 | PoolId -> ProtocolBuffer(roundRobinProgress)`
 
 ```go
-// RoundRobinProgress stores the current round-robin state for a given pool.
 message RoundRobinProgress {
     PoolId uint64
     ProgressList []RoundRobinSingleValidatorProgress

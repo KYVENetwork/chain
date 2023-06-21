@@ -405,7 +405,7 @@ func (k Keeper) calculateVotingPower(delegation uint64) (votingPower uint64) {
 }
 
 // chooseNextUploader selects the next uploader based on a fixed set of stakers in a pool.
-// It is guaranteed that someone is chosen deterministically.
+// It is guaranteed that someone is chosen deterministically if the round-robin set itself is not empty.
 func (k Keeper) chooseNextUploader(ctx sdk.Context, poolId uint64, excluded ...string) (nextUploader string) {
 	vs := k.LoadRoundRobinValidatorSet(ctx, poolId)
 	nextUploader = vs.NextProposer(excluded...)
@@ -414,7 +414,7 @@ func (k Keeper) chooseNextUploader(ctx sdk.Context, poolId uint64, excluded ...s
 }
 
 // chooseNextUploader selects the next uploader based on a fixed set of stakers in a pool.
-// It is guaranteed that someone is chosen deterministically.
+// It is guaranteed that someone is chosen deterministically if the round-robin set itself is not empty.
 func (k Keeper) chooseNextUploaderFromList(ctx sdk.Context, poolId uint64, included []string) (nextUploader string) {
 	vs := k.LoadRoundRobinValidatorSet(ctx, poolId)
 

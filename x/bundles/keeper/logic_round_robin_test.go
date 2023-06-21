@@ -58,7 +58,7 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 		// init new clean chain
 		s = i.NewCleanChain()
 
-		// Sort dummy accounts alphabetically
+		// sort dummy accounts alphabetically
 		sort.Slice(i.DUMMY, func(k, j int) bool {
 			return i.DUMMY[k] < i.DUMMY[j]
 		})

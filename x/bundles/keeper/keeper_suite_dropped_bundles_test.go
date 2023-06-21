@@ -138,7 +138,6 @@ var _ = Describe("dropped bundles", Ordered, func() {
 		Expect(bundleProposal.PoolId).To(Equal(uint64(0)))
 		Expect(bundleProposal.StorageId).To(BeEmpty())
 		Expect(bundleProposal.Uploader).To(BeEmpty())
-		// TODO(@max) double check with @troy
 		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_0))
 		Expect(bundleProposal.DataSize).To(BeZero())
 		Expect(bundleProposal.DataHash).To(BeEmpty())
