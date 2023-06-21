@@ -29,7 +29,7 @@ var _ = Describe("logic_end_block_handle_pool_upgrades.go", Ordered, func() {
 
 		// create clean pool for every test case
 		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "Moontest",
+			Name:           "PoolTest",
 			MaxBundleSize:  100,
 			StartKey:       "0",
 			MinDelegation:  100 * i.KYVE,

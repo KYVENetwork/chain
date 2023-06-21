@@ -36,13 +36,14 @@ type PoolKeeper interface {
 	IncrementBundleInformation(ctx sdk.Context, poolId uint64, currentHeight uint64, currentKey string, currentValue string)
 
 	GetAllPools(ctx sdk.Context) (list []pooltypes.Pool)
-	ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint64) error
+	ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint64) (payout uint64, err error)
+	ChargeInflationPool(ctx sdk.Context, poolId uint64) (payout uint64, err error)
 }
 
 type StakerKeeper interface {
 	GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (stakers []string)
 	GetCommission(ctx sdk.Context, stakerAddress string) sdk.Dec
-	IncreaseStakerCommissionRewards(ctx sdk.Context, address string, amount uint64)
+	IncreaseStakerCommissionRewards(ctx sdk.Context, address string, amount uint64) (success bool)
 	AssertValaccountAuthorized(ctx sdk.Context, poolId uint64, stakerAddress string, valaddress string) error
 
 	DoesStakerExist(ctx sdk.Context, staker string) bool

@@ -16,16 +16,12 @@ import (
 
 	// Bank
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	// Distribution
-	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	// Mint
-	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
+
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool/client/cli"
 	"github.com/KYVENetwork/chain/x/pool/keeper"
 	"github.com/KYVENetwork/chain/x/pool/types"
-	// Team
-	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
+
 	// Upgrade
 	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 )
@@ -100,13 +96,10 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 type AppModule struct {
 	AppModuleBasic
 
-	keeper             keeper.Keeper
-	accountKeeper      types.AccountKeeper
-	bankKeeper         bankKeeper.Keeper
-	distributionKeeper distributionKeeper.Keeper
-	mintKeeper         mintKeeper.Keeper
-	upgradeKeeper      upgradeKeeper.Keeper
-	teamKeeper         teamKeeper.Keeper
+	keeper        keeper.Keeper
+	accountKeeper types.AccountKeeper
+	bankKeeper    bankKeeper.Keeper
+	upgradeKeeper upgradeKeeper.Keeper
 }
 
 func NewAppModule(
@@ -114,20 +107,14 @@ func NewAppModule(
 	keeper keeper.Keeper,
 	accountKeeper types.AccountKeeper,
 	bankKeeper bankKeeper.Keeper,
-	distributionKeeper distributionKeeper.Keeper,
-	mintKeeper mintKeeper.Keeper,
 	upgradeKeeper upgradeKeeper.Keeper,
-	teamKeeper teamKeeper.Keeper,
 ) AppModule {
 	return AppModule{
-		AppModuleBasic:     NewAppModuleBasic(cdc),
-		keeper:             keeper,
-		accountKeeper:      accountKeeper,
-		bankKeeper:         bankKeeper,
-		distributionKeeper: distributionKeeper,
-		mintKeeper:         mintKeeper,
-		upgradeKeeper:      upgradeKeeper,
-		teamKeeper:         teamKeeper,
+		AppModuleBasic: NewAppModuleBasic(cdc),
+		keeper:         keeper,
+		accountKeeper:  accountKeeper,
+		bankKeeper:     bankKeeper,
+		upgradeKeeper:  upgradeKeeper,
 	}
 }
 
@@ -172,9 +159,7 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 func (AppModule) ConsensusVersion() uint64 { return 1 }
 
 // BeginBlock contains the logic that is automatically triggered at the beginning of each block
-func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
-	SplitInflation(ctx, am.bankKeeper, am.mintKeeper, am.keeper, am.teamKeeper, am.upgradeKeeper)
-}
+func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
 
 // EndBlock contains the logic that is automatically triggered at the end of each block
 func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {

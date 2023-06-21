@@ -20,6 +20,11 @@ func (k Keeper) GetProtocolInflationShare(ctx sdk.Context) (res sdk.Dec) {
 	return k.GetParams(ctx).ProtocolInflationShare
 }
 
+// GetPoolInflationPayoutRate returns the GetPoolInflationPayoutRate param
+func (k Keeper) GetPoolInflationPayoutRate(ctx sdk.Context) (res sdk.Dec) {
+	return k.GetParams(ctx).PoolInflationPayoutRate
+}
+
 // SetParams stores the x/pool params in state.
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	bz := k.cdc.MustMarshal(&params)

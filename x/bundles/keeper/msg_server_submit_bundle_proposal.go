@@ -11,8 +11,6 @@ import (
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
 	// Pool
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
-	// Stakers
-	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
 )
 
 // SubmitBundleProposal handles the logic of an SDK message that allows protocol nodes to submit a new bundle proposal.
@@ -59,7 +57,8 @@ func (k msgServer) SubmitBundleProposal(
 
 	case types.BUNDLE_STATUS_VALID:
 		// If a bundle is valid the following things happen:
-		// 1. A reward is paid out to the uploader, its delegators and the treasury
+		// 1. Funders and Inflation Pool are charged. The total payout is divided
+		//    between the uploader, its delegators and the treasury.
 		//    The appropriate funds are deducted from the total pool funds
 		// 2. The next uploader is randomly selected based on everybody who
 		//    voted valid on this bundle.
@@ -67,46 +66,33 @@ func (k msgServer) SubmitBundleProposal(
 		// 4. The sender immediately starts the next round by registering
 		//    his new bundle proposal.
 
-		// Calculate the total reward for the bundle, and individual payouts.
-		bundleReward := k.calculatePayouts(ctx, msg.PoolId)
-
-		if err := k.poolKeeper.ChargeFundersOfPool(ctx, msg.PoolId, bundleReward.Total); err != nil {
-			// update the latest time on bundle to indicate that the bundle is still active
-			// protocol nodes use this to determine the upload timeout
-			bundleProposal.UpdatedAt = uint64(ctx.BlockTime().Unix())
-			k.SetBundleProposal(ctx, bundleProposal)
-
-			// emit event which indicates that pool has run out of funds
-			_ = ctx.EventManager().EmitTypedEvent(&poolTypes.EventPoolOutOfFunds{
-				PoolId: msg.PoolId,
-			})
-
-			return &types.MsgSubmitBundleProposalResponse{}, nil
-		}
-
 		pool, _ := k.poolKeeper.GetPool(ctx, msg.PoolId)
-		bundleProposal, _ := k.GetBundleProposal(ctx, msg.PoolId)
 
-		uploaderPayout := bundleReward.Uploader
-
-		delegationPayoutSuccessful := k.delegationKeeper.PayoutRewards(ctx, bundleProposal.Uploader, bundleReward.Delegation, poolTypes.ModuleName)
-		// If staker has no delegators add all delegation rewards to the staker rewards
-		if !delegationPayoutSuccessful {
-			uploaderPayout += bundleReward.Delegation
+		// charge the operating cost from funders
+		fundersPayout, err := k.poolKeeper.ChargeFundersOfPool(ctx, msg.PoolId, pool.OperatingCost)
+		if err != nil {
+			return &types.MsgSubmitBundleProposalResponse{}, err
 		}
 
-		// transfer funds from pool to stakers module
-		if err := util.TransferFromModuleToModule(k.bankKeeper, ctx, poolTypes.ModuleName, stakersTypes.ModuleName, uploaderPayout); err != nil {
-			return nil, err
+		// charge the inflation pool
+		inflationPayout, err := k.poolKeeper.ChargeInflationPool(ctx, msg.PoolId)
+		if err != nil {
+			return &types.MsgSubmitBundleProposalResponse{}, err
 		}
 
-		// increase commission rewards of uploader
-		k.stakerKeeper.IncreaseStakerCommissionRewards(ctx, bundleProposal.Uploader, uploaderPayout)
+		// calculate payouts to the different stakeholders like treasury, uploader and delegators
+		bundleReward := k.calculatePayouts(ctx, msg.PoolId, fundersPayout+inflationPayout)
 
-		// send network fee to treasury
+		// payout rewards to treasury
 		if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrkeeper, ctx, poolTypes.ModuleName, bundleReward.Treasury); err != nil {
 			return nil, err
 		}
+
+		// payout rewards to uploader through commission rewards
+		k.stakerKeeper.IncreaseStakerCommissionRewards(ctx, bundleProposal.Uploader, bundleReward.Uploader)
+
+		// payout rewards to delegators through delegation rewards
+		k.delegationKeeper.PayoutRewards(ctx, bundleProposal.Uploader, bundleReward.Delegation, poolTypes.ModuleName)
 
 		// slash stakers who voted incorrectly
 		for _, voter := range bundleProposal.VotersInvalid {
@@ -130,13 +116,12 @@ func (k msgServer) SubmitBundleProposal(
 			nextUploader = k.chooseNextUploaderFromAllStakers(ctx, msg.PoolId)
 		}
 
-		k.finalizeCurrentBundleProposal(ctx, pool.Id, voteDistribution, bundleReward, nextUploader)
+		k.finalizeCurrentBundleProposal(ctx, pool.Id, voteDistribution, fundersPayout, inflationPayout, bundleReward, nextUploader)
 
 		// Register the provided bundle as a new proposal for the next round
 		k.registerBundleProposalFromUploader(ctx, msg, nextUploader)
 
 		return &types.MsgSubmitBundleProposalResponse{}, nil
-
 	case types.BUNDLE_STATUS_INVALID:
 		// If the bundles is invalid, everybody who voted incorrectly gets slashed.
 		// The bundle provided by the message-sender is of no mean, because the previous bundle

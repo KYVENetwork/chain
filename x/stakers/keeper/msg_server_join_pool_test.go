@@ -52,7 +52,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		// create pool
 		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name: "Moontest",
+			Name: "PoolTest",
 			Protocol: &pooltypes.Protocol{
 				Version:     "0.0.0",
 				Binaries:    "{}",
@@ -393,7 +393,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		})
 
 		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name: "Moontest2",
+			Name: "Test Pool2",
 			Protocol: &pooltypes.Protocol{
 				Version:     "0.0.0",
 				Binaries:    "{}",
@@ -418,7 +418,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 	It("Try to join pool with a valaddress that is already used by another staker", func() {
 		// ARRANGE
 		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name: "Moontest2",
+			Name: "Test Pool2",
 			Protocol: &pooltypes.Protocol{
 				Version:     "0.0.0",
 				Binaries:    "{}",
@@ -489,7 +489,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		})
 
 		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name: "Moontest2",
+			Name: "Test Pool2",
 			Protocol: &pooltypes.Protocol{
 				Version:     "0.0.0",
 				Binaries:    "{}",

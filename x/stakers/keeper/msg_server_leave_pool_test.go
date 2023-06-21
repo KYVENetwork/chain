@@ -30,7 +30,7 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		// create pool
 		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name: "Moontest",
+			Name: "PoolTest",
 			Protocol: &pooltypes.Protocol{
 				Version:     "0.0.0",
 				Binaries:    "{}",
@@ -209,7 +209,7 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 	It("Leave one of multiple pools a staker has previously joined", func() {
 		// ARRANGE
 		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name: "Moontest",
+			Name: "PoolTest",
 			Protocol: &pooltypes.Protocol{
 				Version:     "0.0.0",
 				Binaries:    "{}",

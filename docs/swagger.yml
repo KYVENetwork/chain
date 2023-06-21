@@ -578,6 +578,12 @@ paths:
                                 commission
 
                                 of a staker will change to the new commission
+                            commission_rewards:
+                              type: string
+                              format: uint64
+                              title: >-
+                                commission_rewards are the rewards in $KYVE
+                                earned through commission
                           title: >-
                             StakerMetadata contains static information for a
                             staker
@@ -4104,6 +4110,12 @@ paths:
                                 commission
 
                                 of a staker will change to the new commission
+                            commission_rewards:
+                              type: string
+                              format: uint64
+                              title: >-
+                                commission_rewards are the rewards in $KYVE
+                                earned through commission
                           title: >-
                             StakerMetadata contains static information for a
                             staker
@@ -6136,6 +6148,12 @@ paths:
                         title: |-
                           CommissionChangeEntry shows when the old commission
                           of a staker will change to the new commission
+                      commission_rewards:
+                        type: string
+                        format: uint64
+                        title: >-
+                          commission_rewards are the rewards in $KYVE earned
+                          through commission
                     title: StakerMetadata contains static information for a staker
                   self_delegation:
                     type: string
@@ -6559,6 +6577,12 @@ paths:
                           title: |-
                             CommissionChangeEntry shows when the old commission
                             of a staker will change to the new commission
+                        commission_rewards:
+                          type: string
+                          format: uint64
+                          title: >-
+                            commission_rewards are the rewards in $KYVE earned
+                            through commission
                       title: StakerMetadata contains static information for a staker
                     self_delegation:
                       type: string
@@ -7087,6 +7111,12 @@ paths:
                                 commission
 
                                 of a staker will change to the new commission
+                            commission_rewards:
+                              type: string
+                              format: uint64
+                              title: >-
+                                commission_rewards are the rewards in $KYVE
+                                earned through commission
                           title: >-
                             StakerMetadata contains static information for a
                             staker
@@ -7560,6 +7590,12 @@ paths:
                           title: |-
                             CommissionChangeEntry shows when the old commission
                             of a staker will change to the new commission
+                        commission_rewards:
+                          type: string
+                          format: uint64
+                          title: >-
+                            commission_rewards are the rewards in $KYVE earned
+                            through commission
                       title: StakerMetadata contains static information for a staker
                     self_delegation:
                       type: string
