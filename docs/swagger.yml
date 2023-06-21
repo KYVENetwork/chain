@@ -4760,6 +4760,16 @@ paths:
                     type: string
                     format: uint64
                     description: commission_change_time ...
+              pool_params:
+                description: pool_params ...
+                type: object
+                properties:
+                  protocol_inflation_share:
+                    type: string
+                    description: protocol_inflation_share ...
+                  pool_inflation_payout_rate:
+                    type: string
+                    description: pool_inflation_payout_rate ...
             description: QueryParamsResponse ...
         default:
           description: An unexpected error response.
