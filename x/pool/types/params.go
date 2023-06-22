@@ -9,7 +9,7 @@ import (
 var DefaultProtocolInflationShare = sdk.ZeroDec()
 
 // DefaultPoolInflationPayoutRate ...
-var DefaultPoolInflationPayoutRate = sdk.MustNewDecFromStr("0.1")
+var DefaultPoolInflationPayoutRate = sdk.MustNewDecFromStr("0.05")
 
 // NewParams creates a new Params instance
 func NewParams(
