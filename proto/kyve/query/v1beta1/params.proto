@@ -7,8 +7,8 @@ import "google/api/annotations.proto";
 import "kyve/bundles/v1beta1/params.proto";
 import "kyve/delegation/v1beta1/params.proto";
 import "kyve/global/v1beta1/global.proto";
-import "kyve/stakers/v1beta1/params.proto";
 import "kyve/pool/v1beta1/params.proto";
+import "kyve/stakers/v1beta1/params.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/query/types";
 

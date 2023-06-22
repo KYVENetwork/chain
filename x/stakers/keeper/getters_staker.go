@@ -4,9 +4,7 @@ import (
 	"encoding/binary"
 
 	"github.com/KYVENetwork/chain/util"
-	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 	"github.com/KYVENetwork/chain/x/stakers/types"
-	stakerTypes "github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -35,6 +33,15 @@ func (k Keeper) UpdateStakerMetadata(
 	}
 }
 
+// updateStakerCommissionRewards ...
+func (k Keeper) updateStakerCommissionRewards(ctx sdk.Context, address string, amount uint64) {
+	staker, found := k.GetStaker(ctx, address)
+	if found {
+		staker.CommissionRewards += amount
+		k.setStaker(ctx, staker)
+	}
+}
+
 // UpdateStakerCommission ...
 func (k Keeper) UpdateStakerCommission(ctx sdk.Context, address string, commission sdk.Dec) {
 	staker, found := k.GetStaker(ctx, address)
@@ -42,24 +49,6 @@ func (k Keeper) UpdateStakerCommission(ctx sdk.Context, address string, commissi
 		staker.Commission = commission
 		k.setStaker(ctx, staker)
 	}
-}
-
-// IncreaseStakerCommissionRewards ...
-func (k Keeper) IncreaseStakerCommissionRewards(ctx sdk.Context, address string, amount uint64) (success bool) {
-	if staker, found := k.GetStaker(ctx, address); found {
-		// transfer funds from pool to stakers module
-		if err := util.TransferFromModuleToModule(k.bankKeeper, ctx, poolTypes.ModuleName, stakerTypes.ModuleName, amount); err != nil {
-			util.PanicHalt(k.upgradeKeeper, ctx, "Not enough tokens in module")
-			return false
-		}
-
-		staker.CommissionRewards += amount
-		k.setStaker(ctx, staker)
-
-		return true
-	}
-
-	return false
 }
 
 // AddValaccountToPool adds a valaccount to a pool.
