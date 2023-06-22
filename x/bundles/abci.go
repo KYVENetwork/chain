@@ -85,6 +85,6 @@ func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk bankKeeper.Keepe
 		}
 	}
 
-	// remainder gets transferred to chain
+	// rest gets transferred to chain
 	pk.Logger(ctx).Info("split portion of minted coins to protocol", "amount", protocolBlockProvision)
 }

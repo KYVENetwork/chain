@@ -65,6 +65,6 @@ type StakersKeeper interface {
     // IncreaseStakerCommissionRewards increases the commission rewards of a
     // staker by a specific amount. It can not be decreased, only the
     // MsgClaimCommissionRewards message can decrease this value.
-    IncreaseStakerCommissionRewards(ctx sdk.Context, address string, amount uint64) (success bool)
+    IncreaseStakerCommissionRewards(ctx sdk.Context, address string, amount uint64) error
 }
 ```

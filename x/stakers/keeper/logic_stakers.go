@@ -10,23 +10,29 @@ import (
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // IncreaseStakerCommissionRewards sets the uploader's commission rewards and transfers the funds from
 // the pool module to the stakers module, so the funds can be later claimed and transferred from here
-func (k Keeper) IncreaseStakerCommissionRewards(ctx sdk.Context, address string, amount uint64) (success bool) {
-	if _, found := k.GetStaker(ctx, address); found {
-		// transfer funds from pool to stakers module
-		if err := util.TransferFromModuleToModule(k.bankKeeper, ctx, poolTypes.ModuleName, types.ModuleName, amount); err != nil {
-			util.PanicHalt(k.upgradeKeeper, ctx, "Not enough tokens in module")
-			return false
-		}
-
-		k.updateStakerCommissionRewards(ctx, address, amount)
-		return true
+func (k Keeper) IncreaseStakerCommissionRewards(ctx sdk.Context, address string, amount uint64) error {
+	// Assert there is an amount
+	if amount == 0 {
+		return nil
 	}
 
-	return false
+	// Assert the staker exists
+	if _, found := k.GetStaker(ctx, address); !found {
+		return errors.Wrapf(sdkErrors.ErrNotFound, "Staker does not exist.")
+	}
+
+	// transfer funds from pool to stakers module
+	if err := util.TransferFromModuleToModule(k.bankKeeper, ctx, poolTypes.ModuleName, types.ModuleName, amount); err != nil {
+		return err
+	}
+
+	k.updateStakerCommissionRewards(ctx, address, amount)
+	return nil
 }
 
 // getLowestStaker returns the staker with the lowest total stake

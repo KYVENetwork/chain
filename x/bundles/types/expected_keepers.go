@@ -43,7 +43,7 @@ type PoolKeeper interface {
 type StakerKeeper interface {
 	GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (stakers []string)
 	GetCommission(ctx sdk.Context, stakerAddress string) sdk.Dec
-	IncreaseStakerCommissionRewards(ctx sdk.Context, address string, amount uint64) (success bool)
+	IncreaseStakerCommissionRewards(ctx sdk.Context, address string, amount uint64) error
 	AssertValaccountAuthorized(ctx sdk.Context, poolId uint64, stakerAddress string, valaddress string) error
 
 	DoesStakerExist(ctx sdk.Context, staker string) bool
@@ -58,6 +58,6 @@ type StakerKeeper interface {
 type DelegationKeeper interface {
 	GetDelegationAmount(ctx sdk.Context, staker string) uint64
 	GetDelegationOfPool(ctx sdk.Context, poolId uint64) uint64
-	PayoutRewards(ctx sdk.Context, staker string, amount uint64, payerModuleName string) (success bool)
+	PayoutRewards(ctx sdk.Context, staker string, amount uint64, payerModuleName string) error
 	SlashDelegators(ctx sdk.Context, poolId uint64, staker string, slashType delegationTypes.SlashType)
 }
