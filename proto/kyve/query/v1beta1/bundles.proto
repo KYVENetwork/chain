@@ -41,14 +41,13 @@ service QueryBundles {
   }
 }
 
-// FinalizedBundle represents a bundle proposal where the majority
-// agreed on its validity
+// FinalizedBundle represents the latest version of a valid bundle of a pool
 message FinalizedBundle {
-  // pool_id is the id of the pool for which this proposal is for
+  // pool_id in which the bundle was created
   uint64 pool_id = 1;
-  // id is a unique identifier for each finalized bundle in a pool
+  // id is is integrated with each valid bundle produced.
   uint64 id = 2;
-  // storage_id is the id with which the data can be retrieved from
+  // storage_id is the id with which the data can be retrieved from the configured data provider
   string storage_id = 3;
   // uploader is the address of the staker who submitted this bundle
   string uploader = 4;
@@ -56,21 +55,22 @@ message FinalizedBundle {
   uint64 from_index = 5;
   // to_index is the index to which the bundle goes (exclusive)
   uint64 to_index = 6;
-  // to_key the key of the last data item in the bundle proposal
+  // from_key is the key of the first data item in the bundle proposal
+  string from_key = 11;
+  // to_key the key of the last data item in the bundle
   string to_key = 7;
-  // bundle_summary a string summary of the current proposal
+  // bundle_summary is a summary of the bundle.
   string bundle_summary = 8;
-  // data_hash a sha256 hash of the raw compressed data
+  // data_hash is a sha256 hash of the uploaded data.
   string data_hash = 9;
   // finalized_at contains details of the block that finalized this bundle.
   FinalizedAt finalized_at = 10;
-  // from_key the key of the first data item in the bundle proposal
-  string from_key = 11;
   // storage_provider_id the id of the storage provider where the bundle is stored
   uint64 storage_provider_id = 12;
   // compression_id the id of the compression type with which the data was compressed
   uint64 compression_id = 13;
-  // stake_security ...
+  // stake_security defines the amount of stake which was present in the pool during the finalization of the bundle.
+  // This field was added in schema version 2. Bundles finalized before that return `null`.
   string stake_security = 14 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
 }
 
