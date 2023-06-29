@@ -23,3 +23,15 @@ type BundleReward struct {
 	// total ...
 	Total uint64
 }
+
+// GetMap converts to array to a go map which return the upgrade-height for each version.
+// e.g. the schema changed from v1 to v2 at block 1,000.
+// then: GetMap()[2] = 1000
+// Version 1 start at 0 and is not encoded in the map
+func (bundleVersionMap BundleVersionMap) GetMap() (versionMap map[int32]uint64) {
+	versionMap = make(map[int32]uint64, 0)
+	for _, entry := range bundleVersionMap.Versions {
+		versionMap[entry.Version] = entry.Height
+	}
+	return
+}

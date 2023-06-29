@@ -25,6 +25,8 @@ var (
 	BundleKeyPrefix = []byte{1}
 	// FinalizedBundlePrefix ...
 	FinalizedBundlePrefix = []byte{2}
+	// FinalizedBundleVersionMapKey ...
+	FinalizedBundleVersionMapKey = []byte{3}
 
 	FinalizedBundleByHeightPrefix = []byte{11}
 )

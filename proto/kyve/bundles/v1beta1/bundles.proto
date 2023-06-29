@@ -91,6 +91,8 @@ message FinalizedBundle {
   uint32 storage_provider_id = 12;
   // compression_id the id of the compression type with which the data was compressed
   uint32 compression_id = 13;
+  // stake_security
+  uint64 stake_security = 14;
 }
 
 // FinalizedAt ...
@@ -99,4 +101,18 @@ message FinalizedAt {
   uint64 height = 1;
   // timestamp ...
   uint64 timestamp = 2;
+}
+
+// BundleVersionEntry ...
+message BundleVersionEntry {
+  // height ...
+  uint64 height = 1;
+  // version ...
+  int32 version = 2;
+}
+
+// BundleVersionMap ...
+message BundleVersionMap {
+  // versions ...
+  repeated BundleVersionEntry versions = 1;
 }
