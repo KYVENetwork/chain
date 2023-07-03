@@ -92,7 +92,7 @@ message FinalizedBundle {
   // compression_id the id of the compression type with which the data was compressed
   uint32 compression_id = 13;
   // stake_security
-  uint64 stake_security = 14;
+  StakeSecurity stake_security = 14;
 }
 
 // FinalizedAt ...
@@ -101,6 +101,14 @@ message FinalizedAt {
   uint64 height = 1;
   // timestamp ...
   uint64 timestamp = 2;
+}
+
+// FinalizedAt ...
+message StakeSecurity {
+  // valid_vote_power ...
+  uint64 valid_vote_power = 1;
+  // total_vote_power ...
+  uint64 total_vote_power = 2;
 }
 
 // BundleVersionEntry ...

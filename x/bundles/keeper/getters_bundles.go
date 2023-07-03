@@ -136,12 +136,17 @@ func RawBundleToQueryBundle(rawFinalizedBundle types.FinalizedBundle, versionMap
 		FromKey:           rawFinalizedBundle.FromKey,
 		StorageProviderId: uint64(rawFinalizedBundle.StorageProviderId),
 		CompressionId:     uint64(rawFinalizedBundle.CompressionId),
-		StakeSecurity:     nil,
+		StakeSecurity: &queryTypes.StakeSecurity{
+			ValidVotePower: nil,
+			TotalVotePower: nil,
+		},
 	}
 	// Check for version 2
 	if rawFinalizedBundle.FinalizedAt.Height >= versionMap[2] {
-		stake := cosmossdk_io_math.NewInt(int64(rawFinalizedBundle.StakeSecurity))
-		finalizedBundle.StakeSecurity = &stake
+		validPower := cosmossdk_io_math.NewInt(int64(rawFinalizedBundle.StakeSecurity.ValidVotePower))
+		totalPower := cosmossdk_io_math.NewInt(int64(rawFinalizedBundle.StakeSecurity.TotalVotePower))
+		finalizedBundle.StakeSecurity.ValidVotePower = &validPower
+		finalizedBundle.StakeSecurity.TotalVotePower = &totalPower
 	}
 
 	return finalizedBundle

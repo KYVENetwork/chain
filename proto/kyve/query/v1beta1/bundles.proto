@@ -71,7 +71,7 @@ message FinalizedBundle {
   uint64 compression_id = 13;
   // stake_security defines the amount of stake which was present in the pool during the finalization of the bundle.
   // This field was added in schema version 2. Bundles finalized before that return `null`.
-  string stake_security = 14 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
+  StakeSecurity stake_security = 14;
 }
 
 // FinalizedAt ...
@@ -80,6 +80,14 @@ message FinalizedAt {
   uint64 height = 1;
   // timestamp ...
   uint64 timestamp = 2;
+}
+
+// StakeSecurity ...
+message StakeSecurity {
+  // valid_vote_power ...
+  string valid_vote_power = 1 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
+  // total_vote_power ...
+  string total_vote_power = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
 }
 
 // ===========================

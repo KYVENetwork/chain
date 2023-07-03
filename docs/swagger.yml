@@ -2476,20 +2476,16 @@ paths:
                     pool_id:
                       type: string
                       format: uint64
-                      title: >-
-                        pool_id is the id of the pool for which this proposal is
-                        for
+                      title: pool_id in which the bundle was created
                     id:
                       type: string
                       format: uint64
-                      title: >-
-                        id is a unique identifier for each finalized bundle in a
-                        pool
+                      description: id is is integrated with each valid bundle produced.
                     storage_id:
                       type: string
                       title: >-
                         storage_id is the id with which the data can be
-                        retrieved from
+                        retrieved from the configured data provider
                     uploader:
                       type: string
                       title: >-
@@ -2507,17 +2503,20 @@ paths:
                       title: >-
                         to_index is the index to which the bundle goes
                         (exclusive)
-                    to_key:
+                    from_key:
                       type: string
                       title: >-
-                        to_key the key of the last data item in the bundle
+                        from_key is the key of the first data item in the bundle
                         proposal
+                    to_key:
+                      type: string
+                      title: to_key the key of the last data item in the bundle
                     bundle_summary:
                       type: string
-                      title: bundle_summary a string summary of the current proposal
+                      description: bundle_summary is a summary of the bundle.
                     data_hash:
                       type: string
-                      title: data_hash a sha256 hash of the raw compressed data
+                      description: data_hash is a sha256 hash of the uploaded data.
                     finalized_at:
                       description: >-
                         finalized_at contains details of the block that
@@ -2532,11 +2531,6 @@ paths:
                           type: string
                           format: uint64
                           description: timestamp ...
-                    from_key:
-                      type: string
-                      title: >-
-                        from_key the key of the first data item in the bundle
-                        proposal
                     storage_provider_id:
                       type: string
                       format: uint64
@@ -2550,13 +2544,24 @@ paths:
                         compression_id the id of the compression type with which
                         the data was compressed
                     stake_security:
-                      type: string
-                      description: stake_security ...
-                  title: >-
-                    FinalizedBundle represents a bundle proposal where the
-                    majority
+                      description: >-
+                        stake_security defines the amount of stake which was
+                        present in the pool during the finalization of the
+                        bundle.
 
-                    agreed on its validity
+                        This field was added in schema version 2. Bundles
+                        finalized before that return `null`.
+                      type: object
+                      properties:
+                        valid_vote_power:
+                          type: string
+                          description: valid_vote_power ...
+                        total_vote_power:
+                          type: string
+                          description: total_vote_power ...
+                  title: >-
+                    FinalizedBundle represents the latest version of a valid
+                    bundle of a pool
                 description: finalized_bundles ...
               pagination:
                 description: pagination defines the pagination in the response.
@@ -2861,14 +2866,16 @@ paths:
               pool_id:
                 type: string
                 format: uint64
-                title: pool_id is the id of the pool for which this proposal is for
+                title: pool_id in which the bundle was created
               id:
                 type: string
                 format: uint64
-                title: id is a unique identifier for each finalized bundle in a pool
+                description: id is is integrated with each valid bundle produced.
               storage_id:
                 type: string
-                title: storage_id is the id with which the data can be retrieved from
+                title: >-
+                  storage_id is the id with which the data can be retrieved from
+                  the configured data provider
               uploader:
                 type: string
                 title: >-
@@ -2884,15 +2891,20 @@ paths:
                 type: string
                 format: uint64
                 title: to_index is the index to which the bundle goes (exclusive)
+              from_key:
+                type: string
+                title: >-
+                  from_key is the key of the first data item in the bundle
+                  proposal
               to_key:
                 type: string
-                title: to_key the key of the last data item in the bundle proposal
+                title: to_key the key of the last data item in the bundle
               bundle_summary:
                 type: string
-                title: bundle_summary a string summary of the current proposal
+                description: bundle_summary is a summary of the bundle.
               data_hash:
                 type: string
-                title: data_hash a sha256 hash of the raw compressed data
+                description: data_hash is a sha256 hash of the uploaded data.
               finalized_at:
                 description: >-
                   finalized_at contains details of the block that finalized this
@@ -2907,9 +2919,6 @@ paths:
                     type: string
                     format: uint64
                     description: timestamp ...
-              from_key:
-                type: string
-                title: from_key the key of the first data item in the bundle proposal
               storage_provider_id:
                 type: string
                 format: uint64
@@ -2923,11 +2932,23 @@ paths:
                   compression_id the id of the compression type with which the
                   data was compressed
               stake_security:
-                type: string
-                description: stake_security ...
-            title: |-
-              FinalizedBundle represents a bundle proposal where the majority
-              agreed on its validity
+                description: >-
+                  stake_security defines the amount of stake which was present
+                  in the pool during the finalization of the bundle.
+
+                  This field was added in schema version 2. Bundles finalized
+                  before that return `null`.
+                type: object
+                properties:
+                  valid_vote_power:
+                    type: string
+                    description: valid_vote_power ...
+                  total_vote_power:
+                    type: string
+                    description: total_vote_power ...
+            title: >-
+              FinalizedBundle represents the latest version of a valid bundle of
+              a pool
         default:
           description: An unexpected error response.
           schema:
