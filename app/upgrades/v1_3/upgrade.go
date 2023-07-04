@@ -45,7 +45,7 @@ func TrackInvestorDelegation(ctx sdk.Context, logger log.Logger, address sdk.Acc
 	for _, delegation := range delegations {
 		// TODO: We assume a 1:1 ratio of shares to tokens as investors couldn't
 		// perform any actions on delegations post v1.1 upgrade.
-		totalDelegation.Add(delegation.GetShares().TruncateInt())
+		totalDelegation = totalDelegation.Add(delegation.GetShares().TruncateInt())
 	}
 
 	delegatedVesting := account.GetDelegatedVesting().AmountOf(denom)
