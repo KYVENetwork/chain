@@ -52,7 +52,7 @@ func TrackInvestorDelegation(ctx sdk.Context, logger log.Logger, address sdk.Acc
 
 	if totalDelegation.GT(delegatedVesting) {
 		diff := sdk.NewCoins().Add(sdk.NewCoin(denom, totalDelegation.Sub(delegatedVesting)))
-		account.TrackDelegation(ctx.BlockTime(), account.GetOriginalVesting(), diff)
+		account.TrackDelegation(ctx.BlockTime(), account.GetOriginalVesting(), diff.Min(account.GetOriginalVesting()))
 
 		logger.Info(fmt.Sprintf("tracked delegation of %s with difference %s", address.String(), diff.String()))
 	}
