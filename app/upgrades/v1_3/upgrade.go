@@ -1,6 +1,7 @@
 package v1_3
 
 import (
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/tendermint/tendermint/libs/log"
@@ -36,25 +37,32 @@ func CreateUpgradeHandler(
 // TrackInvestorDelegation ...
 func TrackInvestorDelegation(ctx sdk.Context, logger log.Logger, address sdk.AccAddress, ak authKeeper.AccountKeeper, sk stakingKeeper.Keeper) {
 	denom := sk.BondDenom(ctx)
-	rawAccount := ak.GetAccount(ctx, address)
-	account, _ := rawAccount.(vestingExported.VestingAccount)
+	account, _ := ak.GetAccount(ctx, address).(vestingExported.VestingAccount)
 
 	delegations := sk.GetAllDelegatorDelegations(ctx, address)
-	totalDelegation := sdk.NewCoins()
+	totalDelegation := sdk.NewInt(0)
 
 	for _, delegation := range delegations {
 		// TODO: We assume a 1:1 ratio of shares to tokens as investors couldn't
 		// perform any actions on delegations post v1.1 upgrade.
-		totalDelegation.Add(sdk.NewCoin(denom, delegation.GetShares().TruncateInt()))
+		totalDelegation.Add(delegation.GetShares().TruncateInt())
 	}
 
-	trackedDifference := totalDelegation.Sub(account.GetDelegatedVesting()...)
-	if !trackedDifference.IsZero() {
-		// TODO: We assume that the usable balance is the total vesting amount
-		// as the investor cliff is still ongoing.
-		account.TrackDelegation(ctx.BlockTime(), account.GetOriginalVesting(), trackedDifference)
+	delegatedVesting := account.GetDelegatedVesting().AmountOf(denom)
 
-		ak.SetAccount(ctx, account)
-		logger.Info("fixed vesting account tracked delegation", "difference", trackedDifference.String())
+	if totalDelegation.GT(delegatedVesting) {
+		diff := sdk.NewCoins().Add(sdk.NewCoin(denom, totalDelegation.Sub(delegatedVesting)))
+		account.TrackDelegation(ctx.BlockTime(), account.GetOriginalVesting(), diff)
+
+		logger.Info(fmt.Sprintf("tracked delegation of %s with difference %s", address.String(), diff.String()))
 	}
+
+	if totalDelegation.LT(delegatedVesting) {
+		diff := sdk.NewCoins().Add(sdk.NewCoin(denom, delegatedVesting.Sub(totalDelegation)))
+		account.TrackUndelegation(diff)
+
+		logger.Info(fmt.Sprintf("tracked undelegation of %s with difference %s", address.String(), diff.String()))
+	}
+
+	ak.SetAccount(ctx, account)
 }
