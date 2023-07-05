@@ -4,6 +4,7 @@ import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/tendermint/tendermint/libs/log"
 
 	// Auth
@@ -19,6 +20,7 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	accountKeeper authKeeper.AccountKeeper,
+	bankKeeper bankKeeper.Keeper,
 	stakingKeeper stakingKeeper.Keeper,
 ) upgradeTypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradeTypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
@@ -26,7 +28,7 @@ func CreateUpgradeHandler(
 
 		if ctx.ChainID() == MainnetChainID {
 			for _, address := range InvestorAccounts {
-				TrackInvestorDelegation(ctx, logger, sdk.MustAccAddressFromBech32(address), accountKeeper, stakingKeeper)
+				TrackInvestorDelegation(ctx, logger, sdk.MustAccAddressFromBech32(address), accountKeeper, bankKeeper, stakingKeeper)
 			}
 		}
 
@@ -35,7 +37,7 @@ func CreateUpgradeHandler(
 }
 
 // TrackInvestorDelegation ...
-func TrackInvestorDelegation(ctx sdk.Context, logger log.Logger, address sdk.AccAddress, ak authKeeper.AccountKeeper, sk stakingKeeper.Keeper) {
+func TrackInvestorDelegation(ctx sdk.Context, logger log.Logger, address sdk.AccAddress, ak authKeeper.AccountKeeper, bk bankKeeper.Keeper, sk stakingKeeper.Keeper) {
 	denom := sk.BondDenom(ctx)
 	account, _ := ak.GetAccount(ctx, address).(vestingExported.VestingAccount)
 
@@ -49,10 +51,11 @@ func TrackInvestorDelegation(ctx sdk.Context, logger log.Logger, address sdk.Acc
 	}
 
 	delegatedVesting := account.GetDelegatedVesting().AmountOf(denom)
+	balance := bk.GetBalance(ctx, address, denom).Amount.Add(totalDelegation)
 
 	if totalDelegation.GT(delegatedVesting) {
 		diff := sdk.NewCoins().Add(sdk.NewCoin(denom, totalDelegation.Sub(delegatedVesting)))
-		account.TrackDelegation(ctx.BlockTime(), account.GetOriginalVesting(), diff.Min(account.GetOriginalVesting()))
+		account.TrackDelegation(ctx.BlockTime(), sdk.NewCoins().Add(sdk.NewCoin(denom, balance)), diff)
 
 		logger.Info(fmt.Sprintf("tracked delegation of %s with %s", address.String(), diff.String()))
 		ak.SetAccount(ctx, account)
