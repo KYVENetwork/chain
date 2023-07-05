@@ -54,15 +54,7 @@ func TrackInvestorDelegation(ctx sdk.Context, logger log.Logger, address sdk.Acc
 		diff := sdk.NewCoins().Add(sdk.NewCoin(denom, totalDelegation.Sub(delegatedVesting)))
 		account.TrackDelegation(ctx.BlockTime(), account.GetOriginalVesting(), diff.Min(account.GetOriginalVesting()))
 
-		logger.Info(fmt.Sprintf("tracked delegation of %s with difference %s", address.String(), diff.String()))
+		logger.Info(fmt.Sprintf("tracked delegation of %s with %s", address.String(), diff.String()))
+		ak.SetAccount(ctx, account)
 	}
-
-	if totalDelegation.LT(delegatedVesting) {
-		diff := sdk.NewCoins().Add(sdk.NewCoin(denom, delegatedVesting.Sub(totalDelegation)))
-		account.TrackUndelegation(diff)
-
-		logger.Info(fmt.Sprintf("tracked undelegation of %s with difference %s", address.String(), diff.String()))
-	}
-
-	ak.SetAccount(ctx, account)
 }
