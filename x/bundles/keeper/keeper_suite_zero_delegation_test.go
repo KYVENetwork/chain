@@ -23,7 +23,7 @@ TEST CASES - zero delegation
 
 */
 
-var _ = Describe("valid bundles", Ordered, func() {
+var _ = Describe("zero delegation", Ordered, func() {
 	s := i.NewCleanChain()
 
 	initialBalanceStaker0 := s.GetBalanceFromAddress(i.STAKER_0)

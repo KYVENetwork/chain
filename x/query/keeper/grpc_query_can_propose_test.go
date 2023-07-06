@@ -389,8 +389,8 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		// ACT
 		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
-			Staker:    i.STAKER_0,
-			Proposer:  i.VALADDRESS_0,
+			Staker:    i.STAKER_1,
+			Proposer:  i.VALADDRESS_1,
 			FromIndex: 100,
 		})
 
@@ -403,8 +403,8 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(canPropose.Reason).To(Equal(errors.Wrapf(bundletypes.ErrUploadInterval, "expected %v < %v", s.Ctx().BlockTime().Unix(), bundleProposal.UpdatedAt+pool.UploadInterval).Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
-			Staker:        i.STAKER_0,
+			Creator:       i.VALADDRESS_1,
+			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "test_storage_id",
 			DataSize:      100,
@@ -424,15 +424,15 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		// ACT
 		canPropose_1, err_1 := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
-			Staker:    i.STAKER_0,
-			Proposer:  i.VALADDRESS_0,
+			Staker:    i.STAKER_1,
+			Proposer:  i.VALADDRESS_1,
 			FromIndex: 99,
 		})
 
 		canPropose_2, err_2 := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
-			Staker:    i.STAKER_0,
-			Proposer:  i.VALADDRESS_0,
+			Staker:    i.STAKER_1,
+			Proposer:  i.VALADDRESS_1,
 			FromIndex: 101,
 		})
 
@@ -450,8 +450,8 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(canPropose_2.Reason).To(Equal(errors.Wrapf(bundletypes.ErrFromIndex, "expected %v received %v", pool.CurrentIndex+bundleProposal.BundleSize, 101).Error()))
 
 		_, txErr_1 := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
-			Staker:        i.STAKER_0,
+			Creator:       i.VALADDRESS_1,
+			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "test_storage_id",
 			DataSize:      100,
@@ -467,8 +467,8 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(txErr_1.Error()).To(Equal(canPropose_1.Reason))
 
 		_, txErr_2 := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
-			Staker:        i.STAKER_0,
+			Creator:       i.VALADDRESS_1,
+			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "test_storage_id",
 			DataSize:      100,
@@ -488,8 +488,8 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		// ACT
 		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
-			Staker:    i.STAKER_0,
-			Proposer:  i.VALADDRESS_0,
+			Staker:    i.STAKER_1,
+			Proposer:  i.VALADDRESS_1,
 			FromIndex: 100,
 		})
 
@@ -500,8 +500,8 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(canPropose.Reason).To(BeEmpty())
 
 		_, txErr := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
-			Staker:        i.STAKER_0,
+			Creator:       i.VALADDRESS_1,
+			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "test_storage_id",
 			DataSize:      100,
@@ -527,8 +527,8 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		// ACT
 		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
-			Staker:    i.STAKER_0,
-			Proposer:  i.VALADDRESS_0,
+			Staker:    i.STAKER_1,
+			Proposer:  i.VALADDRESS_1,
 			FromIndex: 100,
 		})
 
@@ -539,8 +539,8 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(canPropose.Reason).To(BeEmpty())
 
 		_, txErr := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
-			Staker:        i.STAKER_0,
+			Creator:       i.VALADDRESS_1,
+			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "test_storage_id",
 			DataSize:      100,

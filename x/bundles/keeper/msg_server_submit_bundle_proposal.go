@@ -14,9 +14,7 @@ import (
 )
 
 // SubmitBundleProposal handles the logic of an SDK message that allows protocol nodes to submit a new bundle proposal.
-func (k msgServer) SubmitBundleProposal(
-	goCtx context.Context, msg *types.MsgSubmitBundleProposal,
-) (*types.MsgSubmitBundleProposalResponse, error) {
+func (k msgServer) SubmitBundleProposal(goCtx context.Context, msg *types.MsgSubmitBundleProposal) (*types.MsgSubmitBundleProposalResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if err := k.AssertCanPropose(ctx, msg.PoolId, msg.Staker, msg.Creator, msg.FromIndex); err != nil {
@@ -36,7 +34,7 @@ func (k msgServer) SubmitBundleProposal(
 	// If previous bundle was dropped just register the new bundle.
 	// No previous round needs to be evaluated
 	if bundleProposal.StorageId == "" {
-		nextUploader := k.chooseNextUploaderFromAllStakers(ctx, msg.PoolId)
+		nextUploader := k.chooseNextUploader(ctx, msg.PoolId)
 
 		k.registerBundleProposalFromUploader(ctx, msg, nextUploader)
 
@@ -105,20 +103,8 @@ func (k msgServer) SubmitBundleProposal(
 
 		// Determine next uploader and register next bundle
 
-		// Get next uploader from stakers who voted `valid` and are still active
-		activeVoters := make([]string, 0)
-		nextUploader := ""
-		for _, voter := range bundleProposal.VotersValid {
-			if k.stakerKeeper.DoesValaccountExist(ctx, msg.PoolId, voter) {
-				activeVoters = append(activeVoters, voter)
-			}
-		}
-
-		if len(activeVoters) > 0 {
-			nextUploader = k.chooseNextUploaderFromSelectedStakers(ctx, msg.PoolId, activeVoters)
-		} else {
-			nextUploader = k.chooseNextUploaderFromAllStakers(ctx, msg.PoolId)
-		}
+		// Get next uploader from stakers who voted `valid`
+		nextUploader := k.chooseNextUploaderFromList(ctx, msg.PoolId, bundleProposal.VotersValid)
 
 		k.finalizeCurrentBundleProposal(ctx, pool.Id, voteDistribution, fundersPayout, inflationPayout, bundleReward, nextUploader)
 

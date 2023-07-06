@@ -1,9 +1,6 @@
 package keeper
 
 import (
-	"math/rand"
-	"sort"
-
 	"cosmossdk.io/errors"
 
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
@@ -374,12 +371,7 @@ func (k Keeper) finalizeCurrentBundleProposal(ctx sdk.Context, poolId uint64, vo
 // a required quorum on the validity of the data. When the proposal is dropped
 // the same next uploader as before can submit his proposal since it is not his
 // fault, that the last one did not reach any quorum.
-func (k Keeper) dropCurrentBundleProposal(
-	ctx sdk.Context,
-	poolId uint64,
-	voteDistribution types.VoteDistribution,
-	nextUploader string,
-) {
+func (k Keeper) dropCurrentBundleProposal(ctx sdk.Context, poolId uint64, voteDistribution types.VoteDistribution, nextUploader string) {
 	pool, _ := k.poolKeeper.GetPool(ctx, poolId)
 	bundleProposal, _ := k.GetBundleProposal(ctx, poolId)
 
@@ -417,82 +409,35 @@ func (k Keeper) calculateVotingPower(delegation uint64) (votingPower uint64) {
 	return
 }
 
-// RandomChoiceCandidate holds the voting power of a candidate for the
-// next uploader selection
-type RandomChoiceCandidate struct {
-	Account     string
-	VotingPower uint64
+// chooseNextUploader selects the next uploader based on a fixed set of stakers in a pool.
+// It is guaranteed that someone is chosen deterministically if the round-robin set itself is not empty.
+func (k Keeper) chooseNextUploader(ctx sdk.Context, poolId uint64, excluded ...string) (nextUploader string) {
+	vs := k.LoadRoundRobinValidatorSet(ctx, poolId)
+	nextUploader = vs.NextProposer(excluded...)
+	k.SaveRoundRobinValidatorSet(ctx, vs)
+	return
 }
 
-// getWeightedRandomChoice is an internal function that returns a weighted random
-// selection out of a list of candidates based on their voting power.
-func (k Keeper) getWeightedRandomChoice(candidates []RandomChoiceCandidate, seed int64) string {
-	type WeightedRandomChoice struct {
-		Elements    []string
-		Weights     []uint64
-		TotalWeight uint64
+// chooseNextUploader selects the next uploader based on a fixed set of stakers in a pool.
+// It is guaranteed that someone is chosen deterministically if the round-robin set itself is not empty.
+func (k Keeper) chooseNextUploaderFromList(ctx sdk.Context, poolId uint64, included []string) (nextUploader string) {
+	vs := k.LoadRoundRobinValidatorSet(ctx, poolId)
+
+	// Calculate set difference to obtain excluded
+	includedMap := make(map[string]bool)
+	for _, entry := range included {
+		includedMap[entry] = true
 	}
-
-	wrc := WeightedRandomChoice{}
-
-	for _, candidate := range candidates {
-		i := sort.Search(len(wrc.Weights), func(i int) bool { return wrc.Weights[i] > candidate.VotingPower })
-		wrc.Weights = append(wrc.Weights, 0)
-		wrc.Elements = append(wrc.Elements, "")
-		copy(wrc.Weights[i+1:], wrc.Weights[i:])
-		copy(wrc.Elements[i+1:], wrc.Elements[i:])
-		wrc.Weights[i] = candidate.VotingPower
-		wrc.Elements[i] = candidate.Account
-		wrc.TotalWeight += candidate.VotingPower
-	}
-
-	if wrc.TotalWeight == 0 {
-		return ""
-	}
-
-	value := rand.New(rand.NewSource(seed)).Uint64() % wrc.TotalWeight
-
-	for key, weight := range wrc.Weights {
-		if weight > value {
-			return wrc.Elements[key]
-		}
-
-		value -= weight
-	}
-
-	return ""
-}
-
-// chooseNextUploaderFromSelectedStakers selects the next uploader based on a
-// fixed set of stakers in a pool. It is guaranteed that someone is chosen
-// deterministically
-func (k Keeper) chooseNextUploaderFromSelectedStakers(ctx sdk.Context, poolId uint64, addresses []string) (nextUploader string) {
-	var _candidates []RandomChoiceCandidate
-
-	if len(addresses) == 0 {
-		return ""
-	}
-
-	for _, s := range addresses {
-		if k.stakerKeeper.DoesValaccountExist(ctx, poolId, s) {
-			delegation := k.delegationKeeper.GetDelegationAmount(ctx, s)
-
-			_candidates = append(_candidates, RandomChoiceCandidate{
-				Account:     s,
-				VotingPower: k.calculateVotingPower(delegation),
-			})
+	excluded := make([]string, 0)
+	for _, entry := range vs.Validators {
+		if !includedMap[entry.Address] {
+			excluded = append(excluded, entry.Address)
 		}
 	}
 
-	return k.getWeightedRandomChoice(_candidates, ctx.BlockHeader().Height)
-}
-
-// chooseNextUploaderFromAllStakers selects the next uploader based on all
-// stakers in a pool. It is guaranteed that someone is chosen
-// deterministically
-func (k Keeper) chooseNextUploaderFromAllStakers(ctx sdk.Context, poolId uint64) (nextUploader string) {
-	stakers := k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, poolId)
-	return k.chooseNextUploaderFromSelectedStakers(ctx, poolId, stakers)
+	nextUploader = vs.NextProposer(excluded...)
+	k.SaveRoundRobinValidatorSet(ctx, vs)
+	return
 }
 
 // GetVoteDistribution is an internal function evaluates the quorum status
