@@ -25,6 +25,10 @@
 - (`x/pool`) [#74](https://github.com/KYVENetwork/chain/pull/74) Improve parameter validation in pool proposals.
 - (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Allow protocol validator commission rewards to be claimed.
 
+### Bug Fixes
+
+- [#96](https://github.com/KYVENetwork/chain/pull/96) Track investor delegation inside auth module.
+
 ### Client Breaking
 
 - (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Include `MsgClaimCommissionRewards` for claiming commission rewards.
