@@ -1,8 +1,10 @@
 package v1_3
 
 import (
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/tendermint/tendermint/libs/log"
 
 	// Auth
@@ -18,6 +20,7 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	accountKeeper authKeeper.AccountKeeper,
+	bankKeeper bankKeeper.Keeper,
 	stakingKeeper stakingKeeper.Keeper,
 ) upgradeTypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradeTypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
@@ -25,7 +28,7 @@ func CreateUpgradeHandler(
 
 		if ctx.ChainID() == MainnetChainID {
 			for _, address := range InvestorAccounts {
-				TrackInvestorDelegation(ctx, logger, sdk.MustAccAddressFromBech32(address), accountKeeper, stakingKeeper)
+				TrackInvestorDelegation(ctx, logger, sdk.MustAccAddressFromBech32(address), accountKeeper, bankKeeper, stakingKeeper)
 			}
 		}
 
@@ -33,28 +36,38 @@ func CreateUpgradeHandler(
 	}
 }
 
-// TrackInvestorDelegation ...
-func TrackInvestorDelegation(ctx sdk.Context, logger log.Logger, address sdk.AccAddress, ak authKeeper.AccountKeeper, sk stakingKeeper.Keeper) {
+// TrackInvestorDelegation performs a correction of the delegation tracking inside the vesting account.
+// The correction is done by performing a full untracking and then tracking the actual total delegated amount
+// (including slashed amounts).
+func TrackInvestorDelegation(ctx sdk.Context, logger log.Logger, address sdk.AccAddress, ak authKeeper.AccountKeeper, bk bankKeeper.Keeper, sk stakingKeeper.Keeper) {
 	denom := sk.BondDenom(ctx)
-	rawAccount := ak.GetAccount(ctx, address)
-	account, _ := rawAccount.(vestingExported.VestingAccount)
+	account, _ := ak.GetAccount(ctx, address).(vestingExported.VestingAccount)
 
-	delegations := sk.GetAllDelegatorDelegations(ctx, address)
-	totalDelegation := sdk.NewCoins()
-
-	for _, delegation := range delegations {
-		// TODO: We assume a 1:1 ratio of shares to tokens as investors couldn't
-		// perform any actions on delegations post v1.1 upgrade.
-		totalDelegation.Add(sdk.NewCoin(denom, delegation.GetShares().TruncateInt()))
+	// Obtain total delegation of address
+	totalDelegation := sdk.NewInt(0)
+	for _, delegation := range sk.GetAllDelegatorDelegations(ctx, address) {
+		// We take the shares as the total delegation as this is the amount which is
+		// tracked inside the vesting account. (slashes are ignored, which is correct)
+		totalDelegation = totalDelegation.Add(delegation.GetShares().TruncateInt())
 	}
 
-	trackedDifference := totalDelegation.Sub(account.GetDelegatedVesting()...)
-	if !trackedDifference.IsZero() {
-		// TODO: We assume that the usable balance is the total vesting amount
-		// as the investor cliff is still ongoing.
-		account.TrackDelegation(ctx.BlockTime(), account.GetOriginalVesting(), trackedDifference)
+	// Fetch current balance.
+	balanceCoin := bk.GetBalance(ctx, address, denom)
 
+	// This is the balance a user would have if all tokens are unbonded (even the ones which got slashed).
+	maxPossibleBalance := balanceCoin.Amount.Add(totalDelegation)
+	maxPossibleBalanceCoins := sdk.NewCoins().Add(sdk.NewCoin(denom, maxPossibleBalance))
+
+	if totalDelegation.GT(sdk.ZeroInt()) {
+
+		// Untrack entire vesting delegation using maximum amount. This will set both `delegated_free`
+		// and `delegated_vesting` back to zero.
+		account.TrackUndelegation(sdk.NewCoins(sdk.NewCoin("ukyve", maxPossibleBalance)))
+
+		// Track the delegation using the total delegation
+		account.TrackDelegation(ctx.BlockTime(), maxPossibleBalanceCoins, sdk.NewCoins(sdk.NewCoin("ukyve", totalDelegation)))
+
+		logger.Info(fmt.Sprintf("tracked delegation of %s with %s", address.String(), totalDelegation.String()))
 		ak.SetAccount(ctx, account)
-		logger.Info("fixed vesting account tracked delegation", "difference", trackedDifference.String())
 	}
 }
