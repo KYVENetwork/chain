@@ -239,8 +239,8 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{
-			Creator:   i.VALADDRESS_1,
-			Staker:    i.STAKER_1,
+			Creator:   i.VALADDRESS_0,
+			Staker:    i.STAKER_0,
 			PoolId:    0,
 			FromIndex: 0,
 		})
@@ -264,6 +264,6 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// here the next uploader should be always be different after skipping
-		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_0))
+		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_1))
 	})
 })

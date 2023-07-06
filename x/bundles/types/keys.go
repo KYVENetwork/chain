@@ -25,6 +25,8 @@ var (
 	BundleKeyPrefix = []byte{1}
 	// FinalizedBundlePrefix ...
 	FinalizedBundlePrefix = []byte{2}
+	// RoundRobinProgressPrefix ...
+	RoundRobinProgressPrefix = []byte{3}
 
 	FinalizedBundleByHeightPrefix = []byte{11}
 )
@@ -37,6 +39,11 @@ func BundleProposalKey(poolId uint64) []byte {
 // FinalizedBundleKey ...
 func FinalizedBundleKey(poolId uint64, id uint64) []byte {
 	return util.GetByteKey(poolId, id)
+}
+
+// RoundRobinProgressKey ...
+func RoundRobinProgressKey(poolId uint64) []byte {
+	return util.GetByteKey(poolId)
 }
 
 // FinalizedBundleByHeightKey ...

@@ -8,9 +8,7 @@ import (
 )
 
 // SkipUploaderRole handles the logic of an SDK message that allows protocol nodes to skip an upload.
-func (k msgServer) SkipUploaderRole(
-	goCtx context.Context, msg *types.MsgSkipUploaderRole,
-) (*types.MsgSkipUploaderRoleResponse, error) {
+func (k msgServer) SkipUploaderRole(goCtx context.Context, msg *types.MsgSkipUploaderRole) (*types.MsgSkipUploaderRoleResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if err := k.AssertCanPropose(ctx, msg.PoolId, msg.Staker, msg.Creator, msg.FromIndex); err != nil {
@@ -23,22 +21,8 @@ func (k msgServer) SkipUploaderRole(
 	// reset points of uploader as node has proven to be active
 	k.resetPoints(ctx, msg.PoolId, msg.Staker)
 
-	// Get next uploader from stakers voted
-	stakers := make([]string, 0)
-	nextUploader := ""
-
-	// exclude the staker who skips the uploader role
-	for _, staker := range k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, msg.PoolId) {
-		if staker != msg.Staker {
-			stakers = append(stakers, staker)
-		}
-	}
-
-	if len(stakers) > 0 {
-		nextUploader = k.chooseNextUploaderFromSelectedStakers(ctx, msg.PoolId, stakers)
-	} else {
-		nextUploader = k.chooseNextUploaderFromAllStakers(ctx, msg.PoolId)
-	}
+	// Get next uploader, except the one who skipped
+	nextUploader := k.chooseNextUploader(ctx, msg.PoolId, msg.Staker)
 
 	bundleProposal.NextUploader = nextUploader
 	bundleProposal.UpdatedAt = uint64(ctx.BlockTime().Unix())
