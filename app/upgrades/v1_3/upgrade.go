@@ -36,28 +36,38 @@ func CreateUpgradeHandler(
 	}
 }
 
-// TrackInvestorDelegation ...
+// TrackInvestorDelegation performs a correction of the delegation tracking inside the vesting account.
+// The correction is done by performing a full untracking and then tracking the actual total delegated amount
+// (including slashed amounts).
 func TrackInvestorDelegation(ctx sdk.Context, logger log.Logger, address sdk.AccAddress, ak authKeeper.AccountKeeper, bk bankKeeper.Keeper, sk stakingKeeper.Keeper) {
 	denom := sk.BondDenom(ctx)
 	account, _ := ak.GetAccount(ctx, address).(vestingExported.VestingAccount)
 
-	delegations := sk.GetAllDelegatorDelegations(ctx, address)
+	// Obtain total delegation of address
 	totalDelegation := sdk.NewInt(0)
-
-	for _, delegation := range delegations {
-		// TODO: We assume a 1:1 ratio of shares to tokens as investors couldn't
-		// perform any actions on delegations post v1.1 upgrade.
+	for _, delegation := range sk.GetAllDelegatorDelegations(ctx, address) {
+		// We take the shares as the total delegation as this is the amount which is
+		// tracked inside the vesting account. (slashes are ignored, which is correct)
 		totalDelegation = totalDelegation.Add(delegation.GetShares().TruncateInt())
 	}
 
-	delegatedVesting := account.GetDelegatedVesting().AmountOf(denom)
-	balance := bk.GetBalance(ctx, address, denom).Amount.Add(totalDelegation)
+	// Fetch current balance.
+	balanceCoin := bk.GetBalance(ctx, address, denom)
 
-	if totalDelegation.GT(delegatedVesting) {
-		diff := sdk.NewCoins().Add(sdk.NewCoin(denom, totalDelegation.Sub(delegatedVesting)))
-		account.TrackDelegation(ctx.BlockTime(), sdk.NewCoins().Add(sdk.NewCoin(denom, balance)), diff)
+	// This is the balance a user would have if all tokens are unbonded (even the ones which got slashed).
+	maxPossibleBalance := balanceCoin.Amount.Add(totalDelegation)
+	maxPossibleBalanceCoins := sdk.NewCoins().Add(sdk.NewCoin(denom, maxPossibleBalance))
 
-		logger.Info(fmt.Sprintf("tracked delegation of %s with %s", address.String(), diff.String()))
+	if totalDelegation.GT(sdk.ZeroInt()) {
+
+		// Untrack entire vesting delegation using maximum amount. This will set both `delegated_free`
+		// and `delegated_vesting` back to zero.
+		account.TrackUndelegation(sdk.NewCoins(sdk.NewCoin("ukyve", maxPossibleBalance)))
+
+		// Track the delegation using the total delegation
+		account.TrackDelegation(ctx.BlockTime(), maxPossibleBalanceCoins, sdk.NewCoins(sdk.NewCoin("ukyve", totalDelegation)))
+
+		logger.Info(fmt.Sprintf("tracked delegation of %s with %s", address.String(), totalDelegation.String()))
 		ak.SetAccount(ctx, account)
 	}
 }

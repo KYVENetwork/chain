@@ -804,6 +804,7 @@ func NewKYVEApp(
 			app.mm,
 			app.configurator,
 			app.AccountKeeper,
+			app.BankKeeper,
 			app.StakingKeeper,
 		),
 	)
