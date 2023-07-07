@@ -218,8 +218,12 @@ func (k Keeper) GetPaginatedFinalizedBundleQuery(ctx sdk.Context, pagination *qu
 		}
 	}
 	// Fetch next key (if there is one)
-	if iterator.Valid() && !reverse {
-		pageResponse.NextKey = iterator.Key()
+	if iterator.Valid() {
+		if !reverse {
+			pageResponse.NextKey = iterator.Key()
+		}
+	} else {
+		pageResponse.NextKey = nil
 	}
 	_ = iterator.Close()
 
