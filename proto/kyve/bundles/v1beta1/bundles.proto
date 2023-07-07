@@ -123,7 +123,6 @@ message BundleVersionMap {
   repeated BundleVersionEntry versions = 1;
 }
 
-
 // RoundRobinSingleValidatorProgress ...
 message RoundRobinSingleValidatorProgress {
   // address ...

@@ -43,6 +43,11 @@ func FinalizedBundleKey(poolId uint64, id uint64) []byte {
 	return util.GetByteKey(poolId, id)
 }
 
+// RoundRobinProgressKey ...
+func RoundRobinProgressKey(poolId uint64) []byte {
+	return util.GetByteKey(poolId)
+}
+
 // FinalizedBundleByHeightKey ...
 func FinalizedBundleByHeightKey(poolId uint64, height uint64) []byte {
 	return util.GetByteKey(poolId, height)

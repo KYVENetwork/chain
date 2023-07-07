@@ -32,6 +32,7 @@
 ### Client Breaking
 
 - (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Include `MsgClaimCommissionRewards` for claiming commission rewards.
+- (`x/bundles`) [#62](https://github.com/KYVENetwork/chain/pull/104) Improve schema for finalized bundles query.
 
 ### API Breaking
 
