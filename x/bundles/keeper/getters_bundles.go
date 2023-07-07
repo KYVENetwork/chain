@@ -4,8 +4,6 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	cosmossdk_io_math "cosmossdk.io/math"
-
 	queryTypes "github.com/KYVENetwork/chain/x/query/types"
 	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 
@@ -141,13 +139,9 @@ func RawBundleToQueryBundle(rawFinalizedBundle types.FinalizedBundle, versionMap
 			TotalVotePower: nil,
 		},
 	}
+
 	// Check for version 2
-	if rawFinalizedBundle.FinalizedAt.Height >= versionMap[2] {
-		validPower := cosmossdk_io_math.NewInt(int64(rawFinalizedBundle.StakeSecurity.ValidVotePower))
-		totalPower := cosmossdk_io_math.NewInt(int64(rawFinalizedBundle.StakeSecurity.TotalVotePower))
-		finalizedBundle.StakeSecurity.ValidVotePower = &validPower
-		finalizedBundle.StakeSecurity.TotalVotePower = &totalPower
-	}
+	// TODO will be done by separate PR
 
 	return finalizedBundle
 }

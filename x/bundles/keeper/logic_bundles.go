@@ -340,10 +340,6 @@ func (k Keeper) finalizeCurrentBundleProposal(ctx sdk.Context, poolId uint64, vo
 		DataHash:          bundleProposal.DataHash,
 		StorageProviderId: bundleProposal.StorageProviderId,
 		CompressionId:     bundleProposal.CompressionId,
-		StakeSecurity: &types.StakeSecurity{
-			ValidVotePower: voteDistribution.Valid,
-			TotalVotePower: voteDistribution.Total,
-		},
 	}
 
 	k.SetFinalizedBundle(ctx, finalizedBundle)
