@@ -74,19 +74,20 @@ message FinalizedBundle {
   StakeSecurity stake_security = 14;
 }
 
-// FinalizedAt ...
+// FinalizedAt stores information about finalization block and time.
 message FinalizedAt {
-  // height ...
-  uint64 height = 1;
-  // timestamp ...
-  uint64 timestamp = 2;
+  // height is the block height in which the bundle got finalized.
+  string height = 1 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
+  // timestamp is the UNIX timestamp of the block in which the bundle got finalized.
+  string timestamp = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
 }
 
-// StakeSecurity ...
+// StakeSecurity represents the relative security of a finalized bundle
 message StakeSecurity {
-  // valid_vote_power ...
+  // valid_vote_power gives the amount of $KYVE stake that voted `valid`.
   string valid_vote_power = 1 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
-  // total_vote_power ...
+  // total_vote_power gives the amount of total $KYVE stake that was present in the pool
+  // during finalization.
   string total_vote_power = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
 }
 

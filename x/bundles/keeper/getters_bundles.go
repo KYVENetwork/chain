@@ -4,6 +4,8 @@ import (
 	"encoding/binary"
 	"fmt"
 
+	cosmossdk_io_math "cosmossdk.io/math"
+
 	queryTypes "github.com/KYVENetwork/chain/x/query/types"
 	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 
@@ -117,6 +119,9 @@ func (k Keeper) GetFinalizedBundle(ctx sdk.Context, poolId, id uint64) (val type
 }
 
 func RawBundleToQueryBundle(rawFinalizedBundle types.FinalizedBundle, versionMap map[int32]uint64) (queryBundle queryTypes.FinalizedBundle) {
+	finalizedHeight := cosmossdk_io_math.NewInt(int64(rawFinalizedBundle.FinalizedAt.Height))
+	finalizedTimestamp := cosmossdk_io_math.NewInt(int64(rawFinalizedBundle.FinalizedAt.Timestamp))
+
 	finalizedBundle := queryTypes.FinalizedBundle{
 		PoolId:        rawFinalizedBundle.PoolId,
 		Id:            rawFinalizedBundle.Id,
@@ -128,8 +133,8 @@ func RawBundleToQueryBundle(rawFinalizedBundle types.FinalizedBundle, versionMap
 		BundleSummary: rawFinalizedBundle.BundleSummary,
 		DataHash:      rawFinalizedBundle.DataHash,
 		FinalizedAt: &queryTypes.FinalizedAt{
-			Height:    rawFinalizedBundle.FinalizedAt.Height,
-			Timestamp: rawFinalizedBundle.FinalizedAt.Timestamp,
+			Height:    &finalizedHeight,
+			Timestamp: &finalizedTimestamp,
 		},
 		FromKey:           rawFinalizedBundle.FromKey,
 		StorageProviderId: uint64(rawFinalizedBundle.StorageProviderId),

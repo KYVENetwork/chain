@@ -2525,11 +2525,9 @@ paths:
                       properties:
                         height:
                           type: string
-                          format: uint64
                           description: height ...
                         timestamp:
                           type: string
-                          format: uint64
                           description: timestamp ...
                     storage_provider_id:
                       type: string
@@ -2913,11 +2911,9 @@ paths:
                 properties:
                   height:
                     type: string
-                    format: uint64
                     description: height ...
                   timestamp:
                     type: string
-                    format: uint64
                     description: timestamp ...
               storage_provider_id:
                 type: string
