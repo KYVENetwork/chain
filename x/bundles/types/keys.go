@@ -27,6 +27,8 @@ var (
 	FinalizedBundlePrefix = []byte{2}
 	// FinalizedBundleVersionMapKey ...
 	FinalizedBundleVersionMapKey = []byte{3}
+	// RoundRobinProgressPrefix ...
+	RoundRobinProgressPrefix = []byte{4}
 
 	FinalizedBundleByHeightPrefix = []byte{11}
 )

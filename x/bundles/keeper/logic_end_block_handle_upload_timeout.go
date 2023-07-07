@@ -54,7 +54,7 @@ func (k Keeper) HandleUploadTimeout(goCtx context.Context) {
 				k.handleNonVoters(ctx, pool.Id)
 
 				// Get next uploader from all pool stakers
-				nextUploader := k.chooseNextUploaderFromAllStakers(ctx, pool.Id)
+				nextUploader := k.chooseNextUploader(ctx, pool.Id)
 
 				// If consensus wasn't reached, we drop the bundle and emit an event.
 				k.dropCurrentBundleProposal(ctx, pool.Id, voteDistribution, nextUploader)
@@ -76,7 +76,7 @@ func (k Keeper) HandleUploadTimeout(goCtx context.Context) {
 		}
 
 		// Update bundle proposal and choose next uploader
-		bundleProposal.NextUploader = k.chooseNextUploaderFromAllStakers(ctx, pool.Id)
+		bundleProposal.NextUploader = k.chooseNextUploader(ctx, pool.Id)
 		bundleProposal.UpdatedAt = uint64(ctx.BlockTime().Unix())
 
 		k.SetBundleProposal(ctx, bundleProposal)
