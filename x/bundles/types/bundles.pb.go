@@ -460,11 +460,288 @@ func (m *FinalizedAt) GetTimestamp() uint64 {
 	return 0
 }
 
+<<<<<<< HEAD
+=======
+// FinalizedAt ...
+type StakeSecurity struct {
+	// valid_vote_power ...
+	ValidVotePower uint64 `protobuf:"varint,1,opt,name=valid_vote_power,json=validVotePower,proto3" json:"valid_vote_power,omitempty"`
+	// total_vote_power ...
+	TotalVotePower uint64 `protobuf:"varint,2,opt,name=total_vote_power,json=totalVotePower,proto3" json:"total_vote_power,omitempty"`
+}
+
+func (m *StakeSecurity) Reset()         { *m = StakeSecurity{} }
+func (m *StakeSecurity) String() string { return proto.CompactTextString(m) }
+func (*StakeSecurity) ProtoMessage()    {}
+func (*StakeSecurity) Descriptor() ([]byte, []int) {
+	return fileDescriptor_889cf76d77a4de2b, []int{3}
+}
+func (m *StakeSecurity) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *StakeSecurity) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_StakeSecurity.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *StakeSecurity) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StakeSecurity.Merge(m, src)
+}
+func (m *StakeSecurity) XXX_Size() int {
+	return m.Size()
+}
+func (m *StakeSecurity) XXX_DiscardUnknown() {
+	xxx_messageInfo_StakeSecurity.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StakeSecurity proto.InternalMessageInfo
+
+func (m *StakeSecurity) GetValidVotePower() uint64 {
+	if m != nil {
+		return m.ValidVotePower
+	}
+	return 0
+}
+
+func (m *StakeSecurity) GetTotalVotePower() uint64 {
+	if m != nil {
+		return m.TotalVotePower
+	}
+	return 0
+}
+
+// BundleVersionEntry ...
+type BundleVersionEntry struct {
+	// height ...
+	Height uint64 `protobuf:"varint,1,opt,name=height,proto3" json:"height,omitempty"`
+	// version ...
+	Version int32 `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
+}
+
+func (m *BundleVersionEntry) Reset()         { *m = BundleVersionEntry{} }
+func (m *BundleVersionEntry) String() string { return proto.CompactTextString(m) }
+func (*BundleVersionEntry) ProtoMessage()    {}
+func (*BundleVersionEntry) Descriptor() ([]byte, []int) {
+	return fileDescriptor_889cf76d77a4de2b, []int{4}
+}
+func (m *BundleVersionEntry) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *BundleVersionEntry) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_BundleVersionEntry.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *BundleVersionEntry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BundleVersionEntry.Merge(m, src)
+}
+func (m *BundleVersionEntry) XXX_Size() int {
+	return m.Size()
+}
+func (m *BundleVersionEntry) XXX_DiscardUnknown() {
+	xxx_messageInfo_BundleVersionEntry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BundleVersionEntry proto.InternalMessageInfo
+
+func (m *BundleVersionEntry) GetHeight() uint64 {
+	if m != nil {
+		return m.Height
+	}
+	return 0
+}
+
+func (m *BundleVersionEntry) GetVersion() int32 {
+	if m != nil {
+		return m.Version
+	}
+	return 0
+}
+
+// BundleVersionMap ...
+type BundleVersionMap struct {
+	// versions ...
+	Versions []*BundleVersionEntry `protobuf:"bytes,1,rep,name=versions,proto3" json:"versions,omitempty"`
+}
+
+func (m *BundleVersionMap) Reset()         { *m = BundleVersionMap{} }
+func (m *BundleVersionMap) String() string { return proto.CompactTextString(m) }
+func (*BundleVersionMap) ProtoMessage()    {}
+func (*BundleVersionMap) Descriptor() ([]byte, []int) {
+	return fileDescriptor_889cf76d77a4de2b, []int{5}
+}
+func (m *BundleVersionMap) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *BundleVersionMap) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_BundleVersionMap.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *BundleVersionMap) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BundleVersionMap.Merge(m, src)
+}
+func (m *BundleVersionMap) XXX_Size() int {
+	return m.Size()
+}
+func (m *BundleVersionMap) XXX_DiscardUnknown() {
+	xxx_messageInfo_BundleVersionMap.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BundleVersionMap proto.InternalMessageInfo
+
+func (m *BundleVersionMap) GetVersions() []*BundleVersionEntry {
+	if m != nil {
+		return m.Versions
+	}
+	return nil
+}
+
+// RoundRobinSingleValidatorProgress ...
+type RoundRobinSingleValidatorProgress struct {
+	// address ...
+	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	// progress ...
+	Progress int64 `protobuf:"varint,2,opt,name=progress,proto3" json:"progress,omitempty"`
+}
+
+func (m *RoundRobinSingleValidatorProgress) Reset()         { *m = RoundRobinSingleValidatorProgress{} }
+func (m *RoundRobinSingleValidatorProgress) String() string { return proto.CompactTextString(m) }
+func (*RoundRobinSingleValidatorProgress) ProtoMessage()    {}
+func (*RoundRobinSingleValidatorProgress) Descriptor() ([]byte, []int) {
+	return fileDescriptor_889cf76d77a4de2b, []int{6}
+}
+func (m *RoundRobinSingleValidatorProgress) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *RoundRobinSingleValidatorProgress) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_RoundRobinSingleValidatorProgress.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *RoundRobinSingleValidatorProgress) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RoundRobinSingleValidatorProgress.Merge(m, src)
+}
+func (m *RoundRobinSingleValidatorProgress) XXX_Size() int {
+	return m.Size()
+}
+func (m *RoundRobinSingleValidatorProgress) XXX_DiscardUnknown() {
+	xxx_messageInfo_RoundRobinSingleValidatorProgress.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RoundRobinSingleValidatorProgress proto.InternalMessageInfo
+
+func (m *RoundRobinSingleValidatorProgress) GetAddress() string {
+	if m != nil {
+		return m.Address
+	}
+	return ""
+}
+
+func (m *RoundRobinSingleValidatorProgress) GetProgress() int64 {
+	if m != nil {
+		return m.Progress
+	}
+	return 0
+}
+
+// RoundRobinProgress ...
+type RoundRobinProgress struct {
+	// pool_id ...
+	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
+	// progress_list ...
+	ProgressList []*RoundRobinSingleValidatorProgress `protobuf:"bytes,2,rep,name=progress_list,json=progressList,proto3" json:"progress_list,omitempty"`
+}
+
+func (m *RoundRobinProgress) Reset()         { *m = RoundRobinProgress{} }
+func (m *RoundRobinProgress) String() string { return proto.CompactTextString(m) }
+func (*RoundRobinProgress) ProtoMessage()    {}
+func (*RoundRobinProgress) Descriptor() ([]byte, []int) {
+	return fileDescriptor_889cf76d77a4de2b, []int{7}
+}
+func (m *RoundRobinProgress) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *RoundRobinProgress) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_RoundRobinProgress.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *RoundRobinProgress) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RoundRobinProgress.Merge(m, src)
+}
+func (m *RoundRobinProgress) XXX_Size() int {
+	return m.Size()
+}
+func (m *RoundRobinProgress) XXX_DiscardUnknown() {
+	xxx_messageInfo_RoundRobinProgress.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RoundRobinProgress proto.InternalMessageInfo
+
+func (m *RoundRobinProgress) GetPoolId() uint64 {
+	if m != nil {
+		return m.PoolId
+	}
+	return 0
+}
+
+func (m *RoundRobinProgress) GetProgressList() []*RoundRobinSingleValidatorProgress {
+	if m != nil {
+		return m.ProgressList
+	}
+	return nil
+}
+
+>>>>>>> cf4857f (feat: improved schema for finalized bundles query (#104))
 func init() {
 	proto.RegisterEnum("kyve.bundles.v1beta1.BundleStatus", BundleStatus_name, BundleStatus_value)
 	proto.RegisterType((*BundleProposal)(nil), "kyve.bundles.v1beta1.BundleProposal")
 	proto.RegisterType((*FinalizedBundle)(nil), "kyve.bundles.v1beta1.FinalizedBundle")
 	proto.RegisterType((*FinalizedAt)(nil), "kyve.bundles.v1beta1.FinalizedAt")
+<<<<<<< HEAD
+=======
+	proto.RegisterType((*StakeSecurity)(nil), "kyve.bundles.v1beta1.StakeSecurity")
+	proto.RegisterType((*BundleVersionEntry)(nil), "kyve.bundles.v1beta1.BundleVersionEntry")
+	proto.RegisterType((*BundleVersionMap)(nil), "kyve.bundles.v1beta1.BundleVersionMap")
+	proto.RegisterType((*RoundRobinSingleValidatorProgress)(nil), "kyve.bundles.v1beta1.RoundRobinSingleValidatorProgress")
+	proto.RegisterType((*RoundRobinProgress)(nil), "kyve.bundles.v1beta1.RoundRobinProgress")
+>>>>>>> cf4857f (feat: improved schema for finalized bundles query (#104))
 }
 
 func init() {
@@ -472,6 +749,7 @@ func init() {
 }
 
 var fileDescriptor_889cf76d77a4de2b = []byte{
+<<<<<<< HEAD
 	// 710 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x94, 0xcd, 0x6e, 0x1a, 0x49,
 	0x14, 0x85, 0x69, 0xc0, 0x40, 0x5f, 0x7e, 0xcc, 0x94, 0xff, 0xda, 0x78, 0xcc, 0x60, 0x8f, 0x46,
@@ -518,6 +796,65 @@ var fileDescriptor_889cf76d77a4de2b = []byte{
 	0xdb, 0x84, 0xbf, 0x61, 0xde, 0x55, 0xf5, 0x62, 0x88, 0xa9, 0x53, 0xbd, 0x9e, 0xbf, 0xb9, 0x7c,
 	0xe6, 0x12, 0xbf, 0x9f, 0x90, 0xcf, 0xe7, 0x3f, 0xdf, 0x02, 0x00, 0x00, 0xff, 0xff, 0xed, 0x76,
 	0x9f, 0x61, 0x90, 0x05, 0x00, 0x00,
+=======
+	// 895 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x55, 0x4d, 0x6f, 0xe2, 0x46,
+	0x18, 0xc6, 0x40, 0xf8, 0x78, 0xf9, 0x58, 0x3a, 0xfb, 0x11, 0x27, 0xdb, 0x50, 0x42, 0x55, 0x09,
+	0x55, 0x15, 0x68, 0xb7, 0x87, 0x9e, 0xc9, 0x02, 0xaa, 0xb5, 0x59, 0x96, 0xda, 0x0b, 0xea, 0x56,
+	0x95, 0xac, 0x01, 0x4f, 0x60, 0x14, 0xe3, 0xb1, 0xec, 0x81, 0x0d, 0xf9, 0x05, 0x95, 0x7a, 0xe9,
+	0x7f, 0x68, 0x7f, 0x46, 0x4f, 0x3d, 0xf5, 0xb8, 0xc7, 0x1e, 0xab, 0xe4, 0x8f, 0x54, 0x33, 0x63,
+	0x3b, 0xb0, 0x49, 0xda, 0xbd, 0xf4, 0xe6, 0xf7, 0x79, 0x9e, 0x79, 0xe7, 0xfd, 0x78, 0x46, 0x86,
+	0xe6, 0xf9, 0x66, 0x4d, 0x3a, 0xd3, 0x95, 0xe7, 0xb8, 0x24, 0xec, 0xac, 0x9f, 0x4d, 0x09, 0xc7,
+	0xcf, 0xe2, 0xb8, 0xed, 0x07, 0x8c, 0x33, 0xf4, 0x48, 0x68, 0xda, 0x31, 0x16, 0x69, 0x0e, 0x1f,
+	0xcd, 0xd9, 0x9c, 0x49, 0x41, 0x47, 0x7c, 0x29, 0x6d, 0xf3, 0xb7, 0x2c, 0x54, 0x4f, 0xa4, 0x72,
+	0x14, 0x30, 0x9f, 0x85, 0xd8, 0x45, 0xfb, 0x90, 0xf7, 0x19, 0x73, 0x6d, 0xea, 0xe8, 0x5a, 0x43,
+	0x6b, 0x65, 0xcd, 0x9c, 0x08, 0x0d, 0x07, 0x1d, 0x01, 0x84, 0x9c, 0x05, 0x78, 0x4e, 0x04, 0x97,
+	0x6e, 0x68, 0xad, 0xa2, 0x59, 0x8c, 0x10, 0xc3, 0x41, 0x87, 0x50, 0x58, 0xf9, 0x2e, 0xc3, 0x0e,
+	0x09, 0xf4, 0x8c, 0x24, 0x93, 0x18, 0x7d, 0x0e, 0x15, 0x8f, 0x5c, 0x70, 0x3b, 0x11, 0x64, 0xa5,
+	0xa0, 0x2c, 0xc0, 0x71, 0x2c, 0x7a, 0x0a, 0x45, 0x07, 0x73, 0x6c, 0x87, 0xf4, 0x92, 0xe8, 0x7b,
+	0xf2, 0xea, 0x82, 0x00, 0x2c, 0x7a, 0x49, 0xd0, 0x67, 0x50, 0x52, 0x1d, 0x29, 0x3a, 0x27, 0x69,
+	0x50, 0x90, 0x14, 0x3c, 0x86, 0x1c, 0x67, 0xf6, 0x39, 0xd9, 0xe8, 0x79, 0x99, 0x7b, 0x8f, 0xb3,
+	0x97, 0x64, 0x83, 0xbe, 0x80, 0x6a, 0x7c, 0x6e, 0xb5, 0x5c, 0xe2, 0x60, 0xa3, 0x17, 0x24, 0x5d,
+	0x89, 0x8e, 0x2a, 0x30, 0xb9, 0x7b, 0x81, 0xc3, 0x85, 0x5e, 0x54, 0xd5, 0x0b, 0xe0, 0x5b, 0x1c,
+	0x2e, 0x44, 0xe3, 0x2b, 0xdf, 0xc1, 0x9c, 0x38, 0x36, 0xe6, 0x3a, 0xc8, 0xab, 0x8b, 0x11, 0xd2,
+	0xe5, 0xe8, 0x18, 0xca, 0x6b, 0xc6, 0x49, 0x10, 0xda, 0x6b, 0xec, 0x52, 0x47, 0x2f, 0x35, 0x32,
+	0xad, 0xa2, 0x59, 0x52, 0xd8, 0x44, 0x40, 0xa2, 0x8a, 0x48, 0x42, 0x3d, 0x25, 0x2a, 0x4b, 0x51,
+	0x45, 0xa1, 0x86, 0x02, 0xb7, 0x64, 0x78, 0x1a, 0x72, 0x4c, 0x3d, 0xbd, 0xb2, 0x2d, 0xeb, 0x2a,
+	0x10, 0x1d, 0x40, 0xe1, 0x2c, 0x60, 0x4b, 0xd9, 0x6c, 0x55, 0xd6, 0x9a, 0x17, 0xb1, 0x68, 0xb7,
+	0x0d, 0x0f, 0xe3, 0x1d, 0xf9, 0x01, 0x5b, 0x53, 0x87, 0x04, 0x62, 0x59, 0x0f, 0x1a, 0x5a, 0xab,
+	0x62, 0x7e, 0x12, 0x51, 0xa3, 0x88, 0x31, 0xe4, 0x8d, 0x33, 0xb6, 0xf4, 0x03, 0x12, 0x86, 0x94,
+	0x79, 0x42, 0x5a, 0x93, 0xd2, 0xca, 0x16, 0x6a, 0x38, 0xcd, 0x3f, 0x32, 0xf0, 0x60, 0x40, 0x3d,
+	0xec, 0xd2, 0x4b, 0xe2, 0x28, 0xbf, 0xdc, 0xef, 0x93, 0x2a, 0xa4, 0x23, 0x7f, 0x64, 0xcd, 0x34,
+	0xfd, 0xd0, 0x37, 0x99, 0x7f, 0xf3, 0x4d, 0xf6, 0x03, 0xdf, 0x1c, 0x01, 0xc8, 0x4e, 0xa9, 0xe7,
+	0x90, 0x8b, 0xc8, 0x13, 0x45, 0x81, 0x18, 0x02, 0x10, 0x83, 0xe0, 0x2c, 0x22, 0x95, 0x23, 0xf2,
+	0x9c, 0x29, 0xea, 0x7f, 0xb4, 0x43, 0x0f, 0xca, 0x67, 0xf1, 0x2c, 0x62, 0x43, 0x94, 0x9e, 0x1f,
+	0xb7, 0xef, 0x7a, 0x76, 0xed, 0x64, 0x6a, 0x5d, 0x6e, 0x96, 0xce, 0x6e, 0x82, 0x9d, 0x25, 0x96,
+	0x3e, 0x6a, 0x89, 0xe5, 0x8f, 0x5f, 0x62, 0xe5, 0xae, 0x25, 0xbe, 0x80, 0xd2, 0x56, 0x35, 0xe8,
+	0x09, 0xe4, 0x16, 0x84, 0xce, 0x17, 0x3c, 0x5e, 0x9f, 0x8a, 0xd0, 0xa7, 0x50, 0xe4, 0x74, 0x49,
+	0x42, 0x8e, 0x97, 0x7e, 0xb4, 0xc5, 0x1b, 0xa0, 0x39, 0x83, 0x8a, 0xc5, 0xf1, 0x39, 0xb1, 0xc8,
+	0x6c, 0x15, 0x50, 0xbe, 0x41, 0x2d, 0xa8, 0x49, 0xf3, 0xda, 0xc2, 0xa3, 0xb6, 0xcf, 0xde, 0x91,
+	0x20, 0x4a, 0x58, 0x95, 0xf8, 0x84, 0x71, 0x32, 0x12, 0xa8, 0x50, 0x72, 0xc6, 0xb1, 0xbb, 0xad,
+	0x54, 0xf9, 0xab, 0x12, 0x4f, 0x94, 0xcd, 0x01, 0x20, 0x65, 0xb2, 0x09, 0x09, 0x44, 0xf1, 0x7d,
+	0x8f, 0x07, 0x9b, 0x7b, 0x0b, 0xd6, 0x21, 0xbf, 0x56, 0x3a, 0x99, 0x6e, 0xcf, 0x8c, 0xc3, 0xe6,
+	0xf7, 0x50, 0xdb, 0xc9, 0xf3, 0x0a, 0xfb, 0xa8, 0x07, 0x85, 0x88, 0x0e, 0x75, 0xad, 0x91, 0x69,
+	0x95, 0x9e, 0xb7, 0xee, 0xde, 0xdc, 0xed, 0x0a, 0xcc, 0xe4, 0x64, 0xf3, 0x2d, 0x1c, 0x9b, 0x6c,
+	0xe5, 0x39, 0x26, 0x9b, 0x52, 0xcf, 0xa2, 0xde, 0xdc, 0x25, 0xf2, 0xa5, 0x63, 0xce, 0x82, 0x51,
+	0xc0, 0xe6, 0x62, 0xea, 0xa2, 0x30, 0xec, 0x38, 0xe2, 0x53, 0x56, 0x5c, 0x34, 0xe3, 0x50, 0x78,
+	0xde, 0x8f, 0x54, 0xb2, 0xe6, 0x8c, 0x99, 0xc4, 0xcd, 0x9f, 0x35, 0x40, 0x37, 0xb9, 0x93, 0x64,
+	0xf7, 0x3e, 0xb7, 0x1f, 0xa1, 0x12, 0x9f, 0xb5, 0x5d, 0x1a, 0x72, 0x3d, 0x2d, 0xbb, 0xfa, 0xe6,
+	0xee, 0xae, 0xfe, 0xb3, 0x6a, 0xb3, 0x1c, 0x67, 0x3b, 0xa5, 0x21, 0xff, 0xf2, 0x77, 0x0d, 0xca,
+	0x6a, 0x12, 0x16, 0xc7, 0x7c, 0x15, 0xa2, 0x23, 0x38, 0x38, 0x19, 0x0f, 0x7b, 0xa7, 0x7d, 0xdb,
+	0x7a, 0xd3, 0x7d, 0x33, 0xb6, 0xec, 0xf1, 0xd0, 0x1a, 0xf5, 0x5f, 0x18, 0x03, 0xa3, 0xdf, 0xab,
+	0xa5, 0xd0, 0x3e, 0x3c, 0xdc, 0xa5, 0x27, 0xdd, 0x53, 0xa3, 0x57, 0xd3, 0xd0, 0x01, 0x3c, 0xde,
+	0x25, 0x8c, 0xa1, 0xa2, 0xd2, 0xe8, 0x10, 0x9e, 0xec, 0x52, 0xc3, 0xd7, 0xf6, 0x60, 0x3c, 0xec,
+	0x59, 0xb5, 0x0c, 0x7a, 0x0a, 0xfb, 0xb7, 0xb8, 0xef, 0xc6, 0xaf, 0xcd, 0xf1, 0xab, 0x5a, 0xf6,
+	0xf6, 0xc1, 0x9e, 0x61, 0x75, 0x4f, 0x4e, 0xfb, 0xbd, 0xda, 0xde, 0x61, 0xf6, 0xa7, 0x5f, 0xeb,
+	0xa9, 0x93, 0xc1, 0x9f, 0x57, 0x75, 0xed, 0xfd, 0x55, 0x5d, 0xfb, 0xfb, 0xaa, 0xae, 0xfd, 0x72,
+	0x5d, 0x4f, 0xbd, 0xbf, 0xae, 0xa7, 0xfe, 0xba, 0xae, 0xa7, 0x7e, 0xf8, 0x6a, 0x4e, 0xf9, 0x62,
+	0x35, 0x6d, 0xcf, 0xd8, 0xb2, 0xf3, 0xf2, 0xed, 0xa4, 0x3f, 0x24, 0xfc, 0x1d, 0x0b, 0xce, 0x3b,
+	0xb3, 0x05, 0xa6, 0x5e, 0xe7, 0x22, 0xf9, 0xc7, 0xf2, 0x8d, 0x4f, 0xc2, 0x69, 0x4e, 0xfe, 0x2e,
+	0xbf, 0xfe, 0x27, 0x00, 0x00, 0xff, 0xff, 0x4b, 0x5b, 0xbb, 0x33, 0x80, 0x07, 0x00, 0x00,
+>>>>>>> cf4857f (feat: improved schema for finalized bundles query (#104))
 }
 
 func (m *BundleProposal) Marshal() (dAtA []byte, err error) {
@@ -791,6 +1128,189 @@ func (m *FinalizedAt) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+<<<<<<< HEAD
+=======
+func (m *StakeSecurity) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *StakeSecurity) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *StakeSecurity) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.TotalVotePower != 0 {
+		i = encodeVarintBundles(dAtA, i, uint64(m.TotalVotePower))
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.ValidVotePower != 0 {
+		i = encodeVarintBundles(dAtA, i, uint64(m.ValidVotePower))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *BundleVersionEntry) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *BundleVersionEntry) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *BundleVersionEntry) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Version != 0 {
+		i = encodeVarintBundles(dAtA, i, uint64(m.Version))
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.Height != 0 {
+		i = encodeVarintBundles(dAtA, i, uint64(m.Height))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *BundleVersionMap) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *BundleVersionMap) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *BundleVersionMap) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Versions) > 0 {
+		for iNdEx := len(m.Versions) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Versions[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintBundles(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *RoundRobinSingleValidatorProgress) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *RoundRobinSingleValidatorProgress) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *RoundRobinSingleValidatorProgress) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Progress != 0 {
+		i = encodeVarintBundles(dAtA, i, uint64(m.Progress))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.Address) > 0 {
+		i -= len(m.Address)
+		copy(dAtA[i:], m.Address)
+		i = encodeVarintBundles(dAtA, i, uint64(len(m.Address)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *RoundRobinProgress) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *RoundRobinProgress) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *RoundRobinProgress) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.ProgressList) > 0 {
+		for iNdEx := len(m.ProgressList) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ProgressList[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintBundles(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if m.PoolId != 0 {
+		i = encodeVarintBundles(dAtA, i, uint64(m.PoolId))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+>>>>>>> cf4857f (feat: improved schema for finalized bundles query (#104))
 func encodeVarintBundles(dAtA []byte, offset int, v uint64) int {
 	offset -= sovBundles(v)
 	base := offset
@@ -945,6 +1465,88 @@ func (m *FinalizedAt) Size() (n int) {
 	return n
 }
 
+<<<<<<< HEAD
+=======
+func (m *StakeSecurity) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.ValidVotePower != 0 {
+		n += 1 + sovBundles(uint64(m.ValidVotePower))
+	}
+	if m.TotalVotePower != 0 {
+		n += 1 + sovBundles(uint64(m.TotalVotePower))
+	}
+	return n
+}
+
+func (m *BundleVersionEntry) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Height != 0 {
+		n += 1 + sovBundles(uint64(m.Height))
+	}
+	if m.Version != 0 {
+		n += 1 + sovBundles(uint64(m.Version))
+	}
+	return n
+}
+
+func (m *BundleVersionMap) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Versions) > 0 {
+		for _, e := range m.Versions {
+			l = e.Size()
+			n += 1 + l + sovBundles(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *RoundRobinSingleValidatorProgress) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Address)
+	if l > 0 {
+		n += 1 + l + sovBundles(uint64(l))
+	}
+	if m.Progress != 0 {
+		n += 1 + sovBundles(uint64(m.Progress))
+	}
+	return n
+}
+
+func (m *RoundRobinProgress) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.PoolId != 0 {
+		n += 1 + sovBundles(uint64(m.PoolId))
+	}
+	if len(m.ProgressList) > 0 {
+		for _, e := range m.ProgressList {
+			l = e.Size()
+			n += 1 + l + sovBundles(uint64(l))
+		}
+	}
+	return n
+}
+
+>>>>>>> cf4857f (feat: improved schema for finalized bundles query (#104))
 func sovBundles(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
@@ -1915,6 +2517,473 @@ func (m *FinalizedAt) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+<<<<<<< HEAD
+=======
+func (m *StakeSecurity) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowBundles
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: StakeSecurity: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: StakeSecurity: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValidVotePower", wireType)
+			}
+			m.ValidVotePower = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBundles
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ValidVotePower |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TotalVotePower", wireType)
+			}
+			m.TotalVotePower = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBundles
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.TotalVotePower |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipBundles(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthBundles
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *BundleVersionEntry) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowBundles
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: BundleVersionEntry: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: BundleVersionEntry: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Height", wireType)
+			}
+			m.Height = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBundles
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Height |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Version", wireType)
+			}
+			m.Version = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBundles
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Version |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipBundles(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthBundles
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *BundleVersionMap) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowBundles
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: BundleVersionMap: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: BundleVersionMap: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Versions", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBundles
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthBundles
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthBundles
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Versions = append(m.Versions, &BundleVersionEntry{})
+			if err := m.Versions[len(m.Versions)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipBundles(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthBundles
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *RoundRobinSingleValidatorProgress) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowBundles
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: RoundRobinSingleValidatorProgress: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: RoundRobinSingleValidatorProgress: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBundles
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthBundles
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthBundles
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Address = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Progress", wireType)
+			}
+			m.Progress = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBundles
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Progress |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipBundles(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthBundles
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *RoundRobinProgress) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowBundles
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: RoundRobinProgress: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: RoundRobinProgress: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PoolId", wireType)
+			}
+			m.PoolId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBundles
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.PoolId |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ProgressList", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBundles
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthBundles
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthBundles
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ProgressList = append(m.ProgressList, &RoundRobinSingleValidatorProgress{})
+			if err := m.ProgressList[len(m.ProgressList)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipBundles(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthBundles
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+>>>>>>> cf4857f (feat: improved schema for finalized bundles query (#104))
 func skipBundles(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
