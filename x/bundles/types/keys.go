@@ -30,7 +30,7 @@ var (
 	// RoundRobinProgressPrefix ...
 	RoundRobinProgressPrefix = []byte{4}
 
-	FinalizedBundleByHeightPrefix = []byte{11}
+	FinalizedBundleByIndexPrefix = []byte{11}
 )
 
 // BundleProposalKey ...
@@ -48,7 +48,7 @@ func RoundRobinProgressKey(poolId uint64) []byte {
 	return util.GetByteKey(poolId)
 }
 
-// FinalizedBundleByHeightKey ...
-func FinalizedBundleByHeightKey(poolId uint64, height uint64) []byte {
+// FinalizedBundleByIndexKey ...
+func FinalizedBundleByIndexKey(poolId uint64, height uint64) []byte {
 	return util.GetByteKey(poolId, height)
 }

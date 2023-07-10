@@ -24,7 +24,7 @@ func (k Keeper) FinalizedBundlesQuery(c context.Context, req *types.QueryFinaliz
 		if err != nil {
 			return nil, status.Error(codes.InvalidArgument, "index needs to be an unsigned integer")
 		}
-		bundle, found := k.bundleKeeper.GetFinalizedBundleByHeight(ctx, req.PoolId, index)
+		bundle, found := k.bundleKeeper.GetFinalizedBundleByIndex(ctx, req.PoolId, index)
 		data := make([]types.FinalizedBundle, 0)
 		if found {
 			data = append(data, bundle)

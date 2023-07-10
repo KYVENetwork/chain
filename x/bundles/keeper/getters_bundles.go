@@ -73,9 +73,9 @@ func (k Keeper) SetFinalizedBundle(ctx sdk.Context, finalizedBundle types.Finali
 // SetFinalizedBundleIndexes sets an in-memory reference for every bundle sorted by pool/fromIndex
 // to allow querying for specific bundle ranges.
 func (k Keeper) SetFinalizedBundleIndexes(ctx sdk.Context, finalizedBundle types.FinalizedBundle) {
-	indexByStorageHeight := prefix.NewStore(ctx.KVStore(k.memKey), types.FinalizedBundleByHeightPrefix)
-	indexByStorageHeight.Set(
-		types.FinalizedBundleByHeightKey(finalizedBundle.PoolId, finalizedBundle.FromIndex),
+	indexByStorageIndex := prefix.NewStore(ctx.KVStore(k.memKey), types.FinalizedBundleByIndexPrefix)
+	indexByStorageIndex.Set(
+		types.FinalizedBundleByIndexKey(finalizedBundle.PoolId, finalizedBundle.FromIndex),
 		util.GetByteKey(finalizedBundle.Id))
 }
 
@@ -235,8 +235,8 @@ func (k Keeper) GetPaginatedFinalizedBundleQuery(ctx sdk.Context, pagination *qu
 	return data, &pageResponse, nil
 }
 
-func (k Keeper) GetFinalizedBundleByHeight(ctx sdk.Context, poolId, index uint64) (val queryTypes.FinalizedBundle, found bool) {
-	proposalIndexStore := prefix.NewStore(ctx.KVStore(k.memKey), util.GetByteKey(types.FinalizedBundleByHeightPrefix, poolId))
+func (k Keeper) GetFinalizedBundleByIndex(ctx sdk.Context, poolId, index uint64) (val queryTypes.FinalizedBundle, found bool) {
+	proposalIndexStore := prefix.NewStore(ctx.KVStore(k.memKey), util.GetByteKey(types.FinalizedBundleByIndexPrefix, poolId))
 	proposalIndexIterator := proposalIndexStore.ReverseIterator(nil, util.GetByteKey(index+1))
 	defer proposalIndexIterator.Close()
 
