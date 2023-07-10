@@ -2525,10 +2525,14 @@ paths:
                       properties:
                         height:
                           type: string
-                          description: height ...
+                          description: >-
+                            height is the block height in which the bundle got
+                            finalized.
                         timestamp:
                           type: string
-                          description: timestamp ...
+                          description: >-
+                            timestamp is the UNIX timestamp of the block in
+                            which the bundle got finalized.
                     storage_provider_id:
                       type: string
                       format: uint64
@@ -2553,10 +2557,19 @@ paths:
                       properties:
                         valid_vote_power:
                           type: string
-                          description: valid_vote_power ...
+                          description: >-
+                            valid_vote_power gives the amount of $KYVE stake
+                            that voted `valid`.
                         total_vote_power:
                           type: string
-                          description: total_vote_power ...
+                          description: >-
+                            total_vote_power gives the amount of total $KYVE
+                            stake that was present in the pool
+
+                            during finalization.
+                      title: >-
+                        StakeSecurity represents the relative security of a
+                        finalized bundle
                   title: >-
                     FinalizedBundle represents the latest version of a valid
                     bundle of a pool
@@ -2911,10 +2924,14 @@ paths:
                 properties:
                   height:
                     type: string
-                    description: height ...
+                    description: >-
+                      height is the block height in which the bundle got
+                      finalized.
                   timestamp:
                     type: string
-                    description: timestamp ...
+                    description: >-
+                      timestamp is the UNIX timestamp of the block in which the
+                      bundle got finalized.
               storage_provider_id:
                 type: string
                 format: uint64
@@ -2938,10 +2955,19 @@ paths:
                 properties:
                   valid_vote_power:
                     type: string
-                    description: valid_vote_power ...
+                    description: >-
+                      valid_vote_power gives the amount of $KYVE stake that
+                      voted `valid`.
                   total_vote_power:
                     type: string
-                    description: total_vote_power ...
+                    description: >-
+                      total_vote_power gives the amount of total $KYVE stake
+                      that was present in the pool
+
+                      during finalization.
+                title: >-
+                  StakeSecurity represents the relative security of a finalized
+                  bundle
             title: >-
               FinalizedBundle represents the latest version of a valid bundle of
               a pool

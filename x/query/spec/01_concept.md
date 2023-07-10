@@ -83,7 +83,7 @@ were finalized before the field existed return null.
 }
 ```
 
-### Query by ID
-To obtain a specific bundle specified by its ID use
+### Query by Id
+To obtain a specific bundle specified by its Id use
 
 **Query**: `/kyve/v1/bundles/{poolId}/{id}`

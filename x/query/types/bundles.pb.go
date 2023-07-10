@@ -195,11 +195,11 @@ func (m *FinalizedBundle) GetStakeSecurity() *StakeSecurity {
 	return nil
 }
 
-// FinalizedAt ...
+// FinalizedAt stores information about finalization block and time.
 type FinalizedAt struct {
-	// height ...
+	// height is the block height in which the bundle got finalized.
 	Height *cosmossdk_io_math.Int `protobuf:"bytes,1,opt,name=height,proto3,customtype=cosmossdk.io/math.Int" json:"height,omitempty"`
-	// timestamp ...
+	// timestamp is the UNIX timestamp of the block in which the bundle got finalized.
 	Timestamp *cosmossdk_io_math.Int `protobuf:"bytes,2,opt,name=timestamp,proto3,customtype=cosmossdk.io/math.Int" json:"timestamp,omitempty"`
 }
 
@@ -236,11 +236,12 @@ func (m *FinalizedAt) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_FinalizedAt proto.InternalMessageInfo
 
-// StakeSecurity ...
+// StakeSecurity represents the relative security of a finalized bundle
 type StakeSecurity struct {
-	// valid_vote_power ...
+	// valid_vote_power gives the amount of $KYVE stake that voted `valid`.
 	ValidVotePower *cosmossdk_io_math.Int `protobuf:"bytes,1,opt,name=valid_vote_power,json=validVotePower,proto3,customtype=cosmossdk.io/math.Int" json:"valid_vote_power,omitempty"`
-	// total_vote_power ...
+	// total_vote_power gives the amount of total $KYVE stake that was present in the pool
+	// during finalization.
 	TotalVotePower *cosmossdk_io_math.Int `protobuf:"bytes,2,opt,name=total_vote_power,json=totalVotePower,proto3,customtype=cosmossdk.io/math.Int" json:"total_vote_power,omitempty"`
 }
 
