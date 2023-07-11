@@ -5,25 +5,19 @@ package kyve.query.v1beta1;
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "kyve/bundles/v1beta1/bundles.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/query/types";
 
 // QueryDelegation contains all rpc requests related to direct delegation data
 service QueryBundles {
   // FinalizedBundles ...
-  rpc FinalizedBundles(QueryFinalizedBundlesRequest) returns (QueryFinalizedBundlesResponse) {
-    option (google.api.http).get = "/kyve/query/v1beta1/finalized_bundles/{pool_id}";
+  rpc FinalizedBundlesQuery(QueryFinalizedBundlesRequest) returns (QueryFinalizedBundlesResponse) {
+    option (google.api.http).get = "/kyve/v1/bundles/{pool_id}";
   }
 
   // FinalizedBundle ...
-  rpc FinalizedBundle(QueryFinalizedBundleRequest) returns (QueryFinalizedBundleResponse) {
-    option (google.api.http).get = "/kyve/query/v1beta1/finalized_bundle/{pool_id}/{id}";
-  }
-
-  // Queries the bundle which contains the data given height
-  rpc FinalizedBundlesByHeight(QueryFinalizedBundlesByHeightRequest) returns (QueryFinalizedBundlesByHeightResponse) {
-    option (google.api.http).get = "/kyve/query/v1beta1/finalized_bundle_by_height/{pool_id}/{height}";
+  rpc FinalizedBundleQuery(QueryFinalizedBundleRequest) returns (FinalizedBundle) {
+    option (google.api.http).get = "/kyve/v1/bundles/{pool_id}/{id}";
   }
 
   // CurrentVoteStatus ...
@@ -47,6 +41,56 @@ service QueryBundles {
   }
 }
 
+// FinalizedBundle represents the latest version of a valid bundle of a pool
+message FinalizedBundle {
+  // pool_id in which the bundle was created
+  uint64 pool_id = 1;
+  // id is is integrated with each valid bundle produced.
+  uint64 id = 2;
+  // storage_id is the id with which the data can be retrieved from the configured data provider
+  string storage_id = 3;
+  // uploader is the address of the staker who submitted this bundle
+  string uploader = 4;
+  // from_index is the index from where the bundle starts (inclusive)
+  uint64 from_index = 5;
+  // to_index is the index to which the bundle goes (exclusive)
+  uint64 to_index = 6;
+  // from_key is the key of the first data item in the bundle proposal
+  string from_key = 11;
+  // to_key the key of the last data item in the bundle
+  string to_key = 7;
+  // bundle_summary is a summary of the bundle.
+  string bundle_summary = 8;
+  // data_hash is a sha256 hash of the uploaded data.
+  string data_hash = 9;
+  // finalized_at contains details of the block that finalized this bundle.
+  FinalizedAt finalized_at = 10;
+  // storage_provider_id the id of the storage provider where the bundle is stored
+  uint64 storage_provider_id = 12;
+  // compression_id the id of the compression type with which the data was compressed
+  uint64 compression_id = 13;
+  // stake_security defines the amount of stake which was present in the pool during the finalization of the bundle.
+  // This field was added in schema version 2. Bundles finalized before that return `null`.
+  StakeSecurity stake_security = 14;
+}
+
+// FinalizedAt stores information about finalization block and time.
+message FinalizedAt {
+  // height is the block height in which the bundle got finalized.
+  string height = 1 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
+  // timestamp is the UNIX timestamp of the block in which the bundle got finalized.
+  string timestamp = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
+}
+
+// StakeSecurity represents the relative security of a finalized bundle
+message StakeSecurity {
+  // valid_vote_power gives the amount of $KYVE stake that voted `valid`.
+  string valid_vote_power = 1 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
+  // total_vote_power gives the amount of total $KYVE stake that was present in the pool
+  // during finalization.
+  string total_vote_power = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
+}
+
 // ===========================
 // finalized_bundles/{pool_id}
 // ===========================
@@ -57,12 +101,15 @@ message QueryFinalizedBundlesRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
   // pool_id ...
   uint64 pool_id = 2;
+  // index is an optional parameter which tells the server to only show
+  // the bundle with the given index. This can not be combined with pagination.
+  string index = 3;
 }
 
 // QueryStakersByPoolResponse is the response type for the Query/Staker RPC method.
 message QueryFinalizedBundlesResponse {
   // finalized_bundles ...
-  repeated kyve.bundles.v1beta1.FinalizedBundle finalized_bundles = 1 [(gogoproto.nullable) = false];
+  repeated FinalizedBundle finalized_bundles = 1 [(gogoproto.nullable) = false];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -81,26 +128,8 @@ message QueryFinalizedBundleRequest {
 
 // QueryFinalizedBundleResponse is the response type for the Query/Staker RPC method.
 message QueryFinalizedBundleResponse {
-  // finalized_bundle ...
-  kyve.bundles.v1beta1.FinalizedBundle finalized_bundle = 1 [(gogoproto.nullable) = false];
-}
-
-// ===================================
-// finalized_bundle_by_height/{height}
-// ===================================
-
-// QueryFinalizedBundleRequest is the request type for the Query/Staker RPC method.
-message QueryFinalizedBundlesByHeightRequest {
-  // pool_id ...
-  uint64 pool_id = 1;
-  // id ...
-  uint64 height = 2;
-}
-
-// QueryFinalizedBundleResponse is the response type for the Query/Staker RPC method.
-message QueryFinalizedBundlesByHeightResponse {
-  // finalized_bundle ...
-  kyve.bundles.v1beta1.FinalizedBundle finalized_bundle = 1 [(gogoproto.nullable) = false];
+  // finalized_bundles ...
+  FinalizedBundle finalized_bundles = 1 [(gogoproto.nullable) = false];
 }
 
 // ===============================
