@@ -25,8 +25,10 @@ var (
 	BundleKeyPrefix = []byte{1}
 	// FinalizedBundlePrefix ...
 	FinalizedBundlePrefix = []byte{2}
+	// FinalizedBundleVersionMapKey ...
+	FinalizedBundleVersionMapKey = []byte{3}
 
-	FinalizedBundleByHeightPrefix = []byte{11}
+	FinalizedBundleByIndexPrefix = []byte{11}
 )
 
 // BundleProposalKey ...
@@ -39,7 +41,7 @@ func FinalizedBundleKey(poolId uint64, id uint64) []byte {
 	return util.GetByteKey(poolId, id)
 }
 
-// FinalizedBundleByHeightKey ...
-func FinalizedBundleByHeightKey(poolId uint64, height uint64) []byte {
+// FinalizedBundleByIndexKey ...
+func FinalizedBundleByIndexKey(poolId uint64, height uint64) []byte {
 	return util.GetByteKey(poolId, height)
 }
