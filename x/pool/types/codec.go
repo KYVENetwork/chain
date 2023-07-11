@@ -22,6 +22,7 @@ func RegisterInterfaces(registry codecTypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgEnablePool{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgScheduleRuntimeUpgrade{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgCancelRuntimeUpgrade{})
+	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgUpdateParams{})
 }
 
 var (

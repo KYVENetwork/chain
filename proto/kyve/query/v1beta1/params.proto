@@ -7,6 +7,7 @@ import "google/api/annotations.proto";
 import "kyve/bundles/v1beta1/params.proto";
 import "kyve/delegation/v1beta1/params.proto";
 import "kyve/global/v1beta1/global.proto";
+import "kyve/pool/v1beta1/params.proto";
 import "kyve/stakers/v1beta1/params.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/query/types";
@@ -38,4 +39,6 @@ message QueryParamsResponse {
   cosmos.gov.v1.QueryParamsResponse gov_params = 4;
   // stakers_params ...
   kyve.stakers.v1beta1.Params stakers_params = 5;
+  // pool_params ...
+  kyve.pool.v1beta1.Params pool_params = 6;
 }

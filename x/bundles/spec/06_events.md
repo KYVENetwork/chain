@@ -92,22 +92,26 @@ message EventBundleFinalized {
   uint64 abstain = 5;
   // total voting power of the pool
   uint64 total = 6;
-  // vestingStatus of the finalized bundle
-  BundleStatus vestingStatus = 7;
+  // status of the finalized bundle
+  BundleStatus status = 7;
+  // amount which funders provided to the total bundle reward (in ukyve)
+  uint64 funders_payout = 8;
+  // amount which the inflation pool provided to the total reward (in ukyve)
+  uint64 inflation_payout = 9;
   // rewards transferred to treasury (in ukyve)
-  uint64 reward_treasury = 8;
+  uint64 reward_treasury = 10;
   // rewardUploader rewards directly transferred to uploader (in ukyve)
-  uint64 reward_uploader = 9;
+  uint64 reward_uploader = 11;
   // rewardDelegation rewards distributed among all delegators (in ukyve)
-  uint64 reward_delegation = 10;
+  uint64 reward_delegation = 12;
   // rewardTotal the total bundle reward
-  uint64 reward_total = 11;
+  uint64 reward_total = 13;
   // finalized_at the block height where the bundle got finalized
-  uint64 finalized_at = 12;
+  uint64 finalized_at = 14;
   // uploader the address of the uploader of this bundle
-  string uploader = 13;
+  string uploader = 15;
   // next_uploader the address of the next uploader after this bundle
-  string next_uploader = 14;
+  string next_uploader = 16;
 }
 ```
 

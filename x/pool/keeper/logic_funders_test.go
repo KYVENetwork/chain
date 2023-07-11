@@ -10,7 +10,7 @@ import (
 
 /*
 
-TEST CASES - logic_funders_test.go
+TEST CASES - logic_funders.go
 
 * Add funders; check total sum
 * Add multiple funders; check total sum
@@ -20,16 +20,22 @@ TEST CASES - logic_funders_test.go
 * Charge Funders test remainder
 * Charge exactly the lowest funder amount
 * Kick out multiple lowest funders
-* Kick out all funders
+* Charge more than pool has funds
+* Charge pool which has no funds at all
 
 */
 
-func chargeFunders(s *i.KeeperTestSuite, amount uint64) error {
-	err := s.App().PoolKeeper.ChargeFundersOfPool(s.Ctx(), 0, amount)
-	if err == nil {
-		return util.TransferFromModuleToAddress(s.App().BankKeeper, s.Ctx(), pooltypes.ModuleName, i.BURNER, amount)
+func chargeFunders(s *i.KeeperTestSuite, amount uint64) (payout uint64, err error) {
+	payout, err = s.App().PoolKeeper.ChargeFundersOfPool(s.Ctx(), 0, amount)
+	if err != nil {
+		return 0, err
 	}
-	return err
+
+	if err := util.TransferFromModuleToAddress(s.App().BankKeeper, s.Ctx(), pooltypes.ModuleName, i.BURNER, payout); err != nil {
+		return 0, err
+	}
+
+	return payout, err
 }
 
 func fundersCheck(pool *pooltypes.Pool) {
@@ -43,14 +49,14 @@ func fundersCheck(pool *pooltypes.Pool) {
 	Expect(pool.TotalFunds).To(Equal(poolFunds))
 }
 
-var _ = Describe("logic_funders_test.go", Ordered, func() {
+var _ = Describe("logic_funders.go", Ordered, func() {
 	s := i.NewCleanChain()
 	var pool *pooltypes.Pool
 
 	BeforeEach(func() {
 		s = i.NewCleanChain()
 		pool = &pooltypes.Pool{
-			Name:           "Moontest",
+			Name:           "PoolTest",
 			MaxBundleSize:  100,
 			StartKey:       "0",
 			MinDelegation:  100 * i.KYVE,
@@ -147,10 +153,11 @@ var _ = Describe("logic_funders_test.go", Ordered, func() {
 		Expect(pool.TotalFunds).To(Equal(50 * 100 * i.KYVE))
 
 		// ACT
-		err := chargeFunders(s, 50*10*i.KYVE)
+		payout, err := chargeFunders(s, 50*10*i.KYVE)
 
 		// ASSERT
 		Expect(err).NotTo(HaveOccurred())
+		Expect(payout).To(Equal(50 * 10 * i.KYVE))
 
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 		Expect(pool.TotalFunds).To(Equal(50 * 90 * i.KYVE))
@@ -176,10 +183,11 @@ var _ = Describe("logic_funders_test.go", Ordered, func() {
 		// ACT
 		// Charge 10 $KYVE + 49tkyve
 		// the 49 tkyve will be charged to the lowest funder
-		err := chargeFunders(s, 50*10*i.KYVE+49)
+		payout, err := chargeFunders(s, 50*10*i.KYVE+49)
 
 		// ASSERT
 		Expect(err).NotTo(HaveOccurred())
+		Expect(payout).To(Equal(50*10*i.KYVE + 49))
 
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
@@ -213,10 +221,11 @@ var _ = Describe("logic_funders_test.go", Ordered, func() {
 		Expect(pool.TotalFunds).To(Equal((100*40 + 200*10) * i.KYVE))
 
 		// ACT
-		err := chargeFunders(s, 50*100*i.KYVE)
+		payout, err := chargeFunders(s, 50*100*i.KYVE)
 
 		// ASSERT
 		Expect(err).NotTo(HaveOccurred())
+		Expect(payout).To(Equal(50 * 100 * i.KYVE))
 
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 		Expect(pool.Funders).To(HaveLen(10))
@@ -247,16 +256,17 @@ var _ = Describe("logic_funders_test.go", Ordered, func() {
 		// Charge 5000
 
 		// Act
-		err := chargeFunders(s, 5000*i.KYVE)
+		payout, err := chargeFunders(s, 5000*i.KYVE)
 
 		// Assert
 		Expect(err).NotTo(HaveOccurred())
+		Expect(payout).To(Equal(3000 * i.KYVE))
 
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 		Expect(pool.Funders).To(HaveLen(10))
 
 		for _, funder := range pool.Funders {
-			Expect(funder.Amount).To(Equal(500 * i.KYVE))
+			Expect(funder.Amount).To(Equal(900 * i.KYVE))
 		}
 	})
 
@@ -274,12 +284,31 @@ var _ = Describe("logic_funders_test.go", Ordered, func() {
 		Expect(pool.TotalFunds).To(Equal((50 * 50) * i.KYVE))
 
 		// ACT
-		err := chargeFunders(s, 5000*i.KYVE)
+		payout, err := chargeFunders(s, 5000*i.KYVE)
 
 		// ASSERT
-		Expect(err).To(HaveOccurred())
+		Expect(err).NotTo(HaveOccurred())
+		Expect(payout).To(Equal(2500 * i.KYVE))
 
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 		Expect(pool.Funders).To(HaveLen(0))
+	})
+
+	It("Charge pool which has no funds at all", func() {
+		// ARRANGE
+		pool, poolFound := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		Expect(poolFound).To(BeTrue())
+		Expect(pool.TotalFunds).To(BeZero())
+
+		// ACT
+		payout, err := chargeFunders(s, 5000*i.KYVE)
+
+		// ASSERT
+		Expect(err).NotTo(HaveOccurred())
+		Expect(payout).To(BeZero())
+
+		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		Expect(pool.Funders).To(HaveLen(0))
+		Expect(pool.TotalFunds).To(BeZero())
 	})
 })

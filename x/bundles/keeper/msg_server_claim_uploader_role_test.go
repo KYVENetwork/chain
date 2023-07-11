@@ -59,7 +59,7 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 		})
 
 		// ACT
-		s.RunTxBundlesError(&bundletypes.MsgClaimUploaderRole{
+		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
 			Creator: i.VALADDRESS_0,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
@@ -67,7 +67,7 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 
 		// ASSERT
 		_, found := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
-		Expect(found).To(BeFalse())
+		Expect(found).To(BeTrue())
 	})
 
 	It("Try to claim uploader role without being a staker", func() {

@@ -21,7 +21,6 @@ TEST CASES - grpc_query_can_vote.go
 * Call can vote if pool does not exist
 * Call can vote if pool is currently upgrading
 * Call can vote if pool is disabled
-* Call can vote if pool is out of funds
 * Call can vote if pool has not reached the minimum stake
 * Call can vote with a valaccount which does not exist
 * Call can vote if current bundle was dropped
@@ -30,6 +29,7 @@ TEST CASES - grpc_query_can_vote.go
 * Call can vote if voter has already voted invalid
 * Call can vote if voter has already voted abstain
 * Call can vote on an active pool with a data bundle with valid args
+* Call can vote on an active pool with no funds and a data bundle with valid args
 
 */
 
@@ -40,7 +40,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		s = i.NewCleanChain()
 
 		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "Moontest",
+			Name:           "PoolTest",
 			MinDelegation:  200 * i.KYVE,
 			UploadInterval: 60,
 			MaxBundleSize:  100,
@@ -189,40 +189,6 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 
 		Expect(canVote.Possible).To(BeFalse())
 		Expect(canVote.Reason).To(Equal(bundletypes.ErrPoolDisabled.Error()))
-
-		_, txErr := s.RunTx(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
-			Staker:    i.STAKER_1,
-			PoolId:    0,
-			StorageId: "test_storage_id",
-			Vote:      bundletypes.VOTE_TYPE_VALID,
-		})
-
-		Expect(txErr).NotTo(BeNil())
-		Expect(txErr.Error()).To(Equal(canVote.Reason))
-	})
-
-	It("Call can vote if pool is out of funds", func() {
-		// ARRANGE
-		s.RunTxPoolSuccess(&pooltypes.MsgDefundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
-		})
-
-		// ACT
-		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
-			PoolId:    0,
-			Staker:    i.STAKER_1,
-			Voter:     i.VALADDRESS_1,
-			StorageId: "test_storage_id",
-		})
-
-		// ASSERT
-		Expect(err).To(BeNil())
-
-		Expect(canVote.Possible).To(BeFalse())
-		Expect(canVote.Reason).To(Equal(bundletypes.ErrPoolOutOfFunds.Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgVoteBundleProposal{
 			Creator:   i.VALADDRESS_1,
@@ -474,6 +440,39 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 	})
 
 	It("Call can vote on an active pool with a data bundle with valid args", func() {
+		// ACT
+		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
+			PoolId:    0,
+			Staker:    i.STAKER_1,
+			Voter:     i.VALADDRESS_1,
+			StorageId: "test_storage_id",
+		})
+
+		// ASSERT
+		Expect(err).To(BeNil())
+
+		Expect(canVote.Possible).To(BeTrue())
+		Expect(canVote.Reason).To(BeEmpty())
+
+		_, txErr := s.RunTx(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_1,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "test_storage_id",
+			Vote:      bundletypes.VOTE_TYPE_VALID,
+		})
+
+		Expect(txErr).To(BeNil())
+	})
+
+	It("Call can vote on an active pool with no funds and a data bundle with valid args", func() {
+		// ARRANGE
+		s.RunTxPoolSuccess(&pooltypes.MsgDefundPool{
+			Creator: i.ALICE,
+			Id:      0,
+			Amount:  100 * i.KYVE,
+		})
+
 		// ACT
 		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,

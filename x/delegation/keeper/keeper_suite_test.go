@@ -18,15 +18,16 @@ func TestDelegationKeeper(t *testing.T) {
 }
 
 func PayoutRewards(s *i.KeeperTestSuite, staker string, amount uint64) {
-	err := s.App().PoolKeeper.ChargeFundersOfPool(s.Ctx(), 0, amount)
+	payout, err := s.App().PoolKeeper.ChargeFundersOfPool(s.Ctx(), 0, amount)
 	Expect(err).To(BeNil())
-	success := s.App().DelegationKeeper.PayoutRewards(s.Ctx(), staker, amount, pooltypes.ModuleName)
-	Expect(success).To(BeTrue())
+	err = s.App().DelegationKeeper.PayoutRewards(s.Ctx(), staker, amount, pooltypes.ModuleName)
+	Expect(err).NotTo(HaveOccurred())
+	Expect(amount).To(Equal(payout))
 }
 
 func CreateFundedPool(s *i.KeeperTestSuite) {
 	s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-		Name: "Moontest",
+		Name: "PoolTest",
 		Protocol: &pooltypes.Protocol{
 			Version:     "0.0.0",
 			Binaries:    "{}",
