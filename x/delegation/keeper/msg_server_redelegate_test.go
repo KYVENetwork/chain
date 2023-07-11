@@ -35,7 +35,8 @@ var _ = Describe("Delegation - Redelegation", Ordered, func() {
 		CreateFundedPool(s)
 
 		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name: "EnabledPool",
+			Name:          "EnabledPool",
+			MinDelegation: 1_000 * i.KYVE,
 			Protocol: &pooltypes.Protocol{
 				Version:     "0.0.0",
 				Binaries:    "{}",

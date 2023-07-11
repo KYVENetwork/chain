@@ -67,7 +67,7 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 			Name:           "PoolTest",
 			UploadInterval: 60,
 			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  100 * i.KYVE,
+			MinDelegation:  1_000_000 * i.KYVE,
 			MaxBundleSize:  100,
 			Protocol: &pooltypes.Protocol{
 				Version:     "0.0.0",

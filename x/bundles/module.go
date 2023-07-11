@@ -4,6 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
+	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
+	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
+	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
+	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+
 	// this line is used by starport scaffolding # 1
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -91,22 +99,37 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 type AppModule struct {
 	AppModuleBasic
 
-	keeper        keeper.Keeper
-	accountKeeper types.AccountKeeper
-	bankKeeper    types.BankKeeper
+	keeper             keeper.Keeper
+	accountKeeper      types.AccountKeeper
+	bankKeeper         bankKeeper.Keeper
+	distributionKeeper distributionKeeper.Keeper
+	mintKeeper         mintKeeper.Keeper
+	upgradeKeeper      upgradeKeeper.Keeper
+	poolKeeper         poolKeeper.Keeper
+	teamKeeper         teamKeeper.Keeper
 }
 
 func NewAppModule(
 	cdc codec.Codec,
 	keeper keeper.Keeper,
 	accountKeeper types.AccountKeeper,
-	bankKeeper types.BankKeeper,
+	bankKeeper bankKeeper.Keeper,
+	distributionKeeper distributionKeeper.Keeper,
+	mintKeeper mintKeeper.Keeper,
+	upgradeKeeper upgradeKeeper.Keeper,
+	poolKeeper poolKeeper.Keeper,
+	teamKeeper teamKeeper.Keeper,
 ) AppModule {
 	return AppModule{
-		AppModuleBasic: NewAppModuleBasic(cdc),
-		keeper:         keeper,
-		accountKeeper:  accountKeeper,
-		bankKeeper:     bankKeeper,
+		AppModuleBasic:     NewAppModuleBasic(cdc),
+		keeper:             keeper,
+		accountKeeper:      accountKeeper,
+		bankKeeper:         bankKeeper,
+		distributionKeeper: distributionKeeper,
+		mintKeeper:         mintKeeper,
+		upgradeKeeper:      upgradeKeeper,
+		poolKeeper:         poolKeeper,
+		teamKeeper:         teamKeeper,
 	}
 }
 
@@ -153,6 +176,7 @@ func (AppModule) ConsensusVersion() uint64 { return 1 }
 // BeginBlock contains the logic that is automatically triggered at the beginning of each block
 func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 	am.keeper.InitMemStore(ctx)
+	SplitInflation(ctx, am.keeper, am.bankKeeper, am.mintKeeper, am.poolKeeper, am.teamKeeper, am.upgradeKeeper)
 }
 
 // EndBlock contains the logic that is automatically triggered at the end of each block

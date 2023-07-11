@@ -24,6 +24,7 @@ func (k Keeper) Params(goCtx context.Context, req *types.QueryParamsRequest) (*t
 	globalParams := k.globalKeeper.GetParams(ctx)
 	govParams := govTypes.QueryParamsResponse{}
 	sp := k.stakerKeeper.GetParams(ctx)
+	pp := k.poolKeeper.GetParams(ctx)
 
 	govVotingParams := k.govKeeper.GetVotingParams(ctx)
 	govParams.VotingParams = &govVotingParams
@@ -32,5 +33,5 @@ func (k Keeper) Params(goCtx context.Context, req *types.QueryParamsRequest) (*t
 	govTallyParams := k.govKeeper.GetTallyParams(ctx)
 	govParams.TallyParams = &govTallyParams
 
-	return &types.QueryParamsResponse{BundlesParams: &bp, DelegationParams: &dp, GlobalParams: &globalParams, GovParams: &govParams, StakersParams: &sp}, nil
+	return &types.QueryParamsResponse{BundlesParams: &bp, DelegationParams: &dp, GlobalParams: &globalParams, GovParams: &govParams, StakersParams: &sp, PoolParams: &pp}, nil
 }

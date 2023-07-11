@@ -395,7 +395,7 @@ func NewKYVEApp(
 	// ... other modules keepers
 	app.GlobalKeeper = *globalKeeper.NewKeeper(appCodec, keys[globalTypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String())
 
-	app.TeamKeeper = *teamKeeper.NewKeeper(appCodec, keys[teamTypes.StoreKey], app.AccountKeeper, app.BankKeeper)
+	app.TeamKeeper = *teamKeeper.NewKeeper(appCodec, keys[teamTypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.MintKeeper, app.UpgradeKeeper)
 
 	app.PoolKeeper = *poolKeeper.NewKeeper(
 		appCodec,
@@ -407,7 +407,9 @@ func NewKYVEApp(
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.DistributionKeeper,
+		app.MintKeeper,
 		app.UpgradeKeeper,
+		app.TeamKeeper,
 	)
 
 	app.StakersKeeper = *stakersKeeper.NewKeeper(
@@ -632,10 +634,10 @@ func NewKYVEApp(
 		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 
 		// KYVE
-		bundles.NewAppModule(appCodec, app.BundlesKeeper, app.AccountKeeper, app.BankKeeper),
+		bundles.NewAppModule(appCodec, app.BundlesKeeper, app.AccountKeeper, app.BankKeeper, app.DistributionKeeper, app.MintKeeper, app.UpgradeKeeper, app.PoolKeeper, app.TeamKeeper),
 		delegation.NewAppModule(appCodec, app.DelegationKeeper, app.AccountKeeper, app.BankKeeper),
 		global.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.GlobalKeeper, app.UpgradeKeeper),
-		pool.NewAppModule(appCodec, app.PoolKeeper, app.AccountKeeper, app.BankKeeper),
+		pool.NewAppModule(appCodec, app.PoolKeeper, app.AccountKeeper, app.BankKeeper, app.UpgradeKeeper),
 		query.NewAppModule(appCodec, app.QueryKeeper, app.AccountKeeper, app.BankKeeper),
 		stakers.NewAppModule(appCodec, app.StakersKeeper, app.AccountKeeper, app.BankKeeper),
 		team.NewAppModule(appCodec, app.BankKeeper, app.MintKeeper, app.TeamKeeper, app.UpgradeKeeper),
@@ -652,6 +654,8 @@ func NewKYVEApp(
 		minttypes.ModuleName,
 		// NOTE: x/team must be run before x/distribution and after x/mint.
 		teamTypes.ModuleName,
+		// NOTE: x/bundles must be run before x/distribution and after x/team.
+		bundlesTypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -675,7 +679,6 @@ func NewKYVEApp(
 		poolTypes.ModuleName,
 		stakersTypes.ModuleName,
 		delegationTypes.ModuleName,
-		bundlesTypes.ModuleName,
 		queryTypes.ModuleName,
 		globalTypes.ModuleName,
 	)
@@ -803,6 +806,7 @@ func NewKYVEApp(
 		v1p3.CreateUpgradeHandler(
 			app.mm,
 			app.configurator,
+			app.PoolKeeper,
 			app.AccountKeeper,
 			app.BankKeeper,
 			app.StakingKeeper,
