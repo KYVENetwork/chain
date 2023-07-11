@@ -147,6 +147,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(finalizedBundle.BundleSummary).To(Equal("test_value"))
 		Expect(finalizedBundle.DataHash).To(Equal("test_hash"))
 		Expect(finalizedBundle.FinalizedAt).NotTo(BeZero())
+		Expect(finalizedBundle.StakeSecurity.ValidVotePower).To(Equal(100 * i.KYVE))
+		Expect(finalizedBundle.StakeSecurity.TotalVotePower).To(Equal(100 * i.KYVE))
 
 		// check if next bundle proposal got registered
 		bundleProposal, bundleProposalFound := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
@@ -263,6 +265,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(finalizedBundle.BundleSummary).To(Equal("test_value"))
 		Expect(finalizedBundle.DataHash).To(Equal("test_hash"))
 		Expect(finalizedBundle.FinalizedAt).NotTo(BeZero())
+		Expect(finalizedBundle.StakeSecurity.ValidVotePower).To(Equal(400 * i.KYVE))
+		Expect(finalizedBundle.StakeSecurity.TotalVotePower).To(Equal(400 * i.KYVE))
 
 		// check if next bundle proposal got registered
 		bundleProposal, bundleProposalFound := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
@@ -401,6 +405,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(finalizedBundle.BundleSummary).To(Equal("test_value"))
 		Expect(finalizedBundle.DataHash).To(Equal("test_hash"))
 		Expect(finalizedBundle.FinalizedAt).NotTo(BeZero())
+		Expect(finalizedBundle.StakeSecurity.ValidVotePower).To(Equal(200 * i.KYVE))
+		Expect(finalizedBundle.StakeSecurity.TotalVotePower).To(Equal(200 * i.KYVE))
 
 		// check if next bundle proposal got registered
 		bundleProposal, bundleProposalFound := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
@@ -409,7 +415,6 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(bundleProposal.PoolId).To(Equal(uint64(0)))
 		Expect(bundleProposal.StorageId).To(Equal("P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg"))
 		Expect(bundleProposal.Uploader).To(Equal(i.STAKER_0))
-		// TODO(postAudit,@troy): how to get next uploader deterministically?
 		Expect(bundleProposal.NextUploader).NotTo(BeEmpty())
 		Expect(bundleProposal.DataSize).To(Equal(uint64(100)))
 		Expect(bundleProposal.DataHash).To(Equal("test_hash2"))
@@ -557,6 +562,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(finalizedBundle.BundleSummary).To(Equal("test_value"))
 		Expect(finalizedBundle.DataHash).To(Equal("test_hash"))
 		Expect(finalizedBundle.FinalizedAt).NotTo(BeZero())
+		Expect(finalizedBundle.StakeSecurity.ValidVotePower).To(Equal(700 * i.KYVE))
+		Expect(finalizedBundle.StakeSecurity.TotalVotePower).To(Equal(700 * i.KYVE))
 
 		// check if next bundle proposal got registered
 		bundleProposal, bundleProposalFound := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
@@ -565,7 +572,6 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(bundleProposal.PoolId).To(Equal(uint64(0)))
 		Expect(bundleProposal.StorageId).To(Equal("P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg"))
 		Expect(bundleProposal.Uploader).To(Equal(i.STAKER_0))
-		// TODO(postAudit,@troy): how to get next uploader deterministically?
 		Expect(bundleProposal.NextUploader).NotTo(BeEmpty())
 		Expect(bundleProposal.DataSize).To(Equal(uint64(100)))
 		Expect(bundleProposal.DataHash).To(Equal("test_hash2"))
@@ -720,6 +726,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(finalizedBundle.BundleSummary).To(Equal("test_value"))
 		Expect(finalizedBundle.DataHash).To(Equal("test_hash"))
 		Expect(finalizedBundle.FinalizedAt).NotTo(BeZero())
+		Expect(finalizedBundle.StakeSecurity.ValidVotePower).To(Equal(400 * i.KYVE))
+		Expect(finalizedBundle.StakeSecurity.TotalVotePower).To(Equal(700 * i.KYVE))
 
 		// check if next bundle proposal got registered
 		bundleProposal, bundleProposalFound := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
@@ -884,6 +892,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(finalizedBundle.BundleSummary).To(Equal("test_value"))
 		Expect(finalizedBundle.DataHash).To(Equal("test_hash"))
 		Expect(finalizedBundle.FinalizedAt).NotTo(BeZero())
+		Expect(finalizedBundle.StakeSecurity.ValidVotePower).To(Equal(400 * i.KYVE))
+		Expect(finalizedBundle.StakeSecurity.TotalVotePower).To(Equal(700 * i.KYVE))
 
 		// check if next bundle proposal got registered
 		bundleProposal, bundleProposalFound := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
@@ -1048,6 +1058,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(finalizedBundle.BundleSummary).To(Equal("test_value"))
 		Expect(finalizedBundle.DataHash).To(Equal("test_hash"))
 		Expect(finalizedBundle.FinalizedAt).NotTo(BeZero())
+		Expect(finalizedBundle.StakeSecurity.ValidVotePower).To(Equal(400 * i.KYVE))
+		Expect(finalizedBundle.StakeSecurity.TotalVotePower).To(Equal(700 * i.KYVE))
 
 		// check if next bundle proposal got registered
 		bundleProposal, bundleProposalFound := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
