@@ -33,20 +33,20 @@ func (k Keeper) UpdateStakerMetadata(
 	}
 }
 
+// updateStakerCommissionRewards ...
+func (k Keeper) updateStakerCommissionRewards(ctx sdk.Context, address string, amount uint64) {
+	staker, found := k.GetStaker(ctx, address)
+	if found {
+		staker.CommissionRewards += amount
+		k.setStaker(ctx, staker)
+	}
+}
+
 // UpdateStakerCommission ...
 func (k Keeper) UpdateStakerCommission(ctx sdk.Context, address string, commission sdk.Dec) {
 	staker, found := k.GetStaker(ctx, address)
 	if found {
 		staker.Commission = commission
-		k.setStaker(ctx, staker)
-	}
-}
-
-// IncreaseStakerCommissionRewards ...
-func (k Keeper) IncreaseStakerCommissionRewards(ctx sdk.Context, address string, amount uint64) {
-	staker, found := k.GetStaker(ctx, address)
-	if found {
-		staker.CommissionRewards += amount
 		k.setStaker(ctx, staker)
 	}
 }

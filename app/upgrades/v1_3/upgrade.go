@@ -5,8 +5,13 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/tendermint/tendermint/libs/log"
+
+	// Pool
+	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
+	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
+	// Upgrade
+	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	// Auth
 	authKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -20,12 +25,15 @@ import (
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
+	poolKeeper poolKeeper.Keeper,
 	accountKeeper authKeeper.AccountKeeper,
 	bankKeeper bankKeeper.Keeper,
 	stakingKeeper stakingKeeper.Keeper,
 ) upgradeTypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradeTypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
+
+		CheckPoolAccounts(ctx, logger, poolKeeper)
 
 		if ctx.ChainID() == MainnetChainID {
 			for _, address := range InvestorAccounts {
@@ -70,5 +78,17 @@ func TrackInvestorDelegation(ctx sdk.Context, logger log.Logger, address sdk.Acc
 
 		logger.Info(fmt.Sprintf("tracked delegation of %s with %s", address.String(), totalDelegation.String()))
 		ak.SetAccount(ctx, account)
+	}
+}
+
+// CheckPoolAccounts ensures that each pool account exists post upgrade.
+func CheckPoolAccounts(ctx sdk.Context, logger log.Logger, keeper poolKeeper.Keeper) {
+	pools := keeper.GetAllPools(ctx)
+
+	for _, pool := range pools {
+		keeper.EnsurePoolAccount(ctx, pool.Id)
+
+		name := fmt.Sprintf("%s/%d", poolTypes.ModuleName, pool.Id)
+		logger.Info("successfully initialised pool account", "name", name)
 	}
 }
