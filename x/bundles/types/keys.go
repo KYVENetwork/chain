@@ -25,13 +25,8 @@ var (
 	BundleKeyPrefix = []byte{1}
 	// FinalizedBundlePrefix ...
 	FinalizedBundlePrefix = []byte{2}
-<<<<<<< HEAD
-=======
 	// FinalizedBundleVersionMapKey ...
 	FinalizedBundleVersionMapKey = []byte{3}
-	// RoundRobinProgressPrefix ...
-	RoundRobinProgressPrefix = []byte{4}
->>>>>>> cf4857f (feat: improved schema for finalized bundles query (#104))
 
 	FinalizedBundleByIndexPrefix = []byte{11}
 )
@@ -46,17 +41,7 @@ func FinalizedBundleKey(poolId uint64, id uint64) []byte {
 	return util.GetByteKey(poolId, id)
 }
 
-<<<<<<< HEAD
-// FinalizedBundleByHeightKey ...
-func FinalizedBundleByHeightKey(poolId uint64, height uint64) []byte {
-=======
-// RoundRobinProgressKey ...
-func RoundRobinProgressKey(poolId uint64) []byte {
-	return util.GetByteKey(poolId)
-}
-
 // FinalizedBundleByIndexKey ...
 func FinalizedBundleByIndexKey(poolId uint64, height uint64) []byte {
->>>>>>> cf4857f (feat: improved schema for finalized bundles query (#104))
 	return util.GetByteKey(poolId, height)
 }

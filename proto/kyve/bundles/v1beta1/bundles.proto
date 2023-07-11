@@ -100,8 +100,6 @@ message FinalizedAt {
   // timestamp ...
   uint64 timestamp = 2;
 }
-<<<<<<< HEAD
-=======
 
 // FinalizedAt ...
 message StakeSecurity {
@@ -124,20 +122,3 @@ message BundleVersionMap {
   // versions ...
   repeated BundleVersionEntry versions = 1;
 }
-
-// RoundRobinSingleValidatorProgress ...
-message RoundRobinSingleValidatorProgress {
-  // address ...
-  string address = 1;
-  // progress ...
-  int64 progress = 2;
-}
-
-// RoundRobinProgress ...
-message RoundRobinProgress {
-  // pool_id ...
-  uint64 pool_id = 1;
-  // progress_list ...
-  repeated RoundRobinSingleValidatorProgress progress_list = 2;
-}
->>>>>>> cf4857f (feat: improved schema for finalized bundles query (#104))
