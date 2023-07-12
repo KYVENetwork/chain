@@ -146,7 +146,12 @@ func RawBundleToQueryBundle(rawFinalizedBundle types.FinalizedBundle, versionMap
 	}
 
 	// Check for version 2
-	// TODO will be done by separate PR
+	if rawFinalizedBundle.FinalizedAt.Height >= versionMap[2] {
+		validPower := cosmossdk_io_math.NewInt(int64(rawFinalizedBundle.StakeSecurity.ValidVotePower))
+		totalPower := cosmossdk_io_math.NewInt(int64(rawFinalizedBundle.StakeSecurity.TotalVotePower))
+		finalizedBundle.StakeSecurity.ValidVotePower = &validPower
+		finalizedBundle.StakeSecurity.TotalVotePower = &totalPower
+	}
 
 	return finalizedBundle
 }

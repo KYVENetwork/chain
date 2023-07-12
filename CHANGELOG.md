@@ -18,6 +18,7 @@
 
 - (ibc) [#30](https://github.com/KYVENetwork/chain/pull/30) Integrate [Packet Forward Middleware](https://github.com/strangelove-ventures/packet-forward-middleware).
 - (`x/bundles`) [#99](https://github.com/KYVENetwork/chain/pull/99) Use weighted round-robin approach for uploader selection.
+- (`x/bundles`) [#108](https://github.com/KYVENetwork/chain/pull/108) Store stake security for finalized bundles.
 
 ### Improvements
 

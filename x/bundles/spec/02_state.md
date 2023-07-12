@@ -59,12 +59,28 @@ type FinalizedBundle struct {
     ToKey string
     BundleSummary string
     DataHash string
-    FinalizedAt uint64
+    FinalizedAt {
+        Height uint64
+        Timestamp uint64
+    }   
     FromKey string
     StorageProviderId uint32
     CompressionId uint32
+    StakeSecurity {
+        ValidVotePower uint64
+        TotalVotePower uint64
+    }
 }
 ```
+
+### BundleVersionMap
+
+The version map keeps track of which protocol version was present at given 
+block heights. It is only updated during chain upgrades. It helps the query
+handler to probably decode a finalized bundle. Later it might also be important
+for on chain computations. 
+
+- BundleVersionMap `0x03 -> ProtocolBuffer(BundleVersionMap)`
 
 
 ## Round-Robin
@@ -89,7 +105,7 @@ type RoundRobinSingleValidatorProgress struct {
 RoundRobinProgress stores the current state of the round-robin selection for a 
 given pool.
 
-- RoundRobinProgress `0x03 | PoolId -> ProtocolBuffer(roundRobinProgress)`
+- RoundRobinProgress `0x04 | PoolId -> ProtocolBuffer(roundRobinProgress)`
 
 ```go
 message RoundRobinProgress {

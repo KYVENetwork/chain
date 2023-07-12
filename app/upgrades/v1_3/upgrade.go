@@ -3,6 +3,9 @@ package v1_3
 import (
 	"fmt"
 
+	bundlesKeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
+	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/tendermint/tendermint/libs/log"
@@ -29,11 +32,13 @@ func CreateUpgradeHandler(
 	accountKeeper authKeeper.AccountKeeper,
 	bankKeeper bankKeeper.Keeper,
 	stakingKeeper stakingKeeper.Keeper,
+	bundlesKeeper bundlesKeeper.Keeper,
 ) upgradeTypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradeTypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
 		CheckPoolAccounts(ctx, logger, poolKeeper)
+		UpdateBundlesVersionMap(bundlesKeeper, ctx)
 
 		if ctx.ChainID() == MainnetChainID {
 			for _, address := range InvestorAccounts {
@@ -91,4 +96,15 @@ func CheckPoolAccounts(ctx sdk.Context, logger log.Logger, keeper poolKeeper.Kee
 		name := fmt.Sprintf("%s/%d", poolTypes.ModuleName, pool.Id)
 		logger.Info("successfully initialised pool account", "name", name)
 	}
+}
+
+func UpdateBundlesVersionMap(keeper bundlesKeeper.Keeper, ctx sdk.Context) {
+	keeper.SetBundleVersionMap(ctx, bundlesTypes.BundleVersionMap{
+		Versions: []*bundlesTypes.BundleVersionEntry{
+			{
+				Height:  uint64(ctx.BlockHeight()),
+				Version: 2,
+			},
+		},
+	})
 }
