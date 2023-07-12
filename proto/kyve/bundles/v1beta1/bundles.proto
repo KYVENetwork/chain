@@ -91,6 +91,8 @@ message FinalizedBundle {
   uint32 storage_provider_id = 12;
   // compression_id the id of the compression type with which the data was compressed
   uint32 compression_id = 13;
+  // stake_security
+  StakeSecurity stake_security = 14;
 }
 
 // FinalizedAt ...
@@ -101,11 +103,11 @@ message FinalizedAt {
   uint64 timestamp = 2;
 }
 
-// FinalizedAt ...
+// StakeSecurity stores information about total stake and valid votes with which the bundle got finalized.
 message StakeSecurity {
-  // valid_vote_power ...
+  // valid_vote_power is the total amount of stake of all pool stakers which voted valid for the given bundle.
   uint64 valid_vote_power = 1;
-  // total_vote_power ...
+  // total_vote_power is the total amount of stake that was present during the finalization of the bundle
   uint64 total_vote_power = 2;
 }
 

@@ -278,6 +278,8 @@ func checkFinalizedBundle(queryBundle querytypes.FinalizedBundle, rawBundle bund
 	Expect(queryBundle.FromKey).To(Equal(rawBundle.FromKey))
 	Expect(queryBundle.StorageProviderId).To(Equal(uint64(rawBundle.StorageProviderId)))
 	Expect(queryBundle.CompressionId).To(Equal(uint64(rawBundle.CompressionId)))
+	Expect(queryBundle.StakeSecurity.ValidVotePower.Uint64()).To(Equal(rawBundle.StakeSecurity.ValidVotePower))
+	Expect(queryBundle.StakeSecurity.TotalVotePower.Uint64()).To(Equal(rawBundle.StakeSecurity.TotalVotePower))
 }
 
 func (suite *KeeperTestSuite) VerifyBundlesQueries() {
