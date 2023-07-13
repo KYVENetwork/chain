@@ -40,6 +40,8 @@ func CreateUpgradeHandler(
 		CheckPoolAccounts(ctx, logger, poolKeeper)
 		UpdateBundlesVersionMap(bundlesKeeper, ctx)
 
+		SetBundleParams(ctx, poolKeeper)
+
 		if ctx.ChainID() == MainnetChainID {
 			for _, address := range InvestorAccounts {
 				TrackInvestorDelegation(ctx, logger, sdk.MustAccAddressFromBech32(address), accountKeeper, bankKeeper, stakingKeeper)
@@ -106,5 +108,12 @@ func UpdateBundlesVersionMap(keeper bundlesKeeper.Keeper, ctx sdk.Context) {
 				Version: 2,
 			},
 		},
+	})
+}
+
+func SetBundleParams(ctx sdk.Context, keeper poolKeeper.Keeper) {
+	keeper.SetParams(ctx, poolTypes.Params{
+		ProtocolInflationShare:  sdk.MustNewDecFromStr("0.08"),
+		PoolInflationPayoutRate: sdk.MustNewDecFromStr("0.1"),
 	})
 }
