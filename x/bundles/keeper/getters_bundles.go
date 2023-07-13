@@ -3,6 +3,7 @@ package keeper
 import (
 	"encoding/binary"
 	"fmt"
+	"time"
 
 	cosmossdk_io_math "cosmossdk.io/math"
 
@@ -120,7 +121,6 @@ func (k Keeper) GetFinalizedBundle(ctx sdk.Context, poolId, id uint64) (val type
 
 func RawBundleToQueryBundle(rawFinalizedBundle types.FinalizedBundle, versionMap map[int32]uint64) (queryBundle queryTypes.FinalizedBundle) {
 	finalizedHeight := cosmossdk_io_math.NewInt(int64(rawFinalizedBundle.FinalizedAt.Height))
-	finalizedTimestamp := cosmossdk_io_math.NewInt(int64(rawFinalizedBundle.FinalizedAt.Timestamp))
 
 	finalizedBundle := queryTypes.FinalizedBundle{
 		PoolId:        rawFinalizedBundle.PoolId,
@@ -134,7 +134,7 @@ func RawBundleToQueryBundle(rawFinalizedBundle types.FinalizedBundle, versionMap
 		DataHash:      rawFinalizedBundle.DataHash,
 		FinalizedAt: &queryTypes.FinalizedAt{
 			Height:    &finalizedHeight,
-			Timestamp: &finalizedTimestamp,
+			Timestamp: time.Unix(int64(rawFinalizedBundle.FinalizedAt.Timestamp), 0).Format(time.RFC3339),
 		},
 		FromKey:           rawFinalizedBundle.FromKey,
 		StorageProviderId: uint64(rawFinalizedBundle.StorageProviderId),
