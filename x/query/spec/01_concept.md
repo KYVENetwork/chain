@@ -64,7 +64,7 @@ returned. The different version are explained below.
   "data_hash": "string",
   "finalized_at": {
     "height": "number",
-    "timestamp": "number"
+    "timestamp": "RFC3339 date string"
   },
   "from_key": "number",
   "storage_provider_id": "number",
