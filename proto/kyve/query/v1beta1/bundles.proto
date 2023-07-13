@@ -79,7 +79,7 @@ message FinalizedAt {
   // height is the block height in which the bundle got finalized.
   string height = 1 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
   // timestamp is the UNIX timestamp of the block in which the bundle got finalized.
-  string timestamp = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
+  string timestamp = 2;
 }
 
 // StakeSecurity represents the relative security of a finalized bundle

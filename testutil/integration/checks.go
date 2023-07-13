@@ -1,6 +1,8 @@
 package integration
 
 import (
+	"time"
+
 	"github.com/KYVENetwork/chain/x/bundles"
 	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
 	"github.com/KYVENetwork/chain/x/delegation"
@@ -272,7 +274,9 @@ func checkFinalizedBundle(queryBundle querytypes.FinalizedBundle, rawBundle bund
 	Expect(queryBundle.BundleSummary).To(Equal(rawBundle.BundleSummary))
 	Expect(queryBundle.DataHash).To(Equal(rawBundle.DataHash))
 	Expect(queryBundle.FinalizedAt.Height.Uint64()).To(Equal(rawBundle.FinalizedAt.Height))
-	Expect(queryBundle.FinalizedAt.Timestamp.Uint64()).To(Equal(rawBundle.FinalizedAt.Timestamp))
+	date, dateErr := time.Parse(time.RFC3339, queryBundle.FinalizedAt.Timestamp)
+	Expect(dateErr).To(BeNil())
+	Expect(uint64(date.Unix())).To(Equal(rawBundle.FinalizedAt.Timestamp))
 	Expect(queryBundle.FromKey).To(Equal(rawBundle.FromKey))
 	Expect(queryBundle.StorageProviderId).To(Equal(uint64(rawBundle.StorageProviderId)))
 	Expect(queryBundle.CompressionId).To(Equal(uint64(rawBundle.CompressionId)))
