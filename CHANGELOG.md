@@ -12,19 +12,22 @@
 
 # CHANGELOG
 
+An '!' indicates a state machine breaking change.
+ 
 ## [Unreleased]
 
 ### Features
 
-- (ibc) [#30](https://github.com/KYVENetwork/chain/pull/30) Integrate [Packet Forward Middleware](https://github.com/strangelove-ventures/packet-forward-middleware).
-- (`x/bundles`) [#99](https://github.com/KYVENetwork/chain/pull/99) Use weighted round-robin approach for uploader selection.
-- (`x/bundles`) [#108](https://github.com/KYVENetwork/chain/pull/108) Store stake security for finalized bundles.
+- ! (ibc) [#30](https://github.com/KYVENetwork/chain/pull/30) Integrate [Packet Forward Middleware](https://github.com/strangelove-ventures/packet-forward-middleware).
+- ! (`x/bundles`) [#98](https://github.com/KYVENetwork/chain/pull/98) Split inflation rewards between chain and protocol layer.
+- ! (`x/bundles`) [#99](https://github.com/KYVENetwork/chain/pull/99) Use weighted round-robin approach for uploader selection.
+- ! (`x/bundles`) [#108](https://github.com/KYVENetwork/chain/pull/108) Store stake security for finalized bundles.
 
 ### Improvements
 
-- (`x/bundles`) [#62](https://github.com/KYVENetwork/chain/pull/62) Payout storage cost directly to the bundle uploader.
-- (`x/pool`) [#74](https://github.com/KYVENetwork/chain/pull/74) Improve parameter validation in pool proposals.
-- (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Allow protocol validator commission rewards to be claimed.
+- ! (`x/bundles`) [#62](https://github.com/KYVENetwork/chain/pull/62) Payout storage cost directly to the bundle uploader.
+- ! (`x/pool`) [#74](https://github.com/KYVENetwork/chain/pull/74) Improve parameter validation in pool proposals.
+- ! (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Allow protocol validator commission rewards to be claimed.
 
 ### Bug Fixes
 
@@ -32,14 +35,14 @@
 
 ### Client Breaking
 
-- (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Include `MsgClaimCommissionRewards` for claiming commission rewards.
-- (`x/bundles`) [#104](https://github.com/KYVENetwork/chain/pull/104) Improve schema for finalized bundles query.
+- ! (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Include `MsgClaimCommissionRewards` for claiming commission rewards.
 
 ### API Breaking
 
 - (`x/query`) [#87](https://github.com/KYVENetwork/chain/pull/87) Correctly return pools that an account has funded.
 <!-- TODO: Switch this link to the release tag. -->
 - (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Emit an [event](https://github.com/KYVENetwork/chain/blob/main/x/stakers/spec/05_events.md#eventclaimcommissionrewards) when claiming protocol validator commission rewards.
+- (`x/bundles`) [#104](https://github.com/KYVENetwork/chain/pull/104) Improve schema for finalized bundles query.
 
 ## [v1.2.2](https://github.com/KYVENetwork/chain/releases/tag/v1.2.2) - 2023-06-08
 
