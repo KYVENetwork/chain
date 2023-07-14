@@ -37,11 +37,15 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradeTypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		CheckPoolAccounts(ctx, logger, poolKeeper)
+		// Multiple Bundle Versions
 		UpdateBundlesVersionMap(bundlesKeeper, ctx)
 
+		// Configure Inflation Splitting
+		CheckPoolAccounts(ctx, logger, poolKeeper)
 		SetBundleParams(ctx, poolKeeper)
+		AdjustOperatingCost(ctx, poolKeeper)
 
+		// Vesting Account Delegation Fix
 		if ctx.ChainID() == MainnetChainID {
 			for _, address := range InvestorAccounts {
 				TrackInvestorDelegation(ctx, logger, sdk.MustAccAddressFromBech32(address), accountKeeper, bankKeeper, stakingKeeper)
@@ -111,9 +115,20 @@ func UpdateBundlesVersionMap(keeper bundlesKeeper.Keeper, ctx sdk.Context) {
 	})
 }
 
+// SetBundleParams initializes the parameters for inflation splitting.
+// The inflation share is 8.45 % resulting in a 40% APY on 10M target stake for the CosmosHub Pool.
+// This value needs to be adjusted by the governance in the future.
+// The inflation payout rate of 5% turned out to be a good damping factor for the inflation payout.
 func SetBundleParams(ctx sdk.Context, keeper poolKeeper.Keeper) {
 	keeper.SetParams(ctx, poolTypes.Params{
-		ProtocolInflationShare:  sdk.MustNewDecFromStr("0.08"),
-		PoolInflationPayoutRate: sdk.MustNewDecFromStr("0.1"),
+		ProtocolInflationShare:  sdk.MustNewDecFromStr("0.0845"),
+		PoolInflationPayoutRate: sdk.MustNewDecFromStr("0.05"),
 	})
+}
+
+// AdjustOperatingCost calculates the new operating. Because of inflation splitting the
+// operating cost needs to be adjusted to a lower value to maintain the same pool APY.
+func AdjustOperatingCost(ctx sdk.Context, keeper poolKeeper.Keeper) {
+	cosmosHubPool, _ := keeper.GetPool(ctx, 0)
+	cosmosHubPool.OperatingCost = 3_100_000 // 3.1 $KYVE
 }
