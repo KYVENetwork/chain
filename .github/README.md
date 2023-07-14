@@ -18,7 +18,7 @@ You can find the `kyved` binary in the `./build` directory.
 If you need binaries for alternative architectures than your host:
 
 ```shell
-make release
+make release ENV=mainnet
 ```
 
 The different binaries can be found in the `./release` directory.
