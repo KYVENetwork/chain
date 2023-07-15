@@ -12,7 +12,7 @@
 
 # CHANGELOG
 
-## [Unreleased]
+## [v1.2.3](https://github.com/KYVENetwork/chain/releases/tag/v1.2.3) - 2023-07-15
 
 ### API Breaking
 
