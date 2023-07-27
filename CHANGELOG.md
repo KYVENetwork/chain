@@ -40,8 +40,14 @@ An '!' indicates a state machine breaking change.
 ### API Breaking
 
 - (`x/query`) [#87](https://github.com/KYVENetwork/chain/pull/87) Correctly return pools that an account has funded.
-<!-- TODO: Switch this link to the release tag. -->
-- (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Emit an [event](https://github.com/KYVENetwork/chain/blob/main/x/stakers/spec/05_events.md#eventclaimcommissionrewards) when claiming protocol validator commission rewards.
+- (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Emit an [event](https://github.com/KYVENetwork/chain/blob/v1.3.0/x/stakers/spec/05_events.md#eventclaimcommissionrewards) when claiming protocol validator commission rewards.
+- (`x/bundles`) [#104](https://github.com/KYVENetwork/chain/pull/104) Improve schema for finalized bundles query.
+
+## [v1.2.3](https://github.com/KYVENetwork/chain/releases/tag/v1.2.3) - 2023-07-15
+
+### API Breaking
+
+- (`x/query`) [#87](https://github.com/KYVENetwork/chain/pull/87) Correctly return pools that an account has funded.
 - (`x/bundles`) [#104](https://github.com/KYVENetwork/chain/pull/104) Improve schema for finalized bundles query.
 
 ## [v1.2.2](https://github.com/KYVENetwork/chain/releases/tag/v1.2.2) - 2023-06-08
