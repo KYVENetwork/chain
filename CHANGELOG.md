@@ -14,6 +14,12 @@
 
 An '!' indicates a state machine breaking change.
 
+## [v1.3.1](https://github.com/KYVENetwork/chain/releases/tag/v1.3.1) - 2023-08-02
+
+### Bug Fixes
+
+- [#122](https://github.com/KYVENetwork/chain/pull/122) Fix makefile go version parse cmd.
+
 ## [v1.3.0](https://github.com/KYVENetwork/chain/releases/tag/v1.3.0) - 2023-07-15
 
 ### Features
@@ -40,7 +46,6 @@ An '!' indicates a state machine breaking change.
 ### API Breaking
 
 - (`x/query`) [#87](https://github.com/KYVENetwork/chain/pull/87) Correctly return pools that an account has funded.
-<!-- TODO: Switch this link to the release tag. -->
 - (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Emit an [event](https://github.com/KYVENetwork/chain/blob/main/x/stakers/spec/05_events.md#eventclaimcommissionrewards) when claiming protocol validator commission rewards.
 - (`x/bundles`) [#104](https://github.com/KYVENetwork/chain/pull/104) Improve schema for finalized bundles query.
 
