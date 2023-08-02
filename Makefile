@@ -1,5 +1,5 @@
 COMMIT := $(shell git log -1 --format='%H')
-GO_VERSION := $(shell go version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f1 -f2)
+GO_VERSION := $(shell go version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f1,2)
 VERSION := v1.3.0 # $(shell echo $(shell git describe --tags) | sed 's/^v//')
 
 TEAM_ALLOCATION := 165000000000000
