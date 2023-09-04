@@ -3,12 +3,17 @@ package keeper
 import (
 	"context"
 
-	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
-	"github.com/KYVENetwork/chain/x/query/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	// Global
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
+	// Pool
+	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
+	// Query
+	"github.com/KYVENetwork/chain/x/query/types"
 )
 
 func (k Keeper) Pools(c context.Context, req *types.QueryPoolsRequest) (*types.QueryPoolsResponse, error) {
@@ -38,13 +43,13 @@ func (k Keeper) Pool(c context.Context, req *types.QueryPoolRequest) (*types.Que
 
 	pool, found := k.poolKeeper.GetPool(ctx, req.Id)
 	if !found {
-		return nil, sdkerrors.ErrKeyNotFound
+		return nil, errorsTypes.ErrKeyNotFound
 	}
 
 	return &types.QueryPoolResponse{Pool: k.parsePoolResponse(ctx, &pool)}, nil
 }
 
-func (k Keeper) parsePoolResponse(ctx sdk.Context, pool *pooltypes.Pool) types.PoolResponse {
+func (k Keeper) parsePoolResponse(ctx sdk.Context, pool *poolTypes.Pool) types.PoolResponse {
 	bundleProposal, _ := k.bundleKeeper.GetBundleProposal(ctx, pool.Id)
 	stakers := k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, pool.Id)
 
@@ -55,6 +60,9 @@ func (k Keeper) parsePoolResponse(ctx sdk.Context, pool *pooltypes.Pool) types.P
 
 	totalDelegation := k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id)
 
+	poolAccount := pool.GetPoolAccount()
+	poolBalance := k.bankKeeper.GetBalance(ctx, poolAccount, globalTypes.Denom).Amount.Uint64()
+
 	return types.PoolResponse{
 		Id:                  pool.Id,
 		Data:                pool,
@@ -63,5 +71,7 @@ func (k Keeper) parsePoolResponse(ctx sdk.Context, pool *pooltypes.Pool) types.P
 		TotalSelfDelegation: totalSelfDelegation,
 		TotalDelegation:     totalDelegation,
 		Status:              k.GetPoolStatus(ctx, pool),
+		Account:             poolAccount.String(),
+		AccountBalance:      poolBalance,
 	}
 }

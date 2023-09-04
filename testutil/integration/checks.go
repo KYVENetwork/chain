@@ -1,7 +1,10 @@
 package integration
 
 import (
+	"time"
+
 	"github.com/KYVENetwork/chain/x/bundles"
+	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
 	"github.com/KYVENetwork/chain/x/delegation"
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
@@ -262,12 +265,33 @@ func (suite *KeeperTestSuite) VerifyStakersGenesisImportExport() {
 // bundles module checks
 // =====================
 
+func checkFinalizedBundle(queryBundle querytypes.FinalizedBundle, rawBundle bundlesTypes.FinalizedBundle) {
+	Expect(queryBundle.Id).To(Equal(rawBundle.Id))
+	Expect(queryBundle.PoolId).To(Equal(rawBundle.PoolId))
+	Expect(queryBundle.StorageId).To(Equal(rawBundle.StorageId))
+	Expect(queryBundle.Uploader).To(Equal(rawBundle.Uploader))
+	Expect(queryBundle.FromIndex).To(Equal(rawBundle.FromIndex))
+	Expect(queryBundle.ToIndex).To(Equal(rawBundle.ToIndex))
+	Expect(queryBundle.ToKey).To(Equal(rawBundle.ToKey))
+	Expect(queryBundle.BundleSummary).To(Equal(rawBundle.BundleSummary))
+	Expect(queryBundle.DataHash).To(Equal(rawBundle.DataHash))
+	Expect(queryBundle.FinalizedAt.Height.Uint64()).To(Equal(rawBundle.FinalizedAt.Height))
+	date, dateErr := time.Parse(time.RFC3339, queryBundle.FinalizedAt.Timestamp)
+	Expect(dateErr).To(BeNil())
+	Expect(uint64(date.Unix())).To(Equal(rawBundle.FinalizedAt.Timestamp))
+	Expect(queryBundle.FromKey).To(Equal(rawBundle.FromKey))
+	Expect(queryBundle.StorageProviderId).To(Equal(uint64(rawBundle.StorageProviderId)))
+	Expect(queryBundle.CompressionId).To(Equal(uint64(rawBundle.CompressionId)))
+	Expect(queryBundle.StakeSecurity.ValidVotePower.Uint64()).To(Equal(rawBundle.StakeSecurity.ValidVotePower))
+	Expect(queryBundle.StakeSecurity.TotalVotePower.Uint64()).To(Equal(rawBundle.StakeSecurity.TotalVotePower))
+}
+
 func (suite *KeeperTestSuite) VerifyBundlesQueries() {
 	pools := suite.App().PoolKeeper.GetAllPools(suite.Ctx())
 
 	for _, pool := range pools {
 		finalizedBundlesState := suite.App().BundlesKeeper.GetFinalizedBundlesByPool(suite.Ctx(), pool.Id)
-		finalizedBundlesQuery, finalizedBundlesQueryErr := suite.App().QueryKeeper.FinalizedBundles(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryFinalizedBundlesRequest{
+		finalizedBundlesQuery, finalizedBundlesQueryErr := suite.App().QueryKeeper.FinalizedBundlesQuery(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryFinalizedBundlesRequest{
 			PoolId: pool.Id,
 		})
 
@@ -275,15 +299,15 @@ func (suite *KeeperTestSuite) VerifyBundlesQueries() {
 		Expect(finalizedBundlesQuery.FinalizedBundles).To(HaveLen(len(finalizedBundlesState)))
 
 		for i := range finalizedBundlesState {
-			Expect(finalizedBundlesQuery.FinalizedBundles[i]).To(Equal(finalizedBundlesState[i]))
 
-			finalizedBundleQuery, finalizedBundleQueryErr := suite.App().QueryKeeper.FinalizedBundle(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryFinalizedBundleRequest{
+			finalizedBundle, finalizedBundleQueryErr := suite.App().QueryKeeper.FinalizedBundleQuery(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryFinalizedBundleRequest{
 				PoolId: pool.Id,
 				Id:     finalizedBundlesState[i].Id,
 			})
 
 			Expect(finalizedBundleQueryErr).To(BeNil())
-			Expect(finalizedBundleQuery.FinalizedBundle).To(Equal(finalizedBundlesState[i]))
+
+			checkFinalizedBundle(*finalizedBundle, finalizedBundlesState[i])
 		}
 	}
 }

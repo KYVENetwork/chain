@@ -3,6 +3,9 @@ package keeper
 import (
 	"context"
 
+	"github.com/KYVENetwork/chain/util"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
+
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -39,6 +42,13 @@ func (k msgServer) DisablePool(
 	poolMembers := k.stakersKeeper.GetAllStakerAddressesOfPool(ctx, pool.Id)
 	for _, staker := range poolMembers {
 		k.stakersKeeper.LeavePool(ctx, staker, pool.Id)
+	}
+
+	// send remaining pool assets to treasury
+	if balance := k.bankKeeper.GetBalance(ctx, pool.GetPoolAccount(), globalTypes.Denom).Amount.Uint64(); balance > 0 {
+		if err := util.TransferFromAddressToTreasury(k.distrkeeper, ctx, pool.GetPoolAccount().String(), balance); err != nil {
+			return nil, err
+		}
 	}
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventPoolDisabled{Id: req.Id})

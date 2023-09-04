@@ -15,9 +15,9 @@ TEST CASES - logic_bundles.go
 
 * Assert pool can run while pool is upgrading
 * Assert pool can run while pool is disabled
-* Assert pool can run while pool has no funds
 * Assert pool can run while min delegation is not reached
 * Assert pool can run
+* Assert pool can run while pool has no funds
 
 * Assert can vote if sender is no staker
 * Assert can vote if bundle is dropped
@@ -129,41 +129,6 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		Expect(err).To(HaveOccurred())
 	})
 
-	It("Assert pool can run while pool has no funds", func() {
-		// ASSERT
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			UploadInterval: 60,
-			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
-
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
-
-		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
-			Amount:     0,
-		})
-
-		// ACT
-		err := s.App().BundlesKeeper.AssertPoolCanRun(s.Ctx(), 0)
-
-		// ASSERT
-		Expect(err).To(HaveOccurred())
-	})
-
 	It("Assert pool can run while min delegation is not reached", func() {
 		// ASSERT
 		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
@@ -225,6 +190,41 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			Creator: i.ALICE,
 			Id:      0,
 			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_0,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_0,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_0,
+			Amount:     0,
+		})
+
+		// ACT
+		err := s.App().BundlesKeeper.AssertPoolCanRun(s.Ctx(), 0)
+
+		// ASSERT
+		Expect(err).NotTo(HaveOccurred())
+	})
+
+	It("Assert pool can run while pool has no funds", func() {
+		// ASSERT
+		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
+			Name:           "PoolTest",
+			UploadInterval: 60,
+			OperatingCost:  2 * i.KYVE,
+			MinDelegation:  100 * i.KYVE,
+			MaxBundleSize:  100,
+			Protocol: &pooltypes.Protocol{
+				Version:     "0.0.0",
+				Binaries:    "{}",
+				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
+			},
+			UpgradePlan: &pooltypes.UpgradePlan{},
 		})
 
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{

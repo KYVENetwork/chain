@@ -16,6 +16,15 @@ func (suite *KeeperTestSuite) GetBalanceFromAddress(address string) uint64 {
 	return uint64(balance.Amount.Int64())
 }
 
+func (suite *KeeperTestSuite) GetBalanceFromPool(poolId uint64) uint64 {
+	pool, found := suite.App().PoolKeeper.GetPool(suite.Ctx(), poolId)
+	if !found {
+		return 0
+	}
+
+	return uint64(suite.App().BankKeeper.GetBalance(suite.Ctx(), pool.GetPoolAccount(), globalTypes.Denom).Amount.Int64())
+}
+
 func (suite *KeeperTestSuite) GetBalanceFromModule(moduleName string) uint64 {
 	moduleAcc := suite.App().AccountKeeper.GetModuleAccount(suite.Ctx(), moduleName).GetAddress()
 	return suite.App().BankKeeper.GetBalance(suite.Ctx(), moduleAcc, globalTypes.Denom).Amount.Uint64()

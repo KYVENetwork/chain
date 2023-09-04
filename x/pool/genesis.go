@@ -8,6 +8,8 @@ import (
 
 // InitGenesis initializes the pool module's state from a provided genesis state.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) {
+	k.SetParams(ctx, genState.Params)
+
 	for _, elem := range genState.PoolList {
 		k.SetPool(ctx, elem)
 	}
@@ -19,6 +21,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	genesis := types.DefaultGenesis()
 
+	genesis.Params = k.GetParams(ctx)
 	genesis.PoolList = k.GetAllPools(ctx)
 	genesis.PoolCount = k.GetPoolCount(ctx)
 

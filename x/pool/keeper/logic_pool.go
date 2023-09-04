@@ -2,6 +2,8 @@ package keeper
 
 import (
 	"cosmossdk.io/errors"
+	"github.com/KYVENetwork/chain/util"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	"github.com/KYVENetwork/chain/x/pool/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -25,6 +27,28 @@ func (k Keeper) AssertPoolExists(ctx sdk.Context, poolId uint64) error {
 		return nil
 	}
 	return errors.Wrapf(errorsTypes.ErrNotFound, types.ErrPoolNotFound.Error(), poolId)
+}
+
+// ChargeInflationPool charges the inflation pool and transfers the funds to the pool module
+// so the payout can be performed
+func (k Keeper) ChargeInflationPool(ctx sdk.Context, poolId uint64) (payout uint64, err error) {
+	pool, found := k.GetPool(ctx, poolId)
+	if !found {
+		return payout, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrPoolNotFound.Error(), poolId)
+	}
+
+	account := pool.GetPoolAccount()
+	balance := k.bankKeeper.GetBalance(ctx, account, globalTypes.Denom).Amount.Int64()
+
+	// charge X percent from current pool balance and use it as payout
+	payout = uint64(sdk.NewDec(balance).Mul(k.GetPoolInflationPayoutRate(ctx)).TruncateInt64())
+
+	// transfer funds to pool module account so bundle reward can be paid out from there
+	if err := util.TransferFromAddressToModule(k.bankKeeper, ctx, account.String(), types.ModuleName, payout); err != nil {
+		util.PanicHalt(k.upgradeKeeper, ctx, err.Error())
+	}
+
+	return payout, nil
 }
 
 // IncrementBundleInformation updates the latest finalized bundle of a pool

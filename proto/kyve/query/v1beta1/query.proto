@@ -122,6 +122,9 @@ message StakerMetadata {
   // the commission is applied. Users have time to redelegate
   // if they not agree with the new commission.
   CommissionChangeEntry pending_commission_change = 7;
+
+  // commission_rewards are the rewards in $KYVE earned through commission
+  uint64 commission_rewards = 8;
 }
 
 // CommissionChangeEntry shows when the old commission

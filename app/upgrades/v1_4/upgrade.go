@@ -1,4 +1,4 @@
-package v1_3
+package v1_4
 
 import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -34,6 +34,9 @@ func CreateUpgradeHandler(
 	paramsKeeper paramsKeeper.Keeper,
 ) upgradeTypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradeTypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		logger := ctx.Logger().With("upgrade", UpgradeName)
+		logger.Info("Run v1.4 upgrade")
+
 		var err error
 
 		// Migrate consensus parameters from x/params to dedicated x/consensus module.
