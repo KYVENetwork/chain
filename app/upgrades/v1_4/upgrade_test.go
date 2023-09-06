@@ -1,4 +1,4 @@
-package v1_3_test
+package v1_4_test
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/KYVENetwork/chain/app/upgrades/v1_3"
+	"github.com/KYVENetwork/chain/app/upgrades/v1_4"
 	"github.com/docker/docker/client"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
@@ -21,10 +21,10 @@ var UpgradeContainerVersion = "local"
 
 func TestV1P2Upgrade(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, fmt.Sprintf("%s Upgrade Test Suite", v1_3.UpgradeName))
+	RunSpecs(t, fmt.Sprintf("%s Upgrade Test Suite", v1_4.UpgradeName))
 }
 
-var _ = Describe(fmt.Sprintf("%s Upgrade Tests", v1_3.UpgradeName), Ordered, func() {
+var _ = Describe(fmt.Sprintf("%s Upgrade Tests", v1_4.UpgradeName), Ordered, func() {
 	var kaon *cosmos.CosmosChain
 	var kyve *cosmos.CosmosChain
 
@@ -108,8 +108,8 @@ func PerformUpgrade(
 
 	proposal := cosmos.SoftwareUpgradeProposal{
 		Deposit:     "1" + chain.Config().Denom,
-		Title:       fmt.Sprintf("%s Software Upgrade", v1_3.UpgradeName),
-		Name:        v1_3.UpgradeName,
+		Title:       fmt.Sprintf("%s Software Upgrade", v1_4.UpgradeName),
+		Name:        v1_4.UpgradeName,
 		Description: "description",
 		Height:      haltHeight,
 	}

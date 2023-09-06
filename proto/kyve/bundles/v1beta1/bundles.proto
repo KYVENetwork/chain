@@ -91,6 +91,8 @@ message FinalizedBundle {
   uint32 storage_provider_id = 12;
   // compression_id the id of the compression type with which the data was compressed
   uint32 compression_id = 13;
+  // stake_security
+  StakeSecurity stake_security = 14;
 }
 
 // FinalizedAt ...
@@ -99,4 +101,42 @@ message FinalizedAt {
   uint64 height = 1;
   // timestamp ...
   uint64 timestamp = 2;
+}
+
+// StakeSecurity stores information about total stake and valid votes with which the bundle got finalized.
+message StakeSecurity {
+  // valid_vote_power is the total amount of stake of all pool stakers which voted valid for the given bundle.
+  uint64 valid_vote_power = 1;
+  // total_vote_power is the total amount of stake that was present during the finalization of the bundle
+  uint64 total_vote_power = 2;
+}
+
+// BundleVersionEntry ...
+message BundleVersionEntry {
+  // height ...
+  uint64 height = 1;
+  // version ...
+  int32 version = 2;
+}
+
+// BundleVersionMap ...
+message BundleVersionMap {
+  // versions ...
+  repeated BundleVersionEntry versions = 1;
+}
+
+// RoundRobinSingleValidatorProgress ...
+message RoundRobinSingleValidatorProgress {
+  // address ...
+  string address = 1;
+  // progress ...
+  int64 progress = 2;
+}
+
+// RoundRobinProgress ...
+message RoundRobinProgress {
+  // pool_id ...
+  uint64 pool_id = 1;
+  // progress_list ...
+  repeated RoundRobinSingleValidatorProgress progress_list = 2;
 }

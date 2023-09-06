@@ -39,7 +39,7 @@ func CmdListFinalizedBundles() *cobra.Command {
 				Pagination: pageReq,
 			}
 
-			res, err := queryClient.FinalizedBundles(context.Background(), params)
+			res, err := queryClient.FinalizedBundlesQuery(context.Background(), params)
 			if err != nil {
 				return err
 			}
@@ -79,7 +79,7 @@ func CmdShowFinalizedBundle() *cobra.Command {
 				Id:     bundleId,
 			}
 
-			res, err := queryClient.FinalizedBundle(context.Background(), params)
+			res, err := queryClient.FinalizedBundleQuery(context.Background(), params)
 			if err != nil {
 				return err
 			}

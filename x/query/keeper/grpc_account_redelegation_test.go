@@ -29,7 +29,7 @@ var _ = Describe("grpc_account_redelegation.go", Ordered, func() {
 		s = i.NewCleanChain()
 
 		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "Moontest",
+			Name:           "T",
 			MinDelegation:  200 * i.KYVE,
 			UploadInterval: 60,
 			MaxBundleSize:  100,

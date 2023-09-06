@@ -12,30 +12,59 @@
 
 # CHANGELOG
 
-## [Unreleased]
+An '!' indicates a state machine breaking change.
+
+## [v1.4.0](https://github.com/KYVENetwork/chain/releases/tag/v1.4.0) - 2023-09-04
+
+- [#33](https://github.com/KYVENetwork/chain/pull/33) Upgrade Cosmos SDK to [v0.47.3](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.47.3) ([`v0.47.3-kyve`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.47.3-kyve)).
+
+## [v1.3.1](https://github.com/KYVENetwork/chain/releases/tag/v1.3.1) - 2023-08-02
+
+### Bug Fixes
+
+- [#122](https://github.com/KYVENetwork/chain/pull/122) Fix makefile go version parse cmd.
+
+## [v1.3.0](https://github.com/KYVENetwork/chain/releases/tag/v1.3.0) - 2023-07-15
 
 ### Features
 
-- [#33](https://github.com/KYVENetwork/chain/pull/33) Upgrade Cosmos SDK to [v0.47.3](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.47.3) ([`v0.47.3-kyve`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.47.3-kyve)).
-- (ibc) [#30](https://github.com/KYVENetwork/chain/pull/30) Integrate [Packet Forward Middleware](https://github.com/strangelove-ventures/packet-forward-middleware).
+- ! (ibc) [#30](https://github.com/KYVENetwork/chain/pull/30) Integrate [Packet Forward Middleware](https://github.com/strangelove-ventures/packet-forward-middleware).
+- ! (`x/bundles`) [#98](https://github.com/KYVENetwork/chain/pull/98) Split inflation rewards between chain and protocol layer.
+- ! (`x/bundles`) [#99](https://github.com/KYVENetwork/chain/pull/99) Use weighted round-robin approach for uploader selection.
+- ! (`x/bundles`) [#108](https://github.com/KYVENetwork/chain/pull/108) Store stake security for finalized bundles.
 
 ### Improvements
 
-- (`x/bundles`) [#62](https://github.com/KYVENetwork/chain/pull/62) Payout storage cost directly to the bundle uploader.
-- (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Allow protocol validator commission rewards to be claimed.
+- ! (`x/bundles`) [#62](https://github.com/KYVENetwork/chain/pull/62) Payout storage cost directly to the bundle uploader.
+- ! (`x/pool`) [#74](https://github.com/KYVENetwork/chain/pull/74) Improve parameter validation in pool proposals.
+- ! (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Allow protocol validator commission rewards to be claimed.
+
+### Bug Fixes
+
+- [#96](https://github.com/KYVENetwork/chain/pull/96) Track investor delegation inside auth module.
+
+### Client Breaking
+
+- ! (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Include `MsgClaimCommissionRewards` for claiming commission rewards.
+
+### API Breaking
+
+- (`x/query`) [#87](https://github.com/KYVENetwork/chain/pull/87) Correctly return pools that an account has funded.
+- (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Emit an [event](https://github.com/KYVENetwork/chain/blob/v1.3.0/x/stakers/spec/05_events.md#eventclaimcommissionrewards) when claiming protocol validator commission rewards.
+- (`x/bundles`) [#104](https://github.com/KYVENetwork/chain/pull/104) Improve schema for finalized bundles query.
+
+## [v1.2.3](https://github.com/KYVENetwork/chain/releases/tag/v1.2.3) - 2023-07-15
+
+### API Breaking
+
+- (`x/query`) [#87](https://github.com/KYVENetwork/chain/pull/87) Correctly return pools that an account has funded.
+- (`x/bundles`) [#104](https://github.com/KYVENetwork/chain/pull/104) Improve schema for finalized bundles query.
+
+## [v1.2.2](https://github.com/KYVENetwork/chain/releases/tag/v1.2.2) - 2023-06-08
 
 ### Bug Fixes
 
 - (deps) [#82](https://github.com/KYVENetwork/chain/pull/82) Bump Cosmos SDK to [v0.46.13](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.13) ([`v0.46.13-kyve`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.46.13-kyve)) to adhere to the [Cosmos SDK Barberry Security Advisory](https://forum.cosmos.network/t/cosmos-sdk-security-advisory-barberry).
-
-### Client Breaking
-
-- (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Include `MsgClaimCommissionRewards` for claiming commission rewards.
-
-### API Breaking
-
-<!-- TODO: Switch this link to the release tag. -->
-- (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Emit an [event](https://github.com/KYVENetwork/chain/blob/main/x/stakers/spec/05_events.md#eventclaimcommissionrewards) when claiming protocol validator commission rewards.
 
 ## [v1.2.1](https://github.com/KYVENetwork/chain/releases/tag/v1.2.1) - 2023-05-25
 

@@ -3,6 +3,9 @@ package keeper
 import (
 	"fmt"
 
+	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
+	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -23,6 +26,8 @@ type (
 
 		accountKeeper authKeeper.AccountKeeper
 		bankKeeper    bankKeeper.Keeper
+		mintKeeper    mintKeeper.Keeper
+		upgradeKeeper upgradeKeeper.Keeper
 	}
 )
 
@@ -31,6 +36,8 @@ func NewKeeper(
 	storeKey storeTypes.StoreKey,
 	accountKeeper authKeeper.AccountKeeper,
 	bankKeeper bankKeeper.Keeper,
+	mintKeeper mintKeeper.Keeper,
+	upgradeKeeper upgradeKeeper.Keeper,
 ) *Keeper {
 	return &Keeper{
 		cdc:      cdc,
@@ -38,6 +45,8 @@ func NewKeeper(
 
 		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
+		mintKeeper:    mintKeeper,
+		upgradeKeeper: upgradeKeeper,
 	}
 }
 

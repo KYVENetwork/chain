@@ -17,6 +17,7 @@ var (
 	_ sdk.Msg = &MsgEnablePool{}
 	_ sdk.Msg = &MsgScheduleRuntimeUpgrade{}
 	_ sdk.Msg = &MsgCancelRuntimeUpgrade{}
+	_ sdk.Msg = &MsgUpdateParams{}
 )
 
 // GetSigners returns the expected signers for a MsgCreatePool message.
@@ -35,12 +36,16 @@ func (msg *MsgCreatePool) ValidateBasic() error {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid upload interval")
 	}
 
-	if err := util.ValidatePositiveNumber(msg.OperatingCost); err != nil {
+	if err := util.ValidateNumber(msg.OperatingCost); err != nil {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid operating cost")
 	}
 
-	if err := util.ValidatePositiveNumber(msg.MinDelegation); err != nil {
+	if err := util.ValidateNumber(msg.MinDelegation); err != nil {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid minimum delegation")
+	}
+
+	if err := util.ValidatePositiveNumber(msg.MaxBundleSize); err != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid max bundle size")
 	}
 
 	return nil
@@ -84,14 +89,20 @@ func (msg *MsgUpdatePool) ValidateBasic() error {
 	}
 
 	if payload.OperatingCost != nil {
-		if err := util.ValidatePositiveNumber(*payload.OperatingCost); err != nil {
+		if err := util.ValidateNumber(*payload.OperatingCost); err != nil {
 			return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid operating cost")
 		}
 	}
 
 	if payload.MinDelegation != nil {
-		if err := util.ValidatePositiveNumber(*payload.MinDelegation); err != nil {
+		if err := util.ValidateNumber(*payload.MinDelegation); err != nil {
 			return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid minimum delegation")
+		}
+	}
+
+	if payload.MaxBundleSize != nil {
+		if err := util.ValidatePositiveNumber(*payload.MaxBundleSize); err != nil {
+			return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid max bundle size")
 		}
 	}
 
@@ -153,6 +164,30 @@ func (msg *MsgCancelRuntimeUpgrade) GetSigners() []sdk.AccAddress {
 func (msg *MsgCancelRuntimeUpgrade) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
 		return errors.Wrap(err, "invalid authority address")
+	}
+
+	return nil
+}
+
+// GetSigners returns the expected signers for a MsgCancelRuntimeUpgrade message.
+func (msg *MsgUpdateParams) GetSigners() []sdk.AccAddress {
+	addr, _ := sdk.AccAddressFromBech32(msg.Authority)
+	return []sdk.AccAddress{addr}
+}
+
+// ValidateBasic does a sanity check on the provided data.
+func (msg *MsgUpdateParams) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
+		return errors.Wrap(err, "invalid authority address")
+	}
+
+	params := DefaultParams()
+	if err := json.Unmarshal([]byte(msg.Payload), &params); err != nil {
+		return err
+	}
+
+	if err := params.Validate(); err != nil {
+		return err
 	}
 
 	return nil

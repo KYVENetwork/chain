@@ -7,11 +7,12 @@ import (
 	"os"
 	"path/filepath"
 
-	v1p3 "github.com/KYVENetwork/chain/app/upgrades/v1_3"
+	v1p4 "github.com/KYVENetwork/chain/app/upgrades/v1_4"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/log"
 	cmtOs "github.com/cometbft/cometbft/libs/os"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -457,7 +458,7 @@ func NewKYVEApp(
 	// ... other modules keepers
 	app.GlobalKeeper = *globalKeeper.NewKeeper(appCodec, keys[globalTypes.StoreKey], authTypes.NewModuleAddress(govTypes.ModuleName).String())
 
-	app.TeamKeeper = *teamKeeper.NewKeeper(appCodec, keys[teamTypes.StoreKey], app.AccountKeeper, app.BankKeeper)
+	app.TeamKeeper = *teamKeeper.NewKeeper(appCodec, keys[teamTypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.MintKeeper, *app.UpgradeKeeper)
 
 	app.PoolKeeper = *poolKeeper.NewKeeper(
 		appCodec,
@@ -469,7 +470,9 @@ func NewKYVEApp(
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.DistributionKeeper,
+		app.MintKeeper,
 		app.UpgradeKeeper,
+		app.TeamKeeper,
 	)
 
 	app.StakersKeeper = *stakersKeeper.NewKeeper(
@@ -699,10 +702,10 @@ func NewKYVEApp(
 		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 
 		// KYVE
-		bundles.NewAppModule(appCodec, app.BundlesKeeper, app.AccountKeeper, app.BankKeeper),
+		bundles.NewAppModule(appCodec, app.BundlesKeeper, app.AccountKeeper, app.BankKeeper, app.DistributionKeeper, app.MintKeeper, *app.UpgradeKeeper, app.PoolKeeper, app.TeamKeeper),
 		delegation.NewAppModule(appCodec, app.DelegationKeeper, app.AccountKeeper, app.BankKeeper),
 		global.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.GlobalKeeper, *app.UpgradeKeeper),
-		pool.NewAppModule(appCodec, app.PoolKeeper, app.AccountKeeper, app.BankKeeper),
+		pool.NewAppModule(appCodec, app.PoolKeeper, app.AccountKeeper, app.BankKeeper, *app.UpgradeKeeper),
 		query.NewAppModule(appCodec, app.QueryKeeper, app.AccountKeeper, app.BankKeeper),
 		stakers.NewAppModule(appCodec, app.StakersKeeper, app.AccountKeeper, app.BankKeeper),
 		team.NewAppModule(appCodec, app.BankKeeper, app.MintKeeper, app.TeamKeeper, *app.UpgradeKeeper),
@@ -719,6 +722,8 @@ func NewKYVEApp(
 		mintTypes.ModuleName,
 		// NOTE: x/team must be run before x/distribution and after x/mint.
 		teamTypes.ModuleName,
+		// NOTE: x/bundles must be run before x/distribution and after x/team.
+		bundlesTypes.ModuleName,
 		distributionTypes.ModuleName,
 		slashingTypes.ModuleName,
 		evidenceTypes.ModuleName,
@@ -743,7 +748,6 @@ func NewKYVEApp(
 		poolTypes.ModuleName,
 		stakersTypes.ModuleName,
 		delegationTypes.ModuleName,
-		bundlesTypes.ModuleName,
 		queryTypes.ModuleName,
 		globalTypes.ModuleName,
 	)
@@ -866,8 +870,8 @@ func NewKYVEApp(
 	app.SetEndBlocker(app.EndBlocker)
 
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v1p3.UpgradeName,
-		v1p3.CreateUpgradeHandler(
+		v1p4.UpgradeName,
+		v1p4.CreateUpgradeHandler(
 			app.mm,
 			app.configurator,
 			appCodec,
@@ -884,8 +888,8 @@ func NewKYVEApp(
 		panic(err)
 	}
 
-	if upgradeInfo.Name == v1p3.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
-		app.SetStoreLoader(v1p3.CreateStoreLoader(upgradeInfo.Height))
+	if upgradeInfo.Name == v1p4.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		app.SetStoreLoader(v1p4.CreateStoreLoader(upgradeInfo.Height))
 	}
 
 	if loadLatest {

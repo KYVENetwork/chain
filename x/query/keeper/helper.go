@@ -27,6 +27,7 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 		SecurityContact:         staker.SecurityContact,
 		Details:                 staker.Details,
 		PendingCommissionChange: commissionChangeEntry,
+		CommissionRewards:       staker.CommissionRewards,
 	}
 
 	delegationData, _ := k.delegationKeeper.GetDelegationData(ctx, staker.Address)

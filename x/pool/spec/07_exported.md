@@ -28,10 +28,7 @@ type PoolKeeper interface {
     // ChargeFundersOfPool equally splits the amount between all funders and removes
     // the appropriate amount from each funder.
     // All funders who can't afford the amount, are kicked out.
-    // Their remaining amount is transferred to the Treasury.
-    // The function throws an error if pool ran out of funds.
-    // This method does not transfer any funds. The bundles-module
-    // is responsible for transferring the rewards out of the module.
-    ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint64) error
+    // The method returns the payout amount the pool was able to charge from the funders.
+    ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint64) (payout uint64, err error)
 }
 ```

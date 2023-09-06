@@ -26,7 +26,7 @@ func (k msgServer) CreatePool(goCtx context.Context, req *types.MsgCreatePool) (
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	k.AppendPool(ctx, types.Pool{
+	id := k.AppendPool(ctx, types.Pool{
 		Name:           req.Name,
 		Runtime:        req.Runtime,
 		Logo:           req.Logo,
@@ -45,6 +45,8 @@ func (k msgServer) CreatePool(goCtx context.Context, req *types.MsgCreatePool) (
 		CurrentStorageProviderId: req.StorageProviderId,
 		CurrentCompressionId:     req.CompressionId,
 	})
+
+	k.EnsurePoolAccount(ctx, id)
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventCreatePool{
 		Id:                k.GetPoolCount(ctx) - 1,
