@@ -84,15 +84,6 @@ var _ = Describe(fmt.Sprintf("%s Upgrade Tests", v1_4.UpgradeName), Ordered, fun
 	It("", func() {
 		PerformUpgrade(ctx, client, kyve, kyveWallet, 10, "kyve")
 	})
-
-	// TODO: Figure out why concurrency doesn't work.
-	PIt("", func() {
-		// KAON
-		go PerformUpgrade(ctx, client, kaon, kaonWallet, 10, "kaon")
-
-		// KYVE
-		go PerformUpgrade(ctx, client, kyve, kyveWallet, 10, "kyve")
-	})
 })
 
 func PerformUpgrade(

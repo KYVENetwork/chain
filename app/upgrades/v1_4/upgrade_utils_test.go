@@ -11,14 +11,19 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
 )
 
+const (
+	previousVersion = "v1.3.1"
+	uidGid          = "1025:1025"
+)
+
 var testnetConfig = ibc.ChainConfig{
 	Type:    "cosmos",
 	Name:    "kaon",
 	ChainID: "kaon-1",
 	Images: []ibc.DockerImage{{
 		Repository: "ghcr.io/strangelove-ventures/heighliner/kaon",
-		Version:    "v1.2.2",
-		UidGid:     "1025:1025",
+		Version:    previousVersion,
+		UidGid:     uidGid,
 	}},
 	Bin:                 "kyved",
 	Bech32Prefix:        "kyve",
@@ -38,8 +43,8 @@ var mainnetConfig = ibc.ChainConfig{
 	ChainID: "kyve-1",
 	Images: []ibc.DockerImage{{
 		Repository: "ghcr.io/strangelove-ventures/heighliner/kyve",
-		Version:    "v1.2.2",
-		UidGid:     "1025:1025",
+		Version:    previousVersion,
+		UidGid:     uidGid,
 	}},
 	Bin:                 "kyved",
 	Bech32Prefix:        "kyve",
@@ -83,6 +88,13 @@ func ModifyGenesis(config ibc.ChainConfig, genbz []byte) ([]byte, error) {
 	)
 	_ = dyno.Set(genesis, config.Denom,
 		"app_state", "gov", "deposit_params", "min_deposit", 0, "denom",
+	)
+
+	_ = dyno.Set(genesis, "0.169600000000000000",
+		"app_state", "pool", "params", "protocol_inflation_share",
+	)
+	_ = dyno.Set(genesis, "0.050000000000000000",
+		"app_state", "pool", "params", "pool_inflation_payout_rate",
 	)
 
 	newGenesis, _ := json.Marshal(genesis)
