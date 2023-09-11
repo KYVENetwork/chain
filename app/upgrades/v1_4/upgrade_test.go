@@ -37,14 +37,20 @@ var _ = Describe(fmt.Sprintf("%s Upgrade Tests", v1_4.UpgradeName), Ordered, fun
 	var kyveWallet *cosmos.CosmosWallet
 
 	BeforeAll(func() {
+		numFullNodes := 0
+		numValidators := 4
 		factory := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(GinkgoT()), []*interchaintest.ChainSpec{
 			{
-				Name:        "kaon",
-				ChainConfig: testnetConfig,
+				Name:          "kaon",
+				ChainConfig:   testnetConfig,
+				NumValidators: &numValidators,
+				NumFullNodes:  &numFullNodes,
 			},
 			{
-				Name:        "kyve",
-				ChainConfig: mainnetConfig,
+				Name:          "kyve",
+				ChainConfig:   mainnetConfig,
+				NumValidators: &numValidators,
+				NumFullNodes:  &numFullNodes,
 			},
 		})
 
