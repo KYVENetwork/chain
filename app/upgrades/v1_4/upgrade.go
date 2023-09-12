@@ -5,6 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/ibc-go/v7/modules/core/exported"
 
 	// Consensus
 	consensusKeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
@@ -50,6 +51,12 @@ func CreateUpgradeHandler(
 			return vm, err
 		}
 
+		// ibc-go v7.0 to v7.1 upgrade
+		// explicitly update the IBC 02-client params, adding the localhost client type
+		params := ibcKeeper.ClientKeeper.GetParams(ctx)
+		params.AllowedClients = append(params.AllowedClients, exported.Localhost)
+		ibcKeeper.ClientKeeper.SetParams(ctx, params)
+
 		// Run module migrations.
 		vm, err = mm.RunMigrations(ctx, configurator, vm)
 		if err != nil {
@@ -57,7 +64,7 @@ func CreateUpgradeHandler(
 		}
 
 		// Migrate initial deposit ratio.
-		err = MigrateInitialDepositRatio(ctx, globalKeeper, govKeeper)
+		err = migrateInitialDepositRatio(ctx, globalKeeper, govKeeper)
 		if err != nil {
 			return vm, err
 		}
@@ -66,9 +73,9 @@ func CreateUpgradeHandler(
 	}
 }
 
-// MigrateInitialDepositRatio migrates the MinInitialDepositRatio parameter from
+// migrateInitialDepositRatio migrates the MinInitialDepositRatio parameter from
 // our custom x/global module to the x/gov module.
-func MigrateInitialDepositRatio(
+func migrateInitialDepositRatio(
 	ctx sdk.Context,
 	globalKeeper globalKeeper.Keeper,
 	govKeeper govKeeper.Keeper,
