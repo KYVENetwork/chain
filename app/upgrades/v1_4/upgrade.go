@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
+	ibcTmMigrations "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint/migrations"
 
 	// Consensus
 	consensusKeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
@@ -15,8 +16,7 @@ import (
 	govKeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	// IBC Core
 	ibcKeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
-	// IBC Light Clients
-	ibcTmMigrations "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint/migrations"
+
 	// Params
 	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -45,12 +45,6 @@ func CreateUpgradeHandler(
 			WithKeyTable(paramsTypes.ConsensusParamsKeyTable())
 		baseapp.MigrateParams(ctx, baseAppSubspace, &consensusKeeper)
 
-		// Prune expired Tendermint consensus states.
-		_, err = ibcTmMigrations.PruneExpiredConsensusStates(ctx, cdc, ibcKeeper.ClientKeeper)
-		if err != nil {
-			return vm, err
-		}
-
 		// ibc-go v7.0 to v7.1 upgrade
 		// explicitly update the IBC 02-client params, adding the localhost client type
 		params := ibcKeeper.ClientKeeper.GetParams(ctx)
@@ -59,6 +53,12 @@ func CreateUpgradeHandler(
 
 		// Run module migrations.
 		vm, err = mm.RunMigrations(ctx, configurator, vm)
+		if err != nil {
+			return vm, err
+		}
+
+		// Prune expired Tendermint consensus states.
+		_, err = ibcTmMigrations.PruneExpiredConsensusStates(ctx, cdc, ibcKeeper.ClientKeeper)
 		if err != nil {
 			return vm, err
 		}
