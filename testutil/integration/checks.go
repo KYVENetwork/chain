@@ -8,7 +8,7 @@ import (
 	"github.com/KYVENetwork/chain/x/delegation"
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
-	"github.com/KYVENetwork/chain/x/pool"
+	poolmodule "github.com/KYVENetwork/chain/x/pool"
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	"github.com/KYVENetwork/chain/x/stakers"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
@@ -156,7 +156,7 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 }
 
 func (suite *KeeperTestSuite) VerifyPoolGenesisImportExport() {
-	genState := pool.ExportGenesis(suite.Ctx(), suite.App().PoolKeeper)
+	genState := poolmodule.ExportGenesis(suite.Ctx(), suite.App().PoolKeeper)
 
 	// Delete all entries in Pool Store
 	store := suite.Ctx().KVStore(suite.App().PoolKeeper.StoreKey())
@@ -164,7 +164,7 @@ func (suite *KeeperTestSuite) VerifyPoolGenesisImportExport() {
 
 	err := genState.Validate()
 	Expect(err).To(BeNil())
-	pool.InitGenesis(suite.Ctx(), suite.App().PoolKeeper, *genState)
+	poolmodule.InitGenesis(suite.Ctx(), suite.App().PoolKeeper, *genState)
 }
 
 // =====================
