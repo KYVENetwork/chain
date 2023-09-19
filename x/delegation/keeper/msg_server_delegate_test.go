@@ -21,8 +21,7 @@ TEST CASES - msg_server_delegate.go
 * Payout delegators
 * Don't pay out rewards twice
 * Delegate to validator with 0 $KYVE
-* TODO(@max): Delegate to multiple validators
-
+* Delegate to multiple validators
 */
 
 var _ = Describe("msg_server_delegate.go", Ordered, func() {
