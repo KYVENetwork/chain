@@ -41,6 +41,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 
 	BeforeEach(func() {
 		s = i.NewCleanChain()
+		s.SetOptions(i.KeeperTestSuiteOptions{VerifyPoolQueries: false})
 
 		// create clean pool for every test case
 		s.App().PoolKeeper.AppendPool(s.Ctx(), types.Pool{

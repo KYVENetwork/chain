@@ -25,8 +25,9 @@ func (suite *KeeperTestSuite) PerformValidityChecks() {
 	suite.VerifyPoolModuleAssetsIntegrity()
 	suite.VerifyPoolTotalFunds()
 
-	// TODO(@troy,@max): Figure out a better way to check this when disabling pools.
-	// suite.VerifyPoolQueries()
+	if suite.options.VerifyPoolQueries {
+		suite.VerifyPoolQueries()
+	}
 
 	suite.VerifyPoolGenesisImportExport()
 
