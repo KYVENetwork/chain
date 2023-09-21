@@ -2,10 +2,10 @@ package keeper
 
 import (
 	"context"
+	"github.com/KYVENetwork/chain/x/funders/types"
 
 	"cosmossdk.io/errors"
 	"github.com/KYVENetwork/chain/util"
-	"github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -16,11 +16,11 @@ import (
 // the funder is removed completely.
 func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (*types.MsgDefundPoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	pool, found := k.GetPool(ctx, msg.Id)
 
 	// Pool has to exist
-	if !found {
-		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrPoolNotFound.Error(), msg.Id)
+	pool, err := k.pookKeeper.GetPoolWithError(ctx, msg.PoolId)
+	if err != nil {
+		return nil, err
 	}
 
 	// Sender needs to be a funder in the pool
@@ -44,7 +44,7 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 
 	// Emit a defund event.
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventDefundPool{
-		PoolId:  msg.Id,
+		PoolId:  msg.PoolId,
 		Address: msg.Creator,
 		Amount:  msg.Amount,
 	})

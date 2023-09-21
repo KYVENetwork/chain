@@ -1,0 +1,139 @@
+package keeper
+
+import (
+	"context"
+
+	"cosmossdk.io/errors"
+	"github.com/KYVENetwork/chain/util"
+	"github.com/KYVENetwork/chain/x/funders/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
+func (k msgServer) defundLowestFunding(
+	ctx sdk.Context,
+	lowestFunding *types.Funding,
+	fundingState *types.FundingState,
+	poolId uint64,
+) error {
+	err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, types.ModuleName, lowestFunding.FunderAddress, lowestFunding.Amount)
+	if err != nil {
+		return err
+	}
+
+	lowestFunding.SubtractAmount(lowestFunding.Amount)
+	fundingState.SetInactive(lowestFunding)
+	k.setFunding(ctx, lowestFunding)
+
+	// Emit a defund event.
+	_ = ctx.EventManager().EmitTypedEvent(&types.EventDefundPool{
+		PoolId:  poolId,
+		Address: lowestFunding.FunderAddress,
+		Amount:  lowestFunding.Amount,
+	})
+	return nil
+}
+
+// FundPool handles the logic to fund a pool.
+// A funder is added to the active funders list with the specified amount
+// If the funders list is full, it checks if the funder wants to fund
+// more than the current lowest funder. If so, the current lowest funder
+// will get their tokens back and removed form the active funders list.
+func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*types.MsgFundPoolResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// Funder has to exist
+	if !k.doesFunderExist(ctx, msg.Creator) {
+		return nil, errors.Wrapf(errorsTypes.ErrUnauthorized, types.ErrFunderDoesNotExist.Error(), msg.Creator)
+	}
+
+	// Pool has to exist
+	err := k.pookKeeper.AssertPoolExists(ctx, msg.PoolId)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get or create funding state for pool
+	fundingState, found := k.getFundingState(ctx, msg.PoolId)
+	if !found {
+		fundingState = types.FundingState{
+			PoolId:           msg.PoolId,
+			ActiveFundings:   []*types.Funding{},
+			InactiveFundings: []*types.Funding{},
+			TotalAmount:      0,
+		}
+		k.setFundingState(ctx, fundingState)
+	}
+
+	// Check if funding already exists
+	funding, found := k.getFunding(ctx, msg.Creator, msg.PoolId)
+	if found {
+		// If so, update funding
+		funding.AddAmount(msg.Amount)
+	} else {
+		// If not, create new funding
+		funding = &types.Funding{
+			FunderAddress:   msg.Creator,
+			PoolId:          msg.PoolId,
+			Amount:          msg.Amount,
+			AmountPerBundle: msg.AmountPerBundle,
+			TotalFunded:     msg.Amount,
+		}
+	}
+	if funding.AmountPerBundle < types.MinFundingAmountPerBundle {
+		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrAmountPerBundleTooLow.Error(), types.MinFundingAmountPerBundle)
+	}
+	if funding.Amount > types.MinFundingAmount {
+		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinFundingAmount.Error(), types.MinFundingAmount)
+	}
+
+	var defunding *types.Funding = nil
+
+	// Check if funding limit is exceeded
+	if len(fundingState.ActiveFundings) >= types.MaxFunders {
+		lowestFunding, err := fundingState.GetLowestFunding()
+		if err != nil {
+			util.PanicHalt(k.upgradeKeeper, ctx, err.Error())
+		}
+
+		// Check if lowest funding is lower than new funding
+		if lowestFunding.Amount < funding.Amount {
+			// If so, check if lowest funding is from someone else
+			if lowestFunding.FunderAddress != funding.FunderAddress {
+				// Prepare to defund lowest funding
+				defunding = lowestFunding
+			}
+		} else {
+			return nil, errors.Wrapf(errorsTypes.ErrLogic, types.ErrFundsTooLow.Error(), lowestFunding.Amount)
+		}
+	}
+
+	// TODO: do I have to call ValidateBasic() here?
+	// User is allowed to fund
+	// Let's see if he has enough funds
+	if err := util.TransferFromAddressToModule(k.bankKeeper, ctx, msg.Creator, types.ModuleName, msg.Amount); err != nil {
+		return nil, err
+	}
+
+	// Check if defunding is necessary
+	if defunding != nil {
+		err := k.defundLowestFunding(ctx, defunding, &fundingState, msg.PoolId)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Save funding and funding state
+	k.setFunding(ctx, funding)
+	fundingState.SetActive(funding)
+
+	// Emit a fund event.
+	_ = ctx.EventManager().EmitTypedEvent(&types.EventFundPool{
+		PoolId:          msg.PoolId,
+		Address:         msg.Creator,
+		Amount:          msg.Amount,
+		AmountPerBundle: msg.AmountPerBundle,
+	})
+
+	return &types.MsgFundPoolResponse{}, nil
+}

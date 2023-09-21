@@ -4785,30 +4785,6 @@ paths:
                         description: |-
                           disabled is true when the pool is disabled.
                           Can only be done via governance.
-                      funders:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            address:
-                              type: string
-                              title: address is the address of the funder
-                            amount:
-                              type: string
-                              format: uint64
-                              title: >-
-                                amount is the current amount of funds in ukyve
-                                the funder has
-
-                                still funded the pool with
-                          title: >-
-                            Funder is the object which holds info about a single
-                            pool funder
-                        description: funders ...
-                      total_funds:
-                        type: string
-                        format: uint64
-                        description: total_funds ...
                       protocol:
                         description: protocol ...
                         type: object
@@ -5301,30 +5277,6 @@ paths:
                           description: |-
                             disabled is true when the pool is disabled.
                             Can only be done via governance.
-                        funders:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              address:
-                                type: string
-                                title: address is the address of the funder
-                              amount:
-                                type: string
-                                format: uint64
-                                title: >-
-                                  amount is the current amount of funds in ukyve
-                                  the funder has
-
-                                  still funded the pool with
-                            title: >-
-                              Funder is the object which holds info about a
-                              single pool funder
-                          description: funders ...
-                        total_funds:
-                          type: string
-                          format: uint64
-                          description: total_funds ...
                         protocol:
                           description: protocol ...
                           type: object

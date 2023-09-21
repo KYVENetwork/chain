@@ -51,15 +51,6 @@ message UpgradePlan {
   uint64 duration = 4;
 }
 
-// Funder is the object which holds info about a single pool funder
-message Funder {
-  // address is the address of the funder
-  string address = 1;
-  // amount is the current amount of funds in ukyve the funder has
-  // still funded the pool with
-  uint64 amount = 2;
-}
-
 // Pool ...
 message Pool {
   // id - unique identifier of the pool, can not be changed
@@ -99,10 +90,8 @@ message Pool {
   // Can only be done via governance.
   bool disabled = 15;
 
-  // funders ...
-  repeated Funder funders = 16;
-  // total_funds ...
-  uint64 total_funds = 17;
+  // old funders and total_funds fields
+  reserved 16, 17;
 
   // protocol ...
   Protocol protocol = 18;

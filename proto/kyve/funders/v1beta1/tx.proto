@@ -2,10 +2,86 @@ syntax = "proto3";
 
 package kyve.funders.v1beta1;
 
-//import "cosmos_proto/cosmos.proto";
-//import "gogoproto/gogo.proto";
-
 option go_package = "github.com/KYVENetwork/chain/x/funders/types";
 
 // Msg defines the Msg service.
-service Msg {}
+service Msg {
+  // CreateFunder ...
+  rpc CreateFunder(MsgCreateFunder) returns (MsgCreateFunderResponse);
+  // UpdateFunder ...
+  // rpc UpdateFunder(MsgUpdateFunder) returns (MsgUpdateFunderResponse);
+  // FundPool ...
+  rpc FundPool(MsgFundPool) returns (MsgFundPoolResponse);
+  // DefundPool ...
+  rpc DefundPool(MsgDefundPool) returns (MsgDefundPoolResponse);
+}
+
+// MsgCreateFunder defines a SDK message for creating a funder.
+message MsgCreateFunder {
+  // creator ...
+  string creator = 1;
+  // moniker
+  string moniker = 2;
+  // identity is the 64 bit keybase.io identity string
+  string identity = 3;
+  // logo
+  string logo = 4;
+  // website
+  string website = 5;
+  // contact
+  string contact = 6;
+  // details are some additional notes the funder finds important
+  string details = 7;
+}
+
+// MsgCreateFunderResponse defines the Msg/CreateFunder response type.
+message MsgCreateFunderResponse {}
+
+// MsgUpdateFunder defines a SDK message for updating a funder.
+message MsgUpdateFunder {
+  // creator ...
+  string creator = 1;
+  // moniker
+  string moniker = 2;
+  // identity is the 64 bit keybase.io identity string
+  string identity = 3;
+  // logo
+  string logo = 4;
+  // website
+  string website = 5;
+  // contact
+  string contact = 6;
+  // details are some additional notes the funder finds important
+  string details = 7;
+}
+
+// MsgUpdateFunderResponse defines the Msg/UpdateFunder response type.
+message MsgUpdateFunderResponse {}
+
+// MsgFundPool defines a SDK message for funding a pool.
+message MsgFundPool {
+  // creator ...
+  string creator = 1;
+  // id ...
+  uint64 pool_id = 2;
+  // amount is the total amount available for distribution
+  uint64 amount = 3;
+  // amount_per_bundle defines the amount of tokens that are distributed per submitted bundle
+  uint64 amount_per_bundle = 4;
+}
+
+// MsgFundPoolResponse defines the Msg/DefundPool response type.
+message MsgFundPoolResponse {}
+
+// MsgDefundPool defines a SDK message for defunding a pool.
+message MsgDefundPool {
+  // creator ...
+  string creator = 1;
+  // id ...
+  uint64 pool_id = 2;
+  // amount ...
+  uint64 amount = 3;
+}
+
+// MsgDefundPoolResponse defines the Msg/DefundPool response type.
+message MsgDefundPoolResponse {}

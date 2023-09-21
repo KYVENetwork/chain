@@ -138,28 +138,6 @@ message EventPoolUpdated {
   uint32 compression_id = 12;
 }
 
-// EventFundPool is an event emitted when a pool is funded.
-// emitted_by: MsgFundPool
-message EventFundPool {
-  // pool_id is the unique ID of the pool.
-  uint64 pool_id = 1;
-  // address is the account address of the pool funder.
-  string address = 2;
-  // amount is the amount in ukyve the funder has funded
-  uint64 amount = 3;
-}
-
-// EventDefundPool is an event emitted when a pool is defunded.
-// emitted_by: MsgDefundPool
-message EventDefundPool {
-  // pool_id is the unique ID of the pool.
-  uint64 pool_id = 1;
-  // address is the account address of the pool funder.
-  string address = 2;
-  // amount is the amount in ukyve the funder has defunded
-  uint64 amount = 3;
-}
-
 // EventDefundPool is an event emitted when a pool is defunded.
 // emitted_by: MsgSubmitBundleProposal
 message EventPoolFundsSlashed {

@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"github.com/KYVENetwork/chain/util"
 
 	"github.com/KYVENetwork/chain/x/funders/types"
 	"github.com/cometbft/cometbft/libs/log"
@@ -17,6 +18,10 @@ type (
 		memKey   storetypes.StoreKey
 
 		authority string
+
+		bankKeeper    util.BankKeeper
+		pookKeeper    types.PoolKeeper
+		upgradeKeeper util.UpgradeKeeper
 	}
 )
 
@@ -27,6 +32,9 @@ func NewKeeper(
 
 	authority string,
 
+	bankKeeper util.BankKeeper,
+	pookKeeper types.PoolKeeper,
+	upgradeKeeper util.UpgradeKeeper,
 ) *Keeper {
 	return &Keeper{
 		cdc:      cdc,
@@ -34,6 +42,10 @@ func NewKeeper(
 		memKey:   memKey,
 
 		authority: authority,
+
+		bankKeeper:    bankKeeper,
+		pookKeeper:    pookKeeper,
+		upgradeKeeper: upgradeKeeper,
 	}
 }
 

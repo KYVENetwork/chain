@@ -8,11 +8,6 @@ option go_package = "github.com/KYVENetwork/chain/x/pool/types";
 
 // Msg defines the Msg service.
 service Msg {
-  // FundPool ...
-  rpc FundPool(MsgFundPool) returns (MsgFundPoolResponse);
-  // DefundPool ...
-  rpc DefundPool(MsgDefundPool) returns (MsgDefundPoolResponse);
-
   // CreatePool defines a governance operation for creating a new pool.
   // The authority is hard-coded to the x/gov module account.
   rpc CreatePool(MsgCreatePool) returns (MsgCreatePoolResponse);
@@ -35,32 +30,6 @@ service Msg {
   // parameters. The authority is hard-coded to the x/gov module account.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
-
-// MsgFundPool defines a SDK message for funding a pool.
-message MsgFundPool {
-  // creator ...
-  string creator = 1;
-  // id ...
-  uint64 id = 2;
-  // amount ...
-  uint64 amount = 3;
-}
-
-// MsgFundPoolResponse defines the Msg/DefundPool response type.
-message MsgFundPoolResponse {}
-
-// MsgDefundPool defines a SDK message for defunding a pool.
-message MsgDefundPool {
-  // creator ...
-  string creator = 1;
-  // id ...
-  uint64 id = 2;
-  // amount ...
-  uint64 amount = 3;
-}
-
-// MsgDefundPoolResponse defines the Msg/DefundPool response type.
-message MsgDefundPoolResponse {}
 
 // MsgCreatePool defines a SDK message for creating a new pool.
 message MsgCreatePool {
