@@ -162,6 +162,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradeTypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	// Funders
+	"github.com/KYVENetwork/chain/x/funders"
+	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
+	fundersTypes "github.com/KYVENetwork/chain/x/funders/types"
 )
 
 const (
@@ -293,6 +297,7 @@ func NewKYVEApp(
 		queryTypes.StoreKey,
 		stakersTypes.StoreKey,
 		teamTypes.StoreKey,
+		fundersTypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramsTypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(
@@ -522,6 +527,14 @@ func NewKYVEApp(
 		app.DelegationKeeper,
 	)
 
+	app.FundersKeeper = *fundersKeeper.NewKeeper(
+		appCodec,
+		keys[fundersTypes.StoreKey],
+		memKeys[fundersTypes.MemStoreKey],
+
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
+	)
+
 	app.IBCKeeper = ibcKeeper.NewKeeper(
 		appCodec,
 		keys[ibcExported.StoreKey],
@@ -709,6 +722,7 @@ func NewKYVEApp(
 		query.NewAppModule(appCodec, app.QueryKeeper, app.AccountKeeper, app.BankKeeper),
 		stakers.NewAppModule(appCodec, app.StakersKeeper, app.AccountKeeper, app.BankKeeper),
 		team.NewAppModule(appCodec, app.BankKeeper, app.MintKeeper, app.TeamKeeper, *app.UpgradeKeeper),
+		funders.NewAppModule(appCodec, app.FundersKeeper, app.AccountKeeper, app.BankKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -750,6 +764,7 @@ func NewKYVEApp(
 		delegationTypes.ModuleName,
 		queryTypes.ModuleName,
 		globalTypes.ModuleName,
+		fundersTypes.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
@@ -784,6 +799,7 @@ func NewKYVEApp(
 		queryTypes.ModuleName,
 		globalTypes.ModuleName,
 		teamTypes.ModuleName,
+		fundersTypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -823,6 +839,7 @@ func NewKYVEApp(
 		queryTypes.ModuleName,
 		globalTypes.ModuleName,
 		teamTypes.ModuleName,
+		fundersTypes.ModuleName,
 	)
 
 	// Uncomment if you want to set a custom migration order here.

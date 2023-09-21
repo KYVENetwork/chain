@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package kyve.funders.v1beta1;
+
+option go_package = "github.com/KYVENetwork/chain/x/funders/types";
+
+// Params defines the funders module parameters.
+message Params {
+  // //TODO: change param
+  uint64 random_param = 1;
+}

@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package kyve.funders.v1beta1;
+
+//import "gogoproto/gogo.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/funders/types";

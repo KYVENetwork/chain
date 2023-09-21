@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/KYVENetwork/chain/x/funders"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	// Auth
@@ -129,6 +130,7 @@ var appModuleBasics = []module.AppModuleBasic{
 	query.AppModuleBasic{},
 	stakers.AppModuleBasic{},
 	team.AppModuleBasic{},
+	funders.AppModuleBasic{},
 }
 
 // moduleAccountPermissions ...
