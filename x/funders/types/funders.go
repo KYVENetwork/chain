@@ -31,7 +31,7 @@ func (fh *FundingState) GetLowestFunding() (funding *Funding, err error) {
 	return lowestFunding, nil
 }
 
-// SetInactive moves a funding from active to inactive and subtracts the amount.
+// SetInactive moves a funding from active to inactive
 func (fh *FundingState) SetInactive(funding *Funding) {
 	// Remove funding from active fundings
 	for i, v := range fh.ActiveFundings {
@@ -51,7 +51,7 @@ func (fh *FundingState) SetInactive(funding *Funding) {
 	fh.InactiveFundings = append(fh.InactiveFundings, funding)
 }
 
-// SetActive moves a funding from inactive to active and adds the amount.
+// SetActive moves a funding from inactive to active
 func (fh *FundingState) SetActive(funding *Funding) {
 	// Remove funding from inactive fundings
 	for i, v := range fh.InactiveFundings {

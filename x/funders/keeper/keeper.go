@@ -20,7 +20,7 @@ type (
 		authority string
 
 		bankKeeper    util.BankKeeper
-		pookKeeper    types.PoolKeeper
+		poolKeeper    types.PoolKeeper
 		upgradeKeeper util.UpgradeKeeper
 	}
 )
@@ -33,7 +33,7 @@ func NewKeeper(
 	authority string,
 
 	bankKeeper util.BankKeeper,
-	pookKeeper types.PoolKeeper,
+	poolKeeper types.PoolKeeper,
 	upgradeKeeper util.UpgradeKeeper,
 ) *Keeper {
 	return &Keeper{
@@ -44,7 +44,7 @@ func NewKeeper(
 		authority: authority,
 
 		bankKeeper:    bankKeeper,
-		pookKeeper:    pookKeeper,
+		poolKeeper:    poolKeeper,
 		upgradeKeeper: upgradeKeeper,
 	}
 }

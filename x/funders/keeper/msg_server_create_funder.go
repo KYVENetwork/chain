@@ -11,6 +11,7 @@ import (
 
 // CreateFunder creates a new funder object and stores it in the store.
 // If the funder already exists, an error is returned.
+// TODO(rapha): this can be spammed right now. Someone can just created a bunch of funders to get displayed on the funders page. We should probably add a fee to this.
 func (k msgServer) CreateFunder(goCtx context.Context, msg *types.MsgCreateFunder) (*types.MsgCreateFunderResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -21,24 +22,24 @@ func (k msgServer) CreateFunder(goCtx context.Context, msg *types.MsgCreateFunde
 
 	// Create new funder
 	k.setFunder(ctx, types.Funder{
-		Address:  msg.Creator,
-		Moniker:  msg.Moniker,
-		Identity: msg.Identity,
-		Logo:     msg.Logo,
-		Website:  msg.Website,
-		Contact:  msg.Contact,
-		Details:  msg.Details,
+		Address:     msg.Creator,
+		Moniker:     msg.Moniker,
+		Identity:    msg.Identity,
+		Logo:        msg.Logo,
+		Website:     msg.Website,
+		Contact:     msg.Contact,
+		Description: msg.Description,
 	})
 
 	// Emit a create funder event
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventCreateFunder{
-		Address:  msg.Creator,
-		Moniker:  msg.Moniker,
-		Identity: msg.Identity,
-		Logo:     msg.Logo,
-		Website:  msg.Website,
-		Contact:  msg.Contact,
-		Details:  msg.Details,
+		Address:     msg.Creator,
+		Moniker:     msg.Moniker,
+		Identity:    msg.Identity,
+		Logo:        msg.Logo,
+		Website:     msg.Website,
+		Contact:     msg.Contact,
+		Description: msg.Description,
 	})
 
 	return &types.MsgCreateFunderResponse{}, nil

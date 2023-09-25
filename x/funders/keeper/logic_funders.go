@@ -12,7 +12,7 @@ import (
 // This method does not transfer any funds. The bundles-module
 // is responsible for transferring the rewards out of the module.
 func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint64) (payout uint64, err error) {
-	pool, poolErr := k.pookKeeper.GetPoolWithError(ctx, poolId)
+	pool, poolErr := k.poolKeeper.GetPoolWithError(ctx, poolId)
 	if poolErr != nil {
 		return 0, poolErr
 	}

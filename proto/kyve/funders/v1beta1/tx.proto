@@ -30,8 +30,8 @@ message MsgCreateFunder {
   string website = 5;
   // contact
   string contact = 6;
-  // details are some additional notes the funder finds important
-  string details = 7;
+  // description are some additional notes the funder finds important
+  string description = 7;
 }
 
 // MsgCreateFunderResponse defines the Msg/CreateFunder response type.
@@ -51,8 +51,8 @@ message MsgUpdateFunder {
   string website = 5;
   // contact
   string contact = 6;
-  // details are some additional notes the funder finds important
-  string details = 7;
+  // description are some additional notes the funder finds important
+  string description = 7;
 }
 
 // MsgUpdateFunderResponse defines the Msg/UpdateFunder response type.

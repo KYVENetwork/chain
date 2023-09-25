@@ -48,7 +48,7 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 	}
 
 	// Pool has to exist
-	err := k.pookKeeper.AssertPoolExists(ctx, msg.PoolId)
+	err := k.poolKeeper.AssertPoolExists(ctx, msg.PoolId)
 	if err != nil {
 		return nil, err
 	}
@@ -118,14 +118,18 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 	// Check if defunding is necessary
 	if defunding != nil {
 		err := k.defundLowestFunding(ctx, defunding, &fundingState, msg.PoolId)
+		// TODO: what to do if defunding fails? Should we return the funds to the user?
 		if err != nil {
 			return nil, err
 		}
 	}
 
+	// Funding must be active
+	fundingState.SetActive(funding)
+
 	// Save funding and funding state
 	k.setFunding(ctx, funding)
-	fundingState.SetActive(funding)
+	k.setFundingState(ctx, fundingState)
 
 	// Emit a fund event.
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventFundPool{
