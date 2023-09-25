@@ -43,7 +43,7 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Funder has to exist
-	if !k.doesFunderExist(ctx, msg.Creator) {
+	if !k.DoesFunderExist(ctx, msg.Creator) {
 		return nil, errors.Wrapf(errorsTypes.ErrUnauthorized, types.ErrFunderDoesNotExist.Error(), msg.Creator)
 	}
 
@@ -66,7 +66,7 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 	}
 
 	// Check if funding already exists
-	funding, found := k.getFunding(ctx, msg.Creator, msg.PoolId)
+	funding, found := k.GetFunding(ctx, msg.Creator, msg.PoolId)
 	if found {
 		// If so, update funding
 		funding.AddAmount(msg.Amount)

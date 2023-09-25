@@ -16,7 +16,7 @@ func (k msgServer) CreateFunder(goCtx context.Context, msg *types.MsgCreateFunde
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Check if funder already exists
-	if k.doesFunderExist(ctx, msg.Creator) {
+	if k.DoesFunderExist(ctx, msg.Creator) {
 		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrFunderAlreadyExists.Error(), msg.Creator)
 	}
 

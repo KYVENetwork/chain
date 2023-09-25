@@ -1,149 +1,87 @@
 package keeper_test
 
 import (
+	"github.com/KYVENetwork/chain/x/funders/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	i "github.com/KYVENetwork/chain/testutil/integration"
-	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 )
 
 /*
 
-TEST CASES - msg_server_defund_pool.go
+TEST CASES - msg_server_create_funder.go
 
-* Defund 50 KYVE from a funder who has previously funded 100 KYVE
-* Try to defund more than actually funded
-* Defund full funding amount from a funder who has previously funded 100 KYVE
-* Defund as highest funder 75 KYVE in order to be the lowest funder afterwards
-
+* Create a funder with empty values
+* Create a funder with all values set
+* Create a funder that already exists
+* TODO: Create two funders with the same moniker
 */
 
-var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
+var _ = Describe("msg_server_create_funder.go", Ordered, func() {
 	s := i.NewCleanChain()
-
-	initialBalance := s.GetBalanceFromAddress(i.ALICE)
 
 	BeforeEach(func() {
 		// init new clean chain
 		s = i.NewCleanChain()
-
-		// create clean pool for every test case
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name: "PoolTest",
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
-
-		// fund pool
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
-		})
 	})
 
 	AfterEach(func() {
 		s.PerformValidityChecks()
 	})
 
-	It("Defund 50 KYVE from a funder who has previously funded 100 KYVE", func() {
+	It("Create a funder with empty values", func() {
 		// ACT
-		s.RunTxPoolSuccess(&pooltypes.MsgDefundPool{
+		s.RunTxPoolSuccess(&types.MsgCreateFunder{
 			Creator: i.ALICE,
-			Id:      0,
-			Amount:  50 * i.KYVE,
 		})
 
 		// ASSERT
-		balanceAfter := s.GetBalanceFromAddress(i.ALICE)
-
-		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-
-		Expect(initialBalance - balanceAfter).To(Equal(50 * i.KYVE))
-
-		Expect(pool.Funders).To(HaveLen(1))
-		Expect(pool.TotalFunds).To(Equal(50 * i.KYVE))
-
-		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(50 * i.KYVE))
-
-		Expect(pool.GetLowestFunder().Address).To(Equal(i.ALICE))
-		Expect(pool.GetLowestFunder().Amount).To(Equal(50 * i.KYVE))
+		funder, found := s.App().FundersKeeper.GetFunder(s.Ctx(), i.ALICE)
+		Expect(found).To(BeTrue())
+		Expect(funder.Address).To(Equal(i.ALICE))
+		Expect(funder.Moniker).To(BeEmpty())
+		Expect(funder.Identity).To(BeEmpty())
+		Expect(funder.Logo).To(BeEmpty())
+		Expect(funder.Website).To(BeEmpty())
+		Expect(funder.Contact).To(BeEmpty())
+		Expect(funder.Description).To(BeEmpty())
 	})
 
-	It("Try to defund more than actually funded", func() {
+	It("Create a funder with all values set", func() {
 		// ACT
-		s.RunTxPoolError(&pooltypes.MsgDefundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  101 * i.KYVE,
+		moniker, identity, logo, website, contact, description := "moniker", "identity", "logo", "website", "contact", "description"
+		s.RunTxPoolSuccess(&types.MsgCreateFunder{
+			Creator:     i.ALICE,
+			Moniker:     moniker,
+			Identity:    identity,
+			Logo:        logo,
+			Website:     website,
+			Contact:     contact,
+			Description: description,
 		})
 
 		// ASSERT
-		balanceAfter := s.GetBalanceFromAddress(i.ALICE)
-
-		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-
-		Expect(initialBalance - balanceAfter).To(Equal(100 * i.KYVE))
-
-		Expect(pool.Funders).To(HaveLen(1))
-		Expect(pool.TotalFunds).To(Equal(100 * i.KYVE))
-
-		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100 * i.KYVE))
-
-		Expect(pool.GetLowestFunder().Address).To(Equal(i.ALICE))
-		Expect(pool.GetLowestFunder().Amount).To(Equal(100 * i.KYVE))
+		funder, found := s.App().FundersKeeper.GetFunder(s.Ctx(), i.ALICE)
+		Expect(found).To(BeTrue())
+		Expect(funder.Address).To(Equal(i.ALICE))
+		Expect(funder.Moniker).To(Equal(moniker))
+		Expect(funder.Identity).To(Equal(identity))
+		Expect(funder.Logo).To(Equal(logo))
+		Expect(funder.Website).To(Equal(website))
+		Expect(funder.Contact).To(Equal(contact))
+		Expect(funder.Description).To(Equal(description))
 	})
 
-	It("Defund full funding amount from a funder who has previously funded 100 KYVE", func() {
-		// ACT
-		s.RunTxPoolSuccess(&pooltypes.MsgDefundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
-		})
-
-		// ASSERT
-		balanceAfter := s.GetBalanceFromAddress(i.ALICE)
-
-		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-
-		Expect(initialBalance - balanceAfter).To(BeZero())
-
-		Expect(pool.Funders).To(BeEmpty())
-		Expect(pool.TotalFunds).To(BeZero())
-
-		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(uint64(0)))
-
-		Expect(pool.GetLowestFunder()).To(Equal(pooltypes.Funder{}))
-	})
-
-	It("Defund as highest funder 75 KYVE in order to be the lowest funder afterwards", func() {
+	It("Create a funder with empty values", func() {
 		// ARRANGE
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.BOB,
-			Id:      0,
-			Amount:  50 * i.KYVE,
+		s.RunTxPoolSuccess(&types.MsgCreateFunder{
+			Creator: i.ALICE,
 		})
-
-		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-		Expect(pool.GetLowestFunder().Address).To(Equal(i.BOB))
-		Expect(pool.GetLowestFunder().Amount).To(Equal(50 * i.KYVE))
 
 		// ACT
-		s.RunTxPoolSuccess(&pooltypes.MsgDefundPool{
+		s.RunTxPoolError(&types.MsgCreateFunder{
 			Creator: i.ALICE,
-			Id:      0,
-			Amount:  75 * i.KYVE,
 		})
-
-		// ASSERT
-		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-		Expect(pool.GetLowestFunder().Address).To(Equal(i.ALICE))
-		Expect(pool.GetLowestFunder().Amount).To(Equal(25 * i.KYVE))
 	})
 })

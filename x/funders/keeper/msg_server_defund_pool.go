@@ -18,7 +18,7 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Funding has to exist
-	funding, found := k.getFunding(ctx, msg.Creator, msg.PoolId)
+	funding, found := k.GetFunding(ctx, msg.Creator, msg.PoolId)
 	if !found {
 		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrFundingDoesNotExist.Error(), msg.PoolId, msg.Creator)
 	}

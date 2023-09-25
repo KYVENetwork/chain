@@ -14,30 +14,30 @@ func (k msgServer) UpdateFunder(goCtx context.Context, msg *types.MsgUpdateFunde
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Error if funder does not exist
-	if !k.doesFunderExist(ctx, msg.Creator) {
+	if !k.DoesFunderExist(ctx, msg.Creator) {
 		return nil, errors.Wrap(errorsTypes.ErrInvalidRequest, types.ErrFunderDoesNotExist.Error())
 	}
 
 	// Update funder
 	k.setFunder(ctx, types.Funder{
-		Address:  msg.Creator,
-		Moniker:  msg.Moniker,
-		Identity: msg.Identity,
-		Logo:     msg.Logo,
-		Website:  msg.Website,
-		Contact:  msg.Contact,
-		Details:  msg.Details,
+		Address:     msg.Creator,
+		Moniker:     msg.Moniker,
+		Identity:    msg.Identity,
+		Logo:        msg.Logo,
+		Website:     msg.Website,
+		Contact:     msg.Contact,
+		Description: msg.Description,
 	})
 
 	// Emit a update funder event
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventUpdateFunder{
-		Address:  msg.Creator,
-		Moniker:  msg.Moniker,
-		Identity: msg.Identity,
-		Logo:     msg.Logo,
-		Website:  msg.Website,
-		Contact:  msg.Contact,
-		Details:  msg.Details,
+		Address:     msg.Creator,
+		Moniker:     msg.Moniker,
+		Identity:    msg.Identity,
+		Logo:        msg.Logo,
+		Website:     msg.Website,
+		Contact:     msg.Contact,
+		Description: msg.Description,
 	})
 
 	return &types.MsgUpdateFunderResponse{}, nil

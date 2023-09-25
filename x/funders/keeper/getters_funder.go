@@ -6,14 +6,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// DoesFundingExist checks if the funding exists
-func (k Keeper) doesFunderExist(ctx sdk.Context, funderAddress string) bool {
+// DoesFunderExist checks if the funding exists
+func (k Keeper) DoesFunderExist(ctx sdk.Context, funderAddress string) bool {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FunderKeyPrefix)
 	return store.Has(types.FunderKey(funderAddress))
 }
 
 // GetFunder returns the funder
-func (k Keeper) getFunder(ctx sdk.Context, funderAddress string) (funder types.Funder, found bool) {
+func (k Keeper) GetFunder(ctx sdk.Context, funderAddress string) (funder types.Funder, found bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FunderKeyPrefix)
 
 	b := store.Get(types.FunderKey(

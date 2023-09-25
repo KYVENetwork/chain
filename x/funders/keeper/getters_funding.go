@@ -7,13 +7,13 @@ import (
 )
 
 // DoesFundingExist checks if the funding exists
-func (k Keeper) doesFundingExist(ctx sdk.Context, funderAddress string, poolId uint64) bool {
+func (k Keeper) DoesFundingExist(ctx sdk.Context, funderAddress string, poolId uint64) bool {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FundingKeyPrefixByFunder)
 	return store.Has(types.FundingKeyByFunder(funderAddress, poolId))
 }
 
 // GetFunding returns the funding
-func (k Keeper) getFunding(ctx sdk.Context, funderAddress string, poolId uint64) (funding *types.Funding, found bool) {
+func (k Keeper) GetFunding(ctx sdk.Context, funderAddress string, poolId uint64) (funding *types.Funding, found bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FundingKeyPrefixByFunder)
 
 	b := store.Get(types.FundingKeyByFunder(
