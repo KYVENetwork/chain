@@ -430,6 +430,12 @@ func NewKYVEApp(
 		app.AccountKeeper,
 	)
 
+	app.FeeGrantKeeper = feeGrantKeeper.NewKeeper(
+		appCodec,
+		keys[feeGrantTypes.StoreKey],
+		app.AccountKeeper,
+	)
+
 	app.GroupKeeper = groupKeeper.NewKeeper(
 		keys[groupTypes.StoreKey],
 		appCodec,
