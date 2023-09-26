@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
+	tmCfg "github.com/cometbft/cometbft/config"
 	serverCfg "github.com/cosmos/cosmos-sdk/server/config"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	tmCfg "github.com/tendermint/tendermint/config"
 )
 
 func initAppConfig() (string, *serverCfg.Config) {

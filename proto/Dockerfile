@@ -10,16 +10,10 @@ RUN apk add --no-cache \
 RUN go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway@latest
 RUN go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger@latest
 
-RUN git clone https://github.com/regen-network/protobuf.git; \
-  cd protobuf; \
+RUN git clone https://github.com/cosmos/gogoproto.git; \
+  cd gogoproto; \
   go mod download; \
-  make install; \
-  cd ..
-
-RUN git clone https://github.com/regen-network/cosmos-proto.git; \
-  cd cosmos-proto/protoc-gen-gocosmos; \
-  go install .; \
-  cd ..
+  make install
 
 RUN npm install -g swagger-combine
 

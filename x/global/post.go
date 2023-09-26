@@ -31,7 +31,7 @@ func NewRefundFeeDecorator(bk bankKeeper.Keeper, fk feeGrantKeeper.Keeper, gk ke
 	}
 }
 
-func (rfd RefundFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+func (rfd RefundFeeDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, success bool, next sdk.PostHandler) (newCtx sdk.Context, err error) {
 	// Ensure that this is a fee transaction.
 	feeTx, ok := tx.(sdk.FeeTx)
 	if !ok {
@@ -43,7 +43,7 @@ func (rfd RefundFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 	fee := feeTx.GetFee()
 	msgs := feeTx.GetMsgs()
 	if fee.IsZero() || len(msgs) != 1 {
-		return next(ctx, tx, simulate)
+		return next(ctx, tx, simulate, success)
 	}
 
 	// Find the refund percentage based on the transaction message type.
@@ -58,7 +58,7 @@ func (rfd RefundFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 
 	// Return early if the refund percentage is zero.
 	if refundPercentage.IsZero() {
-		return next(ctx, tx, simulate)
+		return next(ctx, tx, simulate, success)
 	}
 
 	// Calculate the refund amount.
@@ -78,5 +78,5 @@ func (rfd RefundFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 		return ctx, err
 	}
 
-	return next(ctx, tx, simulate)
+	return next(ctx, tx, simulate, success)
 }

@@ -7,8 +7,7 @@ import (
 	"time"
 
 	kyveApp "github.com/KYVENetwork/chain/app"
-	globalTypes "github.com/KYVENetwork/chain/x/global/types"
-	teamTypes "github.com/KYVENetwork/chain/x/team/types"
+	tmCli "github.com/cometbft/cometbft/libs/cli"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
@@ -19,7 +18,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
-	tmCli "github.com/tendermint/tendermint/libs/cli"
 
 	// Auth
 	authCli "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
@@ -30,6 +28,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	// GenUtil
 	genUtilCli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+	genUtilTypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	// Global
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
+	// Team
+	teamTypes "github.com/KYVENetwork/chain/x/team/types"
 )
 
 // NewRootCmd creates a new root command for the KYVE chain daemon.
@@ -41,7 +44,6 @@ func NewRootCmd(encodingConfig kyveApp.EncodingConfig) *cobra.Command {
 		WithLegacyAmino(encodingConfig.Amino).
 		WithInput(os.Stdin).
 		WithAccountRetriever(authTypes.AccountRetriever{}).
-		WithBroadcastMode(flags.BroadcastBlock).
 		WithHomeDir(kyveApp.DefaultNodeHome).
 		WithViper("KYVE")
 
@@ -86,7 +88,8 @@ func NewRootCmd(encodingConfig kyveApp.EncodingConfig) *cobra.Command {
 
 	rootCmd.AddCommand(
 		genUtilCli.InitCmd(kyveApp.ModuleBasics, kyveApp.DefaultNodeHome),
-		genUtilCli.CollectGenTxsCmd(bankTypes.GenesisBalancesIterator{}, kyveApp.DefaultNodeHome),
+		// TODO(@john): Investigate why the one directly from the module is nil.
+		genUtilCli.CollectGenTxsCmd(bankTypes.GenesisBalancesIterator{}, kyveApp.DefaultNodeHome, genUtilTypes.DefaultMessageValidator),
 		genUtilCli.MigrateGenesisCmd(),
 		genUtilCli.GenTxCmd(
 			kyveApp.ModuleBasics,

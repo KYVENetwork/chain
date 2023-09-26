@@ -7,12 +7,12 @@ import (
 )
 
 func BuildGovernanceTxs(s *i.KeeperTestSuite, msgs []sdk.Msg) (govV1Types.MsgSubmitProposal, govV1Types.MsgVote) {
-	minDeposit := s.App().GovKeeper.GetDepositParams(s.Ctx()).MinDeposit
+	minDeposit := s.App().GovKeeper.GetParams(s.Ctx()).MinDeposit
 	delegations := s.App().StakingKeeper.GetAllDelegations(s.Ctx())
 	voter := sdk.MustAccAddressFromBech32(delegations[0].DelegatorAddress)
 
 	proposal, _ := govV1Types.NewMsgSubmitProposal(
-		msgs, minDeposit, i.DUMMY[0], "",
+		msgs, minDeposit, i.DUMMY[0], "", "title", "summary",
 	)
 
 	proposalId, _ := s.App().GovKeeper.GetProposalID(s.Ctx())

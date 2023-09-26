@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/cometbft/cometbft/libs/log"
 
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/cosmos/cosmos-sdk/codec"
