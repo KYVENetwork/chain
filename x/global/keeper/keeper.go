@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	"github.com/KYVENetwork/chain/x/global/types"
+	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tendermint/tendermint/libs/log"
 )
 
 type (

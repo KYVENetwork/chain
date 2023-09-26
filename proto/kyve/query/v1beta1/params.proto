@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package kyve.query.v1beta1;
 
-import "cosmos/gov/v1/query.proto";
+import "cosmos/gov/v1/gov.proto";
 import "google/api/annotations.proto";
 import "kyve/bundles/v1beta1/params.proto";
 import "kyve/delegation/v1beta1/params.proto";
@@ -36,7 +36,7 @@ message QueryParamsResponse {
   // global_params ...
   kyve.global.v1beta1.Params global_params = 3;
   // gov_params ...
-  cosmos.gov.v1.QueryParamsResponse gov_params = 4;
+  cosmos.gov.v1.Params gov_params = 4;
   // stakers_params ...
   kyve.stakers.v1beta1.Params stakers_params = 5;
   // pool_params ...

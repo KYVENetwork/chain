@@ -166,10 +166,10 @@ var _ = Describe("Protocol Governance Voting", Ordered, func() {
 })
 
 func CreateTestProposal(ctx sdk.Context, keepers kyveApp.Keepers) sdk.Msg {
-	minDeposit := keepers.GovKeeper.GetDepositParams(ctx).MinDeposit
+	minDeposit := keepers.GovKeeper.GetParams(ctx).MinDeposit
 
 	proposal, _ := govTypes.NewMsgSubmitProposal(
-		[]sdk.Msg{}, minDeposit, i.DUMMY[0], "ipfs://CID",
+		[]sdk.Msg{}, minDeposit, i.DUMMY[0], "metadata", "title", "summary",
 	)
 
 	return proposal
