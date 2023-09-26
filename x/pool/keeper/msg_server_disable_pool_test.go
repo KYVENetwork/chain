@@ -37,7 +37,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 	s := i.NewCleanChain()
 
 	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
-	votingPeriod := s.App().GovKeeper.GetVotingParams(s.Ctx()).VotingPeriod
+	votingPeriod := s.App().GovKeeper.GetParams(s.Ctx()).VotingPeriod
 
 	BeforeEach(func() {
 		s = i.NewCleanChain()

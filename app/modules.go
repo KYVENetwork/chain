@@ -16,6 +16,8 @@ import (
 	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
 	// Capability
 	"github.com/cosmos/cosmos-sdk/x/capability"
+	// Consensus
+	"github.com/cosmos/cosmos-sdk/x/consensus"
 	// Crisis
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	// Delegation
@@ -34,27 +36,33 @@ import (
 	"github.com/KYVENetwork/chain/x/global"
 	// Governance
 	"github.com/cosmos/cosmos-sdk/x/gov"
+	govClient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	govTypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	// Group
 	group "github.com/cosmos/cosmos-sdk/x/group/module"
-	// IBC
-	ibc "github.com/cosmos/ibc-go/v6/modules/core"
+	// IBC Core
+	ibc "github.com/cosmos/ibc-go/v7/modules/core"
+	ibcClient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
+	// IBC Light Clients
+	ibcSm "github.com/cosmos/ibc-go/v7/modules/light-clients/06-solomachine"
+	ibcTm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	// IBC Fee
-	ibcFee "github.com/cosmos/ibc-go/v6/modules/apps/29-fee"
-	ibcFeeTypes "github.com/cosmos/ibc-go/v6/modules/apps/29-fee/types"
+	ibcFee "github.com/cosmos/ibc-go/v7/modules/apps/29-fee"
+	ibcFeeTypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
 	// IBC Transfer
-	ibcTransfer "github.com/cosmos/ibc-go/v6/modules/apps/transfer"
-	ibcTransferTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	ibcTransfer "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
+	ibcTransferTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	// ICA
-	ica "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts"
-	icaTypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
+	ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
+	icaTypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 	// Mint
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	// Parameters
 	"github.com/cosmos/cosmos-sdk/x/params"
+	paramsClient "github.com/cosmos/cosmos-sdk/x/params/client"
 	// PFM
-	pfm "github.com/strangelove-ventures/packet-forward-middleware/v6/router"
+	pfm "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
@@ -73,6 +81,7 @@ import (
 	teamTypes "github.com/KYVENetwork/chain/x/team/types"
 	// Upgrade
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
+	upgradeClient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 )
 
 // appModuleBasics returns ModuleBasics for the module BasicManager.
@@ -82,12 +91,19 @@ var appModuleBasics = []module.AppModuleBasic{
 	authz.AppModuleBasic{},
 	bank.AppModuleBasic{},
 	capability.AppModuleBasic{},
+	consensus.AppModuleBasic{},
 	crisis.AppModuleBasic{},
 	distribution.AppModuleBasic{},
 	evidence.AppModuleBasic{},
 	feeGrant.AppModuleBasic{},
 	genutil.AppModuleBasic{},
-	gov.NewAppModuleBasic(getGovProposalHandlers()),
+	gov.NewAppModuleBasic([]govClient.ProposalHandler{
+		paramsClient.ProposalHandler,
+		upgradeClient.LegacyProposalHandler,
+		upgradeClient.LegacyCancelProposalHandler,
+		ibcClient.UpdateClientProposalHandler,
+		ibcClient.UpgradeProposalHandler,
+	}),
 	group.AppModuleBasic{},
 	mint.AppModuleBasic{},
 	params.AppModuleBasic{},
@@ -98,6 +114,8 @@ var appModuleBasics = []module.AppModuleBasic{
 
 	// IBC
 	ibc.AppModuleBasic{},
+	ibcSm.AppModuleBasic{},
+	ibcTm.AppModuleBasic{},
 	ibcFee.AppModuleBasic{},
 	ibcTransfer.AppModuleBasic{},
 	ica.AppModuleBasic{},
@@ -147,7 +165,7 @@ func (app *App) BlockedModuleAccountAddrs() map[string]bool {
 // ModuleAccountAddrs returns all the app's module account addresses.
 func (app *App) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
-	for acc := range maccPerms {
+	for acc := range moduleAccountPermissions {
 		modAccAddrs[authTypes.NewModuleAddress(acc).String()] = true
 	}
 
