@@ -250,8 +250,8 @@ github.com/FactomProject/btcutilecc v0.0.0-20130527213604-d3a63a5752ec h1:1Qb69m
 github.com/FactomProject/btcutilecc v0.0.0-20130527213604-d3a63a5752ec/go.mod h1:CD8UlnlLDiqb36L110uqiP2iSflVjx9g/3U9hCI4q2U=
 github.com/GaijinEntertainment/go-exhaustruct/v2 v2.3.0 h1:+r1rSv4gvYn0wmRjC8X7IAzX8QezqtFV9m0MUHFJgts=
 github.com/GaijinEntertainment/go-exhaustruct/v2 v2.3.0/go.mod h1:b3g59n2Y+T5xmcxJL+UEG2f8cQploZm1mR/v6BW0mU0=
-github.com/KYVENetwork/cosmos-sdk v0.47.4-0.20230912091353-d2c627552db3 h1:yAUoqAFdx2Hw6OFiUXiisE/vNSNmVYzBrgbNAmkYO8A=
-github.com/KYVENetwork/cosmos-sdk v0.47.4-0.20230912091353-d2c627552db3/go.mod h1:EHwCeN9IXonsjKcjpS12MqeStdZvIdxt3VYXhus3G3c=
+github.com/KYVENetwork/cosmos-sdk v0.47.5-kyve-rc0 h1:FmlzQ31pUpd+PgDnUPR9cxNL0GdBCAOLlevhnrvS05Y=
+github.com/KYVENetwork/cosmos-sdk v0.47.5-kyve-rc0/go.mod h1:EHwCeN9IXonsjKcjpS12MqeStdZvIdxt3VYXhus3G3c=
 github.com/KYVEnetwork/interchaintest/v7 v7.0.0-20230430102232-d4378a86dc25 h1:HPCebOL17UjN9yPHUndunLbtr5o+J8nJbLrO/KDEgTg=
 github.com/KYVEnetwork/interchaintest/v7 v7.0.0-20230430102232-d4378a86dc25/go.mod h1:iX6tg3V6mH64h37ZvLuJa7lp9GbmFixTMlVu6Gilb/Q=
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
