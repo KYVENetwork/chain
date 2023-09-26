@@ -138,7 +138,6 @@ genesis:
           current_key: ""
           current_storage_provider_id: "1"
           current_summary: ""
-          funders: []
           id: "0"
           logo: ""
           max_bundle_size: "100"
@@ -149,7 +148,6 @@ genesis:
           runtime: '@kyvejs/tendermint-bsync'
           start_key: "1"
           total_bundles: "0"
-          total_funds: "0"
           upload_interval: "60"
           protocol:
             version: "1.0.0"

@@ -1,8 +1,10 @@
 package keeper
 
 import (
-	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
+	"cosmossdk.io/errors"
+	"github.com/KYVENetwork/chain/x/funders/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // ChargeFundersOfPool equally splits the amount between all funders and removes
@@ -11,54 +13,38 @@ import (
 // Their remaining amount is transferred to the Treasury.
 // This method does not transfer any funds. The bundles-module
 // is responsible for transferring the rewards out of the module.
-func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint64) (payout uint64, err error) {
-	pool, poolErr := k.poolKeeper.GetPoolWithError(ctx, poolId)
-	if poolErr != nil {
-		return 0, poolErr
+// TODO: update text
+func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint64, err error) {
+	// Get funding state for pool
+	fundingState, found := k.GetFundingState(ctx, poolId)
+	if !found {
+		return 0, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrFundingStateDoesNotExist.Error(), poolId)
 	}
 
-	// if pool has no funders we immediately return
-	if len(pool.Funders) == 0 {
-		return payout, err
+	// If there are no active fundings we immediately return
+	activeFundings := k.GetActiveFundings(ctx, fundingState)
+	if len(activeFundings) == 0 {
+		return 0, nil
 	}
 
-	// This is the amount every funder will be charged
-	amountPerFunder := amount / uint64(len(pool.Funders))
-
-	// Due to discrete division there will be a remainder which can not be split
-	// equally among all funders. This amount is charged to the lowest funder
-	amountRemainder := amount - amountPerFunder*uint64(len(pool.Funders))
-
-	funders := pool.Funders
-
-	for _, funder := range funders {
-		if funder.Amount < amountPerFunder {
-			pool.RemoveFunder(funder.Address)
-			payout += funder.Amount
-		} else {
-			pool.SubtractAmountFromFunder(funder.Address, amountPerFunder)
-			payout += amountPerFunder
+	// This is the amount every funding will be charged
+	payout = 0
+	for _, funding := range activeFundings {
+		payout += funding.ChargeOneBundle()
+		if funding.Amount == 0 {
+			fundingState.SetInactive(funding)
 		}
+		k.setFunding(ctx, funding)
 	}
 
-	lowestFunder := pool.GetLowestFunder()
+	// Save funding state
+	k.setFundingState(ctx, fundingState)
 
-	if lowestFunder.Address != "" {
-		if lowestFunder.Amount < amountRemainder {
-			pool.RemoveFunder(lowestFunder.Address)
-			payout += lowestFunder.Amount
-		} else {
-			pool.SubtractAmountFromFunder(lowestFunder.Address, amountRemainder)
-			payout += amountRemainder
-		}
-	}
-
-	if len(pool.Funders) == 0 {
-		_ = ctx.EventManager().EmitTypedEvent(&poolTypes.EventPoolOutOfFunds{
-			PoolId: pool.Id,
+	// Emit a pool out of funds event if there are no more active funders
+	if len(fundingState.ActiveFunderAddresses) == 0 {
+		_ = ctx.EventManager().EmitTypedEvent(&types.EventPoolOutOfFunds{
+			PoolId: poolId,
 		})
 	}
-
-	k.SetPool(ctx, pool)
 	return payout, nil
 }

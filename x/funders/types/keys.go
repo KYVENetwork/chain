@@ -61,6 +61,10 @@ func FundingKeyByPool(funderAddress string, poolId uint64) []byte {
 	return util.GetByteKey(poolId, funderAddress)
 }
 
+func FundingKeyByPoolOnly(poolId uint64) []byte {
+	return util.GetByteKey(poolId)
+}
+
 func FundingStateKey(poolId uint64) []byte {
 	return util.GetByteKey(poolId)
 }

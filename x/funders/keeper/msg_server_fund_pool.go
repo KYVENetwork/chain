@@ -54,13 +54,12 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 	}
 
 	// Get or create funding state for pool
-	fundingState, found := k.getFundingState(ctx, msg.PoolId)
+	fundingState, found := k.GetFundingState(ctx, msg.PoolId)
 	if !found {
 		fundingState = types.FundingState{
-			PoolId:           msg.PoolId,
-			ActiveFundings:   []*types.Funding{},
-			InactiveFundings: []*types.Funding{},
-			TotalAmount:      0,
+			PoolId:                msg.PoolId,
+			ActiveFunderAddresses: []string{},
+			TotalAmount:           0,
 		}
 		k.setFundingState(ctx, fundingState)
 	}
@@ -89,9 +88,11 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 
 	var defunding *types.Funding = nil
 
+	activeFundings := k.GetActiveFundings(ctx, fundingState)
+
 	// Check if funding limit is exceeded
-	if len(fundingState.ActiveFundings) >= types.MaxFunders {
-		lowestFunding, err := fundingState.GetLowestFunding()
+	if len(activeFundings) >= types.MaxFunders {
+		lowestFunding, err := k.GetLowestFunding(activeFundings)
 		if err != nil {
 			util.PanicHalt(k.upgradeKeeper, ctx, err.Error())
 		}

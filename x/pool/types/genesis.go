@@ -2,7 +2,6 @@ package types
 
 import (
 	"fmt"
-	fundersTypes "github.com/KYVENetwork/chain/x/funders/types"
 )
 
 // DefaultGenesis returns the default Capability genesis state
@@ -27,9 +26,10 @@ func (gs GenesisState) Validate() error {
 		if elem.Id >= gs.PoolCount {
 			return fmt.Errorf("pool id higher than pool count %v", elem)
 		}
-		if len(elem.Funders) > fundersTypes.MaxFunders {
-			return fmt.Errorf("more funders than allowed %v", elem)
-		}
+		// TODO: fix this
+		//if len(elem.Funders) > fundersTypes.MaxFunders {
+		//	return fmt.Errorf("more funders than allowed %v", elem)
+		//}
 	}
 
 	return gs.Params.Validate()

@@ -68,3 +68,10 @@ message EventDefundPool {
   // amount is the amount in ukyve the funder has defunded
   uint64 amount = 3;
 }
+
+// EventPoolOutOfFunds is an event emitted when a pool has run out of funds
+// emitted_by: MsgSubmitBundleProposal
+message EventPoolOutOfFunds {
+  // pool_id is the unique ID of the pool.
+  uint64 pool_id = 1;
+}

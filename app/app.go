@@ -533,6 +533,10 @@ func NewKYVEApp(
 		memKeys[fundersTypes.MemStoreKey],
 
 		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
+
+		app.BankKeeper,
+		app.PoolKeeper,
+		app.UpgradeKeeper,
 	)
 
 	app.IBCKeeper = ibcKeeper.NewKeeper(

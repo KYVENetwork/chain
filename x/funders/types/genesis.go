@@ -12,6 +12,6 @@ func DefaultGenesis() *GenesisState {
 // failure.
 func (gs GenesisState) Validate() error {
 	// this line is used by starport scaffolding # genesis/types/validate
-
+	// TODO: check funders (not more than allowed)
 	return gs.Params.Validate()
 }

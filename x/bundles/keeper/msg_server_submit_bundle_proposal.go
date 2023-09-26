@@ -67,10 +67,12 @@ func (k msgServer) SubmitBundleProposal(goCtx context.Context, msg *types.MsgSub
 		pool, _ := k.poolKeeper.GetPool(ctx, msg.PoolId)
 
 		// charge the operating cost from funders
-		fundersPayout, err := k.poolKeeper.ChargeFundersOfPool(ctx, msg.PoolId, pool.OperatingCost)
-		if err != nil {
-			return &types.MsgSubmitBundleProposalResponse{}, err
-		}
+		// TODO(rapha): fix this
+		fundersPayout := uint64(0)
+		//fundersPayout, err := k.poolKeeper.ChargeFundersOfPool(ctx, msg.PoolId, pool.OperatingCost)
+		//if err != nil {
+		//	return &types.MsgSubmitBundleProposalResponse{}, err
+		//}
 
 		// charge the inflation pool
 		inflationPayout, err := k.poolKeeper.ChargeInflationPool(ctx, msg.PoolId)

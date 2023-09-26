@@ -44,13 +44,14 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 		poolMemberships = append(
 			poolMemberships, &types.PoolMembership{
 				Pool: &types.BasicPool{
-					Id:              pool.Id,
-					Name:            pool.Name,
-					Runtime:         pool.Runtime,
-					Logo:            pool.Logo,
-					OperatingCost:   pool.OperatingCost,
-					UploadInterval:  pool.UploadInterval,
-					TotalFunds:      pool.TotalFunds,
+					Id:             pool.Id,
+					Name:           pool.Name,
+					Runtime:        pool.Runtime,
+					Logo:           pool.Logo,
+					OperatingCost:  pool.OperatingCost,
+					UploadInterval: pool.UploadInterval,
+					// TODO(rapha): fix this
+					//TotalFunds:      pool.TotalFunds,
 					TotalDelegation: k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id),
 					Status:          k.GetPoolStatus(ctx, &pool),
 				},
@@ -92,8 +93,9 @@ func (k Keeper) GetPoolStatus(ctx sdk.Context, pool *pooltypes.Pool) pooltypes.P
 		poolStatus = pooltypes.POOL_STATUS_DISABLED
 	} else if totalDelegation < pool.MinDelegation {
 		poolStatus = pooltypes.POOL_STATUS_NOT_ENOUGH_DELEGATION
-	} else if pool.TotalFunds == 0 {
-		poolStatus = pooltypes.POOL_STATUS_NO_FUNDS
+		// TODO(rapha): fix this
+		//} else if pool.TotalFunds == 0 {
+		//	poolStatus = pooltypes.POOL_STATUS_NO_FUNDS
 	} else {
 		poolStatus = pooltypes.POOL_STATUS_ACTIVE
 	}

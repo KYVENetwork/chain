@@ -7,15 +7,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgFundPool{}, "kyve/pool/MsgFundPool", nil)
-	cdc.RegisterConcrete(&MsgDefundPool{}, "kyve/pool/MsgDefundPool", nil)
+func RegisterLegacyAminoCodec(_ *codec.LegacyAmino) {
 }
 
 func RegisterInterfaces(registry codecTypes.InterfaceRegistry) {
-	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgFundPool{})
-	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgDefundPool{})
-
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgCreatePool{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgUpdatePool{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgDisablePool{})

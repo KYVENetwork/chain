@@ -5,28 +5,18 @@ import (
 	"github.com/KYVENetwork/chain/util"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 )
 
 var (
-	_ legacytx.LegacyMsg = &MsgFundPool{}
-	_ sdk.Msg            = &MsgFundPool{}
+	_ sdk.Msg = &MsgDefundPool{}
 )
 
-func NewMsgFundPool(creator string, id uint64, amount uint64) *MsgFundPool {
-	return &MsgFundPool{
-		Creator: creator,
-		Id:      id,
-		Amount:  amount,
-	}
-}
-
-func (msg *MsgFundPool) GetSignBytes() []byte {
+func (msg *MsgDefundPool) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
-func (msg *MsgFundPool) GetSigners() []sdk.AccAddress {
+func (msg *MsgDefundPool) GetSigners() []sdk.AccAddress {
 	creator, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
 		panic(err)
@@ -35,17 +25,21 @@ func (msg *MsgFundPool) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{creator}
 }
 
-func (msg *MsgFundPool) Route() string {
+func (msg *MsgDefundPool) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgFundPool) Type() string {
-	return "kyve/pool/MsgFundPool"
+func (msg *MsgDefundPool) Type() string {
+	return "kyve/funders/MsgDefundPool"
 }
 
-func (msg *MsgFundPool) ValidateBasic() error {
+func (msg *MsgDefundPool) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Creator); err != nil {
 		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid creator address: %s", err)
+	}
+
+	if util.ValidatePositiveNumber(msg.PoolId) != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid pool id")
 	}
 
 	if util.ValidateNumber(msg.Amount) != nil {

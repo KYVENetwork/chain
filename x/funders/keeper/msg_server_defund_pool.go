@@ -28,7 +28,7 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 	}
 
 	// FundingState has to exist
-	fundingState, found := k.getFundingState(ctx, msg.PoolId)
+	fundingState, found := k.GetFundingState(ctx, msg.PoolId)
 	if !found {
 		util.PanicHalt(k.upgradeKeeper, ctx, fmt.Sprintf("FundingState for pool %d does not exist", msg.PoolId))
 	}

@@ -19,6 +19,7 @@ require (
 	github.com/onsi/gomega v1.26.0
 	github.com/spf13/cast v1.5.1
 	github.com/spf13/cobra v1.7.0
+	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.16.0
 	github.com/strangelove-ventures/packet-forward-middleware/v7 v7.0.0-20230523193151-73dea436e53f
 	github.com/stretchr/testify v1.8.4
@@ -257,7 +258,6 @@ require (
 	github.com/sourcegraph/go-diff v0.7.0 // indirect
 	github.com/spf13/afero v1.9.5 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
 	github.com/stbenjam/no-sprintf-host-port v0.1.1 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect

@@ -1,10 +1,5 @@
 package types
 
-import (
-	"errors"
-	"fmt"
-)
-
 func (f *Funding) AddAmount(amount uint64) {
 	f.Amount += amount
 }
@@ -17,56 +12,32 @@ func (f *Funding) SubtractAmount(amount uint64) {
 	}
 }
 
-func (fh *FundingState) GetLowestFunding() (funding *Funding, err error) {
-	if len(fh.ActiveFundings) == 0 {
-		return nil, errors.New(fmt.Sprintf("no active fundings for pool %d", fh.PoolId))
+func (f *Funding) ChargeOneBundle() (amount uint64) {
+	amount = f.AmountPerBundle
+	if f.Amount < f.AmountPerBundle {
+		amount = f.Amount
 	}
-
-	lowestFunding := fh.ActiveFundings[0]
-	for _, v := range fh.ActiveFundings {
-		if v.Amount < lowestFunding.Amount {
-			lowestFunding = v
-		}
-	}
-	return lowestFunding, nil
+	f.SubtractAmount(amount)
+	return amount
 }
 
-// SetInactive moves a funding from active to inactive
-func (fh *FundingState) SetInactive(funding *Funding) {
-	// Remove funding from active fundings
-	for i, v := range fh.ActiveFundings {
-		if v.FunderAddress == funding.FunderAddress {
-			fh.ActiveFundings[i] = fh.ActiveFundings[len(fh.ActiveFundings)-1]
-			fh.ActiveFundings = fh.ActiveFundings[:len(fh.ActiveFundings)-1]
+// SetInactive removes a funding from active fundings
+func (fs *FundingState) SetInactive(funding *Funding) {
+	for i, funderAddress := range fs.ActiveFunderAddresses {
+		if funderAddress == funding.FunderAddress {
+			fs.ActiveFunderAddresses[i] = fs.ActiveFunderAddresses[len(fs.ActiveFunderAddresses)-1]
+			fs.ActiveFunderAddresses = fs.ActiveFunderAddresses[:len(fs.ActiveFunderAddresses)-1]
 			break
 		}
 	}
-
-	// Add funding to inactive fundings
-	for _, v := range fh.InactiveFundings {
-		if v.FunderAddress == funding.FunderAddress {
-			return
-		}
-	}
-	fh.InactiveFundings = append(fh.InactiveFundings, funding)
 }
 
-// SetActive moves a funding from inactive to active
-func (fh *FundingState) SetActive(funding *Funding) {
-	// Remove funding from inactive fundings
-	for i, v := range fh.InactiveFundings {
-		if v.FunderAddress == funding.FunderAddress {
-			fh.InactiveFundings[i] = fh.InactiveFundings[len(fh.InactiveFundings)-1]
-			fh.InactiveFundings = fh.InactiveFundings[:len(fh.InactiveFundings)-1]
-			break
-		}
-	}
-
-	// Add funding to active fundings
-	for _, v := range fh.ActiveFundings {
-		if v.FunderAddress == funding.FunderAddress {
+// SetActive adds a funding to active fundings
+func (fs *FundingState) SetActive(funding *Funding) {
+	for _, funderAddress := range fs.ActiveFunderAddresses {
+		if funderAddress == funding.FunderAddress {
 			return
 		}
 	}
-	fh.ActiveFundings = append(fh.ActiveFundings, funding)
+	fs.ActiveFunderAddresses = append(fs.ActiveFunderAddresses, funding.FunderAddress)
 }
