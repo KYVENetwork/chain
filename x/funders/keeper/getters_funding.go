@@ -13,7 +13,7 @@ func (k Keeper) DoesFundingExist(ctx sdk.Context, funderAddress string, poolId u
 }
 
 // GetFunding returns the funding
-func (k Keeper) GetFunding(ctx sdk.Context, funderAddress string, poolId uint64) (funding *types.Funding, found bool) {
+func (k Keeper) GetFunding(ctx sdk.Context, funderAddress string, poolId uint64) (funding types.Funding, found bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FundingKeyPrefixByFunder)
 
 	b := store.Get(types.FundingKeyByFunder(
@@ -24,12 +24,12 @@ func (k Keeper) GetFunding(ctx sdk.Context, funderAddress string, poolId uint64)
 		return funding, false
 	}
 
-	k.cdc.MustUnmarshal(b, funding)
+	k.cdc.MustUnmarshal(b, &funding)
 	return funding, true
 }
 
 // GetFundingsOfPool returns all fundings of a pool
-func (k Keeper) GetFundingsOfPool(ctx sdk.Context, poolId uint64) (fundings []*types.Funding) {
+func (k Keeper) GetFundingsOfPool(ctx sdk.Context, poolId uint64) (fundings []types.Funding) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FundingKeyPrefixByPool)
 
 	iterator := sdk.KVStorePrefixIterator(store, types.FundingKeyByPoolOnly(poolId))
@@ -39,7 +39,7 @@ func (k Keeper) GetFundingsOfPool(ctx sdk.Context, poolId uint64) (fundings []*t
 	for ; iterator.Valid(); iterator.Next() {
 		var funding types.Funding
 		k.cdc.MustUnmarshal(iterator.Value(), &funding)
-		fundings = append(fundings, &funding)
+		fundings = append(fundings, funding)
 	}
 	return fundings
 }

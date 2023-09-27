@@ -20,7 +20,7 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 	// Funding has to exist
 	funding, found := k.GetFunding(ctx, msg.Creator, msg.PoolId)
 	if !found {
-		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrFundingDoesNotExist.Error(), msg.PoolId, msg.Creator)
+		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrFundingDoesNotExist.Error(), msg.PoolId, msg.Creator)
 	}
 
 	if funding.Amount == 0 {
@@ -41,18 +41,20 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 
 	funding.SubtractAmount(amount)
 	if funding.Amount == 0 {
-		fundingState.SetInactive(funding)
+		fundingState.SetInactive(&funding)
 	}
 	fundingState.TotalAmount -= amount
 
 	// Transfer tokens from this module to sender.
-	if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, types.ModuleName, msg.Creator, msg.Amount); err != nil {
+	// TODO: change module name to funders
+	//if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, types.ModuleName, msg.Creator, amount); err != nil {
+	if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, "pool", msg.Creator, amount); err != nil {
 		return nil, err
 	}
 
 	// Save funding and funding state
-	k.setFunding(ctx, funding)
-	fundingState.SetActive(funding)
+	k.setFunding(ctx, &funding)
+	fundingState.SetActive(&funding)
 
 	// Emit a defund event.
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventDefundPool{

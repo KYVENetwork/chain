@@ -15,11 +15,11 @@ func (k msgServer) UpdateFunder(goCtx context.Context, msg *types.MsgUpdateFunde
 
 	// Error if funder does not exist
 	if !k.DoesFunderExist(ctx, msg.Creator) {
-		return nil, errors.Wrap(errorsTypes.ErrInvalidRequest, types.ErrFunderDoesNotExist.Error())
+		return nil, errors.Wrap(errorsTypes.ErrNotFound, types.ErrFunderDoesNotExist.Error())
 	}
 
 	// Update funder
-	k.setFunder(ctx, types.Funder{
+	k.setFunder(ctx, &types.Funder{
 		Address:     msg.Creator,
 		Moniker:     msg.Moniker,
 		Identity:    msg.Identity,

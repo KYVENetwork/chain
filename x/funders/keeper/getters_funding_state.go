@@ -38,7 +38,7 @@ func (k Keeper) setFundingState(ctx sdk.Context, fundingState types.FundingState
 	), b)
 }
 
-func (k Keeper) GetActiveFundings(ctx sdk.Context, fundingState types.FundingState) (fundings []*types.Funding) {
+func (k Keeper) GetActiveFundings(ctx sdk.Context, fundingState types.FundingState) (fundings []types.Funding) {
 	for _, funder := range fundingState.ActiveFunderAddresses {
 		funding, found := k.GetFunding(ctx, funder, fundingState.PoolId)
 		if found {
@@ -50,14 +50,14 @@ func (k Keeper) GetActiveFundings(ctx sdk.Context, fundingState types.FundingSta
 
 // GetLowestFunding returns the funding with the lowest amount
 // Precondition: len(fundings) > 0
-func (k Keeper) GetLowestFunding(fundings []*types.Funding) (lowestFunding *types.Funding, err error) {
+func (k Keeper) GetLowestFunding(fundings []types.Funding) (lowestFunding *types.Funding, err error) {
 	if len(fundings) == 0 {
 		return nil, errors.New(fmt.Sprintf("no active fundings"))
 	}
 
 	for _, funding := range fundings {
 		if funding.Amount < lowestFunding.Amount {
-			lowestFunding = funding
+			lowestFunding = &funding
 		}
 	}
 	return lowestFunding, nil

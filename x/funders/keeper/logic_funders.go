@@ -18,7 +18,7 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint
 	// Get funding state for pool
 	fundingState, found := k.GetFundingState(ctx, poolId)
 	if !found {
-		return 0, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrFundingStateDoesNotExist.Error(), poolId)
+		return 0, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrFundingStateDoesNotExist.Error(), poolId)
 	}
 
 	// If there are no active fundings we immediately return
@@ -32,9 +32,9 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint
 	for _, funding := range activeFundings {
 		payout += funding.ChargeOneBundle()
 		if funding.Amount == 0 {
-			fundingState.SetInactive(funding)
+			fundingState.SetInactive(&funding)
 		}
-		k.setFunding(ctx, funding)
+		k.setFunding(ctx, &funding)
 	}
 
 	// Save funding state

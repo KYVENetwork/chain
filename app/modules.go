@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/KYVENetwork/chain/x/funders"
+	fundersTypes "github.com/KYVENetwork/chain/x/funders/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	// Auth
@@ -154,6 +155,7 @@ var moduleAccountPermissions = map[string][]string{
 	poolTypes.ModuleName:       nil,
 	stakersTypes.ModuleName:    nil,
 	teamTypes.ModuleName:       nil,
+	fundersTypes.ModuleName:    nil,
 }
 
 // BlockedModuleAccountAddrs returns all the app's blocked module account addresses.

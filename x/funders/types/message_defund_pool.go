@@ -38,11 +38,11 @@ func (msg *MsgDefundPool) ValidateBasic() error {
 		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid creator address: %s", err)
 	}
 
-	if util.ValidatePositiveNumber(msg.PoolId) != nil {
+	if util.ValidateNumber(msg.PoolId) != nil {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid pool id")
 	}
 
-	if util.ValidateNumber(msg.Amount) != nil {
+	if util.ValidatePositiveNumber(msg.Amount) != nil {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid amount")
 	}
 

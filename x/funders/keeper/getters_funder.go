@@ -28,9 +28,9 @@ func (k Keeper) GetFunder(ctx sdk.Context, funderAddress string) (funder types.F
 }
 
 // SetFunder sets a specific funder in the store from its index
-func (k Keeper) setFunder(ctx sdk.Context, funder types.Funder) {
+func (k Keeper) setFunder(ctx sdk.Context, funder *types.Funder) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FunderKeyPrefix)
-	b := k.cdc.MustMarshal(&funder)
+	b := k.cdc.MustMarshal(funder)
 	store.Set(types.FunderKey(
 		funder.Address,
 	), b)

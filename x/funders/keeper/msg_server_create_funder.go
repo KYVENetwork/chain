@@ -21,7 +21,7 @@ func (k msgServer) CreateFunder(goCtx context.Context, msg *types.MsgCreateFunde
 	}
 
 	// Create new funder
-	k.setFunder(ctx, types.Funder{
+	k.setFunder(ctx, &types.Funder{
 		Address:     msg.Creator,
 		Moniker:     msg.Moniker,
 		Identity:    msg.Identity,

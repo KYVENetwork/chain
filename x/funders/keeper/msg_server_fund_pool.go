@@ -44,7 +44,7 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 
 	// Funder has to exist
 	if !k.DoesFunderExist(ctx, msg.Creator) {
-		return nil, errors.Wrapf(errorsTypes.ErrUnauthorized, types.ErrFunderDoesNotExist.Error(), msg.Creator)
+		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrFunderDoesNotExist.Error(), msg.Creator)
 	}
 
 	// Pool has to exist
@@ -71,7 +71,7 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 		funding.AddAmount(msg.Amount)
 	} else {
 		// If not, create new funding
-		funding = &types.Funding{
+		funding = types.Funding{
 			FunderAddress:   msg.Creator,
 			PoolId:          msg.PoolId,
 			Amount:          msg.Amount,
@@ -109,10 +109,11 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 		}
 	}
 
-	// TODO: do I have to call ValidateBasic() here?
 	// User is allowed to fund
 	// Let's see if he has enough funds
-	if err := util.TransferFromAddressToModule(k.bankKeeper, ctx, msg.Creator, types.ModuleName, msg.Amount); err != nil {
+	// TODO: change module name to types.ModuleName
+	//if err := util.TransferFromAddressToModule(k.bankKeeper, ctx, msg.Creator, types.ModuleName, msg.Amount); err != nil {
+	if err := util.TransferFromAddressToModule(k.bankKeeper, ctx, msg.Creator, "pool", msg.Amount); err != nil {
 		return nil, err
 	}
 
@@ -126,10 +127,10 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 	}
 
 	// Funding must be active
-	fundingState.SetActive(funding)
+	fundingState.SetActive(&funding)
 
 	// Save funding and funding state
-	k.setFunding(ctx, funding)
+	k.setFunding(ctx, &funding)
 	k.setFundingState(ctx, fundingState)
 
 	// Emit a fund event.
