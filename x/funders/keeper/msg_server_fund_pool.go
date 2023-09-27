@@ -98,6 +98,7 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 		}
 
 		// Check if lowest funding is lower than new funding
+		// TODO: what criteria should we use to determine if a funder is the lowest?
 		if lowestFunding.Amount < funding.Amount {
 			// If so, check if lowest funding is from someone else
 			if lowestFunding.FunderAddress != funding.FunderAddress {
@@ -111,16 +112,21 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 
 	// User is allowed to fund
 	// Let's see if he has enough funds
-	// TODO: change module name to types.ModuleName
-	//if err := util.TransferFromAddressToModule(k.bankKeeper, ctx, msg.Creator, types.ModuleName, msg.Amount); err != nil {
-	if err := util.TransferFromAddressToModule(k.bankKeeper, ctx, msg.Creator, "pool", msg.Amount); err != nil {
+	if err := util.TransferFromAddressToModule(k.bankKeeper, ctx, msg.Creator, types.ModuleName, msg.Amount); err != nil {
+		//if err := util.TransferFromAddressToModule(k.bankKeeper, ctx, msg.Creator, "pool", msg.Amount); err != nil {
 		return nil, err
 	}
 
 	// Check if defunding is necessary
 	if defunding != nil {
 		err := k.defundLowestFunding(ctx, defunding, &fundingState, msg.PoolId)
+
 		// TODO: what to do if defunding fails? Should we return the funds to the user?
+		if err2 := util.TransferFromModuleToAddress(k.bankKeeper, ctx, types.ModuleName, msg.Creator, msg.Amount); err2 != nil {
+			k.Logger(ctx).Error("Failed to defund lowest funding", "error", err.Error())
+			k.Logger(ctx).Error("Failed to transfer funds back to user", "error", err2.Error())
+			return nil, err2
+		}
 		if err != nil {
 			return nil, err
 		}

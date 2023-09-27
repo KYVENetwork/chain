@@ -46,9 +46,7 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 	fundingState.TotalAmount -= amount
 
 	// Transfer tokens from this module to sender.
-	// TODO: change module name to funders
-	//if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, types.ModuleName, msg.Creator, amount); err != nil {
-	if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, "pool", msg.Creator, amount); err != nil {
+	if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, types.ModuleName, msg.Creator, amount); err != nil {
 		return nil, err
 	}
 
