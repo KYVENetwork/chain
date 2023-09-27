@@ -13,9 +13,11 @@ import (
 TEST CASES - msg_server_create_funder.go
 
 * Create a funder with empty values
+* Create a funder with empty values except moniker
 * Create a funder with all values set
 * Create a funder that already exists
-* TODO: Create two funders with the same moniker
+* Create two funders with the same moniker	// TODO: should this be allowed?
+* Create two funders
 */
 
 var _ = Describe("msg_server_create_funder.go", Ordered, func() {
@@ -31,16 +33,24 @@ var _ = Describe("msg_server_create_funder.go", Ordered, func() {
 	})
 
 	It("Create a funder with empty values", func() {
-		// ACT
-		s.RunTxPoolSuccess(&types.MsgCreateFunder{
+		// ASSERT
+		s.RunTxFundersError(&types.MsgCreateFunder{
 			Creator: i.ALICE,
+		})
+	})
+
+	It("Create a funder with empty values except moniker", func() {
+		// ACT
+		s.RunTxFundersSuccess(&types.MsgCreateFunder{
+			Creator: i.ALICE,
+			Moniker: "moniker",
 		})
 
 		// ASSERT
 		funder, found := s.App().FundersKeeper.GetFunder(s.Ctx(), i.ALICE)
 		Expect(found).To(BeTrue())
 		Expect(funder.Address).To(Equal(i.ALICE))
-		Expect(funder.Moniker).To(BeEmpty())
+		Expect(funder.Moniker).To(Equal("moniker"))
 		Expect(funder.Identity).To(BeEmpty())
 		Expect(funder.Logo).To(BeEmpty())
 		Expect(funder.Website).To(BeEmpty())
@@ -51,7 +61,7 @@ var _ = Describe("msg_server_create_funder.go", Ordered, func() {
 	It("Create a funder with all values set", func() {
 		// ACT
 		moniker, identity, logo, website, contact, description := "moniker", "identity", "logo", "website", "contact", "description"
-		s.RunTxPoolSuccess(&types.MsgCreateFunder{
+		s.RunTxFundersSuccess(&types.MsgCreateFunder{
 			Creator:     i.ALICE,
 			Moniker:     moniker,
 			Identity:    identity,
@@ -73,15 +83,46 @@ var _ = Describe("msg_server_create_funder.go", Ordered, func() {
 		Expect(funder.Description).To(Equal(description))
 	})
 
-	It("Create a funder with empty values", func() {
+	It("Create a funder that already exists", func() {
 		// ARRANGE
-		s.RunTxPoolSuccess(&types.MsgCreateFunder{
+		s.RunTxFundersSuccess(&types.MsgCreateFunder{
 			Creator: i.ALICE,
+			Moniker: "moniker 1",
 		})
 
 		// ACT
-		s.RunTxPoolError(&types.MsgCreateFunder{
+		s.RunTxFundersError(&types.MsgCreateFunder{
 			Creator: i.ALICE,
+			Moniker: "moniker 2",
+		})
+	})
+
+	It("Create two funders with the same moniker", func() {
+		// ARRANGE
+		moniker := "moniker"
+		s.RunTxFundersSuccess(&types.MsgCreateFunder{
+			Creator: i.ALICE,
+			Moniker: moniker,
+		})
+
+		// ACT
+		s.RunTxFundersError(&types.MsgCreateFunder{
+			Creator: i.BOB,
+			Moniker: moniker,
+		})
+	})
+
+	It("Create two funders", func() {
+		// ARRANGE
+		s.RunTxFundersSuccess(&types.MsgCreateFunder{
+			Creator: i.ALICE,
+			Moniker: "moniker 1",
+		})
+
+		// ACT
+		s.RunTxFundersError(&types.MsgCreateFunder{
+			Creator: i.BOB,
+			Moniker: "moniker 2",
 		})
 	})
 })

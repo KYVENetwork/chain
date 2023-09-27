@@ -36,20 +36,20 @@ func FundersKeeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
 		memStoreKey,
 		"FundersParams",
 	)
-	//k := keeper.NewKeeper(
-	//	cdc,
-	//	storeKey,
-	//	memStoreKey,
-	//	paramsSubspace,
-	//)
-
+	k := keeper.NewKeeper(
+		cdc,
+		storeKey,
+		memStoreKey,
+		"authority",
+		nil,
+		nil,
+		nil,
+	)
 	_ = paramsSubspace
-	var k *keeper.Keeper
 	ctx := sdk.NewContext(stateStore, tmproto.Header{}, false, log.NewNopLogger())
 
 	// Initialize params
 	k.SetParams(ctx, types.DefaultParams())
 
 	return k, ctx
-	return nil, ctx
 }
