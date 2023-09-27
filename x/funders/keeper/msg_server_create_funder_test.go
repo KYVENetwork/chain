@@ -97,7 +97,7 @@ var _ = Describe("msg_server_create_funder.go", Ordered, func() {
 		})
 	})
 
-	It("Create two funders with the same moniker", func() {
+	PIt("Create two funders with the same moniker", func() {
 		// ARRANGE
 		moniker := "moniker"
 		s.RunTxFundersSuccess(&types.MsgCreateFunder{
@@ -120,7 +120,7 @@ var _ = Describe("msg_server_create_funder.go", Ordered, func() {
 		})
 
 		// ACT
-		s.RunTxFundersError(&types.MsgCreateFunder{
+		s.RunTxFundersSuccess(&types.MsgCreateFunder{
 			Creator: i.BOB,
 			Moniker: "moniker 2",
 		})

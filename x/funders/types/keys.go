@@ -20,10 +20,10 @@ const (
 	// MaxFunders which are allowed
 	MaxFunders = 50
 	// MinFundingAmount which is necessary to fund a pool
-	//TODO(rapha): how much should this be?
+	//TODO(rapha): how much should this be? -> move to params
 	MinFundingAmount = 1_000_000_000
 	//MinFundingAmountPerBundle  which is necessary to fund a pool
-	//TODO: how much should this be?
+	//TODO: how much should this be?	-> move to params
 	MinFundingAmountPerBundle = 1_000_000
 )
 
