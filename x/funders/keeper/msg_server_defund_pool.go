@@ -33,13 +33,8 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 		util.PanicHalt(k.upgradeKeeper, ctx, fmt.Sprintf("FundingState for pool %d does not exist", msg.PoolId))
 	}
 
-	// Amount can not be higher than the current funding amount
-	amount := msg.Amount
-	if amount > funding.Amount {
-		amount = funding.Amount
-	}
-
-	funding.SubtractAmount(amount)
+	// Subtract amount from funding
+	amount := funding.SubtractAmount(msg.Amount)
 	if funding.Amount == 0 {
 		fundingState.SetInactive(&funding)
 	}
