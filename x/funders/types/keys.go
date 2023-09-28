@@ -17,14 +17,8 @@ const (
 )
 
 const (
-	// MaxFunders which are allowed
+	// MaxFunders which are allowed per pool
 	MaxFunders = 50
-	// MinFundingAmount which is necessary to fund a pool
-	//TODO(rapha): how much should this be? -> move to params
-	MinFundingAmount = 1_000_000_000
-	//MinFundingAmountPerBundle  which is necessary to fund a pool
-	//TODO: how much should this be?	-> move to params
-	MinFundingAmountPerBundle = 1_000_000
 )
 
 var (
@@ -61,7 +55,8 @@ func FundingKeyByPool(funderAddress string, poolId uint64) []byte {
 	return util.GetByteKey(poolId, funderAddress)
 }
 
-func FundingKeyByPoolOnly(poolId uint64) []byte {
+// FundingKeyByPoolIter is used to query all fundings for a pool
+func FundingKeyByPoolIter(poolId uint64) []byte {
 	return util.GetByteKey(poolId)
 }
 

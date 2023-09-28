@@ -79,11 +79,13 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 			TotalFunded:     msg.Amount,
 		}
 	}
-	if funding.AmountPerBundle < types.MinFundingAmountPerBundle {
-		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrAmountPerBundleTooLow.Error(), types.MinFundingAmountPerBundle)
+
+	params := k.GetParams(ctx)
+	if funding.AmountPerBundle < params.MinFundingAmountPerBundle {
+		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrAmountPerBundleTooLow.Error(), params.MinFundingAmountPerBundle)
 	}
-	if funding.Amount > types.MinFundingAmount {
-		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinFundingAmount.Error(), types.MinFundingAmount)
+	if funding.Amount < params.MinFundingAmount {
+		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinFundingAmount.Error(), params.MinFundingAmount)
 	}
 
 	var defunding *types.Funding = nil
