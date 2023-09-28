@@ -4,6 +4,7 @@ import (
 	"cosmossdk.io/errors"
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/funders/types"
+	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -15,34 +16,6 @@ func (k Keeper) CreateFundingState(ctx sdk.Context, poolId uint64) {
 		TotalAmount:           0,
 	}
 	k.SetFundingState(ctx, &fundingState)
-}
-
-func (k Keeper) DefundFundingState(ctx sdk.Context, poolId uint64) (err error) {
-	// Get funding state for pool
-	fundingState, found := k.GetFundingState(ctx, poolId)
-	if !found {
-		return errors.Wrapf(errorsTypes.ErrNotFound, types.ErrFundingStateDoesNotExist.Error(), poolId)
-	}
-
-	// If there are no active fundings we immediately return
-	activeFundings := k.GetActiveFundings(ctx, fundingState)
-	if len(activeFundings) == 0 {
-		return nil
-	}
-
-	// Transfer tokens back to funders
-	for _, funding := range activeFundings {
-		if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, types.ModuleName, funding.FunderAddress, funding.Amount); err != nil {
-			return err
-		}
-		k.SetFunding(ctx, &funding)
-	}
-
-	// Save funding state
-	fundingState.TotalAmount = 0
-	fundingState.ActiveFunderAddresses = []string{}
-	k.SetFundingState(ctx, &fundingState)
-	return nil
 }
 
 // ChargeFundersOfPool equally splits the amount between all funders and removes
@@ -84,5 +57,14 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint
 			PoolId: poolId,
 		})
 	}
+
+	// Move funds to pool module account
+	if payout > 0 {
+		err = util.TransferFromModuleToModule(k.bankKeeper, ctx, types.ModuleName, pooltypes.ModuleName, payout)
+		if err != nil {
+			return 0, err
+		}
+	}
+
 	return payout, nil
 }

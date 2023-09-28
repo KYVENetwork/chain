@@ -22,5 +22,4 @@ type StakersKeeper interface {
 
 type FundersKeeper interface {
 	CreateFundingState(ctx sdk.Context, poolId uint64)
-	DefundFundingState(ctx sdk.Context, poolId uint64) (err error)
 }
