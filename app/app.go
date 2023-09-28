@@ -515,8 +515,22 @@ func NewKYVEApp(
 		app.StakersKeeper,
 	)
 
+	app.FundersKeeper = *fundersKeeper.NewKeeper(
+		appCodec,
+		keys[fundersTypes.StoreKey],
+		memKeys[fundersTypes.MemStoreKey],
+
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
+
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.PoolKeeper,
+		app.UpgradeKeeper,
+	)
+
 	stakersKeeper.SetDelegationKeeper(&app.StakersKeeper, app.DelegationKeeper)
 	poolKeeper.SetStakersKeeper(&app.PoolKeeper, app.StakersKeeper)
+	poolKeeper.SetFundersKeeper(&app.PoolKeeper, app.FundersKeeper)
 
 	app.BundlesKeeper = *bundlesKeeper.NewKeeper(
 		appCodec,
@@ -531,18 +545,7 @@ func NewKYVEApp(
 		app.PoolKeeper,
 		app.StakersKeeper,
 		app.DelegationKeeper,
-	)
-
-	app.FundersKeeper = *fundersKeeper.NewKeeper(
-		appCodec,
-		keys[fundersTypes.StoreKey],
-		memKeys[fundersTypes.MemStoreKey],
-
-		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
-
-		app.BankKeeper,
-		app.PoolKeeper,
-		app.UpgradeKeeper,
+		app.FundersKeeper,
 	)
 
 	app.IBCKeeper = ibcKeeper.NewKeeper(

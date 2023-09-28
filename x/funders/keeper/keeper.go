@@ -3,7 +3,6 @@ package keeper
 import (
 	"fmt"
 	"github.com/KYVENetwork/chain/util"
-
 	"github.com/KYVENetwork/chain/x/funders/types"
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -19,6 +18,7 @@ type (
 
 		authority string
 
+		accountKeeper types.AccountKeeper
 		bankKeeper    util.BankKeeper
 		poolKeeper    types.PoolKeeper
 		upgradeKeeper util.UpgradeKeeper
@@ -32,6 +32,7 @@ func NewKeeper(
 
 	authority string,
 
+	accountKeeper types.AccountKeeper,
 	bankKeeper util.BankKeeper,
 	poolKeeper types.PoolKeeper,
 	upgradeKeeper util.UpgradeKeeper,
@@ -43,6 +44,7 @@ func NewKeeper(
 
 		authority: authority,
 
+		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
 		poolKeeper:    poolKeeper,
 		upgradeKeeper: upgradeKeeper,
