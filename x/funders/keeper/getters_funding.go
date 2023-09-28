@@ -32,7 +32,7 @@ func (k Keeper) GetFunding(ctx sdk.Context, funderAddress string, poolId uint64)
 func (k Keeper) GetFundingsOfPool(ctx sdk.Context, poolId uint64) (fundings []types.Funding) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FundingKeyPrefixByPool)
 
-	iterator := sdk.KVStorePrefixIterator(store, types.FundingKeyByPoolOnly(poolId))
+	iterator := sdk.KVStorePrefixIterator(store, types.FundingKeyByPoolIter(poolId))
 	//goland:noinspection GoUnhandledErrorResult
 	defer iterator.Close()
 

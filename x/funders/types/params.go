@@ -1,32 +1,41 @@
 package types
 
 import (
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	"github.com/KYVENetwork/chain/util"
 )
 
-var _ paramtypes.ParamSet = (*Params)(nil)
-
-// ParamKeyTable the param key table for launch module
-func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
-}
+const (
+	// DefaultMinFundingAmount 1000 Kyve
+	DefaultMinFundingAmount = uint64(1_000_000_000)
+	// DefaultMinFundingAmountPerBundle 1 Kyve
+	DefaultMinFundingAmountPerBundle = uint64(1_000_000)
+)
 
 // NewParams creates a new Params instance
-func NewParams() Params {
-	return Params{}
+func NewParams(minFundingAmount uint64, minFundingAmountPerBundle uint64) Params {
+	return Params{
+		MinFundingAmount:          minFundingAmount,
+		MinFundingAmountPerBundle: minFundingAmountPerBundle,
+	}
 }
 
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
-	return NewParams()
-}
-
-// ParamSetPairs get the params.ParamSet
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	return paramtypes.ParamSetPairs{}
+	return NewParams(
+		DefaultMinFundingAmount,
+		DefaultMinFundingAmountPerBundle,
+	)
 }
 
 // Validate validates the set of params
-func (p Params) Validate() error {
+func (p *Params) Validate() error {
+	if err := util.ValidateNumber(p.MinFundingAmount); err != nil {
+		return err
+	}
+
+	if err := util.ValidateNumber(p.MinFundingAmountPerBundle); err != nil {
+		return err
+	}
+
 	return nil
 }

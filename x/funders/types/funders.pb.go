@@ -211,7 +211,7 @@ func (m *Funding) GetTotalFunded() uint64 {
 type FundingState struct {
 	// pool_id is the id of the pool this funding is for
 	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
-	// active_fundings is the list of all active fundings
+	// active_funder_addresses is the list of all active fundings
 	ActiveFunderAddresses []string `protobuf:"bytes,2,rep,name=active_funder_addresses,json=activeFunderAddresses,proto3" json:"active_funder_addresses,omitempty"`
 	// total_amount is the total amount of funds in ukyve the pool has from all fundings
 	TotalAmount uint64 `protobuf:"varint,3,opt,name=total_amount,json=totalAmount,proto3" json:"total_amount,omitempty"`
