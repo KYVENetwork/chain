@@ -647,12 +647,12 @@ paths:
                                   logo:
                                     type: string
                                     title: logo of the pool
-                                  operating_cost:
+                                  inflation_share_weight:
                                     type: string
                                     format: uint64
                                     title: >-
-                                      operating_cost is the base payout for each
-                                      bundle reward
+                                      inflation_share_weight is the base payout
+                                      for each bundle reward
                                   upload_interval:
                                     type: string
                                     format: uint64
@@ -1051,12 +1051,12 @@ paths:
                         logo:
                           type: string
                           title: logo of the pool
-                        operating_cost:
+                        inflation_share_weight:
                           type: string
                           format: uint64
                           title: >-
-                            operating_cost is the base payout for each bundle
-                            reward
+                            inflation_share_weight is the base payout for each
+                            bundle reward
                         upload_interval:
                           type: string
                           format: uint64
@@ -3913,12 +3913,12 @@ paths:
                                   logo:
                                     type: string
                                     title: logo of the pool
-                                  operating_cost:
+                                  inflation_share_weight:
                                     type: string
                                     format: uint64
                                     title: >-
-                                      operating_cost is the base payout for each
-                                      bundle reward
+                                      inflation_share_weight is the base payout
+                                      for each bundle reward
                                   upload_interval:
                                     type: string
                                     format: uint64
@@ -4768,10 +4768,10 @@ paths:
                         type: string
                         format: uint64
                         description: upload_interval ...
-                      operating_cost:
+                      inflation_share_weight:
                         type: string
                         format: uint64
-                        description: operating_cost ...
+                        description: inflation_share_weight ...
                       min_delegation:
                         type: string
                         format: uint64
@@ -5260,10 +5260,10 @@ paths:
                           type: string
                           format: uint64
                           description: upload_interval ...
-                        operating_cost:
+                        inflation_share_weight:
                           type: string
                           format: uint64
-                          description: operating_cost ...
+                          description: inflation_share_weight ...
                         min_delegation:
                           type: string
                           format: uint64
@@ -5910,12 +5910,12 @@ paths:
                             logo:
                               type: string
                               title: logo of the pool
-                            operating_cost:
+                            inflation_share_weight:
                               type: string
                               format: uint64
                               title: >-
-                                operating_cost is the base payout for each
-                                bundle reward
+                                inflation_share_weight is the base payout for
+                                each bundle reward
                             upload_interval:
                               type: string
                               format: uint64
@@ -6339,12 +6339,12 @@ paths:
                               logo:
                                 type: string
                                 title: logo of the pool
-                              operating_cost:
+                              inflation_share_weight:
                                 type: string
                                 format: uint64
                                 title: >-
-                                  operating_cost is the base payout for each
-                                  bundle reward
+                                  inflation_share_weight is the base payout for
+                                  each bundle reward
                               upload_interval:
                                 type: string
                                 format: uint64
@@ -6878,12 +6878,12 @@ paths:
                                   logo:
                                     type: string
                                     title: logo of the pool
-                                  operating_cost:
+                                  inflation_share_weight:
                                     type: string
                                     format: uint64
                                     title: >-
-                                      operating_cost is the base payout for each
-                                      bundle reward
+                                      inflation_share_weight is the base payout
+                                      for each bundle reward
                                   upload_interval:
                                     type: string
                                     format: uint64
@@ -7352,12 +7352,12 @@ paths:
                               logo:
                                 type: string
                                 title: logo of the pool
-                              operating_cost:
+                              inflation_share_weight:
                                 type: string
                                 format: uint64
                                 title: >-
-                                  operating_cost is the base payout for each
-                                  bundle reward
+                                  inflation_share_weight is the base payout for
+                                  each bundle reward
                               upload_interval:
                                 type: string
                                 format: uint64

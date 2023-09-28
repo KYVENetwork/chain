@@ -44,10 +44,6 @@ func (k msgServer) DisablePool(
 		k.stakersKeeper.LeavePool(ctx, staker, pool.Id)
 	}
 
-	if err := k.fundersKeeper.DefundFundingState(ctx, pool.Id); err != nil {
-		return nil, err
-	}
-
 	// send remaining pool assets to treasury
 	if balance := k.bankKeeper.GetBalance(ctx, pool.GetPoolAccount(), globalTypes.Denom).Amount.Uint64(); balance > 0 {
 		if err := util.TransferFromAddressToTreasury(k.distrkeeper, ctx, pool.GetPoolAccount().String(), balance); err != nil {

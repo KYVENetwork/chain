@@ -36,8 +36,8 @@ func (msg *MsgCreatePool) ValidateBasic() error {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid upload interval")
 	}
 
-	if err := util.ValidateNumber(msg.OperatingCost); err != nil {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid operating cost")
+	if err := util.ValidateNumber(msg.InflationShareWeight); err != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid inflation share weight")
 	}
 
 	if err := util.ValidateNumber(msg.MinDelegation); err != nil {
@@ -59,16 +59,16 @@ func (msg *MsgUpdatePool) GetSigners() []sdk.AccAddress {
 
 // PoolUpdate ...
 type PoolUpdate struct {
-	Name              *string
-	Runtime           *string
-	Logo              *string
-	Config            *string
-	UploadInterval    *uint64
-	OperatingCost     *uint64
-	MinDelegation     *uint64
-	MaxBundleSize     *uint64
-	StorageProviderId *uint32
-	CompressionId     *uint32
+	Name                 *string
+	Runtime              *string
+	Logo                 *string
+	Config               *string
+	UploadInterval       *uint64
+	InflationShareWeight *uint64
+	MinDelegation        *uint64
+	MaxBundleSize        *uint64
+	StorageProviderId    *uint32
+	CompressionId        *uint32
 }
 
 // ValidateBasic does a sanity check on the provided data.
@@ -88,9 +88,9 @@ func (msg *MsgUpdatePool) ValidateBasic() error {
 		}
 	}
 
-	if payload.OperatingCost != nil {
-		if err := util.ValidateNumber(*payload.OperatingCost); err != nil {
-			return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid operating cost")
+	if payload.InflationShareWeight != nil {
+		if err := util.ValidateNumber(*payload.InflationShareWeight); err != nil {
+			return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid inflation share weight")
 		}
 	}
 
