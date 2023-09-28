@@ -127,8 +127,6 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 			MinDelegation:  100 * i.KYVE,
 			MaxBundleSize:  100,
 			Disabled:       false,
-			Funders:        nil,
-			TotalFunds:     0,
 			Protocol: &types.Protocol{
 				Version:     "",
 				Binaries:    "",
@@ -187,8 +185,6 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 			MinDelegation:  0,
 			MaxBundleSize:  0,
 			Disabled:       false,
-			Funders:        nil,
-			TotalFunds:     0,
 			Protocol: &types.Protocol{
 				Version:     "",
 				Binaries:    "",
@@ -262,8 +258,6 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 			MinDelegation:  100 * i.KYVE,
 			MaxBundleSize:  100,
 			Disabled:       false,
-			Funders:        nil,
-			TotalFunds:     0,
 			Protocol: &types.Protocol{
 				Version:     "",
 				Binaries:    "",

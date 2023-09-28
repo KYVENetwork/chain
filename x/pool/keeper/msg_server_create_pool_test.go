@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	i "github.com/KYVENetwork/chain/testutil/integration"
+	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govV1Types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	. "github.com/onsi/ginkgo/v2"
@@ -144,8 +145,6 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 			MinDelegation:  100 * i.KYVE,
 			MaxBundleSize:  100,
 			Disabled:       false,
-			Funders:        nil,
-			TotalFunds:     0,
 			Protocol: &types.Protocol{
 				Version:     "0.0.0",
 				Binaries:    "{}",
@@ -159,6 +158,13 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 			},
 			CurrentStorageProviderId: 2,
 			CurrentCompressionId:     1,
+		}))
+
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(fundingState).To(Equal(funderstypes.FundingState{
+			PoolId:                0,
+			ActiveFunderAddresses: nil,
+			TotalAmount:           0,
 		}))
 	})
 
@@ -247,8 +253,6 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 			MinDelegation:  100 * i.KYVE,
 			MaxBundleSize:  100,
 			Disabled:       false,
-			Funders:        nil,
-			TotalFunds:     0,
 			Protocol: &types.Protocol{
 				Version:     "0.0.0",
 				Binaries:    "{}",
@@ -262,6 +266,13 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 			},
 			CurrentStorageProviderId: 2,
 			CurrentCompressionId:     1,
+		}))
+
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 1)
+		Expect(fundingState).To(Equal(funderstypes.FundingState{
+			PoolId:                1,
+			ActiveFunderAddresses: nil,
+			TotalAmount:           0,
 		}))
 	})
 
@@ -302,6 +313,9 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 		Expect(proposal.Status).To(Equal(govV1Types.StatusFailed))
 
 		_, found := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		Expect(found).To(BeFalse())
+
+		_, found = s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		Expect(found).To(BeFalse())
 	})
 })

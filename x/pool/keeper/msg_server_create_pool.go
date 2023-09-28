@@ -47,6 +47,7 @@ func (k msgServer) CreatePool(goCtx context.Context, req *types.MsgCreatePool) (
 	})
 
 	k.EnsurePoolAccount(ctx, id)
+	k.fundersKeeper.CreateFundingState(ctx, id)
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventCreatePool{
 		Id:                k.GetPoolCount(ctx) - 1,
