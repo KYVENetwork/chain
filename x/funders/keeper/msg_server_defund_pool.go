@@ -51,7 +51,7 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 	}
 
 	// Save funding and funding state
-	k.setFunding(ctx, &funding)
+	k.SetFunding(ctx, &funding)
 	fundingState.SetActive(&funding)
 
 	// Emit a defund event.

@@ -29,9 +29,25 @@ func (k Keeper) GetFundingState(ctx sdk.Context, poolId uint64) (fundingState ty
 	return fundingState, true
 }
 
+// GetAllFundingStates returns all FundingStates
+func (k Keeper) GetAllFundingStates(ctx sdk.Context) (fundingStates []types.FundingState) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FundingStateKeyPrefix)
+	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+
+	//goland:noinspection GoUnhandledErrorResult
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var val types.FundingState
+		k.cdc.MustUnmarshal(iterator.Value(), &val)
+		fundingStates = append(fundingStates, val)
+	}
+
+	return fundingStates
+}
+
 // SetFundingState sets a specific FundingState in the store from its index
-func (k Keeper) setFundingState(ctx sdk.Context, fundingState types.FundingState) {
-	b := k.cdc.MustMarshal(&fundingState)
+func (k Keeper) SetFundingState(ctx sdk.Context, fundingState *types.FundingState) {
+	b := k.cdc.MustMarshal(fundingState)
 	storeByFunder := prefix.NewStore(ctx.KVStore(k.storeKey), types.FundingStateKeyPrefix)
 	storeByFunder.Set(types.FundingStateKey(
 		fundingState.PoolId,

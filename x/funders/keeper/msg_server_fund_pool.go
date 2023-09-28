@@ -23,7 +23,7 @@ func (k msgServer) defundLowestFunding(
 
 	lowestFunding.SubtractAmount(lowestFunding.Amount)
 	fundingState.SetInactive(lowestFunding)
-	k.setFunding(ctx, lowestFunding)
+	k.SetFunding(ctx, lowestFunding)
 
 	// Emit a defund event.
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventDefundPool{
@@ -61,7 +61,7 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 			ActiveFunderAddresses: []string{},
 			TotalAmount:           0,
 		}
-		k.setFundingState(ctx, fundingState)
+		k.SetFundingState(ctx, &fundingState)
 	}
 
 	// Check if funding already exists
@@ -138,8 +138,8 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 	fundingState.SetActive(&funding)
 
 	// Save funding and funding state
-	k.setFunding(ctx, &funding)
-	k.setFundingState(ctx, fundingState)
+	k.SetFunding(ctx, &funding)
+	k.SetFundingState(ctx, &fundingState)
 
 	// Emit a fund event.
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventFundPool{

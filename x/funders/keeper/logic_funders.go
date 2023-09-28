@@ -34,11 +34,11 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint
 		if funding.Amount == 0 {
 			fundingState.SetInactive(&funding)
 		}
-		k.setFunding(ctx, &funding)
+		k.SetFunding(ctx, &funding)
 	}
 
 	// Save funding state
-	k.setFundingState(ctx, fundingState)
+	k.SetFundingState(ctx, &fundingState)
 
 	// Emit a pool out of funds event if there are no more active funders
 	if len(fundingState.ActiveFunderAddresses) == 0 {

@@ -27,8 +27,24 @@ func (k Keeper) GetFunder(ctx sdk.Context, funderAddress string) (funder types.F
 	return funder, true
 }
 
+// GetAllFunders returns all funders
+func (k Keeper) GetAllFunders(ctx sdk.Context) (funders []types.Funder) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FunderKeyPrefix)
+	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+
+	//goland:noinspection GoUnhandledErrorResult
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var val types.Funder
+		k.cdc.MustUnmarshal(iterator.Value(), &val)
+		funders = append(funders, val)
+	}
+
+	return funders
+}
+
 // SetFunder sets a specific funder in the store from its index
-func (k Keeper) setFunder(ctx sdk.Context, funder *types.Funder) {
+func (k Keeper) SetFunder(ctx sdk.Context, funder *types.Funder) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FunderKeyPrefix)
 	b := k.cdc.MustMarshal(funder)
 	store.Set(types.FunderKey(

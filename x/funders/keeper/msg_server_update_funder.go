@@ -19,7 +19,7 @@ func (k msgServer) UpdateFunder(goCtx context.Context, msg *types.MsgUpdateFunde
 	}
 
 	// Update funder
-	k.setFunder(ctx, &types.Funder{
+	k.SetFunder(ctx, &types.Funder{
 		Address:     msg.Creator,
 		Moniker:     msg.Moniker,
 		Identity:    msg.Identity,
