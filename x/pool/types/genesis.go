@@ -26,10 +26,6 @@ func (gs GenesisState) Validate() error {
 		if elem.Id >= gs.PoolCount {
 			return fmt.Errorf("pool id higher than pool count %v", elem)
 		}
-		// TODO: fix this
-		//if len(elem.Funders) > fundersTypes.MaxFunders {
-		//	return fmt.Errorf("more funders than allowed %v", elem)
-		//}
 	}
 
 	return gs.Params.Validate()
