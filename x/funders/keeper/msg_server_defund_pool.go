@@ -11,6 +11,9 @@ import (
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+// TODO: Right now it is possible to fund a pool above the minimum funding amount and then defund it below the minimum funding amount.
+// This should not be possible. We should probably add a check for this.
+
 // DefundPool handles the logic to defund a pool.
 // If the user is a funder, it will subtract the provided amount
 // and send the tokens back. If there are no more funds left, the funding will get inactive.
@@ -47,13 +50,16 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 
 	// Save funding and funding state
 	k.SetFunding(ctx, &funding)
-	fundingState.SetActive(&funding)
+	if funding.Amount == 0 {
+		fundingState.SetInactive(&funding)
+	}
+	k.SetFundingState(ctx, &fundingState)
 
 	// Emit a defund event.
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventDefundPool{
 		PoolId:  msg.PoolId,
 		Address: msg.Creator,
-		Amount:  msg.Amount,
+		Amount:  amount,
 	})
 
 	return &types.MsgDefundPoolResponse{}, nil

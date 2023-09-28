@@ -52,7 +52,7 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 		return nil, err
 	}
 
-	// Get or create funding state for pool
+	// Get funding state for pool
 	fundingState, found := k.GetFundingState(ctx, msg.PoolId)
 	if !found {
 		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrFundingStateDoesNotExist.Error(), msg.PoolId)

@@ -2,6 +2,8 @@ package keeper
 
 import (
 	"cosmossdk.io/errors"
+	goerrors "errors"
+	"fmt"
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
@@ -67,4 +69,20 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint
 	}
 
 	return payout, nil
+}
+
+// GetLowestFunding returns the funding with the lowest amount
+// Precondition: len(fundings) > 0
+func (k Keeper) GetLowestFunding(fundings []types.Funding) (lowestFunding *types.Funding, err error) {
+	if len(fundings) == 0 {
+		return nil, goerrors.New(fmt.Sprintf("no active fundings"))
+	}
+
+	lowestFunding = &fundings[0]
+	for _, funding := range fundings {
+		if funding.Amount < lowestFunding.Amount {
+			lowestFunding = &funding
+		}
+	}
+	return lowestFunding, nil
 }

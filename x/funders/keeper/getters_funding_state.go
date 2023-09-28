@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"errors"
-	"fmt"
 	"github.com/KYVENetwork/chain/x/funders/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -62,19 +60,4 @@ func (k Keeper) GetActiveFundings(ctx sdk.Context, fundingState types.FundingSta
 		} // else should never happen or we have a corrupted state
 	}
 	return fundings
-}
-
-// GetLowestFunding returns the funding with the lowest amount
-// Precondition: len(fundings) > 0
-func (k Keeper) GetLowestFunding(fundings []types.Funding) (lowestFunding *types.Funding, err error) {
-	if len(fundings) == 0 {
-		return nil, errors.New(fmt.Sprintf("no active fundings"))
-	}
-
-	for _, funding := range fundings {
-		if funding.Amount < lowestFunding.Amount {
-			lowestFunding = &funding
-		}
-	}
-	return lowestFunding, nil
 }
