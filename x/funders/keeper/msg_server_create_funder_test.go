@@ -12,10 +12,10 @@ import (
 
 TEST CASES - msg_server_create_funder.go
 
-* Create a funder with empty values
+* Try to create a funder with empty values
 * Create a funder with empty values except moniker
 * Create a funder with all values set
-* Create a funder that already exists
+* Try to create a funder that already exists
 * Create two funders with the same moniker	// TODO: should this be allowed?
 * Create two funders
 */
@@ -32,7 +32,7 @@ var _ = Describe("msg_server_create_funder.go", Ordered, func() {
 		s.PerformValidityChecks()
 	})
 
-	It("Create a funder with empty values", func() {
+	It("Try to create a funder with empty values", func() {
 		// ASSERT
 		s.RunTxFundersError(&types.MsgCreateFunder{
 			Creator: i.ALICE,
@@ -83,7 +83,7 @@ var _ = Describe("msg_server_create_funder.go", Ordered, func() {
 		Expect(funder.Description).To(Equal(description))
 	})
 
-	It("Create a funder that already exists", func() {
+	It("Try to create a funder that already exists", func() {
 		// ARRANGE
 		s.RunTxFundersSuccess(&types.MsgCreateFunder{
 			Creator: i.ALICE,

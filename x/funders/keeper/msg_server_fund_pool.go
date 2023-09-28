@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-
 	"cosmossdk.io/errors"
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/funders/types"
@@ -56,13 +55,7 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 	// Get or create funding state for pool
 	fundingState, found := k.GetFundingState(ctx, msg.PoolId)
 	if !found {
-		// TODO: should we create a funding state when the pool is created?
-		fundingState = types.FundingState{
-			PoolId:                msg.PoolId,
-			ActiveFunderAddresses: []string{},
-			TotalAmount:           0,
-		}
-		k.SetFundingState(ctx, &fundingState)
+		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrFundingStateDoesNotExist.Error(), msg.PoolId)
 	}
 
 	// Check if funding already exists
