@@ -29,12 +29,12 @@ var _ = Describe("logic_end_block_handle_pool_upgrades.go", Ordered, func() {
 
 		// create clean pool for every test case
 		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			MaxBundleSize:  100,
-			StartKey:       "0",
-			MinDelegation:  100 * i.KYVE,
-			UploadInterval: 60,
-			OperatingCost:  10_000,
+			Name:                 "PoolTest",
+			MaxBundleSize:        100,
+			StartKey:             "0",
+			MinDelegation:        100 * i.KYVE,
+			UploadInterval:       60,
+			InflationShareWeight: 10_000,
 			Protocol: &pooltypes.Protocol{
 				Version:     "0.0.0",
 				Binaries:    "{}",

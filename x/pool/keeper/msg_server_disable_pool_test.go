@@ -45,20 +45,20 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		s = i.NewCleanChain()
 
 		msg := &types.MsgCreatePool{
-			Authority:         gov,
-			Name:              "PoolTest",
-			Runtime:           "@kyve/test",
-			Logo:              "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
-			Config:            "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
-			StartKey:          "0",
-			UploadInterval:    60,
-			OperatingCost:     10_000,
-			MinDelegation:     100 * i.KYVE,
-			MaxBundleSize:     100,
-			Version:           "0.0.0",
-			Binaries:          "{}",
-			StorageProviderId: 2,
-			CompressionId:     1,
+			Authority:            gov,
+			Name:                 "PoolTest",
+			Runtime:              "@kyve/test",
+			Logo:                 "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
+			StartKey:             "0",
+			UploadInterval:       60,
+			InflationShareWeight: 10_000,
+			MinDelegation:        100 * i.KYVE,
+			MaxBundleSize:        100,
+			Version:              "0.0.0",
+			Binaries:             "{}",
+			StorageProviderId:    2,
+			CompressionId:        1,
 		}
 		s.RunTxPoolSuccess(msg)
 
@@ -75,20 +75,20 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		})
 
 		msg = &types.MsgCreatePool{
-			Authority:         gov,
-			Name:              "PoolTest2",
-			Runtime:           "@kyve/test",
-			Logo:              "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
-			Config:            "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
-			StartKey:          "0",
-			UploadInterval:    60,
-			OperatingCost:     10_000,
-			MinDelegation:     100 * i.KYVE,
-			MaxBundleSize:     100,
-			Version:           "0.0.0",
-			Binaries:          "{}",
-			StorageProviderId: 2,
-			CompressionId:     1,
+			Authority:            gov,
+			Name:                 "PoolTest2",
+			Runtime:              "@kyve/test",
+			Logo:                 "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
+			StartKey:             "0",
+			UploadInterval:       60,
+			InflationShareWeight: 10_000,
+			MinDelegation:        100 * i.KYVE,
+			MaxBundleSize:        100,
+			Version:              "0.0.0",
+			Binaries:             "{}",
+			StorageProviderId:    2,
+			CompressionId:        1,
 		}
 		s.RunTxPoolSuccess(msg)
 
@@ -204,14 +204,9 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		bundleProposal, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
 		Expect(bundleProposal.StorageId).To(BeEmpty())
 
-		// assert smaller funding balance
+		// assert same funding balance
 		balance := s.App().BankKeeper.GetBalance(s.Ctx(), fundersModuleAddr, globalTypes.Denom).Amount.Uint64()
-		Expect(balance).To(Equal(balanceBefore - fundingAmount))
-
-		// assert empty funding state
-		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
-		Expect(fundingState.TotalAmount).To(BeZero())
-		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
+		Expect(balance).To(Equal(balanceBefore))
 	})
 
 	It("Disable pool which is active and has a balance", func() {
@@ -230,10 +225,6 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		fundersModuleAddr := s.App().AccountKeeper.GetModuleAddress(funderstypes.ModuleName)
 		balanceBefore := s.App().BankKeeper.GetBalance(s.Ctx(), fundersModuleAddr, globalTypes.Denom).Amount.Uint64()
 		Expect(balanceBefore).To(BeNumerically(">", uint64(0)))
-
-		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
-		Expect(fundingState.TotalAmount).To(BeNumerically(">", uint64(0)))
-		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 
 		msg := &types.MsgDisablePool{
 			Authority: gov,
@@ -262,14 +253,9 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		bundleProposal, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
 		Expect(bundleProposal.StorageId).To(BeEmpty())
 
-		// assert smaller funding balance
+		// assert same funding balance
 		balance := s.App().BankKeeper.GetBalance(s.Ctx(), fundersModuleAddr, globalTypes.Denom).Amount.Uint64()
-		Expect(balance).To(Equal(balanceBefore - fundingState.TotalAmount))
-
-		// assert empty funding state
-		fundingState, _ = s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
-		Expect(fundingState.TotalAmount).To(BeZero())
-		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
+		Expect(balance).To(Equal(balanceBefore))
 	})
 
 	It("Disable pool which is active", func() {
@@ -373,18 +359,6 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 
 		bundleProposal, _ = s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 1)
 		Expect(bundleProposal.StorageId).To(BeEmpty())
-
-		// assert empty funding balance
-		fundersModuleAddr := s.App().AccountKeeper.GetModuleAddress(funderstypes.ModuleName)
-		balance := s.App().BankKeeper.GetBalance(s.Ctx(), fundersModuleAddr, globalTypes.Denom).Amount.Uint64()
-		Expect(balance).To(BeZero())
-
-		// assert empty funding states
-		for _, poolId := range []uint64{0, 1} {
-			fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), poolId)
-			Expect(fundingState.TotalAmount).To(BeZero())
-			Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
-		}
 	})
 
 	It("Kick out all stakers from pool", func() {
