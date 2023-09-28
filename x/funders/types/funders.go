@@ -4,21 +4,23 @@ func (f *Funding) AddAmount(amount uint64) {
 	f.Amount += amount
 }
 
-func (f *Funding) SubtractAmount(amount uint64) {
-	if f.Amount > amount {
-		f.Amount -= amount
-	} else {
-		f.Amount = 0
+func (f *Funding) SubtractAmount(amount uint64) (subtracted uint64) {
+	subtracted = amount
+	if f.Amount < amount {
+		subtracted = f.Amount
 	}
+	f.Amount -= subtracted
+	return subtracted
 }
 
 func (f *Funding) ChargeOneBundle() (amount uint64) {
-	amount = f.AmountPerBundle
-	if f.Amount < f.AmountPerBundle {
-		amount = f.Amount
-	}
-	f.SubtractAmount(amount)
+	amount = f.SubtractAmount(f.AmountPerBundle)
+	f.TotalFunded += amount
 	return amount
+}
+
+func (fs *FundingState) AddAmount(amount uint64) {
+	fs.TotalAmount += amount
 }
 
 // SetInactive removes a funding from active fundings

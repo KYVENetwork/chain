@@ -56,6 +56,7 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 	// Get or create funding state for pool
 	fundingState, found := k.GetFundingState(ctx, msg.PoolId)
 	if !found {
+		// TODO: should we create a funding state when the pool is created?
 		fundingState = types.FundingState{
 			PoolId:                msg.PoolId,
 			ActiveFunderAddresses: []string{},
@@ -67,8 +68,12 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 	// Check if funding already exists
 	funding, found := k.GetFunding(ctx, msg.Creator, msg.PoolId)
 	if found {
-		// If so, update funding
+		// If so, update funding amount
 		funding.AddAmount(msg.Amount)
+		// If the amount per bundle is set, update it
+		if msg.AmountPerBundle > 0 {
+			funding.AmountPerBundle = msg.AmountPerBundle
+		}
 	} else {
 		// If not, create new funding
 		funding = types.Funding{
@@ -76,9 +81,10 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 			PoolId:          msg.PoolId,
 			Amount:          msg.Amount,
 			AmountPerBundle: msg.AmountPerBundle,
-			TotalFunded:     msg.Amount,
+			TotalFunded:     0,
 		}
 	}
+	fundingState.AddAmount(msg.Amount)
 
 	params := k.GetParams(ctx)
 	if funding.AmountPerBundle < params.MinFundingAmountPerBundle {
