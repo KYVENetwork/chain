@@ -20,13 +20,11 @@ func (k Keeper) CreateFundingState(ctx sdk.Context, poolId uint64) {
 	k.SetFundingState(ctx, &fundingState)
 }
 
-// ChargeFundersOfPool equally splits the amount between all funders and removes
-// the appropriate amount from each funder.
-// All funders who can't afford the amount, are kicked out.
-// Their remaining amount is transferred to the Treasury.
-// This method does not transfer any funds. The bundles-module
-// is responsible for transferring the rewards out of the module.
-// TODO: update text
+// ChargeFundersOfPool charges all funders of a pool with their amount_per_bundle
+// If the amount is lower than the amount_per_bundle,
+// the max amount is charged and the funder is removed from the active funders list.
+// The amount is transferred from the funders to the pool module account where it can be paid out.
+// If there are no more active funders, an event is emitted.
 func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint64, err error) {
 	// Get funding state for pool
 	fundingState, found := k.GetFundingState(ctx, poolId)
@@ -49,6 +47,7 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint
 		}
 		k.SetFunding(ctx, &funding)
 	}
+	fundingState.SubtractAmount(payout)
 
 	// Save funding state
 	k.SetFundingState(ctx, &fundingState)

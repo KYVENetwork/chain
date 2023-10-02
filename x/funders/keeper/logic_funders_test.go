@@ -2,7 +2,8 @@ package keeper_test
 
 import (
 	i "github.com/KYVENetwork/chain/testutil/integration"
-	"github.com/KYVENetwork/chain/util"
+	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
+	globaltypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -12,303 +13,192 @@ import (
 
 TEST CASES - logic_funders.go
 
-* Add funders; check total sum
-* Add multiple funders; check total sum
-* Remove funder
-* Remove funder by defunding everything
-* Charge Funders with equal amounts
-* Charge Funders test remainder
-* Charge exactly the lowest funder amount
-* Kick out multiple lowest funders
-* Charge more than pool has funds
-* Charge pool which has no funds at all
+* Charge funders once
+* Charge funders until one funder runs out of funds
+* Charge funders until all funders run out of funds
+* Charge funder with less funds than amount_per_bundle
+* Charge without fundings
 
 */
 
-func chargeFunders(s *i.KeeperTestSuite, amount uint64) (payout uint64, err error) {
-	payout, err = s.App().PoolKeeper.ChargeFundersOfPool(s.Ctx(), 0, amount)
-	if err != nil {
-		return 0, err
-	}
-
-	if err := util.TransferFromModuleToAddress(s.App().BankKeeper, s.Ctx(), pooltypes.ModuleName, i.BURNER, payout); err != nil {
-		return 0, err
-	}
-
-	return payout, err
-}
-
-func fundersCheck(pool *pooltypes.Pool) {
-	poolFunds := uint64(0)
-	funders := make(map[string]bool)
-	for _, funder := range pool.Funders {
-		Expect(funders[funder.Address]).To(BeFalse())
-		funders[funder.Address] = true
-		poolFunds += funder.Amount
-	}
-	Expect(pool.TotalFunds).To(Equal(poolFunds))
-}
-
 var _ = Describe("logic_funders.go", Ordered, func() {
 	s := i.NewCleanChain()
-	var pool *pooltypes.Pool
+	fundersModuleAcc := s.App().AccountKeeper.GetModuleAccount(s.Ctx(), funderstypes.ModuleName).GetAddress()
+	poolModuleAcc := s.App().AccountKeeper.GetModuleAccount(s.Ctx(), pooltypes.ModuleName).GetAddress()
 
 	BeforeEach(func() {
 		s = i.NewCleanChain()
-		pool = &pooltypes.Pool{
-			Name:           "PoolTest",
-			MaxBundleSize:  100,
-			StartKey:       "0",
-			MinDelegation:  100 * i.KYVE,
-			UploadInterval: 60,
-			OperatingCost:  10_000,
-			UpgradePlan:    &pooltypes.UpgradePlan{},
-		}
 
-		s.App().PoolKeeper.AppendPool(s.Ctx(), *pool)
+		// create clean pool for every test case
+		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
+		msg := &pooltypes.MsgCreatePool{
+			Authority:            gov,
+			Name:                 "PoolTest",
+			Runtime:              "@kyve/test",
+			Logo:                 "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
+			StartKey:             "0",
+			UploadInterval:       60,
+			InflationShareWeight: 10_000,
+			MinDelegation:        100 * i.KYVE,
+			MaxBundleSize:        100,
+			Version:              "0.0.0",
+			Binaries:             "{}",
+			StorageProviderId:    2,
+			CompressionId:        1,
+		}
+		s.RunTxFundersSuccess(msg)
+
+		// create funder
+		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
+			Creator: i.ALICE,
+			Moniker: "Alice",
+		})
+		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
+			Creator: i.BOB,
+			Moniker: "Bob",
+		})
+
+		// fund pool
+		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
+		})
+		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.BOB,
+			PoolId:          0,
+			Amount:          50 * i.KYVE,
+			AmountPerBundle: 10 * i.KYVE,
+		})
+
+		fundersBalance := s.App().BankKeeper.GetBalance(s.Ctx(), fundersModuleAcc, globaltypes.Denom).Amount.Uint64()
+		Expect(fundersBalance).To(Equal(150 * i.KYVE))
 	})
 
 	AfterEach(func() {
-		fundersCheck(pool)
 		s.PerformValidityChecks()
 	})
 
-	It("Add funders; check total sum", func() {
+	It("Charge funders once", func() {
 		// ACT
-		pool.AddAmountToFunder(i.ALICE, 1000)
-		pool.AddAmountToFunder(i.ALICE, 2000)
-		pool.AddAmountToFunder(i.ALICE, 0)
-		pool.AddAmountToFunder(i.BOB, 0)
-		pool.AddAmountToFunder(i.ALICE, 10)
+		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+		Expect(err).NotTo(HaveOccurred())
 
 		// ASSERT
-		Expect(pool.TotalFunds).To(Equal(uint64(3010)))
-		Expect(pool.Funders).To(HaveLen(1))
+		Expect(payout).To(Equal(11 * i.KYVE))
+
+		fundersBalance := s.App().BankKeeper.GetBalance(s.Ctx(), fundersModuleAcc, globaltypes.Denom).Amount.Uint64()
+		poolBalance := s.App().BankKeeper.GetBalance(s.Ctx(), poolModuleAcc, globaltypes.Denom).Amount.Uint64()
+		Expect(fundersBalance).To(Equal(139 * i.KYVE))
+		Expect(poolBalance).To(Equal(11 * i.KYVE))
 	})
 
-	It("Add multiple funders; check total sum", func() {
+	It("Charge funders until one funder runs out of funds", func() {
 		// ACT
-		pool.AddAmountToFunder(i.ALICE, 1000)
-		pool.AddAmountToFunder(i.ALICE, 2000)
-		pool.AddAmountToFunder(i.ALICE, 0)
-		pool.AddAmountToFunder(i.BOB, 1000)
-		pool.AddAmountToFunder(i.ALICE, 10)
-
-		// ASSERT
-		Expect(pool.TotalFunds).To(Equal(uint64(4010)))
-		Expect(pool.Funders).To(HaveLen(2))
-	})
-
-	It("Remove funder", func() {
-		// ARRANGE
-		pool.AddAmountToFunder(i.ALICE, 1000)
-		pool.AddAmountToFunder(i.ALICE, 2000)
-		pool.AddAmountToFunder(i.ALICE, 0)
-		pool.AddAmountToFunder(i.BOB, 0)
-		pool.AddAmountToFunder(i.ALICE, 10)
-		pool.AddAmountToFunder(i.CHARLIE, 500)
-
-		Expect(pool.TotalFunds).To(Equal(uint64(3510)))
-
-		// ACT
-		// Alice: 3010
-		// Charlie: 500
-		pool.RemoveFunder(i.CHARLIE)
-
-		// ASSERT
-		Expect(pool.TotalFunds).To(Equal(uint64(3010)))
-		Expect(pool.Funders).To(HaveLen(1))
-	})
-
-	It("Remove funder by defunding everything", func() {
-		// ARRANGE
-		pool.AddAmountToFunder(i.ALICE, 1000)
-		pool.AddAmountToFunder(i.ALICE, 2000)
-		pool.AddAmountToFunder(i.ALICE, 0)
-		pool.AddAmountToFunder(i.BOB, 0)
-		pool.AddAmountToFunder(i.ALICE, 10)
-		pool.AddAmountToFunder(i.CHARLIE, 500)
-
-		// ACT
-		// Alice: 3010
-		// Charlie: 500
-		pool.SubtractAmountFromFunder(i.ALICE, 3010)
-
-		// ASSERT
-		Expect(pool.TotalFunds).To(Equal(uint64(500)))
-		Expect(pool.Funders).To(HaveLen(1))
-	})
-
-	It("Charge Funders with equal amounts", func() {
-		// ARRANGE
-		for k := 0; k < 50; k++ {
-			s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-				Creator: i.DUMMY[k],
-				Id:      0,
-				Amount:  100 * i.KYVE,
-			})
+		for range [5]struct{}{} {
+			payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(payout).To(Equal(11 * i.KYVE))
 		}
-		pool, poolFound := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-		Expect(poolFound).To(BeTrue())
-		Expect(pool.TotalFunds).To(Equal(50 * 100 * i.KYVE))
+
+		// ASSERT
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(fundingState.TotalAmount).To(Equal(95 * i.KYVE))
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
+		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
+
+		fundersBalance := s.App().BankKeeper.GetBalance(s.Ctx(), fundersModuleAcc, globaltypes.Denom).Amount.Uint64()
+		poolBalance := s.App().BankKeeper.GetBalance(s.Ctx(), poolModuleAcc, globaltypes.Denom).Amount.Uint64()
+		Expect(fundersBalance).To(Equal(95 * i.KYVE))
+		Expect(poolBalance).To(Equal(55 * i.KYVE))
+	})
+
+	It("Charge funders until all funders run out of funds", func() {
+		// ARRANGE
+		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
+		funding.AmountPerBundle = 10 * i.KYVE
+		s.App().FundersKeeper.SetFunding(s.Ctx(), &funding)
 
 		// ACT
-		payout, err := chargeFunders(s, 50*10*i.KYVE)
+		for range [5]struct{}{} {
+			fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+			Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
+
+			payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(payout).To(Equal(20 * i.KYVE))
+		}
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
+
+		for range [5]struct{}{} {
+			fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+			Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
+
+			payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(payout).To(Equal(10 * i.KYVE))
+		}
+		fundingState, _ = s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(0))
+
+		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(payout).To(Equal(0 * i.KYVE))
+
+		fundersBalance := s.App().BankKeeper.GetBalance(s.Ctx(), fundersModuleAcc, globaltypes.Denom).Amount.Uint64()
+		poolBalance := s.App().BankKeeper.GetBalance(s.Ctx(), poolModuleAcc, globaltypes.Denom).Amount.Uint64()
+		Expect(fundersBalance).To(Equal(0 * i.KYVE))
+		Expect(poolBalance).To(Equal(150 * i.KYVE))
+	})
+
+	It("Charge funder with less funds than amount_per_bundle", func() {
+		// ARRANGE
+		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
+		funding.AmountPerBundle = 105 * i.KYVE
+		s.App().FundersKeeper.SetFunding(s.Ctx(), &funding)
+
+		// ACT
+		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(payout).To(Equal(110 * i.KYVE))
+
+		// ASSERT
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(fundingState.TotalAmount).To(Equal(40 * i.KYVE))
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
+		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.BOB))
+
+		fundersBalance := s.App().BankKeeper.GetBalance(s.Ctx(), fundersModuleAcc, globaltypes.Denom).Amount.Uint64()
+		poolBalance := s.App().BankKeeper.GetBalance(s.Ctx(), poolModuleAcc, globaltypes.Denom).Amount.Uint64()
+		Expect(fundersBalance).To(Equal(40 * i.KYVE))
+		Expect(poolBalance).To(Equal(110 * i.KYVE))
+	})
+
+	It("Charge without fundings", func() {
+		// ARRANGE
+		s.RunTxFundersSuccess(&funderstypes.MsgDefundPool{
+			Creator: i.ALICE,
+			PoolId:  0,
+			Amount:  100 * i.KYVE,
+		})
+		s.RunTxFundersSuccess(&funderstypes.MsgDefundPool{
+			Creator: i.BOB,
+			PoolId:  0,
+			Amount:  50 * i.KYVE,
+		})
+
+		// ACT
+		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
 
 		// ASSERT
 		Expect(err).NotTo(HaveOccurred())
-		Expect(payout).To(Equal(50 * 10 * i.KYVE))
-
-		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-		Expect(pool.TotalFunds).To(Equal(50 * 90 * i.KYVE))
-
-		for _, funder := range pool.Funders {
-			Expect(funder.Amount).To(Equal(90 * i.KYVE))
-		}
-	})
-
-	It("Charge Funders test remainder", func() {
-		// ARRANGE
-		for k := 0; k < 50; k++ {
-			s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-				Creator: i.DUMMY[k],
-				Id:      0,
-				Amount:  100 * i.KYVE,
-			})
-		}
-		pool, poolFound := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-		Expect(poolFound).To(BeTrue())
-		Expect(pool.TotalFunds).To(Equal(50 * 100 * i.KYVE))
-
-		// ACT
-		// Charge 10 $KYVE + 49tkyve
-		// the 49 tkyve will be charged to the lowest funder
-		payout, err := chargeFunders(s, 50*10*i.KYVE+49)
-
-		// ASSERT
-		Expect(err).NotTo(HaveOccurred())
-		Expect(payout).To(Equal(50*10*i.KYVE + 49))
-
-		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-
-		for _, funder := range pool.Funders {
-			if pool.GetLowestFunder().Address == funder.Address {
-				Expect(funder.Amount).To(Equal(90*i.KYVE - 49))
-			} else {
-				Expect(funder.Amount).To(Equal(90 * i.KYVE))
-			}
-		}
-	})
-
-	It("Charge exactly lowest funder amount", func() {
-		// ARRANGE
-		for k := 0; k < 40; k++ {
-			s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-				Creator: i.DUMMY[k],
-				Id:      0,
-				Amount:  100 * i.KYVE,
-			})
-		}
-		for k := 0; k < 10; k++ {
-			s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-				Creator: i.DUMMY[40+k],
-				Id:      0,
-				Amount:  200 * i.KYVE,
-			})
-		}
-		pool, poolFound := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-		Expect(poolFound).To(BeTrue())
-		Expect(pool.TotalFunds).To(Equal((100*40 + 200*10) * i.KYVE))
-
-		// ACT
-		payout, err := chargeFunders(s, 50*100*i.KYVE)
-
-		// ASSERT
-		Expect(err).NotTo(HaveOccurred())
-		Expect(payout).To(Equal(50 * 100 * i.KYVE))
-
-		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-		Expect(pool.Funders).To(HaveLen(10))
-	})
-
-	It("Kick out multiple lowest funders", func() {
-		// Arrange
-		for k := 0; k < 40; k++ {
-			s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-				Creator: i.DUMMY[k],
-				Id:      0,
-				Amount:  50 * i.KYVE,
-			})
-		}
-		for k := 0; k < 10; k++ {
-			s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-				Creator: i.DUMMY[40+k],
-				Id:      0,
-				Amount:  1000 * i.KYVE,
-			})
-		}
-		pool, poolFound := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-		Expect(poolFound).To(BeTrue())
-		Expect(pool.TotalFunds).To(Equal((50*40 + 1000*10) * i.KYVE))
-
-		// 40 * 50 = 2000
-		// 10 * 1000 = 10000
-		// Charge 5000
-
-		// Act
-		payout, err := chargeFunders(s, 5000*i.KYVE)
-
-		// Assert
-		Expect(err).NotTo(HaveOccurred())
-		Expect(payout).To(Equal(3000 * i.KYVE))
-
-		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-		Expect(pool.Funders).To(HaveLen(10))
-
-		for _, funder := range pool.Funders {
-			Expect(funder.Amount).To(Equal(900 * i.KYVE))
-		}
-	})
-
-	It("Charge more than pool has funds", func() {
-		// ARRANGE
-		for k := 0; k < 50; k++ {
-			s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-				Creator: i.DUMMY[k],
-				Id:      0,
-				Amount:  50 * i.KYVE,
-			})
-		}
-		pool, poolFound := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-		Expect(poolFound).To(BeTrue())
-		Expect(pool.TotalFunds).To(Equal((50 * 50) * i.KYVE))
-
-		// ACT
-		payout, err := chargeFunders(s, 5000*i.KYVE)
-
-		// ASSERT
-		Expect(err).NotTo(HaveOccurred())
-		Expect(payout).To(Equal(2500 * i.KYVE))
-
-		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-		Expect(pool.Funders).To(HaveLen(0))
-	})
-
-	It("Charge pool which has no funds at all", func() {
-		// ARRANGE
-		pool, poolFound := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-		Expect(poolFound).To(BeTrue())
-		Expect(pool.TotalFunds).To(BeZero())
-
-		// ACT
-		payout, err := chargeFunders(s, 5000*i.KYVE)
-
-		// ASSERT
-		Expect(err).NotTo(HaveOccurred())
-		Expect(payout).To(BeZero())
-
-		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-		Expect(pool.Funders).To(HaveLen(0))
-		Expect(pool.TotalFunds).To(BeZero())
+		Expect(payout).To(Equal(0 * i.KYVE))
+		fundersBalance := s.App().BankKeeper.GetBalance(s.Ctx(), fundersModuleAcc, globaltypes.Denom).Amount.Uint64()
+		poolBalance := s.App().BankKeeper.GetBalance(s.Ctx(), poolModuleAcc, globaltypes.Denom).Amount.Uint64()
+		Expect(fundersBalance).To(Equal(0 * i.KYVE))
+		Expect(poolBalance).To(Equal(0 * i.KYVE))
 	})
 })
