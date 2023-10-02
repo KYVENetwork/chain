@@ -17,8 +17,10 @@ TEST CASES - msg_server_fund_pool.go
 * Try to fund more $KYVE than available in balance
 * Fund with a new funder less $KYVE than the existing one
 * Fund with a new funder more $KYVE than the existing one
+* Try to fund with a non-existent funder
 * Try to fund less $KYVE than the lowest funder with full funding slots
-* Try to fund more $KYVE than the lowest funder with full funding slots
+* Fund more $KYVE than the lowest funder with full funding slots
+* Refund a funding as the lowest funder
 
 */
 
@@ -54,7 +56,11 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		// create funder
 		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
 			Creator: i.ALICE,
-			Moniker: "moniker",
+			Moniker: "Alice",
+		})
+		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
+			Creator: i.BOB,
+			Moniker: "Bob",
 		})
 	})
 
@@ -123,6 +129,11 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(1))
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
 		Expect(fundingState.TotalAmount).To(Equal(150 * i.KYVE))
+
+		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings)
+		Expect(err).To(BeNil())
+		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
 	})
 
 	It("Try to fund more $KYVE than available in balance", func() {
@@ -138,7 +149,6 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 
 		// ASSERT
 		balanceAfter := s.GetBalanceFromAddress(i.ALICE)
-
 		Expect(initialBalance - balanceAfter).To(BeZero())
 
 		_, found := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
@@ -149,151 +159,242 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(0))
 		Expect(fundingState.TotalAmount).To(Equal(uint64(0)))
 	})
-	// TODO: fix this test
-	//It("Fund with a new funder less $KYVE than the existing one", func() {
-	//	// ARRANGE
-	//	s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-	//		Creator: i.ALICE,
-	//		PoolId:  0,
-	//		Amount:  100 * i.KYVE,
-	//	})
-	//
-	//	// ACT
-	//	s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-	//		Creator: i.BOB,
-	//		PoolId:  0,
-	//		Amount:  50 * i.KYVE,
-	//	})
-	//
-	//	// ASSERT
-	//	balanceAfter := s.GetBalanceFromAddress(i.BOB)
-	//
-	//	pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-	//
-	//	Expect(initialBalance - balanceAfter).To(Equal(50 * i.KYVE))
-	//
-	//	Expect(pool.Funders).To(HaveLen(2))
-	//	Expect(pool.TotalFunds).To(Equal(150 * i.KYVE))
-	//
-	//	funderAmount := pool.GetFunderAmount(i.BOB)
-	//
-	//	Expect(funderAmount).To(Equal(50 * i.KYVE))
-	//	Expect(pool.GetLowestFunder().Address).To(Equal(i.BOB))
-	//	Expect(pool.GetLowestFunder().Amount).To(Equal(50 * i.KYVE))
-	//})
-	//
-	//It("Fund with a new funder more $KYVE than the existing one", func() {
-	//	// ARRANGE
-	//	s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-	//		Creator: i.ALICE,
-	//		PoolId:  0,
-	//		Amount:  100 * i.KYVE,
-	//	})
-	//
-	//	// ACT
-	//	s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-	//		Creator: i.BOB,
-	//		PoolId:  0,
-	//		Amount:  200 * i.KYVE,
-	//	})
-	//
-	//	// ASSERT
-	//	balanceAfter := s.GetBalanceFromAddress(i.BOB)
-	//
-	//	pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-	//
-	//	Expect(initialBalance - balanceAfter).To(Equal(200 * i.KYVE))
-	//
-	//	Expect(pool.Funders).To(HaveLen(2))
-	//	Expect(pool.TotalFunds).To(Equal(300 * i.KYVE))
-	//
-	//	funderAmount := pool.GetFunderAmount(i.BOB)
-	//	Expect(funderAmount).To(Equal(200 * i.KYVE))
-	//
-	//	Expect(pool.GetLowestFunder().Address).To(Equal(i.ALICE))
-	//	Expect(pool.GetLowestFunder().Amount).To(Equal(100 * i.KYVE))
-	//})
-	//
-	//It("Try to fund less $KYVE than the lowest funder with full funding slots", func() {
-	//	// ARRANGE
-	//	s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-	//		Creator: i.ALICE,
-	//		PoolId:  0,
-	//		Amount:  100 * i.KYVE,
-	//	})
-	//
-	//	for a := 0; a < 49; a++ {
-	//		// fill remaining funding slots
-	//		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-	//			Creator: i.DUMMY[a],
-	//			PoolId:  0,
-	//			Amount:  1000 * i.KYVE,
-	//		})
-	//	}
-	//
-	//	pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-	//
-	//	Expect(pool.Funders).To(HaveLen(50))
-	//	Expect(pool.TotalFunds).To(Equal(49_100 * i.KYVE))
-	//
-	//	Expect(pool.GetLowestFunder().Address).To(Equal(i.ALICE))
-	//	Expect(pool.GetLowestFunder().Amount).To(Equal(100 * i.KYVE))
-	//
-	//	balanceAfter := s.GetBalanceFromAddress(i.ALICE)
-	//
-	//	Expect(initialBalance - balanceAfter).To(Equal(100 * i.KYVE))
-	//
-	//	// ACT
-	//	s.RunTxFundersError(&funderstypes.MsgFundPool{
-	//		Creator: i.DUMMY[49],
-	//		PoolId:  0,
-	//		Amount:  50 * i.KYVE,
-	//	})
-	//
-	//	// ASSERT
-	//	Expect(pool.Funders).To(HaveLen(50))
-	//	Expect(pool.TotalFunds).To(Equal(49_100 * i.KYVE))
-	//
-	//	Expect(pool.GetFunderAmount(i.DUMMY[49])).To(BeZero())
-	//	Expect(pool.GetLowestFunder().Address).To(Equal(i.ALICE))
-	//	Expect(pool.GetLowestFunder().Amount).To(Equal(100 * i.KYVE))
-	//})
-	//
-	//It("Fund more $KYVE than the lowest funder with full funding slots", func() {
-	//	// ARRANGE
-	//	s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-	//		Creator: i.ALICE,
-	//		PoolId:  0,
-	//		Amount:  100 * i.KYVE,
-	//	})
-	//
-	//	for a := 0; a < 49; a++ {
-	//		// fill remaining funding slots
-	//		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-	//			Creator: i.DUMMY[a],
-	//			PoolId:  0,
-	//			Amount:  1000 * i.KYVE,
-	//		})
-	//	}
-	//
-	//	// ACT
-	//	s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-	//		Creator: i.DUMMY[49],
-	//		PoolId:  0,
-	//		Amount:  200 * i.KYVE,
-	//	})
-	//
-	//	// ASSERT
-	//	pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-	//
-	//	Expect(pool.Funders).To(HaveLen(50))
-	//	Expect(pool.TotalFunds).To(Equal(49_200 * i.KYVE))
-	//
-	//	Expect(pool.GetFunderAmount(i.DUMMY[49])).To(Equal(200 * i.KYVE))
-	//	Expect(pool.GetLowestFunder().Address).To(Equal(i.DUMMY[49]))
-	//	Expect(pool.GetLowestFunder().Amount).To(Equal(200 * i.KYVE))
-	//
-	//	balanceAfter := s.GetBalanceFromAddress(i.ALICE)
-	//	Expect(initialBalance - balanceAfter).To(BeZero())
-	//})
+
+	It("Fund with a new funder less $KYVE than the existing one", func() {
+		// ARRANGE
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
+		})
+
+		// ACT
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.BOB,
+			PoolId:          0,
+			Amount:          50 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
+		})
+
+		// ASSERT
+		balanceAfter := s.GetBalanceFromAddress(i.BOB)
+		Expect(initialBalance - balanceAfter).To(Equal(50 * i.KYVE))
+
+		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.BOB, 0)
+		Expect(funding.Amount).To(Equal(50 * i.KYVE))
+		Expect(funding.AmountPerBundle).To(Equal(1 * i.KYVE))
+		Expect(funding.TotalFunded).To(Equal(0 * i.KYVE))
+
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(fundingState.PoolId).To(Equal(uint64(0)))
+		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(2))
+		Expect(fundingState.TotalAmount).To(Equal(150 * i.KYVE))
+
+		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings)
+		Expect(err).To(BeNil())
+		Expect(lowestFunding.FunderAddress).To(Equal(i.BOB))
+	})
+
+	It("Fund with a new funder more $KYVE than the existing one", func() {
+		// ARRANGE
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
+		})
+
+		// ACT
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.BOB,
+			PoolId:          0,
+			Amount:          200 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
+		})
+
+		// ASSERT
+		balanceAfter := s.GetBalanceFromAddress(i.BOB)
+		Expect(initialBalance - balanceAfter).To(Equal(200 * i.KYVE))
+
+		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.BOB, 0)
+		Expect(funding.Amount).To(Equal(200 * i.KYVE))
+		Expect(funding.AmountPerBundle).To(Equal(1 * i.KYVE))
+		Expect(funding.TotalFunded).To(Equal(0 * i.KYVE))
+
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(fundingState.PoolId).To(Equal(uint64(0)))
+		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(2))
+		Expect(fundingState.TotalAmount).To(Equal(300 * i.KYVE))
+
+		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings)
+		Expect(err).To(BeNil())
+		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
+	})
+
+	It("Try to fund with a non-existent funder", func() {
+		// ASSERT
+		s.RunTxFundersError(&funderstypes.MsgFundPool{
+			Creator:         i.CHARLIE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
+		})
+	})
+
+	It("Try to fund less $KYVE than the lowest funder with full funding slots", func() {
+		// ARRANGE
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
+		})
+
+		for a := 0; a < funderstypes.MaxFunders-1; a++ {
+			s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
+				Creator: i.DUMMY[a],
+				Moniker: i.DUMMY[a],
+			})
+			// fill remaining funding slots
+			s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+				Creator:         i.DUMMY[a],
+				PoolId:          0,
+				Amount:          1000 * i.KYVE,
+				AmountPerBundle: 1 * i.KYVE,
+			})
+		}
+		totalFunded := (funderstypes.MaxFunders-1)*1000*i.KYVE + 100*i.KYVE
+
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(funderstypes.MaxFunders))
+		Expect(fundingState.TotalAmount).To(Equal(totalFunded))
+
+		balanceAfter := s.GetBalanceFromAddress(i.ALICE)
+		Expect(initialBalance - balanceAfter).To(Equal(100 * i.KYVE))
+
+		// ACT
+		s.RunTxFundersError(&funderstypes.MsgFundPool{
+			Creator:         i.BOB,
+			PoolId:          0,
+			Amount:          50 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
+		})
+
+		// ASSERT
+		fundingState, _ = s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(funderstypes.MaxFunders))
+		Expect(fundingState.TotalAmount).To(Equal(totalFunded))
+
+		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
+		Expect(activeFundings).To(HaveLen(50))
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings)
+		Expect(err).To(BeNil())
+		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
+	})
+
+	It("Fund more $KYVE than the lowest funder with full funding slots", func() {
+		// ARRANGE
+		initialBalanceBob := s.GetBalanceFromAddress(i.BOB)
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
+		})
+
+		for a := 0; a < funderstypes.MaxFunders-1; a++ {
+			s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
+				Creator: i.DUMMY[a],
+				Moniker: i.DUMMY[a],
+			})
+			// fill remaining funding slots
+			s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+				Creator:         i.DUMMY[a],
+				PoolId:          0,
+				Amount:          1000 * i.KYVE,
+				AmountPerBundle: 1 * i.KYVE,
+			})
+		}
+		balanceAfter := s.GetBalanceFromAddress(i.ALICE)
+		Expect(initialBalance - balanceAfter).To(Equal(100 * i.KYVE))
+
+		// ACT
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.BOB,
+			PoolId:          0,
+			Amount:          200 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
+		})
+		x := s.GetBalanceFromAddress(i.BOB)
+		Expect(initialBalanceBob - x).To(Equal(200 * i.KYVE))
+		// ASSERT
+		totalFunded := (funderstypes.MaxFunders-1)*1000*i.KYVE + 200*i.KYVE
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(funderstypes.MaxFunders))
+		Expect(fundingState.TotalAmount).To(Equal(totalFunded))
+
+		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
+		Expect(activeFundings).To(HaveLen(50))
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings)
+		Expect(err).To(BeNil())
+		Expect(lowestFunding.FunderAddress).To(Equal(i.BOB))
+
+		balanceEnd := s.GetBalanceFromAddress(i.ALICE)
+		Expect(initialBalance - balanceEnd).To(BeZero())
+
+		balanceAfterBob := s.GetBalanceFromAddress(i.BOB)
+		Expect(initialBalanceBob - balanceAfterBob).To(Equal(200 * i.KYVE))
+	})
+
+	It("Refund a funding as the lowest funder", func() {
+		// ARRANGE
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
+		})
+
+		for a := 0; a < funderstypes.MaxFunders-1; a++ {
+			s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
+				Creator: i.DUMMY[a],
+				Moniker: i.DUMMY[a],
+			})
+			// fill remaining funding slots
+			s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+				Creator:         i.DUMMY[a],
+				PoolId:          0,
+				Amount:          1000 * i.KYVE,
+				AmountPerBundle: 1 * i.KYVE,
+			})
+		}
+		totalFunded := (funderstypes.MaxFunders-1)*1000*i.KYVE + 100*i.KYVE
+
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(totalFunded).To(Equal(fundingState.TotalAmount))
+		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
+		Expect(activeFundings).To(HaveLen(50))
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings)
+		Expect(err).To(BeNil())
+		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
+
+		// ACT
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          50 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
+		})
+
+		// ASSERT
+		fundingState, _ = s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(funderstypes.MaxFunders))
+		Expect(fundingState.TotalAmount).To(Equal(totalFunded + 50*i.KYVE))
+
+		balanceEnd := s.GetBalanceFromAddress(i.ALICE)
+		Expect(initialBalance - balanceEnd).To(Equal(150 * i.KYVE))
+	})
 })
