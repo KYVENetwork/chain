@@ -21,6 +21,9 @@ TEST CASES - msg_server_fund_pool.go
 * Try to fund less $KYVE than the lowest funder with full funding slots
 * Fund more $KYVE than the lowest funder with full funding slots
 * Refund a funding as the lowest funder
+* Try to fund a non-existent pool
+* Try to fund below the minimum amount
+* Try to fund below the minimum amount per bundle
 
 */
 
@@ -396,5 +399,35 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 
 		balanceEnd := s.GetBalanceFromAddress(i.ALICE)
 		Expect(initialBalance - balanceEnd).To(Equal(150 * i.KYVE))
+	})
+
+	It("Try to fund a non-existent pool", func() {
+		// ASSERT
+		s.RunTxFundersError(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          1,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
+		})
+	})
+
+	It("Try to fund below the minimum amount", func() {
+		// ASSERT
+		s.RunTxFundersError(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          1,
+			AmountPerBundle: 1 * i.KYVE,
+		})
+	})
+
+	It("Try to fund below the minimum amount per bundle", func() {
+		// ASSERT
+		s.RunTxFundersError(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 1,
+		})
 	})
 })
