@@ -431,24 +431,20 @@ func (suite *KeeperTestSuite) VerifyFundersGenesisImportExport() {
 
 func (suite *KeeperTestSuite) VerifyFundersModuleIntegrity() {
 	funderAddresses := make(map[string]bool)
-	activeFunderAddresses := make(map[string]bool)
 	for _, funder := range suite.App().FundersKeeper.GetAllFunders(suite.Ctx()) {
-		funderAddresses[funder.Address] = false
+		funderAddresses[funder.Address] = true
 	}
 
+	allActiveFundings := make(map[string]bool)
 	for _, funding := range suite.App().FundersKeeper.GetAllFundings(suite.Ctx()) {
 		// check if funding has a valid funder
 		_, found := funderAddresses[funding.FunderAddress]
 		Expect(found).To(BeTrue())
 
-		// check if the funder has already funded (should not be the case)
-		Expect(funderAddresses[funding.FunderAddress]).To(BeFalse())
-
-		funderAddresses[funding.FunderAddress] = true
-
 		// check if funding is active
 		if funding.Amount > 0 {
-			activeFunderAddresses[funding.FunderAddress] = true
+			key := string(funderstypes.FundingKeyByFunder(funding.FunderAddress, funding.PoolId))
+			allActiveFundings[key] = true
 		}
 
 		// check if pool exists
@@ -460,7 +456,8 @@ func (suite *KeeperTestSuite) VerifyFundersModuleIntegrity() {
 		fsActiveAddresses := make(map[string]bool)
 		for _, funderAddress := range fundingState.ActiveFunderAddresses {
 			// check if funding has a valid funder
-			_, found := activeFunderAddresses[funderAddress]
+			key := string(funderstypes.FundingKeyByFunder(funderAddress, fundingState.PoolId))
+			_, found := allActiveFundings[key]
 			Expect(found).To(BeTrue())
 
 			// check if funder is not already in the list
