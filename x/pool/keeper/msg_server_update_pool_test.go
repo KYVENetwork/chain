@@ -33,20 +33,7 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 	BeforeEach(func() {
 		s = i.NewCleanChain()
 
-		s.App().PoolKeeper.AppendPool(s.Ctx(), types.Pool{
-			Name:                     "",
-			Runtime:                  "",
-			Logo:                     "",
-			Config:                   "",
-			UploadInterval:           0,
-			InflationShareWeight:     0,
-			MinDelegation:            0,
-			MaxBundleSize:            0,
-			CurrentStorageProviderId: 0,
-			CurrentCompressionId:     0,
-			Protocol:                 &types.Protocol{},
-			UpgradePlan:              &types.UpgradePlan{},
-		})
+		createPoolWithEmptyValues(s)
 	})
 
 	AfterEach(func() {
@@ -203,20 +190,7 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 
 	It("Update another pool", func() {
 		// ARRANGE
-		s.App().PoolKeeper.AppendPool(s.Ctx(), types.Pool{
-			Name:                     "",
-			Runtime:                  "",
-			Logo:                     "",
-			Config:                   "",
-			UploadInterval:           0,
-			InflationShareWeight:     0,
-			MinDelegation:            0,
-			MaxBundleSize:            0,
-			CurrentStorageProviderId: 0,
-			CurrentCompressionId:     0,
-			Protocol:                 &types.Protocol{},
-			UpgradePlan:              &types.UpgradePlan{},
-		})
+		createPoolWithEmptyValues(s)
 
 		// ACT
 		msg := &types.MsgUpdatePool{

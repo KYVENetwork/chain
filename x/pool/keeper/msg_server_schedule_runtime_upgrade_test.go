@@ -36,15 +36,16 @@ var _ = Describe("msg_server_schedule_runtime_upgrade.go", Ordered, func() {
 	BeforeEach(func() {
 		s = i.NewCleanChain()
 
-		s.App().PoolKeeper.AppendPool(s.Ctx(), types.Pool{
-			Runtime: "@kyve/test",
-			Protocol: &types.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{\"linux\":\"test\"}",
-				LastUpgrade: 0,
-			},
-			UpgradePlan: &types.UpgradePlan{},
-		})
+		createPoolWithEmptyValues(s)
+		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		pool.UpgradePlan = &types.UpgradePlan{}
+		pool.Protocol = &types.Protocol{
+			Version:     "0.0.0",
+			Binaries:    "{\"linux\":\"test\"}",
+			LastUpgrade: 0,
+		}
+		pool.Runtime = "@kyve/test"
+		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
 	})
 
 	AfterEach(func() {
