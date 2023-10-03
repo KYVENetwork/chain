@@ -39,26 +39,29 @@ func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk bankKeeper.Keepe
 	// track actual distributed block provision for protocol
 	distributed := uint64(0)
 
-	// calculate total operating cost of pools to get each pool's reward share
-	totalOperatingCost := uint64(0)
+	// calculate total inflation share weight of pools to get each pool's reward share
+	totalInflationShareWeight := uint64(0)
 
 	for _, pool := range pk.GetAllPools(ctx) {
 		// only include active pools
 		if err := k.AssertPoolCanRun(ctx, pool.Id); err == nil {
-			totalOperatingCost += pool.OperatingCost
+			totalInflationShareWeight += pool.InflationShareWeight
 		}
 	}
 
-	// if the total operating cost is zero all rewards go the chain
-	if totalOperatingCost == 0 {
+	// if the total inflation share weight is zero all rewards go the chain
+	if totalInflationShareWeight == 0 {
 		return
 	}
 
 	for _, pool := range pk.GetAllPools(ctx) {
 		// only include active pools
 		if err := k.AssertPoolCanRun(ctx, pool.Id); err == nil {
-			// calculate pool share based of operating cost
-			amount := uint64(sdk.NewDec(int64(pool.OperatingCost)).Quo(sdk.NewDec(int64(totalOperatingCost))).Mul(sdk.NewDec(protocolBlockProvision)).TruncateInt64())
+			// calculate pool share based of inflation share weight
+			amount := uint64(sdk.NewDec(int64(pool.InflationShareWeight)).
+				Quo(sdk.NewDec(int64(totalInflationShareWeight))).
+				Mul(sdk.NewDec(protocolBlockProvision)).
+				TruncateInt64())
 
 			// transfer funds to pool account
 			if err := util.TransferFromModuleToAddress(bk, ctx, authTypes.FeeCollectorName, pool.GetPoolAccount().String(), amount); err != nil {

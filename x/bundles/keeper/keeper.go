@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-
 	"github.com/cometbft/cometbft/libs/log"
 
 	"github.com/KYVENetwork/chain/x/bundles/types"
@@ -25,6 +24,7 @@ type (
 		poolKeeper       types.PoolKeeper
 		stakerKeeper     types.StakerKeeper
 		delegationKeeper types.DelegationKeeper
+		fundersKeeper    types.FundersKeeper
 	}
 )
 
@@ -41,6 +41,7 @@ func NewKeeper(
 	poolKeeper types.PoolKeeper,
 	stakerKeeper types.StakerKeeper,
 	delegationKeeper types.DelegationKeeper,
+	fundersKeeper types.FundersKeeper,
 ) *Keeper {
 	return &Keeper{
 		cdc:      cdc,
@@ -55,6 +56,7 @@ func NewKeeper(
 		poolKeeper:       poolKeeper,
 		stakerKeeper:     stakerKeeper,
 		delegationKeeper: delegationKeeper,
+		fundersKeeper:    fundersKeeper,
 	}
 }
 

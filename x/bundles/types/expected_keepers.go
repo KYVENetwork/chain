@@ -36,7 +36,6 @@ type PoolKeeper interface {
 	IncrementBundleInformation(ctx sdk.Context, poolId uint64, currentHeight uint64, currentKey string, currentValue string)
 
 	GetAllPools(ctx sdk.Context) (list []pooltypes.Pool)
-	//ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint64) (payout uint64, err error) //TODO(rapha): remove
 	ChargeInflationPool(ctx sdk.Context, poolId uint64) (payout uint64, err error)
 }
 
@@ -60,4 +59,8 @@ type DelegationKeeper interface {
 	GetDelegationOfPool(ctx sdk.Context, poolId uint64) uint64
 	PayoutRewards(ctx sdk.Context, staker string, amount uint64, payerModuleName string) error
 	SlashDelegators(ctx sdk.Context, poolId uint64, staker string, slashType delegationTypes.SlashType)
+}
+
+type FundersKeeper interface {
+	ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint64, err error)
 }
