@@ -659,6 +659,7 @@ func NewKYVEApp(
 		app.GlobalKeeper,
 		*app.GovKeeper,
 		app.TeamKeeper,
+		app.FundersKeeper,
 	)
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 

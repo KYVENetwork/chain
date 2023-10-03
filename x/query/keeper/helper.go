@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	"github.com/KYVENetwork/chain/x/query/types"
@@ -37,6 +38,7 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 	for _, valaccount := range k.stakerKeeper.GetValaccountsFromStaker(ctx, staker.Address) {
 
 		pool, _ := k.poolKeeper.GetPool(ctx, valaccount.PoolId)
+		fundingState, _ := k.fundersKeeper.GetFundingState(ctx, valaccount.PoolId)
 
 		accountValaddress, _ := sdk.AccAddressFromBech32(valaccount.Valaddress)
 		balanceValaccount := k.bankKeeper.GetBalance(ctx, accountValaddress, globalTypes.Denom).Amount.Uint64()
@@ -44,16 +46,15 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 		poolMemberships = append(
 			poolMemberships, &types.PoolMembership{
 				Pool: &types.BasicPool{
-					Id:             pool.Id,
-					Name:           pool.Name,
-					Runtime:        pool.Runtime,
-					Logo:           pool.Logo,
-					OperatingCost:  pool.OperatingCost,
-					UploadInterval: pool.UploadInterval,
-					// TODO(rapha): fix this
-					//TotalFunds:      pool.TotalFunds,
-					TotalDelegation: k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id),
-					Status:          k.GetPoolStatus(ctx, &pool),
+					Id:                   pool.Id,
+					Name:                 pool.Name,
+					Runtime:              pool.Runtime,
+					Logo:                 pool.Logo,
+					InflationShareWeight: pool.InflationShareWeight,
+					UploadInterval:       pool.UploadInterval,
+					TotalFunds:           fundingState.TotalAmount,
+					TotalDelegation:      k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id),
+					Status:               k.GetPoolStatus(ctx, &pool, &fundingState),
 				},
 				Points:     valaccount.Points,
 				IsLeaving:  valaccount.IsLeaving,
@@ -82,22 +83,27 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 	}
 }
 
-func (k Keeper) GetPoolStatus(ctx sdk.Context, pool *pooltypes.Pool) pooltypes.PoolStatus {
+func (k Keeper) GetPoolStatus(ctx sdk.Context, pool *pooltypes.Pool, fundingState *funderstypes.FundingState) pooltypes.PoolStatus {
 	totalDelegation := k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id)
 
 	var poolStatus pooltypes.PoolStatus
 
+	poolStatus = pooltypes.POOL_STATUS_ACTIVE
 	if pool.UpgradePlan.ScheduledAt > 0 && uint64(ctx.BlockTime().Unix()) >= pool.UpgradePlan.ScheduledAt {
 		poolStatus = pooltypes.POOL_STATUS_UPGRADING
 	} else if pool.Disabled {
 		poolStatus = pooltypes.POOL_STATUS_DISABLED
 	} else if totalDelegation < pool.MinDelegation {
 		poolStatus = pooltypes.POOL_STATUS_NOT_ENOUGH_DELEGATION
-		// TODO(rapha): fix this
-		//} else if pool.TotalFunds == 0 {
-		//	poolStatus = pooltypes.POOL_STATUS_NO_FUNDS
 	} else {
-		poolStatus = pooltypes.POOL_STATUS_ACTIVE
+		// Get funding state if not provided
+		if fundingState == nil {
+			fs, _ := k.fundersKeeper.GetFundingState(ctx, pool.Id)
+			fundingState = &fs
+		}
+		if fundingState.TotalAmount == 0 {
+			poolStatus = pooltypes.POOL_STATUS_NO_FUNDS
+		}
 	}
 
 	return poolStatus

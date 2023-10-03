@@ -70,7 +70,7 @@ func (k Keeper) parsePoolResponse(ctx sdk.Context, pool *poolTypes.Pool) types.P
 		Stakers:             stakers,
 		TotalSelfDelegation: totalSelfDelegation,
 		TotalDelegation:     totalDelegation,
-		Status:              k.GetPoolStatus(ctx, pool),
+		Status:              k.GetPoolStatus(ctx, pool, nil),
 		Account:             poolAccount.String(),
 		AccountBalance:      poolBalance,
 	}

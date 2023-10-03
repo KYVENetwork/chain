@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
 
 	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
 	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
@@ -41,6 +42,7 @@ type (
 		globalKeeper     globalKeeper.Keeper
 		govKeeper        govkeeper.Keeper
 		teamKeeper       teamKeeper.Keeper
+		fundersKeeper    fundersKeeper.Keeper
 	}
 )
 
@@ -60,6 +62,7 @@ func NewKeeper(
 	globalKeeper globalKeeper.Keeper,
 	govKeeper govkeeper.Keeper,
 	teamKeeper teamKeeper.Keeper,
+	fundersKeeper fundersKeeper.Keeper,
 ) *Keeper {
 	return &Keeper{
 		cdc:        cdc,
@@ -77,6 +80,7 @@ func NewKeeper(
 		globalKeeper:     globalKeeper,
 		govKeeper:        govKeeper,
 		teamKeeper:       teamKeeper,
+		fundersKeeper:    fundersKeeper,
 	}
 }
 

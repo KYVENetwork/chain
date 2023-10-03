@@ -19,27 +19,29 @@ func (k Keeper) AccountFundedList(goCtx context.Context, req *types.QueryAccount
 
 	pools := k.poolKeeper.GetAllPools(ctx)
 
-	for i := range pools {
-		pool := pools[i]
-		// TODO(rapha): fix this
-		//amount := pool.GetFunderAmount(req.Address)
-		amount := uint64(0)
+	for _, pool := range pools {
+		funding, found := k.fundersKeeper.GetFunding(ctx, req.Address, pool.Id)
+		if !found {
+			return nil, status.Error(codes.Internal, "funding not found")
+		}
+		fundingState, found := k.fundersKeeper.GetFundingState(ctx, pool.Id)
+		if !found {
+			return nil, status.Error(codes.Internal, "funding state not found")
+		}
 
-		if amount > 0 {
+		if funding.Amount > 0 {
 			funded = append(funded, types.Funded{
-				Amount: amount,
+				Amount: funding.Amount,
 				Pool: &types.BasicPool{
-					Id:             pool.Id,
-					Name:           pool.Name,
-					Runtime:        pool.Runtime,
-					Logo:           pool.Logo,
-					OperatingCost:  pool.OperatingCost,
-					UploadInterval: pool.UploadInterval,
-					// TODO(rapha): fix this
-					TotalFunds: 0,
-					//TotalFunds:      pool.TotalFunds,
-					TotalDelegation: k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id),
-					Status:          k.GetPoolStatus(ctx, &pool),
+					Id:                   pool.Id,
+					Name:                 pool.Name,
+					Runtime:              pool.Runtime,
+					Logo:                 pool.Logo,
+					InflationShareWeight: pool.InflationShareWeight,
+					UploadInterval:       pool.UploadInterval,
+					TotalFunds:           fundingState.TotalAmount,
+					TotalDelegation:      k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id),
+					Status:               k.GetPoolStatus(ctx, &pool, &fundingState),
 				},
 			})
 		}
