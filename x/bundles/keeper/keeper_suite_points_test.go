@@ -3,6 +3,7 @@ package keeper_test
 import (
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
+	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -33,24 +34,35 @@ var _ = Describe("points", Ordered, func() {
 		s = i.NewCleanChain()
 
 		// create clean pool for every test case
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			MaxBundleSize:  100,
-			StartKey:       "0",
-			UploadInterval: 60,
-			OperatingCost:  10_000,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
+		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
+		msg := &pooltypes.MsgCreatePool{
+			Authority:            gov,
+			Name:                 "PoolTest",
+			Runtime:              "@kyve/test",
+			Logo:                 "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
+			StartKey:             "0",
+			UploadInterval:       60,
+			InflationShareWeight: 10_000,
+			MinDelegation:        100 * i.KYVE,
+			MaxBundleSize:        100,
+			Version:              "0.0.0",
+			Binaries:             "{}",
+			StorageProviderId:    2,
+			CompressionId:        1,
+		}
+		s.RunTxPoolSuccess(msg)
+
+		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
+			Creator: i.ALICE,
+			Moniker: "Alice",
 		})
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
 		})
 
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
