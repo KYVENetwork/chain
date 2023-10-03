@@ -2,7 +2,8 @@ package keeper_test
 
 import (
 	i "github.com/KYVENetwork/chain/testutil/integration"
-	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
+	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
+	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	. "github.com/onsi/ginkgo/v2"
@@ -36,10 +37,42 @@ TEST CASES - logic_bundles.go
 
 var _ = Describe("logic_bundles.go", Ordered, func() {
 	s := i.NewCleanChain()
+	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 
 	BeforeEach(func() {
 		// init new clean chain
 		s = i.NewCleanChain()
+
+		// create clean pool for every test case
+		msg := &pooltypes.MsgCreatePool{
+			Authority:            gov,
+			Name:                 "PoolTest",
+			Runtime:              "@kyve/test",
+			Logo:                 "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
+			StartKey:             "0",
+			UploadInterval:       60,
+			InflationShareWeight: 2 * i.KYVE,
+			MinDelegation:        100 * i.KYVE,
+			MaxBundleSize:        100,
+			Version:              "0.0.0",
+			Binaries:             "{}",
+			StorageProviderId:    2,
+			CompressionId:        1,
+		}
+		s.RunTxPoolSuccess(msg)
+
+		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
+			Creator: i.ALICE,
+			Moniker: "Alice",
+		})
+
+		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
+		})
 	})
 
 	AfterEach(func() {
@@ -50,30 +83,14 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert pool can run while pool is upgrading", func() {
 		// ASSERT
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			UploadInterval: 60,
-			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{
-				Version:     "1.0.0",
-				Binaries:    "{}",
-				ScheduledAt: uint64(s.Ctx().BlockTime().Unix()),
-				Duration:    60,
-			},
-		})
-
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
-		})
+		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		pool.UpgradePlan = &pooltypes.UpgradePlan{
+			Version:     "1.0.0",
+			Binaries:    "{}",
+			ScheduledAt: uint64(s.Ctx().BlockTime().Unix()),
+			Duration:    60,
+		}
+		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
 
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
@@ -96,27 +113,6 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert pool can run while pool is disabled", func() {
 		// ASSERT
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			UploadInterval: 60,
-			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Disabled:       true,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
-
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
-		})
-
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -131,26 +127,6 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert pool can run while min delegation is not reached", func() {
 		// ASSERT
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			UploadInterval: 60,
-			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
-
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
-		})
-
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  99 * i.KYVE,
@@ -172,26 +148,6 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert pool can run", func() {
 		// ASSERT
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			UploadInterval: 60,
-			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
-
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
-		})
-
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -213,19 +169,23 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert pool can run while pool has no funds", func() {
 		// ASSERT
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			UploadInterval: 60,
-			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
+		msg := &pooltypes.MsgCreatePool{
+			Authority:            gov,
+			Name:                 "PoolTest",
+			Runtime:              "@kyve/test",
+			Logo:                 "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
+			StartKey:             "0",
+			UploadInterval:       60,
+			InflationShareWeight: 2 * i.KYVE,
+			MinDelegation:        100,
+			MaxBundleSize:        100,
+			Version:              "0.0.0",
+			Binaries:             "{}",
+			StorageProviderId:    2,
+			CompressionId:        1,
+		}
+		s.RunTxPoolSuccess(msg)
 
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
@@ -234,13 +194,13 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
-			PoolId:     0,
+			PoolId:     1,
 			Valaddress: i.VALADDRESS_0,
 			Amount:     0,
 		})
 
 		// ACT
-		err := s.App().BundlesKeeper.AssertPoolCanRun(s.Ctx(), 0)
+		err := s.App().BundlesKeeper.AssertPoolCanRun(s.Ctx(), 1)
 
 		// ASSERT
 		Expect(err).NotTo(HaveOccurred())
@@ -250,26 +210,6 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert can vote if sender is no staker", func() {
 		// ASSERT
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			UploadInterval: 60,
-			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
-
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
-		})
-
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -282,7 +222,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
+		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
 			Creator: i.VALADDRESS_0,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
@@ -290,7 +230,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 		s.CommitAfterSeconds(60)
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgSubmitBundleProposal{
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_0,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
@@ -320,26 +260,6 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert can vote if bundle is dropped", func() {
 		// ASSERT
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			UploadInterval: 60,
-			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
-
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
-		})
-
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -352,7 +272,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
+		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
 			Creator: i.VALADDRESS_0,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
@@ -360,7 +280,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 		s.CommitAfterSeconds(60)
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgSubmitBundleProposal{
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_0,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
@@ -399,26 +319,6 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert can vote if storage id does not match", func() {
 		// ASSERT
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			UploadInterval: 60,
-			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
-
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
-		})
-
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -431,7 +331,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
+		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
 			Creator: i.VALADDRESS_0,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
@@ -439,7 +339,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 		s.CommitAfterSeconds(60)
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgSubmitBundleProposal{
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_0,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
@@ -476,26 +376,6 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert can vote if sender has already voted valid", func() {
 		// ASSERT
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			UploadInterval: 60,
-			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
-
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
-		})
-
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -508,7 +388,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
+		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
 			Creator: i.VALADDRESS_0,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
@@ -516,7 +396,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 		s.CommitAfterSeconds(60)
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgSubmitBundleProposal{
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_0,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
@@ -544,7 +424,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgVoteBundleProposal{
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
 			Creator:   i.VALADDRESS_1,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
@@ -561,26 +441,6 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert can vote if sender has already voted invalid", func() {
 		// ASSERT
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			UploadInterval: 60,
-			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
-
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
-		})
-
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -593,7 +453,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
+		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
 			Creator: i.VALADDRESS_0,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
@@ -601,7 +461,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 		s.CommitAfterSeconds(60)
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgSubmitBundleProposal{
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_0,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
@@ -629,7 +489,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgVoteBundleProposal{
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
 			Creator:   i.VALADDRESS_1,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
@@ -646,26 +506,6 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert can vote", func() {
 		// ASSERT
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			UploadInterval: 60,
-			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
-
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
-		})
-
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -678,7 +518,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
+		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
 			Creator: i.VALADDRESS_0,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
@@ -686,7 +526,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 		s.CommitAfterSeconds(60)
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgSubmitBundleProposal{
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_0,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
@@ -725,26 +565,6 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert can propose if sender is no staker", func() {
 		// ASSERT
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			UploadInterval: 60,
-			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
-
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
-		})
-
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -757,7 +577,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
+		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
 			Creator: i.VALADDRESS_0,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
@@ -774,26 +594,6 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert can propose if sender is not next uploader", func() {
 		// ASSERT
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			UploadInterval: 60,
-			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
-
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
-		})
-
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -806,7 +606,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
+		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
 			Creator: i.VALADDRESS_0,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
@@ -835,26 +635,6 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert can propose if upload interval has not passed", func() {
 		// ASSERT
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			UploadInterval: 60,
-			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
-
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
-		})
-
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -867,7 +647,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
+		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
 			Creator: i.VALADDRESS_0,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
@@ -884,26 +664,6 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert can propose if index does not match", func() {
 		// ASSERT
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			UploadInterval: 60,
-			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
-
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
-		})
-
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -916,7 +676,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
+		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
 			Creator: i.VALADDRESS_0,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
@@ -933,26 +693,6 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert can propose", func() {
 		// ASSERT
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			UploadInterval: 60,
-			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
-
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
-		})
-
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -965,7 +705,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
+		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
 			Creator: i.VALADDRESS_0,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
