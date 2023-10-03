@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakerstypes "github.com/KYVENetwork/chain/x/stakers/types"
 	. "github.com/onsi/ginkgo/v2"
@@ -83,7 +84,7 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.ALICE)).To(Equal(aliceSelfDelegation + 30*i.KYVE))
 
 		delegationModuleBalanceBefore := s.GetBalanceFromModule(types.ModuleName)
-		poolModuleBalanceBefore := s.GetBalanceFromModule(pooltypes.ModuleName)
+		fundersModuleBalanceBefore := s.GetBalanceFromModule(funderstypes.ModuleName)
 		s.PerformValidityChecks()
 
 		// ACT
@@ -95,10 +96,10 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 
 		// ASSERT
 		delegationModuleBalanceAfter := s.GetBalanceFromModule(types.ModuleName)
-		poolModuleBalanceAfter := s.GetBalanceFromModule(pooltypes.ModuleName)
+		fundersModuleBalanceAfter := s.GetBalanceFromModule(funderstypes.ModuleName)
 
 		Expect(delegationModuleBalanceAfter).To(Equal(delegationModuleBalanceBefore + 20*i.KYVE))
-		Expect(poolModuleBalanceAfter).To(Equal(poolModuleBalanceBefore - 20*i.KYVE))
+		Expect(fundersModuleBalanceAfter).To(Equal(fundersModuleBalanceBefore - 20*i.KYVE))
 
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(Equal(uint64(6666666666)))
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1])).To(Equal(uint64(6666666666)))
@@ -155,10 +156,11 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 		// ARRANGE
 
 		// fund pool module
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
 		})
 
 		// ACT

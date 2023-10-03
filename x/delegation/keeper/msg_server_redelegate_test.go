@@ -34,17 +34,24 @@ var _ = Describe("Delegation - Redelegation", Ordered, func() {
 
 		CreateFundedPool(s)
 
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:          "EnabledPool",
-			MinDelegation: 1_000 * i.KYVE,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			Disabled:    false,
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
+		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
+		msg := &pooltypes.MsgCreatePool{
+			Authority:            gov,
+			Name:                 "PoolTest",
+			Runtime:              "@kyve/test",
+			Logo:                 "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
+			StartKey:             "0",
+			UploadInterval:       60,
+			InflationShareWeight: 10_000,
+			MinDelegation:        1_000 * i.KYVE,
+			MaxBundleSize:        100,
+			Version:              "0.0.0",
+			Binaries:             "{}",
+			StorageProviderId:    2,
+			CompressionId:        1,
+		}
+		s.RunTxFundersSuccess(msg)
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
 			Creator: i.ALICE,
