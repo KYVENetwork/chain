@@ -51,7 +51,7 @@ var _ = Describe("Delegation - Redelegation", Ordered, func() {
 			StorageProviderId:    2,
 			CompressionId:        1,
 		}
-		s.RunTxFundersSuccess(msg)
+		s.RunTxPoolSuccess(msg)
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
 			Creator: i.ALICE,

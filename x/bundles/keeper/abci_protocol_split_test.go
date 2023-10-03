@@ -175,7 +175,7 @@ var _ = Describe("abci.go", Ordered, func() {
 			StorageProviderId:    2,
 			CompressionId:        1,
 		}
-		s.RunTxFundersSuccess(msg)
+		s.RunTxPoolSuccess(msg)
 
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,

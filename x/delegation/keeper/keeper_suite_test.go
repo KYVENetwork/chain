@@ -54,7 +54,7 @@ func CreateFundedPool(s *i.KeeperTestSuite) {
 		StorageProviderId:    2,
 		CompressionId:        1,
 	}
-	s.RunTxFundersSuccess(msg)
+	s.RunTxPoolSuccess(msg)
 
 	s.CommitAfterSeconds(7)
 

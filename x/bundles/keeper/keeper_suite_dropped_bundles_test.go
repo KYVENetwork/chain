@@ -50,7 +50,7 @@ var _ = Describe("dropped bundles", Ordered, func() {
 			StorageProviderId:    2,
 			CompressionId:        1,
 		}
-		s.RunTxFundersSuccess(msg)
+		s.RunTxPoolSuccess(msg)
 
 		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
 			Creator: i.ALICE,

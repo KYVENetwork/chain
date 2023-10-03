@@ -891,7 +891,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 			StorageProviderId:    2,
 			CompressionId:        1,
 		}
-		s.RunTxFundersSuccess(msg)
+		s.RunTxPoolSuccess(msg)
 
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
 			Creator:         i.ALICE,

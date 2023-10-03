@@ -47,7 +47,7 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 			StorageProviderId:    2,
 			CompressionId:        1,
 		}
-		s.RunTxFundersSuccess(msg)
+		s.RunTxPoolSuccess(msg)
 
 		// create funder
 		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{

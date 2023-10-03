@@ -33,7 +33,7 @@ func createPoolWithEmptyValues(s *i.KeeperTestSuite) {
 		MaxBundleSize:  100,
 		Binaries:       "{}",
 	}
-	s.RunTxFundersSuccess(msg)
+	s.RunTxPoolSuccess(msg)
 
 	poolId := s.App().PoolKeeper.GetPoolCount(s.Ctx()) - 1
 	pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), poolId)

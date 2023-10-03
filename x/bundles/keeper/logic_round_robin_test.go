@@ -81,7 +81,7 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 			StorageProviderId:    2,
 			CompressionId:        1,
 		}
-		s.RunTxFundersSuccess(msg)
+		s.RunTxPoolSuccess(msg)
 
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 		pool.Protocol.LastUpgrade = uint64(s.Ctx().BlockTime().Unix())

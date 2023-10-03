@@ -45,7 +45,7 @@ var _ = Describe("logic_end_block_handle_pool_upgrades.go", Ordered, func() {
 			StorageProviderId:    2,
 			CompressionId:        1,
 		}
-		s.RunTxFundersSuccess(msg)
+		s.RunTxPoolSuccess(msg)
 	})
 
 	AfterEach(func() {

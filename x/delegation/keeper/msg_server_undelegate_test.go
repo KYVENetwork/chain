@@ -69,7 +69,7 @@ var _ = Describe("msg_server_undelegate.go", Ordered, func() {
 			StorageProviderId:    2,
 			CompressionId:        1,
 		}
-		s.RunTxFundersSuccess(msg)
+		s.RunTxPoolSuccess(msg)
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:    i.BOB,

@@ -48,7 +48,7 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 			StorageProviderId:    2,
 			CompressionId:        1,
 		}
-		s.RunTxFundersSuccess(msg)
+		s.RunTxPoolSuccess(msg)
 
 		// create funder
 		s.RunTxFundersSuccess(&types.MsgCreateFunder{
