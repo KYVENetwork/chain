@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -24,20 +25,35 @@ TEST CASES - msg_server_claim_uploader_role.go
 
 var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 	s := i.NewCleanChain()
+	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 
 	BeforeEach(func() {
 		// init new clean chain
 		s = i.NewCleanChain()
 
 		// create clean pool for every test case
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name: "PoolTest",
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
+		msg := &pooltypes.MsgCreatePool{
+			Authority:            gov,
+			Name:                 "PoolTest",
+			Runtime:              "@kyve/test",
+			Logo:                 "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
+			StartKey:             "0",
+			UploadInterval:       60,
+			InflationShareWeight: 10_000,
+			MinDelegation:        100 * i.KYVE,
+			MaxBundleSize:        100,
+			Version:              "0.0.0",
+			Binaries:             "{}",
+			StorageProviderId:    2,
+			CompressionId:        1,
+		}
+		s.RunTxPoolSuccess(msg)
+
+		// create funders
+		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
+			Creator: i.ALICE,
+			Moniker: "Alice",
 		})
 	})
 
@@ -72,10 +88,11 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 
 	It("Try to claim uploader role without being a staker", func() {
 		// ARRANGE
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
+		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
 		})
 
 		// ACT
@@ -92,10 +109,11 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 
 	It("Try to claim uploader role if the next uploader is not set yet", func() {
 		// ARRANGE
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
+		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
 		})
 
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
@@ -138,10 +156,11 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 
 	It("Try to claim uploader role with non existing valaccount", func() {
 		// ARRANGE
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
+		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
 		})
 
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
@@ -169,21 +188,30 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 
 	It("Try to claim uploader role with valaccount that belongs to another pool", func() {
 		// ARRANGE
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
+		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
 		})
 
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name: "PoolTest2",
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
+		msg := &pooltypes.MsgCreatePool{
+			Authority:            gov,
+			Name:                 "PoolTest",
+			Runtime:              "@kyve/test",
+			Logo:                 "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
+			StartKey:             "0",
+			UploadInterval:       60,
+			InflationShareWeight: 10_000,
+			MinDelegation:        100 * i.KYVE,
+			MaxBundleSize:        100,
+			Version:              "0.0.0",
+			Binaries:             "{}",
+			StorageProviderId:    2,
+			CompressionId:        1,
+		}
+		s.RunTxPoolSuccess(msg)
 
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
@@ -210,10 +238,11 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 
 	It("Try to claim uploader role if someone else is already next uploader", func() {
 		// ARRANGE
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
+		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
 		})
 
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
