@@ -66,6 +66,10 @@ genesis:
           coins:
             - denom: "tkyve"
               amount: "165000000000000000"
+        - address: "kyve1vg5325u5mat0y44g73n8t8z2le26fsa4n947f5"  # funders module (funding from Alice)
+          coins:
+            - denom: "tkyve"
+              amount: "1001234"
     delegation:
       params:
         unbonding_delegation_time: 10
@@ -143,7 +147,7 @@ genesis:
           max_bundle_size: "100"
           min_delegation: "100000000000"
           name: "KYVE // Mainnet"
-          operating_cost: "2500000000"
+          inflation_share_weight: "2500000000"
           disabled: false
           runtime: '@kyvejs/tendermint-bsync'
           start_key: "1"
@@ -164,6 +168,28 @@ genesis:
     staking:
       params:
         bond_denom: tkyve
+    funders:
+      params:
+        min_funding_amount: 1000
+        min_funding_amount_per_bundle: 100
+      funder_list:
+        - address: "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd"
+          contact: "https://twitter.com/kyvenetwork"
+          moniker: "Alice"
+          description: "Alice is the first funder of the KYVE network."
+          logo: "https://avatars.githubusercontent.com/u/76891822?s=200&v=4"
+          website: "https://kyve.network"
+          identity: "0657A086E5201562"
+      funding_list:
+        - pool_id: 0
+          funder_address: "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd"
+          amount: 1000000
+          amount_per_bundle: 1000
+          total_funded: 0
+      funding_state_list:
+        - pool_id: 0
+          active_funder_addresses: []
+          total_amount: 1000000
   chain_id: kyve-local
 validators:
   - name: alice
