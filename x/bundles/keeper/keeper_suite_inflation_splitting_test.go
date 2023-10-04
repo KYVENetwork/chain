@@ -515,7 +515,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert bundle reward
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
-		// the total payout is the operating cost plus the inflation payout
+		// the total payout is the inflation share weight plus the inflation payout
 		totalPayout := pool.InflationShareWeight + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
@@ -614,7 +614,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert bundle reward
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
-		// the total payout is the operating cost plus the inflation payout
+		// the total payout is the inflation share weight plus the inflation payout
 		totalPayout := pool.InflationShareWeight + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
@@ -810,7 +810,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert bundle reward
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
-		// the total payout is the operating cost plus the inflation payout
+		// the total payout is the inflation share weight plus the inflation payout
 		totalPayout := 300 + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
@@ -909,7 +909,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert bundle reward
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
-		// the total payout is the operating cost plus the inflation payout
+		// the total payout is the inflation share weight plus the inflation payout
 		totalPayout := 300 + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
@@ -1105,7 +1105,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert bundle reward
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
-		// the total payout is the operating cost plus the inflation payout
+		// the total payout is the inflation share weight plus the inflation payout
 		totalPayout := (pool.InflationShareWeight / 2) + 200 + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
@@ -1204,7 +1204,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert bundle reward
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
-		// the total payout is the operating cost plus the inflation payout
+		// the total payout is the inflation share weight plus the inflation payout
 		totalPayout := (pool.InflationShareWeight / 2) + 200 + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
