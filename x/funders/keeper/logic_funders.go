@@ -1,9 +1,11 @@
 package keeper
 
 import (
-	"cosmossdk.io/errors"
 	goerrors "errors"
 	"fmt"
+
+	"cosmossdk.io/errors"
+
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"

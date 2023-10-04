@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/funders/types"
 	"github.com/cometbft/cometbft/libs/log"

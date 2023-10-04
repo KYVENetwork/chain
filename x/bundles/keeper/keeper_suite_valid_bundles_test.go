@@ -42,7 +42,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// init new clean chain
 		s = i.NewCleanChain()
 
-		//create clean pool for every test case
+		// create clean pool for every test case
 		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 		msg := &pooltypes.MsgCreatePool{
 			Authority:            gov,

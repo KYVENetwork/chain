@@ -2,8 +2,9 @@ package keeper_test
 
 import (
 	"fmt"
-	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	"testing"
+
+	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	"github.com/KYVENetwork/chain/x/delegation/types"

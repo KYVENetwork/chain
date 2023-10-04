@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"fmt"
+
 	"github.com/KYVENetwork/chain/x/funders/types"
 
 	"cosmossdk.io/errors"

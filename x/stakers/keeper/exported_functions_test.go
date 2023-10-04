@@ -1,8 +1,9 @@
 package keeper_test
 
 import (
-	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	"strconv"
+
+	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 
 	kyveApp "github.com/KYVENetwork/chain/app"
 	i "github.com/KYVENetwork/chain/testutil/integration"

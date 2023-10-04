@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+
 	"cosmossdk.io/errors"
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/funders/types"
@@ -115,7 +116,7 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 	// User is allowed to fund
 	// Let's see if he has enough funds
 	if err := util.TransferFromAddressToModule(k.bankKeeper, ctx, msg.Creator, types.ModuleName, msg.Amount); err != nil {
-		//if err := util.TransferFromAddressToModule(k.bankKeeper, ctx, msg.Creator, "pool", msg.Amount); err != nil {
+		// if err := util.TransferFromAddressToModule(k.bankKeeper, ctx, msg.Creator, "pool", msg.Amount); err != nil {
 		return nil, err
 	}
 

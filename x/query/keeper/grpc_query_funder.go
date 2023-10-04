@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+
 	fundersTypes "github.com/KYVENetwork/chain/x/funders/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"

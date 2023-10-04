@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+
 	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
 
 	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"

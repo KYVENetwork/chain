@@ -7,9 +7,7 @@ import (
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-var (
-	_ sdk.Msg = &MsgDefundPool{}
-)
+var _ sdk.Msg = &MsgDefundPool{}
 
 func (msg *MsgDefundPool) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)

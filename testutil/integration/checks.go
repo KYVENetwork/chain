@@ -1,9 +1,10 @@
 package integration
 
 import (
+	"time"
+
 	"github.com/KYVENetwork/chain/x/funders"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
-	"time"
 
 	"github.com/KYVENetwork/chain/x/bundles"
 	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"

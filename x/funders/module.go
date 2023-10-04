@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/KYVENetwork/chain/util"
 
 	// this line is used by starport scaffolding # 1

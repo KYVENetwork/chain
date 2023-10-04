@@ -16,7 +16,7 @@ func CmdCreateFunder() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			argMoniker := args[0]
 
-			//moniker, _ := cmd.Flags().GetString(FlagEditMoniker)
+			// moniker, _ := cmd.Flags().GetString(FlagEditMoniker)
 			identity, _ := cmd.Flags().GetString(FlagIdentity)
 			logo, _ := cmd.Flags().GetString(FlagLogo)
 			website, _ := cmd.Flags().GetString(FlagWebsite)

@@ -44,6 +44,7 @@ func FundersKeeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
 		nil,
 		nil,
 		nil,
+		nil,
 	)
 	_ = paramsSubspace
 	ctx := sdk.NewContext(stateStore, tmproto.Header{}, false, log.NewNopLogger())

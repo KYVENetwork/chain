@@ -6,9 +6,7 @@ import (
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-var (
-	_ sdk.Msg = &MsgCreateFunder{}
-)
+var _ sdk.Msg = &MsgCreateFunder{}
 
 func (msg *MsgCreateFunder) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
