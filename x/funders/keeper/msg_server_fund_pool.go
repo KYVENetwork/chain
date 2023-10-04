@@ -39,6 +39,7 @@ func (k msgServer) defundLowestFunding(
 // If the funders list is full, it checks if the funder wants to fund
 // more than the current lowest funder. If so, the current lowest funder
 // will get their tokens back and removed form the active funders list.
+// TODO: what if amount_per_bundle is higher than the amount? A funder that knows that he is the next uploader could just fund a huge amount which gets payed to only himself.
 func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*types.MsgFundPoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -123,6 +124,9 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 		err := k.defundLowestFunding(ctx, defunding, &fundingState, msg.PoolId)
 		if err != nil {
 			// TODO: should we panic here?
+			// This can only happen if:
+			// - we don't have enough funds which would be a corrupt state
+			// - the funder address is being blacklisted
 			util.PanicHalt(k.upgradeKeeper, ctx, err.Error())
 		}
 	}

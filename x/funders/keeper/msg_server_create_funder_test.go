@@ -97,6 +97,7 @@ var _ = Describe("msg_server_create_funder.go", Ordered, func() {
 		})
 	})
 
+	// TODO: should this be allowed?
 	PIt("Create two funders with the same moniker", func() {
 		// ARRANGE
 		moniker := "moniker"
