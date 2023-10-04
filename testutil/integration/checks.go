@@ -552,11 +552,14 @@ func (suite *KeeperTestSuite) verifyFullStaker(fullStaker querytypes.FullStaker,
 		Expect(found).To(BeTrue())
 		Expect(poolMembership.Pool.Id).To(Equal(pool.Id))
 		Expect(poolMembership.Pool.Logo).To(Equal(pool.Logo))
-		//TODO(rapha): fix this
-		//Expect(poolMembership.Pool.TotalFunds).To(Equal(pool.TotalFunds))
+
+		fundingState, found := suite.App().FundersKeeper.GetFundingState(suite.Ctx(), poolMembership.Pool.Id)
+		Expect(found).To(BeTrue())
+		Expect(poolMembership.Pool.TotalFunds).To(Equal(fundingState.TotalAmount))
 		Expect(poolMembership.Pool.Name).To(Equal(pool.Name))
 		Expect(poolMembership.Pool.Runtime).To(Equal(pool.Runtime))
-		Expect(poolMembership.Pool.Status).To(Equal(suite.App().QueryKeeper.GetPoolStatus(suite.Ctx(), &pool)))
+		Expect(poolMembership.Pool.Status).To(Equal(suite.App().QueryKeeper.GetPoolStatus(suite.Ctx(), &pool, &fundingState)))
+		Expect(poolMembership.Pool.Status).To(Equal(suite.App().QueryKeeper.GetPoolStatus(suite.Ctx(), &pool, nil)))
 	}
 
 	// Reverse check the pool memberships
