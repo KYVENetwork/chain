@@ -28,6 +28,22 @@ func (k Keeper) GetFunding(ctx sdk.Context, funderAddress string, poolId uint64)
 	return funding, true
 }
 
+// GetFundingsOfFunder returns all fundings of a funder
+func (k Keeper) GetFundingsOfFunder(ctx sdk.Context, funderAddress string) (fundings []types.Funding) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FundingKeyPrefixByFunder)
+
+	iterator := sdk.KVStorePrefixIterator(store, types.FundingKeyByFunderIter(funderAddress))
+	//goland:noinspection GoUnhandledErrorResult
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var funding types.Funding
+		k.cdc.MustUnmarshal(iterator.Value(), &funding)
+		fundings = append(fundings, funding)
+	}
+	return fundings
+}
+
 // GetFundingsOfPool returns all fundings of a pool
 func (k Keeper) GetFundingsOfPool(ctx sdk.Context, poolId uint64) (fundings []types.Funding) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FundingKeyPrefixByPool)

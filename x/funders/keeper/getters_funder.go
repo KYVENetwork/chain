@@ -4,6 +4,10 @@ import (
 	"github.com/KYVENetwork/chain/x/funders/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"strings"
 )
 
 // DoesFunderExist checks if the funding exists
@@ -50,4 +54,38 @@ func (k Keeper) SetFunder(ctx sdk.Context, funder *types.Funder) {
 	store.Set(types.FunderKey(
 		funder.Address,
 	), b)
+}
+
+// GetPaginatedFundersQuery performs a full search on all funders with the given parameters.
+func (k Keeper) GetPaginatedFundersQuery(
+	ctx sdk.Context,
+	pagination *query.PageRequest,
+	search string,
+) ([]types.Funder, *query.PageResponse, error) {
+	var funders []types.Funder
+
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FunderKeyPrefix)
+
+	pageRes, err := query.FilteredPaginate(store, pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
+		var funder types.Funder
+		if err := k.cdc.Unmarshal(value, &funder); err != nil {
+			return false, err
+		}
+
+		// filter search
+		if !strings.Contains(strings.ToLower(funder.Moniker), strings.ToLower(search)) {
+			return false, nil
+		}
+
+		if accumulate {
+			funders = append(funders, funder)
+		}
+
+		return true, nil
+	})
+	if err != nil {
+		return nil, nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return funders, pageRes, nil
 }

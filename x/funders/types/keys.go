@@ -55,6 +55,11 @@ func FundingKeyByPool(funderAddress string, poolId uint64) []byte {
 	return util.GetByteKey(poolId, funderAddress)
 }
 
+// FundingKeyByFunderIter is used to query all fundings for a funder
+func FundingKeyByFunderIter(funderAddress string) []byte {
+	return util.GetByteKey(funderAddress)
+}
+
 // FundingKeyByPoolIter is used to query all fundings for a pool
 func FundingKeyByPoolIter(poolId uint64) []byte {
 	return util.GetByteKey(poolId)

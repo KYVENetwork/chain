@@ -1,0 +1,107 @@
+syntax = "proto3";
+
+package kyve.query.v1beta1;
+
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/query/types";
+
+// QueryFunders ...
+service QueryFunders {
+  // Funders queries all funders.
+  rpc Funders(QueryFundersRequest) returns (QueryFundersResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/funders";
+  }
+  // Funder queries a funder by address.
+  rpc Funder(QueryFunderRequest) returns (QueryFunderResponse) {
+    option (google.api.http).get = "/kyve/query/v1beta1/funder/{address}";
+  }
+}
+
+// ===============
+// Common messages
+// ===============
+
+// Funder ...
+message Funder {
+  // address ...
+  string address = 1;
+  // moniker ...
+  string moniker = 2;
+  // identity is the 64 bit keybase.io identity string
+  string identity = 3;
+  // logo ...
+  string logo = 4;
+  // website ...
+  string website = 5;
+  // contact ...
+  string contact = 6;
+  // description ...
+  string description = 7;
+}
+
+// FunderStats ...
+message FunderStats {
+  // total_used_funds are the total funds that have been distributed by the funder.
+  uint64 total_used_funds = 1;
+  // total_allocated_funds are the total funds that have been allocated by the funder. They can either get distributed or refunded.
+  uint64 total_allocated_funds = 2;
+  // pools_funded are the ids of the pools that have been funded by the funder.
+  repeated uint64 pools_funded = 3;
+}
+
+// Funding ...
+message Funding {
+  // pool_id ...
+  uint64 pool_id = 1;
+  // amount ...
+  uint64 amount = 2;
+  // amount_per_bundle ...
+  uint64 amount_per_bundle = 3;
+  // total_funded ...
+  uint64 total_funded = 4;
+}
+
+// ========
+// /funders
+// ========
+
+// QueryFundersRequest is the request type for the Query/Funders RPC method.
+message QueryFundersRequest {
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+  // search ...
+  string search = 2;
+}
+
+// QueryFundersResponse is the response type for the Query/Funders RPC method.
+message QueryFundersResponse {
+  // funders ...
+  repeated Funder funders = 1 [(gogoproto.nullable) = false];
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// ============
+// /funder/{id}
+// ============
+
+// QueryFunderRequest is the request type for the Query/Funder RPC method.
+message QueryFunderRequest {
+  // address ...
+  string address = 1;
+  // with_inactive_fundings ...
+  bool with_inactive_fundings = 2;
+}
+
+// QueryFunderResponse is the response type for the Query/Funder RPC method.
+message QueryFunderResponse {
+  // funder ...
+  Funder funder = 1;
+  // fundings ...
+  repeated Funding fundings = 2 [(gogoproto.nullable) = false];
+  // stats ...
+  FunderStats stats = 3;
+}
