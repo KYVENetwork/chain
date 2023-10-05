@@ -22,6 +22,7 @@ TEST CASES - msg_server_delegate.go
 * Don't pay out rewards twice
 * Delegate to validator with 0 $KYVE
 * Delegate to multiple validators
+
 */
 
 var _ = Describe("msg_server_delegate.go", Ordered, func() {
@@ -267,6 +268,7 @@ var _ = Describe("msg_server_delegate.go", Ordered, func() {
 		Expect(charlieDelegation).To(Equal(200 * i.KYVE))
 	})
 
+	// TODO: delegate to multiple validators
 	It("Delegate to multiple validators", func() {
 		// ARRANGE
 		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{

@@ -133,10 +133,6 @@ type QueryClients struct {
 	stakersClient stakerstypes.QueryClient
 }
 
-type KeeperTestSuiteOptions struct {
-	VerifyPoolQueries bool
-}
-
 type KeeperTestSuite struct {
 	suite.Suite
 
@@ -148,7 +144,6 @@ type KeeperTestSuite struct {
 	consAddress sdk.ConsAddress
 	validator   stakingtypes.Validator
 	denom       string
-	options     KeeperTestSuiteOptions
 }
 
 func (suite *KeeperTestSuite) App() *app.App {
@@ -224,13 +219,6 @@ func (suite *KeeperTestSuite) SetupApp(startTime int64) {
 	_ = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	validators := suite.app.StakingKeeper.GetValidators(suite.ctx, 1)
 	suite.validator = validators[0]
-	suite.options = KeeperTestSuiteOptions{
-		VerifyPoolQueries: true,
-	}
-}
-
-func (suite *KeeperTestSuite) SetOptions(options KeeperTestSuiteOptions) {
-	suite.options = options
 }
 
 func (suite *KeeperTestSuite) Commit() {

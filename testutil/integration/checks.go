@@ -24,11 +24,7 @@ func (suite *KeeperTestSuite) PerformValidityChecks() {
 	// verify pool module
 	suite.VerifyPoolModuleAssetsIntegrity()
 	suite.VerifyPoolTotalFunds()
-
-	if suite.options.VerifyPoolQueries {
-		suite.VerifyPoolQueries()
-	}
-
+	suite.VerifyPoolQueries()
 	suite.VerifyPoolGenesisImportExport()
 
 	// verify stakers module
@@ -98,6 +94,15 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 
 	poolsQuery = append(poolsQuery, activePoolsQuery.Pools...)
 	poolsQuery = append(poolsQuery, disabledPoolsQuery.Pools...)
+
+	// sort pools by id
+	for i := range poolsQuery {
+		for j := range poolsQuery {
+			if poolsQuery[i].Id < poolsQuery[j].Id {
+				poolsQuery[i], poolsQuery[j] = poolsQuery[j], poolsQuery[i]
+			}
+		}
+	}
 
 	Expect(activePoolsQueryErr).To(BeNil())
 	Expect(disabledPoolsQueryErr).To(BeNil())
