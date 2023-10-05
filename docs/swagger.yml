@@ -4506,6 +4506,18 @@ paths:
                   pool_inflation_payout_rate:
                     type: string
                     description: pool_inflation_payout_rate ...
+              funders_params:
+                description: funders_params ...
+                type: object
+                properties:
+                  min_funding_amount:
+                    type: string
+                    format: uint64
+                    description: Minimum amount of tokens that can be funded.
+                  min_funding_amount_per_bundle:
+                    type: string
+                    format: uint64
+                    description: Minimum amount of tokens that can be funded per bundle.
             description: QueryParamsResponse ...
         default:
           description: An unexpected error response.
