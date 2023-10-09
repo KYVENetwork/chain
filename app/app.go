@@ -98,7 +98,7 @@ import (
 	group "github.com/cosmos/cosmos-sdk/x/group/module"
 	// IBC Core
 	ibc "github.com/cosmos/ibc-go/v7/modules/core"
-	ibcClientHandler "github.com/cosmos/ibc-go/v7/modules/core/02-client" // TODO
+	ibcClientHandler "github.com/cosmos/ibc-go/v7/modules/core/02-client"
 	ibcClientTypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	ibcPortTypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	ibcExported "github.com/cosmos/ibc-go/v7/modules/core/exported"
