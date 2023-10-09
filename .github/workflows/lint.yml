@@ -1,7 +1,5 @@
 name: lint
 on: push
-env:
-  GO_VERSION: "1.20.8"
 
 jobs:
   buf:
@@ -32,7 +30,7 @@ jobs:
       - name: 🐿 Setup Golang
         uses: actions/setup-go@v4
         with:
-          go-version: ${{env.GO_VERSION}}
+          go-version-file: 'go.mod'
       # Lint go files with golangci-lint
       - name: Lint go files with golangci-lint
         uses: golangci/golangci-lint-action@v3
