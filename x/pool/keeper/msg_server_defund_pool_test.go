@@ -30,7 +30,7 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 
 		// create clean pool for every test case
 		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name: "Moontest",
+			Name: "PoolTest",
 			Protocol: &pooltypes.Protocol{
 				Version:     "0.0.0",
 				Binaries:    "{}",

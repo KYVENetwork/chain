@@ -13,19 +13,6 @@ import (
 	govTypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
-type Update struct {
-	Name              *string
-	Runtime           *string
-	Logo              *string
-	Config            *string
-	UploadInterval    *uint64
-	OperatingCost     *uint64
-	MinDelegation     *uint64
-	MaxBundleSize     *uint64
-	StorageProviderId *uint32
-	CompressionId     *uint32
-}
-
 func (k msgServer) UpdatePool(goCtx context.Context, req *types.MsgUpdatePool) (*types.MsgUpdatePoolResponse, error) {
 	if k.authority != req.Authority {
 		return nil, errors.Wrapf(govTypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, req.Authority)
@@ -37,7 +24,7 @@ func (k msgServer) UpdatePool(goCtx context.Context, req *types.MsgUpdatePool) (
 		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrPoolNotFound.Error(), req.Id)
 	}
 
-	var update Update
+	var update types.PoolUpdate
 	if err := json.Unmarshal([]byte(req.Payload), &update); err != nil {
 		return nil, err
 	}
@@ -74,6 +61,21 @@ func (k msgServer) UpdatePool(goCtx context.Context, req *types.MsgUpdatePool) (
 	}
 
 	k.SetPool(ctx, pool)
+
+	_ = ctx.EventManager().EmitTypedEvent(&types.EventPoolUpdated{
+		Id:                pool.Id,
+		RawUpdateString:   req.Payload,
+		Name:              pool.Name,
+		Runtime:           pool.Runtime,
+		Logo:              pool.Logo,
+		Config:            pool.Config,
+		UploadInterval:    pool.UploadInterval,
+		OperatingCost:     pool.OperatingCost,
+		MinDelegation:     pool.MinDelegation,
+		MaxBundleSize:     pool.MaxBundleSize,
+		StorageProviderId: pool.CurrentStorageProviderId,
+		CompressionId:     pool.CurrentCompressionId,
+	})
 
 	return &types.MsgUpdatePoolResponse{}, nil
 }

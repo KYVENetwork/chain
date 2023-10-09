@@ -310,7 +310,7 @@ var _ = Describe("points", Ordered, func() {
 		Expect(valaccountFound).To(BeFalse())
 
 		// check if voter got slashed
-		slashAmountRatio, _ := sdk.NewDecFromStr(s.App().DelegationKeeper.GetTimeoutSlash(s.Ctx()))
+		slashAmountRatio := s.App().DelegationKeeper.GetTimeoutSlash(s.Ctx())
 		expectedBalance := 50*i.KYVE - uint64(sdk.NewDec(int64(50*i.KYVE)).Mul(slashAmountRatio).TruncateInt64())
 
 		Expect(expectedBalance).To(Equal(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.STAKER_1)))

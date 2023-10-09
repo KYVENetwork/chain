@@ -28,7 +28,7 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 	s := i.NewCleanChain()
 
 	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
-	votingPeriod := s.App().GovKeeper.GetVotingParams(s.Ctx()).VotingPeriod
+	votingPeriod := s.App().GovKeeper.GetParams(s.Ctx()).VotingPeriod
 
 	BeforeEach(func() {
 		s = i.NewCleanChain()
@@ -288,23 +288,76 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 			Payload:   "invalid_json_payload\",\"Runtime\":\"@kyve/test\",\"Logo\":\"ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU\",\"Config\":\"ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0\",\"StartKey\":\"0\",\"UploadInterval\":60,\"OperatingCost\":10000,\"MinDelegation\":100000000000,\"MaxBundleSize\":100,\"Version\":\"0.0.0\",\"Binaries\":\"{}\",\"StorageProviderId\":2,\"CompressionId\":1}",
 		}
 
-		p, v := BuildGovernanceTxs(s, []sdk.Msg{msg})
+		p, _ := BuildGovernanceTxs(s, []sdk.Msg{msg})
 
 		// ACT
-		_, submitErr := s.RunTx(&p)
-		_, voteErr := s.RunTx(&v)
-
-		s.CommitAfter(*votingPeriod)
+		_ = s.RunTxError(&p)
 		s.Commit()
 
 		// ASSERT
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
+		pool, found := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
-		Expect(submitErr).To(Not(HaveOccurred()))
-		Expect(voteErr).To(Not(HaveOccurred()))
+		Expect(found).To(BeTrue())
+		Expect(pool.Name).To(BeEmpty())
+	})
 
-		Expect(proposal.Status).To(Equal(govV1Types.StatusFailed))
+	It("Update pool with invalid UploadInterval", func() {
+		// ARRANGE
+		msg := &types.MsgUpdatePool{
+			Authority: gov,
+			Id:        1,
+			Payload:   "{\"UploadInterval\": 0}",
+		}
 
+		p, _ := BuildGovernanceTxs(s, []sdk.Msg{msg})
+
+		// ACT
+		_ = s.RunTxError(&p)
+		s.Commit()
+
+		// ASSERT
+		pool, found := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+
+		Expect(found).To(BeTrue())
+		Expect(pool.Name).To(BeEmpty())
+	})
+
+	It("Update pool with invalid OperatingCost", func() {
+		// ARRANGE
+		msg := &types.MsgUpdatePool{
+			Authority: gov,
+			Id:        1,
+			Payload:   "{\"OperatingCost\": -1}",
+		}
+
+		p, _ := BuildGovernanceTxs(s, []sdk.Msg{msg})
+
+		// ACT
+		_ = s.RunTxError(&p)
+		s.Commit()
+
+		// ASSERT
+		pool, found := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+
+		Expect(found).To(BeTrue())
+		Expect(pool.Name).To(BeEmpty())
+	})
+
+	It("Update pool with invalid MinDelegation", func() {
+		// ARRANGE
+		msg := &types.MsgUpdatePool{
+			Authority: gov,
+			Id:        1,
+			Payload:   "{\"MinDelegation\": -1}",
+		}
+
+		p, _ := BuildGovernanceTxs(s, []sdk.Msg{msg})
+
+		// ACT
+		_ = s.RunTxError(&p)
+		s.Commit()
+
+		// ASSERT
 		pool, found := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		Expect(found).To(BeTrue())

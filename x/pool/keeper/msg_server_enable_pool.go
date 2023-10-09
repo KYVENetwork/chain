@@ -28,6 +28,8 @@ func (k msgServer) EnablePool(goCtx context.Context, req *types.MsgEnablePool) (
 		return nil, errors.Wrapf(sdkErrors.ErrLogic, "Pool is already enabled.")
 	}
 
+	_ = ctx.EventManager().EmitTypedEvent(&types.EventPoolEnabled{Id: req.Id})
+
 	pool.Disabled = false
 	k.SetPool(ctx, pool)
 

@@ -1,13 +1,17 @@
 package integration
 
 import (
+	"time"
+
 	"github.com/KYVENetwork/chain/x/bundles"
+	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
 	"github.com/KYVENetwork/chain/x/delegation"
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	"github.com/KYVENetwork/chain/x/pool"
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	"github.com/KYVENetwork/chain/x/stakers"
+	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/KYVENetwork/chain/x/team"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	. "github.com/onsi/gomega"
@@ -56,6 +60,7 @@ func (suite *KeeperTestSuite) VerifyPoolModuleAssetsIntegrity() {
 	actualBalance := uint64(0)
 
 	for _, pool := range suite.App().PoolKeeper.GetAllPools(suite.Ctx()) {
+		// pool funds should be in pool module
 		for _, funder := range pool.Funders {
 			expectedBalance += funder.Amount
 		}
@@ -166,17 +171,17 @@ func (suite *KeeperTestSuite) VerifyPoolGenesisImportExport() {
 // =====================
 
 func (suite *KeeperTestSuite) VerifyStakersModuleAssetsIntegrity() {
-	//expectedBalance := uint64(0)
-	//actualBalance := uint64(0)
-	//
-	//for _, staker := range suite.App().StakersKeeper.GetAllStakers(suite.Ctx()) {
-	//	expectedBalance += suite.App().DelegationKeeper
-	//}
-	//
-	//moduleAcc := suite.App().AccountKeeper.GetModuleAccount(suite.Ctx(), stakerstypes.ModuleName).GetAddress()
-	//actualBalance = suite.App().BankKeeper.GetBalance(suite.Ctx(), moduleAcc, globalTypes.Denom).Amount.Uint64()
-	//
-	//Expect(actualBalance).To(Equal(expectedBalance))
+	expectedBalance := uint64(0)
+	actualBalance := uint64(0)
+
+	for _, staker := range suite.App().StakersKeeper.GetAllStakers(suite.Ctx()) {
+		expectedBalance += staker.CommissionRewards
+	}
+
+	moduleAcc := suite.App().AccountKeeper.GetModuleAccount(suite.Ctx(), stakertypes.ModuleName).GetAddress()
+	actualBalance = suite.App().BankKeeper.GetBalance(suite.Ctx(), moduleAcc, globalTypes.Denom).Amount.Uint64()
+
+	Expect(actualBalance).To(Equal(expectedBalance))
 }
 
 func (suite *KeeperTestSuite) VerifyPoolTotalStake() {
@@ -260,12 +265,33 @@ func (suite *KeeperTestSuite) VerifyStakersGenesisImportExport() {
 // bundles module checks
 // =====================
 
+func checkFinalizedBundle(queryBundle querytypes.FinalizedBundle, rawBundle bundlesTypes.FinalizedBundle) {
+	Expect(queryBundle.Id).To(Equal(rawBundle.Id))
+	Expect(queryBundle.PoolId).To(Equal(rawBundle.PoolId))
+	Expect(queryBundle.StorageId).To(Equal(rawBundle.StorageId))
+	Expect(queryBundle.Uploader).To(Equal(rawBundle.Uploader))
+	Expect(queryBundle.FromIndex).To(Equal(rawBundle.FromIndex))
+	Expect(queryBundle.ToIndex).To(Equal(rawBundle.ToIndex))
+	Expect(queryBundle.ToKey).To(Equal(rawBundle.ToKey))
+	Expect(queryBundle.BundleSummary).To(Equal(rawBundle.BundleSummary))
+	Expect(queryBundle.DataHash).To(Equal(rawBundle.DataHash))
+	Expect(queryBundle.FinalizedAt.Height.Uint64()).To(Equal(rawBundle.FinalizedAt.Height))
+	date, dateErr := time.Parse(time.RFC3339, queryBundle.FinalizedAt.Timestamp)
+	Expect(dateErr).To(BeNil())
+	Expect(uint64(date.Unix())).To(Equal(rawBundle.FinalizedAt.Timestamp))
+	Expect(queryBundle.FromKey).To(Equal(rawBundle.FromKey))
+	Expect(queryBundle.StorageProviderId).To(Equal(uint64(rawBundle.StorageProviderId)))
+	Expect(queryBundle.CompressionId).To(Equal(uint64(rawBundle.CompressionId)))
+	Expect(queryBundle.StakeSecurity.ValidVotePower.Uint64()).To(Equal(rawBundle.StakeSecurity.ValidVotePower))
+	Expect(queryBundle.StakeSecurity.TotalVotePower.Uint64()).To(Equal(rawBundle.StakeSecurity.TotalVotePower))
+}
+
 func (suite *KeeperTestSuite) VerifyBundlesQueries() {
 	pools := suite.App().PoolKeeper.GetAllPools(suite.Ctx())
 
 	for _, pool := range pools {
 		finalizedBundlesState := suite.App().BundlesKeeper.GetFinalizedBundlesByPool(suite.Ctx(), pool.Id)
-		finalizedBundlesQuery, finalizedBundlesQueryErr := suite.App().QueryKeeper.FinalizedBundles(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryFinalizedBundlesRequest{
+		finalizedBundlesQuery, finalizedBundlesQueryErr := suite.App().QueryKeeper.FinalizedBundlesQuery(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryFinalizedBundlesRequest{
 			PoolId: pool.Id,
 		})
 
@@ -273,15 +299,15 @@ func (suite *KeeperTestSuite) VerifyBundlesQueries() {
 		Expect(finalizedBundlesQuery.FinalizedBundles).To(HaveLen(len(finalizedBundlesState)))
 
 		for i := range finalizedBundlesState {
-			Expect(finalizedBundlesQuery.FinalizedBundles[i]).To(Equal(finalizedBundlesState[i]))
 
-			finalizedBundleQuery, finalizedBundleQueryErr := suite.App().QueryKeeper.FinalizedBundle(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryFinalizedBundleRequest{
+			finalizedBundle, finalizedBundleQueryErr := suite.App().QueryKeeper.FinalizedBundleQuery(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryFinalizedBundleRequest{
 				PoolId: pool.Id,
 				Id:     finalizedBundlesState[i].Id,
 			})
 
 			Expect(finalizedBundleQueryErr).To(BeNil())
-			Expect(finalizedBundleQuery.FinalizedBundle).To(Equal(finalizedBundlesState[i]))
+
+			checkFinalizedBundle(*finalizedBundle, finalizedBundlesState[i])
 		}
 	}
 }
@@ -425,7 +451,9 @@ func (suite *KeeperTestSuite) verifyFullStaker(fullStaker querytypes.FullStaker,
 	}
 
 	Expect(fullStaker.SelfDelegationUnbonding).To(Equal(selfDelegationUnbonding))
-	Expect(fullStaker.Metadata.Logo).To(Equal(staker.Logo))
+	Expect(fullStaker.Metadata.Identity).To(Equal(staker.Identity))
+	Expect(fullStaker.Metadata.SecurityContact).To(Equal(staker.SecurityContact))
+	Expect(fullStaker.Metadata.Details).To(Equal(staker.Details))
 	Expect(fullStaker.Metadata.Website).To(Equal(staker.Website))
 	Expect(fullStaker.Metadata.Commission).To(Equal(staker.Commission))
 	Expect(fullStaker.Metadata.Moniker).To(Equal(staker.Moniker))

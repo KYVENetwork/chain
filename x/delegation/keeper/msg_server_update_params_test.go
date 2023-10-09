@@ -51,8 +51,8 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 
-	minDeposit := s.App().GovKeeper.GetDepositParams(s.Ctx()).MinDeposit
-	votingPeriod := s.App().GovKeeper.GetVotingParams(s.Ctx()).VotingPeriod
+	minDeposit := s.App().GovKeeper.GetParams(s.Ctx()).MinDeposit
+	votingPeriod := s.App().GovKeeper.GetParams(s.Ctx()).VotingPeriod
 
 	delegations := s.App().StakingKeeper.GetAllDelegations(s.Ctx())
 	voter := sdk.MustAccAddressFromBech32(delegations[0].DelegatorAddress)
@@ -102,7 +102,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		// ACT
@@ -129,7 +129,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -152,9 +152,9 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.UnbondingDelegationTime).To(Equal(uint64(3600)))
 		Expect(updatedParams.RedelegationCooldown).To(Equal(uint64(3600)))
 		Expect(updatedParams.RedelegationMaxAmount).To(Equal(uint64(1)))
-		Expect(updatedParams.VoteSlash).To(Equal("0.05"))
-		Expect(updatedParams.UploadSlash).To(Equal("0.05"))
-		Expect(updatedParams.TimeoutSlash).To(Equal("0.05"))
+		Expect(updatedParams.VoteSlash).To(Equal(sdk.MustNewDecFromStr("0.05")))
+		Expect(updatedParams.UploadSlash).To(Equal(sdk.MustNewDecFromStr("0.05")))
+		Expect(updatedParams.TimeoutSlash).To(Equal(sdk.MustNewDecFromStr("0.05")))
 	})
 
 	It("Update no param", func() {
@@ -167,7 +167,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -207,7 +207,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		// ACT
@@ -241,7 +241,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -281,7 +281,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		// ACT
@@ -315,7 +315,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -355,7 +355,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		// ACT
@@ -389,7 +389,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -429,7 +429,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		// ACT
@@ -463,7 +463,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -488,7 +488,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.RedelegationMaxAmount).To(Equal(types.DefaultRedelegationMaxAmount))
 		Expect(updatedParams.UploadSlash).To(Equal(types.DefaultUploadSlash))
 		Expect(updatedParams.TimeoutSlash).To(Equal(types.DefaultTimeoutSlash))
-		Expect(updatedParams.VoteSlash).To(Equal("0.05"))
+		Expect(updatedParams.VoteSlash).To(Equal(sdk.MustNewDecFromStr("0.05")))
 	})
 
 	It("Update vote slash with invalid value", func() {
@@ -503,7 +503,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		// ACT
@@ -538,7 +538,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -561,7 +561,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.UnbondingDelegationTime).To(Equal(types.DefaultUnbondingDelegationTime))
 		Expect(updatedParams.RedelegationCooldown).To(Equal(types.DefaultRedelegationCooldown))
 		Expect(updatedParams.RedelegationMaxAmount).To(Equal(types.DefaultRedelegationMaxAmount))
-		Expect(updatedParams.UploadSlash).To(Equal("0.05"))
+		Expect(updatedParams.UploadSlash).To(Equal(sdk.MustNewDecFromStr("0.05")))
 		Expect(updatedParams.TimeoutSlash).To(Equal(types.DefaultTimeoutSlash))
 		Expect(updatedParams.VoteSlash).To(Equal(types.DefaultVoteSlash))
 	})
@@ -578,7 +578,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		// ACT
@@ -612,7 +612,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -636,7 +636,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.RedelegationCooldown).To(Equal(types.DefaultRedelegationCooldown))
 		Expect(updatedParams.RedelegationMaxAmount).To(Equal(types.DefaultRedelegationMaxAmount))
 		Expect(updatedParams.UploadSlash).To(Equal(types.DefaultUploadSlash))
-		Expect(updatedParams.TimeoutSlash).To(Equal("0.05"))
+		Expect(updatedParams.TimeoutSlash).To(Equal(sdk.MustNewDecFromStr("0.05")))
 		Expect(updatedParams.VoteSlash).To(Equal(types.DefaultVoteSlash))
 	})
 
@@ -652,7 +652,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
 		)
 
 		// ACT

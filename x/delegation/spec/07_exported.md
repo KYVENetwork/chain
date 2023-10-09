@@ -25,9 +25,9 @@ type DelegationKeeper interface {
     // PayoutRewards transfers `amount` $nKYVE from the `payerModuleName`-module to the delegation module.
     // It then awards these tokens internally to all delegators of staker `staker`.
     // Delegators can then receive these rewards if they call the `withdraw`-transaction.
-    // This method returns false if the payout fails. This happens usually if there are no
-    // delegators for that staker. If this happens one should do something else with the rewards.
-    PayoutRewards(ctx sdk.Context, staker string, amount uint64, payerModuleName string) (success bool)
+    // If the staker has no delegators or the module to module transfer fails the method fails and
+    // returns the error.
+    PayoutRewards(ctx sdk.Context, staker string, amount uint64, payerModuleName string) error
 
     // SlashDelegators reduces the delegation of all delegators of `staker` by fraction
     // and transfers the amount to the Treasury.

@@ -1,11 +1,14 @@
-package v1rc1
+package v1_4
 
 import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 
-	// ICA Controller
-	icaControllerTypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/types"
+	// Consensus
+	consensusTypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
+	// Crisis
+	crisisTypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
+
 	// Upgrade
 	upgradeTypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
@@ -13,7 +16,7 @@ import (
 func CreateStoreLoader(upgradeHeight int64) baseapp.StoreLoader {
 	storeUpgrades := storeTypes.StoreUpgrades{
 		Added: []string{
-			icaControllerTypes.StoreKey,
+			consensusTypes.StoreKey, crisisTypes.StoreKey,
 		},
 	}
 

@@ -1,10 +1,6 @@
 package keeper
 
 import (
-	"encoding/binary"
-	"math/rand"
-	"sort"
-
 	"cosmossdk.io/errors"
 
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
@@ -30,11 +26,6 @@ func (k Keeper) AssertPoolCanRun(ctx sdk.Context, poolId uint64) error {
 	// Error if the pool is disabled.
 	if pool.Disabled {
 		return types.ErrPoolDisabled
-	}
-
-	// Error if the pool has no funds.
-	if len(pool.Funders) == 0 {
-		return types.ErrPoolOutOfFunds
 	}
 
 	// Error if min delegation is not reached
@@ -221,41 +212,51 @@ func (k Keeper) handleNonVoters(ctx sdk.Context, poolId uint64) {
 	}
 }
 
-// calculatePayouts deducts the network fee from the rewards and splits the remaining amount
-// between the staker and its delegators. If there are no delegators, the entire amount is
-// awarded to the staker.
-func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64) (bundleReward types.BundleReward) {
-	pool, _ := k.poolKeeper.GetPoolWithError(ctx, poolId)
+// calculatePayouts calculates the different payouts to treasury, uploader and delegators from the total payout
+// the pool module provides for this bundle round
+func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout uint64) (bundleReward types.BundleReward) {
+	// This method first subtracts the network fee from it
+	// After that the uploader receives the storage rewards. If the total payout does not cover the
+	// storage rewards we pay out the remains, the commission and delegation rewards will be empty
+	// in this case. After the payout of the storage rewards the remains are divided between uploader
+	// and its delegators based on the commission.
 	bundleProposal, _ := k.GetBundleProposal(ctx, poolId)
 
-	// Should not happen, if so move everything to the treasury
+	// Should not happen, if so make no payouts
 	if !k.stakerKeeper.DoesStakerExist(ctx, bundleProposal.Uploader) {
-		bundleReward.Treasury = bundleReward.Total
-
 		return
 	}
 
-	// formula for calculating the rewards
-	bundleReward.Total = pool.OperatingCost + uint64(k.GetStorageCost(ctx).MulInt64(int64(bundleProposal.DataSize)).TruncateInt64())
+	bundleReward.Total = totalPayout
 
-	networkFee, err := sdk.NewDecFromStr(k.GetNetworkFee(ctx))
-	if err != nil {
-		util.PanicHalt(k.upgradeKeeper, ctx, "Network Fee unparasable - "+k.GetNetworkFee(ctx))
+	// calculate share of treasury from total payout
+	bundleReward.Treasury = uint64(sdk.NewDec(int64(totalPayout)).Mul(k.GetNetworkFee(ctx)).TruncateInt64())
+
+	// calculate wanted storage reward the uploader should receive
+	storageReward := uint64(k.GetStorageCost(ctx).MulInt64(int64(bundleProposal.DataSize)).TruncateInt64())
+
+	// if not even the full storage reward can not be paid out we pay out the remains.
+	// in this case the uploader will not earn the commission rewards and delegators not
+	// their delegation rewards because total payout is not high enough
+	if totalPayout-bundleReward.Treasury < storageReward {
+		bundleReward.Uploader = totalPayout - bundleReward.Treasury
+		return
+	} else {
+		bundleReward.Uploader = storageReward
 	}
-	// Add fee to treasury
-	bundleReward.Treasury = uint64(sdk.NewDec(int64(bundleReward.Total)).Mul(networkFee).TruncateInt64())
 
-	// Remaining rewards to be split between staker and its delegators
-	totalNodeReward := bundleReward.Total - bundleReward.Treasury
+	// remaining rewards to be split between uploader and its delegators
+	totalNodeReward := totalPayout - bundleReward.Treasury - bundleReward.Uploader
 
-	// Payout delegators
+	// payout delegators
 	if k.delegationKeeper.GetDelegationAmount(ctx, bundleProposal.Uploader) > 0 {
 		commission := k.stakerKeeper.GetCommission(ctx, bundleProposal.Uploader)
+		commissionRewards := uint64(sdk.NewDec(int64(totalNodeReward)).Mul(commission).TruncateInt64())
 
-		bundleReward.Uploader = uint64(sdk.NewDec(int64(totalNodeReward)).Mul(commission).TruncateInt64())
-		bundleReward.Delegation = totalNodeReward - bundleReward.Uploader
+		bundleReward.Uploader += commissionRewards
+		bundleReward.Delegation = totalNodeReward - commissionRewards
 	} else {
-		bundleReward.Uploader = totalNodeReward
+		bundleReward.Uploader += totalNodeReward
 		bundleReward.Delegation = 0
 	}
 
@@ -285,14 +286,6 @@ func (k Keeper) registerBundleProposalFromUploader(ctx sdk.Context, msg *types.M
 		CompressionId:     pool.CurrentCompressionId,
 	}
 
-	// Emit a vote event.
-	_ = ctx.EventManager().EmitTypedEvent(&types.EventBundleVote{
-		PoolId:    msg.PoolId,
-		Staker:    msg.Staker,
-		StorageId: msg.StorageId,
-		Vote:      types.VOTE_TYPE_VALID,
-	})
-
 	k.SetBundleProposal(ctx, bundleProposal)
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventBundleProposed{
@@ -311,16 +304,28 @@ func (k Keeper) registerBundleProposalFromUploader(ctx sdk.Context, msg *types.M
 		StorageProviderId: bundleProposal.StorageProviderId,
 		CompressionId:     bundleProposal.CompressionId,
 	})
+
+	// Emit a vote event. Uploader automatically votes valid on their bundle.
+	_ = ctx.EventManager().EmitTypedEvent(&types.EventBundleVote{
+		PoolId:    msg.PoolId,
+		Staker:    msg.Staker,
+		StorageId: msg.StorageId,
+		Vote:      types.VOTE_TYPE_VALID,
+	})
 }
 
 // finalizeCurrentBundleProposal takes the data of the current evaluated proposal
 // and stores it as a finalized proposal. This only happens if the network
 // reached quorum on the proposal's validity.
-func (k Keeper) finalizeCurrentBundleProposal(ctx sdk.Context, poolId uint64, voteDistribution types.VoteDistribution, bundleReward types.BundleReward, nextUploader string) {
+func (k Keeper) finalizeCurrentBundleProposal(ctx sdk.Context, poolId uint64, voteDistribution types.VoteDistribution, fundersPayout uint64, inflationPayout uint64, bundleReward types.BundleReward, nextUploader string) {
 	pool, _ := k.poolKeeper.GetPool(ctx, poolId)
 	bundleProposal, _ := k.GetBundleProposal(ctx, poolId)
 
 	// save finalized bundle
+	finalizedAt := types.FinalizedAt{
+		Height:    uint64(ctx.BlockHeight()),
+		Timestamp: uint64(ctx.BlockTime().Unix()),
+	}
 	finalizedBundle := types.FinalizedBundle{
 		StorageId:         bundleProposal.StorageId,
 		PoolId:            pool.Id,
@@ -328,13 +333,17 @@ func (k Keeper) finalizeCurrentBundleProposal(ctx sdk.Context, poolId uint64, vo
 		Uploader:          bundleProposal.Uploader,
 		FromIndex:         pool.CurrentIndex,
 		ToIndex:           pool.CurrentIndex + bundleProposal.BundleSize,
-		FinalizedAt:       uint64(ctx.BlockHeight()),
+		FinalizedAt:       &finalizedAt,
 		FromKey:           bundleProposal.FromKey,
 		ToKey:             bundleProposal.ToKey,
 		BundleSummary:     bundleProposal.BundleSummary,
 		DataHash:          bundleProposal.DataHash,
 		StorageProviderId: bundleProposal.StorageProviderId,
 		CompressionId:     bundleProposal.CompressionId,
+		StakeSecurity: &types.StakeSecurity{
+			ValidVotePower: voteDistribution.Valid,
+			TotalVotePower: voteDistribution.Total,
+		},
 	}
 
 	k.SetFinalizedBundle(ctx, finalizedBundle)
@@ -347,6 +356,8 @@ func (k Keeper) finalizeCurrentBundleProposal(ctx sdk.Context, poolId uint64, vo
 		Abstain:          voteDistribution.Abstain,
 		Total:            voteDistribution.Total,
 		Status:           voteDistribution.Status,
+		FundersPayout:    fundersPayout,
+		InflationPayout:  inflationPayout,
 		RewardTreasury:   bundleReward.Treasury,
 		RewardUploader:   bundleReward.Uploader,
 		RewardDelegation: bundleReward.Delegation,
@@ -364,12 +375,7 @@ func (k Keeper) finalizeCurrentBundleProposal(ctx sdk.Context, poolId uint64, vo
 // a required quorum on the validity of the data. When the proposal is dropped
 // the same next uploader as before can submit his proposal since it is not his
 // fault, that the last one did not reach any quorum.
-func (k Keeper) dropCurrentBundleProposal(
-	ctx sdk.Context,
-	poolId uint64,
-	voteDistribution types.VoteDistribution,
-	nextUploader string,
-) {
+func (k Keeper) dropCurrentBundleProposal(ctx sdk.Context, poolId uint64, voteDistribution types.VoteDistribution, nextUploader string) {
 	pool, _ := k.poolKeeper.GetPool(ctx, poolId)
 	bundleProposal, _ := k.GetBundleProposal(ctx, poolId)
 
@@ -407,83 +413,35 @@ func (k Keeper) calculateVotingPower(delegation uint64) (votingPower uint64) {
 	return
 }
 
-// RandomChoiceCandidate holds the voting power of a candidate for the
-// next uploader selection
-type RandomChoiceCandidate struct {
-	Account     string
-	VotingPower uint64
+// chooseNextUploader selects the next uploader based on a fixed set of stakers in a pool.
+// It is guaranteed that someone is chosen deterministically if the round-robin set itself is not empty.
+func (k Keeper) chooseNextUploader(ctx sdk.Context, poolId uint64, excluded ...string) (nextUploader string) {
+	vs := k.LoadRoundRobinValidatorSet(ctx, poolId)
+	nextUploader = vs.NextProposer(excluded...)
+	k.SaveRoundRobinValidatorSet(ctx, vs)
+	return
 }
 
-// getWeightedRandomChoice is an internal function that returns a weighted random
-// selection out of a list of candidates based on their voting power.
-func (k Keeper) getWeightedRandomChoice(candidates []RandomChoiceCandidate, seed int64) string {
-	type WeightedRandomChoice struct {
-		Elements    []string
-		Weights     []uint64
-		TotalWeight uint64
+// chooseNextUploader selects the next uploader based on a fixed set of stakers in a pool.
+// It is guaranteed that someone is chosen deterministically if the round-robin set itself is not empty.
+func (k Keeper) chooseNextUploaderFromList(ctx sdk.Context, poolId uint64, included []string) (nextUploader string) {
+	vs := k.LoadRoundRobinValidatorSet(ctx, poolId)
+
+	// Calculate set difference to obtain excluded
+	includedMap := make(map[string]bool)
+	for _, entry := range included {
+		includedMap[entry] = true
 	}
-
-	wrc := WeightedRandomChoice{}
-
-	for _, candidate := range candidates {
-		i := sort.Search(len(wrc.Weights), func(i int) bool { return wrc.Weights[i] > candidate.VotingPower })
-		wrc.Weights = append(wrc.Weights, 0)
-		wrc.Elements = append(wrc.Elements, "")
-		copy(wrc.Weights[i+1:], wrc.Weights[i:])
-		copy(wrc.Elements[i+1:], wrc.Elements[i:])
-		wrc.Weights[i] = candidate.VotingPower
-		wrc.Elements[i] = candidate.Account
-		wrc.TotalWeight += candidate.VotingPower
-	}
-
-	if wrc.TotalWeight == 0 {
-		return ""
-	}
-
-	value := rand.New(rand.NewSource(seed)).Uint64() % wrc.TotalWeight
-
-	for key, weight := range wrc.Weights {
-		if weight > value {
-			return wrc.Elements[key]
-		}
-
-		value -= weight
-	}
-
-	return ""
-}
-
-// chooseNextUploaderFromSelectedStakers selects the next uploader based on a
-// fixed set of stakers in a pool. It is guaranteed that someone is chosen
-// deterministically
-func (k Keeper) chooseNextUploaderFromSelectedStakers(ctx sdk.Context, poolId uint64, addresses []string) (nextUploader string) {
-	var _candidates []RandomChoiceCandidate
-
-	if len(addresses) == 0 {
-		return ""
-	}
-
-	for _, s := range addresses {
-		if k.stakerKeeper.DoesValaccountExist(ctx, poolId, s) {
-			delegation := k.delegationKeeper.GetDelegationAmount(ctx, s)
-
-			_candidates = append(_candidates, RandomChoiceCandidate{
-				Account:     s,
-				VotingPower: k.calculateVotingPower(delegation),
-			})
+	excluded := make([]string, 0)
+	for _, entry := range vs.Validators {
+		if !includedMap[entry.Address] {
+			excluded = append(excluded, entry.Address)
 		}
 	}
 
-	seed := int64(binary.BigEndian.Uint64(ctx.BlockHeader().AppHash))
-	return k.getWeightedRandomChoice(_candidates, seed)
-}
-
-// chooseNextUploaderFromAllStakers selects the next uploader based on all
-// stakers in a pool. It is guaranteed that someone is chosen
-// deterministically
-func (k Keeper) chooseNextUploaderFromAllStakers(ctx sdk.Context, poolId uint64) (nextUploader string) {
-	stakers := k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, poolId)
-	return k.chooseNextUploaderFromSelectedStakers(ctx, poolId, stakers)
+	nextUploader = vs.NextProposer(excluded...)
+	k.SaveRoundRobinValidatorSet(ctx, vs)
+	return
 }
 
 // GetVoteDistribution is an internal function evaluates the quorum status

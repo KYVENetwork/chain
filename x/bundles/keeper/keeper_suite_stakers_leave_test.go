@@ -217,18 +217,19 @@ var _ = Describe("stakers leave", Ordered, func() {
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 		balanceUploader := s.GetBalanceFromAddress(i.STAKER_0)
 
-		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
-		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
-		commission, _ := sdk.NewDecFromStr(uploader.Commission)
+		// calculate uploader rewards
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
+		treasuryReward := uint64(sdk.NewDec(int64(pool.OperatingCost)).Mul(networkFee).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		totalUploaderReward := pool.OperatingCost - treasuryReward - storageReward
 
-		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
-		totalUploaderReward := totalReward - treasuryReward
-
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(commission).TruncateInt64())
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert payout transfer
-		Expect(balanceUploader).To(Equal(initialBalanceStaker0 + uploaderPayoutReward))
+		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
+		// assert commission rewards
+		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 	})
@@ -309,7 +310,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		Expect(valaccountFound).To(BeFalse())
 
 		// check if next uploader got slashed
-		fraction, _ := sdk.NewDecFromStr(s.App().DelegationKeeper.GetUploadSlash(s.Ctx()))
+		fraction := s.App().DelegationKeeper.GetUploadSlash(s.Ctx())
 		slashAmount := uint64(sdk.NewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 
 		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100*i.KYVE - slashAmount))
@@ -402,7 +403,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		Expect(valaccountFound).To(BeFalse())
 
 		// check if voter got slashed
-		fraction, _ := sdk.NewDecFromStr(s.App().DelegationKeeper.GetVoteSlash(s.Ctx()))
+		fraction := s.App().DelegationKeeper.GetVoteSlash(s.Ctx())
 		slashAmount := uint64(sdk.NewDec(int64(50 * i.KYVE)).Mul(fraction).TruncateInt64())
 
 		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(Equal(50*i.KYVE - slashAmount))

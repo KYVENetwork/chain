@@ -153,14 +153,22 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 
 	It("Test invalid payouts to delegators", func() {
 		// ARRANGE
-		forkedCtx, _ := s.Ctx().CacheContext()
+
+		// fund pool module
+		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
+			Creator: i.ALICE,
+			Id:      0,
+			Amount:  100 * i.KYVE,
+		})
 
 		// ACT
-		success1 := s.App().DelegationKeeper.PayoutRewards(forkedCtx, i.ALICE, 20000*i.KYVE, pooltypes.ModuleName)
-		success2 := s.App().DelegationKeeper.PayoutRewards(s.Ctx(), i.DUMMY[20], 0*i.KYVE, pooltypes.ModuleName)
+		// not enough balance in pool module
+		err1 := s.App().DelegationKeeper.PayoutRewards(s.Ctx(), i.ALICE, 20000*i.KYVE, pooltypes.ModuleName)
+		// staker does not exist
+		err2 := s.App().DelegationKeeper.PayoutRewards(s.Ctx(), i.DUMMY[20], 1*i.KYVE, pooltypes.ModuleName)
 
 		// ASSERT
-		Expect(success1).To(BeFalse())
-		Expect(success2).To(BeFalse())
+		Expect(err1).To(HaveOccurred())
+		Expect(err2).To(HaveOccurred())
 	})
 })

@@ -17,21 +17,28 @@ func (k Keeper) AccountFundedList(goCtx context.Context, req *types.QueryAccount
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	var funded []types.Funded
 
-	for _, pool := range k.poolKeeper.GetAllPools(ctx) {
-		funded = append(funded, types.Funded{
-			Amount: pool.GetFunderAmount(req.Address),
-			Pool: &types.BasicPool{
-				Id:              pool.Id,
-				Name:            pool.Name,
-				Runtime:         pool.Runtime,
-				Logo:            pool.Logo,
-				OperatingCost:   pool.OperatingCost,
-				UploadInterval:  pool.UploadInterval,
-				TotalFunds:      pool.TotalFunds,
-				TotalDelegation: k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id),
-				Status:          k.GetPoolStatus(ctx, &pool),
-			},
-		})
+	pools := k.poolKeeper.GetAllPools(ctx)
+
+	for i := range pools {
+		pool := pools[i]
+		amount := pool.GetFunderAmount(req.Address)
+
+		if amount > 0 {
+			funded = append(funded, types.Funded{
+				Amount: amount,
+				Pool: &types.BasicPool{
+					Id:              pool.Id,
+					Name:            pool.Name,
+					Runtime:         pool.Runtime,
+					Logo:            pool.Logo,
+					OperatingCost:   pool.OperatingCost,
+					UploadInterval:  pool.UploadInterval,
+					TotalFunds:      pool.TotalFunds,
+					TotalDelegation: k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id),
+					Status:          k.GetPoolStatus(ctx, &pool),
+				},
+			})
+		}
 	}
 
 	return &types.QueryAccountFundedListResponse{

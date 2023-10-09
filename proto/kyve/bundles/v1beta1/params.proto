@@ -16,7 +16,10 @@ message Params {
     (gogoproto.nullable) = false
   ];
   // network_fee ...
-  string network_fee = 3;
+  string network_fee = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
   // max_points ...
   uint64 max_points = 4;
 }

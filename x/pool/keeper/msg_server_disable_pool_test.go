@@ -3,6 +3,7 @@ package keeper_test
 import (
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -23,6 +24,7 @@ TEST CASES - msg_server_disabled_pool.go
 * Invalid authority (proposal)
 * Disable a non-existing pool
 * Disable pool which is active
+* Disable pool which is active and has a balance
 * Disable pool which is already disabled
 * Disable multiple pools
 * Kick out all stakers from pool
@@ -35,7 +37,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 	s := i.NewCleanChain()
 
 	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
-	votingPeriod := s.App().GovKeeper.GetVotingParams(s.Ctx()).VotingPeriod
+	votingPeriod := s.App().GovKeeper.GetParams(s.Ctx()).VotingPeriod
 
 	BeforeEach(func() {
 		s = i.NewCleanChain()
@@ -151,6 +153,88 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		Expect(voteErr).To(Not(HaveOccurred()))
 
 		Expect(proposal.Status).To(Equal(govV1Types.StatusFailed))
+	})
+
+	It("Disable pool which is active", func() {
+		// ARRANGE
+		msg := &types.MsgDisablePool{
+			Authority: gov,
+			Id:        0,
+		}
+
+		p, v := BuildGovernanceTxs(s, []sdk.Msg{msg})
+
+		// ACT
+		_, submitErr := s.RunTx(&p)
+		_, voteErr := s.RunTx(&v)
+
+		s.CommitAfter(*votingPeriod)
+		s.Commit()
+
+		// ASSERT
+		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
+		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+
+		Expect(submitErr).To(Not(HaveOccurred()))
+		Expect(voteErr).To(Not(HaveOccurred()))
+
+		Expect(proposal.Status).To(Equal(govV1Types.StatusPassed))
+		Expect(pool.Disabled).To(BeTrue())
+
+		bundleProposal, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
+		Expect(bundleProposal.StorageId).To(BeEmpty())
+
+		// assert empty pool balance
+		b := s.App().BankKeeper.GetBalance(s.Ctx(), pool.GetPoolAccount(), globalTypes.Denom).Amount.Uint64()
+		Expect(b).To(BeZero())
+	})
+
+	It("Disable pool which is active and has a balance", func() {
+		// ARRANGE
+		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+
+		s.App().PoolKeeper.SetParams(s.Ctx(), types.Params{
+			ProtocolInflationShare:  sdk.MustNewDecFromStr("0.1"),
+			PoolInflationPayoutRate: sdk.MustNewDecFromStr("0.05"),
+		})
+
+		for i := 0; i < 100; i++ {
+			s.Commit()
+		}
+
+		b := s.App().BankKeeper.GetBalance(s.Ctx(), pool.GetPoolAccount(), globalTypes.Denom).Amount.Uint64()
+		Expect(b).To(BeNumerically(">", uint64(0)))
+
+		msg := &types.MsgDisablePool{
+			Authority: gov,
+			Id:        0,
+		}
+
+		p, v := BuildGovernanceTxs(s, []sdk.Msg{msg})
+
+		// ACT
+		_, submitErr := s.RunTx(&p)
+		_, voteErr := s.RunTx(&v)
+
+		s.CommitAfter(*votingPeriod)
+		s.Commit()
+
+		// ASSERT
+		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
+		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+
+		Expect(submitErr).To(Not(HaveOccurred()))
+		Expect(voteErr).To(Not(HaveOccurred()))
+
+		Expect(proposal.Status).To(Equal(govV1Types.StatusPassed))
+		Expect(pool.Disabled).To(BeTrue())
+
+		bundleProposal, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
+		Expect(bundleProposal.StorageId).To(BeEmpty())
+
+		// assert empty pool balance
+		b = s.App().BankKeeper.GetBalance(s.Ctx(), pool.GetPoolAccount(), globalTypes.Denom).Amount.Uint64()
+		Expect(b).To(BeZero())
 	})
 
 	It("Disable pool which is active", func() {

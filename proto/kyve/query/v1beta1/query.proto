@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package kyve.query.v1beta1;
 
+import "gogoproto/gogo.proto";
 import "kyve/pool/v1beta1/pool.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/query/types";
@@ -9,15 +10,15 @@ option go_package = "github.com/KYVENetwork/chain/x/query/types";
 /*
    This query-module servers all queries for the following (KYVE-)modules:
    bundles, pool, delegation, stakers
-   
+
    As a lot of request require composition of multiple module-data
    everything will be served from one single query module.
-   
+
    The named packages do not implement their own queries (expect for params)
-   
+
    For simplicity all queries and their objects are in the corresponding
    proto files
-   
+
    Messages that are used for across multiple queries are defined here.
 */
 
@@ -94,7 +95,10 @@ message StakerMetadata {
   // commission is the percentage of the rewards that will
   // get transferred to the staker before the remaining
   // rewards are split across all delegators
-  string commission = 1;
+  string commission = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 
   // moniker is a human-readable name for displaying
   // the staker in the UI
@@ -103,15 +107,24 @@ message StakerMetadata {
   // website is a https-link to the website of the staker
   string website = 3;
 
-  // logo is a link to an image file (like jpg or png)
-  string logo = 4;
+  // identity from keybase.io
+  string identity = 4;
+
+  // security_contact ...
+  string security_contact = 5;
+
+  // details ...
+  string details = 6;
 
   // pending_commission_change shows if the staker plans
   // to change its commission. Delegators will see a warning in
   // the UI. A Commission change takes some time until
   // the commission is applied. Users have time to redelegate
   // if they not agree with the new commission.
-  CommissionChangeEntry pending_commission_change = 5;
+  CommissionChangeEntry pending_commission_change = 7;
+
+  // commission_rewards are the rewards in $KYVE earned through commission
+  uint64 commission_rewards = 8;
 }
 
 // CommissionChangeEntry shows when the old commission
@@ -119,7 +132,10 @@ message StakerMetadata {
 message CommissionChangeEntry {
   // commission is the new commission that will
   // become active once the change-time is over
-  string commission = 1;
+  string commission = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 
   // creation_date is the UNIX-timestamp (in seconds)
   // of when the entry was created.

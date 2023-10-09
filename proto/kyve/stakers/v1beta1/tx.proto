@@ -3,6 +3,7 @@ syntax = "proto3";
 package kyve.stakers.v1beta1;
 
 import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/stakers/types";
 
@@ -14,6 +15,8 @@ service Msg {
   rpc UpdateMetadata(MsgUpdateMetadata) returns (MsgUpdateMetadataResponse);
   // UpdateCommission ...
   rpc UpdateCommission(MsgUpdateCommission) returns (MsgUpdateCommissionResponse);
+  // ClaimCommissionRewards ...
+  rpc ClaimCommissionRewards(MsgClaimCommissionRewards) returns (MsgClaimCommissionRewardsResponse);
   // JoinPool ...
   rpc JoinPool(MsgJoinPool) returns (MsgJoinPoolResponse);
   // LeavePool ...
@@ -24,12 +27,18 @@ service Msg {
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
-// MsgStakePool defines a SDK message for staking in a pool.
+// MsgCreateStaker defines a SDK message for creating a staker.
 message MsgCreateStaker {
-  // creator ...
+  // creator is the address of the staker.
   string creator = 1;
-  // amount ...
+  // amount is the initial self-stake of the staker.
   uint64 amount = 2;
+  // commission is the percentage that is deducted from rewards before
+  // distributing the staker's delegators.
+  string commission = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // MsgStakePoolResponse defines the Msg/StakePool response type.
@@ -43,8 +52,12 @@ message MsgUpdateMetadata {
   string moniker = 2;
   // website ...
   string website = 3;
-  // logo
-  string logo = 4;
+  // identity from keybase.io
+  string identity = 4;
+  // security_contact ...
+  string security_contact = 5;
+  // details ...
+  string details = 6;
 }
 
 // MsgUpdateMetadataResponse defines the Msg/MsgUpdateMetadata response type.
@@ -55,11 +68,25 @@ message MsgUpdateCommission {
   // creator ...
   string creator = 1;
   // commission ...
-  string commission = 2;
+  string commission = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // MsgUpdateCommissionResponse ...
 message MsgUpdateCommissionResponse {}
+
+// MsgClaimCommissionRewards ...
+message MsgClaimCommissionRewards {
+  // creator ...
+  string creator = 1;
+  // amount ...
+  uint64 amount = 2;
+}
+
+// MsgClaimCommissionRewardsResponse ...
+message MsgClaimCommissionRewardsResponse {}
 
 // MsgJoinPool ...
 message MsgJoinPool {

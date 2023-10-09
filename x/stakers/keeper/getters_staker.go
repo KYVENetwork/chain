@@ -13,18 +13,37 @@ import (
 )
 
 // UpdateStakerMetadata ...
-func (k Keeper) UpdateStakerMetadata(ctx sdk.Context, address string, moniker string, website string, logo string) {
+func (k Keeper) UpdateStakerMetadata(
+	ctx sdk.Context,
+	address string,
+	moniker string,
+	website string,
+	identity string,
+	securityContact string,
+	details string,
+) {
 	staker, found := k.GetStaker(ctx, address)
 	if found {
 		staker.Moniker = moniker
 		staker.Website = website
-		staker.Logo = logo
+		staker.Identity = identity
+		staker.SecurityContact = securityContact
+		staker.Details = details
+		k.setStaker(ctx, staker)
+	}
+}
+
+// updateStakerCommissionRewards ...
+func (k Keeper) updateStakerCommissionRewards(ctx sdk.Context, address string, amount uint64) {
+	staker, found := k.GetStaker(ctx, address)
+	if found {
+		staker.CommissionRewards += amount
 		k.setStaker(ctx, staker)
 	}
 }
 
 // UpdateStakerCommission ...
-func (k Keeper) UpdateStakerCommission(ctx sdk.Context, address string, commission string) {
+func (k Keeper) UpdateStakerCommission(ctx sdk.Context, address string, commission sdk.Dec) {
 	staker, found := k.GetStaker(ctx, address)
 	if found {
 		staker.Commission = commission
@@ -117,10 +136,18 @@ func (k Keeper) GetStaker(
 	return val, true
 }
 
-func (k Keeper) GetPaginatedStakerQuery(ctx sdk.Context, pagination *query.PageRequest, accumulator func(staker types.Staker)) (*query.PageResponse, error) {
+func (k Keeper) GetPaginatedStakerQuery(
+	ctx sdk.Context,
+	pagination *query.PageRequest,
+	accumulator func(staker types.Staker),
+) (*query.PageResponse, error) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.StakerKeyPrefix)
 
-	pageRes, err := query.FilteredPaginate(store, pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
+	pageRes, err := query.FilteredPaginate(store, pagination, func(
+		key []byte,
+		value []byte,
+		accumulate bool,
+	) (bool, error) {
 		if accumulate {
 			var staker types.Staker
 			if err := k.cdc.Unmarshal(value, &staker); err != nil {

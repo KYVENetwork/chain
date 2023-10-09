@@ -5,7 +5,8 @@ package types
 
 import (
 	fmt "fmt"
-	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	proto "github.com/cosmos/gogoproto/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -22,6 +23,71 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// EventUpdateParams is an event emitted when the module parameters are updated.
+// emitted_by: MsgUpdateParams
+type EventUpdateParams struct {
+	// old_params is the module's old parameters.
+	OldParams Params `protobuf:"bytes,1,opt,name=old_params,json=oldParams,proto3" json:"old_params"`
+	// new_params is the module's new parameters.
+	NewParams Params `protobuf:"bytes,2,opt,name=new_params,json=newParams,proto3" json:"new_params"`
+	// payload is the parameter updates that were performed.
+	Payload string `protobuf:"bytes,3,opt,name=payload,proto3" json:"payload,omitempty"`
+}
+
+func (m *EventUpdateParams) Reset()         { *m = EventUpdateParams{} }
+func (m *EventUpdateParams) String() string { return proto.CompactTextString(m) }
+func (*EventUpdateParams) ProtoMessage()    {}
+func (*EventUpdateParams) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d01988a9108a2e89, []int{0}
+}
+func (m *EventUpdateParams) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventUpdateParams) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventUpdateParams.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventUpdateParams) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventUpdateParams.Merge(m, src)
+}
+func (m *EventUpdateParams) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventUpdateParams) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventUpdateParams.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventUpdateParams proto.InternalMessageInfo
+
+func (m *EventUpdateParams) GetOldParams() Params {
+	if m != nil {
+		return m.OldParams
+	}
+	return Params{}
+}
+
+func (m *EventUpdateParams) GetNewParams() Params {
+	if m != nil {
+		return m.NewParams
+	}
+	return Params{}
+}
+
+func (m *EventUpdateParams) GetPayload() string {
+	if m != nil {
+		return m.Payload
+	}
+	return ""
+}
+
 // EventDelegate is an event emitted when someone delegates to a protocol node.
 // emitted_by: MsgDelegate
 type EventDelegate struct {
@@ -37,7 +103,7 @@ func (m *EventDelegate) Reset()         { *m = EventDelegate{} }
 func (m *EventDelegate) String() string { return proto.CompactTextString(m) }
 func (*EventDelegate) ProtoMessage()    {}
 func (*EventDelegate) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d01988a9108a2e89, []int{0}
+	return fileDescriptor_d01988a9108a2e89, []int{1}
 }
 func (m *EventDelegate) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -87,6 +153,81 @@ func (m *EventDelegate) GetAmount() uint64 {
 	return 0
 }
 
+// EventStartUndelegation is an event emitted when someone starts an undelegation from a protocol node.
+// emitted_by: EndBlock
+type EventStartUndelegation struct {
+	// address is the address of the delegator.
+	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	// staker is the address of the protocol node.
+	Staker string `protobuf:"bytes,2,opt,name=staker,proto3" json:"staker,omitempty"`
+	// amount is the amount to be undelegated from the protocol node.
+	Amount uint64 `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`
+	// estimated_undelegation_date is the date in UNIX seconds on when the undelegation will be performed.
+	// Note, this number will be incorrect if a governance proposal changes `UnbondingDelegationTime` while unbonding.
+	EstimatedUndelegationDate uint64 `protobuf:"varint,4,opt,name=estimated_undelegation_date,json=estimatedUndelegationDate,proto3" json:"estimated_undelegation_date,omitempty"`
+}
+
+func (m *EventStartUndelegation) Reset()         { *m = EventStartUndelegation{} }
+func (m *EventStartUndelegation) String() string { return proto.CompactTextString(m) }
+func (*EventStartUndelegation) ProtoMessage()    {}
+func (*EventStartUndelegation) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d01988a9108a2e89, []int{2}
+}
+func (m *EventStartUndelegation) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventStartUndelegation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventStartUndelegation.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventStartUndelegation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventStartUndelegation.Merge(m, src)
+}
+func (m *EventStartUndelegation) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventStartUndelegation) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventStartUndelegation.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventStartUndelegation proto.InternalMessageInfo
+
+func (m *EventStartUndelegation) GetAddress() string {
+	if m != nil {
+		return m.Address
+	}
+	return ""
+}
+
+func (m *EventStartUndelegation) GetStaker() string {
+	if m != nil {
+		return m.Staker
+	}
+	return ""
+}
+
+func (m *EventStartUndelegation) GetAmount() uint64 {
+	if m != nil {
+		return m.Amount
+	}
+	return 0
+}
+
+func (m *EventStartUndelegation) GetEstimatedUndelegationDate() uint64 {
+	if m != nil {
+		return m.EstimatedUndelegationDate
+	}
+	return 0
+}
+
 // EventUndelegate is an event emitted when someone undelegates from a protocol node.
 // emitted_by: EndBlock
 type EventUndelegate struct {
@@ -102,7 +243,7 @@ func (m *EventUndelegate) Reset()         { *m = EventUndelegate{} }
 func (m *EventUndelegate) String() string { return proto.CompactTextString(m) }
 func (*EventUndelegate) ProtoMessage()    {}
 func (*EventUndelegate) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d01988a9108a2e89, []int{1}
+	return fileDescriptor_d01988a9108a2e89, []int{3}
 }
 func (m *EventUndelegate) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -169,7 +310,7 @@ func (m *EventRedelegate) Reset()         { *m = EventRedelegate{} }
 func (m *EventRedelegate) String() string { return proto.CompactTextString(m) }
 func (*EventRedelegate) ProtoMessage()    {}
 func (*EventRedelegate) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d01988a9108a2e89, []int{2}
+	return fileDescriptor_d01988a9108a2e89, []int{4}
 }
 func (m *EventRedelegate) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -241,7 +382,7 @@ func (m *EventWithdrawRewards) Reset()         { *m = EventWithdrawRewards{} }
 func (m *EventWithdrawRewards) String() string { return proto.CompactTextString(m) }
 func (*EventWithdrawRewards) ProtoMessage()    {}
 func (*EventWithdrawRewards) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d01988a9108a2e89, []int{3}
+	return fileDescriptor_d01988a9108a2e89, []int{5}
 }
 func (m *EventWithdrawRewards) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -308,7 +449,7 @@ func (m *EventSlash) Reset()         { *m = EventSlash{} }
 func (m *EventSlash) String() string { return proto.CompactTextString(m) }
 func (*EventSlash) ProtoMessage()    {}
 func (*EventSlash) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d01988a9108a2e89, []int{4}
+	return fileDescriptor_d01988a9108a2e89, []int{6}
 }
 func (m *EventSlash) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -366,7 +507,9 @@ func (m *EventSlash) GetSlashType() SlashType {
 }
 
 func init() {
+	proto.RegisterType((*EventUpdateParams)(nil), "kyve.delegation.v1beta1.EventUpdateParams")
 	proto.RegisterType((*EventDelegate)(nil), "kyve.delegation.v1beta1.EventDelegate")
+	proto.RegisterType((*EventStartUndelegation)(nil), "kyve.delegation.v1beta1.EventStartUndelegation")
 	proto.RegisterType((*EventUndelegate)(nil), "kyve.delegation.v1beta1.EventUndelegate")
 	proto.RegisterType((*EventRedelegate)(nil), "kyve.delegation.v1beta1.EventRedelegate")
 	proto.RegisterType((*EventWithdrawRewards)(nil), "kyve.delegation.v1beta1.EventWithdrawRewards")
@@ -378,30 +521,88 @@ func init() {
 }
 
 var fileDescriptor_d01988a9108a2e89 = []byte{
-	// 357 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x92, 0xcf, 0x4e, 0xf2, 0x40,
-	0x14, 0xc5, 0x99, 0x0f, 0x02, 0x1f, 0xd7, 0xa8, 0x49, 0x63, 0xa4, 0xd1, 0xa4, 0x12, 0xe2, 0x82,
-	0x55, 0x1b, 0xf4, 0x09, 0x34, 0xb2, 0x20, 0x26, 0x2e, 0x8a, 0x7f, 0x82, 0x2e, 0x70, 0x60, 0xae,
-	0xb4, 0x01, 0x3a, 0xcd, 0xcc, 0x00, 0xb2, 0xf4, 0x0d, 0x5c, 0xfa, 0x48, 0x2e, 0x59, 0xba, 0x34,
-	0xf0, 0x22, 0x66, 0x86, 0x12, 0xc1, 0x84, 0x44, 0x13, 0x76, 0x3d, 0x73, 0x4e, 0x7f, 0xe7, 0xde,
-	0xe4, 0xc2, 0x71, 0x77, 0x3c, 0x44, 0x8f, 0x61, 0x0f, 0x3b, 0x54, 0x85, 0x3c, 0xf2, 0x86, 0x95,
-	0x16, 0x2a, 0x5a, 0xf1, 0x70, 0x88, 0x91, 0x92, 0x6e, 0x2c, 0xb8, 0xe2, 0x56, 0x41, 0xa7, 0xdc,
-	0xef, 0x94, 0x9b, 0xa4, 0x0e, 0xca, 0xeb, 0x7e, 0x5f, 0xca, 0x1a, 0x44, 0xa9, 0x01, 0xdb, 0x55,
-	0x8d, 0xbc, 0x98, 0x1b, 0x68, 0xd9, 0x90, 0xa3, 0x8c, 0x09, 0x94, 0xd2, 0x26, 0x45, 0x52, 0xce,
-	0xfb, 0x0b, 0x69, 0xed, 0x43, 0x56, 0x2a, 0xda, 0x45, 0x61, 0xff, 0x33, 0x46, 0xa2, 0xf4, 0x3b,
-	0xed, 0xf3, 0x41, 0xa4, 0xec, 0x74, 0x91, 0x94, 0x33, 0x7e, 0xa2, 0x4a, 0x0f, 0xb0, 0x6b, 0xd0,
-	0x37, 0x11, 0xdb, 0x3c, 0xfc, 0x85, 0x24, 0x74, 0x1f, 0x7f, 0x41, 0x3f, 0x82, 0xad, 0x27, 0xc1,
-	0xfb, 0xcd, 0x95, 0x0a, 0xd0, 0x4f, 0xf5, 0x79, 0xcd, 0x21, 0xe4, 0x15, 0x5f, 0xd8, 0x69, 0x63,
-	0xff, 0x57, 0xbc, 0xfe, 0x73, 0x86, 0xcc, 0xca, 0x0c, 0x8f, 0xb0, 0x67, 0x46, 0xb8, 0x0b, 0x55,
-	0xc0, 0x04, 0x1d, 0xf9, 0x38, 0xa2, 0x82, 0xc9, 0x0d, 0x6e, 0xf9, 0x46, 0x00, 0x4c, 0x45, 0xbd,
-	0x47, 0x65, 0x60, 0x15, 0x20, 0x17, 0x73, 0xde, 0x6b, 0x86, 0xcc, 0x80, 0x33, 0x7e, 0x56, 0xcb,
-	0x1a, 0xfb, 0x2b, 0xd7, 0x3a, 0x03, 0x90, 0x9a, 0xd8, 0x54, 0xe3, 0x18, 0xcd, 0x56, 0x3b, 0x27,
-	0x25, 0x77, 0xcd, 0x35, 0xb9, 0xa6, 0xfc, 0x7a, 0x1c, 0xa3, 0x9f, 0x97, 0x8b, 0xcf, 0xf3, 0xda,
-	0xfb, 0xd4, 0x21, 0x93, 0xa9, 0x43, 0x3e, 0xa7, 0x0e, 0x79, 0x9d, 0x39, 0xa9, 0xc9, 0xcc, 0x49,
-	0x7d, 0xcc, 0x9c, 0xd4, 0xbd, 0xd7, 0x09, 0x55, 0x30, 0x68, 0xb9, 0x6d, 0xde, 0xf7, 0x2e, 0x1b,
-	0xb7, 0xd5, 0x2b, 0x54, 0x23, 0x2e, 0xba, 0x5e, 0x3b, 0xa0, 0x61, 0xe4, 0x3d, 0x2f, 0x9f, 0xa5,
-	0xae, 0x97, 0xad, 0xac, 0x39, 0xc5, 0xd3, 0xaf, 0x00, 0x00, 0x00, 0xff, 0xff, 0x35, 0xe5, 0x5e,
-	0x91, 0xf5, 0x02, 0x00, 0x00,
+	// 486 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x93, 0xc1, 0x6e, 0xd3, 0x40,
+	0x14, 0x45, 0x33, 0x10, 0xa5, 0xf8, 0x55, 0x80, 0xb0, 0xaa, 0x36, 0xb4, 0x92, 0x53, 0x59, 0x2c,
+	0xb2, 0xb2, 0xd5, 0xb2, 0x47, 0xa2, 0x4a, 0x17, 0x15, 0x12, 0x42, 0x0e, 0x05, 0x15, 0x16, 0x66,
+	0xd2, 0x79, 0x24, 0x56, 0x6c, 0x8f, 0x65, 0xbf, 0xc4, 0x64, 0xc9, 0x1f, 0xb0, 0x64, 0xcd, 0x5f,
+	0xf0, 0x07, 0x5d, 0x76, 0xc9, 0x0a, 0xa1, 0xe4, 0x47, 0xd0, 0xcc, 0xd8, 0x24, 0x45, 0x8a, 0xd4,
+	0x4a, 0xd9, 0xcd, 0x9b, 0xb9, 0x3e, 0xf7, 0xda, 0xd7, 0x03, 0xcf, 0xc6, 0xb3, 0x29, 0xfa, 0x02,
+	0x63, 0x1c, 0x72, 0x8a, 0x64, 0xea, 0x4f, 0x8f, 0x06, 0x48, 0xfc, 0xc8, 0xc7, 0x29, 0xa6, 0x54,
+	0x78, 0x59, 0x2e, 0x49, 0xda, 0x7b, 0x4a, 0xe5, 0x2d, 0x55, 0x5e, 0xa5, 0xda, 0xdf, 0x19, 0xca,
+	0xa1, 0xd4, 0x1a, 0x5f, 0xad, 0x8c, 0x7c, 0xbf, 0xbb, 0x0e, 0xba, 0x42, 0x30, 0xca, 0xb5, 0xf6,
+	0x19, 0xcf, 0x79, 0x52, 0xd9, 0xbb, 0x3f, 0x19, 0x3c, 0x39, 0x55, 0x79, 0xce, 0x33, 0xc1, 0x09,
+	0xdf, 0xe8, 0x33, 0xbb, 0x07, 0x20, 0x63, 0x11, 0x1a, 0x65, 0x9b, 0x1d, 0xb2, 0xee, 0xf6, 0x71,
+	0xc7, 0x5b, 0x93, 0xd4, 0x33, 0x0f, 0x9d, 0x34, 0xaf, 0x7e, 0x77, 0x1a, 0x81, 0x25, 0x63, 0xb1,
+	0xa4, 0xa4, 0x58, 0xd6, 0x94, 0x7b, 0x77, 0xa2, 0xa4, 0x58, 0x56, 0x94, 0x36, 0x6c, 0x65, 0x7c,
+	0x16, 0x4b, 0x2e, 0xda, 0xf7, 0x0f, 0x59, 0xd7, 0x0a, 0xea, 0xd1, 0xbd, 0x80, 0x87, 0x3a, 0x7a,
+	0xcf, 0xc0, 0x50, 0x49, 0xb9, 0x10, 0x39, 0x16, 0x26, 0xb3, 0x15, 0xd4, 0xa3, 0xbd, 0x0b, 0xad,
+	0x82, 0xf8, 0x18, 0x73, 0x1d, 0xc3, 0x0a, 0xaa, 0x49, 0xed, 0xf3, 0x44, 0x4e, 0x52, 0xd2, 0xec,
+	0x66, 0x50, 0x4d, 0xee, 0x0f, 0x06, 0xbb, 0x9a, 0xdd, 0x27, 0x9e, 0xd3, 0x79, 0xba, 0xcc, 0xbb,
+	0x39, 0x13, 0xfb, 0x05, 0x1c, 0x60, 0x41, 0x51, 0xc2, 0x09, 0x45, 0x38, 0x59, 0xf1, 0x08, 0x55,
+	0x15, 0xed, 0xa6, 0x16, 0x3f, 0xfd, 0x27, 0x59, 0x4d, 0xd1, 0xe3, 0x84, 0xee, 0x47, 0x78, 0x6c,
+	0xaa, 0xab, 0x0f, 0x36, 0xf9, 0x05, 0xbe, 0xb2, 0x8a, 0x1e, 0xe0, 0x2d, 0xe8, 0x1d, 0xd8, 0xfe,
+	0x9c, 0xcb, 0x24, 0xbc, 0x61, 0x01, 0x6a, 0xab, 0x6f, 0x6c, 0x0e, 0xc0, 0x22, 0x59, 0x1f, 0x9b,
+	0x1e, 0x1f, 0x90, 0xec, 0xff, 0x9f, 0xa1, 0x79, 0x23, 0xc3, 0x27, 0xd8, 0xd1, 0x11, 0xde, 0x47,
+	0x34, 0x12, 0x39, 0x2f, 0x03, 0x2c, 0x79, 0x2e, 0x8a, 0x0d, 0xbe, 0xe5, 0x77, 0x06, 0x60, 0x7a,
+	0x8e, 0x79, 0x31, 0xb2, 0xf7, 0x60, 0x2b, 0x93, 0x32, 0x0e, 0x23, 0xa1, 0xc1, 0xcd, 0xa0, 0xa5,
+	0xc6, 0x33, 0x71, 0xe7, 0x6a, 0x5f, 0x02, 0x14, 0x8a, 0x18, 0xd2, 0x2c, 0x33, 0x4d, 0x3e, 0x3a,
+	0x76, 0xd7, 0xfe, 0xfa, 0xda, 0xfc, 0xed, 0x2c, 0xc3, 0xc0, 0x2a, 0xea, 0xe5, 0xc9, 0xd9, 0xd5,
+	0xdc, 0x61, 0xd7, 0x73, 0x87, 0xfd, 0x99, 0x3b, 0xec, 0xdb, 0xc2, 0x69, 0x5c, 0x2f, 0x9c, 0xc6,
+	0xaf, 0x85, 0xd3, 0xf8, 0xe0, 0x0f, 0x23, 0x1a, 0x4d, 0x06, 0xde, 0xa5, 0x4c, 0xfc, 0x57, 0x17,
+	0xef, 0x4e, 0x5f, 0x23, 0x95, 0x32, 0x1f, 0xfb, 0x97, 0x23, 0x1e, 0xa5, 0xfe, 0x97, 0xd5, 0x3b,
+	0xaf, 0xec, 0x8b, 0x41, 0x4b, 0xdf, 0xf5, 0xe7, 0x7f, 0x03, 0x00, 0x00, 0xff, 0xff, 0xab, 0xe2,
+	0xab, 0xb6, 0x92, 0x04, 0x00, 0x00,
+}
+
+func (m *EventUpdateParams) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventUpdateParams) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventUpdateParams) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Payload) > 0 {
+		i -= len(m.Payload)
+		copy(dAtA[i:], m.Payload)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Payload)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	{
+		size, err := m.NewParams.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	{
+		size, err := m.OldParams.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *EventDelegate) Marshal() (dAtA []byte, err error) {
@@ -424,6 +625,53 @@ func (m *EventDelegate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if m.Amount != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.Amount))
+		i--
+		dAtA[i] = 0x18
+	}
+	if len(m.Staker) > 0 {
+		i -= len(m.Staker)
+		copy(dAtA[i:], m.Staker)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Staker)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Address) > 0 {
+		i -= len(m.Address)
+		copy(dAtA[i:], m.Address)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Address)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *EventStartUndelegation) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventStartUndelegation) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventStartUndelegation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.EstimatedUndelegationDate != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.EstimatedUndelegationDate))
+		i--
+		dAtA[i] = 0x20
+	}
 	if m.Amount != 0 {
 		i = encodeVarintEvents(dAtA, i, uint64(m.Amount))
 		i--
@@ -635,6 +883,23 @@ func encodeVarintEvents(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+func (m *EventUpdateParams) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.OldParams.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	l = m.NewParams.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	l = len(m.Payload)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	return n
+}
+
 func (m *EventDelegate) Size() (n int) {
 	if m == nil {
 		return 0
@@ -651,6 +916,29 @@ func (m *EventDelegate) Size() (n int) {
 	}
 	if m.Amount != 0 {
 		n += 1 + sovEvents(uint64(m.Amount))
+	}
+	return n
+}
+
+func (m *EventStartUndelegation) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Address)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = len(m.Staker)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	if m.Amount != 0 {
+		n += 1 + sovEvents(uint64(m.Amount))
+	}
+	if m.EstimatedUndelegationDate != 0 {
+		n += 1 + sovEvents(uint64(m.EstimatedUndelegationDate))
 	}
 	return n
 }
@@ -746,6 +1034,154 @@ func sovEvents(x uint64) (n int) {
 }
 func sozEvents(x uint64) (n int) {
 	return sovEvents(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+func (m *EventUpdateParams) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvents
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventUpdateParams: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventUpdateParams: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OldParams", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.OldParams.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NewParams", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.NewParams.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Payload", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Payload = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvents(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
 }
 func (m *EventDelegate) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
@@ -855,6 +1291,158 @@ func (m *EventDelegate) Unmarshal(dAtA []byte) error {
 				b := dAtA[iNdEx]
 				iNdEx++
 				m.Amount |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvents(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventStartUndelegation) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvents
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventStartUndelegation: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventStartUndelegation: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Address = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Staker", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Staker = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			m.Amount = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Amount |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EstimatedUndelegationDate", wireType)
+			}
+			m.EstimatedUndelegationDate = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.EstimatedUndelegationDate |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

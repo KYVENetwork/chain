@@ -1,21 +1,20 @@
 package types
 
 import (
-	sdkErrors "cosmossdk.io/errors"
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 )
 
-const TypeMsgDelegate = "delegate"
+var (
+	_ legacytx.LegacyMsg = &MsgDelegate{}
+	_ sdk.Msg            = &MsgDelegate{}
+)
 
-var _ sdk.Msg = &MsgDelegate{}
-
-func (msg *MsgDelegate) Route() string {
-	return RouterKey
-}
-
-func (msg *MsgDelegate) Type() string {
-	return TypeMsgDelegate
+func (msg *MsgDelegate) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
 }
 
 func (msg *MsgDelegate) GetSigners() []sdk.AccAddress {
@@ -23,23 +22,27 @@ func (msg *MsgDelegate) GetSigners() []sdk.AccAddress {
 	if err != nil {
 		panic(err)
 	}
+
 	return []sdk.AccAddress{creator}
 }
 
-func (msg *MsgDelegate) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
-	return sdk.MustSortJSON(bz)
+func (msg *MsgDelegate) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgDelegate) Type() string {
+	return "kyve/delegation/MsgDelegate"
 }
 
 func (msg *MsgDelegate) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
-		return sdkErrors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid creator address (%s)", err)
+		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid creator address (%s)", err)
 	}
 
 	_, err = sdk.AccAddressFromBech32(msg.Staker)
 	if err != nil {
-		return sdkErrors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid staker address (%s)", err)
+		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid staker address (%s)", err)
 	}
 	return nil
 }

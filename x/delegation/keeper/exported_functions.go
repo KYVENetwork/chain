@@ -1,9 +1,11 @@
 package keeper
 
 import (
+	"cosmossdk.io/errors"
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/delegation/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // These functions are meant to be called from external modules
@@ -43,24 +45,28 @@ func (k Keeper) GetDelegationOfPool(ctx sdk.Context, poolId uint64) uint64 {
 // PayoutRewards transfers `amount` $nKYVE from the `payerModuleName`-module to the delegation module.
 // It then awards these tokens internally to all delegators of staker `staker`.
 // Delegators can then receive these rewards if they call the `withdraw`-transaction.
-// This method returns false if the payout fails. This happens usually if there are no
-// delegators for that staker. If this happens one should do something else with the rewards.
-func (k Keeper) PayoutRewards(ctx sdk.Context, staker string, amount uint64, payerModuleName string) (success bool) {
-	// Assert there are delegators
-	if k.DoesDelegationDataExist(ctx, staker) {
-
-		// Add amount to the rewards pool
-		k.AddAmountToDelegationRewards(ctx, staker, amount)
-
-		// Transfer tokens to the delegation module
-		err := util.TransferFromModuleToModule(k.bankKeeper, ctx, payerModuleName, types.ModuleName, amount)
-		if err != nil {
-			util.PanicHalt(k.upgradeKeeper, ctx, "Not enough tokens in module")
-			return false
-		}
-		return true
+// If the staker has no delegators or the module to module transfer fails the method fails and
+// returns the error.
+func (k Keeper) PayoutRewards(ctx sdk.Context, staker string, amount uint64, payerModuleName string) error {
+	// Assert there is an amount
+	if amount == 0 {
+		return nil
 	}
-	return false
+
+	// Assert there are delegators
+	if !k.DoesDelegationDataExist(ctx, staker) {
+		return errors.Wrapf(sdkErrors.ErrLogic, "Staker has no delegators which can be paid out.")
+	}
+
+	// Add amount to the rewards pool
+	k.AddAmountToDelegationRewards(ctx, staker, amount)
+
+	// Transfer tokens to the delegation module
+	if err := util.TransferFromModuleToModule(k.bankKeeper, ctx, payerModuleName, types.ModuleName, amount); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // SlashDelegators reduces the delegation of all delegators of `staker` by fraction

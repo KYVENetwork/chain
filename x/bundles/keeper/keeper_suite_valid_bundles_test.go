@@ -147,6 +147,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(finalizedBundle.BundleSummary).To(Equal("test_value"))
 		Expect(finalizedBundle.DataHash).To(Equal("test_hash"))
 		Expect(finalizedBundle.FinalizedAt).NotTo(BeZero())
+		Expect(finalizedBundle.StakeSecurity.ValidVotePower).To(Equal(100 * i.KYVE))
+		Expect(finalizedBundle.StakeSecurity.TotalVotePower).To(Equal(100 * i.KYVE))
 
 		// check if next bundle proposal got registered
 		bundleProposal, bundleProposalFound := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
@@ -178,18 +180,18 @@ var _ = Describe("valid bundles", Ordered, func() {
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), valaccountUploader.Staker)
 
 		// calculate uploader rewards
-		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
-		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
-		commission, _ := sdk.NewDecFromStr(uploader.Commission)
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
+		treasuryReward := uint64(sdk.NewDec(int64(pool.OperatingCost)).Mul(networkFee).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		totalUploaderReward := pool.OperatingCost - treasuryReward - storageReward
 
-		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
-		totalUploaderReward := totalReward - treasuryReward
-
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(commission).TruncateInt64())
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert payout transfer
-		Expect(balanceUploader).To(Equal(initialBalanceStaker0 + uploaderPayoutReward))
+		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
+		// assert commission rewards
+		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 
@@ -197,7 +199,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		Expect(pool.Funders).To(HaveLen(1))
-		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100*i.KYVE - totalReward))
+		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100*i.KYVE - pool.OperatingCost))
 	})
 
 	It("Produce a valid bundle with one validator and foreign delegations", func() {
@@ -263,6 +265,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(finalizedBundle.BundleSummary).To(Equal("test_value"))
 		Expect(finalizedBundle.DataHash).To(Equal("test_hash"))
 		Expect(finalizedBundle.FinalizedAt).NotTo(BeZero())
+		Expect(finalizedBundle.StakeSecurity.ValidVotePower).To(Equal(400 * i.KYVE))
+		Expect(finalizedBundle.StakeSecurity.TotalVotePower).To(Equal(400 * i.KYVE))
 
 		// check if next bundle proposal got registered
 		bundleProposal, bundleProposalFound := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
@@ -294,14 +298,12 @@ var _ = Describe("valid bundles", Ordered, func() {
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), valaccountUploader.Staker)
 
 		// calculate uploader rewards
-		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
-		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
-		commission, _ := sdk.NewDecFromStr(uploader.Commission)
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
+		treasuryReward := uint64(sdk.NewDec(int64(pool.OperatingCost)).Mul(networkFee).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		totalUploaderReward := pool.OperatingCost - treasuryReward - storageReward
 
-		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
-		totalUploaderReward := totalReward - treasuryReward
-
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(commission).TruncateInt64())
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		totalDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// divide with 4 because uploader only has 25% of total delegation
@@ -309,7 +311,9 @@ var _ = Describe("valid bundles", Ordered, func() {
 		delegatorDelegationReward := uint64(sdk.NewDec(int64(totalDelegationReward)).Quo(sdk.NewDec(4)).Mul(sdk.NewDec(3)).TruncateInt64())
 
 		// assert payout transfer
-		Expect(balanceUploader).To(Equal(initialBalanceStaker0 + uploaderPayoutReward))
+		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
+		// assert commission rewards
+		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 		// assert delegator delegation rewards
@@ -319,7 +323,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		Expect(pool.Funders).To(HaveLen(1))
-		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100*i.KYVE - totalReward))
+		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100*i.KYVE - pool.OperatingCost))
 	})
 
 	It("Produce a valid bundle with multiple validators and no foreign delegations", func() {
@@ -401,6 +405,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(finalizedBundle.BundleSummary).To(Equal("test_value"))
 		Expect(finalizedBundle.DataHash).To(Equal("test_hash"))
 		Expect(finalizedBundle.FinalizedAt).NotTo(BeZero())
+		Expect(finalizedBundle.StakeSecurity.ValidVotePower).To(Equal(200 * i.KYVE))
+		Expect(finalizedBundle.StakeSecurity.TotalVotePower).To(Equal(200 * i.KYVE))
 
 		// check if next bundle proposal got registered
 		bundleProposal, bundleProposalFound := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
@@ -409,7 +415,6 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(bundleProposal.PoolId).To(Equal(uint64(0)))
 		Expect(bundleProposal.StorageId).To(Equal("P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg"))
 		Expect(bundleProposal.Uploader).To(Equal(i.STAKER_0))
-		// TODO(postAudit,@troy): how to get next uploader deterministically?
 		Expect(bundleProposal.NextUploader).NotTo(BeEmpty())
 		Expect(bundleProposal.DataSize).To(Equal(uint64(100)))
 		Expect(bundleProposal.DataHash).To(Equal("test_hash2"))
@@ -443,18 +448,19 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// calculate uploader rewards
-		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
-		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
-		commission, _ := sdk.NewDecFromStr(uploader.Commission)
+		// calculate uploader rewards
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
+		treasuryReward := uint64(sdk.NewDec(int64(pool.OperatingCost)).Mul(networkFee).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		totalUploaderReward := pool.OperatingCost - treasuryReward - storageReward
 
-		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
-		totalUploaderReward := totalReward - treasuryReward
-
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(commission).TruncateInt64())
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert payout transfer
-		Expect(balanceUploader).To(Equal(initialBalanceStaker0 + uploaderPayoutReward))
+		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
+		// assert commission rewards
+		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 
@@ -462,7 +468,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		Expect(pool.Funders).To(HaveLen(1))
-		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100*i.KYVE - totalReward))
+		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100*i.KYVE - pool.OperatingCost))
 	})
 
 	It("Produce a valid bundle with one validator and foreign delegations", func() {
@@ -556,6 +562,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(finalizedBundle.BundleSummary).To(Equal("test_value"))
 		Expect(finalizedBundle.DataHash).To(Equal("test_hash"))
 		Expect(finalizedBundle.FinalizedAt).NotTo(BeZero())
+		Expect(finalizedBundle.StakeSecurity.ValidVotePower).To(Equal(700 * i.KYVE))
+		Expect(finalizedBundle.StakeSecurity.TotalVotePower).To(Equal(700 * i.KYVE))
 
 		// check if next bundle proposal got registered
 		bundleProposal, bundleProposalFound := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
@@ -564,7 +572,6 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(bundleProposal.PoolId).To(Equal(uint64(0)))
 		Expect(bundleProposal.StorageId).To(Equal("P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg"))
 		Expect(bundleProposal.Uploader).To(Equal(i.STAKER_0))
-		// TODO(postAudit,@troy): how to get next uploader deterministically?
 		Expect(bundleProposal.NextUploader).NotTo(BeEmpty())
 		Expect(bundleProposal.DataSize).To(Equal(uint64(100)))
 		Expect(bundleProposal.DataHash).To(Equal("test_hash2"))
@@ -598,14 +605,12 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// calculate uploader rewards
-		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
-		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
-		commission, _ := sdk.NewDecFromStr(uploader.Commission)
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
+		treasuryReward := uint64(sdk.NewDec(int64(pool.OperatingCost)).Mul(networkFee).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		totalUploaderReward := pool.OperatingCost - treasuryReward - storageReward
 
-		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
-		totalUploaderReward := totalReward - treasuryReward
-
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(commission).TruncateInt64())
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		totalDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// divide with 4 because uploader only has 25% of total delegation
@@ -613,7 +618,9 @@ var _ = Describe("valid bundles", Ordered, func() {
 		delegatorDelegationReward := uint64(sdk.NewDec(int64(totalDelegationReward)).Quo(sdk.NewDec(3)).Mul(sdk.NewDec(2)).TruncateInt64())
 
 		// assert payout transfer
-		Expect(balanceUploader).To(Equal(initialBalanceStaker0 + uploaderPayoutReward))
+		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
+		// assert commission rewards
+		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 		// assert delegator delegation rewards
@@ -623,7 +630,9 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeZero())
 
 		// assert payout transfer
-		Expect(balanceUploader).To(Equal(initialBalanceStaker0 + uploaderPayoutReward))
+		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
+		// assert commission rewards
+		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 
@@ -631,7 +640,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		Expect(pool.Funders).To(HaveLen(1))
-		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100*i.KYVE - totalReward))
+		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100*i.KYVE - pool.OperatingCost))
 	})
 
 	It("Produce a valid bundle with multiple validators and foreign delegation although some did not vote at all", func() {
@@ -717,6 +726,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(finalizedBundle.BundleSummary).To(Equal("test_value"))
 		Expect(finalizedBundle.DataHash).To(Equal("test_hash"))
 		Expect(finalizedBundle.FinalizedAt).NotTo(BeZero())
+		Expect(finalizedBundle.StakeSecurity.ValidVotePower).To(Equal(400 * i.KYVE))
+		Expect(finalizedBundle.StakeSecurity.TotalVotePower).To(Equal(700 * i.KYVE))
 
 		// check if next bundle proposal got registered
 		bundleProposal, bundleProposalFound := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
@@ -758,14 +769,13 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// calculate uploader rewards
-		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
-		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
-		commission, _ := sdk.NewDecFromStr(uploader.Commission)
+		// calculate uploader rewards
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
+		treasuryReward := uint64(sdk.NewDec(int64(pool.OperatingCost)).Mul(networkFee).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		totalUploaderReward := pool.OperatingCost - treasuryReward - storageReward
 
-		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
-		totalUploaderReward := totalReward - treasuryReward
-
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(commission).TruncateInt64())
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		totalDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// divide with 4 because uploader only has 25% of total delegation
@@ -773,7 +783,9 @@ var _ = Describe("valid bundles", Ordered, func() {
 		delegatorDelegationReward := uint64(sdk.NewDec(int64(totalDelegationReward)).Quo(sdk.NewDec(4)).Mul(sdk.NewDec(3)).TruncateInt64())
 
 		// assert payout transfer
-		Expect(balanceUploader).To(Equal(initialBalanceStaker0 + uploaderPayoutReward))
+		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
+		// assert commission rewards
+		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 		// assert delegator delegation rewards
@@ -782,16 +794,11 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// check voter rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeZero())
 
-		// assert payout transfer
-		Expect(balanceUploader).To(Equal(initialBalanceStaker0 + uploaderPayoutReward))
-		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
-
 		// check pool funds
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		Expect(pool.Funders).To(HaveLen(1))
-		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100*i.KYVE - totalReward))
+		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100*i.KYVE - pool.OperatingCost))
 	})
 
 	It("Produce a valid bundle with multiple validators and foreign delegation although some voted abstain", func() {
@@ -885,6 +892,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(finalizedBundle.BundleSummary).To(Equal("test_value"))
 		Expect(finalizedBundle.DataHash).To(Equal("test_hash"))
 		Expect(finalizedBundle.FinalizedAt).NotTo(BeZero())
+		Expect(finalizedBundle.StakeSecurity.ValidVotePower).To(Equal(400 * i.KYVE))
+		Expect(finalizedBundle.StakeSecurity.TotalVotePower).To(Equal(700 * i.KYVE))
 
 		// check if next bundle proposal got registered
 		bundleProposal, bundleProposalFound := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
@@ -926,14 +935,13 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// calculate uploader rewards
-		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
-		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
-		commission, _ := sdk.NewDecFromStr(uploader.Commission)
+		// calculate uploader rewards
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
+		treasuryReward := uint64(sdk.NewDec(int64(pool.OperatingCost)).Mul(networkFee).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		totalUploaderReward := pool.OperatingCost - treasuryReward - storageReward
 
-		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
-		totalUploaderReward := totalReward - treasuryReward
-
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(commission).TruncateInt64())
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		totalDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// divide with 4 because uploader only has 25% of total delegation
@@ -941,7 +949,9 @@ var _ = Describe("valid bundles", Ordered, func() {
 		delegatorDelegationReward := uint64(sdk.NewDec(int64(totalDelegationReward)).Quo(sdk.NewDec(4)).Mul(sdk.NewDec(3)).TruncateInt64())
 
 		// assert payout transfer
-		Expect(balanceUploader).To(Equal(initialBalanceStaker0 + uploaderPayoutReward))
+		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
+		// assert commission rewards
+		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 		// assert delegator delegation rewards
@@ -950,16 +960,11 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// check voter rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeZero())
 
-		// assert payout transfer
-		Expect(balanceUploader).To(Equal(initialBalanceStaker0 + uploaderPayoutReward))
-		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
-
 		// check pool funds
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		Expect(pool.Funders).To(HaveLen(1))
-		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100*i.KYVE - totalReward))
+		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100*i.KYVE - pool.OperatingCost))
 	})
 
 	It("Produce a valid bundle with multiple validators and foreign delegation although some voted invalid", func() {
@@ -1053,6 +1058,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(finalizedBundle.BundleSummary).To(Equal("test_value"))
 		Expect(finalizedBundle.DataHash).To(Equal("test_hash"))
 		Expect(finalizedBundle.FinalizedAt).NotTo(BeZero())
+		Expect(finalizedBundle.StakeSecurity.ValidVotePower).To(Equal(400 * i.KYVE))
+		Expect(finalizedBundle.StakeSecurity.TotalVotePower).To(Equal(700 * i.KYVE))
 
 		// check if next bundle proposal got registered
 		bundleProposal, bundleProposalFound := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
@@ -1084,7 +1091,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), valaccountUploader.Staker)
 
 		// calculate voter slashes
-		fraction, _ := sdk.NewDecFromStr(s.App().DelegationKeeper.GetVoteSlash(s.Ctx()))
+		fraction := s.App().DelegationKeeper.GetVoteSlash(s.Ctx())
 		slashAmountVoter := uint64(sdk.NewDec(int64(200 * i.KYVE)).Mul(fraction).TruncateInt64())
 		slashAmountDelegator := uint64(sdk.NewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 
@@ -1104,14 +1111,13 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// calculate uploader rewards
-		totalReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64()) + pool.OperatingCost
-		networkFee, _ := sdk.NewDecFromStr(s.App().BundlesKeeper.GetNetworkFee(s.Ctx()))
-		commission, _ := sdk.NewDecFromStr(uploader.Commission)
+		// calculate uploader rewards
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
+		treasuryReward := uint64(sdk.NewDec(int64(pool.OperatingCost)).Mul(networkFee).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		totalUploaderReward := pool.OperatingCost - treasuryReward - storageReward
 
-		treasuryReward := uint64(sdk.NewDec(int64(totalReward)).Mul(networkFee).TruncateInt64())
-		totalUploaderReward := totalReward - treasuryReward
-
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(commission).TruncateInt64())
+		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		totalDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// divide with 4 because uploader only has 25% of total delegation
@@ -1119,7 +1125,9 @@ var _ = Describe("valid bundles", Ordered, func() {
 		delegatorDelegationReward := uint64(sdk.NewDec(int64(totalDelegationReward)).Quo(sdk.NewDec(4)).Mul(sdk.NewDec(3)).TruncateInt64())
 
 		// assert payout transfer
-		Expect(balanceUploader).To(Equal(initialBalanceStaker0 + uploaderPayoutReward))
+		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
+		// assert commission rewards
+		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 		// assert delegator delegation rewards
@@ -1128,15 +1136,10 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// check voter rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeZero())
 
-		// assert payout transfer
-		Expect(balanceUploader).To(Equal(initialBalanceStaker0 + uploaderPayoutReward))
-		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
-
 		// check pool funds
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		Expect(pool.Funders).To(HaveLen(1))
-		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100*i.KYVE - totalReward))
+		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100*i.KYVE - pool.OperatingCost))
 	})
 })

@@ -3,7 +3,7 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/cometbft/cometbft/libs/log"
 
 	"github.com/KYVENetwork/chain/x/bundles/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -25,7 +25,6 @@ type (
 		poolKeeper       types.PoolKeeper
 		stakerKeeper     types.StakerKeeper
 		delegationKeeper types.DelegationKeeper
-		upgradeKeeper    types.UpgradeKeeper
 	}
 )
 
@@ -42,7 +41,6 @@ func NewKeeper(
 	poolKeeper types.PoolKeeper,
 	stakerKeeper types.StakerKeeper,
 	delegationKeeper types.DelegationKeeper,
-	upgradeKeeper types.UpgradeKeeper,
 ) *Keeper {
 	return &Keeper{
 		cdc:      cdc,

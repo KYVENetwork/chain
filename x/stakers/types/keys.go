@@ -2,6 +2,7 @@ package types
 
 import (
 	"github.com/KYVENetwork/chain/util"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (
@@ -59,10 +60,9 @@ var (
 	QUEUE_IDENTIFIER_LEAVE      QUEUE_IDENTIFIER = []byte{30, 3}
 )
 
-const (
-	MaxStakers        = 50
-	DefaultCommission = "0.9"
-)
+const MaxStakers = 50
+
+var DefaultCommission = sdk.MustNewDecFromStr("0.1")
 
 // StakerKey returns the store Key to retrieve a Staker from the index fields
 func StakerKey(staker string) []byte {

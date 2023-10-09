@@ -1,5 +1,5 @@
 <!--
-order: 5
+order: 8
 -->
 
 # Parameters
@@ -10,5 +10,5 @@ The bundles module contains the following parameters:
 |---------------|-------------------------|---------|
 | UploadTimeout | uint64 (time s)         | 600     |
 | StorageCost   | uint64 (tkyve per byte) | 25      |
-| NetworkFee    | string (%)              | "0.01"  |
+| NetworkFee    | sdk.Dec (%)             | "0.01"  |
 | MaxPoints     | uint64                  | 5       |

@@ -8,12 +8,16 @@ The module is mainly responsible for holding the pools state
 and keeping track of pool funders.
 
 ## Pools
+
 The pool object is rather large and holds multiple sub-objects grouped
 by functionality.
 
 ### Pool
+
 Pool is the main type and holds everything a pool needs to know including some
-sub-objects which are listed below.
+sub-objects which are listed below. Each pool has their own module account, storing
+the funds from the inflation split in order to pay those out with the funders to the
+pool participants. The pool account is defined by the following: `pool/$ID`
 
 - Pool: `0x01 | PoolId -> ProtocolBuffer(pool)`
 

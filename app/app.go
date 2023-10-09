@@ -1,162 +1,173 @@
 package app
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 
-	v1rc1 "github.com/KYVENetwork/chain/app/upgrades/v1_rc1"
+	v1p4 "github.com/KYVENetwork/chain/app/upgrades/v1_4"
+	dbm "github.com/cometbft/cometbft-db"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
+	cmtOs "github.com/cometbft/cometbft/libs/os"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/grpc/node"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
+	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	serverTypes "github.com/cosmos/cosmos-sdk/server/types"
+	"github.com/cosmos/cosmos-sdk/store/streaming"
+	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/spf13/cast"
+
+	// Auth
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	authKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authTx "github.com/cosmos/cosmos-sdk/x/auth/tx"
+	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
-	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	vestingTypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	// Authz
 	authzTypes "github.com/cosmos/cosmos-sdk/x/authz"
-	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	authzKeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authz "github.com/cosmos/cosmos-sdk/x/authz/module"
+	// Bank
 	"github.com/cosmos/cosmos-sdk/x/bank"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/cosmos/cosmos-sdk/x/capability"
-	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
-	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
-	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
-	"github.com/cosmos/cosmos-sdk/x/distribution"
-	distrclient "github.com/cosmos/cosmos-sdk/x/distribution/client"
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	"github.com/cosmos/cosmos-sdk/x/evidence"
-	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
-	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
-	"github.com/cosmos/cosmos-sdk/x/feegrant"
-	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
-	feeGrant "github.com/cosmos/cosmos-sdk/x/feegrant/module"
-	"github.com/cosmos/cosmos-sdk/x/genutil"
-	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	"github.com/cosmos/cosmos-sdk/x/gov"
-	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	groupTypes "github.com/cosmos/cosmos-sdk/x/group"
-	groupkeeper "github.com/cosmos/cosmos-sdk/x/group/keeper"
-	group "github.com/cosmos/cosmos-sdk/x/group/module"
-	"github.com/cosmos/cosmos-sdk/x/mint"
-	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	"github.com/cosmos/cosmos-sdk/x/params"
-	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
-	"github.com/cosmos/cosmos-sdk/x/slashing"
-	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/cosmos/cosmos-sdk/x/upgrade"
-	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
-	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ica "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts"
-	icaController "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller"
-	icaControllerKeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/keeper"
-	icaControllerTypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller/types"
-	icaHost "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host"
-	icahostkeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/keeper"
-	icaHostTypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/types"
-	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
-	ibcFee "github.com/cosmos/ibc-go/v6/modules/apps/29-fee"
-	ibcFeeKeeper "github.com/cosmos/ibc-go/v6/modules/apps/29-fee/keeper"
-	ibcFeeTypes "github.com/cosmos/ibc-go/v6/modules/apps/29-fee/types"
-	ibcTransfer "github.com/cosmos/ibc-go/v6/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
-	ibcTransferTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v6/modules/core"
-	ibcclient "github.com/cosmos/ibc-go/v6/modules/core/02-client"
-	ibcclientclient "github.com/cosmos/ibc-go/v6/modules/core/02-client/client"
-	ibcclienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
-	ibcPortTypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
-	ibchost "github.com/cosmos/ibc-go/v6/modules/core/24-host"
-	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
-	"github.com/spf13/cast"
-	abci "github.com/tendermint/tendermint/abci/types"
-	tmjson "github.com/tendermint/tendermint/libs/json"
-	"github.com/tendermint/tendermint/libs/log"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	dbm "github.com/tendermint/tm-db"
-
-	kyveDocs "github.com/KYVENetwork/chain/docs"
-	// this line is used by starport scaffolding # stargate/app/moduleImport
-
+	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	// Bundles
 	"github.com/KYVENetwork/chain/x/bundles"
 	bundlesKeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
 	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
+	// Capability
+	"github.com/cosmos/cosmos-sdk/x/capability"
+	capabilityKeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
+	capabilityTypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	// Consensus
+	"github.com/cosmos/cosmos-sdk/x/consensus"
+	consensusKeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
+	consensusTypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
+	// Crisis
+	"github.com/cosmos/cosmos-sdk/x/crisis"
+	crisisKeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
+	crisisTypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	// Delegation
 	"github.com/KYVENetwork/chain/x/delegation"
 	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
+	// Distribution
+	"github.com/cosmos/cosmos-sdk/x/distribution"
+	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	distributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	// Evidence
+	"github.com/cosmos/cosmos-sdk/x/evidence"
+	evidenceKeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
+	evidenceTypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
+	// FeeGrant
+	feeGrantTypes "github.com/cosmos/cosmos-sdk/x/feegrant"
+	feeGrantKeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
+	feeGrant "github.com/cosmos/cosmos-sdk/x/feegrant/module"
+	// GenUtil
+	"github.com/cosmos/cosmos-sdk/x/genutil"
+	genUtilTypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	// Global
 	"github.com/KYVENetwork/chain/x/global"
 	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
+	// Gov
+	"github.com/cosmos/cosmos-sdk/x/gov"
+	govKeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	govTypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	// Group
+	groupTypes "github.com/cosmos/cosmos-sdk/x/group"
+	groupKeeper "github.com/cosmos/cosmos-sdk/x/group/keeper"
+	group "github.com/cosmos/cosmos-sdk/x/group/module"
+	// IBC Core
+	ibc "github.com/cosmos/ibc-go/v7/modules/core"
+	ibcClientHandler "github.com/cosmos/ibc-go/v7/modules/core/02-client" // TODO
+	ibcClientTypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	ibcPortTypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
+	ibcExported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+	ibcKeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
+	// IBC Fee
+	ibcFee "github.com/cosmos/ibc-go/v7/modules/apps/29-fee"
+	ibcFeeKeeper "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/keeper"
+	ibcFeeTypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
+	// IBC Transfer
+	ibcTransfer "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
+	ibcTransferKeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
+	ibcTransferTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	// ICA
+	ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
+	icaTypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
+	// ICA Controller
+	icaController "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller"
+	icaControllerKeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/keeper"
+	icaControllerTypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
+	// ICA Host
+	icaHost "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host"
+	icaHostKeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/keeper"
+	icaHostTypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
+	// Mint
+	"github.com/cosmos/cosmos-sdk/x/mint"
+	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
+	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	// Params
+	"github.com/cosmos/cosmos-sdk/x/params"
+	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	paramsProposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
+	// PFM
+	pfm "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
+	pfmKeeper "github.com/strangelove-ventures/packet-forward-middleware/v7/router/keeper"
+	pfmTypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 	// Query
 	"github.com/KYVENetwork/chain/x/query"
 	queryKeeper "github.com/KYVENetwork/chain/x/query/keeper"
 	queryTypes "github.com/KYVENetwork/chain/x/query/types"
+	// Slashing
+	"github.com/cosmos/cosmos-sdk/x/slashing"
+	slashingKeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
+	slashingTypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	// Stakers
 	"github.com/KYVENetwork/chain/x/stakers"
 	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
 	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
+	// Staking
+	"github.com/cosmos/cosmos-sdk/x/staking"
+	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	// Team
 	"github.com/KYVENetwork/chain/x/team"
 	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
 	teamTypes "github.com/KYVENetwork/chain/x/team/types"
+	// Upgrade
+	"github.com/cosmos/cosmos-sdk/x/upgrade"
+	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+	upgradeTypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
 const (
 	AccountAddressPrefix = "kyve"
 	Name                 = "kyve"
 )
-
-func getGovProposalHandlers() []govclient.ProposalHandler {
-	var govProposalHandlers []govclient.ProposalHandler
-
-	govProposalHandlers = append(govProposalHandlers,
-		paramsclient.ProposalHandler,
-		distrclient.ProposalHandler,
-		upgradeclient.LegacyProposalHandler,
-		upgradeclient.LegacyCancelProposalHandler,
-		ibcclientclient.UpdateClientProposalHandler,
-		ibcclientclient.UpgradeProposalHandler,
-	)
-
-	return govProposalHandlers
-}
 
 var (
 	// DefaultNodeHome default home directories for the application daemon
@@ -166,12 +177,13 @@ var (
 	// non-dependant module elements, such as codec registration
 	// and genesis verification.
 	ModuleBasics = module.NewBasicManager(appModuleBasics...)
-
-	// module account permissions
-	maccPerms = moduleAccountPermissions
 )
 
-var _ servertypes.Application = (*App)(nil)
+var (
+	// TODO(@john): Ask if this is needed for a "v1" app.
+	_ runtime.AppI            = (*App)(nil)
+	_ serverTypes.Application = (*App)(nil)
+)
 
 func init() {
 	userHomeDir, err := os.UserHomeDir()
@@ -187,23 +199,17 @@ func init() {
 // capabilities aren't needed for testing.
 type App struct {
 	*baseapp.BaseApp
-
-	Keepers
-
-	cdc               *codec.LegacyAmino
+	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
+	txConfig          client.TxConfig
 	interfaceRegistry types.InterfaceRegistry
 
-	invCheckPeriod uint
+	keys    map[string]*storeTypes.KVStoreKey
+	tkeys   map[string]*storeTypes.TransientStoreKey
+	memKeys map[string]*storeTypes.MemoryStoreKey
 
-	// keys to access the substores
-	keys    map[string]*storetypes.KVStoreKey
-	tkeys   map[string]*storetypes.TransientStoreKey
-	memKeys map[string]*storetypes.MemoryStoreKey
-
-	// mm is the module manager
-	mm *module.Manager
-
+	Keepers
+	mm           *module.Manager
 	configurator module.Configurator
 }
 
@@ -213,29 +219,72 @@ func NewKYVEApp(
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
-	skipUpgradeHeights map[int64]bool,
-	homePath string,
-	invCheckPeriod uint,
-	encodingConfig EncodingConfig,
-	appOpts servertypes.AppOptions,
+	appOpts serverTypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
-	appCodec := encodingConfig.Marshaler
-	cdc := encodingConfig.Amino
-	interfaceRegistry := encodingConfig.InterfaceRegistry
+	encodingConfig := MakeEncodingConfig()
 
-	bApp := baseapp.NewBaseApp(Name, logger, db, encodingConfig.TxConfig.TxDecoder(), baseAppOptions...)
+	appCodec := encodingConfig.Marshaler
+	legacyAmino := encodingConfig.Amino
+	interfaceRegistry := encodingConfig.InterfaceRegistry
+	txConfig := encodingConfig.TxConfig
+
+	// Below we could construct and set an application specific mempool and
+	// ABCI 1.0 PrepareProposal and ProcessProposal handlers. These defaults are
+	// already set in the SDK's BaseApp, this shows an example of how to override
+	// them.
+	//
+	// Example:
+	//
+	// bApp := baseapp.NewBaseApp(...)
+	// nonceMempool := mempool.NewSenderNonceMempool()
+	// abciPropHandler := NewDefaultProposalHandler(nonceMempool, bApp)
+	//
+	// bApp.SetMempool(nonceMempool)
+	// bApp.SetPrepareProposal(abciPropHandler.PrepareProposalHandler())
+	// bApp.SetProcessProposal(abciPropHandler.ProcessProposalHandler())
+	//
+	// Alternatively, you can construct BaseApp options, append those to
+	// baseAppOptions and pass them to NewBaseApp.
+	//
+	// Example:
+	//
+	// prepareOpt = func(app *baseapp.BaseApp) {
+	// 	abciPropHandler := baseapp.NewDefaultProposalHandler(nonceMempool, app)
+	// 	app.SetPrepareProposal(abciPropHandler.PrepareProposalHandler())
+	// }
+	// baseAppOptions = append(baseAppOptions, prepareOpt)
+
+	bApp := baseapp.NewBaseApp(Name, logger, db, txConfig.TxDecoder(), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
+	bApp.SetTxEncoder(txConfig.TxEncoder())
 
 	keys := sdk.NewKVStoreKeys(
-		authtypes.StoreKey, authzTypes.ModuleName, banktypes.StoreKey, stakingtypes.StoreKey,
-		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey, govtypes.StoreKey,
-		paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
-		evidencetypes.StoreKey, ibcFeeTypes.StoreKey, ibcTransferTypes.StoreKey,
-		icaControllerTypes.StoreKey, icaHostTypes.StoreKey, capabilitytypes.StoreKey,
+		authTypes.StoreKey,
+		authzTypes.ModuleName,
+		bankTypes.StoreKey,
+		capabilityTypes.StoreKey,
+		consensusTypes.StoreKey,
+		crisisTypes.StoreKey,
+		distributionTypes.StoreKey,
+		evidenceTypes.StoreKey,
+		feeGrantTypes.StoreKey,
+		govTypes.StoreKey,
 		groupTypes.StoreKey,
+		mintTypes.StoreKey,
+		paramsTypes.StoreKey,
+		slashingTypes.StoreKey,
+		stakingTypes.StoreKey,
+		upgradeTypes.StoreKey,
+
+		ibcExported.StoreKey,
+		ibcFeeTypes.StoreKey,
+		ibcTransferTypes.StoreKey,
+		icaControllerTypes.StoreKey,
+		icaHostTypes.StoreKey,
+		pfmTypes.StoreKey,
 
 		bundlesTypes.StoreKey,
 		delegationTypes.StoreKey,
@@ -245,15 +294,25 @@ func NewKYVEApp(
 		stakersTypes.StoreKey,
 		teamTypes.StoreKey,
 	)
-	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
-	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey, bundlesTypes.MemStoreKey, delegationTypes.MemStoreKey)
+	tkeys := sdk.NewTransientStoreKeys(paramsTypes.TStoreKey)
+	memKeys := sdk.NewMemoryStoreKeys(
+		capabilityTypes.MemStoreKey,
+
+		bundlesTypes.MemStoreKey, delegationTypes.MemStoreKey,
+	)
+
+	// load state streaming if enabled
+	if _, _, err := streaming.LoadStreamingServices(bApp, appOpts, appCodec, logger, keys); err != nil {
+		logger.Error("failed to load state streaming", "err", err)
+		os.Exit(1)
+	}
 
 	app := &App{
 		BaseApp:           bApp,
-		cdc:               cdc,
+		legacyAmino:       legacyAmino,
 		appCodec:          appCodec,
+		txConfig:          txConfig,
 		interfaceRegistry: interfaceRegistry,
-		invCheckPeriod:    invCheckPeriod,
 		keys:              keys,
 		tkeys:             tkeys,
 		memKeys:           memKeys,
@@ -261,146 +320,159 @@ func NewKYVEApp(
 
 	app.ParamsKeeper = initParamsKeeper(
 		appCodec,
-		cdc,
-		keys[paramstypes.StoreKey],
-		tkeys[paramstypes.TStoreKey],
+		legacyAmino,
+		keys[paramsTypes.StoreKey],
+		tkeys[paramsTypes.TStoreKey],
 	)
 
 	// set the BaseApp's parameter store
-	bApp.SetParamStore(app.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramstypes.ConsensusParamsKeyTable()))
+	app.ConsensusKeeper = consensusKeeper.NewKeeper(
+		appCodec,
+		keys[consensusTypes.StoreKey],
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
+	)
+	bApp.SetParamStore(&app.ConsensusKeeper)
 
 	// add capability keeper and ScopeToModule for ibc module
-	app.CapabilityKeeper = capabilitykeeper.NewKeeper(
+	app.CapabilityKeeper = capabilityKeeper.NewKeeper(
 		appCodec,
-		keys[capabilitytypes.StoreKey],
-		memKeys[capabilitytypes.MemStoreKey],
+		keys[capabilityTypes.StoreKey],
+		memKeys[capabilityTypes.MemStoreKey],
 	)
 
-	// grant capabilities for the ibc and ibc-transfer modules
-	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
+	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibcExported.ModuleName)
 	scopedIBCTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibcTransferTypes.ModuleName)
 	scopedICAControllerKeeper := app.CapabilityKeeper.ScopeToModule(icaControllerTypes.SubModuleName)
 	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icaHostTypes.SubModuleName)
-	// this line is used by starport scaffolding # stargate/app/scopedKeeper
+
+	// TODO(@john): Seal x/capability keeper.
 
 	// add keepers
-	app.AccountKeeper = authkeeper.NewAccountKeeper(
+	app.AccountKeeper = authKeeper.NewAccountKeeper(
 		appCodec,
-		keys[authtypes.StoreKey],
-		app.GetSubspace(authtypes.ModuleName),
-		authtypes.ProtoBaseAccount,
-		maccPerms,
-		sdk.Bech32PrefixAccAddr,
+		keys[authTypes.StoreKey],
+		authTypes.ProtoBaseAccount,
+		moduleAccountPermissions,
+		sdk.Bech32MainPrefix,
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 	)
 
-	app.AuthzKeeper = authzkeeper.NewKeeper(
+	app.AuthzKeeper = authzKeeper.NewKeeper(
 		keys[authzTypes.ModuleName],
 		appCodec,
 		app.MsgServiceRouter(),
 		app.AccountKeeper,
 	)
 
-	app.BankKeeper = bankkeeper.NewBaseKeeper(
+	app.BankKeeper = bankKeeper.NewBaseKeeper(
 		appCodec,
-		keys[banktypes.StoreKey],
+		keys[bankTypes.StoreKey],
 		app.AccountKeeper,
-		app.GetSubspace(banktypes.ModuleName),
 		app.BlockedModuleAccountAddrs(),
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 	)
 
-	stakingKeeper := stakingkeeper.NewKeeper(
+	app.StakingKeeper = stakingKeeper.NewKeeper(
 		appCodec,
-		keys[stakingtypes.StoreKey],
+		keys[stakingTypes.StoreKey],
 		app.AccountKeeper,
 		app.BankKeeper,
-		app.GetSubspace(stakingtypes.ModuleName),
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 	)
 
-	app.MintKeeper = mintkeeper.NewKeeper(
+	app.MintKeeper = mintKeeper.NewKeeper(
 		appCodec,
-		keys[minttypes.StoreKey],
-		app.GetSubspace(minttypes.ModuleName),
-		&stakingKeeper,
-		&app.StakersKeeper,
+		keys[mintTypes.StoreKey],
+		app.StakingKeeper,
+		&app.StakersKeeper, // TODO(@john)
 		app.AccountKeeper,
 		app.BankKeeper,
-		authtypes.FeeCollectorName,
+		authTypes.FeeCollectorName,
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 	)
 
-	app.DistributionKeeper = distrkeeper.NewKeeper(
+	app.DistributionKeeper = distributionKeeper.NewKeeper(
 		appCodec,
-		keys[distrtypes.StoreKey],
-		app.GetSubspace(distrtypes.ModuleName),
+		keys[distributionTypes.StoreKey],
 		app.AccountKeeper,
 		app.BankKeeper,
-		&stakingKeeper,
-		authtypes.FeeCollectorName,
+		app.StakingKeeper,
+		authTypes.FeeCollectorName,
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 	)
 
-	app.SlashingKeeper = slashingkeeper.NewKeeper(
+	app.SlashingKeeper = slashingKeeper.NewKeeper(
 		appCodec,
-		keys[slashingtypes.StoreKey],
-		&stakingKeeper,
-		app.GetSubspace(slashingtypes.ModuleName),
+		legacyAmino,
+		keys[slashingTypes.StoreKey],
+		app.StakingKeeper,
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 	)
 
-	app.CrisisKeeper = crisiskeeper.NewKeeper(
-		app.GetSubspace(crisistypes.ModuleName),
+	invCheckPeriod := cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod))
+	app.CrisisKeeper = crisisKeeper.NewKeeper(
+		appCodec,
+		keys[crisisTypes.StoreKey],
 		invCheckPeriod,
 		app.BankKeeper,
-		authtypes.FeeCollectorName,
+		authTypes.FeeCollectorName,
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 	)
 
-	groupConfig := groupTypes.DefaultConfig()
-	/*
-		Example of setting group params:
-		groupConfig.MaxMetadataLen = 1000
-	*/
-	app.GroupKeeper = groupkeeper.NewKeeper(
+	app.FeeGrantKeeper = feeGrantKeeper.NewKeeper(
+		appCodec,
+		keys[feeGrantTypes.StoreKey],
+		app.AccountKeeper,
+	)
+
+	app.GroupKeeper = groupKeeper.NewKeeper(
 		keys[groupTypes.StoreKey],
 		appCodec,
 		app.MsgServiceRouter(),
 		app.AccountKeeper,
-		groupConfig,
+		groupTypes.DefaultConfig(),
 	)
 
-	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(
-		appCodec,
-		keys[feegrant.StoreKey],
-		app.AccountKeeper,
-	)
-
-	app.UpgradeKeeper = upgradekeeper.NewKeeper(
+	// get skipUpgradeHeights from the app options
+	skipUpgradeHeights := map[int64]bool{}
+	for _, h := range cast.ToIntSlice(appOpts.Get(server.FlagUnsafeSkipUpgrades)) {
+		skipUpgradeHeights[int64(h)] = true
+	}
+	homePath := cast.ToString(appOpts.Get(flags.FlagHome))
+	// set the governance module account as the authority for conducting upgrades
+	app.UpgradeKeeper = upgradeKeeper.NewKeeper(
 		skipUpgradeHeights,
-		keys[upgradetypes.StoreKey],
+		keys[upgradeTypes.StoreKey],
 		appCodec,
 		homePath,
 		app.BaseApp,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 	)
 
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
-	app.StakingKeeper = *stakingKeeper.SetHooks(
-		stakingtypes.NewMultiStakingHooks(app.DistributionKeeper.Hooks(), app.SlashingKeeper.Hooks()),
+	app.StakingKeeper.SetHooks(
+		stakingTypes.NewMultiStakingHooks(app.DistributionKeeper.Hooks(), app.SlashingKeeper.Hooks()),
 	)
 
 	// ... other modules keepers
-	app.GlobalKeeper = *globalKeeper.NewKeeper(appCodec, keys[globalTypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String())
+	app.GlobalKeeper = *globalKeeper.NewKeeper(appCodec, keys[globalTypes.StoreKey], authTypes.NewModuleAddress(govTypes.ModuleName).String())
 
-	app.TeamKeeper = *teamKeeper.NewKeeper(appCodec, keys[teamTypes.StoreKey], app.AccountKeeper, app.BankKeeper)
+	app.TeamKeeper = *teamKeeper.NewKeeper(appCodec, keys[teamTypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.MintKeeper, *app.UpgradeKeeper)
 
 	app.PoolKeeper = *poolKeeper.NewKeeper(
 		appCodec,
 		keys[poolTypes.StoreKey],
 		memKeys[poolTypes.MemStoreKey],
 
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.DistributionKeeper,
+		app.MintKeeper,
 		app.UpgradeKeeper,
+		app.TeamKeeper,
 	)
 
 	app.StakersKeeper = *stakersKeeper.NewKeeper(
@@ -408,7 +480,7 @@ func NewKYVEApp(
 		keys[stakersTypes.StoreKey],
 		memKeys[stakersTypes.MemStoreKey],
 
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 
 		app.AccountKeeper,
 		app.BankKeeper,
@@ -422,7 +494,7 @@ func NewKYVEApp(
 		keys[delegationTypes.StoreKey],
 		memKeys[delegationTypes.MemStoreKey],
 
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 
 		app.AccountKeeper,
 		app.BankKeeper,
@@ -440,7 +512,7 @@ func NewKYVEApp(
 		keys[bundlesTypes.StoreKey],
 		memKeys[bundlesTypes.MemStoreKey],
 
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 
 		app.AccountKeeper,
 		app.BankKeeper,
@@ -448,20 +520,20 @@ func NewKYVEApp(
 		app.PoolKeeper,
 		app.StakersKeeper,
 		app.DelegationKeeper,
-		app.UpgradeKeeper,
 	)
 
-	// Create IBC Keepers
-	app.IBCKeeper = ibckeeper.NewKeeper(
-		appCodec, keys[ibchost.StoreKey],
-		app.GetSubspace(ibchost.ModuleName),
+	app.IBCKeeper = ibcKeeper.NewKeeper(
+		appCodec,
+		keys[ibcExported.StoreKey],
+		app.GetSubspace(ibcExported.ModuleName),
 		app.StakingKeeper,
 		app.UpgradeKeeper,
 		scopedIBCKeeper,
 	)
 
 	app.IBCFeeKeeper = ibcFeeKeeper.NewKeeper(
-		appCodec, keys[ibcFeeTypes.StoreKey],
+		appCodec,
+		keys[ibcFeeTypes.StoreKey],
 		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
@@ -469,8 +541,9 @@ func NewKYVEApp(
 		app.BankKeeper,
 	)
 
-	app.IBCTransferKeeper = ibctransferkeeper.NewKeeper(
-		appCodec, keys[ibcTransferTypes.StoreKey],
+	app.IBCTransferKeeper = ibcTransferKeeper.NewKeeper(
+		appCodec,
+		keys[ibcTransferTypes.StoreKey],
 		app.GetSubspace(ibcTransferTypes.ModuleName),
 		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.ChannelKeeper,
@@ -481,7 +554,8 @@ func NewKYVEApp(
 	)
 
 	app.ICAControllerKeeper = icaControllerKeeper.NewKeeper(
-		appCodec, keys[icaControllerTypes.StoreKey],
+		appCodec,
+		keys[icaControllerTypes.StoreKey],
 		app.GetSubspace(icaControllerTypes.SubModuleName),
 		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.ChannelKeeper,
@@ -490,8 +564,9 @@ func NewKYVEApp(
 		app.MsgServiceRouter(),
 	)
 
-	app.ICAHostKeeper = icahostkeeper.NewKeeper(
-		appCodec, keys[icaHostTypes.StoreKey],
+	app.ICAHostKeeper = icaHostKeeper.NewKeeper(
+		appCodec,
+		keys[icaHostTypes.StoreKey],
 		app.GetSubspace(icaHostTypes.SubModuleName),
 		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.ChannelKeeper,
@@ -501,36 +576,46 @@ func NewKYVEApp(
 		app.MsgServiceRouter(),
 	)
 
+	app.PFMKeeper = pfmKeeper.NewKeeper(
+		appCodec, keys[pfmTypes.StoreKey],
+		app.GetSubspace(pfmTypes.ModuleName),
+		app.IBCTransferKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		app.DistributionKeeper,
+		app.BankKeeper,
+		app.IBCKeeper.ChannelKeeper,
+	)
+
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
-	evidenceKeeper := evidencekeeper.NewKeeper(
+	app.EvidenceKeeper = evidenceKeeper.NewKeeper(
 		appCodec,
-		keys[evidencetypes.StoreKey],
-		&app.StakingKeeper,
+		keys[evidenceTypes.StoreKey],
+		app.StakingKeeper,
 		app.SlashingKeeper,
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
-	app.EvidenceKeeper = *evidenceKeeper
+	// app.EvidenceKeeper = *evidenceKeeper
 
-	govRouter := govv1beta1.NewRouter()
+	govRouter := v1beta1.NewRouter()
 	govRouter.
-		AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
-		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
-		AddRoute(distrtypes.RouterKey, distribution.NewCommunityPoolSpendProposalHandler(app.DistributionKeeper)).
-		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
-		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
-	govConfig := govtypes.DefaultConfig()
-	app.GovKeeper = govkeeper.NewKeeper(
+		AddRoute(govTypes.RouterKey, v1beta1.ProposalHandler).
+		AddRoute(paramsProposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
+		// AddRoute(distrtypes.RouterKey, distribution.NewCommunityPoolSpendProposalHandler(app.DistributionKeeper)).
+		AddRoute(upgradeTypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
+		AddRoute(ibcClientTypes.RouterKey, ibcClientHandler.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
+	govConfig := govTypes.DefaultConfig()
+	app.GovKeeper = govKeeper.NewKeeper(
 		appCodec,
-		keys[govtypes.StoreKey],
-		app.GetSubspace(govtypes.ModuleName),
+		keys[govTypes.StoreKey],
 		app.AccountKeeper,
 		app.BankKeeper,
-		&stakingKeeper,
-		&app.StakersKeeper,
-		govRouter,
+		app.StakingKeeper,
+		app.StakersKeeper,
 		app.MsgServiceRouter(),
 		govConfig,
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 	)
+	app.GovKeeper.SetLegacyRouter(govRouter)
 
 	app.QueryKeeper = *queryKeeper.NewKeeper(
 		appCodec,
@@ -546,7 +631,7 @@ func NewKYVEApp(
 		app.DelegationKeeper,
 		app.BundlesKeeper,
 		app.GlobalKeeper,
-		app.GovKeeper,
+		*app.GovKeeper,
 		app.TeamKeeper,
 	)
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
@@ -555,6 +640,13 @@ func NewKYVEApp(
 	var ibcTransferStack ibcPortTypes.IBCModule
 	ibcTransferStack = ibcTransfer.NewIBCModule(app.IBCTransferKeeper)
 	ibcTransferStack = ibcFee.NewIBCMiddleware(ibcTransferStack, app.IBCFeeKeeper)
+	ibcTransferStack = pfm.NewIBCMiddleware(
+		ibcTransferStack,
+		app.PFMKeeper,
+		0,
+		pfmKeeper.DefaultForwardTransferPacketTimeoutTimestamp,
+		pfmKeeper.DefaultRefundTransferPacketTimeoutTimestamp,
+	)
 
 	var icaControllerStack ibcPortTypes.IBCModule
 	icaControllerStack = icaController.NewIBCMiddleware(icaControllerStack, app.ICAControllerKeeper)
@@ -581,24 +673,25 @@ func NewKYVEApp(
 
 	app.mm = module.NewManager(
 		// Cosmos SDK
-		auth.NewAppModule(appCodec, app.AccountKeeper, nil),
+		auth.NewAppModule(appCodec, app.AccountKeeper, nil, app.GetSubspace(authTypes.ModuleName)),
 		authz.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
-		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
-		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
-		crisis.NewAppModule(&app.CrisisKeeper, skipGenesisInvariants),
-		distribution.NewAppModule(appCodec, app.DistributionKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
-		evidence.NewAppModule(app.EvidenceKeeper),
+		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper, app.GetSubspace(bankTypes.ModuleName)),
+		capability.NewAppModule(appCodec, *app.CapabilityKeeper, false),
+		consensus.NewAppModule(appCodec, app.ConsensusKeeper),
+		crisis.NewAppModule(app.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisisTypes.ModuleName)),
+		distribution.NewAppModule(appCodec, app.DistributionKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GetSubspace(distributionTypes.ModuleName)),
+		evidence.NewAppModule(*app.EvidenceKeeper),
 		feeGrant.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
 		genutil.NewAppModule(
 			app.AccountKeeper, app.StakingKeeper, app.BaseApp.DeliverTx,
 			encodingConfig.TxConfig,
 		),
-		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
+		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(govTypes.ModuleName)),
 		group.NewAppModule(appCodec, app.GroupKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
-		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper, minttypes.DefaultInflationCalculationFn),
+		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper, mintTypes.DefaultInflationCalculationFn, app.GetSubspace(mintTypes.ModuleName)),
 		params.NewAppModule(app.ParamsKeeper),
-		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
-		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GetSubspace(slashingTypes.ModuleName)),
+		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingTypes.ModuleName)),
 		upgrade.NewAppModule(app.UpgradeKeeper),
 		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper),
 
@@ -609,13 +702,13 @@ func NewKYVEApp(
 		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 
 		// KYVE
-		bundles.NewAppModule(appCodec, app.BundlesKeeper, app.AccountKeeper, app.BankKeeper),
+		bundles.NewAppModule(appCodec, app.BundlesKeeper, app.AccountKeeper, app.BankKeeper, app.DistributionKeeper, app.MintKeeper, *app.UpgradeKeeper, app.PoolKeeper, app.TeamKeeper),
 		delegation.NewAppModule(appCodec, app.DelegationKeeper, app.AccountKeeper, app.BankKeeper),
-		global.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.GlobalKeeper, app.UpgradeKeeper),
-		pool.NewAppModule(appCodec, app.PoolKeeper, app.AccountKeeper, app.BankKeeper),
+		global.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.GlobalKeeper, *app.UpgradeKeeper),
+		pool.NewAppModule(appCodec, app.PoolKeeper, app.AccountKeeper, app.BankKeeper, *app.UpgradeKeeper),
 		query.NewAppModule(appCodec, app.QueryKeeper, app.AccountKeeper, app.BankKeeper),
 		stakers.NewAppModule(appCodec, app.StakersKeeper, app.AccountKeeper, app.BankKeeper),
-		team.NewAppModule(appCodec, app.BankKeeper, app.MintKeeper, app.TeamKeeper, app.UpgradeKeeper),
+		team.NewAppModule(appCodec, app.BankKeeper, app.MintKeeper, app.TeamKeeper, *app.UpgradeKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -624,61 +717,64 @@ func NewKYVEApp(
 	// NOTE: staking module is required if HistoricalEntries param > 0
 	app.mm.SetOrderBeginBlockers(
 		// upgrades should be run first
-		upgradetypes.ModuleName,
-		capabilitytypes.ModuleName,
-		minttypes.ModuleName,
+		upgradeTypes.ModuleName,
+		capabilityTypes.ModuleName,
+		mintTypes.ModuleName,
 		// NOTE: x/team must be run before x/distribution and after x/mint.
 		teamTypes.ModuleName,
-		distrtypes.ModuleName,
-		slashingtypes.ModuleName,
-		evidencetypes.ModuleName,
-		stakingtypes.ModuleName,
-		authtypes.ModuleName,
-		banktypes.ModuleName,
-		govtypes.ModuleName,
-		crisistypes.ModuleName,
+		// NOTE: x/bundles must be run before x/distribution and after x/team.
+		bundlesTypes.ModuleName,
+		distributionTypes.ModuleName,
+		slashingTypes.ModuleName,
+		evidenceTypes.ModuleName,
+		stakingTypes.ModuleName,
+		authTypes.ModuleName,
+		bankTypes.ModuleName,
+		govTypes.ModuleName,
+		crisisTypes.ModuleName,
 		ibcFeeTypes.ModuleName,
 		ibcTransferTypes.ModuleName,
-		ibchost.ModuleName,
-		icatypes.ModuleName,
-		genutiltypes.ModuleName,
+		ibcExported.ModuleName,
+		icaTypes.ModuleName,
+		genUtilTypes.ModuleName,
 		authzTypes.ModuleName,
-		feegrant.ModuleName,
+		feeGrantTypes.ModuleName,
 		groupTypes.ModuleName,
-		paramstypes.ModuleName,
-		vestingtypes.ModuleName,
+		paramsTypes.ModuleName,
+		vestingTypes.ModuleName,
+		consensusTypes.ModuleName,
 
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 		poolTypes.ModuleName,
 		stakersTypes.ModuleName,
 		delegationTypes.ModuleName,
-		bundlesTypes.ModuleName,
 		queryTypes.ModuleName,
 		globalTypes.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
-		crisistypes.ModuleName,
-		govtypes.ModuleName,
-		stakingtypes.ModuleName,
+		crisisTypes.ModuleName,
+		govTypes.ModuleName,
+		stakingTypes.ModuleName,
 		ibcFeeTypes.ModuleName,
 		ibcTransferTypes.ModuleName,
-		ibchost.ModuleName,
-		icatypes.ModuleName,
-		capabilitytypes.ModuleName,
-		authtypes.ModuleName,
-		banktypes.ModuleName,
-		distrtypes.ModuleName,
-		slashingtypes.ModuleName,
-		minttypes.ModuleName,
-		genutiltypes.ModuleName,
-		evidencetypes.ModuleName,
+		ibcExported.ModuleName,
+		icaTypes.ModuleName,
+		capabilityTypes.ModuleName,
+		authTypes.ModuleName,
+		bankTypes.ModuleName,
+		distributionTypes.ModuleName,
+		slashingTypes.ModuleName,
+		mintTypes.ModuleName,
+		genUtilTypes.ModuleName,
+		evidenceTypes.ModuleName,
 		authzTypes.ModuleName,
-		feegrant.ModuleName,
+		feeGrantTypes.ModuleName,
 		groupTypes.ModuleName,
-		paramstypes.ModuleName,
-		upgradetypes.ModuleName,
-		vestingtypes.ModuleName,
+		paramsTypes.ModuleName,
+		upgradeTypes.ModuleName,
+		vestingTypes.ModuleName,
+		consensusTypes.ModuleName,
 
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 		poolTypes.ModuleName,
@@ -696,27 +792,28 @@ func NewKYVEApp(
 	// so that other modules that want to create or claim capabilities afterwards in InitChain
 	// can do so safely.
 	app.mm.SetOrderInitGenesis(
-		capabilitytypes.ModuleName,
-		authtypes.ModuleName,
-		banktypes.ModuleName,
-		distrtypes.ModuleName,
-		stakingtypes.ModuleName,
-		slashingtypes.ModuleName,
-		govtypes.ModuleName,
-		minttypes.ModuleName,
-		crisistypes.ModuleName,
-		genutiltypes.ModuleName,
+		capabilityTypes.ModuleName,
+		authTypes.ModuleName,
+		bankTypes.ModuleName,
+		distributionTypes.ModuleName,
+		stakingTypes.ModuleName,
+		slashingTypes.ModuleName,
+		govTypes.ModuleName,
+		mintTypes.ModuleName,
+		crisisTypes.ModuleName,
+		genUtilTypes.ModuleName,
 		ibcFeeTypes.ModuleName,
 		ibcTransferTypes.ModuleName,
-		ibchost.ModuleName,
-		icatypes.ModuleName,
-		evidencetypes.ModuleName,
+		ibcExported.ModuleName,
+		icaTypes.ModuleName,
+		evidenceTypes.ModuleName,
 		authzTypes.ModuleName,
-		feegrant.ModuleName,
+		feeGrantTypes.ModuleName,
 		groupTypes.ModuleName,
-		paramstypes.ModuleName,
-		upgradetypes.ModuleName,
-		vestingtypes.ModuleName,
+		paramsTypes.ModuleName,
+		upgradeTypes.ModuleName,
+		vestingTypes.ModuleName,
+		consensusTypes.ModuleName,
 
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 		poolTypes.ModuleName,
@@ -731,9 +828,7 @@ func NewKYVEApp(
 	// Uncomment if you want to set a custom migration order here.
 	// app.mm.SetOrderMigrations(custom order)
 
-	app.mm.RegisterInvariants(&app.CrisisKeeper)
-	app.mm.RegisterRoutes(app.Router(), app.QueryRouter(), encodingConfig.Amino)
-
+	app.mm.RegisterInvariants(app.CrisisKeeper)
 	app.configurator = module.NewConfigurator(app.appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
 	app.mm.RegisterServices(app.configurator)
 
@@ -750,9 +845,8 @@ func NewKYVEApp(
 		app.BankKeeper,
 		app.FeeGrantKeeper,
 		app.GlobalKeeper,
-		app.GovKeeper,
 		app.IBCKeeper,
-		app.StakingKeeper,
+		*app.StakingKeeper,
 		ante.DefaultSigVerificationGasConsumer,
 		encodingConfig.TxConfig.SignModeHandler(),
 	)
@@ -776,15 +870,16 @@ func NewKYVEApp(
 	app.SetEndBlocker(app.EndBlocker)
 
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v1rc1.UpgradeName,
-		v1rc1.CreateUpgradeHandler(
+		v1p4.UpgradeName,
+		v1p4.CreateUpgradeHandler(
 			app.mm,
 			app.configurator,
-			app.BundlesKeeper,
-			app.appCodec,
-			app.keys[capabilitytypes.ModuleName],
-			app.CapabilityKeeper,
-			"",
+			appCodec,
+			app.ConsensusKeeper,
+			app.GlobalKeeper,
+			*app.GovKeeper,
+			*app.IBCKeeper,
+			app.ParamsKeeper,
 		),
 	)
 
@@ -793,13 +888,13 @@ func NewKYVEApp(
 		panic(err)
 	}
 
-	if upgradeInfo.Name == v1rc1.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
-		app.SetStoreLoader(v1rc1.CreateStoreLoader(upgradeInfo.Height))
+	if upgradeInfo.Name == v1p4.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		app.SetStoreLoader(v1p4.CreateStoreLoader(upgradeInfo.Height))
 	}
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
-			tmos.Exit(err.Error())
+			cmtOs.Exit(err.Error())
 		}
 	}
 
@@ -814,9 +909,6 @@ func NewKYVEApp(
 // Name returns the name of the App
 func (app *App) Name() string { return app.BaseApp.Name() }
 
-// GetBaseApp returns the base app of the application
-func (app App) GetBaseApp() *baseapp.BaseApp { return app.BaseApp }
-
 // BeginBlocker application updates every begin block
 func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
@@ -827,10 +919,14 @@ func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.Respo
 	return app.mm.EndBlock(ctx, req)
 }
 
+func (app *App) Configurator() module.Configurator {
+	return app.configurator
+}
+
 // InitChainer application update at chain initialization
 func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState GenesisState
-	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
+	if err := json.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
@@ -847,7 +943,7 @@ func (app *App) LoadHeight(height int64) error {
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
 func (app *App) LegacyAmino() *codec.LegacyAmino {
-	return app.cdc
+	return app.legacyAmino
 }
 
 // AppCodec returns an app codec.
@@ -863,55 +959,70 @@ func (app *App) InterfaceRegistry() types.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
+// TxConfig returns a TxConfig
+func (app *App) TxConfig() client.TxConfig {
+	return app.txConfig
+}
+
+// DefaultGenesis returns a default genesis from the registered AppModuleBasic's.
+func (app *App) DefaultGenesis() map[string]json.RawMessage {
+	return ModuleBasics.DefaultGenesis(app.appCodec)
+}
+
 // GetKey returns the KVStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey {
+func (app *App) GetKey(storeKey string) *storeTypes.KVStoreKey {
 	return app.keys[storeKey]
 }
 
 // GetTKey returns the TransientStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *App) GetTKey(storeKey string) *storetypes.TransientStoreKey {
+func (app *App) GetTKey(storeKey string) *storeTypes.TransientStoreKey {
 	return app.tkeys[storeKey]
 }
 
 // GetMemKey returns the MemStoreKey for the provided mem key.
 //
 // NOTE: This is solely used for testing purposes.
-func (app *App) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
+func (app *App) GetMemKey(storeKey string) *storeTypes.MemoryStoreKey {
 	return app.memKeys[storeKey]
 }
 
 // GetSubspace returns a param subspace for a given module name.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *App) GetSubspace(moduleName string) paramstypes.Subspace {
+func (app *App) GetSubspace(moduleName string) paramsTypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
-func (app *App) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
+func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
 	// Register new tx routes from grpc-gateway.
-	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+	authTx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+
 	// Register new tendermint queries routes from grpc-gateway.
 	tmservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+
+	// Register node gRPC service for grpc-gateway.
+	node.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// Register grpc-gateway routes for all modules.
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
-	// register swagger API
-	apiSvr.Router.Handle("/swagger.yml", http.FileServer(http.FS(kyveDocs.Swagger)))
-	apiSvr.Router.HandleFunc("/", kyveDocs.Handler(Name, "/swagger.yml"))
+	// register swagger API from root so that other applications can override easily
+	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
+		panic(err)
+	}
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.
 func (app *App) RegisterTxService(clientCtx client.Context) {
-	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
+	authTx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
 }
 
 // RegisterTendermintService implements the Application.RegisterTendermintService method.
@@ -922,6 +1033,10 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 		app.interfaceRegistry,
 		app.Query,
 	)
+}
+
+func (app *App) RegisterNodeService(clientCtx client.Context) {
+	node.RegisterNodeService(clientCtx, app.GRPCQueryRouter())
 }
 
 // SimulationManager implements the SimulationApp interface.

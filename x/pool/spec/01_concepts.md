@@ -26,3 +26,9 @@ stakeholders of the data that is being archived and therefore have a strong inte
 in further archiving the data. Once a valid bundle is produced and the reward is paid
 out the pool module takes care of correctly deducting the funds equally from each funder
 in order to guarantee a steady pool economy.
+
+## Inflation Splitting
+
+In order to support funders inflation splitting was introduced where a part of the block inflation
+goes to the protocol and is paid out with the funds from the funders. This relieves the burden of the
+funders to keep a pool alive and allows a pool to even run without any funds.

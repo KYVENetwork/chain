@@ -4,11 +4,13 @@ import (
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 )
 
-const TypeMsgSkipUploaderRole = "skip_uploader_role"
-
-var _ sdk.Msg = &MsgSkipUploaderRole{}
+var (
+	_ legacytx.LegacyMsg = &MsgSkipUploaderRole{}
+	_ sdk.Msg            = &MsgSkipUploaderRole{}
+)
 
 func NewMsgSkipUploaderRole(creator string, staker string, poolId uint64, fromIndex uint64) *MsgSkipUploaderRole {
 	return &MsgSkipUploaderRole{
@@ -19,12 +21,9 @@ func NewMsgSkipUploaderRole(creator string, staker string, poolId uint64, fromIn
 	}
 }
 
-func (msg *MsgSkipUploaderRole) Route() string {
-	return RouterKey
-}
-
-func (msg *MsgSkipUploaderRole) Type() string {
-	return TypeMsgSkipUploaderRole
+func (msg *MsgSkipUploaderRole) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
 }
 
 func (msg *MsgSkipUploaderRole) GetSigners() []sdk.AccAddress {
@@ -32,12 +31,16 @@ func (msg *MsgSkipUploaderRole) GetSigners() []sdk.AccAddress {
 	if err != nil {
 		panic(err)
 	}
+
 	return []sdk.AccAddress{creator}
 }
 
-func (msg *MsgSkipUploaderRole) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
-	return sdk.MustSortJSON(bz)
+func (msg *MsgSkipUploaderRole) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgSkipUploaderRole) Type() string {
+	return "kyve/bundles/MsgSkipUploaderRole"
 }
 
 func (msg *MsgSkipUploaderRole) ValidateBasic() error {

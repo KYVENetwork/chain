@@ -7,8 +7,10 @@ import (
 	context "context"
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-proto"
-	grpc1 "github.com/gogo/protobuf/grpc"
-	proto "github.com/gogo/protobuf/proto"
+	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	grpc1 "github.com/cosmos/gogoproto/grpc"
+	proto "github.com/cosmos/gogoproto/proto"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -28,12 +30,15 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MsgStakePool defines a SDK message for staking in a pool.
+// MsgCreateStaker defines a SDK message for creating a staker.
 type MsgCreateStaker struct {
-	// creator ...
+	// creator is the address of the staker.
 	Creator string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
-	// amount ...
+	// amount is the initial self-stake of the staker.
 	Amount uint64 `protobuf:"varint,2,opt,name=amount,proto3" json:"amount,omitempty"`
+	// commission is the percentage that is deducted from rewards before
+	// distributing the staker's delegators.
+	Commission github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,3,opt,name=commission,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"commission"`
 }
 
 func (m *MsgCreateStaker) Reset()         { *m = MsgCreateStaker{} }
@@ -128,8 +133,12 @@ type MsgUpdateMetadata struct {
 	Moniker string `protobuf:"bytes,2,opt,name=moniker,proto3" json:"moniker,omitempty"`
 	// website ...
 	Website string `protobuf:"bytes,3,opt,name=website,proto3" json:"website,omitempty"`
-	// logo
-	Logo string `protobuf:"bytes,4,opt,name=logo,proto3" json:"logo,omitempty"`
+	// identity from keybase.io
+	Identity string `protobuf:"bytes,4,opt,name=identity,proto3" json:"identity,omitempty"`
+	// security_contact ...
+	SecurityContact string `protobuf:"bytes,5,opt,name=security_contact,json=securityContact,proto3" json:"security_contact,omitempty"`
+	// details ...
+	Details string `protobuf:"bytes,6,opt,name=details,proto3" json:"details,omitempty"`
 }
 
 func (m *MsgUpdateMetadata) Reset()         { *m = MsgUpdateMetadata{} }
@@ -186,9 +195,23 @@ func (m *MsgUpdateMetadata) GetWebsite() string {
 	return ""
 }
 
-func (m *MsgUpdateMetadata) GetLogo() string {
+func (m *MsgUpdateMetadata) GetIdentity() string {
 	if m != nil {
-		return m.Logo
+		return m.Identity
+	}
+	return ""
+}
+
+func (m *MsgUpdateMetadata) GetSecurityContact() string {
+	if m != nil {
+		return m.SecurityContact
+	}
+	return ""
+}
+
+func (m *MsgUpdateMetadata) GetDetails() string {
+	if m != nil {
+		return m.Details
 	}
 	return ""
 }
@@ -235,7 +258,7 @@ type MsgUpdateCommission struct {
 	// creator ...
 	Creator string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
 	// commission ...
-	Commission string `protobuf:"bytes,2,opt,name=commission,proto3" json:"commission,omitempty"`
+	Commission github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=commission,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"commission"`
 }
 
 func (m *MsgUpdateCommission) Reset()         { *m = MsgUpdateCommission{} }
@@ -278,13 +301,6 @@ func (m *MsgUpdateCommission) GetCreator() string {
 	return ""
 }
 
-func (m *MsgUpdateCommission) GetCommission() string {
-	if m != nil {
-		return m.Commission
-	}
-	return ""
-}
-
 // MsgUpdateCommissionResponse ...
 type MsgUpdateCommissionResponse struct {
 }
@@ -322,6 +338,98 @@ func (m *MsgUpdateCommissionResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgUpdateCommissionResponse proto.InternalMessageInfo
 
+// MsgClaimCommissionRewards ...
+type MsgClaimCommissionRewards struct {
+	// creator ...
+	Creator string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
+	// amount ...
+	Amount uint64 `protobuf:"varint,2,opt,name=amount,proto3" json:"amount,omitempty"`
+}
+
+func (m *MsgClaimCommissionRewards) Reset()         { *m = MsgClaimCommissionRewards{} }
+func (m *MsgClaimCommissionRewards) String() string { return proto.CompactTextString(m) }
+func (*MsgClaimCommissionRewards) ProtoMessage()    {}
+func (*MsgClaimCommissionRewards) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f52b730e69b9fb06, []int{6}
+}
+func (m *MsgClaimCommissionRewards) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgClaimCommissionRewards) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgClaimCommissionRewards.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgClaimCommissionRewards) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgClaimCommissionRewards.Merge(m, src)
+}
+func (m *MsgClaimCommissionRewards) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgClaimCommissionRewards) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgClaimCommissionRewards.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgClaimCommissionRewards proto.InternalMessageInfo
+
+func (m *MsgClaimCommissionRewards) GetCreator() string {
+	if m != nil {
+		return m.Creator
+	}
+	return ""
+}
+
+func (m *MsgClaimCommissionRewards) GetAmount() uint64 {
+	if m != nil {
+		return m.Amount
+	}
+	return 0
+}
+
+// MsgClaimCommissionRewardsResponse ...
+type MsgClaimCommissionRewardsResponse struct {
+}
+
+func (m *MsgClaimCommissionRewardsResponse) Reset()         { *m = MsgClaimCommissionRewardsResponse{} }
+func (m *MsgClaimCommissionRewardsResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgClaimCommissionRewardsResponse) ProtoMessage()    {}
+func (*MsgClaimCommissionRewardsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f52b730e69b9fb06, []int{7}
+}
+func (m *MsgClaimCommissionRewardsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgClaimCommissionRewardsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgClaimCommissionRewardsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgClaimCommissionRewardsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgClaimCommissionRewardsResponse.Merge(m, src)
+}
+func (m *MsgClaimCommissionRewardsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgClaimCommissionRewardsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgClaimCommissionRewardsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgClaimCommissionRewardsResponse proto.InternalMessageInfo
+
 // MsgJoinPool ...
 type MsgJoinPool struct {
 	// creator ...
@@ -338,7 +446,7 @@ func (m *MsgJoinPool) Reset()         { *m = MsgJoinPool{} }
 func (m *MsgJoinPool) String() string { return proto.CompactTextString(m) }
 func (*MsgJoinPool) ProtoMessage()    {}
 func (*MsgJoinPool) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f52b730e69b9fb06, []int{6}
+	return fileDescriptor_f52b730e69b9fb06, []int{8}
 }
 func (m *MsgJoinPool) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -403,7 +511,7 @@ func (m *MsgJoinPoolResponse) Reset()         { *m = MsgJoinPoolResponse{} }
 func (m *MsgJoinPoolResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgJoinPoolResponse) ProtoMessage()    {}
 func (*MsgJoinPoolResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f52b730e69b9fb06, []int{7}
+	return fileDescriptor_f52b730e69b9fb06, []int{9}
 }
 func (m *MsgJoinPoolResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -444,7 +552,7 @@ func (m *MsgLeavePool) Reset()         { *m = MsgLeavePool{} }
 func (m *MsgLeavePool) String() string { return proto.CompactTextString(m) }
 func (*MsgLeavePool) ProtoMessage()    {}
 func (*MsgLeavePool) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f52b730e69b9fb06, []int{8}
+	return fileDescriptor_f52b730e69b9fb06, []int{10}
 }
 func (m *MsgLeavePool) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -495,7 +603,7 @@ func (m *MsgLeavePoolResponse) Reset()         { *m = MsgLeavePoolResponse{} }
 func (m *MsgLeavePoolResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgLeavePoolResponse) ProtoMessage()    {}
 func (*MsgLeavePoolResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f52b730e69b9fb06, []int{9}
+	return fileDescriptor_f52b730e69b9fb06, []int{11}
 }
 func (m *MsgLeavePoolResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -536,7 +644,7 @@ func (m *MsgUpdateParams) Reset()         { *m = MsgUpdateParams{} }
 func (m *MsgUpdateParams) String() string { return proto.CompactTextString(m) }
 func (*MsgUpdateParams) ProtoMessage()    {}
 func (*MsgUpdateParams) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f52b730e69b9fb06, []int{10}
+	return fileDescriptor_f52b730e69b9fb06, []int{12}
 }
 func (m *MsgUpdateParams) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -587,7 +695,7 @@ func (m *MsgUpdateParamsResponse) Reset()         { *m = MsgUpdateParamsResponse
 func (m *MsgUpdateParamsResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgUpdateParamsResponse) ProtoMessage()    {}
 func (*MsgUpdateParamsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f52b730e69b9fb06, []int{11}
+	return fileDescriptor_f52b730e69b9fb06, []int{13}
 }
 func (m *MsgUpdateParamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -623,6 +731,8 @@ func init() {
 	proto.RegisterType((*MsgUpdateMetadataResponse)(nil), "kyve.stakers.v1beta1.MsgUpdateMetadataResponse")
 	proto.RegisterType((*MsgUpdateCommission)(nil), "kyve.stakers.v1beta1.MsgUpdateCommission")
 	proto.RegisterType((*MsgUpdateCommissionResponse)(nil), "kyve.stakers.v1beta1.MsgUpdateCommissionResponse")
+	proto.RegisterType((*MsgClaimCommissionRewards)(nil), "kyve.stakers.v1beta1.MsgClaimCommissionRewards")
+	proto.RegisterType((*MsgClaimCommissionRewardsResponse)(nil), "kyve.stakers.v1beta1.MsgClaimCommissionRewardsResponse")
 	proto.RegisterType((*MsgJoinPool)(nil), "kyve.stakers.v1beta1.MsgJoinPool")
 	proto.RegisterType((*MsgJoinPoolResponse)(nil), "kyve.stakers.v1beta1.MsgJoinPoolResponse")
 	proto.RegisterType((*MsgLeavePool)(nil), "kyve.stakers.v1beta1.MsgLeavePool")
@@ -634,43 +744,52 @@ func init() {
 func init() { proto.RegisterFile("kyve/stakers/v1beta1/tx.proto", fileDescriptor_f52b730e69b9fb06) }
 
 var fileDescriptor_f52b730e69b9fb06 = []byte{
-	// 568 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x54, 0xcb, 0x6e, 0xd3, 0x40,
-	0x14, 0xad, 0x69, 0xd4, 0x90, 0x4b, 0xc4, 0xc3, 0x84, 0xd6, 0x71, 0x55, 0xab, 0x58, 0xaa, 0x68,
-	0x11, 0xb5, 0x15, 0x90, 0xd8, 0xb7, 0x11, 0x48, 0x3c, 0x0c, 0x55, 0x2a, 0x10, 0x8f, 0x45, 0x35,
-	0xb1, 0x47, 0x8e, 0x49, 0xec, 0x6b, 0x79, 0x26, 0x69, 0xf2, 0x17, 0x7c, 0x0c, 0x1f, 0xc1, 0xb2,
-	0x62, 0xc5, 0x12, 0x25, 0x12, 0xdf, 0x81, 0xfc, 0x9a, 0x3c, 0x9a, 0x97, 0xd8, 0xe5, 0xcc, 0x3d,
-	0xf7, 0x9c, 0x7b, 0x3d, 0x27, 0x03, 0x7b, 0xed, 0x41, 0x8f, 0x9a, 0x8c, 0x93, 0x36, 0x8d, 0x98,
-	0xd9, 0xab, 0x35, 0x29, 0x27, 0x35, 0x93, 0xf7, 0x8d, 0x30, 0x42, 0x8e, 0x72, 0x25, 0x2e, 0x1b,
-	0x59, 0xd9, 0xc8, 0xca, 0x6a, 0xd5, 0x46, 0xe6, 0x23, 0xbb, 0x48, 0x38, 0x66, 0x0a, 0xd2, 0x06,
-	0xbd, 0x0e, 0x77, 0x2c, 0xe6, 0xd6, 0x23, 0x4a, 0x38, 0x3d, 0x4f, 0xda, 0x64, 0x05, 0x8a, 0x76,
-	0x8c, 0x31, 0x52, 0xa4, 0x7d, 0xe9, 0xb0, 0xd4, 0xc8, 0xa1, 0xbc, 0x0d, 0x5b, 0xc4, 0xc7, 0x6e,
-	0xc0, 0x95, 0x1b, 0xfb, 0xd2, 0x61, 0xa1, 0x91, 0x21, 0xbd, 0x0a, 0x3b, 0x33, 0x22, 0x0d, 0xca,
-	0x42, 0x0c, 0x18, 0xd5, 0xbb, 0x70, 0xcf, 0x62, 0xee, 0x87, 0xd0, 0x21, 0x9c, 0x5a, 0x94, 0x13,
-	0x87, 0x70, 0xb2, 0xc4, 0x41, 0x81, 0xa2, 0x8f, 0x81, 0xd7, 0xa6, 0x51, 0x62, 0x51, 0x6a, 0xe4,
-	0x30, 0xae, 0x5c, 0xd2, 0x26, 0xf3, 0x38, 0x55, 0x36, 0xd3, 0x4a, 0x06, 0x65, 0x19, 0x0a, 0x1d,
-	0x74, 0x51, 0x29, 0x24, 0xc7, 0xc9, 0x6f, 0x7d, 0x17, 0xaa, 0xd7, 0x6c, 0xc5, 0x4c, 0xef, 0xe1,
-	0xbe, 0x28, 0xd6, 0xd1, 0xf7, 0x3d, 0xc6, 0x3c, 0x0c, 0x96, 0x4c, 0xa5, 0x01, 0xd8, 0x82, 0x97,
-	0x0d, 0x36, 0x71, 0xa2, 0xef, 0xc1, 0xee, 0x1c, 0x41, 0xe1, 0xd7, 0x87, 0x5b, 0x16, 0x73, 0x5f,
-	0xa3, 0x17, 0x9c, 0x21, 0x76, 0x96, 0xf8, 0xec, 0x40, 0x31, 0x44, 0xec, 0x5c, 0x78, 0x4e, 0xfe,
-	0x81, 0x63, 0xf8, 0xca, 0x89, 0x07, 0xe8, 0x91, 0x0e, 0x71, 0x9c, 0x88, 0x32, 0x96, 0xed, 0x3f,
-	0x71, 0x32, 0x71, 0x31, 0x85, 0xa9, 0x8b, 0x79, 0x90, 0x6c, 0x9a, 0x3b, 0x8b, 0x81, 0x4e, 0xa0,
-	0x6c, 0x31, 0xf7, 0x2d, 0x25, 0x3d, 0xfa, 0x9f, 0x13, 0xe9, 0xdb, 0x50, 0x99, 0x94, 0x10, 0xd2,
-	0x76, 0x92, 0xa7, 0xf4, 0x53, 0x9c, 0x91, 0x88, 0xf8, 0x4c, 0x7e, 0x0e, 0x25, 0xd2, 0xe5, 0x2d,
-	0x8c, 0x3c, 0x3e, 0x48, 0xf5, 0x4f, 0x95, 0x5f, 0x3f, 0x8e, 0x2b, 0x59, 0x0e, 0x4f, 0xd2, 0x1d,
-	0xce, 0x79, 0xe4, 0x05, 0x6e, 0x63, 0x4c, 0x8d, 0xa7, 0x0a, 0xc9, 0xa0, 0x83, 0xc4, 0xc9, 0xb3,
-	0x90, 0xc1, 0x2c, 0x6f, 0x93, 0x26, 0xb9, 0xff, 0xd3, 0xbf, 0x05, 0xd8, 0xb4, 0x98, 0x2b, 0x3b,
-	0x50, 0x9e, 0x0a, 0xf5, 0x81, 0x31, 0xef, 0x9f, 0x61, 0xcc, 0xc4, 0x56, 0x3d, 0x5e, 0x8b, 0x96,
-	0xbb, 0xc9, 0xdf, 0xe0, 0xf6, 0x4c, 0xb4, 0x1f, 0x2d, 0x14, 0x98, 0x26, 0xaa, 0xe6, 0x9a, 0x44,
-	0xe1, 0x15, 0xc2, 0xdd, 0x6b, 0x91, 0x3d, 0x5a, 0x21, 0x32, 0xa6, 0xaa, 0xb5, 0xb5, 0xa9, 0xc2,
-	0xf1, 0x13, 0xdc, 0x14, 0xa1, 0x7d, 0xb8, 0xb0, 0x3d, 0xa7, 0xa8, 0x47, 0x2b, 0x29, 0x42, 0xf9,
-	0x2b, 0x94, 0xc6, 0xe9, 0xd3, 0x17, 0xf6, 0x09, 0x8e, 0xfa, 0x78, 0x35, 0x47, 0x88, 0x3b, 0x50,
-	0x9e, 0xca, 0xdf, 0xc1, 0x8a, 0xcd, 0x53, 0xda, 0x92, 0xab, 0x9f, 0x17, 0xb4, 0xd3, 0x97, 0x3f,
-	0x87, 0x9a, 0x74, 0x35, 0xd4, 0xa4, 0x3f, 0x43, 0x4d, 0xfa, 0x3e, 0xd2, 0x36, 0xae, 0x46, 0xda,
-	0xc6, 0xef, 0x91, 0xb6, 0xf1, 0xe5, 0x89, 0xeb, 0xf1, 0x56, 0xb7, 0x69, 0xd8, 0xe8, 0x9b, 0x6f,
-	0x3e, 0x7f, 0x7c, 0xf1, 0x8e, 0xf2, 0x4b, 0x8c, 0xda, 0xa6, 0xdd, 0x22, 0x5e, 0x60, 0xf6, 0xc5,
-	0xe3, 0xcd, 0x07, 0x21, 0x65, 0xcd, 0xad, 0xe4, 0x1d, 0x7e, 0xf6, 0x2f, 0x00, 0x00, 0xff, 0xff,
-	0x89, 0xab, 0x3b, 0x78, 0xd9, 0x05, 0x00, 0x00,
+	// 705 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x55, 0x5b, 0x4f, 0xd4, 0x4c,
+	0x18, 0xde, 0x72, 0xde, 0xf7, 0x23, 0x1f, 0x7c, 0xfd, 0x56, 0x28, 0x25, 0x14, 0xa8, 0x41, 0xc1,
+	0x48, 0x1b, 0x34, 0xd1, 0x6b, 0x58, 0x35, 0xf1, 0x50, 0x42, 0x4a, 0x34, 0x1e, 0x2e, 0xc8, 0x6c,
+	0x3b, 0x29, 0xe3, 0x6e, 0x3b, 0x4d, 0x67, 0x76, 0x61, 0xaf, 0x4c, 0xfc, 0x05, 0x26, 0xfe, 0x15,
+	0x7f, 0x81, 0x57, 0x5c, 0x12, 0xaf, 0x8c, 0x17, 0xc4, 0xc0, 0xa5, 0x7f, 0xc2, 0xf4, 0x34, 0x74,
+	0x61, 0x0f, 0xa0, 0x57, 0xbb, 0xef, 0xbc, 0xcf, 0x3c, 0xcf, 0x33, 0xd3, 0x79, 0x66, 0x60, 0xa1,
+	0xde, 0x6e, 0x61, 0x93, 0x71, 0x54, 0xc7, 0x11, 0x33, 0x5b, 0x1b, 0x35, 0xcc, 0xd1, 0x86, 0xc9,
+	0x0f, 0x8d, 0x30, 0xa2, 0x9c, 0xca, 0x95, 0xb8, 0x6d, 0x64, 0x6d, 0x23, 0x6b, 0xab, 0x73, 0x0e,
+	0x65, 0x3e, 0x65, 0x7b, 0x09, 0xc6, 0x4c, 0x8b, 0x74, 0x82, 0x5a, 0xf1, 0xa8, 0x47, 0xd3, 0xf1,
+	0xf8, 0x5f, 0x3a, 0xaa, 0x7f, 0x96, 0x60, 0xca, 0x62, 0x5e, 0x35, 0xc2, 0x88, 0xe3, 0xdd, 0x84,
+	0x4d, 0x56, 0x60, 0xdc, 0x89, 0x6b, 0x1a, 0x29, 0xd2, 0x92, 0xb4, 0x5a, 0xb6, 0xf3, 0x52, 0x9e,
+	0x81, 0x31, 0xe4, 0xd3, 0x66, 0xc0, 0x95, 0xa1, 0x25, 0x69, 0x75, 0xc4, 0xce, 0x2a, 0x79, 0x1b,
+	0xc0, 0xa1, 0xbe, 0x4f, 0x18, 0x23, 0x34, 0x50, 0x86, 0xe3, 0x49, 0x5b, 0xc6, 0xd1, 0xc9, 0x62,
+	0xe9, 0xc7, 0xc9, 0xe2, 0x2d, 0x8f, 0xf0, 0xfd, 0x66, 0xcd, 0x70, 0xa8, 0x9f, 0x19, 0xca, 0x7e,
+	0xd6, 0x99, 0x5b, 0x37, 0x79, 0x3b, 0xc4, 0xcc, 0x78, 0x84, 0x1d, 0xbb, 0xc0, 0xa0, 0xcf, 0xc1,
+	0xec, 0x05, 0x53, 0x36, 0x66, 0x21, 0x0d, 0x18, 0xd6, 0xbf, 0x4a, 0xf0, 0x9f, 0xc5, 0xbc, 0x97,
+	0xa1, 0x8b, 0x38, 0xb6, 0x30, 0x47, 0x2e, 0xe2, 0xa8, 0x8f, 0x65, 0x05, 0xc6, 0x7d, 0x1a, 0x90,
+	0x3a, 0x8e, 0x12, 0xcf, 0x65, 0x3b, 0x2f, 0xe3, 0xce, 0x01, 0xae, 0x31, 0xc2, 0x71, 0xea, 0xd8,
+	0xce, 0x4b, 0x59, 0x85, 0x09, 0xe2, 0xe2, 0x80, 0x13, 0xde, 0x56, 0x46, 0x92, 0x96, 0xa8, 0xe5,
+	0x35, 0x98, 0x66, 0xd8, 0x69, 0x46, 0x84, 0xb7, 0xf7, 0x1c, 0x1a, 0x70, 0xe4, 0x70, 0x65, 0x34,
+	0xc1, 0x4c, 0xe5, 0xe3, 0xd5, 0x74, 0x38, 0x16, 0x70, 0x31, 0x47, 0xa4, 0xc1, 0x94, 0xb1, 0x54,
+	0x20, 0x2b, 0xf5, 0x79, 0x98, 0xbb, 0xb4, 0x06, 0xb1, 0xc2, 0x0f, 0xf0, 0xbf, 0x68, 0x56, 0xc5,
+	0x9e, 0xf4, 0x59, 0x62, 0xe7, 0xee, 0x0f, 0xfd, 0xf5, 0xee, 0x2f, 0xc0, 0x7c, 0x17, 0x03, 0xc2,
+	0x9f, 0x95, 0x98, 0xaf, 0x36, 0x10, 0xf1, 0x8b, 0xdd, 0x03, 0x14, 0xb9, 0xec, 0xfa, 0x67, 0x47,
+	0xbf, 0x09, 0xcb, 0x3d, 0xe9, 0x84, 0xe6, 0x21, 0xfc, 0x63, 0x31, 0xef, 0x19, 0x25, 0xc1, 0x0e,
+	0xa5, 0x8d, 0x3e, 0x2a, 0xb3, 0x30, 0x1e, 0x52, 0xda, 0xd8, 0x23, 0x6e, 0x2e, 0x13, 0x97, 0x4f,
+	0x5d, 0x59, 0x03, 0x68, 0xa1, 0x06, 0x72, 0xdd, 0x08, 0x33, 0x96, 0x7d, 0xf0, 0xc2, 0x48, 0xc1,
+	0xde, 0x48, 0x87, 0xbd, 0x1b, 0xc9, 0xd7, 0xc8, 0x95, 0x85, 0xa1, 0x4d, 0x98, 0xb4, 0x98, 0xf7,
+	0x02, 0xa3, 0x16, 0xfe, 0x43, 0x47, 0xfa, 0x0c, 0x54, 0x8a, 0x14, 0x82, 0xda, 0x49, 0x12, 0x99,
+	0x6e, 0xff, 0x0e, 0x8a, 0x90, 0xcf, 0xe4, 0x07, 0x50, 0x46, 0x4d, 0xbe, 0x4f, 0xe3, 0xd3, 0x95,
+	0xf2, 0x6f, 0x29, 0xdf, 0xbe, 0xac, 0x57, 0xb2, 0x80, 0x6f, 0xa6, 0x6b, 0xd8, 0xe5, 0x11, 0x09,
+	0x3c, 0xfb, 0x1c, 0x1a, 0xbb, 0x0a, 0x51, 0xbb, 0x41, 0x91, 0x9b, 0x1f, 0xfe, 0xac, 0xcc, 0x12,
+	0x56, 0x14, 0xc9, 0xf5, 0xef, 0xfd, 0x1a, 0x85, 0x61, 0x8b, 0x79, 0xb2, 0x0b, 0x93, 0x1d, 0xd7,
+	0xc2, 0x8a, 0xd1, 0xed, 0xca, 0x31, 0x2e, 0x04, 0x55, 0x5d, 0xbf, 0x12, 0x2c, 0x57, 0x93, 0xdf,
+	0xc3, 0xbf, 0x17, 0xb2, 0x7c, 0xbb, 0x27, 0x41, 0x27, 0x50, 0x35, 0xaf, 0x08, 0x14, 0x5a, 0x21,
+	0x4c, 0x5f, 0x8a, 0xd5, 0xda, 0x00, 0x92, 0x73, 0xa8, 0xba, 0x71, 0x65, 0xa8, 0x50, 0xfc, 0x28,
+	0xc1, 0x4c, 0x8f, 0xa4, 0xf4, 0x76, 0xdf, 0x7d, 0x82, 0xfa, 0xf0, 0x9a, 0x13, 0x84, 0x89, 0xd7,
+	0x30, 0x21, 0x92, 0xb3, 0xdc, 0x93, 0x24, 0x87, 0xa8, 0x6b, 0x03, 0x21, 0x82, 0xf9, 0x1d, 0x94,
+	0xcf, 0x23, 0xa0, 0xf7, 0x9c, 0x27, 0x30, 0xea, 0x9d, 0xc1, 0x18, 0x41, 0xee, 0xc2, 0x64, 0x47,
+	0x08, 0x56, 0x06, 0x6c, 0x7f, 0x0a, 0xeb, 0x73, 0xfe, 0xba, 0x9d, 0xf6, 0xad, 0x27, 0x47, 0xa7,
+	0x9a, 0x74, 0x7c, 0xaa, 0x49, 0x3f, 0x4f, 0x35, 0xe9, 0xd3, 0x99, 0x56, 0x3a, 0x3e, 0xd3, 0x4a,
+	0xdf, 0xcf, 0xb4, 0xd2, 0xdb, 0xbb, 0x85, 0xab, 0xf3, 0xf9, 0x9b, 0x57, 0x8f, 0xb7, 0x31, 0x3f,
+	0xa0, 0x51, 0xdd, 0x74, 0xf6, 0x11, 0x09, 0xcc, 0x43, 0xf1, 0x34, 0x27, 0x97, 0x68, 0x6d, 0x2c,
+	0x79, 0x4f, 0xef, 0xff, 0x0e, 0x00, 0x00, 0xff, 0xff, 0x68, 0xe4, 0x47, 0xc0, 0xb7, 0x07, 0x00,
+	0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -691,6 +810,8 @@ type MsgClient interface {
 	UpdateMetadata(ctx context.Context, in *MsgUpdateMetadata, opts ...grpc.CallOption) (*MsgUpdateMetadataResponse, error)
 	// UpdateCommission ...
 	UpdateCommission(ctx context.Context, in *MsgUpdateCommission, opts ...grpc.CallOption) (*MsgUpdateCommissionResponse, error)
+	// ClaimCommissionRewards ...
+	ClaimCommissionRewards(ctx context.Context, in *MsgClaimCommissionRewards, opts ...grpc.CallOption) (*MsgClaimCommissionRewardsResponse, error)
 	// JoinPool ...
 	JoinPool(ctx context.Context, in *MsgJoinPool, opts ...grpc.CallOption) (*MsgJoinPoolResponse, error)
 	// LeavePool ...
@@ -735,6 +856,15 @@ func (c *msgClient) UpdateCommission(ctx context.Context, in *MsgUpdateCommissio
 	return out, nil
 }
 
+func (c *msgClient) ClaimCommissionRewards(ctx context.Context, in *MsgClaimCommissionRewards, opts ...grpc.CallOption) (*MsgClaimCommissionRewardsResponse, error) {
+	out := new(MsgClaimCommissionRewardsResponse)
+	err := c.cc.Invoke(ctx, "/kyve.stakers.v1beta1.Msg/ClaimCommissionRewards", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *msgClient) JoinPool(ctx context.Context, in *MsgJoinPool, opts ...grpc.CallOption) (*MsgJoinPoolResponse, error) {
 	out := new(MsgJoinPoolResponse)
 	err := c.cc.Invoke(ctx, "/kyve.stakers.v1beta1.Msg/JoinPool", in, out, opts...)
@@ -770,6 +900,8 @@ type MsgServer interface {
 	UpdateMetadata(context.Context, *MsgUpdateMetadata) (*MsgUpdateMetadataResponse, error)
 	// UpdateCommission ...
 	UpdateCommission(context.Context, *MsgUpdateCommission) (*MsgUpdateCommissionResponse, error)
+	// ClaimCommissionRewards ...
+	ClaimCommissionRewards(context.Context, *MsgClaimCommissionRewards) (*MsgClaimCommissionRewardsResponse, error)
 	// JoinPool ...
 	JoinPool(context.Context, *MsgJoinPool) (*MsgJoinPoolResponse, error)
 	// LeavePool ...
@@ -791,6 +923,9 @@ func (*UnimplementedMsgServer) UpdateMetadata(ctx context.Context, req *MsgUpdat
 }
 func (*UnimplementedMsgServer) UpdateCommission(ctx context.Context, req *MsgUpdateCommission) (*MsgUpdateCommissionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateCommission not implemented")
+}
+func (*UnimplementedMsgServer) ClaimCommissionRewards(ctx context.Context, req *MsgClaimCommissionRewards) (*MsgClaimCommissionRewardsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ClaimCommissionRewards not implemented")
 }
 func (*UnimplementedMsgServer) JoinPool(ctx context.Context, req *MsgJoinPool) (*MsgJoinPoolResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method JoinPool not implemented")
@@ -856,6 +991,24 @@ func _Msg_UpdateCommission_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MsgServer).UpdateCommission(ctx, req.(*MsgUpdateCommission))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_ClaimCommissionRewards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgClaimCommissionRewards)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).ClaimCommissionRewards(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/kyve.stakers.v1beta1.Msg/ClaimCommissionRewards",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).ClaimCommissionRewards(ctx, req.(*MsgClaimCommissionRewards))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -931,6 +1084,10 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Msg_UpdateCommission_Handler,
 		},
 		{
+			MethodName: "ClaimCommissionRewards",
+			Handler:    _Msg_ClaimCommissionRewards_Handler,
+		},
+		{
 			MethodName: "JoinPool",
 			Handler:    _Msg_JoinPool_Handler,
 		},
@@ -967,6 +1124,16 @@ func (m *MsgCreateStaker) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	{
+		size := m.Commission.Size()
+		i -= size
+		if _, err := m.Commission.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1a
 	if m.Amount != 0 {
 		i = encodeVarintTx(dAtA, i, uint64(m.Amount))
 		i--
@@ -1025,10 +1192,24 @@ func (m *MsgUpdateMetadata) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.Logo) > 0 {
-		i -= len(m.Logo)
-		copy(dAtA[i:], m.Logo)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Logo)))
+	if len(m.Details) > 0 {
+		i -= len(m.Details)
+		copy(dAtA[i:], m.Details)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Details)))
+		i--
+		dAtA[i] = 0x32
+	}
+	if len(m.SecurityContact) > 0 {
+		i -= len(m.SecurityContact)
+		copy(dAtA[i:], m.SecurityContact)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.SecurityContact)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.Identity) > 0 {
+		i -= len(m.Identity)
+		copy(dAtA[i:], m.Identity)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Identity)))
 		i--
 		dAtA[i] = 0x22
 	}
@@ -1099,13 +1280,16 @@ func (m *MsgUpdateCommission) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.Commission) > 0 {
-		i -= len(m.Commission)
-		copy(dAtA[i:], m.Commission)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Commission)))
-		i--
-		dAtA[i] = 0x12
+	{
+		size := m.Commission.Size()
+		i -= size
+		if _, err := m.Commission.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x12
 	if len(m.Creator) > 0 {
 		i -= len(m.Creator)
 		copy(dAtA[i:], m.Creator)
@@ -1132,6 +1316,64 @@ func (m *MsgUpdateCommissionResponse) MarshalTo(dAtA []byte) (int, error) {
 }
 
 func (m *MsgUpdateCommissionResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgClaimCommissionRewards) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgClaimCommissionRewards) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgClaimCommissionRewards) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Amount != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.Amount))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.Creator) > 0 {
+		i -= len(m.Creator)
+		copy(dAtA[i:], m.Creator)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Creator)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgClaimCommissionRewardsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgClaimCommissionRewardsResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgClaimCommissionRewardsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1351,6 +1593,8 @@ func (m *MsgCreateStaker) Size() (n int) {
 	if m.Amount != 0 {
 		n += 1 + sovTx(uint64(m.Amount))
 	}
+	l = m.Commission.Size()
+	n += 1 + l + sovTx(uint64(l))
 	return n
 }
 
@@ -1381,7 +1625,15 @@ func (m *MsgUpdateMetadata) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	l = len(m.Logo)
+	l = len(m.Identity)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.SecurityContact)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.Details)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
@@ -1407,14 +1659,37 @@ func (m *MsgUpdateCommission) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	l = len(m.Commission)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
+	l = m.Commission.Size()
+	n += 1 + l + sovTx(uint64(l))
 	return n
 }
 
 func (m *MsgUpdateCommissionResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgClaimCommissionRewards) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Creator)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if m.Amount != 0 {
+		n += 1 + sovTx(uint64(m.Amount))
+	}
+	return n
+}
+
+func (m *MsgClaimCommissionRewardsResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1592,6 +1867,40 @@ func (m *MsgCreateStaker) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Commission", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Commission.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])
@@ -1790,7 +2099,7 @@ func (m *MsgUpdateMetadata) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Logo", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Identity", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1818,7 +2127,71 @@ func (m *MsgUpdateMetadata) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Logo = string(dAtA[iNdEx:postIndex])
+			m.Identity = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SecurityContact", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SecurityContact = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Details", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Details = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -1982,7 +2355,9 @@ func (m *MsgUpdateCommission) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Commission = string(dAtA[iNdEx:postIndex])
+			if err := m.Commission.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -2032,6 +2407,157 @@ func (m *MsgUpdateCommissionResponse) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: MsgUpdateCommissionResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgClaimCommissionRewards) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgClaimCommissionRewards: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgClaimCommissionRewards: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Creator", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Creator = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			m.Amount = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Amount |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgClaimCommissionRewardsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgClaimCommissionRewardsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgClaimCommissionRewardsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

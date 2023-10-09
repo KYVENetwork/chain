@@ -12,8 +12,8 @@ self-delegation to the given staker.
 
 ## `MsgUpdateMetadata`
 
-This message changes Moniker, Website and Logo of the staker. The message fails
-if the user does not have created a staker yet.
+This message changes Moniker, Website, Identity, SecurityContact and Details
+of the staker. The message fails if the user does not have created a staker yet.
 
 ## `MsgUpdateCommission`
 
@@ -23,6 +23,12 @@ commission change is shown in the staker query. So that delegators can see that
 the given staker is about to change its commission.
 
 After the `CommissionChangeTime` has passed the new commission is applied.
+
+## `MsgClaimCommissionRewards`
+
+This message claims the commission rewards of a protocol node. When a protocol
+node receives commission rewards, it is transferred from the pool module to the
+stakers module, which can be claimed with this message.
 
 ## `MsgJoinPool`
 
