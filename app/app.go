@@ -345,7 +345,7 @@ func NewKYVEApp(
 	scopedICAControllerKeeper := app.CapabilityKeeper.ScopeToModule(icaControllerTypes.SubModuleName)
 	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icaHostTypes.SubModuleName)
 
-	// TODO(@john): Seal x/capability keeper.
+	app.CapabilityKeeper.Seal()
 
 	// add keepers
 	app.AccountKeeper = authKeeper.NewAccountKeeper(
