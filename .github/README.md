@@ -1,11 +1,11 @@
 # The KYVE Network
 
-###### v1.0.0
+###### v1.4.0
 
-The KYVE consensus layer is the backbone of the KYVE ecosystem. The layer is a
+The KYVE consensus layer is the backbone of the KYVE ecosystem. This layer is a
 sovereign Delegated Proof of Stake network built using the
 [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) and
-[Tendermint Core (BFT Consensus)](https://github.com/tendermint/tendermint).
+[CometBFT (BFT Consensus)](https://github.com/cometbft/cometbft).
 
 ## Building from source
 
@@ -18,7 +18,7 @@ You can find the `kyved` binary in the `./build` directory.
 If you need binaries for alternative architectures than your host:
 
 ```shell
-make release
+make release ENV=mainnet
 ```
 
 The different binaries can be found in the `./release` directory.
