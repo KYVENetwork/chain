@@ -32,6 +32,8 @@ import (
 	upgradeTypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
+//nolint:all
+//goland:noinspection GoDeprecation
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
