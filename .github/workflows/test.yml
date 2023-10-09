@@ -1,0 +1,21 @@
+name: test
+on: push
+env:
+  GO_VERSION: "1.20.8"
+
+jobs:
+  test:
+    if: needs.get_diff.outputs.git_diff
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      # Setup Golang
+      - name: 🐿 Setup Golang
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{env.GO_VERSION}}
+      # Test & coverage report creation
+      - name: Test & coverage report creation
+        run: go test -cover -mod=readonly ./x/...

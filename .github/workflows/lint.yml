@@ -1,17 +1,23 @@
+name: lint
 on: push
+env:
+  GO_VERSION: "1.20.8"
 
 jobs:
   buf:
     runs-on: ubuntu-latest
     steps:
-      # Run `git checkout`
-      - uses: actions/checkout@v3
+      # Checkout the repository
+      - name: Checkout the repository
+        uses: actions/checkout@v4
       # Install `buf`
-      - uses: bufbuild/buf-setup-action@v1
+      - name: Install `buf`
+        uses: bufbuild/buf-setup-action@v1
         with:
           github_token: ${{ github.token }}
       # Lint Protobuf files
-      - uses: bufbuild/buf-lint-action@v1
+      - name: Lint Protobuf files
+        uses: bufbuild/buf-lint-action@v1
         with:
           buf_token: ${{ secrets.BUF_TOKEN }}
 
@@ -19,15 +25,16 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      # Run `git checkout`
-      - uses: actions/checkout@v3
-      # Install `go`
-      - uses: actions/setup-go@v4
+      # Checkout the repository
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      # Setup Golang
+      - name: 🐿 Setup Golang
+        uses: actions/setup-go@v4
         with:
-          go-version: '1.20'
-          cache: false
-      # Lint Go files
-      - name: golangci-lint
+          go-version: ${{env.GO_VERSION}}
+      # Lint go files with golangci-lint
+      - name: Lint go files with golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
           version: latest
