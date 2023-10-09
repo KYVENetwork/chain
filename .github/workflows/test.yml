@@ -5,7 +5,6 @@ env:
 
 jobs:
   test:
-    if: needs.get_diff.outputs.git_diff
     runs-on: ubuntu-latest
     steps:
       # Checkout the repository
