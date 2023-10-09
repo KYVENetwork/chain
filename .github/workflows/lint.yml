@@ -15,15 +15,20 @@ jobs:
         with:
           buf_token: ${{ secrets.BUF_TOKEN }}
 
-# TODO(@john): Figure out why linting passes locally but not here.
-#  golangci:
-#    runs-on: ubuntu-latest
-#    steps:
-#      # Run `git checkout`
-#      - uses: actions/checkout@v3
-#      # Install `go`
-#      - uses: actions/setup-go@v3
-#      # Lint Go files
-#      - uses: golangci/golangci-lint-action@v3
-#        with:
-#          args: --timeout=10m
+  golangci:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      # Run `git checkout`
+      - uses: actions/checkout@v3
+      # Install `go`
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+          cache: false
+      # Lint Go files
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          args: --timeout=10m
