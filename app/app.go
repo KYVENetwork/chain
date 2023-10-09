@@ -384,7 +384,7 @@ func NewKYVEApp(
 		appCodec,
 		keys[mintTypes.StoreKey],
 		app.StakingKeeper,
-		&app.StakersKeeper, // TODO(@john)
+		&app.StakersKeeper, // This is a pointer because the stakers keeper is not initialized yet.
 		app.AccountKeeper,
 		app.BankKeeper,
 		authTypes.FeeCollectorName,
