@@ -21,7 +21,6 @@ jobs:
           buf_token: ${{ secrets.BUF_TOKEN }}
 
   golangci:
-    name: lint
     runs-on: ubuntu-latest
     steps:
       # Checkout the repository

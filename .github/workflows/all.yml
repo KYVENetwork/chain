@@ -1,4 +1,4 @@
-name: run all
+name: run all jobs
 on: push
 
 jobs:
