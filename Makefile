@@ -91,7 +91,6 @@ endif
 ###                               Development                               ###
 ###############################################################################
 
-# TODO(@john): Switch to the Docker image?
 dev:
 	@ignite chain serve --reset-once --skip-proto --verbose
 
