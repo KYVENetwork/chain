@@ -82,7 +82,6 @@ func (k Keeper) parseFunder(funder *fundersTypes.Funder) types.Funder {
 		Address:     funder.Address,
 		Moniker:     funder.Moniker,
 		Identity:    funder.Identity,
-		Logo:        funder.Logo,
 		Website:     funder.Website,
 		Contact:     funder.Contact,
 		Description: funder.Description,

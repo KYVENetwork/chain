@@ -7744,9 +7744,6 @@ paths:
                   identity:
                     type: string
                     title: identity is the 64 bit keybase.io identity string
-                  logo:
-                    type: string
-                    description: logo ...
                   website:
                     type: string
                     description: website ...
@@ -8038,9 +8035,6 @@ paths:
                     identity:
                       type: string
                       title: identity is the 64 bit keybase.io identity string
-                    logo:
-                      type: string
-                      description: logo ...
                     website:
                       type: string
                       description: website ...

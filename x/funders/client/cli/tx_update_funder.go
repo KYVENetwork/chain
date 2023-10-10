@@ -15,7 +15,6 @@ func CmdUpdateFunder() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			moniker, _ := cmd.Flags().GetString(FlagMoniker)
 			identity, _ := cmd.Flags().GetString(FlagIdentity)
-			logo, _ := cmd.Flags().GetString(FlagLogo)
 			website, _ := cmd.Flags().GetString(FlagWebsite)
 			contact, _ := cmd.Flags().GetString(FlagContact)
 			description, _ := cmd.Flags().GetString(FlagDescription)
@@ -29,7 +28,6 @@ func CmdUpdateFunder() *cobra.Command {
 				Creator:     clientCtx.GetFromAddress().String(),
 				Moniker:     moniker,
 				Identity:    identity,
-				Logo:        logo,
 				Website:     website,
 				Contact:     contact,
 				Description: description,

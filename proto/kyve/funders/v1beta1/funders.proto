@@ -14,14 +14,12 @@ message Funder {
   string moniker = 2;
   // identity is the 64 bit keybase.io identity string
   string identity = 3;
-  // logo ...
-  string logo = 4;
   // website ...
-  string website = 5;
+  string website = 4;
   // contact ...
-  string contact = 6;
+  string contact = 5;
   // description are some additional notes the funder finds important
-  string description = 7;
+  string description = 6;
 }
 
 // Funding is the object which holds info about the current funding

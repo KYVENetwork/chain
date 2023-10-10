@@ -6,10 +6,10 @@ import "cosmos/gov/v1/gov.proto";
 import "google/api/annotations.proto";
 import "kyve/bundles/v1beta1/params.proto";
 import "kyve/delegation/v1beta1/params.proto";
+import "kyve/funders/v1beta1/params.proto";
 import "kyve/global/v1beta1/global.proto";
 import "kyve/pool/v1beta1/params.proto";
 import "kyve/stakers/v1beta1/params.proto";
-import "kyve/funders/v1beta1/params.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/query/types";
 

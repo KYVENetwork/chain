@@ -52,7 +52,6 @@ var _ = Describe("msg_server_create_funder.go", Ordered, func() {
 		Expect(funder.Address).To(Equal(i.ALICE))
 		Expect(funder.Moniker).To(Equal("moniker"))
 		Expect(funder.Identity).To(BeEmpty())
-		Expect(funder.Logo).To(BeEmpty())
 		Expect(funder.Website).To(BeEmpty())
 		Expect(funder.Contact).To(BeEmpty())
 		Expect(funder.Description).To(BeEmpty())
@@ -60,12 +59,11 @@ var _ = Describe("msg_server_create_funder.go", Ordered, func() {
 
 	It("Create a funder with all values set", func() {
 		// ACT
-		moniker, identity, logo, website, contact, description := "moniker", "identity", "logo", "website", "contact", "description"
+		moniker, identity, website, contact, description := "moniker", "identity", "website", "contact", "description"
 		s.RunTxFundersSuccess(&types.MsgCreateFunder{
 			Creator:     i.ALICE,
 			Moniker:     moniker,
 			Identity:    identity,
-			Logo:        logo,
 			Website:     website,
 			Contact:     contact,
 			Description: description,
@@ -77,7 +75,6 @@ var _ = Describe("msg_server_create_funder.go", Ordered, func() {
 		Expect(funder.Address).To(Equal(i.ALICE))
 		Expect(funder.Moniker).To(Equal(moniker))
 		Expect(funder.Identity).To(Equal(identity))
-		Expect(funder.Logo).To(Equal(logo))
 		Expect(funder.Website).To(Equal(website))
 		Expect(funder.Contact).To(Equal(contact))
 		Expect(funder.Description).To(Equal(description))
