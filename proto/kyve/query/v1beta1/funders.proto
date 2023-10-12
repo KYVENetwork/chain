@@ -38,16 +38,20 @@ message Funder {
   string contact = 5;
   // description ...
   string description = 6;
+  // statistics about all the fundings of the funder.
+  FundingStats stats = 7;
 }
 
-// FunderStats ...
-message FunderStats {
+// FundingStats ...
+message FundingStats {
   // total_used_funds are the total funds that have been distributed by the funder.
   uint64 total_used_funds = 1;
   // total_allocated_funds are the total funds that have been allocated by the funder. They can either get distributed or refunded.
   uint64 total_allocated_funds = 2;
+  // total_amount_per_bundle is the total amount per bundle of all fundings of the funder.
+  uint64 total_amount_per_bundle = 3;
   // pools_funded are the ids of the pools that have been funded by the funder.
-  repeated uint64 pools_funded = 3;
+  repeated uint64 pools_funded = 4;
 }
 
 // Funding ...
@@ -100,6 +104,4 @@ message QueryFunderResponse {
   Funder funder = 1;
   // fundings ...
   repeated Funding fundings = 2 [(gogoproto.nullable) = false];
-  // stats ...
-  FunderStats stats = 3;
 }

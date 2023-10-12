@@ -7753,6 +7753,37 @@ paths:
                   description:
                     type: string
                     description: description ...
+                  stats:
+                    description: statistics about all the fundings of the funder.
+                    type: object
+                    properties:
+                      total_used_funds:
+                        type: string
+                        format: uint64
+                        description: >-
+                          total_used_funds are the total funds that have been
+                          distributed by the funder.
+                      total_allocated_funds:
+                        type: string
+                        format: uint64
+                        description: >-
+                          total_allocated_funds are the total funds that have
+                          been allocated by the funder. They can either get
+                          distributed or refunded.
+                      total_amount_per_bundle:
+                        type: string
+                        format: uint64
+                        description: >-
+                          total_amount_per_bundle is the total amount per bundle
+                          of all fundings of the funder.
+                      pools_funded:
+                        type: array
+                        items:
+                          type: string
+                          format: uint64
+                        description: >-
+                          pools_funded are the ids of the pools that have been
+                          funded by the funder.
               fundings:
                 type: array
                 items:
@@ -7776,31 +7807,6 @@ paths:
                       description: total_funded ...
                   description: Funding ...
                 description: fundings ...
-              stats:
-                description: stats ...
-                type: object
-                properties:
-                  total_used_funds:
-                    type: string
-                    format: uint64
-                    description: >-
-                      total_used_funds are the total funds that have been
-                      distributed by the funder.
-                  total_allocated_funds:
-                    type: string
-                    format: uint64
-                    description: >-
-                      total_allocated_funds are the total funds that have been
-                      allocated by the funder. They can either get distributed
-                      or refunded.
-                  pools_funded:
-                    type: array
-                    items:
-                      type: string
-                      format: uint64
-                    description: >-
-                      pools_funded are the ids of the pools that have been
-                      funded by the funder.
             description: >-
               QueryFunderResponse is the response type for the Query/Funder RPC
               method.
@@ -8044,6 +8050,37 @@ paths:
                     description:
                       type: string
                       description: description ...
+                    stats:
+                      description: statistics about all the fundings of the funder.
+                      type: object
+                      properties:
+                        total_used_funds:
+                          type: string
+                          format: uint64
+                          description: >-
+                            total_used_funds are the total funds that have been
+                            distributed by the funder.
+                        total_allocated_funds:
+                          type: string
+                          format: uint64
+                          description: >-
+                            total_allocated_funds are the total funds that have
+                            been allocated by the funder. They can either get
+                            distributed or refunded.
+                        total_amount_per_bundle:
+                          type: string
+                          format: uint64
+                          description: >-
+                            total_amount_per_bundle is the total amount per
+                            bundle of all fundings of the funder.
+                        pools_funded:
+                          type: array
+                          items:
+                            type: string
+                            format: uint64
+                          description: >-
+                            pools_funded are the ids of the pools that have been
+                            funded by the funder.
                   description: Funder ...
                 description: funders ...
               pagination:
