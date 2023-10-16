@@ -177,7 +177,6 @@ genesis:
           contact: "https://twitter.com/kyvenetwork"
           moniker: "Alice"
           description: "Alice is the first funder of the KYVE network."
-          logo: "https://avatars.githubusercontent.com/u/76891822?s=200&v=4"
           website: "https://kyve.network"
           identity: "0657A086E5201562"
       funding_list:
