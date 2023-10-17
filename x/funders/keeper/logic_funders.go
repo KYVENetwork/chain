@@ -13,6 +13,7 @@ import (
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+// TODO: should this be here or when we call the getter of the funding state?
 func (k Keeper) CreateFundingState(ctx sdk.Context, poolId uint64) {
 	fundingState := types.FundingState{
 		PoolId:                poolId,
