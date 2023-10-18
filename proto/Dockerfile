@@ -16,6 +16,6 @@ RUN git clone https://github.com/cosmos/gogoproto.git; \
   make install
 
 RUN npm install -g swagger-combine
-RUN npm install -g @protobuf-ts/plugin
+RUN npm install -g ts-proto
 
 COPY --from=BUILDER /usr/local/bin /usr/local/bin

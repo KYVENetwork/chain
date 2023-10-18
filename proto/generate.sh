@@ -13,10 +13,10 @@ fi
 buf generate --template $template
 cd ..
 
-cp -r github.com/KYVENetwork/chain/* ./
-rm -rf github.com
-
 if [ "$1" != "ts" ]; then
+  cp -r github.com/KYVENetwork/chain/* ./
   swagger-combine ./docs/config.json -o ./docs/swagger.yml
   rm -rf tmp-swagger-gen
 fi
+
+rm -rf github.com
