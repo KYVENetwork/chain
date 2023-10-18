@@ -1,0 +1,5 @@
+version: v1
+plugins:
+  - name: ts
+    out: ../build/ts-proto
+    opt: output_javascript,optimize_code_size,long_type_string,add_pb_suffix,ts_nocheck,eslint_disable,use_proto_field_name
