@@ -1,6 +1,0 @@
-version: v1
-plugins:
-  - name: ts
-    out: ../build/ts-proto
-    strategy: all
-    path: /usr/local/bin/protoc-gen-ts_proto
