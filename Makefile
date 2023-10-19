@@ -91,7 +91,6 @@ endif
 ###                               Development                               ###
 ###############################################################################
 
-# TODO(@john): Switch to the Docker image?
 dev:
 	@ignite chain serve --reset-once --skip-proto --verbose
 
@@ -111,12 +110,6 @@ lint:
 	@echo "🤖 Running linter..."
 	@go run $(golangci_lint_cmd) run --skip-dirs scripts --timeout=10m
 	@echo "✅ Completed linting!"
-
-# TODO(@john): Can we remove this since we use GolangCI?
-vet:
-	@echo "🤖 Running vet..."
-	@go vet ./...
-	@echo "✅ Completed vet!"
 
 ###############################################################################
 ###                                Protobuf                                 ###

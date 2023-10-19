@@ -103,7 +103,7 @@ func NewRootCmd(encodingConfig kyveApp.EncodingConfig) *cobra.Command {
 		tmCli.NewCompletionCmd(rootCmd, true),
 		debug.Cmd(),
 		config.Cmd(),
-		pruning.PruningCmd(ac.createApp),
+		pruning.Cmd(ac.createApp, kyveApp.DefaultNodeHome),
 
 		rpc.StatusCommand(),
 		queryCommand(),
