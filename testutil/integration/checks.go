@@ -8,7 +8,7 @@ import (
 	"github.com/KYVENetwork/chain/x/delegation"
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
-	"github.com/KYVENetwork/chain/x/pool"
+	poolmodule "github.com/KYVENetwork/chain/x/pool"
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	"github.com/KYVENetwork/chain/x/stakers"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
@@ -24,10 +24,7 @@ func (suite *KeeperTestSuite) PerformValidityChecks() {
 	// verify pool module
 	suite.VerifyPoolModuleAssetsIntegrity()
 	suite.VerifyPoolTotalFunds()
-
-	// TODO(@troy,@max): Figure out a better way to check this when disabling pools.
-	// suite.VerifyPoolQueries()
-
+	suite.VerifyPoolQueries()
 	suite.VerifyPoolGenesisImportExport()
 
 	// verify stakers module
@@ -98,6 +95,15 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 	poolsQuery = append(poolsQuery, activePoolsQuery.Pools...)
 	poolsQuery = append(poolsQuery, disabledPoolsQuery.Pools...)
 
+	// sort pools by id
+	for i := range poolsQuery {
+		for j := range poolsQuery {
+			if poolsQuery[i].Id < poolsQuery[j].Id {
+				poolsQuery[i], poolsQuery[j] = poolsQuery[j], poolsQuery[i]
+			}
+		}
+	}
+
 	Expect(activePoolsQueryErr).To(BeNil())
 	Expect(disabledPoolsQueryErr).To(BeNil())
 
@@ -155,7 +161,7 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 }
 
 func (suite *KeeperTestSuite) VerifyPoolGenesisImportExport() {
-	genState := pool.ExportGenesis(suite.Ctx(), suite.App().PoolKeeper)
+	genState := poolmodule.ExportGenesis(suite.Ctx(), suite.App().PoolKeeper)
 
 	// Delete all entries in Pool Store
 	store := suite.Ctx().KVStore(suite.App().PoolKeeper.StoreKey())
@@ -163,7 +169,7 @@ func (suite *KeeperTestSuite) VerifyPoolGenesisImportExport() {
 
 	err := genState.Validate()
 	Expect(err).To(BeNil())
-	pool.InitGenesis(suite.Ctx(), suite.App().PoolKeeper, *genState)
+	poolmodule.InitGenesis(suite.Ctx(), suite.App().PoolKeeper, *genState)
 }
 
 // =====================
