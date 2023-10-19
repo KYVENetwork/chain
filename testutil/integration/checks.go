@@ -465,8 +465,8 @@ func (suite *KeeperTestSuite) VerifyFundersModuleIntegrity() {
 		fsActiveAddresses := make(map[string]bool)
 		for _, funderAddress := range fundingState.ActiveFunderAddresses {
 			// check if funding has a valid funder
-			key := string(funderstypes.FundingKeyByFunder(funderAddress, fundingState.PoolId))
-			_, found := allActiveFundings[key]
+			key := funderstypes.FundingKeyByFunder(funderAddress, fundingState.PoolId)
+			_, found := allActiveFundings[string(key)]
 			Expect(found).To(BeTrue())
 
 			// check if funder is not already in the list

@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	goerrors "errors"
 	"fmt"
 
 	"cosmossdk.io/errors"
@@ -77,7 +76,7 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint
 // Precondition: len(fundings) > 0
 func (k Keeper) GetLowestFunding(fundings []types.Funding) (lowestFunding *types.Funding, err error) {
 	if len(fundings) == 0 {
-		return nil, goerrors.New(fmt.Sprintf("no active fundings"))
+		return nil, fmt.Errorf("no active fundings")
 	}
 
 	lowestFunding = &fundings[0]
