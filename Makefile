@@ -1,6 +1,8 @@
 COMMIT := $(shell git log -1 --format='%H')
 GO_VERSION := $(shell go version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f1,2)
-VERSION := v1.4.0 # $(shell echo $(shell git describe --tags) | sed 's/^v//')
+
+# VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
+VERSION := v1.4.0
 
 TEAM_ALLOCATION := 165000000000000
 ifeq ($(ENV),kaon)
@@ -72,6 +74,36 @@ release: ensure_environment ensure_version
 
 	@rm kyved
 	@echo "✅ Completed release creation!"
+
+###############################################################################
+###                               Docker Build                              ###
+###############################################################################
+
+# Build a release image
+docker-image:
+	@DOCKER_BUILDKIT=1 docker build -t kyve-network/kyve:${VERSION} .
+	@echo "✅ Completed docker image build!"
+
+# Build a release nonroot image
+docker-image-nonroot:
+	@DOCKER_BUILDKIT=1 docker build \
+		--build-arg IMG_TAG="nonroot" \
+		-t kyve-network/kyve:${VERSION}-nonroot .
+	@echo "✅ Completed docker image build! (nonroot)"
+
+# Build a release debug image
+docker-image-debug:
+	@DOCKER_BUILDKIT=1 docker build \
+		--build-arg IMG_TAG="debug" \
+		-t kyve-network/kyve:${VERSION}-debug .
+	@echo "✅ Completed docker image build! (debug)"
+
+# Build a release debug-nonroot image
+docker-image-debug-nonroot:
+	@DOCKER_BUILDKIT=1 docker build \
+		--build-arg IMG_TAG="debug-nonroot" \
+		-t kyve-network/kyve:${VERSION}-debug-nonroot .
+	@echo "✅ Completed docker image build! (debug-nonroot)"
 
 ###############################################################################
 ###                                 Checks                                  ###
