@@ -55,21 +55,6 @@ func (k Keeper) Funder(c context.Context, req *types.QueryFunderRequest) (*types
 	}, nil
 }
 
-func (k Keeper) parseFundings(fundings []fundersTypes.Funding, withInactiveFundings bool) []types.Funding {
-	fundingsData := make([]types.Funding, 0)
-	for _, funding := range fundings {
-		if funding.Amount > 0 || withInactiveFundings {
-			fundingsData = append(fundingsData, types.Funding{
-				PoolId:          funding.PoolId,
-				Amount:          funding.Amount,
-				AmountPerBundle: funding.AmountPerBundle,
-				TotalFunded:     funding.TotalFunded,
-			})
-		}
-	}
-	return fundingsData
-}
-
 func (k Keeper) parseFunder(funder *fundersTypes.Funder, fundings []fundersTypes.Funding) types.Funder {
 	totalUsedFunds := uint64(0)
 	totalAllocatedFunds := uint64(0)
