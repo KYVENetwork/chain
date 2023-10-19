@@ -26,9 +26,6 @@ TEST CASES - msg_server_undelegate.go
 * JoinA, Slash, JoinB, PayoutReward
 * Slash twice
 * Start unbonding, slash twice, payout, await undelegation
-
-TODO(@max): joinA slash joinB slash -> remaining delegation
-
 */
 
 var _ = Describe("msg_server_undelegate.go", Ordered, func() {
@@ -501,6 +498,11 @@ var _ = Describe("msg_server_undelegate.go", Ordered, func() {
 		// ASSERT
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(Equal(uint64(666_666_666)))
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1])).To(Equal(uint64(2_666_666_666)))
+
+		// must be the same as before
+		Expect(s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.ALICE)).To(Equal((50 + 25) * i.KYVE))
+		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.ALICE, i.DUMMY[0])).To(Equal(5 * i.KYVE))
+		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.ALICE, i.DUMMY[1])).To(Equal(20 * i.KYVE))
 	})
 
 	It("Slash twice", func() {

@@ -38,3 +38,19 @@ You can verify the build information using the following command:
 ```shell
 kyved info
 ```
+
+### Building docker image
+
+#### Root
+To create a regular `kyve-network/kyve:${VERSION}` docker image with `kyved` binary only execute:
+```bash
+make docker-image
+```
+To create the corresponding debug image containing a `sh` shell execute `make docker-image-debug`.
+
+#### Nonroot
+To create a nonroot docker image `kyve-network/kyve:${VERSION}-nonroot` running with user `nonroot:65532`:
+```bash
+make docker-image-nonroot
+```
+To create the corresponding debug image `kyve-network/kyve:${VERSION}-debug-nonroot` execute `make docker-image-debug-nonroot`.
