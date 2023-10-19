@@ -21,7 +21,7 @@ TEST CASES - msg_server_delegate.go
 * Payout delegators
 * Don't pay out rewards twice
 * Delegate to validator with 0 $KYVE
-* TODO(@max): Delegate to multiple validators
+* Delegate to multiple validators
 
 */
 
@@ -278,6 +278,16 @@ var _ = Describe("msg_server_delegate.go", Ordered, func() {
 		// ACT
 		s.RunTxDelegatorSuccess(&types.MsgDelegate{
 			Creator: i.DUMMY[1],
+			Staker:  i.ALICE,
+			Amount:  200 * i.KYVE,
+		})
+		s.RunTxDelegatorSuccess(&types.MsgDelegate{
+			Creator: i.DUMMY[1],
+			Staker:  i.BOB,
+			Amount:  200 * i.KYVE,
+		})
+		s.RunTxDelegatorSuccess(&types.MsgDelegate{
+			Creator: i.DUMMY[1],
 			Staker:  i.CHARLIE,
 			Amount:  200 * i.KYVE,
 		})
@@ -286,8 +296,14 @@ var _ = Describe("msg_server_delegate.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		poolModuleBalance := s.GetBalanceFromModule(types.ModuleName)
-		Expect(poolModuleBalance).To(Equal(200*i.KYVE + aliceSelfDelegation + bobSelfDelegation))
-		Expect(s.GetBalanceFromAddress(i.DUMMY[1])).To(Equal(800 * i.KYVE))
+		Expect(poolModuleBalance).To(Equal(600*i.KYVE + aliceSelfDelegation + bobSelfDelegation))
+		Expect(s.GetBalanceFromAddress(i.DUMMY[1])).To(Equal(400 * i.KYVE))
+
+		aliceDelegation := s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.ALICE)
+		Expect(aliceDelegation).To(Equal(200*i.KYVE + aliceSelfDelegation))
+
+		bobDelegation := s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.BOB)
+		Expect(bobDelegation).To(Equal(200*i.KYVE + bobSelfDelegation))
 
 		charlieDelegation := s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.CHARLIE)
 		Expect(charlieDelegation).To(Equal(200 * i.KYVE))
