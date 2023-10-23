@@ -120,6 +120,14 @@ func (k Keeper) GetPaginatedFundingQuery(
 			return false, err
 		}
 
+		if funderAddress != nil && *funderAddress != funding.FunderAddress {
+			return false, nil
+		}
+
+		if poolId != nil && *poolId != funding.PoolId {
+			return false, nil
+		}
+
 		if accumulate {
 			fundings = append(fundings, funding)
 		}
