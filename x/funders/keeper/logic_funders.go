@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	goerrors "errors"
 	"fmt"
 
 	"cosmossdk.io/errors"
@@ -13,6 +12,7 @@ import (
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+// TODO: should this be here or when we call the getter of the funding state?
 func (k Keeper) CreateFundingState(ctx sdk.Context, poolId uint64) {
 	fundingState := types.FundingState{
 		PoolId:                poolId,
@@ -76,7 +76,7 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint
 // Precondition: len(fundings) > 0
 func (k Keeper) GetLowestFunding(fundings []types.Funding) (lowestFunding *types.Funding, err error) {
 	if len(fundings) == 0 {
-		return nil, goerrors.New(fmt.Sprintf("no active fundings"))
+		return nil, fmt.Errorf("no active fundings")
 	}
 
 	lowestFunding = &fundings[0]

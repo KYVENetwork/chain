@@ -503,8 +503,6 @@ var _ = Describe("funding bundles", Ordered, func() {
 			BundleSummary: "test_value",
 		})
 
-		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
@@ -529,7 +527,7 @@ var _ = Describe("funding bundles", Ordered, func() {
 		})
 
 		// ASSERT
-		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		// assert if bundle go finalized
 		Expect(pool.TotalBundles).To(Equal(uint64(1)))

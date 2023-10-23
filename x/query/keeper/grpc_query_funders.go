@@ -26,7 +26,8 @@ func (k Keeper) Funders(c context.Context, req *types.QueryFundersRequest) (*typ
 
 	data := make([]types.Funder, 0)
 	for _, funder := range funders {
-		data = append(data, k.parseFunder(&funder))
+		fundings := k.fundersKeeper.GetFundingsOfFunder(ctx, funder.Address)
+		data = append(data, k.parseFunder(&funder, fundings))
 	}
 
 	return &types.QueryFundersResponse{Funders: data, Pagination: pageRes}, nil
@@ -42,42 +43,36 @@ func (k Keeper) Funder(c context.Context, req *types.QueryFunderRequest) (*types
 	if !found {
 		return nil, errorsTypes.ErrKeyNotFound
 	}
-	funderData := k.parseFunder(&funder)
 
-	totalUsedFunds := uint64(0)
-	totalAllocatedFunds := uint64(0)
-	poolsFunded := make([]uint64, 0)
+	fundings := k.fundersKeeper.GetFundingsOfFunder(ctx, funder.Address)
 
-	fundings := k.fundersKeeper.GetFundingsOfFunder(ctx, req.Address)
-	fundingsData := make([]types.Funding, 0)
-	for _, funding := range fundings {
-		if funding.Amount > 0 || req.WithInactiveFundings {
-			fundingsData = append(fundingsData, types.Funding{
-				PoolId:          funding.PoolId,
-				Amount:          funding.Amount,
-				AmountPerBundle: funding.AmountPerBundle,
-				TotalFunded:     funding.TotalFunded,
-			})
-		}
-		totalUsedFunds += funding.TotalFunded
-		totalAllocatedFunds += funding.Amount
-		poolsFunded = append(poolsFunded, funding.PoolId)
-	}
-
-	statsData := &types.FunderStats{
-		TotalUsedFunds:      totalUsedFunds,
-		TotalAllocatedFunds: totalAllocatedFunds,
-		PoolsFunded:         poolsFunded,
-	}
+	funderData := k.parseFunder(&funder, fundings)
+	fundingsData := k.parseFundings(fundings, req.WithInactiveFundings)
 
 	return &types.QueryFunderResponse{
 		Funder:   &funderData,
 		Fundings: fundingsData,
-		Stats:    statsData,
 	}, nil
 }
 
-func (k Keeper) parseFunder(funder *fundersTypes.Funder) types.Funder {
+func (k Keeper) parseFunder(funder *fundersTypes.Funder, fundings []fundersTypes.Funding) types.Funder {
+	totalUsedFunds := uint64(0)
+	totalAllocatedFunds := uint64(0)
+	totalAmountPerBundle := uint64(0)
+	poolsFunded := make([]uint64, 0)
+
+	for _, funding := range fundings {
+		// Only count active fundings for totalAmountPerBundle
+		if funding.Amount > 0 {
+			totalAmountPerBundle += funding.AmountPerBundle
+		}
+
+		totalUsedFunds += funding.TotalFunded
+		totalAllocatedFunds += funding.Amount
+
+		poolsFunded = append(poolsFunded, funding.PoolId)
+	}
+
 	return types.Funder{
 		Address:     funder.Address,
 		Moniker:     funder.Moniker,
@@ -85,5 +80,11 @@ func (k Keeper) parseFunder(funder *fundersTypes.Funder) types.Funder {
 		Website:     funder.Website,
 		Contact:     funder.Contact,
 		Description: funder.Description,
+		Stats: &types.FundingStats{
+			TotalUsedFunds:       totalUsedFunds,
+			TotalAllocatedFunds:  totalAllocatedFunds,
+			TotalAmountPerBundle: totalAmountPerBundle,
+			PoolsFunded:          poolsFunded,
+		},
 	}
 }

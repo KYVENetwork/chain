@@ -1,29 +1,39 @@
-on: push
+name: lint
+on:
+  workflow_call:
 
 jobs:
   buf:
     runs-on: ubuntu-latest
     steps:
-      # Run `git checkout`
-      - uses: actions/checkout@v3
+      # Checkout the repository
+      - name: Checkout the repository
+        uses: actions/checkout@v4
       # Install `buf`
-      - uses: bufbuild/buf-setup-action@v1
+      - name: Install `buf`
+        uses: bufbuild/buf-setup-action@v1
         with:
           github_token: ${{ github.token }}
       # Lint Protobuf files
-      - uses: bufbuild/buf-lint-action@v1
+      - name: Lint Protobuf files
+        uses: bufbuild/buf-lint-action@v1
         with:
           buf_token: ${{ secrets.BUF_TOKEN }}
 
-# TODO(@john): Figure out why linting passes locally but not here.
-#  golangci:
-#    runs-on: ubuntu-latest
-#    steps:
-#      # Run `git checkout`
-#      - uses: actions/checkout@v3
-#      # Install `go`
-#      - uses: actions/setup-go@v3
-#      # Lint Go files
-#      - uses: golangci/golangci-lint-action@v3
-#        with:
-#          args: --timeout=10m
+  golangci:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      # Setup Golang
+      - name: 🐿 Setup Golang
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: 'go.mod'
+      # Lint go files with golangci-lint
+      - name: Lint go files with golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          args: --timeout=10m

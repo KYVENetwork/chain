@@ -98,7 +98,7 @@ import (
 	group "github.com/cosmos/cosmos-sdk/x/group/module"
 	// IBC Core
 	ibc "github.com/cosmos/ibc-go/v7/modules/core"
-	ibcClientHandler "github.com/cosmos/ibc-go/v7/modules/core/02-client" // TODO
+	ibcClientHandler "github.com/cosmos/ibc-go/v7/modules/core/02-client"
 	ibcClientTypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	ibcPortTypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	ibcExported "github.com/cosmos/ibc-go/v7/modules/core/exported"
@@ -350,7 +350,7 @@ func NewKYVEApp(
 	scopedICAControllerKeeper := app.CapabilityKeeper.ScopeToModule(icaControllerTypes.SubModuleName)
 	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icaHostTypes.SubModuleName)
 
-	// TODO(@john): Seal x/capability keeper.
+	app.CapabilityKeeper.Seal()
 
 	// add keepers
 	app.AccountKeeper = authKeeper.NewAccountKeeper(
@@ -389,7 +389,7 @@ func NewKYVEApp(
 		appCodec,
 		keys[mintTypes.StoreKey],
 		app.StakingKeeper,
-		&app.StakersKeeper, // TODO(@john)
+		&app.StakersKeeper, // This is a pointer because the stakers keeper is not initialized yet.
 		app.AccountKeeper,
 		app.BankKeeper,
 		authTypes.FeeCollectorName,

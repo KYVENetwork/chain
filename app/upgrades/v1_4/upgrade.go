@@ -40,6 +40,8 @@ const (
 	DefaultAmountPerBundle = uint64(10_000_000) // TODO(@rapha): how much?
 )
 
+//nolint:all
+//goland:noinspection GoDeprecation
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
