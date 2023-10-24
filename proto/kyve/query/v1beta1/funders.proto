@@ -64,14 +64,16 @@ message FundingStats {
 
 // Funding ...
 message Funding {
+  // funder_address
+  string funder_address = 1;
   // pool_id ...
-  uint64 pool_id = 1;
+  uint64 pool_id = 2;
   // amount ...
-  uint64 amount = 2;
+  uint64 amount = 3;
   // amount_per_bundle ...
-  uint64 amount_per_bundle = 3;
+  uint64 amount_per_bundle = 4;
   // total_funded ...
-  uint64 total_funded = 4;
+  uint64 total_funded = 5;
 }
 
 // ========

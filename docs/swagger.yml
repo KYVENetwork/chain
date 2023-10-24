@@ -7789,6 +7789,9 @@ paths:
                 items:
                   type: object
                   properties:
+                    funder_address:
+                      type: string
+                      title: funder_address
                     pool_id:
                       type: string
                       format: uint64
@@ -8397,6 +8400,9 @@ paths:
                 items:
                   type: object
                   properties:
+                    funder_address:
+                      type: string
+                      title: funder_address
                     pool_id:
                       type: string
                       format: uint64
@@ -8720,6 +8726,9 @@ paths:
                 items:
                   type: object
                   properties:
+                    funder_address:
+                      type: string
+                      title: funder_address
                     pool_id:
                       type: string
                       format: uint64
