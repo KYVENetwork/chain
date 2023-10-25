@@ -46,6 +46,7 @@ func (k Keeper) parseFundings(fundings []fundersTypes.Funding, withInactiveFundi
 	for _, funding := range fundings {
 		if funding.Amount > 0 || withInactiveFundings {
 			fundingsData = append(fundingsData, types.Funding{
+				FunderAddress:   funding.FunderAddress,
 				PoolId:          funding.PoolId,
 				Amount:          funding.Amount,
 				AmountPerBundle: funding.AmountPerBundle,
