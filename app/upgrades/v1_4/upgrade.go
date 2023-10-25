@@ -121,6 +121,14 @@ func CreateUpgradeHandler(
 			return vm, err
 		}
 
+		// Set min gas for funder creation in global module
+		globalParams := globalKeeper.GetParams(ctx)
+		globalParams.GasAdjustments = append(globalParams.GasAdjustments, globalTypes.GasAdjustment{
+			Type:   "/kyve.funders.v1beta1.MsgCreateFunder",
+			Amount: 50_000_000,
+		})
+		globalKeeper.SetParams(ctx, globalParams)
+
 		return vm, nil
 	}
 }
