@@ -36,10 +36,6 @@ import (
 	upgradeTypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
-const (
-	DefaultAmountPerBundle = uint64(10_000_000) // TODO(@rapha): how much?
-)
-
 //nolint:all
 //goland:noinspection GoDeprecation
 func CreateUpgradeHandler(
@@ -251,7 +247,7 @@ func migrateFundersAndPools(
 				FunderAddress:   funder.Address,
 				PoolId:          funding.PoolId,
 				Amount:          funding.Amount,
-				AmountPerBundle: DefaultAmountPerBundle,
+				AmountPerBundle: fundersTypes.DefaultMinFundingAmountPerBundle,
 				// Previous funders will not be considered, as there is no way to calculate this on chain.
 				// Although almost all funding was only provided by the Foundation itself.
 				TotalFunded: 0,
