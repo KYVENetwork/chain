@@ -497,6 +497,18 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 			Amount:     0,
 		})
 
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_1,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_1,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_1,
+			Amount:     0,
+		})
+
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
 			Creator: i.VALADDRESS_0,
 			Staker:  i.STAKER_0,
