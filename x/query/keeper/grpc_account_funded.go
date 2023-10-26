@@ -39,7 +39,7 @@ func (k Keeper) AccountFundedList(goCtx context.Context, req *types.QueryAccount
 					Logo:                 pool.Logo,
 					InflationShareWeight: pool.InflationShareWeight,
 					UploadInterval:       pool.UploadInterval,
-					TotalFunds:           fundingState.TotalAmount,
+					TotalFunds:           k.fundersKeeper.GetTotalActiveFunding(ctx, pool.Id),
 					TotalDelegation:      k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id),
 					Status:               k.GetPoolStatus(ctx, &pool, &fundingState),
 				},

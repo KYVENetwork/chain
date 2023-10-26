@@ -75,7 +75,7 @@ func CreateFundedPool(s *i.KeeperTestSuite) {
 
 	fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
-	Expect(fundingState.TotalAmount).To(Equal(100 * i.KYVE))
+	Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100 * i.KYVE))
 }
 
 func CheckAndContinueChainForOneMonth(s *i.KeeperTestSuite) {

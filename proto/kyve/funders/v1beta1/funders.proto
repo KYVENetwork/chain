@@ -45,6 +45,4 @@ message FundingState {
   uint64 pool_id = 1;
   // active_funder_addresses is the list of all active fundings
   repeated string active_funder_addresses = 2;
-  // total_amount is the total amount of funds in ukyve the pool has from all fundings
-  uint64 total_amount = 3;
 }

@@ -22,7 +22,6 @@ func (k msgServer) defundLowestFunding(
 	}
 
 	subtracted := lowestFunding.SubtractAmount(lowestFunding.Amount)
-	fundingState.SubtractAmount(subtracted)
 	fundingState.SetInactive(lowestFunding)
 	k.SetFunding(ctx, lowestFunding)
 
@@ -80,7 +79,6 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 			TotalFunded:     0,
 		}
 	}
-	fundingState.AddAmount(msg.Amount)
 
 	params := k.GetParams(ctx)
 	if funding.AmountPerBundle < params.MinFundingAmountPerBundle {

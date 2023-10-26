@@ -16,9 +16,6 @@ TEST CASES - funders.go
 * Funding.SubtractAmount - subtract more than available
 * Funding.ChargeOneBundle
 * Funding.ChargeOneBundle - charge more than available
-* FundintState.AddAmount
-* FundintState.SubtractAmount
-* FundintState.SubtractAmount - subtract more than available
 * FundintState.SetActive
 * FundintState.SetActive - add same funder twice
 * FundintState.SetInactive
@@ -41,7 +38,6 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		fundingState = types.FundingState{
 			PoolId:                0,
 			ActiveFunderAddresses: []string{i.ALICE, i.BOB},
-			TotalAmount:           100 * i.KYVE,
 		}
 	})
 
@@ -93,32 +89,6 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		Expect(amount).To(Equal(1 * i.KYVE / 2))
 		Expect(funding.Amount).To(Equal(uint64(0)))
 		Expect(funding.TotalFunded).To(Equal(1 * i.KYVE / 2))
-	})
-
-	It("FundintState.AddAmount", func() {
-		// ACT
-		fundingState.AddAmount(100 * i.KYVE)
-
-		// ASSERT
-		Expect(fundingState.TotalAmount).To(Equal(200 * i.KYVE))
-	})
-
-	It("FundintState.SubtractAmount", func() {
-		// ACT
-		subtracted := fundingState.SubtractAmount(50 * i.KYVE)
-
-		// ASSERT
-		Expect(subtracted).To(Equal(50 * i.KYVE))
-		Expect(fundingState.TotalAmount).To(Equal(50 * i.KYVE))
-	})
-
-	It("FundintState.SubtractAmount - subtract more than available", func() {
-		// ACT
-		subtracted := fundingState.SubtractAmount(200 * i.KYVE)
-
-		// ASSERT
-		Expect(subtracted).To(Equal(100 * i.KYVE))
-		Expect(fundingState.TotalAmount).To(Equal(uint64(0)))
 	})
 
 	It("FundintState.SetActive", func() {

@@ -52,7 +52,7 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 					Logo:                 pool.Logo,
 					InflationShareWeight: pool.InflationShareWeight,
 					UploadInterval:       pool.UploadInterval,
-					TotalFunds:           fundingState.TotalAmount,
+					TotalFunds:           k.fundersKeeper.GetTotalActiveFunding(ctx, pool.Id),
 					TotalDelegation:      k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id),
 					Status:               k.GetPoolStatus(ctx, &pool, &fundingState),
 				},
@@ -96,12 +96,7 @@ func (k Keeper) GetPoolStatus(ctx sdk.Context, pool *pooltypes.Pool, fundingStat
 	} else if totalDelegation < pool.MinDelegation {
 		poolStatus = pooltypes.POOL_STATUS_NOT_ENOUGH_DELEGATION
 	} else {
-		// Get funding state if not provided
-		if fundingState == nil {
-			fs, _ := k.fundersKeeper.GetFundingState(ctx, pool.Id)
-			fundingState = &fs
-		}
-		if fundingState.TotalAmount == 0 {
+		if k.fundersKeeper.GetTotalActiveFunding(ctx, pool.Id) == 0 {
 			poolStatus = pooltypes.POOL_STATUS_NO_FUNDS
 		}
 	}

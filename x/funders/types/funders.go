@@ -19,19 +19,6 @@ func (f *Funding) ChargeOneBundle() (amount uint64) {
 	return amount
 }
 
-func (fs *FundingState) AddAmount(amount uint64) {
-	fs.TotalAmount += amount
-}
-
-func (fs *FundingState) SubtractAmount(amount uint64) (subtracted uint64) {
-	subtracted = amount
-	if fs.TotalAmount < amount {
-		subtracted = fs.TotalAmount
-	}
-	fs.TotalAmount -= subtracted
-	return subtracted
-}
-
 // SetInactive removes a funding from active fundings
 func (fs *FundingState) SetInactive(funding *Funding) {
 	for i, funderAddress := range fs.ActiveFunderAddresses {

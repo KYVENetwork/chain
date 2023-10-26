@@ -96,7 +96,6 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		Expect(fundingState.PoolId).To(Equal(uint64(0)))
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(1))
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
-		Expect(fundingState.TotalAmount).To(Equal(100 * i.KYVE))
 	})
 
 	It("Fund additional 50 $KYVE to an existing funding with 100 $KYVE", func() {
@@ -131,7 +130,6 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		Expect(fundingState.PoolId).To(Equal(uint64(0)))
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(1))
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
-		Expect(fundingState.TotalAmount).To(Equal(150 * i.KYVE))
 
 		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
 		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings)
@@ -160,7 +158,6 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		Expect(fundingState.PoolId).To(Equal(uint64(0)))
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(0))
-		Expect(fundingState.TotalAmount).To(Equal(uint64(0)))
 	})
 
 	It("Fund with a new funder less $KYVE than the existing one", func() {
@@ -192,7 +189,6 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		Expect(fundingState.PoolId).To(Equal(uint64(0)))
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(2))
-		Expect(fundingState.TotalAmount).To(Equal(150 * i.KYVE))
 
 		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
 		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings)
@@ -229,7 +225,6 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		Expect(fundingState.PoolId).To(Equal(uint64(0)))
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(2))
-		Expect(fundingState.TotalAmount).To(Equal(300 * i.KYVE))
 
 		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
 		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings)
@@ -269,11 +264,9 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 				AmountPerBundle: 1 * i.KYVE,
 			})
 		}
-		totalFunded := (funderstypes.MaxFunders-1)*1000*i.KYVE + 100*i.KYVE
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(funderstypes.MaxFunders))
-		Expect(fundingState.TotalAmount).To(Equal(totalFunded))
 
 		balanceAfter := s.GetBalanceFromAddress(i.ALICE)
 		Expect(initialBalance - balanceAfter).To(Equal(100 * i.KYVE))
@@ -289,7 +282,6 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		// ASSERT
 		fundingState, _ = s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(funderstypes.MaxFunders))
-		Expect(fundingState.TotalAmount).To(Equal(totalFunded))
 
 		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
 		Expect(activeFundings).To(HaveLen(50))
@@ -334,10 +326,8 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		x := s.GetBalanceFromAddress(i.BOB)
 		Expect(initialBalanceBob - x).To(Equal(200 * i.KYVE))
 		// ASSERT
-		totalFunded := (funderstypes.MaxFunders-1)*1000*i.KYVE + 200*i.KYVE
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(funderstypes.MaxFunders))
-		Expect(fundingState.TotalAmount).To(Equal(totalFunded))
 
 		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
 		Expect(activeFundings).To(HaveLen(50))
@@ -374,10 +364,8 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 				AmountPerBundle: 1 * i.KYVE,
 			})
 		}
-		totalFunded := (funderstypes.MaxFunders-1)*1000*i.KYVE + 100*i.KYVE
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
-		Expect(totalFunded).To(Equal(fundingState.TotalAmount))
 		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
 		Expect(activeFundings).To(HaveLen(50))
 		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings)
@@ -395,7 +383,6 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		// ASSERT
 		fundingState, _ = s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(funderstypes.MaxFunders))
-		Expect(fundingState.TotalAmount).To(Equal(totalFunded + 50*i.KYVE))
 
 		balanceEnd := s.GetBalanceFromAddress(i.ALICE)
 		Expect(initialBalance - balanceEnd).To(Equal(150 * i.KYVE))

@@ -17,9 +17,20 @@ func (k Keeper) CreateFundingState(ctx sdk.Context, poolId uint64) {
 	fundingState := types.FundingState{
 		PoolId:                poolId,
 		ActiveFunderAddresses: []string{},
-		TotalAmount:           0,
 	}
 	k.SetFundingState(ctx, &fundingState)
+}
+
+func (k Keeper) GetTotalActiveFunding(ctx sdk.Context, poolId uint64) (amount uint64) {
+	state, found := k.GetFundingState(ctx, poolId)
+	if !found {
+		return 0
+	}
+	for _, address := range state.ActiveFunderAddresses {
+		funding, _ := k.GetFunding(ctx, address, poolId)
+		amount += funding.Amount
+	}
+	return amount
 }
 
 // ChargeFundersOfPool charges all funders of a pool with their amount_per_bundle
@@ -49,7 +60,6 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint
 		}
 		k.SetFunding(ctx, &funding)
 	}
-	fundingState.SubtractAmount(payout)
 
 	// Save funding state
 	k.SetFundingState(ctx, &fundingState)

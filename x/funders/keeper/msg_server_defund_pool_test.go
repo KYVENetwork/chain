@@ -88,7 +88,6 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 		Expect(funding.TotalFunded).To(Equal(0 * i.KYVE))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
-		Expect(fundingState.TotalAmount).To(Equal(50 * i.KYVE))
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(1))
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
 	})
@@ -111,7 +110,6 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 		Expect(funding.TotalFunded).To(Equal(0 * i.KYVE))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
-		Expect(fundingState.TotalAmount).To(Equal(0 * i.KYVE))
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(0))
 	})
 
@@ -133,7 +131,6 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 		Expect(funding.TotalFunded).To(Equal(0 * i.KYVE))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
-		Expect(fundingState.TotalAmount).To(Equal(0 * i.KYVE))
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(0))
 	})
 

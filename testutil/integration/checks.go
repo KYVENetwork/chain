@@ -496,8 +496,9 @@ func (suite *KeeperTestSuite) VerifyFundersModuleAssetsIntegrity() {
 		for _, activeFunding := range activeFundings {
 			totalAmount += activeFunding.Amount
 		}
-		Expect(totalAmount).To(Equal(fundingState.TotalAmount))
-		expectedFundingStateTotalAmount += fundingState.TotalAmount
+		totalActiveFunding := suite.App().FundersKeeper.GetTotalActiveFunding(suite.ctx, fundingState.PoolId)
+		Expect(totalAmount).To(Equal(totalActiveFunding))
+		expectedFundingStateTotalAmount += totalAmount
 	}
 
 	// total amount of fundings should be equal to the amount of the funders module account
@@ -564,7 +565,7 @@ func (suite *KeeperTestSuite) verifyFullStaker(fullStaker querytypes.FullStaker,
 
 		fundingState, found := suite.App().FundersKeeper.GetFundingState(suite.Ctx(), poolMembership.Pool.Id)
 		Expect(found).To(BeTrue())
-		Expect(poolMembership.Pool.TotalFunds).To(Equal(fundingState.TotalAmount))
+		Expect(poolMembership.Pool.TotalFunds).To(Equal(suite.App().FundersKeeper.GetTotalActiveFunding(suite.Ctx(), fundingState.PoolId)))
 		Expect(poolMembership.Pool.Name).To(Equal(pool.Name))
 		Expect(poolMembership.Pool.Runtime).To(Equal(pool.Runtime))
 		Expect(poolMembership.Pool.Status).To(Equal(suite.App().QueryKeeper.GetPoolStatus(suite.Ctx(), &pool, &fundingState)))

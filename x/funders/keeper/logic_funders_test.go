@@ -105,7 +105,6 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 
 		// ASSERT
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
-		Expect(fundingState.TotalAmount).To(Equal(95 * i.KYVE))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
 
@@ -167,7 +166,6 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 
 		// ASSERT
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
-		Expect(fundingState.TotalAmount).To(Equal(40 * i.KYVE))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.BOB))
 

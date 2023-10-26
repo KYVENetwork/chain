@@ -164,7 +164,6 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 		Expect(fundingState).To(Equal(funderstypes.FundingState{
 			PoolId:                0,
 			ActiveFunderAddresses: nil,
-			TotalAmount:           0,
 		}))
 	})
 
@@ -272,7 +271,6 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 		Expect(fundingState).To(Equal(funderstypes.FundingState{
 			PoolId:                1,
 			ActiveFunderAddresses: nil,
-			TotalAmount:           0,
 		}))
 	})
 

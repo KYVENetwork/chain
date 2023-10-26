@@ -167,7 +167,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(fundingState.TotalAmount).To(BeZero())
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
 		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
@@ -252,7 +252,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(fundingState.TotalAmount).To(BeZero())
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
 		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
@@ -337,7 +337,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(fundingState.TotalAmount).To(BeZero())
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
 		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
@@ -435,7 +435,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(fundingState.TotalAmount).To(Equal(200*i.KYVE - 10_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(200*i.KYVE - 10_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
 	})
 
@@ -534,7 +534,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(fundingState.TotalAmount).To(Equal(200*i.KYVE - 10_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(200*i.KYVE - 10_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
 	})
 
@@ -633,7 +633,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(fundingState.TotalAmount).To(Equal(200*i.KYVE - 10_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(200*i.KYVE - 10_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
 	})
 
@@ -730,7 +730,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(fundingState.TotalAmount).To(BeZero())
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
 		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
@@ -829,7 +829,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(fundingState.TotalAmount).To(BeZero())
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
 		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
@@ -928,7 +928,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(fundingState.TotalAmount).To(BeZero())
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
 		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
@@ -1025,7 +1025,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(fundingState.TotalAmount).To(Equal(100*i.KYVE - 5_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100*i.KYVE - 5_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 
@@ -1124,7 +1124,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(fundingState.TotalAmount).To(Equal(100*i.KYVE - 5_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100*i.KYVE - 5_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 
@@ -1223,7 +1223,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(fundingState.TotalAmount).To(Equal(100*i.KYVE - 5_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100*i.KYVE - 5_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 })
