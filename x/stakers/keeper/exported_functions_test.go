@@ -38,7 +38,6 @@ var _ = Describe("Protocol Governance Voting", Ordered, func() {
 	parsedAliceAddr := sdk.MustAccAddressFromBech32(i.ALICE)
 	parsedBobAddr := sdk.MustAccAddressFromBech32(i.BOB)
 
-	// TODO(postAudit,@john): Think about randomly generating these values.
 	validatorAmount := 500 * i.KYVE
 	delegatorAmount := 250 * i.KYVE
 

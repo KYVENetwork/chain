@@ -16,7 +16,6 @@ TEST CASES - msg_server_create_funder.go
 * Create a funder with empty values except moniker
 * Create a funder with all values set
 * Try to create a funder that already exists
-* Create two funders with the same moniker	// TODO: should this be allowed?
 * Create two funders
 */
 
@@ -91,22 +90,6 @@ var _ = Describe("msg_server_create_funder.go", Ordered, func() {
 		s.RunTxFundersError(&types.MsgCreateFunder{
 			Creator: i.ALICE,
 			Moniker: "moniker 2",
-		})
-	})
-
-	// TODO: should this be allowed?
-	PIt("Create two funders with the same moniker", func() {
-		// ARRANGE
-		moniker := "moniker"
-		s.RunTxFundersSuccess(&types.MsgCreateFunder{
-			Creator: i.ALICE,
-			Moniker: moniker,
-		})
-
-		// ACT
-		s.RunTxFundersError(&types.MsgCreateFunder{
-			Creator: i.BOB,
-			Moniker: moniker,
 		})
 	})
 
