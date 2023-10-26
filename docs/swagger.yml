@@ -8680,11 +8680,6 @@ paths:
           in: query
           required: false
           type: boolean
-        - name: search
-          description: search.
-          in: query
-          required: false
-          type: string
         - name: with_inactive_fundings
           description: with_inactive_fundings ...
           in: query
@@ -9007,11 +9002,6 @@ paths:
           in: query
           required: false
           type: boolean
-        - name: search
-          description: search.
-          in: query
-          required: false
-          type: string
         - name: with_inactive_fundings
           description: with_inactive_fundings ...
           in: query

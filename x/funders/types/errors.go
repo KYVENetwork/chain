@@ -14,6 +14,5 @@ var (
 	ErrFundingDoesNotExist   = errors.Register(ModuleName, 1105, "funding for pool %v and funder %v does not exist")
 	ErrFundingIsUsedUp       = errors.Register(ModuleName, 1106, "funding for pool %v and funder %v is used up")
 
-	ErrFundingStateDoesNotExist  = errors.Register(ModuleName, 1107, "funding state for pool %v does not exist")
-	ErrFundingStateAlreadyExists = errors.Register(ModuleName, 1108, "funding state for pool %v already exists")
+	ErrFundingStateDoesNotExist = errors.Register(ModuleName, 1107, "funding state for pool %v does not exist")
 )
