@@ -97,6 +97,7 @@ func (k Keeper) SetFunding(ctx sdk.Context, funding *types.Funding) {
 }
 
 // GetPaginatedFundingQuery performs a full search on all fundings with the given parameters.
+// Requires either funderAddress or poolId to be provided.
 func (k Keeper) GetPaginatedFundingQuery(
 	ctx sdk.Context,
 	pagination *query.PageRequest,

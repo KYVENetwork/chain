@@ -126,10 +126,8 @@ message QueryFundingsByFunderRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
   // address ...
   string address = 2;
-  // search
-  string search = 3;
   // with_inactive_fundings ...
-  bool with_inactive_fundings = 4;
+  bool with_inactive_fundings = 3;
 }
 
 // QueryFundingsByFunderResponse is the response type for the Query/FundingsByFunder RPC method.
@@ -150,10 +148,8 @@ message QueryFundingsByPoolRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
   // pool_id ...
   uint64 pool_id = 2;
-  // search
-  string search = 3;
   // with_inactive_fundings ...
-  bool with_inactive_fundings = 4;
+  bool with_inactive_fundings = 3;
 }
 
 // QueryFundingsByPoolResponse is the response type for the Query/FundingsByPool RPC method.
