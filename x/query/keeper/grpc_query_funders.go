@@ -6,7 +6,6 @@ import (
 	fundersTypes "github.com/KYVENetwork/chain/x/funders/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -41,7 +40,7 @@ func (k Keeper) Funder(c context.Context, req *types.QueryFunderRequest) (*types
 
 	funder, found := k.fundersKeeper.GetFunder(ctx, req.Address)
 	if !found {
-		return nil, errorsTypes.ErrKeyNotFound
+		return nil, status.Error(codes.NotFound, "funder not found")
 	}
 
 	fundings := k.fundersKeeper.GetFundingsOfFunder(ctx, funder.Address)
