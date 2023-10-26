@@ -82,7 +82,18 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 }
 
 func (k Keeper) GetPoolStatus(ctx sdk.Context, pool *pooltypes.Pool) pooltypes.PoolStatus {
-	totalDelegation := k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id)
+	totalDelegation := uint64(0)
+	maxDelegation := uint64(0)
+
+	// Get the total delegation and the highest delegation of a staker in the pool
+	for _, address := range k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, pool.Id) {
+		delegation := k.delegationKeeper.GetDelegationAmount(ctx, address)
+		totalDelegation += delegation
+
+		if delegation > maxDelegation {
+			maxDelegation = delegation
+		}
+	}
 
 	var poolStatus pooltypes.PoolStatus
 
@@ -92,6 +103,8 @@ func (k Keeper) GetPoolStatus(ctx sdk.Context, pool *pooltypes.Pool) pooltypes.P
 		poolStatus = pooltypes.POOL_STATUS_DISABLED
 	} else if totalDelegation < pool.MinDelegation {
 		poolStatus = pooltypes.POOL_STATUS_NOT_ENOUGH_DELEGATION
+	} else if maxDelegation*2 > totalDelegation {
+		poolStatus = pooltypes.POOL_STATUS_VP_TOO_HIGH
 	} else if pool.TotalFunds == 0 {
 		poolStatus = pooltypes.POOL_STATUS_NO_FUNDS
 	} else {
