@@ -17,23 +17,22 @@ func (k Keeper) AccountFundedList(goCtx context.Context, req *types.QueryAccount
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	var funded []types.Funded
 
-	pools := k.poolKeeper.GetAllPools(ctx)
+	fundings := k.fundersKeeper.GetFundingsOfFunder(ctx, req.Address)
 
-	for _, pool := range pools {
-		funding, found := k.fundersKeeper.GetFunding(ctx, req.Address, pool.Id)
-		if !found {
-			return nil, status.Error(codes.Internal, "funding not found")
-		}
-		fundingState, found := k.fundersKeeper.GetFundingState(ctx, pool.Id)
-		if !found {
-			return nil, status.Error(codes.Internal, "funding state not found")
-		}
-
+	for _, funding := range fundings {
 		if funding.Amount > 0 {
+			pool, found := k.poolKeeper.GetPool(ctx, funding.PoolId)
+			if !found {
+				return nil, status.Error(codes.Internal, "pool not found")
+			}
+			fundingState, found := k.fundersKeeper.GetFundingState(ctx, funding.PoolId)
+			if !found {
+				return nil, status.Error(codes.Internal, "funding state not found")
+			}
 			funded = append(funded, types.Funded{
 				Amount: funding.Amount,
 				Pool: &types.BasicPool{
-					Id:                   pool.Id,
+					Id:                   funding.PoolId,
 					Name:                 pool.Name,
 					Runtime:              pool.Runtime,
 					Logo:                 pool.Logo,
