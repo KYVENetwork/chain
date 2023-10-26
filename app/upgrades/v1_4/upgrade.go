@@ -221,7 +221,9 @@ func migrateFunders(
 				PoolId:          funding.PoolId,
 				Amount:          funding.Amount,
 				AmountPerBundle: DefaultAmountPerBundle,
-				TotalFunded:     0, // TODO: how to calculate this?
+				// Previous funders will not be considered, as there is no way to calculate this on chain.
+				// Although almost all funding was only provided by the Foundation itself.
+				TotalFunded: 0,
 			})
 		}
 	}
