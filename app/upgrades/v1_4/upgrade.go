@@ -116,7 +116,7 @@ func CreateUpgradeHandler(
 		}
 
 		// Migrate funders.
-		err = migrateFunders(ctx, cdc, poolKeeper, fundersKeeper, bankKeeper, accountKeeper)
+		err = migrateFundersAndPools(ctx, cdc, poolKeeper, fundersKeeper, bankKeeper, accountKeeper)
 		if err != nil {
 			return vm, err
 		}
@@ -159,7 +159,7 @@ type FunderMigration struct {
 }
 
 // migrateFunders migrates funders from x/pool to x/funders and creates funding states for pools.
-func migrateFunders(
+func migrateFundersAndPools(
 	ctx sdk.Context,
 	cdc codec.BinaryCodec,
 	poolKeeper poolKeeper.Keeper,
@@ -176,32 +176,63 @@ func migrateFunders(
 	amountToBeTransferred := uint64(0)
 
 	// Get all funders and their funding from pools.
-	for _, pool := range pools {
+	for _, oldPool := range pools {
 		checkTotalFunds := uint64(0)
-		for _, funder := range pool.Funders {
+		for _, funder := range oldPool.Funders {
 			if funder.Amount > 0 {
 				_, ok := toBeCreatedFunders[funder.Address]
 				if ok {
-					toBeCreatedFunders[funder.Address].Fundings = append(toBeCreatedFunders[funder.Address].Fundings, FundingMigration{PoolId: pool.Id, Amount: funder.Amount})
+					toBeCreatedFunders[funder.Address].Fundings = append(toBeCreatedFunders[funder.Address].Fundings, FundingMigration{PoolId: oldPool.Id, Amount: funder.Amount})
 				} else {
 					toBeCreatedFunders[funder.Address] = &FunderMigration{
 						Address:  funder.Address,
-						Fundings: []FundingMigration{{PoolId: pool.Id, Amount: funder.Amount}},
+						Fundings: []FundingMigration{{PoolId: oldPool.Id, Amount: funder.Amount}},
 					}
 				}
 				checkTotalFunds += funder.Amount
 			}
 		}
-		if checkTotalFunds != pool.TotalFunds {
+		if checkTotalFunds != oldPool.TotalFunds {
 			return errors.New("total funds is not equal to the sum of all funders amount")
 		}
-		amountToBeTransferred += pool.TotalFunds
+		amountToBeTransferred += oldPool.TotalFunds
 
 		// Create funding state for pool.
 		fundersKeeper.SetFundingState(ctx, &fundersTypes.FundingState{
-			PoolId:                pool.Id,
+			PoolId:                oldPool.Id,
 			ActiveFunderAddresses: []string{},
-			TotalAmount:           pool.TotalFunds,
+			TotalAmount:           oldPool.TotalFunds,
+		})
+
+		poolKeeper.SetPool(ctx, poolTypes.Pool{
+			Id:                   oldPool.Id,
+			Name:                 oldPool.Name,
+			Runtime:              oldPool.Runtime,
+			Logo:                 oldPool.Logo,
+			Config:               oldPool.Config,
+			StartKey:             oldPool.StartKey,
+			CurrentKey:           oldPool.CurrentKey,
+			CurrentSummary:       oldPool.CurrentSummary,
+			CurrentIndex:         oldPool.CurrentIndex,
+			TotalBundles:         oldPool.TotalBundles,
+			UploadInterval:       oldPool.UploadInterval,
+			InflationShareWeight: oldPool.OperatingCost,
+			MinDelegation:        oldPool.MinDelegation,
+			MaxBundleSize:        oldPool.MaxBundleSize,
+			Disabled:             oldPool.Disabled,
+			Protocol: &poolTypes.Protocol{
+				Version:     oldPool.Protocol.Version,
+				Binaries:    oldPool.Protocol.Binaries,
+				LastUpgrade: oldPool.Protocol.LastUpgrade,
+			},
+			UpgradePlan: &poolTypes.UpgradePlan{
+				Version:     oldPool.UpgradePlan.Version,
+				Binaries:    oldPool.UpgradePlan.Binaries,
+				ScheduledAt: oldPool.UpgradePlan.ScheduledAt,
+				Duration:    oldPool.UpgradePlan.Duration,
+			},
+			CurrentStorageProviderId: oldPool.CurrentStorageProviderId,
+			CurrentCompressionId:     oldPool.CurrentCompressionId,
 		})
 	}
 

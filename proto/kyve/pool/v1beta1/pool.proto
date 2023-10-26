@@ -90,16 +90,13 @@ message Pool {
   // Can only be done via governance.
   bool disabled = 15;
 
-  // old funders and total_funds fields
-  reserved 16, 17;
-
   // protocol ...
-  Protocol protocol = 18;
+  Protocol protocol = 16;
   // upgrade_plan ...
-  UpgradePlan upgrade_plan = 19;
+  UpgradePlan upgrade_plan = 17;
 
   // storage_provider_id ...
-  uint32 current_storage_provider_id = 20;
+  uint32 current_storage_provider_id = 18;
   // compression_id ...
-  uint32 current_compression_id = 21;
+  uint32 current_compression_id = 19;
 }
