@@ -2,12 +2,13 @@ package cli
 
 import (
 	"context"
+	"strconv"
+
 	"github.com/KYVENetwork/chain/x/query/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/spf13/cobra"
-	"strconv"
 )
 
 func byFunder(

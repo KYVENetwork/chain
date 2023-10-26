@@ -911,6 +911,10 @@ func NewKYVEApp(
 			*app.GovKeeper,
 			*app.IBCKeeper,
 			app.ParamsKeeper,
+			app.PoolKeeper,
+			app.FundersKeeper,
+			app.BankKeeper,
+			app.AccountKeeper,
 		),
 	)
 
