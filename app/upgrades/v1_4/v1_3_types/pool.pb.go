@@ -9,16 +9,19 @@ import (
 // source: kyve/pool/v1beta1/pool.proto
 
 import (
-	_ "github.com/cosmos/gogoproto/gogoproto"
-	proto "github.com/cosmos/gogoproto/proto"
 	math "math"
 	math_bits "math/bits"
+
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	proto "github.com/cosmos/gogoproto/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -88,9 +91,11 @@ func (*Protocol) ProtoMessage()    {}
 func (*Protocol) Descriptor() ([]byte, []int) {
 	return fileDescriptor_40c1730f47ff2ef8, []int{0}
 }
+
 func (m *Protocol) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *Protocol) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_Protocol.Marshal(b, m, deterministic)
@@ -103,12 +108,15 @@ func (m *Protocol) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
+
 func (m *Protocol) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_Protocol.Merge(m, src)
 }
+
 func (m *Protocol) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *Protocol) XXX_DiscardUnknown() {
 	xxx_messageInfo_Protocol.DiscardUnknown(m)
 }
@@ -157,9 +165,11 @@ func (*UpgradePlan) ProtoMessage()    {}
 func (*UpgradePlan) Descriptor() ([]byte, []int) {
 	return fileDescriptor_40c1730f47ff2ef8, []int{1}
 }
+
 func (m *UpgradePlan) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *UpgradePlan) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_UpgradePlan.Marshal(b, m, deterministic)
@@ -172,12 +182,15 @@ func (m *UpgradePlan) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) 
 		return b[:n], nil
 	}
 }
+
 func (m *UpgradePlan) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_UpgradePlan.Merge(m, src)
 }
+
 func (m *UpgradePlan) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *UpgradePlan) XXX_DiscardUnknown() {
 	xxx_messageInfo_UpgradePlan.DiscardUnknown(m)
 }
@@ -227,9 +240,11 @@ func (*Funder) ProtoMessage()    {}
 func (*Funder) Descriptor() ([]byte, []int) {
 	return fileDescriptor_40c1730f47ff2ef8, []int{2}
 }
+
 func (m *Funder) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *Funder) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_Funder.Marshal(b, m, deterministic)
@@ -242,12 +257,15 @@ func (m *Funder) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
+
 func (m *Funder) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_Funder.Merge(m, src)
 }
+
 func (m *Funder) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *Funder) XXX_DiscardUnknown() {
 	xxx_messageInfo_Funder.DiscardUnknown(m)
 }
@@ -322,9 +340,11 @@ func (*Pool) ProtoMessage()    {}
 func (*Pool) Descriptor() ([]byte, []int) {
 	return fileDescriptor_40c1730f47ff2ef8, []int{3}
 }
+
 func (m *Pool) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *Pool) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_Pool.Marshal(b, m, deterministic)
@@ -337,12 +357,15 @@ func (m *Pool) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
+
 func (m *Pool) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_Pool.Merge(m, src)
 }
+
 func (m *Pool) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *Pool) XXX_DiscardUnknown() {
 	xxx_messageInfo_Pool.DiscardUnknown(m)
 }
@@ -497,11 +520,11 @@ func (m *Pool) GetCurrentCompressionId() uint32 {
 }
 
 func init() {
-	//proto.RegisterEnum("kyve.pool.v1beta1.PoolStatus", PoolStatus_name, PoolStatus_value)
-	//proto.RegisterType((*Protocol)(nil), "kyve.pool.v1beta1.Protocol")
-	//proto.RegisterType((*UpgradePlan)(nil), "kyve.pool.v1beta1.UpgradePlan")
-	//proto.RegisterType((*Funder)(nil), "kyve.pool.v1beta1.Funder")
-	//proto.RegisterType((*Pool)(nil), "kyve.pool.v1beta1.Pool")
+	// proto.RegisterEnum("kyve.pool.v1beta1.PoolStatus", PoolStatus_name, PoolStatus_value)
+	// proto.RegisterType((*Protocol)(nil), "kyve.pool.v1beta1.Protocol")
+	// proto.RegisterType((*UpgradePlan)(nil), "kyve.pool.v1beta1.UpgradePlan")
+	// proto.RegisterType((*Funder)(nil), "kyve.pool.v1beta1.Funder")
+	// proto.RegisterType((*Pool)(nil), "kyve.pool.v1beta1.Pool")
 }
 
 func init() { proto.RegisterFile("kyve/pool/v1beta1/pool.proto", fileDescriptor_40c1730f47ff2ef8) }
@@ -879,6 +902,7 @@ func encodeVarintPool(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+
 func (m *Protocol) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1025,9 +1049,11 @@ func (m *Pool) Size() (n int) {
 func sovPool(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
+
 func sozPool(x uint64) (n int) {
 	return sovPool(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
+
 func (m *Protocol) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1161,6 +1187,7 @@ func (m *Protocol) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *UpgradePlan) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1313,6 +1340,7 @@ func (m *UpgradePlan) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *Funder) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1414,6 +1442,7 @@ func (m *Funder) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *Pool) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2004,6 +2033,7 @@ func (m *Pool) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func skipPool(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0

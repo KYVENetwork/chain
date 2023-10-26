@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+
 	"github.com/KYVENetwork/chain/x/query/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"

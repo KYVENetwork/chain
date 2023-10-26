@@ -2,6 +2,7 @@ package v1_4
 
 import (
 	"errors"
+
 	"github.com/KYVENetwork/chain/app/upgrades/v1_4/v1_3_types"
 	"github.com/KYVENetwork/chain/util"
 	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
