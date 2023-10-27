@@ -22,10 +22,10 @@ var _ = Describe("dropped bundles", Ordered, func() {
 	s := i.NewCleanChain()
 
 	initialBalanceStaker0 := s.GetBalanceFromAddress(i.STAKER_0)
-	initialBalanceValaddress0 := s.GetBalanceFromAddress(i.VALADDRESS_0)
+	initialBalanceValaddress0 := s.GetBalanceFromAddress(i.VALADDRESS_0_A)
 
 	initialBalanceStaker1 := s.GetBalanceFromAddress(i.STAKER_1)
-	initialBalanceValaddress1 := s.GetBalanceFromAddress(i.VALADDRESS_1)
+	initialBalanceValaddress1 := s.GetBalanceFromAddress(i.VALADDRESS_1_A)
 
 	BeforeEach(func() {
 		// init new clean chain
@@ -60,20 +60,20 @@ var _ = Describe("dropped bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
 
 		initialBalanceStaker0 = s.GetBalanceFromAddress(i.STAKER_0)
-		initialBalanceValaddress0 = s.GetBalanceFromAddress(i.VALADDRESS_0)
+		initialBalanceValaddress0 = s.GetBalanceFromAddress(i.VALADDRESS_0_A)
 
 		initialBalanceStaker1 = s.GetBalanceFromAddress(i.STAKER_1)
-		initialBalanceValaddress1 = s.GetBalanceFromAddress(i.VALADDRESS_1)
+		initialBalanceValaddress1 = s.GetBalanceFromAddress(i.VALADDRESS_1_A)
 
 		s.CommitAfterSeconds(60)
 	})
@@ -93,13 +93,13 @@ var _ = Describe("dropped bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_1,
+			Valaddress: i.VALADDRESS_1_A,
 		})
 
 		initialBalanceStaker1 = s.GetBalanceFromAddress(i.STAKER_1)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",

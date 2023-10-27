@@ -83,7 +83,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 			Amount:     0,
 		})
 
@@ -159,7 +159,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 			Amount:     0,
 		})
 
@@ -200,7 +200,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 			Amount:     0,
 		})
 
@@ -235,7 +235,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 			Amount:     0,
 		})
 
@@ -278,12 +278,12 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 			Amount:     0,
 		})
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -291,7 +291,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -312,7 +312,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		})
 
 		// ACT
-		err := s.App().BundlesKeeper.AssertCanVote(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1, "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI")
+		err := s.App().BundlesKeeper.AssertCanVote(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1_A, "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI")
 
 		// ASSERT
 		Expect(err).To(HaveOccurred())
@@ -348,12 +348,12 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 			Amount:     0,
 		})
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -361,7 +361,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -382,7 +382,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_1,
+			Valaddress: i.VALADDRESS_1_A,
 			Amount:     0,
 		})
 
@@ -391,7 +391,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.CommitAfterSeconds(1)
 
 		// ACT
-		err := s.App().BundlesKeeper.AssertCanVote(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1, "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI")
+		err := s.App().BundlesKeeper.AssertCanVote(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1_A, "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI")
 
 		// ASSERT
 		Expect(err).To(HaveOccurred())
@@ -427,12 +427,12 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 			Amount:     0,
 		})
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -440,7 +440,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "another_storage_id",
@@ -463,12 +463,12 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_1,
+			Valaddress: i.VALADDRESS_1_A,
 			Amount:     0,
 		})
 
 		// ACT
-		err := s.App().BundlesKeeper.AssertCanVote(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1, "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI")
+		err := s.App().BundlesKeeper.AssertCanVote(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1_A, "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI")
 
 		// ASSERT
 		Expect(err).To(HaveOccurred())
@@ -504,12 +504,12 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 			Amount:     0,
 		})
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -517,7 +517,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -540,12 +540,12 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_1,
+			Valaddress: i.VALADDRESS_1_A,
 			Amount:     0,
 		})
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
+			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -553,7 +553,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		})
 
 		// ACT
-		err := s.App().BundlesKeeper.AssertCanVote(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1, "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI")
+		err := s.App().BundlesKeeper.AssertCanVote(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1_A, "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI")
 
 		// ASSERT
 		Expect(err).To(HaveOccurred())
@@ -589,12 +589,12 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 			Amount:     0,
 		})
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -602,7 +602,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -625,12 +625,12 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_1,
+			Valaddress: i.VALADDRESS_1_A,
 			Amount:     0,
 		})
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
+			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -638,7 +638,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		})
 
 		// ACT
-		err := s.App().BundlesKeeper.AssertCanVote(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1, "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI")
+		err := s.App().BundlesKeeper.AssertCanVote(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1_A, "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI")
 
 		// ASSERT
 		Expect(err).To(HaveOccurred())
@@ -674,12 +674,12 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 			Amount:     0,
 		})
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -687,7 +687,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -710,12 +710,12 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_1,
+			Valaddress: i.VALADDRESS_1_A,
 			Amount:     0,
 		})
 
 		// ACT
-		err := s.App().BundlesKeeper.AssertCanVote(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1, "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI")
+		err := s.App().BundlesKeeper.AssertCanVote(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1_A, "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI")
 
 		// ASSERT
 		Expect(err).NotTo(HaveOccurred())
@@ -753,12 +753,12 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 			Amount:     0,
 		})
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -766,7 +766,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		// ACT
-		err := s.App().BundlesKeeper.AssertCanPropose(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1, 0)
+		err := s.App().BundlesKeeper.AssertCanPropose(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1_A, 0)
 
 		// ASSERT
 		Expect(err).To(HaveOccurred())
@@ -802,12 +802,12 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 			Amount:     0,
 		})
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -820,14 +820,14 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_1,
+			Valaddress: i.VALADDRESS_1_A,
 			Amount:     0,
 		})
 
 		s.CommitAfterSeconds(60)
 
 		// ACT
-		err := s.App().BundlesKeeper.AssertCanPropose(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1, 0)
+		err := s.App().BundlesKeeper.AssertCanPropose(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1_A, 0)
 
 		// ASSERT
 		Expect(err).To(HaveOccurred())
@@ -863,12 +863,12 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 			Amount:     0,
 		})
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -876,7 +876,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.CommitAfterSeconds(30)
 
 		// ACT
-		err := s.App().BundlesKeeper.AssertCanPropose(s.Ctx(), 0, i.STAKER_0, i.VALADDRESS_0, 0)
+		err := s.App().BundlesKeeper.AssertCanPropose(s.Ctx(), 0, i.STAKER_0, i.VALADDRESS_0_A, 0)
 
 		// ASSERT
 		Expect(err).To(HaveOccurred())
@@ -912,12 +912,12 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 			Amount:     0,
 		})
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -925,7 +925,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		// ACT
-		err := s.App().BundlesKeeper.AssertCanPropose(s.Ctx(), 0, i.STAKER_0, i.VALADDRESS_0, 1000)
+		err := s.App().BundlesKeeper.AssertCanPropose(s.Ctx(), 0, i.STAKER_0, i.VALADDRESS_0_A, 1000)
 
 		// ASSERT
 		Expect(err).To(HaveOccurred())
@@ -961,12 +961,12 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 			Amount:     0,
 		})
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -974,7 +974,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		// ACT
-		err := s.App().BundlesKeeper.AssertCanPropose(s.Ctx(), 0, i.STAKER_0, i.VALADDRESS_0, 0)
+		err := s.App().BundlesKeeper.AssertCanPropose(s.Ctx(), 0, i.STAKER_0, i.VALADDRESS_0_A, 0)
 
 		// ASSERT
 		Expect(err).NotTo(HaveOccurred())

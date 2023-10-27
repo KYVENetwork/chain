@@ -28,14 +28,20 @@ const (
 	BOB     = "kyve1hvg7zsnrj6h29q9ss577mhrxa04rn94h7zjugq"
 	CHARLIE = "kyve1ay22rr3kz659fupu0tcswlagq4ql6rwm4nuv0s"
 
-	STAKER_0     = "kyve1htgfatqevuvfzvl0sxp97ywteqhg5leha9emf4"
-	VALADDRESS_0 = "kyve1qnf86dkvvtpdukx30r3vajav7rdq8snktm90hm"
+	STAKER_0       = "kyve1htgfatqevuvfzvl0sxp97ywteqhg5leha9emf4"
+	VALADDRESS_0_A = "kyve1qnf86dkvvtpdukx30r3vajav7rdq8snktm90hm"
+	VALADDRESS_0_B = "kyve10t8gnqjnem7tsu09erzswj3zm8599lsnex79rz"
+	VALADDRESS_0_C = "kyve13ztkcm2pket6mrmxj8rrmwc6supw7aqakg3uu3"
 
-	STAKER_1     = "kyve1gnr35rwn8rmflnlzs6nn5hhkmzzkxg9ap8xepw"
-	VALADDRESS_1 = "kyve1hpjgzljglmv00nstk3jvcw0zzq94nu0cuxv5ga"
+	STAKER_1       = "kyve1gnr35rwn8rmflnlzs6nn5hhkmzzkxg9ap8xepw"
+	VALADDRESS_1_A = "kyve1hpjgzljglmv00nstk3jvcw0zzq94nu0cuxv5ga"
+	VALADDRESS_1_B = "kyve14runw9qkltpz2mcx3gsfmlqyyvdzkt3rq3w6fm"
+	VALADDRESS_1_C = "kyve15w9m7zpq9ctsxsveqaqkp4uuvw98z5vct6s9g9"
 
-	STAKER_2     = "kyve1xsemlxghgvusumhqzm2ztjw7dz9krvu3de54e2"
-	VALADDRESS_2 = "kyve1u0870dkae6ql63hxvy9y7g65c0y8csfh8allzl"
+	STAKER_2       = "kyve1xsemlxghgvusumhqzm2ztjw7dz9krvu3de54e2"
+	VALADDRESS_2_A = "kyve1u0870dkae6ql63hxvy9y7g65c0y8csfh8allzl"
+	VALADDRESS_2_B = "kyve16g3utghkvvlz53jk0fq96zwrhxmqfu36ue965q"
+	VALADDRESS_2_C = "kyve18gjtzsn6jme3qsczj9q7wefymlkfu7ngyq5f9c"
 
 	// To avoid giving burner permissions to a module for the tests
 	BURNER = "kyve1ld23ktfwc9zstaq8aanwkkj8cf0ru6adtz59y5"
@@ -73,13 +79,13 @@ func (suite *KeeperTestSuite) initDummyAccounts() {
 	_ = suite.Mint(CHARLIE, 1000*KYVE)
 
 	_ = suite.Mint(STAKER_0, 1000*KYVE)
-	_ = suite.Mint(VALADDRESS_0, 1000*KYVE)
+	_ = suite.Mint(VALADDRESS_0_A, 1000*KYVE)
 
 	_ = suite.Mint(STAKER_1, 1000*KYVE)
-	_ = suite.Mint(VALADDRESS_1, 1000*KYVE)
+	_ = suite.Mint(VALADDRESS_1_A, 1000*KYVE)
 
 	_ = suite.Mint(STAKER_2, 1000*KYVE)
-	_ = suite.Mint(VALADDRESS_2, 1000*KYVE)
+	_ = suite.Mint(VALADDRESS_2_A, 1000*KYVE)
 
 	DUMMY = make([]string, 50)
 

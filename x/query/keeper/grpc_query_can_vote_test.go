@@ -62,7 +62,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 			Amount:     0,
 		})
 
@@ -74,12 +74,12 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_1,
+			Valaddress: i.VALADDRESS_1_A,
 			Amount:     0,
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -87,7 +87,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "test_storage_id",
@@ -109,7 +109,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
 			PoolId:    1,
 			Staker:    i.STAKER_1,
-			Voter:     i.VALADDRESS_1,
+			Voter:     i.VALADDRESS_1_A,
 			StorageId: "test_storage_id",
 		})
 
@@ -120,7 +120,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		Expect(canVote.Reason).To(Equal(errors.Wrapf(errorsTypes.ErrNotFound, pooltypes.ErrPoolNotFound.Error(), 1).Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
+			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    1,
 			StorageId: "test_storage_id",
@@ -147,7 +147,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
-			Voter:     i.VALADDRESS_1,
+			Voter:     i.VALADDRESS_1_A,
 			StorageId: "test_storage_id",
 		})
 
@@ -158,7 +158,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		Expect(canVote.Reason).To(Equal(bundletypes.ErrPoolCurrentlyUpgrading.Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
+			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "test_storage_id",
@@ -180,7 +180,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
-			Voter:     i.VALADDRESS_1,
+			Voter:     i.VALADDRESS_1_A,
 			StorageId: "test_storage_id",
 		})
 
@@ -191,7 +191,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		Expect(canVote.Reason).To(Equal(bundletypes.ErrPoolDisabled.Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
+			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "test_storage_id",
@@ -218,7 +218,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
-			Voter:     i.VALADDRESS_1,
+			Voter:     i.VALADDRESS_1_A,
 			StorageId: "test_storage_id",
 		})
 
@@ -229,7 +229,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		Expect(canVote.Reason).To(Equal(bundletypes.ErrMinDelegationNotReached.Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
+			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "test_storage_id",
@@ -245,7 +245,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_0,
-			Voter:     i.VALADDRESS_1,
+			Voter:     i.VALADDRESS_1_A,
 			StorageId: "test_storage_id",
 		})
 
@@ -256,7 +256,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		Expect(canVote.Reason).To(Equal(stakertypes.ErrValaccountUnauthorized.Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
+			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_0,
 			PoolId:    0,
 			StorageId: "test_storage_id",
@@ -277,7 +277,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
-			Voter:     i.VALADDRESS_1,
+			Voter:     i.VALADDRESS_1_A,
 			StorageId: "test_storage_id",
 		})
 
@@ -288,7 +288,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		Expect(canVote.Reason).To(Equal(bundletypes.ErrBundleDropped.Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
+			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "test_storage_id",
@@ -304,7 +304,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
-			Voter:     i.VALADDRESS_1,
+			Voter:     i.VALADDRESS_1_A,
 			StorageId: "another_test_storage_id",
 		})
 
@@ -315,7 +315,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		Expect(canVote.Reason).To(Equal(bundletypes.ErrInvalidStorageId.Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
+			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "another_test_storage_id",
@@ -329,7 +329,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 	It("Call can vote if voter has already voted valid", func() {
 		// ARRANGE
 		_, txErr := s.RunTx(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
+			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "test_storage_id",
@@ -342,7 +342,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
-			Voter:     i.VALADDRESS_1,
+			Voter:     i.VALADDRESS_1_A,
 			StorageId: "test_storage_id",
 		})
 
@@ -353,7 +353,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		Expect(canVote.Reason).To(Equal(bundletypes.ErrAlreadyVotedValid.Error()))
 
 		_, txErr = s.RunTx(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
+			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "test_storage_id",
@@ -367,7 +367,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 	It("Call can vote if voter has already voted invalid", func() {
 		// ARRANGE
 		_, txErr := s.RunTx(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
+			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "test_storage_id",
@@ -380,7 +380,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
-			Voter:     i.VALADDRESS_1,
+			Voter:     i.VALADDRESS_1_A,
 			StorageId: "test_storage_id",
 		})
 
@@ -391,7 +391,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		Expect(canVote.Reason).To(Equal(bundletypes.ErrAlreadyVotedInvalid.Error()))
 
 		_, txErr = s.RunTx(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
+			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "test_storage_id",
@@ -405,7 +405,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 	It("Call can vote if voter has already voted abstain", func() {
 		// ARRANGE
 		_, txErr := s.RunTx(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
+			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "test_storage_id",
@@ -418,7 +418,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
-			Voter:     i.VALADDRESS_1,
+			Voter:     i.VALADDRESS_1_A,
 			StorageId: "test_storage_id",
 		})
 
@@ -429,7 +429,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		Expect(canVote.Reason).To(Equal("KYVE_VOTE_NO_ABSTAIN_ALLOWED"))
 
 		_, txErr = s.RunTx(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
+			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "test_storage_id",
@@ -444,7 +444,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
-			Voter:     i.VALADDRESS_1,
+			Voter:     i.VALADDRESS_1_A,
 			StorageId: "test_storage_id",
 		})
 
@@ -455,7 +455,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		Expect(canVote.Reason).To(BeEmpty())
 
 		_, txErr := s.RunTx(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
+			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "test_storage_id",
@@ -477,7 +477,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
-			Voter:     i.VALADDRESS_1,
+			Voter:     i.VALADDRESS_1_A,
 			StorageId: "test_storage_id",
 		})
 
@@ -488,7 +488,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		Expect(canVote.Reason).To(BeEmpty())
 
 		_, txErr := s.RunTx(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
+			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "test_storage_id",
