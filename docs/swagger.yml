@@ -4518,6 +4518,17 @@ paths:
                     type: string
                     format: uint64
                     description: Minimum amount of tokens that can be funded per bundle.
+                  min_funding_multiple:
+                    type: string
+                    format: uint64
+                    description: >-
+                      Minimum ratio between the funded amount and the
+                      amount_per_bundle.
+
+                      In other words this param ensures, that a funder provides
+                      at least funding for
+
+                      `min_funding_multiple` bundles.
             description: QueryParamsResponse ...
         default:
           description: An unexpected error response.
