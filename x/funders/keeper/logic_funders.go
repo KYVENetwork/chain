@@ -103,13 +103,15 @@ func (k Keeper) GetLowestFunding(fundings []types.Funding) (lowestFunding *types
 //
 //	and minimum funding amount
 func (k Keeper) ensureParamsCompatibility(ctx sdk.Context, funding types.Funding) error {
-
 	params := k.GetParams(ctx)
 	if funding.AmountPerBundle < params.MinFundingAmountPerBundle {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrAmountPerBundleTooLow.Error(), params.MinFundingAmountPerBundle)
 	}
 	if funding.Amount < params.MinFundingAmount {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinFundingAmount.Error(), params.MinFundingAmount)
+	}
+	if funding.AmountPerBundle*params.MinFundingMultiple > funding.Amount {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinFundingMultiple.Error(), funding.AmountPerBundle, params.MinFundingAmount, funding.Amount)
 	}
 	return nil
 }
@@ -124,7 +126,6 @@ func (k Keeper) ensureParamsCompatibility(ctx sdk.Context, funding types.Funding
 // new funding can be added.
 // CONTRACT: no KV Writing on newFunding and fundingState
 func (k Keeper) ensureFreeSlot(ctx sdk.Context, newFunding *types.Funding, fundingState *types.FundingState) error {
-
 	activeFundings := k.GetActiveFundings(ctx, *fundingState)
 	// check if slots are still available
 	if len(activeFundings) < types.MaxFunders {

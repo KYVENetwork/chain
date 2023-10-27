@@ -63,6 +63,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		params := s.App().FundersKeeper.GetParams(s.Ctx())
 		params.MinFundingAmountPerBundle = 1_000
 		params.MinFundingAmount = 100
+		params.MinFundingMultiple = 0
 		s.App().FundersKeeper.SetParams(s.Ctx(), params)
 
 		// create funders

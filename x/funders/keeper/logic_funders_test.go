@@ -49,6 +49,10 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		}
 		s.RunTxPoolSuccess(msg)
 
+		params := s.App().FundersKeeper.GetParams(s.Ctx())
+		params.MinFundingMultiple = 5
+		s.App().FundersKeeper.SetParams(s.Ctx(), params)
+
 		// create funder
 		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
 			Creator: i.ALICE,

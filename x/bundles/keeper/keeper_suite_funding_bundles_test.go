@@ -33,6 +33,10 @@ var _ = Describe("funding bundles", Ordered, func() {
 		// init new clean chain
 		s = i.NewCleanChain()
 
+		params := s.App().FundersKeeper.GetParams(s.Ctx())
+		params.MinFundingMultiple = 0
+		s.App().FundersKeeper.SetParams(s.Ctx(), params)
+
 		// create clean pool for every test case
 		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 		msg := &pooltypes.MsgCreatePool{

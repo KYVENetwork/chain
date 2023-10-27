@@ -15,7 +15,6 @@ import (
 // If the funders list is full, it checks if the funder wants to fund
 // more than the current lowest funder. If so, the current lowest funder
 // will get their tokens back and removed form the active funders list.
-// TODO: what if amount_per_bundle is higher than the amount? A funder that knows that he is the next uploader could just fund a huge amount which gets payed to only himself.
 func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*types.MsgFundPoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
