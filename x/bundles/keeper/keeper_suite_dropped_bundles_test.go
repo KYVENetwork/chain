@@ -63,6 +63,17 @@ var _ = Describe("dropped bundles", Ordered, func() {
 			Valaddress: i.VALADDRESS_0_A,
 		})
 
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_1,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_1,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_1_A,
+		})
+
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
 			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
@@ -84,19 +95,18 @@ var _ = Describe("dropped bundles", Ordered, func() {
 
 	It("Produce a dropped bundle because not enough validators voted", func() {
 		// ARRANGE
-		// stake a bit more than first node so >50% is reached
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  200 * i.KYVE,
+			Creator: i.STAKER_2,
+			Amount:  100 * i.KYVE,
 		})
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
+			Creator:    i.STAKER_2,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
+			Valaddress: i.VALADDRESS_2_A,
 		})
 
-		initialBalanceStaker1 = s.GetBalanceFromAddress(i.STAKER_1)
+		initialBalanceStaker1 = s.GetBalanceFromAddress(i.STAKER_2)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_0_A,
