@@ -89,11 +89,11 @@ func (k Keeper) GetLowestFunding(fundings []types.Funding) (lowestFunding *types
 		return nil, fmt.Errorf("no active fundings")
 	}
 
-	lowestFunding = &fundings[0]
-	for _, funding := range fundings {
-		if funding.Amount < lowestFunding.Amount {
-			lowestFunding = &funding
+	lowestFundingIndex := 0
+	for i := range fundings {
+		if fundings[i].Amount < fundings[lowestFundingIndex].Amount {
+			lowestFundingIndex = i
 		}
 	}
-	return lowestFunding, nil
+	return &fundings[lowestFundingIndex], nil
 }

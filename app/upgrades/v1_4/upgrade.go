@@ -198,7 +198,6 @@ func migrateFundersAndPools(
 		fundersKeeper.SetFundingState(ctx, &fundersTypes.FundingState{
 			PoolId:                oldPool.Id,
 			ActiveFunderAddresses: []string{},
-			TotalAmount:           oldPool.TotalFunds,
 		})
 
 		poolKeeper.SetPool(ctx, poolTypes.Pool{
