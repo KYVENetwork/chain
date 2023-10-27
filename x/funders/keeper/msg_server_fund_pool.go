@@ -10,54 +10,6 @@ import (
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// ensureFreeSlot makes sure that a funder can add funding to a given pool.
-// If this is not possible an appropriate error is returned.
-// A pool has a fixed amount of funding-slots. If there are still free slots
-// a funder can just join (even with the smallest funding possible).
-// If all slots are taken, it checks if the new funding has more funds
-// than the current lowest funding in that pool.
-// If so, the lowest funding gets removed from the pool, so that the
-// new funding can be added.
-// CONTRACT: no KV Writing on newFunding and fundingState
-func (k Keeper) ensureFreeSlot(ctx sdk.Context, newFunding *types.Funding, fundingState *types.FundingState) error {
-
-	activeFundings := k.GetActiveFundings(ctx, *fundingState)
-	// check if slots are still available
-	if len(activeFundings) < types.MaxFunders {
-		return nil
-	}
-
-	lowestFunding, _ := k.GetLowestFunding(activeFundings)
-
-	if lowestFunding.FunderAddress == newFunding.FunderAddress {
-		// Funder already has a funding slot
-		return nil
-	}
-
-	// Check if lowest funding is lower than new funding based on amount (amount per bundle is ignored)
-	if newFunding.Amount < lowestFunding.Amount {
-		return errors.Wrapf(errorsTypes.ErrLogic, types.ErrFundsTooLow.Error(), lowestFunding.Amount)
-	}
-
-	// Defund lowest funder
-	if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, types.ModuleName, lowestFunding.FunderAddress, lowestFunding.Amount); err != nil {
-		return err
-	}
-
-	subtracted := lowestFunding.SubtractAmount(lowestFunding.Amount)
-	fundingState.SetInactive(lowestFunding)
-	k.SetFunding(ctx, lowestFunding)
-
-	// Emit a defund event.
-	_ = ctx.EventManager().EmitTypedEvent(&types.EventDefundPool{
-		PoolId:  fundingState.PoolId,
-		Address: lowestFunding.FunderAddress,
-		Amount:  subtracted,
-	})
-
-	return nil
-}
-
 // FundPool handles the logic to fund a pool.
 // A funder is added to the active funders list with the specified amount
 // If the funders list is full, it checks if the funder wants to fund
@@ -103,15 +55,9 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 		}
 	}
 
-	// Check compatibility of updated funding with params
-	// i.e minimum funding per bundle
-	//     and minimum funding amount
-	params := k.GetParams(ctx)
-	if funding.AmountPerBundle < params.MinFundingAmountPerBundle {
-		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrAmountPerBundleTooLow.Error(), params.MinFundingAmountPerBundle)
-	}
-	if funding.Amount < params.MinFundingAmount {
-		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinFundingAmount.Error(), params.MinFundingAmount)
+	// Check if updated (or new) funding is compatible with module params
+	if err := k.ensureParamsCompatibility(ctx, funding); err != nil {
+		return nil, err
 	}
 
 	// Kicks out lowest funder if all slots are taken and new funder is about to fund more.
@@ -121,8 +67,7 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 		return nil, err
 	}
 
-	// User is allowed to fund
-	// Let's see if he has enough funds
+	// All checks passed, transfer funds from funder to module
 	if err := util.TransferFromAddressToModule(k.bankKeeper, ctx, msg.Creator, types.ModuleName, msg.Amount); err != nil {
 		return nil, err
 	}

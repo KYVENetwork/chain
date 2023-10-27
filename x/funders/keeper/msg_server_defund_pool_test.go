@@ -15,9 +15,10 @@ TEST CASES - msg_server_defund_pool.go
 * Defund 50 KYVE from a funder who has previously funded 100 KYVE
 * Defund more than actually funded
 * Defund full funding amount from a funder who has previously funded 100 KYVE
-* Defund as highest funder 75 KYVE in order to be the lowest funder afterwards
+* Defund as highest funder 75 KYVE in order to be the lowest funder afterward
 * Try to defund nonexistent fundings
 * Try to defund a funding twice
+* Try to defund below minimum funding params (but not full defund)
 
 */
 
@@ -197,5 +198,17 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 			PoolId:  0,
 			Amount:  100 * i.KYVE,
 		})
+	})
+
+	It("Try to defund below minimum funding params (but not full defund)", func() {
+		// ACT
+		_, err := s.RunTx(&types.MsgDefundPool{
+			Creator: i.ALICE,
+			PoolId:  0,
+			Amount:  100*i.KYVE - types.DefaultMinFundingAmount/2,
+		})
+
+		// ASSERT
+		Expect(err.Error()).To(Equal("minimum funding amount of 1000000000kyve not reached: invalid request"))
 	})
 })

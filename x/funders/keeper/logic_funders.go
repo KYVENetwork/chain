@@ -97,3 +97,67 @@ func (k Keeper) GetLowestFunding(fundings []types.Funding) (lowestFunding *types
 	}
 	return &fundings[lowestFundingIndex], nil
 }
+
+// ensureParamsCompatibility checks compatibility of the provided funding with the pool params.
+// i.e. minimum funding per bundle
+//
+//	and minimum funding amount
+func (k Keeper) ensureParamsCompatibility(ctx sdk.Context, funding types.Funding) error {
+
+	params := k.GetParams(ctx)
+	if funding.AmountPerBundle < params.MinFundingAmountPerBundle {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrAmountPerBundleTooLow.Error(), params.MinFundingAmountPerBundle)
+	}
+	if funding.Amount < params.MinFundingAmount {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinFundingAmount.Error(), params.MinFundingAmount)
+	}
+	return nil
+}
+
+// ensureFreeSlot makes sure that a funder can add funding to a given pool.
+// If this is not possible an appropriate error is returned.
+// A pool has a fixed amount of funding-slots. If there are still free slots
+// a funder can just join (even with the smallest funding possible).
+// If all slots are taken, it checks if the new funding has more funds
+// than the current lowest funding in that pool.
+// If so, the lowest funding gets removed from the pool, so that the
+// new funding can be added.
+// CONTRACT: no KV Writing on newFunding and fundingState
+func (k Keeper) ensureFreeSlot(ctx sdk.Context, newFunding *types.Funding, fundingState *types.FundingState) error {
+
+	activeFundings := k.GetActiveFundings(ctx, *fundingState)
+	// check if slots are still available
+	if len(activeFundings) < types.MaxFunders {
+		return nil
+	}
+
+	lowestFunding, _ := k.GetLowestFunding(activeFundings)
+
+	if lowestFunding.FunderAddress == newFunding.FunderAddress {
+		// Funder already has a funding slot
+		return nil
+	}
+
+	// Check if lowest funding is lower than new funding based on amount (amount per bundle is ignored)
+	if newFunding.Amount < lowestFunding.Amount {
+		return errors.Wrapf(errorsTypes.ErrLogic, types.ErrFundsTooLow.Error(), lowestFunding.Amount)
+	}
+
+	// Defund lowest funder
+	if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, types.ModuleName, lowestFunding.FunderAddress, lowestFunding.Amount); err != nil {
+		return err
+	}
+
+	subtracted := lowestFunding.SubtractAmount(lowestFunding.Amount)
+	fundingState.SetInactive(lowestFunding)
+	k.SetFunding(ctx, lowestFunding)
+
+	// Emit a defund event.
+	_ = ctx.EventManager().EmitTypedEvent(&types.EventDefundPool{
+		PoolId:  fundingState.PoolId,
+		Address: lowestFunding.FunderAddress,
+		Amount:  subtracted,
+	})
+
+	return nil
+}
