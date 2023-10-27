@@ -32,6 +32,9 @@ var _ = Describe("zero delegation", Ordered, func() {
 	initialBalanceStaker1 := s.GetBalanceFromAddress(i.STAKER_1)
 	initialBalanceValaddress1 := s.GetBalanceFromAddress(i.VALADDRESS_1_A)
 
+	//initialBalanceStaker2 := s.GetBalanceFromAddress(i.STAKER_2)
+	//initialBalanceValaddress2 := s.GetBalanceFromAddress(i.VALADDRESS_2_A)
+
 	BeforeEach(func() {
 		// init new clean chain
 		s = i.NewCleanChain()
@@ -182,99 +185,6 @@ var _ = Describe("zero delegation", Ordered, func() {
 			Valaddress: i.VALADDRESS_0_A,
 		})
 
-		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
-			Staker:  i.STAKER_0,
-			PoolId:  0,
-		})
-
-		s.CommitAfterSeconds(60)
-
-		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
-			Staker:        i.STAKER_0,
-			PoolId:        0,
-			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
-			DataSize:      100,
-			DataHash:      "test_hash",
-			FromIndex:     0,
-			BundleSize:    100,
-			FromKey:       "0",
-			ToKey:         "99",
-			BundleSummary: "test_value",
-		})
-
-		// create zero delegation validator
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  0 * i.KYVE,
-		})
-
-		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
-		})
-
-		// ACT
-		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
-			Staker:    i.STAKER_1,
-			PoolId:    0,
-			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
-			Vote:      bundletypes.VOTE_TYPE_INVALID,
-		})
-
-		bundleProposal, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
-
-		Expect(bundleProposal.VotersValid).NotTo(ContainElement(i.STAKER_1))
-		Expect(bundleProposal.VotersInvalid).To(ContainElement(i.STAKER_1))
-		Expect(bundleProposal.VotersAbstain).NotTo(ContainElement(i.STAKER_1))
-
-		s.CommitAfterSeconds(60)
-
-		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
-			Staker:        i.STAKER_0,
-			PoolId:        0,
-			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
-			DataSize:      100,
-			DataHash:      "test_hash",
-			FromIndex:     100,
-			BundleSize:    100,
-			FromKey:       "100",
-			ToKey:         "199",
-			BundleSummary: "test_value",
-		})
-
-		// ASSERT
-		bundleProposal, _ = s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
-
-		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_0))
-
-		// calculate voter slashes
-		fraction := s.App().DelegationKeeper.GetVoteSlash(s.Ctx())
-		slashAmountVoter := uint64(sdk.NewDec(int64(0 * i.KYVE)).Mul(fraction).TruncateInt64())
-		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(Equal(0*i.KYVE - slashAmountVoter))
-
-		Expect(s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(100*i.KYVE - slashAmountVoter))
-	})
-
-	It("Staker submit bundle proposal with zero delegation", func() {
-		// ARRANGE
-		// create zero delegation validator
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  0 * i.KYVE,
-		})
-
-		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-		})
-
-		// create normal validator
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_1,
 			Amount:  100 * i.KYVE,
@@ -308,9 +218,141 @@ var _ = Describe("zero delegation", Ordered, func() {
 			BundleSummary: "test_value",
 		})
 
+		// create zero delegation validator
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_2,
+			Amount:  0 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_2,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_2_A,
+		})
+
+		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
 			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_VALID,
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_2_A,
+			Staker:    i.STAKER_2,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_INVALID,
+		})
+
+		bundleProposal, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
+
+		Expect(bundleProposal.VotersValid).NotTo(ContainElement(i.STAKER_2))
+		Expect(bundleProposal.VotersInvalid).To(ContainElement(i.STAKER_2))
+		Expect(bundleProposal.VotersAbstain).NotTo(ContainElement(i.STAKER_2))
+
+		s.CommitAfterSeconds(60)
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_1_A,
+			Staker:        i.STAKER_1,
+			PoolId:        0,
+			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			DataSize:      100,
+			DataHash:      "test_hash",
+			FromIndex:     100,
+			BundleSize:    100,
+			FromKey:       "100",
+			ToKey:         "199",
+			BundleSummary: "test_value",
+		})
+
+		// ASSERT
+		bundleProposal, _ = s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
+
+		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_0))
+
+		// calculate voter slashes
+		fraction := s.App().DelegationKeeper.GetVoteSlash(s.Ctx())
+		slashAmountVoter := uint64(sdk.NewDec(int64(0 * i.KYVE)).Mul(fraction).TruncateInt64())
+		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_2, i.STAKER_2)).To(Equal(0*i.KYVE - slashAmountVoter))
+
+		Expect(s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200*i.KYVE - slashAmountVoter))
+	})
+
+	It("Staker submit bundle proposal with zero delegation", func() {
+		// ARRANGE
+		// create zero delegation validator
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_0,
+			Amount:  0 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_0,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_0_A,
+		})
+
+		// create normal validator
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_1,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_1,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_1_A,
+		})
+
+		// create normal validator
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_2,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_2,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_2_A,
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
+			Creator: i.VALADDRESS_0_A,
+			Staker:  i.STAKER_0,
+			PoolId:  0,
+		})
+
+		s.CommitAfterSeconds(60)
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_0_A,
+			Staker:        i.STAKER_0,
+			PoolId:        0,
+			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			DataSize:      100,
+			DataHash:      "test_hash",
+			FromIndex:     0,
+			BundleSize:    100,
+			FromKey:       "0",
+			ToKey:         "99",
+			BundleSummary: "test_value",
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_VALID,
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_2_A,
+			Staker:    i.STAKER_2,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
 			Vote:      bundletypes.VOTE_TYPE_VALID,
@@ -371,7 +413,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 		Expect(bundleProposal.PoolId).To(Equal(uint64(0)))
 		Expect(bundleProposal.StorageId).To(Equal("P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg"))
 		Expect(bundleProposal.Uploader).To(Equal(i.STAKER_1))
-		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_1))
+		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_2))
 		Expect(bundleProposal.DataSize).To(Equal(uint64(100)))
 		Expect(bundleProposal.DataHash).To(Equal("test_hash2"))
 		Expect(bundleProposal.BundleSize).To(Equal(uint64(100)))
@@ -450,6 +492,18 @@ var _ = Describe("zero delegation", Ordered, func() {
 			Valaddress: i.VALADDRESS_1_A,
 		})
 
+		// create normal validator
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_2,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_2,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_2_A,
+		})
+
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
 			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
@@ -475,6 +529,14 @@ var _ = Describe("zero delegation", Ordered, func() {
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
 			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_INVALID,
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_2_A,
+			Staker:    i.STAKER_2,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
 			Vote:      bundletypes.VOTE_TYPE_INVALID,
@@ -555,7 +617,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 		slashAmount := uint64(sdk.NewDec(int64(0 * i.KYVE)).Mul(fraction).TruncateInt64())
 
 		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(0*i.KYVE - slashAmount))
-		Expect(s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(100*i.KYVE - slashAmount))
+		Expect(s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200*i.KYVE - slashAmount))
 
 		// check voter status
 		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
@@ -590,6 +652,30 @@ var _ = Describe("zero delegation", Ordered, func() {
 			Valaddress: i.VALADDRESS_0_A,
 		})
 
+		// create zero delegation validator
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_1,
+			Amount:  0 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_1,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_1_A,
+		})
+
+		// create normal validator
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_2,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_2,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_2_A,
+		})
+
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
 			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
@@ -612,16 +698,12 @@ var _ = Describe("zero delegation", Ordered, func() {
 			BundleSummary: "test_value",
 		})
 
-		// create zero delegation validator
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  0 * i.KYVE,
-		})
-
-		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_2_A,
+			Staker:    i.STAKER_2,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_VALID,
 		})
 
 		s.CommitAfterSeconds(60)
@@ -630,6 +712,11 @@ var _ = Describe("zero delegation", Ordered, func() {
 		maxPoints := int(s.App().BundlesKeeper.GetMaxPoints(s.Ctx()))
 
 		for r := 1; r <= maxPoints; r++ {
+			// overwrite next uploader for test purposes
+			bundleProposal, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
+			bundleProposal.NextUploader = i.STAKER_0
+			s.App().BundlesKeeper.SetBundleProposal(s.Ctx(), bundleProposal)
+
 			s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
 				Creator:       i.VALADDRESS_0_A,
 				Staker:        i.STAKER_0,
@@ -644,10 +731,13 @@ var _ = Describe("zero delegation", Ordered, func() {
 				BundleSummary: "test_value",
 			})
 
-			// overwrite next uploader for test purposes
-			bundleProposal, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
-			bundleProposal.NextUploader = i.STAKER_0
-			s.App().BundlesKeeper.SetBundleProposal(s.Ctx(), bundleProposal)
+			s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+				Creator:   i.VALADDRESS_2_A,
+				Staker:    i.STAKER_2,
+				PoolId:    0,
+				StorageId: "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
+				Vote:      bundletypes.VOTE_TYPE_VALID,
+			})
 
 			s.CommitAfterSeconds(60)
 
@@ -656,7 +746,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 
 		// ASSERT
 		poolStakers := s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)
-		Expect(poolStakers).To(HaveLen(1))
+		Expect(poolStakers).To(HaveLen(2))
 
 		_, stakerFound := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_1)
 		Expect(stakerFound).To(BeTrue())
