@@ -290,7 +290,7 @@ var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
 	encodingConfig := BuildEncodingConfig()
 
 	// NOTE: This will change as implementation changes.
-	BaseCost := 32079
+	BaseCost := 32109
 
 	BeforeEach(func() {
 		s = i.NewCleanChain()

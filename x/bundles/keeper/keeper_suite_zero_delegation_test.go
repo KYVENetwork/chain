@@ -32,8 +32,8 @@ var _ = Describe("zero delegation", Ordered, func() {
 	initialBalanceStaker1 := s.GetBalanceFromAddress(i.STAKER_1)
 	initialBalanceValaddress1 := s.GetBalanceFromAddress(i.VALADDRESS_1_A)
 
-	//initialBalanceStaker2 := s.GetBalanceFromAddress(i.STAKER_2)
-	//initialBalanceValaddress2 := s.GetBalanceFromAddress(i.VALADDRESS_2_A)
+	// initialBalanceStaker2 := s.GetBalanceFromAddress(i.STAKER_2)
+	// initialBalanceValaddress2 := s.GetBalanceFromAddress(i.VALADDRESS_2_A)
 
 	BeforeEach(func() {
 		// init new clean chain
