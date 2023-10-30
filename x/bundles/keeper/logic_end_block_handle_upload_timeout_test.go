@@ -20,6 +20,7 @@ TEST CASES - logic_end_block_handle_upload_timeout.go
 * Next uploader gets removed due to pool upgrading
 * Next uploader gets removed due to pool being disabled
 * Next uploader gets removed due to pool not reaching min delegation
+* Next uploader gets removed due to pool having one node with more than 50% voting power
 * Staker is next uploader of genesis bundle and upload interval and timeout does not pass
 * Staker is next uploader of genesis bundle and upload timeout does not pass but upload interval passes
 * Staker is next uploader of genesis bundle and upload timeout does pass together with upload interval
@@ -259,6 +260,43 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		_, found = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_1)
 		Expect(found).To(BeTrue())
 		Expect(s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_1)).To(Equal(20 * i.KYVE))
+	})
+
+	It("Next uploader gets removed due to pool having one node with more than 50% voting power", func() {
+		// ARRANGE
+		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
+			Creator: i.VALADDRESS_0_A,
+			Staker:  i.STAKER_0,
+			PoolId:  0,
+		})
+
+		s.RunTxDelegatorSuccess(&delegationtypes.MsgDelegate{
+			Creator: i.STAKER_0,
+			Staker:  i.STAKER_0,
+			Amount:  1 * i.KYVE,
+		})
+
+		s.CommitAfterSeconds(s.App().DelegationKeeper.GetUnbondingDelegationTime(s.Ctx()))
+		s.CommitAfterSeconds(1)
+
+		// ACT
+		s.CommitAfterSeconds(1)
+
+		// ASSERT
+		bundleProposal, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
+		Expect(bundleProposal.NextUploader).To(BeEmpty())
+		Expect(bundleProposal.StorageId).To(BeEmpty())
+
+		poolStakers := s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)
+		Expect(poolStakers).To(HaveLen(2))
+
+		_, found := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+		Expect(found).To(BeTrue())
+		Expect(s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_0)).To(Equal(101 * i.KYVE))
+
+		_, found = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_1)
+		Expect(found).To(BeTrue())
+		Expect(s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_1)).To(Equal(100 * i.KYVE))
 	})
 
 	It("Staker is next uploader of genesis bundle and upload interval and timeout does not pass", func() {
