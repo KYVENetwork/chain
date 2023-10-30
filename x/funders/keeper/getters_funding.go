@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"github.com/KYVENetwork/chain/x/funders/types"
+	queryTypes "github.com/KYVENetwork/chain/x/query/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -103,6 +104,7 @@ func (k Keeper) GetPaginatedFundingQuery(
 	pagination *query.PageRequest,
 	funderAddress *string,
 	poolId *uint64,
+	fundingStatus queryTypes.FundingStatus,
 ) ([]types.Funding, *query.PageResponse, error) {
 	if funderAddress == nil && poolId == nil {
 		return nil, nil, status.Error(codes.InvalidArgument, "either funderAddress or poolId must be provided")
@@ -126,6 +128,14 @@ func (k Keeper) GetPaginatedFundingQuery(
 		}
 
 		if poolId != nil && *poolId != funding.PoolId {
+			return false, nil
+		}
+
+		if fundingStatus == queryTypes.FUNDING_STATUS_ACTIVE && funding.IsActive() {
+			return false, nil
+		}
+
+		if fundingStatus == queryTypes.FUNDING_STATUS_INACTIVE && funding.IsInactive() {
 			return false, nil
 		}
 

@@ -76,6 +76,18 @@ message Funding {
   uint64 total_funded = 5;
 }
 
+// FundingStatus ...
+enum FundingStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // FundingStatusUnspecified ...
+  FUNDING_STATUS_UNSPECIFIED = 0;
+  // FundingStatusActive status is set when the funding is active.
+  FUNDING_STATUS_ACTIVE = 1;
+  // FundingStatusInactive status is set when the funding has been used up or refunded.
+  FUNDING_STATUS_INACTIVE = 2;
+}
+
 // ========
 // /funders
 // ========
@@ -104,8 +116,8 @@ message QueryFundersResponse {
 message QueryFunderRequest {
   // address ...
   string address = 1;
-  // with_inactive_fundings ...
-  bool with_inactive_fundings = 2;
+  // status ...
+  FundingStatus status = 3;
 }
 
 // QueryFunderResponse is the response type for the Query/Funder RPC method.
@@ -126,8 +138,8 @@ message QueryFundingsByFunderRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
   // address ...
   string address = 2;
-  // with_inactive_fundings ...
-  bool with_inactive_fundings = 3;
+  // status ...
+  FundingStatus status = 3;
 }
 
 // QueryFundingsByFunderResponse is the response type for the Query/FundingsByFunder RPC method.
@@ -148,8 +160,8 @@ message QueryFundingsByPoolRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
   // pool_id ...
   uint64 pool_id = 2;
-  // with_inactive_fundings ...
-  bool with_inactive_fundings = 3;
+  // status ...
+  FundingStatus status = 3;
 }
 
 // QueryFundingsByPoolResponse is the response type for the Query/FundingsByPool RPC method.

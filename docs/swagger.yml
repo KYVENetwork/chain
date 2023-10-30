@@ -8024,11 +8024,21 @@ paths:
           in: path
           required: true
           type: string
-        - name: with_inactive_fundings
-          description: with_inactive_fundings ...
+        - name: status
+          description: |-
+            status ...
+
+             - FUNDING_STATUS_UNSPECIFIED: FundingStatusUnspecified ...
+             - FUNDING_STATUS_ACTIVE: FundingStatusActive status is set when the funding is active.
+             - FUNDING_STATUS_INACTIVE: FundingStatusInactive status is set when the funding has been used up or refunded.
           in: query
           required: false
-          type: boolean
+          type: string
+          enum:
+            - FUNDING_STATUS_UNSPECIFIED
+            - FUNDING_STATUS_ACTIVE
+            - FUNDING_STATUS_INACTIVE
+          default: FUNDING_STATUS_UNSPECIFIED
       tags:
         - QueryFunders
   /kyve/query/v1beta1/funders:
@@ -8691,11 +8701,21 @@ paths:
           in: query
           required: false
           type: boolean
-        - name: with_inactive_fundings
-          description: with_inactive_fundings ...
+        - name: status
+          description: |-
+            status ...
+
+             - FUNDING_STATUS_UNSPECIFIED: FundingStatusUnspecified ...
+             - FUNDING_STATUS_ACTIVE: FundingStatusActive status is set when the funding is active.
+             - FUNDING_STATUS_INACTIVE: FundingStatusInactive status is set when the funding has been used up or refunded.
           in: query
           required: false
-          type: boolean
+          type: string
+          enum:
+            - FUNDING_STATUS_UNSPECIFIED
+            - FUNDING_STATUS_ACTIVE
+            - FUNDING_STATUS_INACTIVE
+          default: FUNDING_STATUS_UNSPECIFIED
       tags:
         - QueryFunders
   /kyve/query/v1beta1/fundings_by_pool/{pool_id}:
@@ -9013,11 +9033,21 @@ paths:
           in: query
           required: false
           type: boolean
-        - name: with_inactive_fundings
-          description: with_inactive_fundings ...
+        - name: status
+          description: |-
+            status ...
+
+             - FUNDING_STATUS_UNSPECIFIED: FundingStatusUnspecified ...
+             - FUNDING_STATUS_ACTIVE: FundingStatusActive status is set when the funding is active.
+             - FUNDING_STATUS_INACTIVE: FundingStatusInactive status is set when the funding has been used up or refunded.
           in: query
           required: false
-          type: boolean
+          type: string
+          enum:
+            - FUNDING_STATUS_UNSPECIFIED
+            - FUNDING_STATUS_ACTIVE
+            - FUNDING_STATUS_INACTIVE
+          default: FUNDING_STATUS_UNSPECIFIED
       tags:
         - QueryFunders
   /kyve/stakers/v1beta1/params:

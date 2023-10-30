@@ -19,6 +19,14 @@ func (f *Funding) ChargeOneBundle() (amount uint64) {
 	return amount
 }
 
+func (f *Funding) IsActive() (isActive bool) {
+	return f.Amount > 0
+}
+
+func (f *Funding) IsInactive() (isInactive bool) {
+	return !f.IsActive()
+}
+
 // SetInactive removes a funding from active fundings
 func (fs *FundingState) SetInactive(funding *Funding) {
 	for i, funderAddress := range fs.ActiveFunderAddresses {

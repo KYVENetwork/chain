@@ -43,15 +43,33 @@ func (k Keeper) Funder(c context.Context, req *types.QueryFunderRequest) (*types
 		return nil, status.Error(codes.NotFound, "funder not found")
 	}
 
-	fundings := k.fundersKeeper.GetFundingsOfFunder(ctx, funder.Address)
+	allFundings := k.fundersKeeper.GetFundingsOfFunder(ctx, funder.Address)
+	fundings := k.filterFundingsOnStatus(allFundings, req.Status)
 
-	funderData := k.parseFunder(&funder, fundings)
-	fundingsData := k.parseFundings(fundings, req.WithInactiveFundings)
+	funderData := k.parseFunder(&funder, allFundings)
+	fundingsData := k.parseFundings(fundings)
 
 	return &types.QueryFunderResponse{
 		Funder:   &funderData,
 		Fundings: fundingsData,
 	}, nil
+}
+
+func (k Keeper) filterFundingsOnStatus(fundings []fundersTypes.Funding, fundingStatus types.FundingStatus) []fundersTypes.Funding {
+	if fundingStatus == types.FUNDING_STATUS_UNSPECIFIED {
+		return fundings
+	}
+
+	filtered := make([]fundersTypes.Funding, 0)
+	for _, funding := range fundings {
+		if fundingStatus == types.FUNDING_STATUS_ACTIVE && funding.Amount > 0 {
+			filtered = append(filtered, funding)
+		}
+		if fundingStatus == types.FUNDING_STATUS_INACTIVE && funding.Amount == 0 {
+			filtered = append(filtered, funding)
+		}
+	}
+	return filtered
 }
 
 func (k Keeper) parseFunder(funder *fundersTypes.Funder, fundings []fundersTypes.Funding) types.Funder {
@@ -62,7 +80,7 @@ func (k Keeper) parseFunder(funder *fundersTypes.Funder, fundings []fundersTypes
 
 	for _, funding := range fundings {
 		// Only count active fundings for totalAmountPerBundle
-		if funding.Amount > 0 {
+		if funding.IsActive() {
 			totalAmountPerBundle += funding.AmountPerBundle
 		}
 

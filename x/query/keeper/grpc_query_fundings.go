@@ -16,12 +16,12 @@ func (k Keeper) FundingsByFunder(c context.Context, req *types.QueryFundingsByFu
 	}
 	ctx := sdk.UnwrapSDKContext(c)
 
-	fundings, pageRes, err := k.fundersKeeper.GetPaginatedFundingQuery(ctx, req.Pagination, &req.Address, nil)
+	fundings, pageRes, err := k.fundersKeeper.GetPaginatedFundingQuery(ctx, req.Pagination, &req.Address, nil, req.Status)
 	if err != nil {
 		return nil, err
 	}
 
-	data := k.parseFundings(fundings, req.WithInactiveFundings)
+	data := k.parseFundings(fundings)
 
 	return &types.QueryFundingsByFunderResponse{Fundings: data, Pagination: pageRes}, nil
 }
@@ -32,28 +32,26 @@ func (k Keeper) FundingsByPool(c context.Context, req *types.QueryFundingsByPool
 	}
 	ctx := sdk.UnwrapSDKContext(c)
 
-	fundings, pageRes, err := k.fundersKeeper.GetPaginatedFundingQuery(ctx, req.Pagination, nil, &req.PoolId)
+	fundings, pageRes, err := k.fundersKeeper.GetPaginatedFundingQuery(ctx, req.Pagination, nil, &req.PoolId, req.Status)
 	if err != nil {
 		return nil, err
 	}
 
-	data := k.parseFundings(fundings, req.WithInactiveFundings)
+	data := k.parseFundings(fundings)
 
 	return &types.QueryFundingsByPoolResponse{Fundings: data, Pagination: pageRes}, nil
 }
 
-func (k Keeper) parseFundings(fundings []fundersTypes.Funding, withInactiveFundings bool) []types.Funding {
+func (k Keeper) parseFundings(fundings []fundersTypes.Funding) []types.Funding {
 	fundingsData := make([]types.Funding, 0)
 	for _, funding := range fundings {
-		if funding.Amount > 0 || withInactiveFundings {
-			fundingsData = append(fundingsData, types.Funding{
-				FunderAddress:   funding.FunderAddress,
-				PoolId:          funding.PoolId,
-				Amount:          funding.Amount,
-				AmountPerBundle: funding.AmountPerBundle,
-				TotalFunded:     funding.TotalFunded,
-			})
-		}
+		fundingsData = append(fundingsData, types.Funding{
+			FunderAddress:   funding.FunderAddress,
+			PoolId:          funding.PoolId,
+			Amount:          funding.Amount,
+			AmountPerBundle: funding.AmountPerBundle,
+			TotalFunded:     funding.TotalFunded,
+		})
 	}
 	return fundingsData
 }
