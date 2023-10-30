@@ -18,6 +18,7 @@ TEST CASES - logic_funders.go
 * Charge funders until all funders run out of funds
 * Charge funder with less funds than amount_per_bundle
 * Charge without fundings
+* Check if the lowest funding is returned correctly
 
 */
 
@@ -202,5 +203,32 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		poolBalance := s.App().BankKeeper.GetBalance(s.Ctx(), poolModuleAcc, globaltypes.Denom).Amount.Uint64()
 		Expect(fundersBalance).To(Equal(0 * i.KYVE))
 		Expect(poolBalance).To(Equal(0 * i.KYVE))
+	})
+
+	It("Check if the lowest funding is returned correctly", func() {
+		fundings := []funderstypes.Funding{
+			{
+				FunderAddress:   i.DUMMY[0],
+				PoolId:          0,
+				Amount:          1000 * i.KYVE,
+				AmountPerBundle: 1 * i.KYVE,
+			},
+			{
+				FunderAddress:   i.DUMMY[1],
+				PoolId:          0,
+				Amount:          900 * i.KYVE,
+				AmountPerBundle: 1 * i.KYVE,
+			},
+			{
+				FunderAddress:   i.DUMMY[2],
+				PoolId:          0,
+				Amount:          1100 * i.KYVE,
+				AmountPerBundle: 1 * i.KYVE,
+			},
+		}
+
+		getLowestFunding, err := s.App().FundersKeeper.GetLowestFunding(fundings)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(getLowestFunding.Amount).To(Equal(900 * i.KYVE))
 	})
 })
