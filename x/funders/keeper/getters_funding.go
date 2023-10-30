@@ -131,11 +131,11 @@ func (k Keeper) GetPaginatedFundingQuery(
 			return false, nil
 		}
 
-		if fundingStatus == queryTypes.FUNDING_STATUS_ACTIVE && funding.IsActive() {
+		if fundingStatus == queryTypes.FUNDING_STATUS_ACTIVE && funding.IsInactive() {
 			return false, nil
 		}
 
-		if fundingStatus == queryTypes.FUNDING_STATUS_INACTIVE && funding.IsInactive() {
+		if fundingStatus == queryTypes.FUNDING_STATUS_INACTIVE && funding.IsActive() {
 			return false, nil
 		}
 
