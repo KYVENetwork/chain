@@ -10,13 +10,12 @@ import (
 
 /*
 
-TEST CASES - msg_server_create_funder.go
+TEST CASES - msg_server_update_funder.go
 
-* Try to create a funder with empty values
-* Create a funder with empty values except moniker
-* Create a funder with all values set
-* Try to create a funder that already exists
-* Create two funders
+* Try to update a funder that does not exist
+* Try to update a funder with empty moniker
+* Update a funder with empty values except moniker
+* Update a funder with all values set
 */
 
 var _ = Describe("msg_server_create_funder.go", Ordered, func() {
@@ -25,22 +24,41 @@ var _ = Describe("msg_server_create_funder.go", Ordered, func() {
 	BeforeEach(func() {
 		// init new clean chain
 		s = i.NewCleanChain()
+
+		moniker, identity, website, contact, description := "AliceMoniker", "identity", "website", "contact", "description"
+		s.RunTxFundersSuccess(&types.MsgCreateFunder{
+			Creator:     i.ALICE,
+			Moniker:     moniker,
+			Identity:    identity,
+			Website:     website,
+			Contact:     contact,
+			Description: description,
+		})
 	})
 
 	AfterEach(func() {
 		s.PerformValidityChecks()
 	})
 
-	It("Try to create a funder with empty values", func() {
+	It("Try to update a funder that does not exist", func() {
 		// ASSERT
-		s.RunTxFundersError(&types.MsgCreateFunder{
-			Creator: i.ALICE,
+		s.RunTxFundersError(&types.MsgUpdateFunder{
+			Creator: i.BOB,
+			Moniker: "moniker",
 		})
 	})
 
-	It("Create a funder with empty values except moniker", func() {
+	It("Try to update a funder with empty moniker", func() {
+		// ASSERT
+		s.RunTxFundersError(&types.MsgUpdateFunder{
+			Creator: i.BOB,
+			Moniker: "",
+		})
+	})
+
+	It("Update a funder with empty values except moniker", func() {
 		// ACT
-		s.RunTxFundersSuccess(&types.MsgCreateFunder{
+		s.RunTxFundersSuccess(&types.MsgUpdateFunder{
 			Creator: i.ALICE,
 			Moniker: "moniker",
 		})
@@ -56,10 +74,10 @@ var _ = Describe("msg_server_create_funder.go", Ordered, func() {
 		Expect(funder.Description).To(BeEmpty())
 	})
 
-	It("Create a funder with all values set", func() {
+	It("Update a funder with all values set", func() {
 		// ACT
 		moniker, identity, website, contact, description := "moniker", "identity", "website", "contact", "description"
-		s.RunTxFundersSuccess(&types.MsgCreateFunder{
+		s.RunTxFundersSuccess(&types.MsgUpdateFunder{
 			Creator:     i.ALICE,
 			Moniker:     moniker,
 			Identity:    identity,
@@ -77,33 +95,5 @@ var _ = Describe("msg_server_create_funder.go", Ordered, func() {
 		Expect(funder.Website).To(Equal(website))
 		Expect(funder.Contact).To(Equal(contact))
 		Expect(funder.Description).To(Equal(description))
-	})
-
-	It("Try to create a funder that already exists", func() {
-		// ARRANGE
-		s.RunTxFundersSuccess(&types.MsgCreateFunder{
-			Creator: i.ALICE,
-			Moniker: "moniker 1",
-		})
-
-		// ACT
-		s.RunTxFundersError(&types.MsgCreateFunder{
-			Creator: i.ALICE,
-			Moniker: "moniker 2",
-		})
-	})
-
-	It("Create two funders", func() {
-		// ARRANGE
-		s.RunTxFundersSuccess(&types.MsgCreateFunder{
-			Creator: i.ALICE,
-			Moniker: "moniker 1",
-		})
-
-		// ACT
-		s.RunTxFundersSuccess(&types.MsgCreateFunder{
-			Creator: i.BOB,
-			Moniker: "moniker 2",
-		})
 	})
 })

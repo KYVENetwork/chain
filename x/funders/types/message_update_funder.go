@@ -34,6 +34,9 @@ func (msg *MsgUpdateFunder) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Creator); err != nil {
 		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid creator address: %s", err)
 	}
+	if msg.Moniker == "" {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "moniker cannot be empty")
+	}
 
 	return nil
 }
