@@ -17,6 +17,7 @@ TEST CASES - logic_bundles.go
 * Assert pool can run while pool is upgrading
 * Assert pool can run while pool is disabled
 * Assert pool can run while min delegation is not reached
+* Assert pool can run while voting power of one node is too high
 * Assert pool can run
 * Assert pool can run while pool has no funds
 
@@ -216,6 +217,59 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 		// ASSERT
 		Expect(err).To(Equal(bundlesTypes.ErrMinDelegationNotReached))
+	})
+
+	It("Assert pool can run while voting power of one node is too high", func() {
+		// ASSERT
+		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
+			Name:           "PoolTest",
+			UploadInterval: 60,
+			OperatingCost:  2 * i.KYVE,
+			MinDelegation:  100 * i.KYVE,
+			MaxBundleSize:  100,
+			Protocol: &pooltypes.Protocol{
+				Version:     "0.0.0",
+				Binaries:    "{}",
+				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
+			},
+			UpgradePlan: &pooltypes.UpgradePlan{},
+		})
+
+		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
+			Creator: i.ALICE,
+			Id:      0,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_0,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_0,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_0_A,
+			Amount:     0,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_1,
+			Amount:  101 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_1,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_1_A,
+			Amount:     0,
+		})
+
+		// ACT
+		err := s.App().BundlesKeeper.AssertPoolCanRun(s.Ctx(), 0)
+
+		// ASSERT
+		Expect(err).To(Equal(bundlesTypes.ErrVPTooHigh))
 	})
 
 	It("Assert pool can run", func() {
