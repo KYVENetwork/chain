@@ -13,7 +13,7 @@ func CmdRedelegate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "redelegate [from_staker] [to_staker] [amount]",
 		Short: "Redelegate the given amount from one staker to another",
-		Args:  cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			argAmount, err := cast.ToUint64E(args[2])
 			if err != nil {
