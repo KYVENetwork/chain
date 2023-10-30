@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	"github.com/KYVENetwork/chain/x/query/types"
@@ -38,7 +37,6 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 	for _, valaccount := range k.stakerKeeper.GetValaccountsFromStaker(ctx, staker.Address) {
 
 		pool, _ := k.poolKeeper.GetPool(ctx, valaccount.PoolId)
-		fundingState, _ := k.fundersKeeper.GetFundingState(ctx, valaccount.PoolId)
 
 		accountValaddress, _ := sdk.AccAddressFromBech32(valaccount.Valaddress)
 		balanceValaccount := k.bankKeeper.GetBalance(ctx, accountValaddress, globalTypes.Denom).Amount.Uint64()
@@ -54,7 +52,7 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 					UploadInterval:       pool.UploadInterval,
 					TotalFunds:           k.fundersKeeper.GetTotalActiveFunding(ctx, pool.Id),
 					TotalDelegation:      k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id),
-					Status:               k.GetPoolStatus(ctx, &pool, &fundingState),
+					Status:               k.GetPoolStatus(ctx, &pool),
 				},
 				Points:     valaccount.Points,
 				IsLeaving:  valaccount.IsLeaving,
@@ -83,7 +81,7 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 	}
 }
 
-func (k Keeper) GetPoolStatus(ctx sdk.Context, pool *pooltypes.Pool, fundingState *funderstypes.FundingState) pooltypes.PoolStatus {
+func (k Keeper) GetPoolStatus(ctx sdk.Context, pool *pooltypes.Pool) pooltypes.PoolStatus {
 	totalDelegation := k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id)
 
 	var poolStatus pooltypes.PoolStatus

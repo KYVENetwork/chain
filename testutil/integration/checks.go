@@ -568,8 +568,8 @@ func (suite *KeeperTestSuite) verifyFullStaker(fullStaker querytypes.FullStaker,
 		Expect(poolMembership.Pool.TotalFunds).To(Equal(suite.App().FundersKeeper.GetTotalActiveFunding(suite.Ctx(), fundingState.PoolId)))
 		Expect(poolMembership.Pool.Name).To(Equal(pool.Name))
 		Expect(poolMembership.Pool.Runtime).To(Equal(pool.Runtime))
-		Expect(poolMembership.Pool.Status).To(Equal(suite.App().QueryKeeper.GetPoolStatus(suite.Ctx(), &pool, &fundingState)))
-		Expect(poolMembership.Pool.Status).To(Equal(suite.App().QueryKeeper.GetPoolStatus(suite.Ctx(), &pool, nil)))
+		Expect(poolMembership.Pool.Status).To(Equal(suite.App().QueryKeeper.GetPoolStatus(suite.Ctx(), &pool)))
+		Expect(poolMembership.Pool.Status).To(Equal(suite.App().QueryKeeper.GetPoolStatus(suite.Ctx(), &pool)))
 	}
 
 	// Reverse check the pool memberships

@@ -25,10 +25,6 @@ func (k Keeper) AccountFundedList(goCtx context.Context, req *types.QueryAccount
 			if !found {
 				return nil, status.Error(codes.Internal, "pool not found")
 			}
-			fundingState, found := k.fundersKeeper.GetFundingState(ctx, funding.PoolId)
-			if !found {
-				return nil, status.Error(codes.Internal, "funding state not found")
-			}
 			funded = append(funded, types.Funded{
 				Amount: funding.Amount,
 				Pool: &types.BasicPool{
@@ -40,7 +36,7 @@ func (k Keeper) AccountFundedList(goCtx context.Context, req *types.QueryAccount
 					UploadInterval:       pool.UploadInterval,
 					TotalFunds:           k.fundersKeeper.GetTotalActiveFunding(ctx, pool.Id),
 					TotalDelegation:      k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id),
-					Status:               k.GetPoolStatus(ctx, &pool, &fundingState),
+					Status:               k.GetPoolStatus(ctx, &pool),
 				},
 			})
 		}
