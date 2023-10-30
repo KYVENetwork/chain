@@ -196,8 +196,8 @@ genesis:
         bond_denom: tkyve
     funders:
       params:
-        min_funding_amount: 1000
-        min_funding_amount_per_bundle: 100
+        min_funding_amount: 1000000000
+        min_funding_amount_per_bundle: 10000000
       funder_list:
         - address: "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd"
           contact: "https://twitter.com/kyvenetwork"
@@ -205,7 +205,7 @@ genesis:
           description: "Alice is the first funder of the KYVE network."
           website: "https://kyve.network"
           identity: "0657A086E5201562"
-        - address: "kyve1e29j95xmsw3zmvtrk4st8e89z5n72v7nf70ma4"
+        - address: "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat"
           contact: "https://twitter.com/kyvenetwork"
           moniker: "Otto"
           description: "Another funder of the KYVE network."
@@ -218,22 +218,20 @@ genesis:
           amount_per_bundle: 230000000
           total_funded: 2200400000000
         - pool_id: 0
-          funder_address: "kyve1e29j95xmsw3zmvtrk4st8e89z5n72v7nf70ma4"
+          funder_address: "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat"
           amount: 200000000000
           amount_per_bundle: 20000000
           total_funded: 64500000000
         - pool_id: 1
-          funder_address: "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd"
+          funder_address: "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat"
           amount: 100000000000
           amount_per_bundle: 10000000
           total_funded: 23000000000
       funding_state_list:
         - pool_id: 0
           active_funder_addresses: []
-          total_amount: 5200000000000
         - pool_id: 1
           active_funder_addresses: [ ]
-          total_amount: 100000000000
   chain_id: kyve-local
 validators:
   - name: alice
