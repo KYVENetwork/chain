@@ -18,9 +18,8 @@ func byFunder(
 	address string,
 ) error {
 	params := &types.QueryFundingsByFunderRequest{
-		Pagination:           pageReq,
-		Address:              address,
-		WithInactiveFundings: true,
+		Pagination: pageReq,
+		Address:    address,
 	}
 
 	res, err := queryClient.FundingsByFunder(context.Background(), params)
@@ -37,9 +36,8 @@ func byPool(
 	poolId uint64,
 ) error {
 	params := &types.QueryFundingsByPoolRequest{
-		Pagination:           pageReq,
-		PoolId:               poolId,
-		WithInactiveFundings: true,
+		Pagination: pageReq,
+		PoolId:     poolId,
 	}
 
 	res, err := queryClient.FundingsByPool(context.Background(), params)

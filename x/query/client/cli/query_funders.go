@@ -68,8 +68,7 @@ func CmdShowFunder() *cobra.Command {
 			queryClient := types.NewQueryFundersClient(clientCtx)
 
 			params := &types.QueryFunderRequest{
-				Address:              reqAddress,
-				WithInactiveFundings: true,
+				Address: reqAddress,
 			}
 
 			res, err := queryClient.Funder(context.Background(), params)
