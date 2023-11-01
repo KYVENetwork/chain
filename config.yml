@@ -229,9 +229,9 @@ genesis:
           total_funded: 23000000000
       funding_state_list:
         - pool_id: 0
-          active_funder_addresses: []
+          active_funder_addresses: ["kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd", "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat"]
         - pool_id: 1
-          active_funder_addresses: [ ]
+          active_funder_addresses: ["kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat"]
   chain_id: kyve-local
 validators:
   - name: alice
