@@ -94,7 +94,7 @@ func (k Keeper) GetPoolStatus(ctx sdk.Context, pool *pooltypes.Pool) pooltypes.P
 	} else if totalDelegation < pool.MinDelegation {
 		poolStatus = pooltypes.POOL_STATUS_NOT_ENOUGH_DELEGATION
 	} else if highestDelegation*2 > totalDelegation {
-		poolStatus = pooltypes.POOL_STATUS_VP_TOO_HIGH
+		poolStatus = pooltypes.POOL_STATUS_VOTING_POWER_TOO_HIGH
 	} else if pool.TotalFunds == 0 {
 		poolStatus = pooltypes.POOL_STATUS_NO_FUNDS
 	} else {

@@ -683,7 +683,7 @@ paths:
                                       - POOL_STATUS_NO_FUNDS
                                       - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                       - POOL_STATUS_UPGRADING
-                                      - POOL_STATUS_VP_TOO_HIGH
+                                      - POOL_STATUS_VOTING_POWER_TOO_HIGH
                                     default: POOL_STATUS_UNSPECIFIED
                               points:
                                 type: string
@@ -1084,7 +1084,7 @@ paths:
                             - POOL_STATUS_NO_FUNDS
                             - POOL_STATUS_NOT_ENOUGH_DELEGATION
                             - POOL_STATUS_UPGRADING
-                            - POOL_STATUS_VP_TOO_HIGH
+                            - POOL_STATUS_VOTING_POWER_TOO_HIGH
                           default: POOL_STATUS_UNSPECIFIED
                       title: >-
                         BasicPool contains the necessary properties need for a
@@ -3951,7 +3951,7 @@ paths:
                                       - POOL_STATUS_NO_FUNDS
                                       - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                       - POOL_STATUS_UPGRADING
-                                      - POOL_STATUS_VP_TOO_HIGH
+                                      - POOL_STATUS_VOTING_POWER_TOO_HIGH
                                     default: POOL_STATUS_UNSPECIFIED
                               points:
                                 type: string
@@ -5002,7 +5002,7 @@ paths:
                       - POOL_STATUS_NO_FUNDS
                       - POOL_STATUS_NOT_ENOUGH_DELEGATION
                       - POOL_STATUS_UPGRADING
-                      - POOL_STATUS_VP_TOO_HIGH
+                      - POOL_STATUS_VOTING_POWER_TOO_HIGH
                     default: POOL_STATUS_UNSPECIFIED
                   account:
                     type: string
@@ -5519,7 +5519,7 @@ paths:
                         - POOL_STATUS_NO_FUNDS
                         - POOL_STATUS_NOT_ENOUGH_DELEGATION
                         - POOL_STATUS_UPGRADING
-                        - POOL_STATUS_VP_TOO_HIGH
+                        - POOL_STATUS_VOTING_POWER_TOO_HIGH
                       default: POOL_STATUS_UNSPECIFIED
                     account:
                       type: string
@@ -5997,7 +5997,7 @@ paths:
                                 - POOL_STATUS_NO_FUNDS
                                 - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                 - POOL_STATUS_UPGRADING
-                                - POOL_STATUS_VP_TOO_HIGH
+                                - POOL_STATUS_VOTING_POWER_TOO_HIGH
                               default: POOL_STATUS_UNSPECIFIED
                         points:
                           type: string
@@ -6427,7 +6427,7 @@ paths:
                                   - POOL_STATUS_NO_FUNDS
                                   - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                   - POOL_STATUS_UPGRADING
-                                  - POOL_STATUS_VP_TOO_HIGH
+                                  - POOL_STATUS_VOTING_POWER_TOO_HIGH
                                 default: POOL_STATUS_UNSPECIFIED
                           points:
                             type: string
@@ -6969,7 +6969,7 @@ paths:
                                       - POOL_STATUS_NO_FUNDS
                                       - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                       - POOL_STATUS_UPGRADING
-                                      - POOL_STATUS_VP_TOO_HIGH
+                                      - POOL_STATUS_VOTING_POWER_TOO_HIGH
                                     default: POOL_STATUS_UNSPECIFIED
                               points:
                                 type: string
@@ -7442,7 +7442,7 @@ paths:
                                   - POOL_STATUS_NO_FUNDS
                                   - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                   - POOL_STATUS_UPGRADING
-                                  - POOL_STATUS_VP_TOO_HIGH
+                                  - POOL_STATUS_VOTING_POWER_TOO_HIGH
                                 default: POOL_STATUS_UNSPECIFIED
                           points:
                             type: string
