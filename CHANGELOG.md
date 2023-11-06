@@ -16,6 +16,10 @@ An '!' indicates a state machine breaking change.
 
 ## [Unreleased]
 
+### Features
+
+- ! (`x/funders`) [#141](https://github.com/KYVENetwork/chain/pull/141) Implementation of the new [funders concept](https://commonwealth.im/kyve/discussion/13420-enhancing-kyves-funders-concept).
+
 ### Improvements
 
 - (deps) [#33](https://github.com/KYVENetwork/chain/pull/33) Upgrade Cosmos SDK to [v0.47.5](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.47.5) ([`v0.47.5-kyve`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.47.5-kyve-rc0)).
