@@ -10,20 +10,28 @@ option go_package = "github.com/KYVENetwork/chain/x/pool/types";
 enum PoolStatus {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  // POOL_STATUS_UNSPECIFIED ...
+  // POOL_STATUS_UNSPECIFIED indicates and unknown status, likely
+  // due to an error
   POOL_STATUS_UNSPECIFIED = 0;
-  // POOL_STATUS_ACTIVE ...
+  // POOL_STATUS_ACTIVE indicates, that the pool is running
+  // normally
   POOL_STATUS_ACTIVE = 1;
-  // POOL_STATUS_DISABLED ...
+  // POOL_STATUS_DISABLED indicates, that the pool was disabled
+  // by the governance and does not continue until it is enabled
+  // by the governance again
   POOL_STATUS_DISABLED = 2;
-  // POOL_STATUS_NO_FUNDS ...
+  // POOL_STATUS_NO_FUNDS indicates, that the pool currently has no
+  // funds, but is continuing normally anyway, due to inflation splitting
   POOL_STATUS_NO_FUNDS = 3;
-  // POOL_STATUS_NOT_ENOUGH_DELEGATION ...
+  // POOL_STATUS_NOT_ENOUGH_DELEGATION indicates, that the min delegation
+  // requirement has not been met and that the pool is halted
   POOL_STATUS_NOT_ENOUGH_DELEGATION = 4;
-  // POOL_STATUS_UPGRADING ...
+  // POOL_STATUS_UPGRADING indicates, that the runtime is currently
+  // being upgraded and that the pool is halted
   POOL_STATUS_UPGRADING = 5;
-  // POOL_STATUS_VP_TOO_HIGH ...
-  POOL_STATUS_VP_TOO_HIGH = 6;
+  // POOL_STATUS_VOTING_POWER_TOO_HIGH indicates, that one validator
+  // has more than 50% voting power and that the pool is halted
+  POOL_STATUS_VOTING_POWER_TOO_HIGH = 6;
 }
 
 // Protocol holds all info about the current pool version and the

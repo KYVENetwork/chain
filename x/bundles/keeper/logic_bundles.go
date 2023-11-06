@@ -28,18 +28,8 @@ func (k Keeper) AssertPoolCanRun(ctx sdk.Context, poolId uint64) error {
 		return types.ErrPoolDisabled
 	}
 
-	totalDelegation := uint64(0)
-	maxDelegation := uint64(0)
-
-	// Get the total delegation and the highest delegation of a staker in the pool
-	for _, address := range k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, poolId) {
-		delegation := k.delegationKeeper.GetDelegationAmount(ctx, address)
-		totalDelegation += delegation
-
-		if delegation > maxDelegation {
-			maxDelegation = delegation
-		}
-	}
+	// Get the total and the highest delegation of a single validator in the pool
+	totalDelegation, highestDelegation := k.delegationKeeper.GetTotalAndHighestDelegationOfPool(ctx, poolId)
 
 	// Error if min delegation is not reached
 	if totalDelegation < pool.MinDelegation {
@@ -47,7 +37,7 @@ func (k Keeper) AssertPoolCanRun(ctx sdk.Context, poolId uint64) error {
 	}
 
 	// Error if the top staker has more than 50%
-	if maxDelegation*2 > totalDelegation {
+	if highestDelegation*2 > totalDelegation {
 		return types.ErrVPTooHigh
 	}
 
