@@ -10,7 +10,7 @@ option go_package = "github.com/KYVENetwork/chain/x/pool/types";
 enum PoolStatus {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  // POOL_STATUS_UNSPECIFIED indicates and unknown status, likely
+  // POOL_STATUS_UNSPECIFIED indicates an unknown status, likely
   // due to an error
   POOL_STATUS_UNSPECIFIED = 0;
   // POOL_STATUS_ACTIVE indicates, that the pool is running

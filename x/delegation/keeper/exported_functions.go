@@ -42,8 +42,8 @@ func (k Keeper) GetDelegationOfPool(ctx sdk.Context, poolId uint64) uint64 {
 	return totalDelegation
 }
 
-// GetTotalAndHighestDelegationOfPool returns the total delegation amount and
-// the highest delegation of a single validator in a pool
+// GetTotalAndHighestDelegationOfPool returns the total delegation amount of all validators in the given pool and
+// the highest total delegation amount of a single validator in a pool
 func (k Keeper) GetTotalAndHighestDelegationOfPool(ctx sdk.Context, poolId uint64) (totalDelegation, highestDelegation uint64) {
 	// Get the total delegation and the highest delegation of a staker in the pool
 	for _, address := range k.stakersKeeper.GetAllStakerAddressesOfPool(ctx, poolId) {

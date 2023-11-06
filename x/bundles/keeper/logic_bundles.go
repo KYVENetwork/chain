@@ -38,7 +38,7 @@ func (k Keeper) AssertPoolCanRun(ctx sdk.Context, poolId uint64) error {
 
 	// Error if the top staker has more than 50%
 	if highestDelegation*2 > totalDelegation {
-		return types.ErrVPTooHigh
+		return types.ErrVotingPowerTooHigh
 	}
 
 	return nil

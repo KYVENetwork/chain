@@ -269,7 +269,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		err := s.App().BundlesKeeper.AssertPoolCanRun(s.Ctx(), 0)
 
 		// ASSERT
-		Expect(err).To(Equal(bundlesTypes.ErrVPTooHigh))
+		Expect(err).To(Equal(bundlesTypes.ErrVotingPowerTooHigh))
 	})
 
 	It("Assert pool can run", func() {
