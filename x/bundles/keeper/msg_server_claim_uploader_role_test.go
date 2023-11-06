@@ -39,14 +39,7 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 			},
 			UpgradePlan: &pooltypes.UpgradePlan{},
 		})
-	})
 
-	AfterEach(func() {
-		s.PerformValidityChecks()
-	})
-
-	It("Try to claim uploader role without pool being funded", func() {
-		// ARRANGE
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -55,12 +48,31 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_1,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_1,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_1_A,
+		})
+	})
+
+	AfterEach(func() {
+		s.PerformValidityChecks()
+	})
+
+	It("Try to claim uploader role without pool being funded", func() {
+		// ARRANGE
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -80,8 +92,8 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesError(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
-			Staker:  i.STAKER_0,
+			Creator: i.VALADDRESS_2_A,
+			Staker:  i.STAKER_2,
 			PoolId:  0,
 		})
 
@@ -98,20 +110,9 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 			Amount:  100 * i.KYVE,
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
-
-		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
-		})
-
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -144,20 +145,9 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 			Amount:  100 * i.KYVE,
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
-
-		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
-		})
-
 		// ACT
 		s.RunTxBundlesError(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_1,
+			Creator: i.VALADDRESS_1_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -185,20 +175,15 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 			UpgradePlan: &pooltypes.UpgradePlan{},
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
-
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     1,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_B,
 		})
 
 		// ACT
 		s.RunTxBundlesError(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_B,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -216,37 +201,15 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 			Amount:  100 * i.KYVE,
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
-
-		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
-		})
-
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
-
-		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1,
-		})
-
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
 
 		// ACT
 		s.RunTxBundlesError(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_1,
+			Creator: i.VALADDRESS_1_A,
 			Staker:  i.STAKER_1,
 			PoolId:  0,
 		})

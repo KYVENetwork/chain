@@ -49,7 +49,7 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 		})
 	})
 
@@ -76,7 +76,7 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
 		Expect(valaccount.PoolId).To(BeZero())
-		Expect(valaccount.Valaddress).To(Equal(i.VALADDRESS_0))
+		Expect(valaccount.Valaddress).To(Equal(i.VALADDRESS_0_A))
 		Expect(valaccount.Points).To(BeZero())
 		Expect(valaccount.IsLeaving).To(BeTrue())
 
@@ -122,7 +122,7 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_1,
+			Valaddress: i.VALADDRESS_1_A,
 			Amount:     100 * i.KYVE,
 		})
 
@@ -144,7 +144,7 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
 		Expect(valaccount.PoolId).To(BeZero())
-		Expect(valaccount.Valaddress).To(Equal(i.VALADDRESS_0))
+		Expect(valaccount.Valaddress).To(Equal(i.VALADDRESS_0_A))
 		Expect(valaccount.Points).To(BeZero())
 		Expect(valaccount.IsLeaving).To(BeTrue())
 
@@ -221,7 +221,7 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     1,
-			Valaddress: i.VALADDRESS_1,
+			Valaddress: i.VALADDRESS_1_A,
 		})
 		s.PerformValidityChecks()
 
@@ -242,7 +242,7 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
 		Expect(valaccount.PoolId).To(Equal(uint64(1)))
-		Expect(valaccount.Valaddress).To(Equal(i.VALADDRESS_1))
+		Expect(valaccount.Valaddress).To(Equal(i.VALADDRESS_1_A))
 		Expect(valaccount.Points).To(BeZero())
 		Expect(valaccount.IsLeaving).To(BeTrue())
 

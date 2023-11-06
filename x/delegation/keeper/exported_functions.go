@@ -42,6 +42,22 @@ func (k Keeper) GetDelegationOfPool(ctx sdk.Context, poolId uint64) uint64 {
 	return totalDelegation
 }
 
+// GetTotalAndHighestDelegationOfPool returns the total delegation amount of all validators in the given pool and
+// the highest total delegation amount of a single validator in a pool
+func (k Keeper) GetTotalAndHighestDelegationOfPool(ctx sdk.Context, poolId uint64) (totalDelegation, highestDelegation uint64) {
+	// Get the total delegation and the highest delegation of a staker in the pool
+	for _, address := range k.stakersKeeper.GetAllStakerAddressesOfPool(ctx, poolId) {
+		delegation := k.GetDelegationAmount(ctx, address)
+		totalDelegation += delegation
+
+		if delegation > highestDelegation {
+			highestDelegation = delegation
+		}
+	}
+
+	return
+}
+
 // PayoutRewards transfers `amount` $nKYVE from the `payerModuleName`-module to the delegation module.
 // It then awards these tokens internally to all delegators of staker `staker`.
 // Delegators can then receive these rewards if they call the `withdraw`-transaction.
