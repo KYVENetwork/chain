@@ -61,7 +61,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 			Amount:     0,
 		})
 
@@ -73,12 +73,12 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_1,
+			Valaddress: i.VALADDRESS_1_A,
 			Amount:     0,
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -86,7 +86,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "test_storage_id",
@@ -100,7 +100,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1,
+			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "test_storage_id",
@@ -119,7 +119,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
 			PoolId:    1,
 			Staker:    i.STAKER_1,
-			Proposer:  i.VALADDRESS_1,
+			Proposer:  i.VALADDRESS_1_A,
 			FromIndex: 100,
 		})
 
@@ -130,7 +130,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(canPropose.Reason).To(Equal(errors.Wrapf(errorsTypes.ErrNotFound, pooltypes.ErrPoolNotFound.Error(), 1).Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1,
+			Creator:       i.VALADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        1,
 			StorageId:     "test_storage_id",
@@ -163,7 +163,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
-			Proposer:  i.VALADDRESS_1,
+			Proposer:  i.VALADDRESS_1_A,
 			FromIndex: 100,
 		})
 
@@ -174,7 +174,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(canPropose.Reason).To(Equal(bundletypes.ErrPoolCurrentlyUpgrading.Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1,
+			Creator:       i.VALADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "test_storage_id",
@@ -202,7 +202,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
-			Proposer:  i.VALADDRESS_1,
+			Proposer:  i.VALADDRESS_1_A,
 			FromIndex: 100,
 		})
 
@@ -213,7 +213,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(canPropose.Reason).To(Equal(bundletypes.ErrPoolDisabled.Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1,
+			Creator:       i.VALADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "test_storage_id",
@@ -246,7 +246,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
-			Proposer:  i.VALADDRESS_1,
+			Proposer:  i.VALADDRESS_1_A,
 			FromIndex: 100,
 		})
 
@@ -257,7 +257,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(canPropose.Reason).To(Equal(bundletypes.ErrMinDelegationNotReached.Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1,
+			Creator:       i.VALADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "test_storage_id",
@@ -279,7 +279,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_0,
-			Proposer:  i.VALADDRESS_1,
+			Proposer:  i.VALADDRESS_1_A,
 			FromIndex: 100,
 		})
 
@@ -290,7 +290,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(canPropose.Reason).To(Equal(stakertypes.ErrValaccountUnauthorized.Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1,
+			Creator:       i.VALADDRESS_1_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "test_storage_id",
@@ -319,14 +319,14 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 			canPropose, err = s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
 				PoolId:    0,
 				Staker:    i.STAKER_1,
-				Proposer:  i.VALADDRESS_1,
+				Proposer:  i.VALADDRESS_1_A,
 				FromIndex: 100,
 			})
 		} else {
 			canPropose, err = s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
 				PoolId:    0,
 				Staker:    i.STAKER_0,
-				Proposer:  i.VALADDRESS_0,
+				Proposer:  i.VALADDRESS_0_A,
 				FromIndex: 100,
 			})
 		}
@@ -346,7 +346,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 
 		if bundleProposal.NextUploader == i.STAKER_0 {
 			_, txErr = s.RunTx(&bundletypes.MsgSubmitBundleProposal{
-				Creator:       i.VALADDRESS_1,
+				Creator:       i.VALADDRESS_1_A,
 				Staker:        i.STAKER_1,
 				PoolId:        0,
 				StorageId:     "test_storage_id",
@@ -360,7 +360,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 			})
 		} else {
 			_, txErr = s.RunTx(&bundletypes.MsgSubmitBundleProposal{
-				Creator:       i.VALADDRESS_0,
+				Creator:       i.VALADDRESS_0_A,
 				Staker:        i.STAKER_0,
 				PoolId:        0,
 				StorageId:     "test_storage_id",
@@ -390,7 +390,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
-			Proposer:  i.VALADDRESS_1,
+			Proposer:  i.VALADDRESS_1_A,
 			FromIndex: 100,
 		})
 
@@ -403,7 +403,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(canPropose.Reason).To(Equal(errors.Wrapf(bundletypes.ErrUploadInterval, "expected %v < %v", s.Ctx().BlockTime().Unix(), bundleProposal.UpdatedAt+pool.UploadInterval).Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1,
+			Creator:       i.VALADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "test_storage_id",
@@ -425,14 +425,14 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		canPropose_1, err_1 := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
-			Proposer:  i.VALADDRESS_1,
+			Proposer:  i.VALADDRESS_1_A,
 			FromIndex: 99,
 		})
 
 		canPropose_2, err_2 := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
-			Proposer:  i.VALADDRESS_1,
+			Proposer:  i.VALADDRESS_1_A,
 			FromIndex: 101,
 		})
 
@@ -450,7 +450,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(canPropose_2.Reason).To(Equal(errors.Wrapf(bundletypes.ErrFromIndex, "expected %v received %v", pool.CurrentIndex+bundleProposal.BundleSize, 101).Error()))
 
 		_, txErr_1 := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1,
+			Creator:       i.VALADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "test_storage_id",
@@ -467,7 +467,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(txErr_1.Error()).To(Equal(canPropose_1.Reason))
 
 		_, txErr_2 := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1,
+			Creator:       i.VALADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "test_storage_id",
@@ -489,7 +489,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
-			Proposer:  i.VALADDRESS_1,
+			Proposer:  i.VALADDRESS_1_A,
 			FromIndex: 100,
 		})
 
@@ -500,7 +500,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(canPropose.Reason).To(BeEmpty())
 
 		_, txErr := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1,
+			Creator:       i.VALADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "test_storage_id",
@@ -528,7 +528,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
-			Proposer:  i.VALADDRESS_1,
+			Proposer:  i.VALADDRESS_1_A,
 			FromIndex: 100,
 		})
 
@@ -539,7 +539,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(canPropose.Reason).To(BeEmpty())
 
 		_, txErr := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1,
+			Creator:       i.VALADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "test_storage_id",

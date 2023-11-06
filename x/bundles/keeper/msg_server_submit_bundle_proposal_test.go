@@ -62,11 +62,22 @@ var _ = Describe("msg_server_submit_bundle_proposal.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_1,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_1,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_1_A,
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
+			Creator: i.VALADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -82,7 +93,7 @@ var _ = Describe("msg_server_submit_bundle_proposal.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesError(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "",
@@ -108,7 +119,7 @@ var _ = Describe("msg_server_submit_bundle_proposal.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesError(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -134,7 +145,7 @@ var _ = Describe("msg_server_submit_bundle_proposal.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesError(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -160,7 +171,7 @@ var _ = Describe("msg_server_submit_bundle_proposal.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesError(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -186,7 +197,7 @@ var _ = Describe("msg_server_submit_bundle_proposal.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesError(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -212,7 +223,7 @@ var _ = Describe("msg_server_submit_bundle_proposal.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesError(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -238,7 +249,7 @@ var _ = Describe("msg_server_submit_bundle_proposal.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -258,7 +269,7 @@ var _ = Describe("msg_server_submit_bundle_proposal.go", Ordered, func() {
 		Expect(bundleProposal.PoolId).To(Equal(uint64(0)))
 		Expect(bundleProposal.StorageId).To(Equal("y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI"))
 		Expect(bundleProposal.Uploader).To(Equal(i.STAKER_0))
-		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_0))
+		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_1))
 		Expect(bundleProposal.DataSize).To(BeZero())
 		Expect(bundleProposal.DataHash).To(Equal("test_hash"))
 		Expect(bundleProposal.BundleSize).To(Equal(uint64(100)))
@@ -277,7 +288,7 @@ var _ = Describe("msg_server_submit_bundle_proposal.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -297,7 +308,7 @@ var _ = Describe("msg_server_submit_bundle_proposal.go", Ordered, func() {
 		Expect(bundleProposal.PoolId).To(Equal(uint64(0)))
 		Expect(bundleProposal.StorageId).To(Equal("y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI"))
 		Expect(bundleProposal.Uploader).To(Equal(i.STAKER_0))
-		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_0))
+		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_1))
 		Expect(bundleProposal.DataSize).To(Equal(uint64(100)))
 		Expect(bundleProposal.DataHash).To(BeEmpty())
 		Expect(bundleProposal.BundleSize).To(Equal(uint64(100)))
@@ -316,7 +327,7 @@ var _ = Describe("msg_server_submit_bundle_proposal.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -336,7 +347,7 @@ var _ = Describe("msg_server_submit_bundle_proposal.go", Ordered, func() {
 		Expect(bundleProposal.PoolId).To(Equal(uint64(0)))
 		Expect(bundleProposal.StorageId).To(Equal("y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI"))
 		Expect(bundleProposal.Uploader).To(Equal(i.STAKER_0))
-		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_0))
+		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_1))
 		Expect(bundleProposal.DataSize).To(Equal(uint64(100)))
 		Expect(bundleProposal.DataHash).To(Equal("test_hash"))
 		Expect(bundleProposal.BundleSize).To(Equal(uint64(100)))
@@ -355,7 +366,7 @@ var _ = Describe("msg_server_submit_bundle_proposal.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -375,7 +386,7 @@ var _ = Describe("msg_server_submit_bundle_proposal.go", Ordered, func() {
 		Expect(bundleProposal.PoolId).To(Equal(uint64(0)))
 		Expect(bundleProposal.StorageId).To(Equal("y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI"))
 		Expect(bundleProposal.Uploader).To(Equal(i.STAKER_0))
-		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_0))
+		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_1))
 		Expect(bundleProposal.DataSize).To(Equal(uint64(100)))
 		Expect(bundleProposal.DataHash).To(Equal("test_hash"))
 		Expect(bundleProposal.BundleSize).To(Equal(uint64(100)))

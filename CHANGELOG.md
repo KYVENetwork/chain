@@ -18,6 +18,7 @@ An '!' indicates a state machine breaking change.
 
 ### Improvements
 
+- ! (`x/bundles`) [#142](https://github.com/KYVENetwork/chain/pull/142) Halt the pool if a single validator has more than 50% voting power.
 - (deps) [#33](https://github.com/KYVENetwork/chain/pull/33) Upgrade Cosmos SDK to [v0.47.5](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.47.5) ([`v0.47.5-kyve`](https://github.com/KYVENetwork/cosmos-sdk/releases/tag/v0.47.5-kyve-rc0)).
 
 ## [v1.3.1](https://github.com/KYVENetwork/chain/releases/tag/v1.3.1) - 2023-08-02
