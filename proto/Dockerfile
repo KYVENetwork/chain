@@ -19,18 +19,13 @@ RUN npm install -g swagger-combine
 
 COPY --from=BUILDER /usr/local/bin /usr/local/bin
 
-# Inject user id and group id to avoid permission issues
+# Inject user id and group id to avoid permission issues when running as a root user
 ARG USER_ID=1000
 ARG USER_GID=1000
 
-# Create user and group if they don't exist
-RUN if ! getent group $USER_GID; then \
-  addgroup -g $USER_GID mygroup; \
-fi
-
-RUN if ! getent passwd $USER_ID; then \
-  adduser -D -u $USER_ID -G mygroup myuser; \
-fi
+# Create group and user
+RUN addgroup -g $USER_GID mygroup && \
+    adduser -D -u $USER_ID -G mygroup myuser
 
 # Change to user
 USER $USER_ID
