@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	fundersTypes "github.com/KYVENetwork/chain/x/funders/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -63,7 +64,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s.RunTxPoolSuccess(msg)
 
 		// create funders
-		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
+		s.RunTxFundersSuccess(&fundersTypes.MsgCreateFunder{
 			Creator: i.ALICE,
 			Moniker: "Alice",
 		})
@@ -71,7 +72,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		params := s.App().FundersKeeper.GetParams(s.Ctx())
 		params.MinFundingAmountPerBundle = amountPerBundle
 		s.App().FundersKeeper.SetParams(s.Ctx(), params)
-		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
+		s.RunTxPoolSuccess(&fundersTypes.MsgFundPool{
 			Creator:         i.ALICE,
 			Amount:          100 * i.KYVE,
 			AmountPerBundle: amountPerBundle,
