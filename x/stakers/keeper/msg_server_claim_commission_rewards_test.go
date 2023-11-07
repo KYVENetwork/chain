@@ -62,7 +62,24 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_1,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_1,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_1_A,
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
+			Creator: i.VALADDRESS_0_A,
+			Staker:  i.STAKER_0,
+			PoolId:  0,
 		})
 
 		initialBalanceStaker0 = s.GetBalanceFromAddress(i.STAKER_0)
@@ -84,16 +101,10 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 			AmountPerBundle: 10_000,
 		})
 
-		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0,
-			Staker:  i.STAKER_0,
-			PoolId:  0,
-		})
-
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -106,12 +117,20 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 			BundleSummary: "test_value",
 		})
 
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      1,
+		})
+
 		s.CommitAfterSeconds(60)
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
-			Staker:        i.STAKER_0,
+			Creator:       i.VALADDRESS_1_A,
+			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
 			DataSize:      100,
@@ -296,14 +315,21 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		Expect(s.GetBalanceFromAddress(i.STAKER_0)).To(Equal(initialBalanceStaker0 + 100))
 
 		// ACT
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_0_A,
+			Staker:    i.STAKER_0,
+			PoolId:    0,
+			StorageId: "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
+			Vote:      1,
+		})
+
 		s.CommitAfterSeconds(60)
 
-		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0,
+			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
-			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
+			StorageId:     "SsdTPx9adtpwAGIjiHilqVPEfoTiq7eRw6khbVxKetQ",
 			DataSize:      100,
 			DataHash:      "test_hash3",
 			FromIndex:     200,
@@ -311,6 +337,30 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 			FromKey:       "200",
 			ToKey:         "299",
 			BundleSummary: "test_value3",
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "SsdTPx9adtpwAGIjiHilqVPEfoTiq7eRw6khbVxKetQ",
+			Vote:      1,
+		})
+
+		s.CommitAfterSeconds(60)
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_1_A,
+			Staker:        i.STAKER_1,
+			PoolId:        0,
+			StorageId:     "iW1jN99yH_gdQtRhf5J_lVwOIu8p_i7FyxEgoQAkWxU",
+			DataSize:      100,
+			DataHash:      "test_hash4",
+			FromIndex:     300,
+			BundleSize:    100,
+			FromKey:       "300",
+			ToKey:         "399",
+			BundleSummary: "test_value4",
 		})
 
 		_, err = s.RunTx(&stakertypes.MsgClaimCommissionRewards{

@@ -58,7 +58,7 @@ var _ = Describe("grpc_account_redelegation.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_1,
+			Valaddress: i.VALADDRESS_1_A,
 			Amount:     0,
 		})
 

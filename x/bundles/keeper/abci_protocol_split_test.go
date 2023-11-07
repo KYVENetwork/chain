@@ -85,7 +85,18 @@ var _ = Describe("abci.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_1,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_1,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_1_A,
 		})
 
 		b1, b2 := uint64(0), uint64(0)
@@ -127,21 +138,33 @@ var _ = Describe("abci.go", Ordered, func() {
 			Amount:  100 * i.KYVE,
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
-		})
-
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_1,
 			Amount:  100 * i.KYVE,
 		})
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_0,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_0_A,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_1,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_1_A,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_0,
+			PoolId:     1,
+			Valaddress: i.VALADDRESS_0_B,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
 			PoolId:     1,
-			Valaddress: i.VALADDRESS_1,
+			Valaddress: i.VALADDRESS_1_B,
 		})
 
 		// ACT
@@ -185,7 +208,18 @@ var _ = Describe("abci.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
 			PoolId:     0,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_1,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_1,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_1_A,
 		})
 
 		// ACT

@@ -36,13 +36,13 @@ func (suite *KeeperTestSuite) GetNextUploader() (nextStaker string, nextValaddre
 	switch bundleProposal.NextUploader {
 	case STAKER_0:
 		nextStaker = STAKER_0
-		nextValaddress = VALADDRESS_0
+		nextValaddress = VALADDRESS_0_A
 	case STAKER_1:
 		nextStaker = STAKER_1
-		nextValaddress = VALADDRESS_1
+		nextValaddress = VALADDRESS_1_A
 	case STAKER_2:
 		nextStaker = STAKER_2
-		nextValaddress = VALADDRESS_2
+		nextValaddress = VALADDRESS_2_A
 	default:
 		nextStaker = ""
 		nextValaddress = ""

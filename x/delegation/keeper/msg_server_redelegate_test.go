@@ -66,7 +66,7 @@ var _ = Describe("Delegation - Redelegation", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:    i.BOB,
 			PoolId:     1,
-			Valaddress: i.VALADDRESS_0,
+			Valaddress: i.VALADDRESS_0_A,
 			Amount:     0,
 		})
 

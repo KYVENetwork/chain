@@ -57,6 +57,7 @@ type StakerKeeper interface {
 type DelegationKeeper interface {
 	GetDelegationAmount(ctx sdk.Context, staker string) uint64
 	GetDelegationOfPool(ctx sdk.Context, poolId uint64) uint64
+	GetTotalAndHighestDelegationOfPool(ctx sdk.Context, poolId uint64) (uint64, uint64)
 	PayoutRewards(ctx sdk.Context, staker string, amount uint64, payerModuleName string) error
 	SlashDelegators(ctx sdk.Context, poolId uint64, staker string, slashType delegationTypes.SlashType)
 }
