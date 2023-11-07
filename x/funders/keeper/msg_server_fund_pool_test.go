@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
-
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
@@ -26,6 +24,7 @@ TEST CASES - msg_server_fund_pool.go
 * Try to fund a non-existent pool
 * Try to fund below the minimum amount
 * Try to fund below the minimum amount per bundle
+* Try to fund without fulfilling min_funding_multiple
 
 */
 
@@ -422,14 +421,12 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 
 	It("Try to fund without fulfilling min_funding_multiple", func() {
 		// ASSERT
-		res, err := s.RunTx(&funderstypes.MsgFundPool{
+		_, err := s.RunTx(&funderstypes.MsgFundPool{
 			Creator:         i.ALICE,
 			PoolId:          0,
 			Amount:          2 * i.KYVE,
 			AmountPerBundle: 1 * i.KYVE,
 		})
-		fmt.Println(res)
-		fmt.Println(err.Error())
 		Expect(err.Error()).To(Equal("per_bundle_amount (1000000000kyve) times min_funding_multiple (1000000000) is smaller than funded_amount (2000000000kyve): invalid request"))
 	})
 })

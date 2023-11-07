@@ -51,7 +51,6 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint
 	}
 
 	// This is the amount every funding will be charged
-	payout = 0
 	for _, funding := range activeFundings {
 		payout += funding.ChargeOneBundle()
 		if funding.Amount == 0 {
@@ -98,9 +97,10 @@ func (k Keeper) GetLowestFunding(fundings []types.Funding) (lowestFunding *types
 }
 
 // ensureParamsCompatibility checks compatibility of the provided funding with the pool params.
-// i.e. minimum funding per bundle
-//
-//	and minimum funding amount
+// i.e.
+// - minimum funding per bundle
+// - minimum funding amount
+// - minimum funding multiple
 func (k Keeper) ensureParamsCompatibility(ctx sdk.Context, funding types.Funding) error {
 	params := k.GetParams(ctx)
 	if funding.AmountPerBundle < params.MinFundingAmountPerBundle {

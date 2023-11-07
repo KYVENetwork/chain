@@ -18,7 +18,7 @@ TEST CASES - msg_server_update_funder.go
 * Update a funder with all values set
 */
 
-var _ = Describe("msg_server_create_funder.go", Ordered, func() {
+var _ = Describe("msg_server_update_funder.go", Ordered, func() {
 	s := i.NewCleanChain()
 
 	BeforeEach(func() {
