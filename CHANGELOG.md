@@ -16,6 +16,10 @@ An '!' indicates a state machine breaking change.
 
 ## [Unreleased]
 
+### Features
+
+- ! (`x/funders`) [#141](https://github.com/KYVENetwork/chain/pull/141) Implementation of the new [funders concept](https://commonwealth.im/kyve/discussion/13420-enhancing-kyves-funders-concept).
+
 ### Improvements
 
 - ! (`x/bundles`) [#142](https://github.com/KYVENetwork/chain/pull/142) Halt the pool if a single validator has more than 50% voting power.

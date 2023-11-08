@@ -18,10 +18,6 @@ const (
 	MemStoreKey = "mem_pool"
 )
 
-const (
-	MaxFunders = 50 // maximum amount of funders which are allowed
-)
-
 var (
 	// ParamsKey is the prefix for all module params defined in params.proto
 	ParamsKey = []byte{0}

@@ -5,6 +5,7 @@ import (
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
+	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
@@ -39,19 +40,26 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 	BeforeEach(func() {
 		s = i.NewCleanChain()
 
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
+		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
+		msg := &pooltypes.MsgCreatePool{
+			Authority:      gov,
 			MinDelegation:  200 * i.KYVE,
 			UploadInterval: 60,
 			MaxBundleSize:  100,
-			Protocol:       &pooltypes.Protocol{},
-			UpgradePlan:    &pooltypes.UpgradePlan{},
+			Binaries:       "{}",
+		}
+		s.RunTxPoolSuccess(msg)
+
+		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
+			Creator: i.ALICE,
+			Moniker: "Alice",
 		})
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
+		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 1 * i.KYVE,
 		})
 
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
@@ -467,9 +475,9 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 
 	It("Call can vote on an active pool with no funds and a data bundle with valid args", func() {
 		// ARRANGE
-		s.RunTxPoolSuccess(&pooltypes.MsgDefundPool{
+		s.RunTxPoolSuccess(&funderstypes.MsgDefundPool{
 			Creator: i.ALICE,
-			Id:      0,
+			PoolId:  0,
 			Amount:  100 * i.KYVE,
 		})
 

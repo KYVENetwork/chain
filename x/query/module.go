@@ -67,6 +67,7 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 	_ = types.RegisterQueryDelegationHandlerClient(context.Background(), mux, types.NewQueryDelegationClient(clientCtx))
 	_ = types.RegisterQueryBundlesHandlerClient(context.Background(), mux, types.NewQueryBundlesClient(clientCtx))
 	_ = types.RegisterQueryParamsHandlerClient(context.Background(), mux, types.NewQueryParamsClient(clientCtx))
+	_ = types.RegisterQueryFundersHandlerClient(context.Background(), mux, types.NewQueryFundersClient(clientCtx))
 }
 
 // GetTxCmd returns the root Tx command for the module. The subcommands of this root command are used by end-users to generate new transactions containing messages defined in the module
@@ -117,6 +118,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryDelegationServer(cfg.QueryServer(), am.keeper)
 	types.RegisterQueryBundlesServer(cfg.QueryServer(), am.keeper)
 	types.RegisterQueryParamsServer(cfg.QueryServer(), am.keeper)
+	types.RegisterQueryFundersServer(cfg.QueryServer(), am.keeper)
 }
 
 // RegisterInvariants registers the invariants of the module. If an invariant deviates from its predicted value, the InvariantRegistry triggers appropriate logic (most often the chain will be halted)

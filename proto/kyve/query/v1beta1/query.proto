@@ -38,8 +38,8 @@ message BasicPool {
   // logo of the pool
   string logo = 4;
 
-  // operating_cost is the base payout for each bundle reward
-  uint64 operating_cost = 5;
+  // inflation_share_weight is the base payout for each bundle reward
+  uint64 inflation_share_weight = 5;
 
   // upload_interval is the interval bundles get created
   uint64 upload_interval = 6;

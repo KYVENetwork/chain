@@ -27,15 +27,15 @@ func (k msgServer) CreatePool(goCtx context.Context, req *types.MsgCreatePool) (
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	id := k.AppendPool(ctx, types.Pool{
-		Name:           req.Name,
-		Runtime:        req.Runtime,
-		Logo:           req.Logo,
-		Config:         req.Config,
-		StartKey:       req.StartKey,
-		UploadInterval: req.UploadInterval,
-		OperatingCost:  req.OperatingCost,
-		MinDelegation:  req.MinDelegation,
-		MaxBundleSize:  req.MaxBundleSize,
+		Name:                 req.Name,
+		Runtime:              req.Runtime,
+		Logo:                 req.Logo,
+		Config:               req.Config,
+		StartKey:             req.StartKey,
+		UploadInterval:       req.UploadInterval,
+		InflationShareWeight: req.InflationShareWeight,
+		MinDelegation:        req.MinDelegation,
+		MaxBundleSize:        req.MaxBundleSize,
 		Protocol: &types.Protocol{
 			Version:     req.Version,
 			Binaries:    req.Binaries,
@@ -47,22 +47,23 @@ func (k msgServer) CreatePool(goCtx context.Context, req *types.MsgCreatePool) (
 	})
 
 	k.EnsurePoolAccount(ctx, id)
+	k.fundersKeeper.CreateFundingState(ctx, id)
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventCreatePool{
-		Id:                k.GetPoolCount(ctx) - 1,
-		Name:              req.Name,
-		Runtime:           req.Runtime,
-		Logo:              req.Logo,
-		Config:            req.Config,
-		StartKey:          req.StartKey,
-		UploadInterval:    req.UploadInterval,
-		OperatingCost:     req.OperatingCost,
-		MinDelegation:     req.MinDelegation,
-		MaxBundleSize:     req.MaxBundleSize,
-		Version:           req.Version,
-		Binaries:          req.Binaries,
-		StorageProviderId: req.StorageProviderId,
-		CompressionId:     req.CompressionId,
+		Id:                   k.GetPoolCount(ctx) - 1,
+		Name:                 req.Name,
+		Runtime:              req.Runtime,
+		Logo:                 req.Logo,
+		Config:               req.Config,
+		StartKey:             req.StartKey,
+		UploadInterval:       req.UploadInterval,
+		InflationShareWeight: req.InflationShareWeight,
+		MinDelegation:        req.MinDelegation,
+		MaxBundleSize:        req.MaxBundleSize,
+		Version:              req.Version,
+		Binaries:             req.Binaries,
+		StorageProviderId:    req.StorageProviderId,
+		CompressionId:        req.CompressionId,
 	})
 
 	return &types.MsgCreatePoolResponse{}, nil

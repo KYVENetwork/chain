@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package kyve.funders.v1beta1;
+
+option go_package = "github.com/KYVENetwork/chain/x/funders/types";
+
+// Params defines the funders module parameters.
+message Params {
+  // Minimum amount of tokens that can be funded.
+  uint64 min_funding_amount = 1;
+  // Minimum amount of tokens that can be funded per bundle.
+  uint64 min_funding_amount_per_bundle = 2;
+  // Minimum ratio between the funded amount and the amount_per_bundle.
+  // In other words this param ensures, that a funder provides at least funding for
+  // `min_funding_multiple` bundles.
+  uint64 min_funding_multiple = 3;
+}

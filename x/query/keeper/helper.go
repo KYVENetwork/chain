@@ -44,15 +44,15 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 		poolMemberships = append(
 			poolMemberships, &types.PoolMembership{
 				Pool: &types.BasicPool{
-					Id:              pool.Id,
-					Name:            pool.Name,
-					Runtime:         pool.Runtime,
-					Logo:            pool.Logo,
-					OperatingCost:   pool.OperatingCost,
-					UploadInterval:  pool.UploadInterval,
-					TotalFunds:      pool.TotalFunds,
-					TotalDelegation: k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id),
-					Status:          k.GetPoolStatus(ctx, &pool),
+					Id:                   pool.Id,
+					Name:                 pool.Name,
+					Runtime:              pool.Runtime,
+					Logo:                 pool.Logo,
+					InflationShareWeight: pool.InflationShareWeight,
+					UploadInterval:       pool.UploadInterval,
+					TotalFunds:           k.fundersKeeper.GetTotalActiveFunding(ctx, pool.Id),
+					TotalDelegation:      k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id),
+					Status:               k.GetPoolStatus(ctx, &pool),
 				},
 				Points:     valaccount.Points,
 				IsLeaving:  valaccount.IsLeaving,
@@ -87,6 +87,7 @@ func (k Keeper) GetPoolStatus(ctx sdk.Context, pool *pooltypes.Pool) pooltypes.P
 
 	var poolStatus pooltypes.PoolStatus
 
+	poolStatus = pooltypes.POOL_STATUS_ACTIVE
 	if pool.UpgradePlan.ScheduledAt > 0 && uint64(ctx.BlockTime().Unix()) >= pool.UpgradePlan.ScheduledAt {
 		poolStatus = pooltypes.POOL_STATUS_UPGRADING
 	} else if pool.Disabled {
@@ -95,10 +96,8 @@ func (k Keeper) GetPoolStatus(ctx sdk.Context, pool *pooltypes.Pool) pooltypes.P
 		poolStatus = pooltypes.POOL_STATUS_NOT_ENOUGH_DELEGATION
 	} else if highestDelegation*2 > totalDelegation {
 		poolStatus = pooltypes.POOL_STATUS_VOTING_POWER_TOO_HIGH
-	} else if pool.TotalFunds == 0 {
+	} else if k.fundersKeeper.GetTotalActiveFunding(ctx, pool.Id) == 0 {
 		poolStatus = pooltypes.POOL_STATUS_NO_FUNDS
-	} else {
-		poolStatus = pooltypes.POOL_STATUS_ACTIVE
 	}
 
 	return poolStatus

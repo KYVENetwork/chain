@@ -35,12 +35,8 @@ var _ = Describe("msg_server_enable_pool.go", Ordered, func() {
 	BeforeEach(func() {
 		s = i.NewCleanChain()
 
-		s.App().PoolKeeper.AppendPool(s.Ctx(), types.Pool{
-			UpgradePlan: &types.UpgradePlan{},
-		})
-		s.App().PoolKeeper.AppendPool(s.Ctx(), types.Pool{
-			UpgradePlan: &types.UpgradePlan{},
-		})
+		createPoolWithEmptyValues(s)
+		createPoolWithEmptyValues(s)
 	})
 
 	AfterEach(func() {

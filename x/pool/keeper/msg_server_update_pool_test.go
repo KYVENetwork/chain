@@ -33,20 +33,7 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 	BeforeEach(func() {
 		s = i.NewCleanChain()
 
-		s.App().PoolKeeper.AppendPool(s.Ctx(), types.Pool{
-			Name:                     "",
-			Runtime:                  "",
-			Logo:                     "",
-			Config:                   "",
-			UploadInterval:           0,
-			OperatingCost:            0,
-			MinDelegation:            0,
-			MaxBundleSize:            0,
-			CurrentStorageProviderId: 0,
-			CurrentCompressionId:     0,
-			Protocol:                 &types.Protocol{},
-			UpgradePlan:              &types.UpgradePlan{},
-		})
+		createPoolWithEmptyValues(s)
 	})
 
 	AfterEach(func() {
@@ -58,7 +45,7 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 		msg := &types.MsgUpdatePool{
 			Authority: i.DUMMY[0],
 			Id:        0,
-			Payload:   "{\"Name\":\"TestPool\",\"Runtime\":\"@kyve/test\",\"Logo\":\"ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU\",\"Config\":\"ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0\",\"StartKey\":\"0\",\"UploadInterval\":60,\"OperatingCost\":10000,\"MinDelegation\":\"100000000000\",\"MaxBundleSize\":100,\"Version\":\"0.0.0\",\"Binaries\":\"{}\",\"StorageProviderId\":2,\"CompressionId\":1}",
+			Payload:   "{\"Name\":\"TestPool\",\"Runtime\":\"@kyve/test\",\"Logo\":\"ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU\",\"Config\":\"ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0\",\"StartKey\":\"0\",\"UploadInterval\":60,\"InflationShareWeight\":10000,\"MinDelegation\":\"100000000000\",\"MaxBundleSize\":100,\"Version\":\"0.0.0\",\"Binaries\":\"{}\",\"StorageProviderId\":2,\"CompressionId\":1}",
 		}
 
 		// ACT
@@ -73,7 +60,7 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 		msg := &types.MsgUpdatePool{
 			Authority: i.DUMMY[0],
 			Id:        0,
-			Payload:   "{\"Name\":\"TestPool\",\"Runtime\":\"@kyve/test\",\"Logo\":\"ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU\",\"Config\":\"ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0\",\"StartKey\":\"0\",\"UploadInterval\":60,\"OperatingCost\":10000,\"MinDelegation\":\"100000000000\",\"MaxBundleSize\":100,\"Version\":\"0.0.0\",\"Binaries\":\"{}\",\"StorageProviderId\":2,\"CompressionId\":1}",
+			Payload:   "{\"Name\":\"TestPool\",\"Runtime\":\"@kyve/test\",\"Logo\":\"ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU\",\"Config\":\"ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0\",\"StartKey\":\"0\",\"UploadInterval\":60,\"InflationShareWeight\":10000,\"MinDelegation\":\"100000000000\",\"MaxBundleSize\":100,\"Version\":\"0.0.0\",\"Binaries\":\"{}\",\"StorageProviderId\":2,\"CompressionId\":1}",
 		}
 
 		proposal, _ := BuildGovernanceTxs(s, []sdk.Msg{msg})
@@ -90,7 +77,7 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 		msg := &types.MsgUpdatePool{
 			Authority: gov,
 			Id:        0,
-			Payload:   "{\"Name\":\"TestPool\",\"Runtime\":\"@kyve/test\",\"Logo\":\"ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU\",\"Config\":\"ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0\",\"StartKey\":\"0\",\"UploadInterval\":60,\"OperatingCost\":10000,\"MinDelegation\":100000000000,\"MaxBundleSize\":100,\"Version\":\"0.0.0\",\"Binaries\":\"{}\",\"StorageProviderId\":2,\"CompressionId\":1}",
+			Payload:   "{\"Name\":\"TestPool\",\"Runtime\":\"@kyve/test\",\"Logo\":\"ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU\",\"Config\":\"ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0\",\"StartKey\":\"0\",\"UploadInterval\":60,\"InflationShareWeight\":10000,\"MinDelegation\":100000000000,\"MaxBundleSize\":100,\"Version\":\"0.0.0\",\"Binaries\":\"{}\",\"StorageProviderId\":2,\"CompressionId\":1}",
 		}
 
 		p, v := BuildGovernanceTxs(s, []sdk.Msg{msg})
@@ -112,23 +99,21 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 		Expect(pool).To(Equal(types.Pool{
-			Id:             0,
-			Name:           "TestPool",
-			Runtime:        "@kyve/test",
-			Logo:           "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
-			Config:         "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
-			StartKey:       "",
-			CurrentKey:     "",
-			CurrentSummary: "",
-			CurrentIndex:   0,
-			TotalBundles:   0,
-			UploadInterval: 60,
-			OperatingCost:  10000,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Disabled:       false,
-			Funders:        nil,
-			TotalFunds:     0,
+			Id:                   0,
+			Name:                 "TestPool",
+			Runtime:              "@kyve/test",
+			Logo:                 "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
+			StartKey:             "",
+			CurrentKey:           "",
+			CurrentSummary:       "",
+			CurrentIndex:         0,
+			TotalBundles:         0,
+			UploadInterval:       60,
+			InflationShareWeight: 10000,
+			MinDelegation:        100 * i.KYVE,
+			MaxBundleSize:        100,
+			Disabled:             false,
 			Protocol: &types.Protocol{
 				Version:     "",
 				Binaries:    "",
@@ -172,23 +157,21 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 		Expect(pool).To(Equal(types.Pool{
-			Id:             0,
-			Name:           "TestPool",
-			Runtime:        "@kyve/test",
-			Logo:           "",
-			Config:         "",
-			StartKey:       "",
-			CurrentKey:     "",
-			CurrentSummary: "",
-			CurrentIndex:   0,
-			TotalBundles:   0,
-			UploadInterval: 0,
-			OperatingCost:  0,
-			MinDelegation:  0,
-			MaxBundleSize:  0,
-			Disabled:       false,
-			Funders:        nil,
-			TotalFunds:     0,
+			Id:                   0,
+			Name:                 "TestPool",
+			Runtime:              "@kyve/test",
+			Logo:                 "",
+			Config:               "",
+			StartKey:             "",
+			CurrentKey:           "",
+			CurrentSummary:       "",
+			CurrentIndex:         0,
+			TotalBundles:         0,
+			UploadInterval:       0,
+			InflationShareWeight: 0,
+			MinDelegation:        0,
+			MaxBundleSize:        0,
+			Disabled:             false,
 			Protocol: &types.Protocol{
 				Version:     "",
 				Binaries:    "",
@@ -207,26 +190,13 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 
 	It("Update another pool", func() {
 		// ARRANGE
-		s.App().PoolKeeper.AppendPool(s.Ctx(), types.Pool{
-			Name:                     "",
-			Runtime:                  "",
-			Logo:                     "",
-			Config:                   "",
-			UploadInterval:           0,
-			OperatingCost:            0,
-			MinDelegation:            0,
-			MaxBundleSize:            0,
-			CurrentStorageProviderId: 0,
-			CurrentCompressionId:     0,
-			Protocol:                 &types.Protocol{},
-			UpgradePlan:              &types.UpgradePlan{},
-		})
+		createPoolWithEmptyValues(s)
 
 		// ACT
 		msg := &types.MsgUpdatePool{
 			Authority: gov,
 			Id:        1,
-			Payload:   "{\"Name\":\"TestPool2\",\"Runtime\":\"@kyve/test\",\"Logo\":\"ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU\",\"Config\":\"ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0\",\"StartKey\":\"0\",\"UploadInterval\":60,\"OperatingCost\":10000,\"MinDelegation\":100000000000,\"MaxBundleSize\":100,\"Version\":\"0.0.0\",\"Binaries\":\"{}\",\"StorageProviderId\":2,\"CompressionId\":1}",
+			Payload:   "{\"Name\":\"TestPool2\",\"Runtime\":\"@kyve/test\",\"Logo\":\"ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU\",\"Config\":\"ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0\",\"StartKey\":\"0\",\"UploadInterval\":60,\"InflationShareWeight\":10000,\"MinDelegation\":100000000000,\"MaxBundleSize\":100,\"Version\":\"0.0.0\",\"Binaries\":\"{}\",\"StorageProviderId\":2,\"CompressionId\":1}",
 		}
 
 		p, v := BuildGovernanceTxs(s, []sdk.Msg{msg})
@@ -247,23 +217,21 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 1)
 		Expect(pool).To(Equal(types.Pool{
-			Id:             1,
-			Name:           "TestPool2",
-			Runtime:        "@kyve/test",
-			Logo:           "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
-			Config:         "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
-			StartKey:       "",
-			CurrentKey:     "",
-			CurrentSummary: "",
-			CurrentIndex:   0,
-			TotalBundles:   0,
-			UploadInterval: 60,
-			OperatingCost:  10000,
-			MinDelegation:  100 * i.KYVE,
-			MaxBundleSize:  100,
-			Disabled:       false,
-			Funders:        nil,
-			TotalFunds:     0,
+			Id:                   1,
+			Name:                 "TestPool2",
+			Runtime:              "@kyve/test",
+			Logo:                 "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
+			StartKey:             "",
+			CurrentKey:           "",
+			CurrentSummary:       "",
+			CurrentIndex:         0,
+			TotalBundles:         0,
+			UploadInterval:       60,
+			InflationShareWeight: 10000,
+			MinDelegation:        100 * i.KYVE,
+			MaxBundleSize:        100,
+			Disabled:             false,
 			Protocol: &types.Protocol{
 				Version:     "",
 				Binaries:    "",
@@ -285,7 +253,7 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 		msg := &types.MsgUpdatePool{
 			Authority: gov,
 			Id:        1,
-			Payload:   "invalid_json_payload\",\"Runtime\":\"@kyve/test\",\"Logo\":\"ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU\",\"Config\":\"ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0\",\"StartKey\":\"0\",\"UploadInterval\":60,\"OperatingCost\":10000,\"MinDelegation\":100000000000,\"MaxBundleSize\":100,\"Version\":\"0.0.0\",\"Binaries\":\"{}\",\"StorageProviderId\":2,\"CompressionId\":1}",
+			Payload:   "invalid_json_payload\",\"Runtime\":\"@kyve/test\",\"Logo\":\"ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU\",\"Config\":\"ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0\",\"StartKey\":\"0\",\"UploadInterval\":60,\"InflationShareWeight\":10000,\"MinDelegation\":100000000000,\"MaxBundleSize\":100,\"Version\":\"0.0.0\",\"Binaries\":\"{}\",\"StorageProviderId\":2,\"CompressionId\":1}",
 		}
 
 		p, _ := BuildGovernanceTxs(s, []sdk.Msg{msg})
@@ -322,12 +290,12 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 		Expect(pool.Name).To(BeEmpty())
 	})
 
-	It("Update pool with invalid OperatingCost", func() {
+	It("Update pool with invalid InflationShareWeight", func() {
 		// ARRANGE
 		msg := &types.MsgUpdatePool{
 			Authority: gov,
 			Id:        1,
-			Payload:   "{\"OperatingCost\": -1}",
+			Payload:   "{\"InflationShareWeight\": -1}",
 		}
 
 		p, _ := BuildGovernanceTxs(s, []sdk.Msg{msg})

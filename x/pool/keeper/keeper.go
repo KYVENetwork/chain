@@ -8,8 +8,6 @@ import (
 	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	// Auth
-	authKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	// Bank
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -32,12 +30,13 @@ type (
 		authority string
 
 		stakersKeeper types.StakersKeeper
-		accountKeeper authKeeper.AccountKeeper
+		accountKeeper types.AccountKeeper
 		bankKeeper    bankKeeper.Keeper
 		distrkeeper   distributionKeeper.Keeper
 		mintKeeper    mintKeeper.Keeper
 		upgradeKeeper types.UpgradeKeeper
 		teamKeeper    teamKeeper.Keeper
+		fundersKeeper types.FundersKeeper
 	}
 )
 
@@ -48,7 +47,7 @@ func NewKeeper(
 
 	authority string,
 
-	accountKeeper authKeeper.AccountKeeper,
+	accountKeeper types.AccountKeeper,
 	bankKeeper bankKeeper.Keeper,
 	distrKeeper distributionKeeper.Keeper,
 	mintKeeper mintKeeper.Keeper,
@@ -92,6 +91,10 @@ func (k Keeper) EnsurePoolAccount(ctx sdk.Context, id uint64) {
 
 func SetStakersKeeper(k *Keeper, stakersKeeper types.StakersKeeper) {
 	k.stakersKeeper = stakersKeeper
+}
+
+func SetFundersKeeper(k *Keeper, fundersKeeper types.FundersKeeper) {
+	k.fundersKeeper = fundersKeeper
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {

@@ -3,6 +3,7 @@ package keeper_test
 import (
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
+	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -40,18 +41,39 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		s = i.NewCleanChain()
 
 		// create clean pool for every test case
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			MaxBundleSize:  100,
-			StartKey:       "0",
-			UploadInterval: 60,
-			OperatingCost:  10_000,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
+		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
+		msg := &pooltypes.MsgCreatePool{
+			Authority:            gov,
+			Name:                 "PoolTest",
+			Runtime:              "@kyve/test",
+			Logo:                 "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
+			StartKey:             "0",
+			UploadInterval:       60,
+			InflationShareWeight: 10_000,
+			MinDelegation:        100 * i.KYVE,
+			MaxBundleSize:        100,
+			Version:              "0.0.0",
+			Binaries:             "{}",
+			StorageProviderId:    2,
+			CompressionId:        1,
+		}
+		s.RunTxPoolSuccess(msg)
+
+		params := s.App().FundersKeeper.GetParams(s.Ctx())
+		params.MinFundingAmountPerBundle = 1_000
+		params.MinFundingAmount = 100
+		params.MinFundingMultiple = 0
+		s.App().FundersKeeper.SetParams(s.Ctx(), params)
+
+		// create funders
+		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
+			Creator: i.ALICE,
+			Moniker: "Alice",
+		})
+		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
+			Creator: i.BOB,
+			Moniker: "Bob",
 		})
 
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
@@ -162,9 +184,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeZero())
 
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
 		// assert total pool funds
-		Expect(pool.TotalFunds).To(BeZero())
-		Expect(pool.Funders).To(BeEmpty())
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
+		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
 	It("Produce a valid bundle with no funders and 10% inflation splitting", func() {
@@ -253,9 +277,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
 		// assert total pool funds
-		Expect(pool.TotalFunds).To(BeZero())
-		Expect(pool.Funders).To(BeEmpty())
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
+		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
 	It("Produce a valid bundle with no funders and 100% inflation splitting", func() {
@@ -344,9 +370,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
 		// assert total pool funds
-		Expect(pool.TotalFunds).To(BeZero())
-		Expect(pool.Funders).To(BeEmpty())
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
+		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
 	It("Produce a valid bundle with sufficient funders and 0% inflation splitting", func() {
@@ -361,16 +389,18 @@ var _ = Describe("inflation splitting", Ordered, func() {
 			s.Commit()
 		}
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 5_000,
 		})
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.BOB,
-			Id:      0,
-			Amount:  100 * i.KYVE,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.BOB,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 5_000,
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -429,9 +459,9 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert bundle reward
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
-		// the total payout is the operating cost because the funding is sufficient
+		// the total payout is the inflation share weight because the funding is sufficient
 		// and there is no additional inflation
-		totalPayout := pool.OperatingCost
+		totalPayout := pool.InflationShareWeight
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(sdk.NewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
@@ -446,9 +476,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
 		// assert total pool funds
-		Expect(pool.TotalFunds).To(Equal(200*i.KYVE - totalPayout))
-		Expect(pool.Funders).To(HaveLen(2))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(200*i.KYVE - 10_000))
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
 	})
 
 	It("Produce a valid bundle with sufficient funders and 10% inflation splitting", func() {
@@ -463,16 +495,18 @@ var _ = Describe("inflation splitting", Ordered, func() {
 			s.Commit()
 		}
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 5_000,
 		})
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.BOB,
-			Id:      0,
-			Amount:  100 * i.KYVE,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.BOB,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 5_000,
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -533,8 +567,8 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert bundle reward
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
-		// the total payout is the operating cost plus the inflation payout
-		totalPayout := pool.OperatingCost + payout
+		// the total payout is the inflation share weight plus the inflation payout
+		totalPayout := pool.InflationShareWeight + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(sdk.NewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
@@ -549,9 +583,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
 		// assert total pool funds
-		Expect(pool.TotalFunds).To(Equal(200*i.KYVE - pool.OperatingCost))
-		Expect(pool.Funders).To(HaveLen(2))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(200*i.KYVE - 10_000))
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
 	})
 
 	It("Produce a valid bundle with sufficient funders and 100% inflation splitting", func() {
@@ -566,16 +602,18 @@ var _ = Describe("inflation splitting", Ordered, func() {
 			s.Commit()
 		}
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 5_000,
 		})
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.BOB,
-			Id:      0,
-			Amount:  100 * i.KYVE,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.BOB,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 5_000,
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -636,8 +674,8 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert bundle reward
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
-		// the total payout is the operating cost plus the inflation payout
-		totalPayout := pool.OperatingCost + payout
+		// the total payout is the inflation share weight plus the inflation payout
+		totalPayout := pool.InflationShareWeight + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(sdk.NewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
@@ -652,9 +690,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
 		// assert total pool funds
-		Expect(pool.TotalFunds).To(Equal(200*i.KYVE - pool.OperatingCost))
-		Expect(pool.Funders).To(HaveLen(2))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(200*i.KYVE - 10_000))
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
 	})
 
 	It("Produce a valid bundle with insufficient funders and 0% inflation splitting", func() {
@@ -669,16 +709,18 @@ var _ = Describe("inflation splitting", Ordered, func() {
 			s.Commit()
 		}
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100,
+			AmountPerBundle: 5_000,
 		})
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.BOB,
-			Id:      0,
-			Amount:  200,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.BOB,
+			PoolId:          0,
+			Amount:          200,
+			AmountPerBundle: 5_000,
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -753,12 +795,14 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
 		// assert total pool funds
-		Expect(pool.TotalFunds).To(BeZero())
-		Expect(pool.Funders).To(BeEmpty())
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
+		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
-	It("Produce a valid bundle with insufficient funders and 10% inflation splitting", func() {
+	It("Produce a valid bundle with insufficient funders and 30% inflation splitting", func() {
 		// ARRANGE
 		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
 			ProtocolInflationShare:  sdk.MustNewDecFromStr("0.1"),
@@ -770,16 +814,18 @@ var _ = Describe("inflation splitting", Ordered, func() {
 			s.Commit()
 		}
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100,
+			AmountPerBundle: 5_000,
 		})
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.BOB,
-			Id:      0,
-			Amount:  200,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.BOB,
+			PoolId:          0,
+			Amount:          200,
+			AmountPerBundle: 5_000,
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -840,7 +886,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert bundle reward
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
-		// the total payout is the operating cost plus the inflation payout
+		// the total payout is the inflation share weight plus the inflation payout
 		totalPayout := 300 + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
@@ -856,9 +902,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
 		// assert total pool funds
-		Expect(pool.TotalFunds).To(BeZero())
-		Expect(pool.Funders).To(BeEmpty())
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
+		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
 	It("Produce a valid bundle with insufficient funders and 10% inflation splitting", func() {
@@ -873,16 +921,18 @@ var _ = Describe("inflation splitting", Ordered, func() {
 			s.Commit()
 		}
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100,
+			AmountPerBundle: 5_000,
 		})
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.BOB,
-			Id:      0,
-			Amount:  200,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.BOB,
+			PoolId:          0,
+			Amount:          200,
+			AmountPerBundle: 5_000,
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -943,7 +993,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert bundle reward
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
-		// the total payout is the operating cost plus the inflation payout
+		// the total payout is the inflation share weight plus the inflation payout
 		totalPayout := 300 + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
@@ -959,9 +1009,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
 		// assert total pool funds
-		Expect(pool.TotalFunds).To(BeZero())
-		Expect(pool.Funders).To(BeEmpty())
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
+		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
 	It("Produce a valid bundle with some insufficient funders and 0% inflation splitting", func() {
@@ -976,16 +1028,18 @@ var _ = Describe("inflation splitting", Ordered, func() {
 			s.Commit()
 		}
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 5_000,
 		})
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.BOB,
-			Id:      0,
-			Amount:  200,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.BOB,
+			PoolId:          0,
+			Amount:          200,
+			AmountPerBundle: 5_000,
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -1045,7 +1099,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
 		// the total payout is the total funds
-		totalPayout := (pool.OperatingCost / 2) + 200
+		totalPayout := (pool.InflationShareWeight / 2) + 200
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(sdk.NewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
@@ -1060,12 +1114,14 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
 		// assert total pool funds
-		Expect(pool.TotalFunds).To(Equal(100*i.KYVE - (pool.OperatingCost / 2)))
-		Expect(pool.Funders).To(HaveLen(1))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100*i.KYVE - 5_000))
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 
-	It("Produce a valid bundle with some insufficient funders and 10% inflation splitting", func() {
+	It("Produce a valid bundle with some insufficient funders and 30% inflation splitting", func() {
 		// ARRANGE
 		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
 			ProtocolInflationShare:  sdk.MustNewDecFromStr("0.1"),
@@ -1077,16 +1133,18 @@ var _ = Describe("inflation splitting", Ordered, func() {
 			s.Commit()
 		}
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 5_000,
 		})
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.BOB,
-			Id:      0,
-			Amount:  200,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.BOB,
+			PoolId:          0,
+			Amount:          200,
+			AmountPerBundle: 5_000,
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -1147,8 +1205,8 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert bundle reward
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
-		// the total payout is the operating cost plus the inflation payout
-		totalPayout := (pool.OperatingCost / 2) + 200 + payout
+		// the total payout is the inflation share weight plus the inflation payout
+		totalPayout := (pool.InflationShareWeight / 2) + 200 + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(sdk.NewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
@@ -1163,9 +1221,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
 		// assert total pool funds
-		Expect(pool.TotalFunds).To(Equal(100*i.KYVE - (pool.OperatingCost / 2)))
-		Expect(pool.Funders).To(HaveLen(1))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100*i.KYVE - 5_000))
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 
 	It("Produce a valid bundle with some insufficient funders and 10% inflation splitting", func() {
@@ -1180,16 +1240,18 @@ var _ = Describe("inflation splitting", Ordered, func() {
 			s.Commit()
 		}
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: 5_000,
 		})
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.BOB,
-			Id:      0,
-			Amount:  200,
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.BOB,
+			PoolId:          0,
+			Amount:          200,
+			AmountPerBundle: 5_000,
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -1250,8 +1312,8 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert bundle reward
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
-		// the total payout is the operating cost plus the inflation payout
-		totalPayout := (pool.OperatingCost / 2) + 200 + payout
+		// the total payout is the inflation share weight plus the inflation payout
+		totalPayout := (pool.InflationShareWeight / 2) + 200 + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(sdk.NewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
@@ -1266,8 +1328,10 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
 
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
 		// assert total pool funds
-		Expect(pool.TotalFunds).To(Equal(100*i.KYVE - (pool.OperatingCost / 2)))
-		Expect(pool.Funders).To(HaveLen(1))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100*i.KYVE - 5_000))
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 })

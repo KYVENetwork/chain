@@ -8,11 +8,6 @@ option go_package = "github.com/KYVENetwork/chain/x/pool/types";
 
 // Msg defines the Msg service.
 service Msg {
-  // FundPool ...
-  rpc FundPool(MsgFundPool) returns (MsgFundPoolResponse);
-  // DefundPool ...
-  rpc DefundPool(MsgDefundPool) returns (MsgDefundPoolResponse);
-
   // CreatePool defines a governance operation for creating a new pool.
   // The authority is hard-coded to the x/gov module account.
   rpc CreatePool(MsgCreatePool) returns (MsgCreatePoolResponse);
@@ -36,32 +31,6 @@ service Msg {
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
-// MsgFundPool defines a SDK message for funding a pool.
-message MsgFundPool {
-  // creator ...
-  string creator = 1;
-  // id ...
-  uint64 id = 2;
-  // amount ...
-  uint64 amount = 3;
-}
-
-// MsgFundPoolResponse defines the Msg/DefundPool response type.
-message MsgFundPoolResponse {}
-
-// MsgDefundPool defines a SDK message for defunding a pool.
-message MsgDefundPool {
-  // creator ...
-  string creator = 1;
-  // id ...
-  uint64 id = 2;
-  // amount ...
-  uint64 amount = 3;
-}
-
-// MsgDefundPoolResponse defines the Msg/DefundPool response type.
-message MsgDefundPoolResponse {}
-
 // MsgCreatePool defines a SDK message for creating a new pool.
 message MsgCreatePool {
   // authority is the address of the governance account.
@@ -78,8 +47,8 @@ message MsgCreatePool {
   string start_key = 6;
   // upload_interval ...
   uint64 upload_interval = 7;
-  // operating_cost ...
-  uint64 operating_cost = 8;
+  // inflation_share_weight ...
+  uint64 inflation_share_weight = 8;
   // min_delegation ...
   uint64 min_delegation = 9;
   // max_bundle_size ...

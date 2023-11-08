@@ -171,7 +171,8 @@ proto-lint:
 
 proto-setup:
 	@echo "🤖 Setting up protobuf environment..."
-	@docker build --rm --tag kyve-proto:latest --file proto/Dockerfile .
+	@docker build --rm --tag kyve-proto:latest --file proto/Dockerfile \
+		--build-arg USER_ID=$$(id -u) --build-arg USER_GID=$$(id -g) .
 	@echo "✅ Setup protobuf environment!"
 
 ###############################################################################

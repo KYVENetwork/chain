@@ -31,17 +31,17 @@ accounts:
       - 1000000000000000tkyve
     mnemonic: open home share route party lake room solution quantum pact model avocado
       humor dilemma review desert turtle total humor produce rate keen eagle fee
-#  - name: team
-#    coins:
-#      - 165000000000000tkyve
-#    address: kyve1e29j95xmsw3zmvtrk4st8e89z5n72v7nf70ma4
+  #  - name: team
+  #    coins:
+  #      - 165000000000000tkyve
+  #    address: kyve1e29j95xmsw3zmvtrk4st8e89z5n72v7nf70ma4
   - name: foundation
     coins:
       # for fees
       - 1000000tkyve
     mnemonic: evidence taxi material cabin annual phrase practice unhappy safe jealous
       section drink illness panther bread aim mouse dolphin deliver ready doll finger search cheap
-#    address: kyve1fd4qu868n7arav8vteghcppxxa0p2vna5f5ep8
+  #    address: kyve1fd4qu868n7arav8vteghcppxxa0p2vna5f5ep8
   - name: foundation_inflation
     coins:
       # for fees
@@ -66,6 +66,10 @@ genesis:
           coins:
             - denom: "tkyve"
               amount: "165000000000000000"
+        - address: "kyve1vg5325u5mat0y44g73n8t8z2le26fsa4n947f5"  # funders module (funding from Alice)
+          coins:
+            - denom: "tkyve"
+              amount: "1001234"
     delegation:
       params:
         unbonding_delegation_time: 10
@@ -130,7 +134,7 @@ genesis:
     pool:
       params:
         protocol_inflation_share: "0.04"
-      pool_count: "1"
+      pool_count: "2"
       pool_list:
         - config: "{\"network\":\"kyve-1\",\"rpc\":\"https://rpc-eu-1.kyve.network\"}"
           current_compression_id: "1"
@@ -138,18 +142,42 @@ genesis:
           current_key: ""
           current_storage_provider_id: "1"
           current_summary: ""
-          funders: []
           id: "0"
           logo: ""
           max_bundle_size: "100"
           min_delegation: "100000000000"
           name: "KYVE // Mainnet"
-          operating_cost: "2500000000"
+          inflation_share_weight: "2500000000"
           disabled: false
           runtime: '@kyvejs/tendermint-bsync'
           start_key: "1"
           total_bundles: "0"
-          total_funds: "0"
+          upload_interval: "60"
+          protocol:
+            version: "1.0.0"
+            binaries: "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.0.0/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.0.0/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.0.0/kyve-macos-x64.zip\"}"
+            last_upgrade: "0"
+          upgrade_plan:
+            version: ""
+            binaries: ""
+            scheduled_at: "0"
+            duration: "0"
+        - config: "{\"network\":\"kyve-1\",\"rpc\":\"https://rpc-eu-1.kyve.network\"}"
+          current_compression_id: "1"
+          current_index: "0"
+          current_key: ""
+          current_storage_provider_id: "1"
+          current_summary: ""
+          id: "1"
+          logo: ""
+          max_bundle_size: "100"
+          min_delegation: "100000000000"
+          name: "KYVE // Blub"
+          inflation_share_weight: "2500000000"
+          disabled: false
+          runtime: '@kyvejs/tendermint-bsync'
+          start_key: "1"
+          total_bundles: "0"
           upload_interval: "60"
           protocol:
             version: "1.0.0"
@@ -166,6 +194,44 @@ genesis:
     staking:
       params:
         bond_denom: tkyve
+    funders:
+      params:
+        min_funding_amount: 1000000000
+        min_funding_amount_per_bundle: 10000000
+      funder_list:
+        - address: "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd"
+          contact: "https://twitter.com/kyvenetwork"
+          moniker: "Alice"
+          description: "Alice is the first funder of the KYVE network."
+          website: "https://kyve.network"
+          identity: "0657A086E5201562"
+        - address: "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat"
+          contact: "https://twitter.com/kyvenetwork"
+          moniker: "Otto"
+          description: "Another funder of the KYVE network."
+          website: "https://ot.to"
+          identity: "0657A086E5201562"
+      funding_list:
+        - pool_id: 0
+          funder_address: "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd"
+          amount: 5000000000000
+          amount_per_bundle: 230000000
+          total_funded: 2200400000000
+        - pool_id: 0
+          funder_address: "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat"
+          amount: 200000000000
+          amount_per_bundle: 20000000
+          total_funded: 64500000000
+        - pool_id: 1
+          funder_address: "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat"
+          amount: 100000000000
+          amount_per_bundle: 10000000
+          total_funded: 23000000000
+      funding_state_list:
+        - pool_id: 0
+          active_funder_addresses: ["kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd", "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat"]
+        - pool_id: 1
+          active_funder_addresses: ["kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat"]
   chain_id: kyve-local
 validators:
   - name: alice
