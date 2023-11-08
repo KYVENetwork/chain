@@ -30,18 +30,23 @@ var _ = Describe("msg_server_cancel_runtime_upgrade.go", Ordered, func() {
 	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 	votingPeriod := s.App().GovKeeper.GetParams(s.Ctx()).VotingPeriod
 
+	var currentTime uint64
+
 	BeforeEach(func() {
 		s = i.NewCleanChain()
 
-		s.App().PoolKeeper.AppendPool(s.Ctx(), types.Pool{
-			Runtime: "@kyve/test",
-			Protocol: &types.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{\"linux\":\"test\"}",
-				LastUpgrade: 0,
-			},
-			UpgradePlan: &types.UpgradePlan{},
-		})
+		createPoolWithEmptyValues(s)
+		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		pool.UpgradePlan = &types.UpgradePlan{}
+		pool.Protocol = &types.Protocol{
+			Version:     "0.0.0",
+			Binaries:    "{\"linux\":\"test\"}",
+			LastUpgrade: 0,
+		}
+		pool.Runtime = "@kyve/test"
+		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
+
+		currentTime = uint64(time.Now().Unix())
 	})
 
 	AfterEach(func() {
@@ -86,7 +91,7 @@ var _ = Describe("msg_server_cancel_runtime_upgrade.go", Ordered, func() {
 			Version:     "1.0.0",
 			Binaries:    "{}",
 			Duration:    60,
-			ScheduledAt: uint64(time.Now().Unix()) + 7*24*3600,
+			ScheduledAt: currentTime + 7*24*3600,
 		}
 
 		p, v := BuildGovernanceTxs(s, []sdk.Msg{msg})
@@ -138,7 +143,7 @@ var _ = Describe("msg_server_cancel_runtime_upgrade.go", Ordered, func() {
 			Version:     "1.0.0",
 			Binaries:    "{}",
 			Duration:    60,
-			ScheduledAt: uint64(time.Now().Unix()),
+			ScheduledAt: currentTime,
 		}
 
 		p, v := BuildGovernanceTxs(s, []sdk.Msg{msg})

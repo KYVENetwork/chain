@@ -61,15 +61,6 @@ message UpgradePlan {
   uint64 duration = 4;
 }
 
-// Funder is the object which holds info about a single pool funder
-message Funder {
-  // address is the address of the funder
-  string address = 1;
-  // amount is the current amount of funds in ukyve the funder has
-  // still funded the pool with
-  uint64 amount = 2;
-}
-
 // Pool ...
 message Pool {
   // id - unique identifier of the pool, can not be changed
@@ -98,8 +89,8 @@ message Pool {
 
   // upload_interval ...
   uint64 upload_interval = 11;
-  // operating_cost ...
-  uint64 operating_cost = 12;
+  // inflation_share_weight ...
+  uint64 inflation_share_weight = 12;
   // min_delegation ...
   uint64 min_delegation = 13;
   // max_bundle_size ...
@@ -109,18 +100,13 @@ message Pool {
   // Can only be done via governance.
   bool disabled = 15;
 
-  // funders ...
-  repeated Funder funders = 16;
-  // total_funds ...
-  uint64 total_funds = 17;
-
   // protocol ...
-  Protocol protocol = 18;
+  Protocol protocol = 16;
   // upgrade_plan ...
-  UpgradePlan upgrade_plan = 19;
+  UpgradePlan upgrade_plan = 17;
 
   // storage_provider_id ...
-  uint32 current_storage_provider_id = 20;
+  uint32 current_storage_provider_id = 18;
   // compression_id ...
-  uint32 current_compression_id = 21;
+  uint32 current_compression_id = 19;
 }

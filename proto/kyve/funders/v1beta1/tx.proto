@@ -1,0 +1,101 @@
+syntax = "proto3";
+
+package kyve.funders.v1beta1;
+
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/funders/types";
+
+// Msg defines the Msg service.
+service Msg {
+  // CreateFunder ...
+  rpc CreateFunder(MsgCreateFunder) returns (MsgCreateFunderResponse);
+  // UpdateFunder ...
+  rpc UpdateFunder(MsgUpdateFunder) returns (MsgUpdateFunderResponse);
+  // FundPool ...
+  rpc FundPool(MsgFundPool) returns (MsgFundPoolResponse);
+  // DefundPool ...
+  rpc DefundPool(MsgDefundPool) returns (MsgDefundPoolResponse);
+
+  // UpdateParams defines a governance operation for updating the x/delegation module
+  // parameters. The authority is hard-coded to the x/gov module account.
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+}
+
+// MsgCreateFunder defines a SDK message for creating a funder.
+message MsgCreateFunder {
+  // creator ...
+  string creator = 1;
+  // moniker
+  string moniker = 2;
+  // identity is the 64 bit keybase.io identity string
+  string identity = 3;
+  // website
+  string website = 4;
+  // contact
+  string contact = 5;
+  // description are some additional notes the funder finds important
+  string description = 6;
+}
+
+// MsgCreateFunderResponse defines the Msg/CreateFunder response type.
+message MsgCreateFunderResponse {}
+
+// MsgUpdateFunder defines a SDK message for updating a funder.
+message MsgUpdateFunder {
+  // creator ...
+  string creator = 1;
+  // moniker
+  string moniker = 2;
+  // identity is the 64 bit keybase.io identity string
+  string identity = 3;
+  // website
+  string website = 4;
+  // contact
+  string contact = 5;
+  // description are some additional notes the funder finds important
+  string description = 6;
+}
+
+// MsgUpdateFunderResponse defines the Msg/UpdateFunder response type.
+message MsgUpdateFunderResponse {}
+
+// MsgFundPool defines a SDK message for funding a pool.
+message MsgFundPool {
+  // creator ...
+  string creator = 1;
+  // id ...
+  uint64 pool_id = 2;
+  // amount is the total amount available for distribution
+  uint64 amount = 3;
+  // amount_per_bundle defines the amount of tokens that are distributed per submitted bundle
+  uint64 amount_per_bundle = 4;
+}
+
+// MsgFundPoolResponse defines the Msg/DefundPool response type.
+message MsgFundPoolResponse {}
+
+// MsgDefundPool defines a SDK message for defunding a pool.
+message MsgDefundPool {
+  // creator ...
+  string creator = 1;
+  // id ...
+  uint64 pool_id = 2;
+  // amount ...
+  uint64 amount = 3;
+}
+
+// MsgDefundPoolResponse defines the Msg/DefundPool response type.
+message MsgDefundPoolResponse {}
+
+// MsgUpdateParams defines a SDK message for updating the module parameters.
+message MsgUpdateParams {
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // payload defines the x/delegation parameters to update.
+  string payload = 2;
+}
+
+// MsgUpdateParamsResponse defines the Msg/UpdateParams response type.
+message MsgUpdateParamsResponse {}

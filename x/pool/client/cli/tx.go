@@ -18,8 +18,5 @@ func GetTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	cmd.AddCommand(CmdFundPool())
-	cmd.AddCommand(CmdDefundPool())
-
 	return cmd
 }

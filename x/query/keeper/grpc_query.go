@@ -11,4 +11,5 @@ var (
 	_ types.QueryDelegationServer = Keeper{}
 	_ types.QueryBundlesServer    = Keeper{}
 	_ types.QueryParamsServer     = Keeper{}
+	_ types.QueryFundersServer    = Keeper{}
 )

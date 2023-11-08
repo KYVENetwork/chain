@@ -3,6 +3,9 @@ package integration
 import (
 	"time"
 
+	"github.com/KYVENetwork/chain/x/funders"
+	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
+
 	"github.com/KYVENetwork/chain/x/bundles"
 	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
 	"github.com/KYVENetwork/chain/x/delegation"
@@ -16,16 +19,19 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	. "github.com/onsi/gomega"
 
-	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (suite *KeeperTestSuite) PerformValidityChecks() {
 	// verify pool module
-	suite.VerifyPoolModuleAssetsIntegrity()
-	suite.VerifyPoolTotalFunds()
+	suite.VerifyPoolModuleFundingStates()
 	suite.VerifyPoolQueries()
 	suite.VerifyPoolGenesisImportExport()
+
+	// verify funders module
+	suite.VerifyFundersGenesisImportExport()
+	suite.VerifyFundersModuleIntegrity()
+	suite.VerifyFundersModuleAssetsIntegrity()
 
 	// verify stakers module
 	suite.VerifyStakersGenesisImportExport()
@@ -52,33 +58,11 @@ func (suite *KeeperTestSuite) PerformValidityChecks() {
 // pool module checks
 // ==================
 
-func (suite *KeeperTestSuite) VerifyPoolModuleAssetsIntegrity() {
-	expectedBalance := uint64(0)
-	actualBalance := uint64(0)
-
-	for _, pool := range suite.App().PoolKeeper.GetAllPools(suite.Ctx()) {
-		// pool funds should be in pool module
-		for _, funder := range pool.Funders {
-			expectedBalance += funder.Amount
-		}
-	}
-
-	moduleAcc := suite.App().AccountKeeper.GetModuleAccount(suite.Ctx(), pooltypes.ModuleName).GetAddress()
-	actualBalance = suite.App().BankKeeper.GetBalance(suite.Ctx(), moduleAcc, globalTypes.Denom).Amount.Uint64()
-
-	Expect(actualBalance).To(Equal(expectedBalance))
-}
-
-func (suite *KeeperTestSuite) VerifyPoolTotalFunds() {
-	for _, pool := range suite.App().PoolKeeper.GetAllPools(suite.Ctx()) {
-		expectedBalance := uint64(0)
-		actualBalance := pool.TotalFunds
-
-		for _, funder := range pool.Funders {
-			expectedBalance += funder.Amount
-		}
-
-		Expect(actualBalance).To(Equal(expectedBalance))
+func (suite *KeeperTestSuite) VerifyPoolModuleFundingStates() {
+	// every pool must have a funding state
+	for _, p := range suite.App().PoolKeeper.GetAllPools(suite.Ctx()) {
+		found := suite.App().FundersKeeper.DoesFundingStateExist(suite.Ctx(), p.Id)
+		Expect(found).To(BeTrue())
 	}
 }
 
@@ -439,6 +423,92 @@ func (suite *KeeperTestSuite) VerifyTeamGenesisImportExport() {
 }
 
 // ========================
+// funders module checks
+// ========================
+
+func (suite *KeeperTestSuite) VerifyFundersGenesisImportExport() {
+	genState := funders.ExportGenesis(suite.Ctx(), suite.App().FundersKeeper)
+
+	// Delete all entries in Funders Store
+	store := suite.Ctx().KVStore(suite.App().FundersKeeper.StoreKey())
+	suite.deleteStore(store)
+
+	err := genState.Validate()
+	Expect(err).To(BeNil())
+	funders.InitGenesis(suite.Ctx(), suite.App().FundersKeeper, *genState)
+}
+
+func (suite *KeeperTestSuite) VerifyFundersModuleIntegrity() {
+	funderAddresses := make(map[string]bool)
+	for _, funder := range suite.App().FundersKeeper.GetAllFunders(suite.Ctx()) {
+		funderAddresses[funder.Address] = true
+	}
+
+	allActiveFundings := make(map[string]bool)
+	for _, funding := range suite.App().FundersKeeper.GetAllFundings(suite.Ctx()) {
+		// check if funding has a valid funder
+		_, found := funderAddresses[funding.FunderAddress]
+		Expect(found).To(BeTrue())
+
+		// check if funding is active
+		if funding.Amount > 0 {
+			key := string(funderstypes.FundingKeyByFunder(funding.FunderAddress, funding.PoolId))
+			allActiveFundings[key] = true
+		}
+
+		// check if pool exists
+		_, found = suite.App().PoolKeeper.GetPool(suite.Ctx(), funding.PoolId)
+		Expect(found).To(BeTrue())
+	}
+
+	for _, fundingState := range suite.App().FundersKeeper.GetAllFundingStates(suite.Ctx()) {
+		fsActiveAddresses := make(map[string]bool)
+		for _, funderAddress := range fundingState.ActiveFunderAddresses {
+			// check if funding has a valid funder
+			key := funderstypes.FundingKeyByFunder(funderAddress, fundingState.PoolId)
+			_, found := allActiveFundings[string(key)]
+			Expect(found).To(BeTrue())
+
+			// check if funder is not already in the list
+			Expect(fsActiveAddresses[funderAddress]).To(BeFalse())
+			fsActiveAddresses[funderAddress] = true
+		}
+
+		// check if the amount of active fundings is equal to the amount of active funder addresses
+		activeFundings := suite.App().FundersKeeper.GetActiveFundings(suite.Ctx(), fundingState)
+		Expect(activeFundings).To(HaveLen(len(fundingState.ActiveFunderAddresses)))
+
+		// be lower or equal to max funders
+		Expect(len(fundingState.ActiveFunderAddresses)).To(BeNumerically("<=", funderstypes.MaxFunders))
+	}
+}
+
+func (suite *KeeperTestSuite) VerifyFundersModuleAssetsIntegrity() {
+	expectedBalance := uint64(0)
+	for _, funding := range suite.App().FundersKeeper.GetAllFundings(suite.Ctx()) {
+		expectedBalance += funding.Amount
+	}
+
+	expectedFundingStateTotalAmount := uint64(0)
+	for _, fundingState := range suite.App().FundersKeeper.GetAllFundingStates(suite.Ctx()) {
+		activeFundings := suite.App().FundersKeeper.GetActiveFundings(suite.Ctx(), fundingState)
+		totalAmount := uint64(0)
+		for _, activeFunding := range activeFundings {
+			totalAmount += activeFunding.Amount
+		}
+		totalActiveFunding := suite.App().FundersKeeper.GetTotalActiveFunding(suite.ctx, fundingState.PoolId)
+		Expect(totalAmount).To(Equal(totalActiveFunding))
+		expectedFundingStateTotalAmount += totalAmount
+	}
+
+	// total amount of fundings should be equal to the amount of the funders module account
+	moduleAcc := suite.App().AccountKeeper.GetModuleAccount(suite.Ctx(), funderstypes.ModuleName).GetAddress()
+	actualBalance := suite.App().BankKeeper.GetBalance(suite.Ctx(), moduleAcc, globalTypes.Denom).Amount.Uint64()
+	Expect(actualBalance).To(Equal(expectedBalance))
+	Expect(actualBalance).To(Equal(expectedFundingStateTotalAmount))
+}
+
+// ========================
 // helpers
 // ========================
 
@@ -492,9 +562,13 @@ func (suite *KeeperTestSuite) verifyFullStaker(fullStaker querytypes.FullStaker,
 		Expect(found).To(BeTrue())
 		Expect(poolMembership.Pool.Id).To(Equal(pool.Id))
 		Expect(poolMembership.Pool.Logo).To(Equal(pool.Logo))
-		Expect(poolMembership.Pool.TotalFunds).To(Equal(pool.TotalFunds))
+
+		fundingState, found := suite.App().FundersKeeper.GetFundingState(suite.Ctx(), poolMembership.Pool.Id)
+		Expect(found).To(BeTrue())
+		Expect(poolMembership.Pool.TotalFunds).To(Equal(suite.App().FundersKeeper.GetTotalActiveFunding(suite.Ctx(), fundingState.PoolId)))
 		Expect(poolMembership.Pool.Name).To(Equal(pool.Name))
 		Expect(poolMembership.Pool.Runtime).To(Equal(pool.Runtime))
+		Expect(poolMembership.Pool.Status).To(Equal(suite.App().QueryKeeper.GetPoolStatus(suite.Ctx(), &pool)))
 		Expect(poolMembership.Pool.Status).To(Equal(suite.App().QueryKeeper.GetPoolStatus(suite.Ctx(), &pool)))
 	}
 

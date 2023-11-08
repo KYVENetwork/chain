@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package kyve.funders.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "kyve/funders/v1beta1/funders.proto";
+import "kyve/funders/v1beta1/params.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/funders/types";
+
+// GenesisState defines the funders module's genesis state.
+message GenesisState {
+  // params defines all the parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+  // funder_list ...
+  repeated kyve.funders.v1beta1.Funder funder_list = 2 [(gogoproto.nullable) = false];
+  // funding_list ...
+  repeated kyve.funders.v1beta1.Funding funding_list = 3 [(gogoproto.nullable) = false];
+  // funding_state ...
+  repeated kyve.funders.v1beta1.FundingState funding_state_list = 4 [(gogoproto.nullable) = false];
+}

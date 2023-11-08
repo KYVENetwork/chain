@@ -92,3 +92,13 @@ func (suite *KeeperTestSuite) RunTxTeamError(msg sdk.Msg) {
 	_, err := suite.RunTx(msg)
 	Expect(err).To(HaveOccurred())
 }
+
+func (suite *KeeperTestSuite) RunTxFundersSuccess(msg sdk.Msg) {
+	_, err := suite.RunTx(msg)
+	Expect(err).NotTo(HaveOccurred())
+}
+
+func (suite *KeeperTestSuite) RunTxFundersError(msg sdk.Msg) {
+	_, err := suite.RunTx(msg)
+	Expect(err).To(HaveOccurred())
+}

@@ -3,6 +3,7 @@ package keeper_test
 import (
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
+	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -35,29 +36,47 @@ var _ = Describe("zero delegation", Ordered, func() {
 	// initialBalanceStaker2 := s.GetBalanceFromAddress(i.STAKER_2)
 	// initialBalanceValaddress2 := s.GetBalanceFromAddress(i.VALADDRESS_2_A)
 
+	amountPerBundle := uint64(10_000)
+
 	BeforeEach(func() {
 		// init new clean chain
 		s = i.NewCleanChain()
 
 		// create clean pool for every test case
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			MaxBundleSize:  100,
-			StartKey:       "0",
-			UploadInterval: 60,
-			OperatingCost:  10_000,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
+		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
+		msg := &pooltypes.MsgCreatePool{
+			Authority:            gov,
+			Name:                 "PoolTest",
+			Runtime:              "@kyve/test",
+			Logo:                 "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
+			StartKey:             "0",
+			UploadInterval:       60,
+			InflationShareWeight: 10_000,
+			MinDelegation:        0 * i.KYVE,
+			MaxBundleSize:        100,
+			Version:              "0.0.0",
+			Binaries:             "{}",
+			StorageProviderId:    2,
+			CompressionId:        1,
+		}
+		s.RunTxPoolSuccess(msg)
+
+		params := s.App().FundersKeeper.GetParams(s.Ctx())
+		params.MinFundingAmountPerBundle = amountPerBundle
+		s.App().FundersKeeper.SetParams(s.Ctx(), params)
+
+		// create funders
+		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
+			Creator: i.ALICE,
+			Moniker: "Alice",
 		})
 
-		s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
-			Creator: i.ALICE,
-			Id:      0,
-			Amount:  100 * i.KYVE,
+		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
+			Creator:         i.ALICE,
+			PoolId:          0,
+			Amount:          100 * i.KYVE,
+			AmountPerBundle: amountPerBundle,
 		})
 
 		s.CommitAfterSeconds(60)
@@ -446,9 +465,9 @@ var _ = Describe("zero delegation", Ordered, func() {
 
 		// calculate uploader rewards
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(pool.OperatingCost)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(sdk.NewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
-		totalUploaderReward := pool.OperatingCost - treasuryReward - storageReward
+		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
@@ -459,11 +478,11 @@ var _ = Describe("zero delegation", Ordered, func() {
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeZero())
 
-		// check pool funds
-		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
-		Expect(pool.Funders).To(HaveLen(1))
-		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100*i.KYVE - pool.OperatingCost))
+		// assert total pool funds
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100*i.KYVE - 1*amountPerBundle))
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 
 	It("Staker receives upload slash with zero delegation", func() {
@@ -631,11 +650,11 @@ var _ = Describe("zero delegation", Ordered, func() {
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeZero())
 
-		// check pool funds
-		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
-		Expect(pool.Funders).To(HaveLen(1))
-		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100 * i.KYVE))
+		// assert total pool funds
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100 * i.KYVE))
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 
 	It("Staker receives timeout slash because votes were missed", func() {
@@ -889,10 +908,10 @@ var _ = Describe("zero delegation", Ordered, func() {
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeZero())
 
-		// check pool funds
-		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
-		Expect(pool.Funders).To(HaveLen(1))
-		Expect(pool.GetFunderAmount(i.ALICE)).To(Equal(100 * i.KYVE))
+		// assert total pool funds
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100 * i.KYVE))
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 })

@@ -395,8 +395,3 @@ var _ = Describe("logic_team_test.go", Ordered, func() {
 		Expect(uint64(0)).To(Equal(statusJCU.RemainingUnvestedAmount))
 	})
 })
-
-//func debugPrintStatus(status *types.VestingStatus) {
-//	fmt.Printf("TotalVestedAmount: %d\nTotalUnlocked: %d\nCurrentClaimable: %d\nLocked: %d\nRemainingUnvested: %d\n",
-//		status.TotalVestedAmount, status.TotalUnlockedAmount, status.CurrentClaimableAmount, status.LockedVestedAmount, status.RemainingUnvestedAmount)
-//}

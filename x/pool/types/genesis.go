@@ -1,6 +1,8 @@
 package types
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // DefaultGenesis returns the default Capability genesis state
 func DefaultGenesis() *GenesisState {
@@ -23,9 +25,6 @@ func (gs GenesisState) Validate() error {
 		poolIndexMap[index] = struct{}{}
 		if elem.Id >= gs.PoolCount {
 			return fmt.Errorf("pool id higher than pool count %v", elem)
-		}
-		if len(elem.Funders) > MaxFunders {
-			return fmt.Errorf("more funders than allowed %v", elem)
 		}
 	}
 

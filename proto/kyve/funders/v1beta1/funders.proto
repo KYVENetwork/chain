@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package kyve.funders.v1beta1;
+
+//import "gogoproto/gogo.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/funders/types";
+
+// Funder is the object which holds info about a single pool funder
+message Funder {
+  // address ...
+  string address = 1;
+  // moniker ...
+  string moniker = 2;
+  // identity is the 64 bit keybase.io identity string
+  string identity = 3;
+  // website ...
+  string website = 4;
+  // contact ...
+  string contact = 5;
+  // description are some additional notes the funder finds important
+  string description = 6;
+}
+
+// Funding is the object which holds info about the current funding
+// funder_address and pool_id (m2m) are unique together which means that
+// a funder can only fund each pool once and a pool can only be funded
+// by each funder once. However, a funder can update the amount of funds.
+message Funding {
+  // funder_id is the id of the funder
+  string funder_address = 1;
+  // pool_id is the id of the pool this funding is for
+  uint64 pool_id = 2;
+  // amount is the amount of funds in ukyve the funder has left
+  uint64 amount = 3;
+  // amount_per_bundle is the amount of funds in ukyve the funder pays per bundle
+  uint64 amount_per_bundle = 4;
+  // total_funded is the total amount of funds in ukyve the funder has funded
+  uint64 total_funded = 5;
+}
+
+// FundingState is the object which holds info about the funding state of a pool
+message FundingState {
+  // pool_id is the id of the pool this funding is for
+  uint64 pool_id = 1;
+  // active_funder_addresses is the list of all active fundings
+  repeated string active_funder_addresses = 2;
+}

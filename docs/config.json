@@ -67,6 +67,9 @@
       "url": "./tmp-swagger-gen/kyve/query/v1beta1/stakers.swagger.json"
     },
     {
+      "url": "./tmp-swagger-gen/kyve/query/v1beta1/funders.swagger.json"
+    },
+    {
       "url": "./tmp-swagger-gen/kyve/stakers/v1beta1/query.swagger.json",
       "operationIds": {
         "rename": {

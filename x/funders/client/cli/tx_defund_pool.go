@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/KYVENetwork/chain/x/pool/types"
+	"github.com/KYVENetwork/chain/x/funders/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -29,11 +29,11 @@ func CmdDefundPool() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgDefundPool(
-				clientCtx.GetFromAddress().String(),
-				argId,
-				argAmount,
-			)
+			msg := &types.MsgDefundPool{
+				Creator: clientCtx.GetFromAddress().String(),
+				PoolId:  argId,
+				Amount:  argAmount,
+			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

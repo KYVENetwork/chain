@@ -23,21 +23,20 @@ TEST CASES - msg_server_leave_pool.go
 
 var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 	s := i.NewCleanChain()
+	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 
 	BeforeEach(func() {
 		// init new clean chain
 		s = i.NewCleanChain()
 
 		// create pool
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name: "PoolTest",
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
+		msg := &pooltypes.MsgCreatePool{
+			Authority:      gov,
+			UploadInterval: 60,
+			MaxBundleSize:  100,
+			Binaries:       "{}",
+		}
+		s.RunTxPoolSuccess(msg)
 
 		// create staker
 		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
@@ -208,15 +207,13 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 	It("Leave one of multiple pools a staker has previously joined", func() {
 		// ARRANGE
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name: "PoolTest",
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{},
-		})
+		msg := &pooltypes.MsgCreatePool{
+			Authority:      gov,
+			UploadInterval: 60,
+			MaxBundleSize:  100,
+			Binaries:       "{}",
+		}
+		s.RunTxPoolSuccess(msg)
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:    i.STAKER_0,

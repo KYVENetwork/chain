@@ -3,6 +3,8 @@ package keeper_test
 import (
 	"strconv"
 
+	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
+
 	kyveApp "github.com/KYVENetwork/chain/app"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -14,8 +16,7 @@ import (
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
 	// Gov
 	govTypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	// Pool
-	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
+
 	// Stakers
 	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
 )
@@ -37,7 +38,6 @@ var _ = Describe("Protocol Governance Voting", Ordered, func() {
 	parsedAliceAddr := sdk.MustAccAddressFromBech32(i.ALICE)
 	parsedBobAddr := sdk.MustAccAddressFromBech32(i.BOB)
 
-	// TODO(postAudit,@john): Think about randomly generating these values.
 	validatorAmount := 500 * i.KYVE
 	delegatorAmount := 250 * i.KYVE
 
@@ -56,15 +56,14 @@ var _ = Describe("Protocol Governance Voting", Ordered, func() {
 		_ = s.RunTxSuccess(createTx)
 
 		// Create and join a pool.
-		s.App().PoolKeeper.AppendPool(s.Ctx(), poolTypes.Pool{
-			Name: "Cosmos Hub",
-			Protocol: &poolTypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &poolTypes.UpgradePlan{},
-		})
+		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
+		msg := &pooltypes.MsgCreatePool{
+			Authority:      gov,
+			UploadInterval: 60,
+			MaxBundleSize:  100,
+			Binaries:       "{}",
+		}
+		s.RunTxPoolSuccess(msg)
 
 		joinTx := &stakersTypes.MsgJoinPool{
 			Creator:    i.ALICE,
