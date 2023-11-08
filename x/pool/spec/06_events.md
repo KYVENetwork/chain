@@ -114,9 +114,9 @@ message EventCreatePool {
   // upload_interval is the interval the pool should validate
   // bundles with
   uint64 upload_interval = 7;
-  // operating_cost is the fixed cost which gets paid out
+  // inflation_share_weight is the fixed cost which gets paid out
   // to every successful uploader
-  uint64 operating_cost = 8;
+  uint64 inflation_share_weight = 8;
   // min_delegation is the minimum amount of $KYVE the pool has
   // to have in order to produce bundles
   uint64 min_delegation = 9;
@@ -256,9 +256,9 @@ message EventPoolUpdated {
   // upload_interval is the interval the pool should validate
   // bundles with
   uint64 upload_interval = 7;
-  // operating_cost is the fixed cost which gets paid out
+  // inflation_share_weight is the fixed cost which gets paid out
   // to every successful uploader
-  uint64 operating_cost = 8;
+  uint64 inflation_share_weight = 8;
   // min_delegation is the minimum amount of $KYVE the pool has
   // to have in order to produce bundles
   uint64 min_delegation = 9;

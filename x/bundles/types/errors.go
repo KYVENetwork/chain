@@ -18,7 +18,6 @@ var (
 	ErrPoolDisabled            = errors.Register(ModuleName, 1121, "pool is disabled")
 	ErrPoolCurrentlyUpgrading  = errors.Register(ModuleName, 1122, "pool currently upgrading")
 	ErrMinDelegationNotReached = errors.Register(ModuleName, 1200, "min delegation not reached")
-	ErrPoolOutOfFunds          = errors.Register(ModuleName, 1201, "pool is out of funds")
 	ErrBundleDropped           = errors.Register(ModuleName, 1202, "bundle proposal is dropped")
 	ErrAlreadyVotedValid       = errors.Register(ModuleName, 1204, "already voted valid on bundle proposal")
 	ErrAlreadyVotedInvalid     = errors.Register(ModuleName, 1205, "already voted invalid on bundle proposal")

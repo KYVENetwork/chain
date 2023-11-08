@@ -1,6 +1,7 @@
 package app
 
 import (
+	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 
@@ -112,6 +113,7 @@ type Keepers struct {
 	QueryKeeper      queryKeeper.Keeper
 	StakersKeeper    stakersKeeper.Keeper
 	TeamKeeper       teamKeeper.Keeper
+	FundersKeeper    fundersKeeper.Keeper
 
 	// ----- Scoped Keepers -----
 	// make scoped keepers public for test purposes

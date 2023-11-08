@@ -346,7 +346,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -396,7 +399,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -406,7 +409,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -436,6 +439,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -647,12 +651,12 @@ paths:
                                   logo:
                                     type: string
                                     title: logo of the pool
-                                  operating_cost:
+                                  inflation_share_weight:
                                     type: string
                                     format: uint64
                                     title: >-
-                                      operating_cost is the base payout for each
-                                      bundle reward
+                                      inflation_share_weight is the base payout
+                                      for each bundle reward
                                   upload_interval:
                                     type: string
                                     format: uint64
@@ -824,7 +828,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -874,7 +881,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -884,7 +891,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -914,6 +921,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -1052,12 +1060,12 @@ paths:
                         logo:
                           type: string
                           title: logo of the pool
-                        operating_cost:
+                        inflation_share_weight:
                           type: string
                           format: uint64
                           title: >-
-                            operating_cost is the base payout for each bundle
-                            reward
+                            inflation_share_weight is the base payout for each
+                            bundle reward
                         upload_interval:
                           type: string
                           format: uint64
@@ -1164,7 +1172,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -1214,7 +1225,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -1224,7 +1235,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -1254,6 +1265,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -1398,7 +1410,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -1448,7 +1463,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -1458,7 +1473,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -1488,6 +1503,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -1619,7 +1635,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -1669,7 +1688,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -1679,7 +1698,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -1709,6 +1728,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -1857,7 +1877,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -1907,7 +1930,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -1917,7 +1940,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -1947,6 +1970,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -2084,7 +2108,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -2134,7 +2161,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -2144,7 +2171,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -2174,6 +2201,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -2331,7 +2359,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -2381,7 +2412,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -2391,7 +2422,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -2421,6 +2452,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -2672,7 +2704,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -2722,7 +2757,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -2732,7 +2767,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -2762,6 +2797,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -3047,7 +3083,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -3097,7 +3136,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -3107,7 +3146,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -3137,6 +3176,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -3289,7 +3329,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -3339,7 +3382,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -3349,7 +3392,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -3379,6 +3422,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -3559,7 +3603,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -3609,7 +3656,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -3619,7 +3666,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -3649,6 +3696,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -3915,12 +3963,12 @@ paths:
                                   logo:
                                     type: string
                                     title: logo of the pool
-                                  operating_cost:
+                                  inflation_share_weight:
                                     type: string
                                     format: uint64
                                     title: >-
-                                      operating_cost is the base payout for each
-                                      bundle reward
+                                      inflation_share_weight is the base payout
+                                      for each bundle reward
                                   upload_interval:
                                     type: string
                                     format: uint64
@@ -4104,7 +4152,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -4154,7 +4205,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -4164,7 +4215,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -4194,6 +4245,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -4509,6 +4561,29 @@ paths:
                   pool_inflation_payout_rate:
                     type: string
                     description: pool_inflation_payout_rate ...
+              funders_params:
+                description: funders_params ...
+                type: object
+                properties:
+                  min_funding_amount:
+                    type: string
+                    format: uint64
+                    description: Minimum amount of tokens that can be funded.
+                  min_funding_amount_per_bundle:
+                    type: string
+                    format: uint64
+                    description: Minimum amount of tokens that can be funded per bundle.
+                  min_funding_multiple:
+                    type: string
+                    format: uint64
+                    description: >-
+                      Minimum ratio between the funded amount and the
+                      amount_per_bundle.
+
+                      In other words this param ensures, that a funder provides
+                      at least funding for
+
+                      `min_funding_multiple` bundles.
             description: QueryParamsResponse ...
         default:
           description: An unexpected error response.
@@ -4578,7 +4653,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -4628,7 +4706,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -4638,7 +4716,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -4668,6 +4746,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -4771,10 +4850,10 @@ paths:
                         type: string
                         format: uint64
                         description: upload_interval ...
-                      operating_cost:
+                      inflation_share_weight:
                         type: string
                         format: uint64
-                        description: operating_cost ...
+                        description: inflation_share_weight ...
                       min_delegation:
                         type: string
                         format: uint64
@@ -4788,30 +4867,6 @@ paths:
                         description: |-
                           disabled is true when the pool is disabled.
                           Can only be done via governance.
-                      funders:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            address:
-                              type: string
-                              title: address is the address of the funder
-                            amount:
-                              type: string
-                              format: uint64
-                              title: >-
-                                amount is the current amount of funds in ukyve
-                                the funder has
-
-                                still funded the pool with
-                          title: >-
-                            Funder is the object which holds info about a single
-                            pool funder
-                        description: funders ...
-                      total_funds:
-                        type: string
-                        format: uint64
-                        description: total_funds ...
                       protocol:
                         description: protocol ...
                         type: object
@@ -5082,7 +5137,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -5132,7 +5190,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -5142,7 +5200,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -5172,6 +5230,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -5288,10 +5347,10 @@ paths:
                           type: string
                           format: uint64
                           description: upload_interval ...
-                        operating_cost:
+                        inflation_share_weight:
                           type: string
                           format: uint64
-                          description: operating_cost ...
+                          description: inflation_share_weight ...
                         min_delegation:
                           type: string
                           format: uint64
@@ -5305,30 +5364,6 @@ paths:
                           description: |-
                             disabled is true when the pool is disabled.
                             Can only be done via governance.
-                        funders:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              address:
-                                type: string
-                                title: address is the address of the funder
-                              amount:
-                                type: string
-                                format: uint64
-                                title: >-
-                                  amount is the current amount of funds in ukyve
-                                  the funder has
-
-                                  still funded the pool with
-                            title: >-
-                              Funder is the object which holds info about a
-                              single pool funder
-                          description: funders ...
-                        total_funds:
-                          type: string
-                          format: uint64
-                          description: total_funds ...
                         protocol:
                           description: protocol ...
                           type: object
@@ -5620,7 +5655,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -5670,7 +5708,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -5680,7 +5718,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -5710,6 +5748,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -5963,12 +6002,12 @@ paths:
                             logo:
                               type: string
                               title: logo of the pool
-                            operating_cost:
+                            inflation_share_weight:
                               type: string
                               format: uint64
                               title: >-
-                                operating_cost is the base payout for each
-                                bundle reward
+                                inflation_share_weight is the base payout for
+                                each bundle reward
                             upload_interval:
                               type: string
                               format: uint64
@@ -6118,7 +6157,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -6168,7 +6210,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -6178,7 +6220,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -6208,6 +6250,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -6393,12 +6436,12 @@ paths:
                               logo:
                                 type: string
                                 title: logo of the pool
-                              operating_cost:
+                              inflation_share_weight:
                                 type: string
                                 format: uint64
                                 title: >-
-                                  operating_cost is the base payout for each
-                                  bundle reward
+                                  inflation_share_weight is the base payout for
+                                  each bundle reward
                               upload_interval:
                                 type: string
                                 format: uint64
@@ -6568,7 +6611,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -6618,7 +6664,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -6628,7 +6674,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -6658,6 +6704,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -6933,12 +6980,12 @@ paths:
                                   logo:
                                     type: string
                                     title: logo of the pool
-                                  operating_cost:
+                                  inflation_share_weight:
                                     type: string
                                     format: uint64
                                     title: >-
-                                      operating_cost is the base payout for each
-                                      bundle reward
+                                      inflation_share_weight is the base payout
+                                      for each bundle reward
                                   upload_interval:
                                     type: string
                                     format: uint64
@@ -7128,7 +7175,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -7178,7 +7228,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -7188,7 +7238,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -7218,6 +7268,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -7408,12 +7459,12 @@ paths:
                               logo:
                                 type: string
                                 title: logo of the pool
-                              operating_cost:
+                              inflation_share_weight:
                                 type: string
                                 format: uint64
                                 title: >-
-                                  operating_cost is the base payout for each
-                                  bundle reward
+                                  inflation_share_weight is the base payout for
+                                  each bundle reward
                               upload_interval:
                                 type: string
                                 format: uint64
@@ -7581,7 +7632,10 @@ paths:
                         protobuf release, and it is not used for type URLs
                         beginning with
 
-                        type.googleapis.com.
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
 
 
                         Schemes other than `http`, `https` (or the empty scheme)
@@ -7631,7 +7685,7 @@ paths:
                           foo = any.unpack(Foo.getDefaultInstance());
                         }
 
-                    Example 3: Pack and unpack a message in Python.
+                     Example 3: Pack and unpack a message in Python.
 
                         foo = Foo(...)
                         any = Any()
@@ -7641,7 +7695,7 @@ paths:
                           any.Unpack(foo)
                           ...
 
-                    Example 4: Pack and unpack a message in Go
+                     Example 4: Pack and unpack a message in Go
 
                          foo := &pb.Foo{...}
                          any, err := anypb.New(foo)
@@ -7671,6 +7725,7 @@ paths:
 
                     JSON
 
+                    ====
 
                     The JSON representation of an `Any` value uses the regular
 
@@ -7766,6 +7821,1340 @@ paths:
           type: boolean
       tags:
         - QueryStakers
+  /kyve/query/v1beta1/funder/{address}:
+    get:
+      summary: Funder queries a funder by address.
+      operationId: Funder
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              funder:
+                description: funder ...
+                type: object
+                properties:
+                  address:
+                    type: string
+                    description: address ...
+                  moniker:
+                    type: string
+                    description: moniker ...
+                  identity:
+                    type: string
+                    title: identity is the 64 bit keybase.io identity string
+                  website:
+                    type: string
+                    description: website ...
+                  contact:
+                    type: string
+                    description: contact ...
+                  description:
+                    type: string
+                    description: description ...
+                  stats:
+                    description: statistics about all the fundings of the funder.
+                    type: object
+                    properties:
+                      total_used_funds:
+                        type: string
+                        format: uint64
+                        description: >-
+                          total_used_funds are the total funds that have been
+                          distributed by the funder.
+                      total_allocated_funds:
+                        type: string
+                        format: uint64
+                        description: >-
+                          total_allocated_funds are the total funds that have
+                          been allocated by the funder. They can either get
+                          distributed or refunded.
+                      total_amount_per_bundle:
+                        type: string
+                        format: uint64
+                        description: >-
+                          total_amount_per_bundle is the total amount per bundle
+                          of all fundings of the funder.
+                      pools_funded:
+                        type: array
+                        items:
+                          type: string
+                          format: uint64
+                        description: >-
+                          pools_funded are the ids of the pools that have been
+                          funded by the funder.
+              fundings:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    funder_address:
+                      type: string
+                      title: funder_address
+                    pool_id:
+                      type: string
+                      format: uint64
+                      description: pool_id ...
+                    amount:
+                      type: string
+                      format: uint64
+                      description: amount ...
+                    amount_per_bundle:
+                      type: string
+                      format: uint64
+                      description: amount_per_bundle ...
+                    total_funded:
+                      type: string
+                      format: uint64
+                      description: total_funded ...
+                  description: Funding ...
+                description: fundings ...
+            description: >-
+              QueryFunderResponse is the response type for the Query/Funder RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: address
+          description: address ...
+          in: path
+          required: true
+          type: string
+        - name: status
+          description: |-
+            status ...
+
+             - FUNDING_STATUS_UNSPECIFIED: FundingStatusUnspecified ...
+             - FUNDING_STATUS_ACTIVE: FundingStatusActive status is set when the funding is active.
+             - FUNDING_STATUS_INACTIVE: FundingStatusInactive status is set when the funding has been used up or refunded.
+          in: query
+          required: false
+          type: string
+          enum:
+            - FUNDING_STATUS_UNSPECIFIED
+            - FUNDING_STATUS_ACTIVE
+            - FUNDING_STATUS_INACTIVE
+          default: FUNDING_STATUS_UNSPECIFIED
+      tags:
+        - QueryFunders
+  /kyve/query/v1beta1/funders:
+    get:
+      summary: Funders queries all funders.
+      operationId: Funders
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              pagination:
+                description: pagination defines the pagination in the response.
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+              funders:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    address:
+                      type: string
+                      description: address ...
+                    moniker:
+                      type: string
+                      description: moniker ...
+                    identity:
+                      type: string
+                      title: identity is the 64 bit keybase.io identity string
+                    website:
+                      type: string
+                      description: website ...
+                    contact:
+                      type: string
+                      description: contact ...
+                    description:
+                      type: string
+                      description: description ...
+                    stats:
+                      description: statistics about all the fundings of the funder.
+                      type: object
+                      properties:
+                        total_used_funds:
+                          type: string
+                          format: uint64
+                          description: >-
+                            total_used_funds are the total funds that have been
+                            distributed by the funder.
+                        total_allocated_funds:
+                          type: string
+                          format: uint64
+                          description: >-
+                            total_allocated_funds are the total funds that have
+                            been allocated by the funder. They can either get
+                            distributed or refunded.
+                        total_amount_per_bundle:
+                          type: string
+                          format: uint64
+                          description: >-
+                            total_amount_per_bundle is the total amount per
+                            bundle of all fundings of the funder.
+                        pools_funded:
+                          type: array
+                          items:
+                            type: string
+                            format: uint64
+                          description: >-
+                            pools_funded are the ids of the pools that have been
+                            funded by the funder.
+                  description: Funder ...
+                description: funders ...
+            description: >-
+              QueryFundersResponse is the response type for the Query/Funders
+              RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+
+
+            Since: cosmos-sdk 0.43
+          in: query
+          required: false
+          type: boolean
+        - name: search
+          description: search ...
+          in: query
+          required: false
+          type: string
+      tags:
+        - QueryFunders
+  /kyve/query/v1beta1/fundings_by_funder/{address}:
+    get:
+      summary: FundingsByFunder queries all fundings of a funder by address.
+      operationId: FundingsByFunder
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              pagination:
+                description: pagination defines the pagination in the response.
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+              fundings:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    funder_address:
+                      type: string
+                      title: funder_address
+                    pool_id:
+                      type: string
+                      format: uint64
+                      description: pool_id ...
+                    amount:
+                      type: string
+                      format: uint64
+                      description: amount ...
+                    amount_per_bundle:
+                      type: string
+                      format: uint64
+                      description: amount_per_bundle ...
+                    total_funded:
+                      type: string
+                      format: uint64
+                      description: total_funded ...
+                  description: Funding ...
+                description: fundings ...
+            description: >-
+              QueryFundingsByFunderResponse is the response type for the
+              Query/FundingsByFunder RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: address
+          description: address ...
+          in: path
+          required: true
+          type: string
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+
+
+            Since: cosmos-sdk 0.43
+          in: query
+          required: false
+          type: boolean
+        - name: status
+          description: |-
+            status ...
+
+             - FUNDING_STATUS_UNSPECIFIED: FundingStatusUnspecified ...
+             - FUNDING_STATUS_ACTIVE: FundingStatusActive status is set when the funding is active.
+             - FUNDING_STATUS_INACTIVE: FundingStatusInactive status is set when the funding has been used up or refunded.
+          in: query
+          required: false
+          type: string
+          enum:
+            - FUNDING_STATUS_UNSPECIFIED
+            - FUNDING_STATUS_ACTIVE
+            - FUNDING_STATUS_INACTIVE
+          default: FUNDING_STATUS_UNSPECIFIED
+      tags:
+        - QueryFunders
+  /kyve/query/v1beta1/fundings_by_pool/{pool_id}:
+    get:
+      summary: FundingsByPool queries all fundings of a pool by id.
+      operationId: FundingsByPool
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              pagination:
+                description: pagination defines the pagination in the response.
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+              fundings:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    funder_address:
+                      type: string
+                      title: funder_address
+                    pool_id:
+                      type: string
+                      format: uint64
+                      description: pool_id ...
+                    amount:
+                      type: string
+                      format: uint64
+                      description: amount ...
+                    amount_per_bundle:
+                      type: string
+                      format: uint64
+                      description: amount_per_bundle ...
+                    total_funded:
+                      type: string
+                      format: uint64
+                      description: total_funded ...
+                  description: Funding ...
+                description: fundings ...
+            description: >-
+              QueryFundingsByPoolResponse is the response type for the
+              Query/FundingsByPool RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: pool_id
+          description: pool_id ...
+          in: path
+          required: true
+          type: string
+          format: uint64
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+
+
+            Since: cosmos-sdk 0.43
+          in: query
+          required: false
+          type: boolean
+        - name: status
+          description: |-
+            status ...
+
+             - FUNDING_STATUS_UNSPECIFIED: FundingStatusUnspecified ...
+             - FUNDING_STATUS_ACTIVE: FundingStatusActive status is set when the funding is active.
+             - FUNDING_STATUS_INACTIVE: FundingStatusInactive status is set when the funding has been used up or refunded.
+          in: query
+          required: false
+          type: string
+          enum:
+            - FUNDING_STATUS_UNSPECIFIED
+            - FUNDING_STATUS_ACTIVE
+            - FUNDING_STATUS_INACTIVE
+          default: FUNDING_STATUS_UNSPECIFIED
+      tags:
+        - QueryFunders
   /kyve/stakers/v1beta1/params:
     get:
       summary: Parameters queries the parameters of the module.

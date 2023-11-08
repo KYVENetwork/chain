@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
+
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	"github.com/KYVENetwork/chain/x/delegation/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
@@ -18,7 +20,17 @@ func TestDelegationKeeper(t *testing.T) {
 }
 
 func PayoutRewards(s *i.KeeperTestSuite, staker string, amount uint64) {
-	payout, err := s.App().PoolKeeper.ChargeFundersOfPool(s.Ctx(), 0, amount)
+	fundingState, found := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+	Expect(found).To(BeTrue())
+
+	// divide amount by number of active fundings so that total payout is equal to amount
+	activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
+	for _, funding := range activeFundings {
+		funding.AmountPerBundle = amount / uint64(len(activeFundings))
+		s.App().FundersKeeper.SetFunding(s.Ctx(), &funding)
+	}
+
+	payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
 	Expect(err).To(BeNil())
 	err = s.App().DelegationKeeper.PayoutRewards(s.Ctx(), staker, amount, pooltypes.ModuleName)
 	Expect(err).NotTo(HaveOccurred())
@@ -26,30 +38,44 @@ func PayoutRewards(s *i.KeeperTestSuite, staker string, amount uint64) {
 }
 
 func CreateFundedPool(s *i.KeeperTestSuite) {
-	s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-		Name: "PoolTest",
-		Protocol: &pooltypes.Protocol{
-			Version:     "0.0.0",
-			Binaries:    "{}",
-			LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-		},
-		UpgradePlan: &pooltypes.UpgradePlan{},
-	})
+	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
+	msg := &pooltypes.MsgCreatePool{
+		Authority:            gov,
+		Name:                 "PoolTest",
+		Runtime:              "@kyve/test",
+		Logo:                 "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+		Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
+		StartKey:             "0",
+		UploadInterval:       60,
+		InflationShareWeight: 10_000,
+		MinDelegation:        100 * i.KYVE,
+		MaxBundleSize:        100,
+		Version:              "0.0.0",
+		Binaries:             "{}",
+		StorageProviderId:    2,
+		CompressionId:        1,
+	}
+	s.RunTxPoolSuccess(msg)
 
 	s.CommitAfterSeconds(7)
 
-	s.RunTxPoolSuccess(&pooltypes.MsgFundPool{
+	s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
 		Creator: i.ALICE,
-		Id:      0,
-		Amount:  100 * i.KYVE,
+		Moniker: "Alice",
+	})
+
+	s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
+		Creator:         i.ALICE,
+		PoolId:          0,
+		Amount:          100 * i.KYVE,
+		AmountPerBundle: 1 * i.KYVE,
 	})
 
 	s.CommitAfterSeconds(7)
 
-	pool, poolFound := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+	fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
-	Expect(poolFound).To(BeTrue())
-	Expect(pool.TotalFunds).To(Equal(100 * i.KYVE))
+	Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100 * i.KYVE))
 }
 
 func CheckAndContinueChainForOneMonth(s *i.KeeperTestSuite) {

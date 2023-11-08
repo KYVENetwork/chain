@@ -63,24 +63,35 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 			return i.DUMMY[k] < i.DUMMY[j]
 		})
 
-		s.App().PoolKeeper.AppendPool(s.Ctx(), pooltypes.Pool{
-			Name:           "PoolTest",
-			UploadInterval: 60,
-			OperatingCost:  2 * i.KYVE,
-			MinDelegation:  1_000_000 * i.KYVE,
-			MaxBundleSize:  100,
-			Protocol: &pooltypes.Protocol{
-				Version:     "0.0.0",
-				Binaries:    "{}",
-				LastUpgrade: uint64(s.Ctx().BlockTime().Unix()),
-			},
-			UpgradePlan: &pooltypes.UpgradePlan{
-				Version:     "1.0.0",
-				Binaries:    "{}",
-				ScheduledAt: uint64(s.Ctx().BlockTime().Unix()),
-				Duration:    60,
-			},
-		})
+		// create clean pool for every test case
+		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
+		msg := &pooltypes.MsgCreatePool{
+			Authority:            gov,
+			Name:                 "PoolTest",
+			Runtime:              "@kyve/test",
+			Logo:                 "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
+			StartKey:             "0",
+			UploadInterval:       60,
+			InflationShareWeight: 2 * i.KYVE,
+			MinDelegation:        1_000_000 * i.KYVE,
+			MaxBundleSize:        100,
+			Version:              "0.0.0",
+			Binaries:             "{}",
+			StorageProviderId:    2,
+			CompressionId:        1,
+		}
+		s.RunTxPoolSuccess(msg)
+
+		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		pool.Protocol.LastUpgrade = uint64(s.Ctx().BlockTime().Unix())
+		pool.UpgradePlan = &pooltypes.UpgradePlan{
+			Version:     "1.0.0",
+			Binaries:    "{}",
+			ScheduledAt: uint64(s.Ctx().BlockTime().Unix()),
+			Duration:    60,
+		}
+		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
 	})
 
 	AfterEach(func() {

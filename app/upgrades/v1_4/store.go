@@ -1,6 +1,7 @@
 package v1_4
 
 import (
+	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 
@@ -16,7 +17,7 @@ import (
 func CreateStoreLoader(upgradeHeight int64) baseapp.StoreLoader {
 	storeUpgrades := storeTypes.StoreUpgrades{
 		Added: []string{
-			consensusTypes.StoreKey, crisisTypes.StoreKey,
+			consensusTypes.StoreKey, crisisTypes.StoreKey, funderstypes.StoreKey,
 		},
 	}
 

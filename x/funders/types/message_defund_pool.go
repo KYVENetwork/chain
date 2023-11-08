@@ -2,23 +2,12 @@ package types
 
 import (
 	"cosmossdk.io/errors"
+	"github.com/KYVENetwork/chain/util"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 )
 
-var (
-	_ legacytx.LegacyMsg = &MsgDefundPool{}
-	_ sdk.Msg            = &MsgDefundPool{}
-)
-
-func NewMsgDefundPool(creator string, id uint64, amount uint64) *MsgDefundPool {
-	return &MsgDefundPool{
-		Creator: creator,
-		Id:      id,
-		Amount:  amount,
-	}
-}
+var _ sdk.Msg = &MsgDefundPool{}
 
 func (msg *MsgDefundPool) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
@@ -39,13 +28,21 @@ func (msg *MsgDefundPool) Route() string {
 }
 
 func (msg *MsgDefundPool) Type() string {
-	return "kyve/pool/MsgDefundPool"
+	return "kyve/funders/MsgDefundPool"
 }
 
 func (msg *MsgDefundPool) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(msg.Creator)
-	if err != nil {
-		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid creator address (%s)", err)
+	if _, err := sdk.AccAddressFromBech32(msg.Creator); err != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid creator address: %s", err)
 	}
+
+	if util.ValidateNumber(msg.PoolId) != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid pool id")
+	}
+
+	if util.ValidatePositiveNumber(msg.Amount) != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid amount")
+	}
+
 	return nil
 }

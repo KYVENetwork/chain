@@ -162,6 +162,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradeTypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	// Funders
+	"github.com/KYVENetwork/chain/x/funders"
+	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
+	fundersTypes "github.com/KYVENetwork/chain/x/funders/types"
 )
 
 const (
@@ -293,6 +297,7 @@ func NewKYVEApp(
 		queryTypes.StoreKey,
 		stakersTypes.StoreKey,
 		teamTypes.StoreKey,
+		fundersTypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramsTypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(
@@ -425,6 +430,12 @@ func NewKYVEApp(
 		app.AccountKeeper,
 	)
 
+	app.FeeGrantKeeper = feeGrantKeeper.NewKeeper(
+		appCodec,
+		keys[feeGrantTypes.StoreKey],
+		app.AccountKeeper,
+	)
+
 	app.GroupKeeper = groupKeeper.NewKeeper(
 		keys[groupTypes.StoreKey],
 		appCodec,
@@ -504,8 +515,22 @@ func NewKYVEApp(
 		app.StakersKeeper,
 	)
 
+	app.FundersKeeper = *fundersKeeper.NewKeeper(
+		appCodec,
+		keys[fundersTypes.StoreKey],
+		memKeys[fundersTypes.MemStoreKey],
+
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
+
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.PoolKeeper,
+		app.UpgradeKeeper,
+	)
+
 	stakersKeeper.SetDelegationKeeper(&app.StakersKeeper, app.DelegationKeeper)
 	poolKeeper.SetStakersKeeper(&app.PoolKeeper, app.StakersKeeper)
+	poolKeeper.SetFundersKeeper(&app.PoolKeeper, app.FundersKeeper)
 
 	app.BundlesKeeper = *bundlesKeeper.NewKeeper(
 		appCodec,
@@ -520,6 +545,7 @@ func NewKYVEApp(
 		app.PoolKeeper,
 		app.StakersKeeper,
 		app.DelegationKeeper,
+		app.FundersKeeper,
 	)
 
 	app.IBCKeeper = ibcKeeper.NewKeeper(
@@ -633,6 +659,7 @@ func NewKYVEApp(
 		app.GlobalKeeper,
 		*app.GovKeeper,
 		app.TeamKeeper,
+		app.FundersKeeper,
 	)
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
@@ -709,6 +736,7 @@ func NewKYVEApp(
 		query.NewAppModule(appCodec, app.QueryKeeper, app.AccountKeeper, app.BankKeeper),
 		stakers.NewAppModule(appCodec, app.StakersKeeper, app.AccountKeeper, app.BankKeeper),
 		team.NewAppModule(appCodec, app.BankKeeper, app.MintKeeper, app.TeamKeeper, *app.UpgradeKeeper),
+		funders.NewAppModule(appCodec, app.FundersKeeper, app.AccountKeeper, app.BankKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -750,6 +778,7 @@ func NewKYVEApp(
 		delegationTypes.ModuleName,
 		queryTypes.ModuleName,
 		globalTypes.ModuleName,
+		fundersTypes.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
@@ -784,6 +813,7 @@ func NewKYVEApp(
 		queryTypes.ModuleName,
 		globalTypes.ModuleName,
 		teamTypes.ModuleName,
+		fundersTypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -823,6 +853,7 @@ func NewKYVEApp(
 		queryTypes.ModuleName,
 		globalTypes.ModuleName,
 		teamTypes.ModuleName,
+		fundersTypes.ModuleName,
 	)
 
 	// Uncomment if you want to set a custom migration order here.
@@ -880,6 +911,10 @@ func NewKYVEApp(
 			*app.GovKeeper,
 			*app.IBCKeeper,
 			app.ParamsKeeper,
+			app.PoolKeeper,
+			app.FundersKeeper,
+			app.BankKeeper,
+			app.AccountKeeper,
 		),
 	)
 

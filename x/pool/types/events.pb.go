@@ -108,9 +108,9 @@ type EventCreatePool struct {
 	// upload_interval is the interval the pool should validate
 	// bundles with
 	UploadInterval uint64 `protobuf:"varint,7,opt,name=upload_interval,json=uploadInterval,proto3" json:"upload_interval,omitempty"`
-	// operating_cost is the fixed cost which gets paid out
+	// inflation_share_weight is the fixed cost which gets paid out
 	// to every successful uploader
-	OperatingCost uint64 `protobuf:"varint,8,opt,name=operating_cost,json=operatingCost,proto3" json:"operating_cost,omitempty"`
+	InflationShareWeight uint64 `protobuf:"varint,8,opt,name=inflation_share_weight,json=inflationShareWeight,proto3" json:"inflation_share_weight,omitempty"`
 	// min_delegation is the minimum amount of $KYVE the pool has
 	// to have in order to produce bundles
 	MinDelegation uint64 `protobuf:"varint,9,opt,name=min_delegation,json=minDelegation,proto3" json:"min_delegation,omitempty"`
@@ -211,9 +211,9 @@ func (m *EventCreatePool) GetUploadInterval() uint64 {
 	return 0
 }
 
-func (m *EventCreatePool) GetOperatingCost() uint64 {
+func (m *EventCreatePool) GetInflationShareWeight() uint64 {
 	if m != nil {
-		return m.OperatingCost
+		return m.InflationShareWeight
 	}
 	return 0
 }
@@ -524,9 +524,9 @@ type EventPoolUpdated struct {
 	// upload_interval is the interval the pool should validate
 	// bundles with
 	UploadInterval uint64 `protobuf:"varint,7,opt,name=upload_interval,json=uploadInterval,proto3" json:"upload_interval,omitempty"`
-	// operating_cost is the fixed cost which gets paid out
+	// inflation_share_weight is the fixed cost which gets paid out
 	// to every successful uploader
-	OperatingCost uint64 `protobuf:"varint,8,opt,name=operating_cost,json=operatingCost,proto3" json:"operating_cost,omitempty"`
+	InflationShareWeight uint64 `protobuf:"varint,8,opt,name=inflation_share_weight,json=inflationShareWeight,proto3" json:"inflation_share_weight,omitempty"`
 	// min_delegation is the minimum amount of $KYVE the pool has
 	// to have in order to produce bundles
 	MinDelegation uint64 `protobuf:"varint,9,opt,name=min_delegation,json=minDelegation,proto3" json:"min_delegation,omitempty"`
@@ -623,9 +623,9 @@ func (m *EventPoolUpdated) GetUploadInterval() uint64 {
 	return 0
 }
 
-func (m *EventPoolUpdated) GetOperatingCost() uint64 {
+func (m *EventPoolUpdated) GetInflationShareWeight() uint64 {
 	if m != nil {
-		return m.OperatingCost
+		return m.InflationShareWeight
 	}
 	return 0
 }
@@ -658,136 +658,6 @@ func (m *EventPoolUpdated) GetCompressionId() uint32 {
 	return 0
 }
 
-// EventFundPool is an event emitted when a pool is funded.
-// emitted_by: MsgFundPool
-type EventFundPool struct {
-	// pool_id is the unique ID of the pool.
-	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
-	// address is the account address of the pool funder.
-	Address string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
-	// amount is the amount in ukyve the funder has funded
-	Amount uint64 `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`
-}
-
-func (m *EventFundPool) Reset()         { *m = EventFundPool{} }
-func (m *EventFundPool) String() string { return proto.CompactTextString(m) }
-func (*EventFundPool) ProtoMessage()    {}
-func (*EventFundPool) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c1828a100d789238, []int{7}
-}
-func (m *EventFundPool) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *EventFundPool) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_EventFundPool.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *EventFundPool) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventFundPool.Merge(m, src)
-}
-func (m *EventFundPool) XXX_Size() int {
-	return m.Size()
-}
-func (m *EventFundPool) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventFundPool.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_EventFundPool proto.InternalMessageInfo
-
-func (m *EventFundPool) GetPoolId() uint64 {
-	if m != nil {
-		return m.PoolId
-	}
-	return 0
-}
-
-func (m *EventFundPool) GetAddress() string {
-	if m != nil {
-		return m.Address
-	}
-	return ""
-}
-
-func (m *EventFundPool) GetAmount() uint64 {
-	if m != nil {
-		return m.Amount
-	}
-	return 0
-}
-
-// EventDefundPool is an event emitted when a pool is defunded.
-// emitted_by: MsgDefundPool
-type EventDefundPool struct {
-	// pool_id is the unique ID of the pool.
-	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
-	// address is the account address of the pool funder.
-	Address string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
-	// amount is the amount in ukyve the funder has defunded
-	Amount uint64 `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`
-}
-
-func (m *EventDefundPool) Reset()         { *m = EventDefundPool{} }
-func (m *EventDefundPool) String() string { return proto.CompactTextString(m) }
-func (*EventDefundPool) ProtoMessage()    {}
-func (*EventDefundPool) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c1828a100d789238, []int{8}
-}
-func (m *EventDefundPool) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *EventDefundPool) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_EventDefundPool.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *EventDefundPool) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventDefundPool.Merge(m, src)
-}
-func (m *EventDefundPool) XXX_Size() int {
-	return m.Size()
-}
-func (m *EventDefundPool) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventDefundPool.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_EventDefundPool proto.InternalMessageInfo
-
-func (m *EventDefundPool) GetPoolId() uint64 {
-	if m != nil {
-		return m.PoolId
-	}
-	return 0
-}
-
-func (m *EventDefundPool) GetAddress() string {
-	if m != nil {
-		return m.Address
-	}
-	return ""
-}
-
-func (m *EventDefundPool) GetAmount() uint64 {
-	if m != nil {
-		return m.Amount
-	}
-	return 0
-}
-
 // EventDefundPool is an event emitted when a pool is defunded.
 // emitted_by: MsgSubmitBundleProposal
 type EventPoolFundsSlashed struct {
@@ -803,7 +673,7 @@ func (m *EventPoolFundsSlashed) Reset()         { *m = EventPoolFundsSlashed{} }
 func (m *EventPoolFundsSlashed) String() string { return proto.CompactTextString(m) }
 func (*EventPoolFundsSlashed) ProtoMessage()    {}
 func (*EventPoolFundsSlashed) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c1828a100d789238, []int{9}
+	return fileDescriptor_c1828a100d789238, []int{7}
 }
 func (m *EventPoolFundsSlashed) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -853,53 +723,6 @@ func (m *EventPoolFundsSlashed) GetAmount() uint64 {
 	return 0
 }
 
-// EventPoolOutOfFunds is an event emitted when a pool has run out of funds
-// emitted_by: MsgSubmitBundleProposal
-type EventPoolOutOfFunds struct {
-	// pool_id is the unique ID of the pool.
-	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
-}
-
-func (m *EventPoolOutOfFunds) Reset()         { *m = EventPoolOutOfFunds{} }
-func (m *EventPoolOutOfFunds) String() string { return proto.CompactTextString(m) }
-func (*EventPoolOutOfFunds) ProtoMessage()    {}
-func (*EventPoolOutOfFunds) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c1828a100d789238, []int{10}
-}
-func (m *EventPoolOutOfFunds) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *EventPoolOutOfFunds) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_EventPoolOutOfFunds.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *EventPoolOutOfFunds) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventPoolOutOfFunds.Merge(m, src)
-}
-func (m *EventPoolOutOfFunds) XXX_Size() int {
-	return m.Size()
-}
-func (m *EventPoolOutOfFunds) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventPoolOutOfFunds.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_EventPoolOutOfFunds proto.InternalMessageInfo
-
-func (m *EventPoolOutOfFunds) GetPoolId() uint64 {
-	if m != nil {
-		return m.PoolId
-	}
-	return 0
-}
-
 func init() {
 	proto.RegisterType((*EventUpdateParams)(nil), "kyve.pool.v1beta1.EventUpdateParams")
 	proto.RegisterType((*EventCreatePool)(nil), "kyve.pool.v1beta1.EventCreatePool")
@@ -908,66 +731,61 @@ func init() {
 	proto.RegisterType((*EventRuntimeUpgradeScheduled)(nil), "kyve.pool.v1beta1.EventRuntimeUpgradeScheduled")
 	proto.RegisterType((*EventRuntimeUpgradeCancelled)(nil), "kyve.pool.v1beta1.EventRuntimeUpgradeCancelled")
 	proto.RegisterType((*EventPoolUpdated)(nil), "kyve.pool.v1beta1.EventPoolUpdated")
-	proto.RegisterType((*EventFundPool)(nil), "kyve.pool.v1beta1.EventFundPool")
-	proto.RegisterType((*EventDefundPool)(nil), "kyve.pool.v1beta1.EventDefundPool")
 	proto.RegisterType((*EventPoolFundsSlashed)(nil), "kyve.pool.v1beta1.EventPoolFundsSlashed")
-	proto.RegisterType((*EventPoolOutOfFunds)(nil), "kyve.pool.v1beta1.EventPoolOutOfFunds")
 }
 
 func init() { proto.RegisterFile("kyve/pool/v1beta1/events.proto", fileDescriptor_c1828a100d789238) }
 
 var fileDescriptor_c1828a100d789238 = []byte{
-	// 792 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x55, 0xcd, 0x6e, 0xeb, 0x44,
-	0x14, 0x8e, 0x93, 0x34, 0x6d, 0x26, 0x4d, 0x42, 0x7c, 0xf9, 0x31, 0x05, 0x85, 0x10, 0x74, 0xa1,
-	0xb0, 0x70, 0x74, 0x61, 0x8f, 0x44, 0xd3, 0x22, 0x45, 0x57, 0xe2, 0x5e, 0x25, 0xba, 0x48, 0x54,
-	0x48, 0xd6, 0xc4, 0x73, 0xe2, 0x8c, 0x6a, 0xcf, 0x58, 0x33, 0xe3, 0xa4, 0xe9, 0x53, 0xf0, 0x04,
-	0xbc, 0x01, 0x6f, 0xc1, 0xa2, 0xcb, 0x2e, 0x58, 0xb0, 0x42, 0xa8, 0x7d, 0x11, 0x34, 0xe3, 0x1f,
-	0x92, 0xd6, 0x45, 0x5d, 0x80, 0xc4, 0xce, 0xe7, 0x9c, 0xef, 0xfc, 0xcc, 0xf9, 0xce, 0x97, 0xa0,
-	0xfe, 0xc5, 0x66, 0x05, 0xa3, 0x98, 0xf3, 0x70, 0xb4, 0x7a, 0x31, 0x07, 0x85, 0x5f, 0x8c, 0x60,
-	0x05, 0x4c, 0x49, 0x37, 0x16, 0x5c, 0x71, 0xbb, 0xa7, 0xe3, 0xae, 0x8e, 0xbb, 0x59, 0xfc, 0xe8,
-	0xed, 0x80, 0x07, 0xdc, 0x44, 0x47, 0xfa, 0x2b, 0x05, 0x1e, 0x95, 0x14, 0x8a, 0xb1, 0xc0, 0x51,
-	0x56, 0x68, 0xf8, 0x8b, 0x85, 0x7a, 0x67, 0xba, 0xf2, 0x9b, 0x98, 0x60, 0x05, 0xaf, 0x4d, 0xcc,
-	0xfe, 0x1a, 0x21, 0x1e, 0x12, 0x2f, 0x45, 0x3a, 0xd6, 0xc0, 0x3a, 0x6e, 0x7d, 0xf9, 0xbe, 0xfb,
-	0xa0, 0xa7, 0x9b, 0xc2, 0x4f, 0xea, 0xd7, 0x7f, 0x7c, 0x54, 0x99, 0x36, 0x79, 0x48, 0xfe, 0xce,
-	0x67, 0xb0, 0xce, 0xf3, 0xab, 0x4f, 0xcc, 0x67, 0xb0, 0xce, 0xf2, 0x1d, 0xb4, 0x1f, 0xe3, 0x4d,
-	0xc8, 0x31, 0x71, 0x6a, 0x03, 0xeb, 0xb8, 0x39, 0xcd, 0xcd, 0xe1, 0xaf, 0x35, 0xd4, 0x35, 0xf3,
-	0x8e, 0x05, 0xe8, 0x79, 0x39, 0x0f, 0xed, 0x0e, 0xaa, 0x52, 0x62, 0xa6, 0xac, 0x4f, 0xab, 0x94,
-	0xd8, 0x36, 0xaa, 0x33, 0x1c, 0x81, 0xe9, 0xdb, 0x9c, 0x9a, 0x6f, 0x5d, 0x51, 0x24, 0x4c, 0xd1,
-	0x08, 0xf2, 0x8a, 0x99, 0xa9, 0xd1, 0x21, 0x0f, 0xb8, 0x53, 0x4f, 0xd1, 0xfa, 0xdb, 0x7e, 0x17,
-	0x35, 0x7c, 0xce, 0x16, 0x34, 0x70, 0xf6, 0x8c, 0x37, 0xb3, 0xec, 0x0f, 0x50, 0x53, 0x2a, 0x2c,
-	0x94, 0x77, 0x01, 0x1b, 0xa7, 0x61, 0x42, 0x07, 0xc6, 0xf1, 0x12, 0x36, 0xf6, 0x67, 0xa8, 0x9b,
-	0xc4, 0x7a, 0x48, 0x8f, 0x32, 0x05, 0x62, 0x85, 0x43, 0x67, 0xdf, 0xcc, 0xd4, 0x49, 0xdd, 0x93,
-	0xcc, 0x6b, 0x3f, 0x47, 0x1d, 0x1e, 0x83, 0xc0, 0x8a, 0xb2, 0xc0, 0xf3, 0xb9, 0x54, 0xce, 0x81,
-	0xc1, 0xb5, 0x0b, 0xef, 0x98, 0x4b, 0xa5, 0x61, 0x11, 0x65, 0x1e, 0x81, 0x10, 0x02, 0xac, 0x28,
-	0x67, 0x4e, 0x33, 0x85, 0x45, 0x94, 0x9d, 0x16, 0x4e, 0xfb, 0x53, 0xd4, 0x8d, 0xf0, 0xa5, 0x37,
-	0x4f, 0x18, 0x09, 0xc1, 0x93, 0xf4, 0x0a, 0x1c, 0x94, 0xe1, 0xf0, 0xe5, 0x89, 0xf1, 0xce, 0xe8,
-	0x95, 0xd9, 0xc0, 0x0a, 0x84, 0xd4, 0x75, 0x5a, 0xe9, 0x06, 0x32, 0xd3, 0x3e, 0x42, 0x07, 0x73,
-	0xca, 0xb0, 0xa0, 0x20, 0x9d, 0xc3, 0xf4, 0x51, 0xb9, 0x6d, 0xbb, 0xe8, 0x99, 0x54, 0x5c, 0xe0,
-	0x00, 0xbc, 0x58, 0xf0, 0x15, 0x25, 0x20, 0x3c, 0x4a, 0x9c, 0xf6, 0xc0, 0x3a, 0x6e, 0x4f, 0x7b,
-	0x59, 0xe8, 0x75, 0x16, 0x99, 0x10, 0x3d, 0xb4, 0xcf, 0xa3, 0x58, 0x80, 0xd4, 0xa5, 0x35, 0xb4,
-	0x63, 0xa0, 0xed, 0x2d, 0xef, 0x84, 0x0c, 0x87, 0xe8, 0x2d, 0xc3, 0xa2, 0xe6, 0xef, 0x8c, 0xe1,
-	0x79, 0x08, 0xe4, 0x3e, 0x8d, 0xc3, 0x4f, 0xb2, 0xcb, 0xd4, 0x98, 0x53, 0x2a, 0xcb, 0x41, 0xbf,
-	0x59, 0xe8, 0x43, 0x83, 0x9a, 0xa6, 0x74, 0xbe, 0x89, 0x03, 0x81, 0x09, 0xcc, 0xfc, 0x25, 0x90,
-	0x44, 0x27, 0x6c, 0x11, 0x6f, 0xed, 0x12, 0xbf, 0xb5, 0x90, 0xea, 0xee, 0x42, 0x3e, 0x46, 0x87,
-	0x32, 0x2f, 0xe0, 0x61, 0x65, 0x2e, 0xa6, 0x3e, 0x6d, 0x15, 0xbe, 0x6f, 0x94, 0xde, 0x19, 0x49,
-	0x44, 0x4a, 0x4b, 0xdd, 0x84, 0x0b, 0x7b, 0x67, 0x9f, 0x7b, 0xf7, 0xf6, 0xf9, 0x1c, 0x75, 0xf0,
-	0x62, 0x01, 0xbe, 0x02, 0xe2, 0x69, 0x29, 0x48, 0xa7, 0x31, 0xa8, 0x69, 0xb2, 0x72, 0xaf, 0x7e,
-	0xad, 0x1c, 0x7a, 0xa5, 0xaf, 0x1a, 0x63, 0xe6, 0x43, 0xf8, 0xcf, 0xaf, 0x7a, 0xd8, 0xa0, 0x5a,
-	0xd6, 0xe0, 0xe7, 0xda, 0x16, 0x03, 0xa9, 0xf6, 0x1f, 0x2c, 0xd7, 0xfe, 0x02, 0xf5, 0x04, 0x5e,
-	0x7b, 0x89, 0x09, 0x7b, 0x52, 0x09, 0xca, 0x82, 0x6c, 0x57, 0x5d, 0x81, 0xd7, 0x69, 0xda, 0xcc,
-	0xb8, 0x0b, 0xd1, 0xd5, 0xca, 0x45, 0x57, 0x2f, 0x17, 0xdd, 0x5e, 0xa9, 0xe8, 0x1a, 0x3b, 0xa2,
-	0xfb, 0x9f, 0xeb, 0xea, 0x11, 0x85, 0xb4, 0x9e, 0xae, 0x90, 0xc3, 0x32, 0x85, 0x9c, 0xa3, 0xb6,
-	0xe1, 0xe7, 0xdb, 0x84, 0x19, 0xca, 0xec, 0xf7, 0xd0, 0xbe, 0xe6, 0xd3, 0x2b, 0x18, 0x6a, 0x68,
-	0x73, 0x62, 0x6e, 0x01, 0x13, 0xa2, 0x33, 0xf3, 0x3b, 0xce, 0x4c, 0xbd, 0x51, 0x1c, 0xf1, 0x84,
-	0xe5, 0x17, 0x9c, 0x59, 0xc3, 0x1f, 0xb3, 0xdf, 0xd0, 0x53, 0x58, 0xfc, 0x07, 0xd5, 0xe7, 0xe8,
-	0x9d, 0xe2, 0xb2, 0xf4, 0xf4, 0x72, 0x16, 0x62, 0xb9, 0x04, 0xf2, 0x6f, 0xf6, 0x70, 0xd1, 0xb3,
-	0xa2, 0xc7, 0xab, 0x44, 0xbd, 0x5a, 0x98, 0x46, 0x8f, 0x76, 0x38, 0x19, 0x5f, 0xdf, 0xf6, 0xad,
-	0x9b, 0xdb, 0xbe, 0xf5, 0xe7, 0x6d, 0xdf, 0xfa, 0xe9, 0xae, 0x5f, 0xb9, 0xb9, 0xeb, 0x57, 0x7e,
-	0xbf, 0xeb, 0x57, 0xce, 0x3f, 0x0f, 0xa8, 0x5a, 0x26, 0x73, 0xd7, 0xe7, 0xd1, 0xe8, 0xe5, 0x0f,
-	0xdf, 0x9f, 0x7d, 0x07, 0x6a, 0xcd, 0xc5, 0xc5, 0xc8, 0x5f, 0x62, 0xca, 0x46, 0x97, 0xe9, 0x5f,
-	0xa7, 0xda, 0xc4, 0x20, 0xe7, 0x0d, 0xf3, 0x97, 0xf9, 0xd5, 0x5f, 0x01, 0x00, 0x00, 0xff, 0xff,
-	0xc1, 0xd7, 0x44, 0xf8, 0x9d, 0x07, 0x00, 0x00,
+	// 763 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x55, 0xcf, 0x6e, 0x33, 0x35,
+	0x10, 0xcf, 0x26, 0x69, 0xda, 0x38, 0x4d, 0x42, 0x96, 0x52, 0x96, 0x82, 0x42, 0x08, 0x2a, 0x14,
+	0x0e, 0x89, 0x0a, 0x9c, 0x91, 0xe8, 0x1f, 0xa4, 0xa8, 0x12, 0xaa, 0x12, 0x15, 0x04, 0x17, 0xcb,
+	0x89, 0x27, 0x1b, 0xab, 0xbb, 0xf6, 0xca, 0xf6, 0x26, 0x4d, 0x9f, 0x82, 0x17, 0xe9, 0x7b, 0xf4,
+	0x58, 0x09, 0x0e, 0x9c, 0x10, 0x6a, 0x5f, 0x04, 0xd9, 0xbb, 0x9b, 0x2f, 0x69, 0xf7, 0xfb, 0xd4,
+	0xeb, 0x77, 0xf3, 0xcc, 0xef, 0x37, 0xe3, 0xf1, 0xcc, 0xfc, 0x76, 0x51, 0xfb, 0x7a, 0x39, 0x87,
+	0x7e, 0x24, 0x44, 0xd0, 0x9f, 0x1f, 0x8f, 0x41, 0x93, 0xe3, 0x3e, 0xcc, 0x81, 0x6b, 0xd5, 0x8b,
+	0xa4, 0xd0, 0xc2, 0x6d, 0x19, 0xbc, 0x67, 0xf0, 0x5e, 0x8a, 0x1f, 0xec, 0xf9, 0xc2, 0x17, 0x16,
+	0xed, 0x9b, 0x53, 0x42, 0x3c, 0xc8, 0x49, 0x14, 0x11, 0x49, 0xc2, 0x34, 0x51, 0xf7, 0xce, 0x41,
+	0xad, 0x73, 0x93, 0xf9, 0x2a, 0xa2, 0x44, 0xc3, 0xa5, 0xc5, 0xdc, 0x1f, 0x11, 0x12, 0x01, 0xc5,
+	0x09, 0xd3, 0x73, 0x3a, 0xce, 0x51, 0xed, 0xbb, 0x4f, 0x7a, 0x2f, 0xee, 0xec, 0x25, 0xf4, 0x93,
+	0xf2, 0xfd, 0xbf, 0x9f, 0x17, 0x86, 0x55, 0x11, 0xd0, 0x37, 0xf1, 0x1c, 0x16, 0x59, 0x7c, 0xf1,
+	0x95, 0xf1, 0x1c, 0x16, 0x69, 0xbc, 0x87, 0xb6, 0x23, 0xb2, 0x0c, 0x04, 0xa1, 0x5e, 0xa9, 0xe3,
+	0x1c, 0x55, 0x87, 0x99, 0xd9, 0xfd, 0xab, 0x84, 0x9a, 0xb6, 0xde, 0x53, 0x09, 0xa6, 0x5e, 0x21,
+	0x02, 0xb7, 0x81, 0x8a, 0x8c, 0xda, 0x2a, 0xcb, 0xc3, 0x22, 0xa3, 0xae, 0x8b, 0xca, 0x9c, 0x84,
+	0x60, 0xef, 0xad, 0x0e, 0xed, 0xd9, 0x64, 0x94, 0x31, 0xd7, 0x2c, 0x84, 0x2c, 0x63, 0x6a, 0x1a,
+	0x76, 0x20, 0x7c, 0xe1, 0x95, 0x13, 0xb6, 0x39, 0xbb, 0xfb, 0xa8, 0x32, 0x11, 0x7c, 0xca, 0x7c,
+	0x6f, 0xcb, 0x7a, 0x53, 0xcb, 0xfd, 0x14, 0x55, 0x95, 0x26, 0x52, 0xe3, 0x6b, 0x58, 0x7a, 0x15,
+	0x0b, 0xed, 0x58, 0xc7, 0x05, 0x2c, 0xdd, 0xaf, 0x51, 0x33, 0x8e, 0x4c, 0x91, 0x98, 0x71, 0x0d,
+	0x72, 0x4e, 0x02, 0x6f, 0xdb, 0xd6, 0xd4, 0x48, 0xdc, 0x83, 0xd4, 0xeb, 0xfe, 0x80, 0xf6, 0x19,
+	0x9f, 0x06, 0x44, 0x33, 0xc1, 0xb1, 0x9a, 0x11, 0x09, 0x78, 0x01, 0xcc, 0x9f, 0x69, 0x6f, 0xc7,
+	0xf2, 0xf7, 0x56, 0xe8, 0xc8, 0x80, 0xbf, 0x59, 0xcc, 0x3d, 0x44, 0x8d, 0x90, 0x71, 0x4c, 0x21,
+	0x00, 0xdf, 0x82, 0x5e, 0xd5, 0xb2, 0xeb, 0x21, 0xe3, 0x67, 0x2b, 0xa7, 0xfb, 0x15, 0x6a, 0x86,
+	0xe4, 0x06, 0x8f, 0x63, 0x4e, 0x03, 0xc0, 0x8a, 0xdd, 0x82, 0x87, 0x52, 0x1e, 0xb9, 0x39, 0xb1,
+	0xde, 0x11, 0xbb, 0xb5, 0x0d, 0x99, 0x83, 0x54, 0x26, 0x4f, 0x2d, 0x69, 0x48, 0x6a, 0xba, 0x07,
+	0x68, 0x67, 0xcc, 0x38, 0x91, 0x0c, 0x94, 0xb7, 0x9b, 0xbc, 0x31, 0xb3, 0xdd, 0x1e, 0xfa, 0x50,
+	0x69, 0x21, 0x89, 0x0f, 0x38, 0x92, 0x62, 0xce, 0x28, 0x48, 0xcc, 0xa8, 0x57, 0xef, 0x38, 0x47,
+	0xf5, 0x61, 0x2b, 0x85, 0x2e, 0x53, 0x64, 0x40, 0x4d, 0xd1, 0x13, 0x11, 0x46, 0x12, 0x94, 0x49,
+	0x6d, 0xa8, 0x0d, 0x4b, 0xad, 0xaf, 0x79, 0x07, 0xb4, 0xdb, 0x45, 0x1f, 0xd8, 0xa1, 0x9a, 0x71,
+	0x9e, 0x73, 0x32, 0x0e, 0x80, 0x3e, 0x9f, 0x6a, 0xf7, 0xcb, 0x74, 0x51, 0x0d, 0xe7, 0x8c, 0xa9,
+	0x7c, 0xd2, 0xdf, 0x0e, 0xfa, 0xcc, 0xb2, 0x86, 0xc9, 0x74, 0xaf, 0x22, 0x5f, 0x12, 0x0a, 0xa3,
+	0xc9, 0x0c, 0x68, 0x6c, 0x02, 0xd6, 0xf6, 0xc0, 0xd9, 0xdc, 0x83, 0xb5, 0x86, 0x14, 0x37, 0x1b,
+	0xf2, 0x05, 0xda, 0x55, 0x59, 0x02, 0x4c, 0xb4, 0x5d, 0xa0, 0xf2, 0xb0, 0xb6, 0xf2, 0xfd, 0xa4,
+	0x4d, 0xcf, 0x68, 0x2c, 0x93, 0xb1, 0x94, 0x2d, 0xbc, 0xb2, 0x37, 0xfa, 0xb9, 0xf5, 0xac, 0x9f,
+	0x87, 0xa8, 0x41, 0xa6, 0x53, 0x98, 0x68, 0xa0, 0xd8, 0x28, 0x43, 0x79, 0x95, 0x4e, 0xc9, 0x0c,
+	0x2b, 0xf3, 0x9a, 0xd7, 0xaa, 0x2e, 0xce, 0x7d, 0xd5, 0x29, 0xe1, 0x13, 0x08, 0xde, 0xfd, 0xaa,
+	0x97, 0x17, 0x14, 0xf3, 0x2e, 0xb8, 0x2b, 0xad, 0x4d, 0x20, 0xf9, 0x14, 0xbc, 0x68, 0xae, 0xfb,
+	0x2d, 0x6a, 0x49, 0xb2, 0xc0, 0xb1, 0x85, 0xb1, 0xd2, 0x92, 0x71, 0x3f, 0xed, 0x55, 0x53, 0x92,
+	0x45, 0x12, 0x36, 0xb2, 0xee, 0x95, 0x06, 0x4b, 0xf9, 0x1a, 0x2c, 0xe7, 0x6b, 0x70, 0x2b, 0x57,
+	0x83, 0x95, 0x0d, 0x0d, 0xbe, 0x5f, 0x32, 0x7b, 0x8b, 0x60, 0x6a, 0xaf, 0x17, 0xcc, 0x6e, 0x9e,
+	0x60, 0xc6, 0xe8, 0xa3, 0xd5, 0xb8, 0x7e, 0x8e, 0x39, 0x55, 0xa3, 0x80, 0xa8, 0x19, 0x50, 0xf7,
+	0x63, 0xb4, 0x6d, 0xc6, 0x8c, 0x57, 0x83, 0xab, 0x18, 0x73, 0x60, 0x57, 0x84, 0x50, 0x6a, 0x32,
+	0x64, 0xeb, 0x9d, 0x9a, 0xa6, 0xd1, 0x24, 0x14, 0x31, 0xcf, 0x16, 0x3b, 0xb5, 0x4e, 0x4e, 0xef,
+	0x1f, 0xdb, 0xce, 0xc3, 0x63, 0xdb, 0xf9, 0xef, 0xb1, 0xed, 0xfc, 0xf9, 0xd4, 0x2e, 0x3c, 0x3c,
+	0xb5, 0x0b, 0xff, 0x3c, 0xb5, 0x0b, 0x7f, 0x7c, 0xe3, 0x33, 0x3d, 0x8b, 0xc7, 0xbd, 0x89, 0x08,
+	0xfb, 0x17, 0xbf, 0xff, 0x7a, 0xfe, 0x0b, 0xe8, 0x85, 0x90, 0xd7, 0xfd, 0xc9, 0x8c, 0x30, 0xde,
+	0xbf, 0x49, 0x7e, 0x37, 0x7a, 0x19, 0x81, 0x1a, 0x57, 0xec, 0x6f, 0xe6, 0xfb, 0xff, 0x03, 0x00,
+	0x00, 0xff, 0xff, 0x99, 0xc5, 0x91, 0xec, 0xd1, 0x06, 0x00, 0x00,
 }
 
 func (m *EventUpdateParams) Marshal() (dAtA []byte, err error) {
@@ -1074,8 +892,8 @@ func (m *EventCreatePool) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x48
 	}
-	if m.OperatingCost != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.OperatingCost))
+	if m.InflationShareWeight != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.InflationShareWeight))
 		i--
 		dAtA[i] = 0x40
 	}
@@ -1343,8 +1161,8 @@ func (m *EventPoolUpdated) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x48
 	}
-	if m.OperatingCost != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.OperatingCost))
+	if m.InflationShareWeight != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.InflationShareWeight))
 		i--
 		dAtA[i] = 0x40
 	}
@@ -1396,86 +1214,6 @@ func (m *EventPoolUpdated) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *EventFundPool) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *EventFundPool) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *EventFundPool) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Amount != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.Amount))
-		i--
-		dAtA[i] = 0x18
-	}
-	if len(m.Address) > 0 {
-		i -= len(m.Address)
-		copy(dAtA[i:], m.Address)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.Address)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if m.PoolId != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.PoolId))
-		i--
-		dAtA[i] = 0x8
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *EventDefundPool) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *EventDefundPool) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *EventDefundPool) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Amount != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.Amount))
-		i--
-		dAtA[i] = 0x18
-	}
-	if len(m.Address) > 0 {
-		i -= len(m.Address)
-		copy(dAtA[i:], m.Address)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.Address)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if m.PoolId != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.PoolId))
-		i--
-		dAtA[i] = 0x8
-	}
-	return len(dAtA) - i, nil
-}
-
 func (m *EventPoolFundsSlashed) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1508,34 +1246,6 @@ func (m *EventPoolFundsSlashed) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if m.PoolId != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.PoolId))
-		i--
-		dAtA[i] = 0x8
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *EventPoolOutOfFunds) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *EventPoolOutOfFunds) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *EventPoolOutOfFunds) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
 	if m.PoolId != 0 {
 		i = encodeVarintEvents(dAtA, i, uint64(m.PoolId))
 		i--
@@ -1604,8 +1314,8 @@ func (m *EventCreatePool) Size() (n int) {
 	if m.UploadInterval != 0 {
 		n += 1 + sovEvents(uint64(m.UploadInterval))
 	}
-	if m.OperatingCost != 0 {
-		n += 1 + sovEvents(uint64(m.OperatingCost))
+	if m.InflationShareWeight != 0 {
+		n += 1 + sovEvents(uint64(m.InflationShareWeight))
 	}
 	if m.MinDelegation != 0 {
 		n += 1 + sovEvents(uint64(m.MinDelegation))
@@ -1740,8 +1450,8 @@ func (m *EventPoolUpdated) Size() (n int) {
 	if m.UploadInterval != 0 {
 		n += 1 + sovEvents(uint64(m.UploadInterval))
 	}
-	if m.OperatingCost != 0 {
-		n += 1 + sovEvents(uint64(m.OperatingCost))
+	if m.InflationShareWeight != 0 {
+		n += 1 + sovEvents(uint64(m.InflationShareWeight))
 	}
 	if m.MinDelegation != 0 {
 		n += 1 + sovEvents(uint64(m.MinDelegation))
@@ -1754,44 +1464,6 @@ func (m *EventPoolUpdated) Size() (n int) {
 	}
 	if m.CompressionId != 0 {
 		n += 1 + sovEvents(uint64(m.CompressionId))
-	}
-	return n
-}
-
-func (m *EventFundPool) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.PoolId != 0 {
-		n += 1 + sovEvents(uint64(m.PoolId))
-	}
-	l = len(m.Address)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	if m.Amount != 0 {
-		n += 1 + sovEvents(uint64(m.Amount))
-	}
-	return n
-}
-
-func (m *EventDefundPool) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.PoolId != 0 {
-		n += 1 + sovEvents(uint64(m.PoolId))
-	}
-	l = len(m.Address)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	if m.Amount != 0 {
-		n += 1 + sovEvents(uint64(m.Amount))
 	}
 	return n
 }
@@ -1811,18 +1483,6 @@ func (m *EventPoolFundsSlashed) Size() (n int) {
 	}
 	if m.Amount != 0 {
 		n += 1 + sovEvents(uint64(m.Amount))
-	}
-	return n
-}
-
-func (m *EventPoolOutOfFunds) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.PoolId != 0 {
-		n += 1 + sovEvents(uint64(m.PoolId))
 	}
 	return n
 }
@@ -2210,9 +1870,9 @@ func (m *EventCreatePool) Unmarshal(dAtA []byte) error {
 			}
 		case 8:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OperatingCost", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field InflationShareWeight", wireType)
 			}
-			m.OperatingCost = 0
+			m.InflationShareWeight = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -2222,7 +1882,7 @@ func (m *EventCreatePool) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.OperatingCost |= uint64(b&0x7F) << shift
+				m.InflationShareWeight |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -3173,9 +2833,9 @@ func (m *EventPoolUpdated) Unmarshal(dAtA []byte) error {
 			}
 		case 8:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OperatingCost", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field InflationShareWeight", wireType)
 			}
-			m.OperatingCost = 0
+			m.InflationShareWeight = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -3185,7 +2845,7 @@ func (m *EventPoolUpdated) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.OperatingCost |= uint64(b&0x7F) << shift
+				m.InflationShareWeight |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -3262,246 +2922,6 @@ func (m *EventPoolUpdated) Unmarshal(dAtA []byte) error {
 				b := dAtA[iNdEx]
 				iNdEx++
 				m.CompressionId |= uint32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipEvents(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *EventFundPool) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowEvents
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: EventFundPool: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventFundPool: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PoolId", wireType)
-			}
-			m.PoolId = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.PoolId |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Address = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
-			}
-			m.Amount = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Amount |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipEvents(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *EventDefundPool) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowEvents
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: EventDefundPool: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventDefundPool: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PoolId", wireType)
-			}
-			m.PoolId = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.PoolId |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Address = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
-			}
-			m.Amount = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Amount |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -3622,75 +3042,6 @@ func (m *EventPoolFundsSlashed) Unmarshal(dAtA []byte) error {
 				b := dAtA[iNdEx]
 				iNdEx++
 				m.Amount |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipEvents(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *EventPoolOutOfFunds) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowEvents
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: EventPoolOutOfFunds: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventPoolOutOfFunds: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PoolId", wireType)
-			}
-			m.PoolId = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.PoolId |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

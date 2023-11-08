@@ -66,8 +66,8 @@ func (k msgServer) SubmitBundleProposal(goCtx context.Context, msg *types.MsgSub
 
 		pool, _ := k.poolKeeper.GetPool(ctx, msg.PoolId)
 
-		// charge the operating cost from funders
-		fundersPayout, err := k.poolKeeper.ChargeFundersOfPool(ctx, msg.PoolId, pool.OperatingCost)
+		// charge the funders of the pool
+		fundersPayout, err := k.fundersKeeper.ChargeFundersOfPool(ctx, msg.PoolId)
 		if err != nil {
 			return &types.MsgSubmitBundleProposalResponse{}, err
 		}
