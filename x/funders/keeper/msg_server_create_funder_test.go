@@ -87,10 +87,11 @@ var _ = Describe("msg_server_create_funder.go", Ordered, func() {
 		})
 
 		// ACT
-		s.RunTxFundersError(&types.MsgCreateFunder{
+		_, err := s.RunTx(&types.MsgCreateFunder{
 			Creator: i.ALICE,
 			Moniker: "moniker 2",
 		})
+		Expect(err.Error()).To(Equal("funder with address kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd already exists: invalid request"))
 	})
 
 	It("Create two funders", func() {
