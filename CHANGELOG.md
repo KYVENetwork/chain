@@ -14,11 +14,16 @@
 
 An '!' indicates a state machine breaking change.
 
-## v1.3.x - Unreleased
+## [v1.3.2](https://github.com/KYVENetwork/chain/releases/tag/v1.3.2) - 2023-11-16
+
+### Improvements
+
+- (deps) [#138](https://github.com/KYVENetwork/chain/pull/138) Bump ledger dependency to fix ledger build on latest macOS devices.
 
 ### Bug Fixes
 
-- (`x/delegation`) [#36](https://github.com/KYVENetwork/chain/pull/136) CLI: Use correct args amount for tx redelegate.
+- (`x/delegation`) [#136](https://github.com/KYVENetwork/chain/pull/136) CLI: Use correct args amount for tx redelegate.
+- (`x/bundles`) [#149](https://github.com/KYVENetwork/chain/pull/149) Add bundles query version map to genesis import/export.
 
 ## [v1.3.1](https://github.com/KYVENetwork/chain/releases/tag/v1.3.1) - 2023-08-02
 
