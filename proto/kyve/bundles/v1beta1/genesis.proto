@@ -18,4 +18,6 @@ message GenesisState {
   repeated FinalizedBundle finalized_bundle_list = 3 [(gogoproto.nullable) = false];
   // round_robin_progress_list ...
   repeated RoundRobinProgress round_robin_progress_list = 4 [(gogoproto.nullable) = false];
+  // bundle_version_map ...
+  BundleVersionMap bundle_version_map = 5 [(gogoproto.nullable) = false];
 }
