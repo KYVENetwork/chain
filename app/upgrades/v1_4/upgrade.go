@@ -112,6 +112,12 @@ func CreateUpgradeHandler(
 			return vm, err
 		}
 
+		// INFO: We do not add the proposer addresses as suggested
+		// [here](https://github.com/cosmos/cosmos-sdk/blob/v0.47.0/UPGRADING.md#xgov), because there are usually
+		// one or two weeks between version finalisation and the actual mainnet upgrade. During this time
+		// new proposals might arise which would then not be covered by the migration.
+		// Therefore, this migration will be performed in the v1.5 upgrade.
+
 		// Migrate funders.
 		err = migrateFundersAndPools(ctx, cdc, poolKeeper, fundersKeeper, bankKeeper, accountKeeper)
 		if err != nil {
