@@ -14,6 +14,12 @@
 
 An '!' indicates a state machine breaking change.
 
+## v1.3.x - Unreleased
+
+### Bug Fixes
+
+- (`x/delegation`) [#36](https://github.com/KYVENetwork/chain/pull/136) CLI: Use correct args amount for tx redelegate.
+
 ## [v1.3.1](https://github.com/KYVENetwork/chain/releases/tag/v1.3.1) - 2023-08-02
 
 ### Bug Fixes

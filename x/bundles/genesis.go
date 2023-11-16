@@ -23,6 +23,8 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 	for _, entry := range genState.RoundRobinProgressList {
 		k.SetRoundRobinProgress(ctx, entry)
 	}
+
+	k.SetBundleVersionMap(ctx, genState.BundleVersionMap)
 }
 
 // ExportGenesis returns the capability module's exported genesis.
@@ -35,6 +37,8 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	genesis.FinalizedBundleList = k.GetAllFinalizedBundles(ctx)
 
 	genesis.RoundRobinProgressList = k.GetAllRoundRobinProgress(ctx)
+
+	genesis.BundleVersionMap = k.GetBundleVersionMap(ctx)
 
 	return genesis
 }
