@@ -207,18 +207,20 @@ func migrateFundersAndPools(
 		})
 
 		poolKeeper.SetPool(ctx, poolTypes.Pool{
-			Id:                   oldPool.Id,
-			Name:                 oldPool.Name,
-			Runtime:              oldPool.Runtime,
-			Logo:                 oldPool.Logo,
-			Config:               oldPool.Config,
-			StartKey:             oldPool.StartKey,
-			CurrentKey:           oldPool.CurrentKey,
-			CurrentSummary:       oldPool.CurrentSummary,
-			CurrentIndex:         oldPool.CurrentIndex,
-			TotalBundles:         oldPool.TotalBundles,
-			UploadInterval:       oldPool.UploadInterval,
-			InflationShareWeight: oldPool.OperatingCost,
+			Id:             oldPool.Id,
+			Name:           oldPool.Name,
+			Runtime:        oldPool.Runtime,
+			Logo:           oldPool.Logo,
+			Config:         oldPool.Config,
+			StartKey:       oldPool.StartKey,
+			CurrentKey:     oldPool.CurrentKey,
+			CurrentSummary: oldPool.CurrentSummary,
+			CurrentIndex:   oldPool.CurrentIndex,
+			TotalBundles:   oldPool.TotalBundles,
+			UploadInterval: oldPool.UploadInterval,
+			// Will be set equal to all pools and later be adjusted once the governance has decided
+			// on the values for each pool.
+			InflationShareWeight: 1_000_000,
 			MinDelegation:        oldPool.MinDelegation,
 			MaxBundleSize:        oldPool.MaxBundleSize,
 			Disabled:             oldPool.Disabled,
@@ -250,10 +252,11 @@ func migrateFundersAndPools(
 		})
 		for _, funding := range funder.Fundings {
 			fundersKeeper.SetFunding(ctx, &fundersTypes.Funding{
-				FunderAddress:   funder.Address,
-				PoolId:          funding.PoolId,
-				Amount:          funding.Amount,
-				AmountPerBundle: fundersTypes.DefaultMinFundingAmountPerBundle,
+				FunderAddress: funder.Address,
+				PoolId:        funding.PoolId,
+				Amount:        funding.Amount,
+				// 2 $KYVE is very similar to the current amount funders are paying per bundle right now.
+				AmountPerBundle: 2_000_000,
 				// Previous funders will not be considered, as there is no way to calculate this on chain.
 				// Although almost all funding was only provided by the Foundation itself.
 				TotalFunded: 0,
