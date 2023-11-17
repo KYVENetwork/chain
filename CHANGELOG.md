@@ -14,8 +14,6 @@
 
 An '!' indicates a state machine breaking change.
 
-## [Unreleased]
-
 ## [v1.4.0](https://github.com/KYVENetwork/chain/releases/tag/v1.4.0) - 2023-11-17
 
 ### Features
