@@ -5066,6 +5066,49 @@ paths:
                     type: string
                     format: uint64
                     description: account_balance ...
+                  funders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        funder_address:
+                          type: string
+                          title: funder_id is the id of the funder
+                        pool_id:
+                          type: string
+                          format: uint64
+                          title: pool_id is the id of the pool this funding is for
+                        amount:
+                          type: string
+                          format: uint64
+                          title: >-
+                            amount is the amount of funds in ukyve the funder
+                            has left
+                        amount_per_bundle:
+                          type: string
+                          format: uint64
+                          title: >-
+                            amount_per_bundle is the amount of funds in ukyve
+                            the funder pays per bundle
+                        total_funded:
+                          type: string
+                          format: uint64
+                          title: >-
+                            total_funded is the total amount of funds in ukyve
+                            the funder has funded
+                      description: >-
+                        Funding is the object which holds info about the current
+                        funding
+
+                        funder_address and pool_id (m2m) are unique together
+                        which means that
+
+                        a funder can only fund each pool once and a pool can
+                        only be funded
+
+                        by each funder once. However, a funder can update the
+                        amount of funds.
+                    description: funders ...
             description: >-
               QueryPoolResponse is the response type for the Query/Pool RPC
               method.
@@ -5563,6 +5606,49 @@ paths:
                       type: string
                       format: uint64
                       description: account_balance ...
+                    funders:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          funder_address:
+                            type: string
+                            title: funder_id is the id of the funder
+                          pool_id:
+                            type: string
+                            format: uint64
+                            title: pool_id is the id of the pool this funding is for
+                          amount:
+                            type: string
+                            format: uint64
+                            title: >-
+                              amount is the amount of funds in ukyve the funder
+                              has left
+                          amount_per_bundle:
+                            type: string
+                            format: uint64
+                            title: >-
+                              amount_per_bundle is the amount of funds in ukyve
+                              the funder pays per bundle
+                          total_funded:
+                            type: string
+                            format: uint64
+                            title: >-
+                              total_funded is the total amount of funds in ukyve
+                              the funder has funded
+                        description: >-
+                          Funding is the object which holds info about the
+                          current funding
+
+                          funder_address and pool_id (m2m) are unique together
+                          which means that
+
+                          a funder can only fund each pool once and a pool can
+                          only be funded
+
+                          by each funder once. However, a funder can update the
+                          amount of funds.
+                      description: funders ...
                   description: PoolResponse ...
                 description: pools ...
               pagination:

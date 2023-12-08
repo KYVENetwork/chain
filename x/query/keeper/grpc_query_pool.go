@@ -14,6 +14,8 @@ import (
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 	// Query
 	"github.com/KYVENetwork/chain/x/query/types"
+	// Funders
+	fundersTypes "github.com/KYVENetwork/chain/x/funders/types"
 )
 
 func (k Keeper) Pools(c context.Context, req *types.QueryPoolsRequest) (*types.QueryPoolsResponse, error) {
@@ -63,6 +65,12 @@ func (k Keeper) parsePoolResponse(ctx sdk.Context, pool *poolTypes.Pool) types.P
 	poolAccount := pool.GetPoolAccount()
 	poolBalance := k.bankKeeper.GetBalance(ctx, poolAccount, globalTypes.Denom).Amount.Uint64()
 
+	funders := make([]*fundersTypes.Funding, 0)
+
+	for _, funding := range k.fundersKeeper.GetFundingsOfPool(ctx, pool.Id) {
+		funders = append(funders, &funding)
+	}
+
 	return types.PoolResponse{
 		Id:                  pool.Id,
 		Data:                pool,
@@ -73,5 +81,6 @@ func (k Keeper) parsePoolResponse(ctx sdk.Context, pool *poolTypes.Pool) types.P
 		Status:              k.GetPoolStatus(ctx, pool),
 		Account:             poolAccount.String(),
 		AccountBalance:      poolBalance,
+		Funders:             funders,
 	}
 }
