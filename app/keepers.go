@@ -58,8 +58,7 @@ import (
 	// Parameters
 	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	// PFM
-	pfmKeeper "github.com/strangelove-ventures/packet-forward-middleware/v7/router/keeper"
-	pfmTypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
+	pfmKeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/keeper"
 	// Pool
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	// Query
@@ -140,7 +139,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	keeper.Subspace(ibcTransferTypes.ModuleName)
 	keeper.Subspace(icaControllerTypes.SubModuleName)
 	keeper.Subspace(icaHostTypes.SubModuleName)
-	keeper.Subspace(pfmTypes.ModuleName)
 
 	return keeper
 }

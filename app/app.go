@@ -135,9 +135,9 @@ import (
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 	// PFM
-	pfm "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
-	pfmKeeper "github.com/strangelove-ventures/packet-forward-middleware/v7/router/keeper"
-	pfmTypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
+	pfm "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward"
+	pfmKeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/keeper"
+	pfmTypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/types"
 	// Query
 	"github.com/KYVENetwork/chain/x/query"
 	queryKeeper "github.com/KYVENetwork/chain/x/query/keeper"
@@ -604,12 +604,12 @@ func NewKYVEApp(
 
 	app.PFMKeeper = pfmKeeper.NewKeeper(
 		appCodec, keys[pfmTypes.StoreKey],
-		app.GetSubspace(pfmTypes.ModuleName),
 		app.IBCTransferKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		app.DistributionKeeper,
 		app.BankKeeper,
 		app.IBCKeeper.ChannelKeeper,
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 	)
 
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
