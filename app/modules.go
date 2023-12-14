@@ -64,7 +64,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsClient "github.com/cosmos/cosmos-sdk/x/params/client"
 	// PFM
-	pfm "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
+	pfm "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward"
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"

@@ -16,6 +16,10 @@ An '!' indicates a state machine breaking change.
 
 ## [Unreleased]
 
+### Improvements
+
+- (deps) [#161](https://github.com/KYVENetwork/chain/pull/161) Bump ibc packet forward middleware.
+
 ### Bug Fixes
 
 - (`x/query`) [#159](https://github.com/KYVENetwork/chain/pull/159) Add pool params back to kyve params query.
