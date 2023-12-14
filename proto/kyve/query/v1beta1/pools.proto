@@ -6,6 +6,7 @@ import "cosmos/base/query/v1beta1/pagination.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "kyve/bundles/v1beta1/bundles.proto";
+import "kyve/funders/v1beta1/funders.proto";
 import "kyve/pool/v1beta1/pool.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/query/types";
@@ -69,6 +70,8 @@ message PoolResponse {
   string account = 8;
   // account_balance ...
   uint64 account_balance = 9;
+  // funders ...
+  repeated kyve.funders.v1beta1.Funding fundings = 10;
 }
 
 // =========
