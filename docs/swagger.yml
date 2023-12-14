@@ -5066,7 +5066,7 @@ paths:
                     type: string
                     format: uint64
                     description: account_balance ...
-                  funders:
+                  fundings:
                     type: array
                     items:
                       type: object
@@ -5606,7 +5606,7 @@ paths:
                       type: string
                       format: uint64
                       description: account_balance ...
-                    funders:
+                    fundings:
                       type: array
                       items:
                         type: object

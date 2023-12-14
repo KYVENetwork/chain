@@ -65,10 +65,11 @@ func (k Keeper) parsePoolResponse(ctx sdk.Context, pool *poolTypes.Pool) types.P
 	poolAccount := pool.GetPoolAccount()
 	poolBalance := k.bankKeeper.GetBalance(ctx, poolAccount, globalTypes.Denom).Amount.Uint64()
 
-	funders := make([]*fundersTypes.Funding, 0)
+	fundingsOfPool := k.fundersKeeper.GetFundingsOfPool(ctx, pool.Id)
 
-	for _, funding := range k.fundersKeeper.GetFundingsOfPool(ctx, pool.Id) {
-		funders = append(funders, &funding)
+	fundings := make([]*fundersTypes.Funding, 0)
+	for index := range fundingsOfPool {
+		fundings = append(fundings, &fundingsOfPool[index])
 	}
 
 	return types.PoolResponse{
@@ -81,6 +82,6 @@ func (k Keeper) parsePoolResponse(ctx sdk.Context, pool *poolTypes.Pool) types.P
 		Status:              k.GetPoolStatus(ctx, pool),
 		Account:             poolAccount.String(),
 		AccountBalance:      poolBalance,
-		Funders:             funders,
+		Fundings:            fundings,
 	}
 }
