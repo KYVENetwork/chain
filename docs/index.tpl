@@ -7,6 +7,12 @@
         <link rel="icon" type="image/png" href="//unpkg.com/swagger-ui-dist@latest/favicon-16x16.png" />
     </head>
     <body>
+        <div class="swagger-ui">
+            <div class="information-container wrapper">
+                <h3>Cosmos - REST API</h3>
+                The native Cosmos queries can be found at: <a href="/swagger-cosmos/">/swagger-cosmos/</a>
+            </div>
+        </div>
         <div id="swagger-ui"></div>
 
         <script src="//unpkg.com/swagger-ui-dist@latest/swagger-ui-bundle.js"></script>
