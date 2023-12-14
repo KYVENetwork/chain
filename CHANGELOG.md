@@ -16,6 +16,8 @@ An '!' indicates a state machine breaking change.
 
 ## [v1.4.0](https://github.com/KYVENetwork/chain/releases/tag/v1.4.0) - 2023-11-17
 
+## [v1.4.0](https://github.com/KYVENetwork/chain/releases/tag/v1.4.0) - 2023-11-17
+
 ### Features
 
 - ! (`x/funders`) [#141](https://github.com/KYVENetwork/chain/pull/141) Implementation of the new [funders concept](https://commonwealth.im/kyve/discussion/13420-enhancing-kyves-funders-concept).
