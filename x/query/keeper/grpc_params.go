@@ -20,6 +20,7 @@ func (k Keeper) Params(goCtx context.Context, req *types.QueryParamsRequest) (*t
 	globalParams := k.globalKeeper.GetParams(ctx)
 	govParams := k.govKeeper.GetParams(ctx)
 	sp := k.stakerKeeper.GetParams(ctx)
+	pp := k.poolKeeper.GetParams(ctx)
 	fp := k.fundersKeeper.GetParams(ctx)
 
 	return &types.QueryParamsResponse{
@@ -28,6 +29,7 @@ func (k Keeper) Params(goCtx context.Context, req *types.QueryParamsRequest) (*t
 		GlobalParams:     &globalParams,
 		GovParams:        &govParams,
 		StakersParams:    &sp,
+		PoolParams:       &pp,
 		FundersParams:    &fp,
 	}, nil
 }
