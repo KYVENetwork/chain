@@ -16,6 +16,10 @@ An '!' indicates a state machine breaking change.
 
 ## [Unreleased]
 
+### Bug Fixes
+
+- (`x/query`) [#160](https://github.com/KYVENetwork/chain/pull/160) Add funders back to pool query.
+
 ## [v1.4.0](https://github.com/KYVENetwork/chain/releases/tag/v1.4.0) - 2023-11-17
 
 ### Features
