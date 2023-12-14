@@ -604,12 +604,12 @@ func NewKYVEApp(
 
 	app.PFMKeeper = pfmKeeper.NewKeeper(
 		appCodec, keys[pfmTypes.StoreKey],
+		app.GetSubspace(pfmTypes.ModuleName),
 		app.IBCTransferKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		app.DistributionKeeper,
 		app.BankKeeper,
 		app.IBCKeeper.ChannelKeeper,
-		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 	)
 
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
