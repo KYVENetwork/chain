@@ -58,8 +58,8 @@ import (
 	// Parameters
 	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	// PFM
-	pfmKeeper "github.com/strangelove-ventures/packet-forward-middleware/v7/router/keeper"
-	pfmTypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
+	pfmKeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/keeper"
+	pfmTypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/types"
 	// Pool
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	// Query
