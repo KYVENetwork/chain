@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/rakyll/statik/fs"
 
 	v1p4 "github.com/KYVENetwork/chain/app/upgrades/v1_4"
 	dbm "github.com/cometbft/cometbft-db"
@@ -31,6 +34,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cast"
+
+	kyveDocs "github.com/KYVENetwork/chain/docs"
 
 	// Auth
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -1050,8 +1055,19 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// register swagger API from root so that other applications can override easily
-	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
-		panic(err)
+	if apiConfig.Swagger {
+		statikFS, err := fs.New()
+		if err != nil {
+			panic(err)
+		}
+
+		// cosmos swagger ui
+		staticServer := http.FileServer(statikFS)
+		apiSvr.Router.PathPrefix("/swagger-cosmos/").Handler(http.StripPrefix("/swagger-cosmos/", staticServer))
+
+		// kyve swagger ui
+		apiSvr.Router.Handle("/swagger.yml", http.FileServer(http.FS(kyveDocs.Swagger)))
+		apiSvr.Router.HandleFunc("/", kyveDocs.Handler(Name, "/swagger.yml"))
 	}
 }
 
