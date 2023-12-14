@@ -16,9 +16,12 @@ An '!' indicates a state machine breaking change.
 
 ## [Unreleased]
 
+## [v1.4.0](https://github.com/KYVENetwork/chain/releases/tag/v1.4.0) - 2023-11-17
+
 ### Features
 
 - ! (`x/funders`) [#141](https://github.com/KYVENetwork/chain/pull/141) Implementation of the new [funders concept](https://commonwealth.im/kyve/discussion/13420-enhancing-kyves-funders-concept).
+- [#128](https://github.com/KYVENetwork/chain/pull/128) Add docker build.
 
 ### Improvements
 
@@ -27,8 +30,19 @@ An '!' indicates a state machine breaking change.
 
 ### Bug Fixes
 
-- [#149](https://github.com/KYVENetwork/chain/pull/63) add bundles query version map to genesis import/export.
+- [#149](https://github.com/KYVENetwork/chain/pull/63) Add bundles query version map to genesis import/export.
+- (`x/delegation`) [#135](https://github.com/KYVENetwork/chain/pull/135) CLI: Use correct args amount for tx redelegate.
+
+## [v1.3.2](https://github.com/KYVENetwork/chain/releases/tag/v1.3.2) - 2023-11-16
+
+### Improvements
+
+- (deps) [#138](https://github.com/KYVENetwork/chain/pull/138) Bump ledger dependency to fix ledger build on latest macOS devices.
+
+### Bug Fixes
+
 - (`x/delegation`) [#136](https://github.com/KYVENetwork/chain/pull/136) CLI: Use correct args amount for tx redelegate.
+- (`x/bundles`) [#149](https://github.com/KYVENetwork/chain/pull/149) Add bundles query version map to genesis import/export.
 
 ## [v1.3.1](https://github.com/KYVENetwork/chain/releases/tag/v1.3.1) - 2023-08-02
 
@@ -62,7 +76,7 @@ An '!' indicates a state machine breaking change.
 ### API Breaking
 
 - (`x/query`) [#87](https://github.com/KYVENetwork/chain/pull/87) Correctly return pools that an account has funded.
-- (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Emit an [event](https://github.com/KYVENetwork/chain/blob/v1.3.0/x/stakers/spec/05_events.md#eventclaimcommissionrewards) when claiming protocol validator commission rewards.
+- (`x/stakers`) [#46](https://github.com/KYVENetwork/chain/pull/46) Emit an [event](https://github.com/KYVENetwork/chain/blob/release/v1.4.x/x/stakers/spec/05_events.md#eventclaimcommissionrewards) when claiming protocol validator commission rewards.
 - (`x/bundles`) [#104](https://github.com/KYVENetwork/chain/pull/104) Improve schema for finalized bundles query.
 
 ## [v1.2.3](https://github.com/KYVENetwork/chain/releases/tag/v1.2.3) - 2023-07-15
