@@ -14,6 +14,15 @@
 
 An '!' indicates a state machine breaking change.
 
+<<<<<<< HEAD
+=======
+## [Unreleased]
+
+### Bug Fixes
+
+- (`x/query`) [#159](https://github.com/KYVENetwork/chain/pull/159) Add pool params back to kyve params query.
+
+>>>>>>> 2c019b2 (fix: add pool params back to kyve params query (#159))
 ## [v1.4.0](https://github.com/KYVENetwork/chain/releases/tag/v1.4.0) - 2023-11-17
 
 ### Features
