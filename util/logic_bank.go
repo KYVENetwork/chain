@@ -1,21 +1,22 @@
 package util
 
 import (
+	"context"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type BankKeeper interface {
-	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
+	SendCoins(ctx context.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 	SendCoinsFromModuleToAccount(
-		ctx sdk.Context,
+		ctx context.Context,
 		senderModule string,
 		recipientAddr sdk.AccAddress,
 		amt sdk.Coins,
 	) error
-	SendCoinsFromModuleToModule(ctx sdk.Context, senderModule, recipientModule string, amt sdk.Coins) error
+	SendCoinsFromModuleToModule(ctx context.Context, senderModule, recipientModule string, amt sdk.Coins) error
 	SendCoinsFromAccountToModule(
-		ctx sdk.Context,
+		ctx context.Context,
 		senderAddr sdk.AccAddress,
 		recipientModule string,
 		amt sdk.Coins,
@@ -23,7 +24,7 @@ type BankKeeper interface {
 }
 
 type DistrKeeper interface {
-	FundCommunityPool(ctx sdk.Context, amount sdk.Coins, sender sdk.AccAddress) error
+	FundCommunityPool(ctx context.Context, amount sdk.Coins, sender sdk.AccAddress) error
 }
 
 type AccountKeeper interface {

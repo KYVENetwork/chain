@@ -17,7 +17,7 @@ import (
 	"github.com/KYVENetwork/chain/x/bundles"
 	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
 	// Capability
-	"github.com/cosmos/cosmos-sdk/x/capability"
+	"github.com/cosmos/ibc-go/modules/capability"
 	// Consensus
 	"github.com/cosmos/cosmos-sdk/x/consensus"
 	// Crisis
@@ -44,7 +44,6 @@ import (
 	group "github.com/cosmos/cosmos-sdk/x/group/module"
 	// IBC Core
 	ibc "github.com/cosmos/ibc-go/v8/modules/core"
-	ibcClient "github.com/cosmos/ibc-go/v8/modules/core/02-client/client"
 	// IBC Light Clients
 	ibcSm "github.com/cosmos/ibc-go/v8/modules/light-clients/06-solomachine"
 	ibcTm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
@@ -83,7 +82,6 @@ import (
 	teamTypes "github.com/KYVENetwork/chain/x/team/types"
 	// Upgrade
 	"cosmossdk.io/x/upgrade"
-	upgradeClient "cosmossdk.io/x/upgrade/client"
 )
 
 // appModuleBasics returns ModuleBasics for the module BasicManager.
@@ -101,10 +99,11 @@ var appModuleBasics = []module.AppModuleBasic{
 	genutil.AppModuleBasic{},
 	gov.NewAppModuleBasic([]govClient.ProposalHandler{
 		paramsClient.ProposalHandler,
-		upgradeClient.LegacyProposalHandler,
-		upgradeClient.LegacyCancelProposalHandler,
-		ibcClient.UpdateClientProposalHandler,
-		ibcClient.UpgradeProposalHandler,
+		// TODO: fix this
+		//upgradeClient.LegacyProposalHandler,
+		//upgradeClient.LegacyCancelProposalHandler,
+		//ibcClient.UpdateClientProposalHandler,
+		//ibcClient.UpgradeProposalHandler,
 	}),
 	group.AppModuleBasic{},
 	mint.AppModuleBasic{},

@@ -16,7 +16,7 @@ import (
 	// Bundles
 	bundlesKeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
 	// Capability
-	capabilityKeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
+	capabilityKeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	// Consensus
 	consensusKeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	// Crisis

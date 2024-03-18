@@ -1,12 +1,12 @@
 package app
 
 import (
+	txsigning "cosmossdk.io/x/tx/signing"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	// Auth
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	// Bank
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	// FeeGrant
@@ -31,7 +31,7 @@ func NewAnteHandler(
 	ibcKeeper *ibcKeeper.Keeper,
 	stakingKeeper stakingKeeper.Keeper,
 	sigGasConsumer ante.SignatureVerificationGasConsumer,
-	signModeHandler signing.SignModeHandler,
+	signModeHandler *txsigning.HandlerMap,
 ) (sdk.AnteHandler, error) {
 	deductFeeDecorator := global.NewDeductFeeDecorator(accountKeeper, bankKeeper, feeGrantKeeper, globalKeeper, stakingKeeper)
 

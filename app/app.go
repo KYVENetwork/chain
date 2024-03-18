@@ -1,7 +1,6 @@
 package app
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,19 +11,20 @@ import (
 	"github.com/rakyll/statik/fs"
 
 	v1p4 "github.com/KYVENetwork/chain/app/upgrades/v1_4"
-	dbm "github.com/cometbft/cometbft-db"
+	dbm "github.com/cosmos/cosmos-db"
+
+	"cosmossdk.io/log"
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/log"
 	cmtOs "github.com/cometbft/cometbft/libs/os"
 
-	"cosmossdk.io/store/streaming"
 	storeTypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	"github.com/cosmos/cosmos-sdk/client/grpc/node"
-	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/codec"
+	addressCodec "github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -33,6 +33,7 @@ import (
 	serverTypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	signingTypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cast"
 
@@ -42,7 +43,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authTx "github.com/cosmos/cosmos-sdk/x/auth/tx"
+	authTxConfig "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	vestingTypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -59,9 +62,9 @@ import (
 	bundlesKeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
 	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
 	// Capability
-	"github.com/cosmos/cosmos-sdk/x/capability"
-	capabilityKeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
-	capabilityTypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	"github.com/cosmos/ibc-go/modules/capability"
+	capabilityKeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
+	capabilityTypes "github.com/cosmos/ibc-go/modules/capability/types"
 	// Consensus
 	"github.com/cosmos/cosmos-sdk/x/consensus"
 	consensusKeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
@@ -190,7 +193,6 @@ var (
 )
 
 var (
-	// TODO(@john): Ask if this is needed for a "v1" app.
 	_ runtime.AppI            = (*App)(nil)
 	_ serverTypes.Application = (*App)(nil)
 )
@@ -271,7 +273,7 @@ func NewKYVEApp(
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 	bApp.SetTxEncoder(txConfig.TxEncoder())
 
-	keys := sdk.NewKVStoreKeys(
+	keys := storeTypes.NewKVStoreKeys(
 		authTypes.StoreKey,
 		authzTypes.ModuleName,
 		bankTypes.StoreKey,
@@ -305,18 +307,10 @@ func NewKYVEApp(
 		teamTypes.StoreKey,
 		fundersTypes.StoreKey,
 	)
-	tkeys := sdk.NewTransientStoreKeys(paramsTypes.TStoreKey)
-	memKeys := sdk.NewMemoryStoreKeys(
-		capabilityTypes.MemStoreKey,
-
+	tkeys := storeTypes.NewTransientStoreKeys(paramsTypes.TStoreKey)
+	memKeys := storeTypes.NewMemoryStoreKeys(
 		bundlesTypes.MemStoreKey, delegationTypes.MemStoreKey,
 	)
-
-	// load state streaming if enabled
-	if _, _, err := streaming.LoadStreamingServices(bApp, appOpts, appCodec, logger, keys); err != nil {
-		logger.Error("failed to load state streaming", "err", err)
-		os.Exit(1)
-	}
 
 	app := &App{
 		BaseApp:           bApp,
@@ -329,6 +323,10 @@ func NewKYVEApp(
 		memKeys:           memKeys,
 	}
 
+	if err := app.RegisterStreamingServices(appOpts, app.keys); err != nil {
+		panic(err)
+	}
+
 	app.ParamsKeeper = initParamsKeeper(
 		appCodec,
 		legacyAmino,
@@ -339,10 +337,11 @@ func NewKYVEApp(
 	// set the BaseApp's parameter store
 	app.ConsensusKeeper = consensusKeeper.NewKeeper(
 		appCodec,
-		keys[consensusTypes.StoreKey],
+		runtime.NewKVStoreService(keys[consensusTypes.StoreKey]),
 		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
+		runtime.ProvideEventService(),
 	)
-	bApp.SetParamStore(&app.ConsensusKeeper)
+	bApp.SetParamStore(app.ConsensusKeeper.ParamsStore)
 
 	// add capability keeper and ScopeToModule for ibc module
 	app.CapabilityKeeper = capabilityKeeper.NewKeeper(
@@ -358,18 +357,21 @@ func NewKYVEApp(
 
 	app.CapabilityKeeper.Seal()
 
+	addressCdc := addressCodec.NewBech32Codec(sdk.Bech32MainPrefix)
+
 	// add keepers
 	app.AccountKeeper = authKeeper.NewAccountKeeper(
 		appCodec,
-		keys[authTypes.StoreKey],
+		runtime.NewKVStoreService(keys[authTypes.StoreKey]),
 		authTypes.ProtoBaseAccount,
 		moduleAccountPermissions,
+		addressCdc,
 		sdk.Bech32MainPrefix,
 		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 	)
 
 	app.AuthzKeeper = authzKeeper.NewKeeper(
-		keys[authzTypes.ModuleName],
+		runtime.NewKVStoreService(keys[authzTypes.ModuleName]),
 		appCodec,
 		app.MsgServiceRouter(),
 		app.AccountKeeper,
@@ -377,23 +379,40 @@ func NewKYVEApp(
 
 	app.BankKeeper = bankKeeper.NewBaseKeeper(
 		appCodec,
-		keys[bankTypes.StoreKey],
+		runtime.NewKVStoreService(keys[bankTypes.StoreKey]),
 		app.AccountKeeper,
 		app.BlockedModuleAccountAddrs(),
 		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
+		logger,
 	)
+
+	enabledSignModes := append(tx.DefaultSignModes, signingTypes.SignMode_SIGN_MODE_TEXTUAL)
+	txConfigOpts := tx.ConfigOptions{
+		EnabledSignModes:           enabledSignModes,
+		TextualCoinMetadataQueryFn: authTxConfig.NewBankKeeperCoinMetadataQueryFn(app.BankKeeper),
+	}
+	txConfig, err := tx.NewTxConfigWithOptions(
+		appCodec,
+		txConfigOpts,
+	)
+	if err != nil {
+		panic(fmt.Errorf("failed to create new TxConfig with options: %v", err))
+	}
+	app.txConfig = txConfig
 
 	app.StakingKeeper = stakingKeeper.NewKeeper(
 		appCodec,
-		keys[stakingTypes.StoreKey],
+		runtime.NewKVStoreService(keys[stakingTypes.StoreKey]),
 		app.AccountKeeper,
 		app.BankKeeper,
 		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
+		addressCdc,
+		addressCdc,
 	)
 
 	app.MintKeeper = mintKeeper.NewKeeper(
 		appCodec,
-		keys[mintTypes.StoreKey],
+		runtime.NewKVStoreService(keys[mintTypes.StoreKey]),
 		app.StakingKeeper,
 		&app.StakersKeeper, // This is a pointer because the stakers keeper is not initialized yet.
 		app.AccountKeeper,
@@ -404,7 +423,7 @@ func NewKYVEApp(
 
 	app.DistributionKeeper = distributionKeeper.NewKeeper(
 		appCodec,
-		keys[distributionTypes.StoreKey],
+		runtime.NewKVStoreService(keys[distributionTypes.StoreKey]),
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.StakingKeeper,
@@ -415,7 +434,7 @@ func NewKYVEApp(
 	app.SlashingKeeper = slashingKeeper.NewKeeper(
 		appCodec,
 		legacyAmino,
-		keys[slashingTypes.StoreKey],
+		runtime.NewKVStoreService(keys[slashingTypes.StoreKey]),
 		app.StakingKeeper,
 		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 	)
@@ -423,22 +442,23 @@ func NewKYVEApp(
 	invCheckPeriod := cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod))
 	app.CrisisKeeper = crisisKeeper.NewKeeper(
 		appCodec,
-		keys[crisisTypes.StoreKey],
+		runtime.NewKVStoreService(keys[crisisTypes.StoreKey]),
 		invCheckPeriod,
 		app.BankKeeper,
 		authTypes.FeeCollectorName,
 		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
+		addressCdc,
 	)
 
 	app.FeeGrantKeeper = feeGrantKeeper.NewKeeper(
 		appCodec,
-		keys[feeGrantTypes.StoreKey],
+		runtime.NewKVStoreService(keys[feeGrantTypes.StoreKey]),
 		app.AccountKeeper,
 	)
 
 	app.FeeGrantKeeper = feeGrantKeeper.NewKeeper(
 		appCodec,
-		keys[feeGrantTypes.StoreKey],
+		runtime.NewKVStoreService(keys[feeGrantTypes.StoreKey]),
 		app.AccountKeeper,
 	)
 
@@ -459,7 +479,7 @@ func NewKYVEApp(
 	// set the governance module account as the authority for conducting upgrades
 	app.UpgradeKeeper = upgradeKeeper.NewKeeper(
 		skipUpgradeHeights,
-		keys[upgradeTypes.StoreKey],
+		runtime.NewKVStoreService(keys[upgradeTypes.StoreKey]),
 		appCodec,
 		homePath,
 		app.BaseApp,
@@ -561,6 +581,7 @@ func NewKYVEApp(
 		app.StakingKeeper,
 		app.UpgradeKeeper,
 		scopedIBCKeeper,
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 	)
 
 	app.IBCFeeKeeper = ibcFeeKeeper.NewKeeper(
@@ -568,7 +589,7 @@ func NewKYVEApp(
 		keys[ibcFeeTypes.StoreKey],
 		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
+		app.IBCKeeper.PortKeeper,
 		app.AccountKeeper,
 		app.BankKeeper,
 	)
@@ -579,10 +600,11 @@ func NewKYVEApp(
 		app.GetSubspace(ibcTransferTypes.ModuleName),
 		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
+		app.IBCKeeper.PortKeeper,
 		app.AccountKeeper,
 		app.BankKeeper,
 		scopedIBCTransferKeeper,
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 	)
 
 	app.ICAControllerKeeper = icaControllerKeeper.NewKeeper(
@@ -591,9 +613,10 @@ func NewKYVEApp(
 		app.GetSubspace(icaControllerTypes.SubModuleName),
 		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
+		app.IBCKeeper.PortKeeper,
 		scopedICAControllerKeeper,
 		app.MsgServiceRouter(),
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 	)
 
 	app.ICAHostKeeper = icaHostKeeper.NewKeeper(
@@ -602,28 +625,32 @@ func NewKYVEApp(
 		app.GetSubspace(icaHostTypes.SubModuleName),
 		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
+		app.IBCKeeper.PortKeeper,
 		app.AccountKeeper,
 		scopedICAHostKeeper,
 		app.MsgServiceRouter(),
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 	)
 
 	app.PFMKeeper = pfmKeeper.NewKeeper(
-		appCodec, keys[pfmTypes.StoreKey],
-		app.GetSubspace(pfmTypes.ModuleName),
+		appCodec,
+		keys[pfmTypes.StoreKey],
 		app.IBCTransferKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		app.DistributionKeeper,
 		app.BankKeeper,
 		app.IBCKeeper.ChannelKeeper,
+		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
 	)
 
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	app.EvidenceKeeper = evidenceKeeper.NewKeeper(
 		appCodec,
-		keys[evidenceTypes.StoreKey],
+		runtime.NewKVStoreService(keys[evidenceTypes.StoreKey]),
 		app.StakingKeeper,
 		app.SlashingKeeper,
+		addressCdc,
+		runtime.ProvideCometInfoService(),
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	// app.EvidenceKeeper = *evidenceKeeper
@@ -633,16 +660,18 @@ func NewKYVEApp(
 		AddRoute(govTypes.RouterKey, v1beta1.ProposalHandler).
 		AddRoute(paramsProposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
 		// AddRoute(distrtypes.RouterKey, distribution.NewCommunityPoolSpendProposalHandler(app.DistributionKeeper)).
-		AddRoute(upgradeTypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
+		// TODO: fix this?
+		//AddRoute(upgradeTypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
 		AddRoute(ibcClientTypes.RouterKey, ibcClientHandler.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 	govConfig := govTypes.DefaultConfig()
 	app.GovKeeper = govKeeper.NewKeeper(
 		appCodec,
-		keys[govTypes.StoreKey],
+		runtime.NewKVStoreService(keys[govTypes.StoreKey]),
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.StakingKeeper,
 		app.StakersKeeper,
+		app.DistributionKeeper,
 		app.MsgServiceRouter(),
 		govConfig,
 		authTypes.NewModuleAddress(govTypes.ModuleName).String(),
@@ -716,16 +745,16 @@ func NewKYVEApp(
 		evidence.NewAppModule(*app.EvidenceKeeper),
 		feeGrant.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
 		genutil.NewAppModule(
-			app.AccountKeeper, app.StakingKeeper, app.BaseApp.DeliverTx,
+			app.AccountKeeper, app.StakingKeeper, app,
 			encodingConfig.TxConfig,
 		),
 		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(govTypes.ModuleName)),
 		group.NewAppModule(appCodec, app.GroupKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper, mintTypes.DefaultInflationCalculationFn, app.GetSubspace(mintTypes.ModuleName)),
 		params.NewAppModule(app.ParamsKeeper),
-		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GetSubspace(slashingTypes.ModuleName)),
+		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GetSubspace(slashingTypes.ModuleName), app.interfaceRegistry),
 		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingTypes.ModuleName)),
-		upgrade.NewAppModule(app.UpgradeKeeper),
+		upgrade.NewAppModule(app.UpgradeKeeper, addressCdc),
 		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper),
 
 		// IBC
@@ -745,13 +774,15 @@ func NewKYVEApp(
 		funders.NewAppModule(appCodec, app.FundersKeeper, app.AccountKeeper, app.BankKeeper),
 	)
 
+	app.mm.SetOrderPreBlockers(
+		upgradeTypes.ModuleName,
+	)
+
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
 	// CanWithdrawInvariant invariant.
 	// NOTE: staking module is required if HistoricalEntries param > 0
 	app.mm.SetOrderBeginBlockers(
-		// upgrades should be run first
-		upgradeTypes.ModuleName,
 		capabilityTypes.ModuleName,
 		mintTypes.ModuleName,
 		// NOTE: x/team must be run before x/distribution and after x/mint.
@@ -786,6 +817,8 @@ func NewKYVEApp(
 		globalTypes.ModuleName,
 		fundersTypes.ModuleName,
 	)
+
+	app.SetPreBlocker(app.PreBlocker)
 
 	app.mm.SetOrderEndBlockers(
 		crisisTypes.ModuleName,
@@ -828,7 +861,6 @@ func NewKYVEApp(
 	// so that other modules that want to create or claim capabilities afterwards in InitChain
 	// can do so safely.
 	app.mm.SetOrderInitGenesis(
-		capabilityTypes.ModuleName,
 		authTypes.ModuleName,
 		bankTypes.ModuleName,
 		distributionTypes.ModuleName,
@@ -875,8 +907,6 @@ func NewKYVEApp(
 	app.MountMemoryStores(memKeys)
 
 	// initialize BaseApp
-	var err error
-
 	anteHandler, err := NewAnteHandler(
 		app.AccountKeeper,
 		app.BankKeeper,
@@ -885,7 +915,7 @@ func NewKYVEApp(
 		app.IBCKeeper,
 		*app.StakingKeeper,
 		ante.DefaultSigVerificationGasConsumer,
-		encodingConfig.TxConfig.SignModeHandler(),
+		app.TxConfig().SignModeHandler(),
 	)
 	if err != nil {
 		panic(fmt.Errorf("failed to create AnteHandler: %s", err))
@@ -950,13 +980,17 @@ func NewKYVEApp(
 // Name returns the name of the App
 func (app *App) Name() string { return app.BaseApp.Name() }
 
+func (app *App) PreBlocker(ctx sdk.Context, _ *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
+	return app.mm.PreBlock(ctx)
+}
+
 // BeginBlocker application updates every begin block
-func (app *App) BeginBlocker(ctx context.Context) error {
+func (app *App) BeginBlocker(ctx sdk.Context) (sdk.BeginBlock, error) {
 	return app.mm.BeginBlock(ctx)
 }
 
 // EndBlocker application updates every end block
-func (app *App) EndBlocker(ctx context.Context) error {
+func (app *App) EndBlocker(ctx sdk.Context) (sdk.EndBlock, error) {
 	return app.mm.EndBlock(ctx)
 }
 
@@ -965,12 +999,15 @@ func (app *App) Configurator() module.Configurator {
 }
 
 // InitChainer application update at chain initialization
-func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+func (app *App) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
 	var genesisState GenesisState
 	if err := json.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
-		panic(err)
+		return nil, err
 	}
-	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
+	err := app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
+	if err != nil {
+		return nil, err
+	}
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
@@ -1047,7 +1084,7 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 	authTx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// Register new tendermint queries routes from grpc-gateway.
-	tmservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+	cmtservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// Register node gRPC service for grpc-gateway.
 	node.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
@@ -1079,7 +1116,7 @@ func (app *App) RegisterTxService(clientCtx client.Context) {
 
 // RegisterTendermintService implements the Application.RegisterTendermintService method.
 func (app *App) RegisterTendermintService(clientCtx client.Context) {
-	tmservice.RegisterTendermintService(
+	cmtservice.RegisterTendermintService(
 		clientCtx,
 		app.BaseApp.GRPCQueryRouter(),
 		app.interfaceRegistry,
@@ -1087,8 +1124,8 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 	)
 }
 
-func (app *App) RegisterNodeService(clientCtx client.Context) {
-	node.RegisterNodeService(clientCtx, app.GRPCQueryRouter())
+func (app *App) RegisterNodeService(clientCtx client.Context, cfg config.Config) {
+	node.RegisterNodeService(clientCtx, app.GRPCQueryRouter(), cfg)
 }
 
 // SimulationManager implements the SimulationApp interface.
