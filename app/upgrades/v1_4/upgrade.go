@@ -25,16 +25,16 @@ import (
 	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingTypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/cosmos/ibc-go/v7/modules/core/exported"
-	ibcTmMigrations "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint/migrations"
+	"github.com/cosmos/ibc-go/v8/modules/core/exported"
+	ibcTmMigrations "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint/migrations"
 
 	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
 	consensusKeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	govKeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	ibcKeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
+	ibcKeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 
+	upgradeTypes "cosmossdk.io/x/upgrade/types"
 	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
-	upgradeTypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
 //nolint:all

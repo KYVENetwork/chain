@@ -16,7 +16,7 @@ import (
 	// Team
 	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
 	// Upgrade
-	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 )
 
 func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk bankKeeper.Keeper, mk mintKeeper.Keeper, pk keeper.Keeper, tk teamKeeper.Keeper, uk upgradeKeeper.Keeper) {

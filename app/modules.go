@@ -29,9 +29,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	distributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	// Evidence
-	"github.com/cosmos/cosmos-sdk/x/evidence"
+	"cosmossdk.io/x/evidence"
 	// FeeGrant
-	feeGrant "github.com/cosmos/cosmos-sdk/x/feegrant/module"
+	feeGrant "cosmossdk.io/x/feegrant/module"
 	// GenUtil
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	// Global
@@ -43,20 +43,20 @@ import (
 	// Group
 	group "github.com/cosmos/cosmos-sdk/x/group/module"
 	// IBC Core
-	ibc "github.com/cosmos/ibc-go/v7/modules/core"
-	ibcClient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
+	ibc "github.com/cosmos/ibc-go/v8/modules/core"
+	ibcClient "github.com/cosmos/ibc-go/v8/modules/core/02-client/client"
 	// IBC Light Clients
-	ibcSm "github.com/cosmos/ibc-go/v7/modules/light-clients/06-solomachine"
-	ibcTm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
+	ibcSm "github.com/cosmos/ibc-go/v8/modules/light-clients/06-solomachine"
+	ibcTm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 	// IBC Fee
-	ibcFee "github.com/cosmos/ibc-go/v7/modules/apps/29-fee"
-	ibcFeeTypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
+	ibcFee "github.com/cosmos/ibc-go/v8/modules/apps/29-fee"
+	ibcFeeTypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
 	// IBC Transfer
-	ibcTransfer "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
-	ibcTransferTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	ibcTransfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
+	ibcTransferTypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	// ICA
-	ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
-	icaTypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
+	ica "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts"
+	icaTypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
 	// Mint
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
@@ -64,7 +64,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsClient "github.com/cosmos/cosmos-sdk/x/params/client"
 	// PFM
-	pfm "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward"
+	pfm "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward"
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
@@ -82,8 +82,8 @@ import (
 	"github.com/KYVENetwork/chain/x/team"
 	teamTypes "github.com/KYVENetwork/chain/x/team/types"
 	// Upgrade
-	"github.com/cosmos/cosmos-sdk/x/upgrade"
-	upgradeClient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
+	"cosmossdk.io/x/upgrade"
+	upgradeClient "cosmossdk.io/x/upgrade/client"
 )
 
 // appModuleBasics returns ModuleBasics for the module BasicManager.

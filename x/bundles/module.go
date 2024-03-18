@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 
+	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
-	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 
 	// this line is used by starport scaffolding # 1
 

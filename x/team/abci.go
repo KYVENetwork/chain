@@ -15,7 +15,7 @@ import (
 	"github.com/KYVENetwork/chain/x/team/keeper"
 	"github.com/KYVENetwork/chain/x/team/types"
 	// Upgrade
-	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 )
 
 func DistributeTeamInflation(ctx sdk.Context, bk bankKeeper.Keeper, tk keeper.Keeper, uk upgradeKeeper.Keeper) {

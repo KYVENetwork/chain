@@ -7,12 +7,12 @@ import (
 
 	cosmossdk_io_math "cosmossdk.io/math"
 
+	storeTypes "cosmossdk.io/store/types"
 	queryTypes "github.com/KYVENetwork/chain/x/query/types"
-	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 
+	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/bundles/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 )

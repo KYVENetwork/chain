@@ -10,13 +10,13 @@ import (
 	// Bank
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	// FeeGrant
-	feeGrantKeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
+	feeGrantKeeper "cosmossdk.io/x/feegrant/keeper"
 	// Global
 	"github.com/KYVENetwork/chain/x/global"
 	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
 	// IBC Core
-	ibcAnte "github.com/cosmos/ibc-go/v7/modules/core/ante"
-	ibcKeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
+	ibcAnte "github.com/cosmos/ibc-go/v8/modules/core/ante"
+	ibcKeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	// Staking
 	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 )

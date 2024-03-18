@@ -3,8 +3,8 @@ package util
 import (
 	"strconv"
 
+	upgradeTypes "cosmossdk.io/x/upgrade/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	upgradeTypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
 type UpgradeKeeper interface {

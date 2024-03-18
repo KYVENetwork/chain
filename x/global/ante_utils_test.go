@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
-	"github.com/cosmos/ibc-go/v7/testing/simapp/params"
+	"github.com/cosmos/ibc-go/v8/testing/simapp/params"
 )
 
 // BuildEncodingConfig ...

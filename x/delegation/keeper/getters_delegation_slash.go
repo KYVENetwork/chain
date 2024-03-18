@@ -1,9 +1,9 @@
 package keeper
 
 import (
+	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/delegation/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

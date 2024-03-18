@@ -1,9 +1,9 @@
 package types
 
 import (
+	"cosmossdk.io/x/upgrade/types"
 	stakerstypes "github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
 // AccountKeeper defines the expected account keeper used for simulations (noalias)

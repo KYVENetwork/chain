@@ -3,12 +3,12 @@ package keeper
 import (
 	"fmt"
 
+	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
-	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 
+	storeTypes "cosmossdk.io/store/types"
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	// Auth

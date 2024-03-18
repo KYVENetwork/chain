@@ -12,7 +12,7 @@ import (
 	// Global
 	"github.com/KYVENetwork/chain/x/global/keeper"
 	// Upgrade
-	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 )
 
 // EndBlocker handles the fee burning if it is configured

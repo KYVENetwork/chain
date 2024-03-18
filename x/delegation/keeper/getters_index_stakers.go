@@ -5,9 +5,9 @@ import (
 	"math"
 	"sort"
 
+	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/delegation/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"

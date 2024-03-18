@@ -2,10 +2,10 @@ package keeper
 
 import (
 	"cosmossdk.io/errors"
+	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/util"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	"github.com/KYVENetwork/chain/x/pool/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )

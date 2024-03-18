@@ -1,9 +1,9 @@
 package v1_4
 
 import (
+	storeTypes "cosmossdk.io/store/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	// Consensus
 	consensusTypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
@@ -11,7 +11,7 @@ import (
 	crisisTypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 
 	// Upgrade
-	upgradeTypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	upgradeTypes "cosmossdk.io/x/upgrade/types"
 )
 
 func CreateStoreLoader(upgradeHeight int64) baseapp.StoreLoader {

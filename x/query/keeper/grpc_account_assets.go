@@ -5,10 +5,10 @@ import (
 
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 
+	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/util"
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	"github.com/KYVENetwork/chain/x/query/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

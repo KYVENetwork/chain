@@ -3,10 +3,10 @@ package keeper
 import (
 	"fmt"
 
+	storeTypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/global/types"
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

@@ -6,9 +6,9 @@ import (
 	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	"github.com/cometbft/cometbft/libs/log"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

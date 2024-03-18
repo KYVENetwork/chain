@@ -1,9 +1,9 @@
 package app
 
 import (
+	storeTypes "cosmossdk.io/store/types"
 	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	// Auth
 	authKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -28,9 +28,9 @@ import (
 	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	// Evidence
-	evidenceKeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
+	evidenceKeeper "cosmossdk.io/x/evidence/keeper"
 	// FeeGrant
-	feeGrantKeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
+	feeGrantKeeper "cosmossdk.io/x/feegrant/keeper"
 	// Global
 	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
 	// Governance
@@ -39,27 +39,27 @@ import (
 	// Group
 	groupKeeper "github.com/cosmos/cosmos-sdk/x/group/keeper"
 	// IBC Core
-	ibcExported "github.com/cosmos/ibc-go/v7/modules/core/exported"
-	ibcKeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
+	ibcExported "github.com/cosmos/ibc-go/v8/modules/core/exported"
+	ibcKeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	// IBC Fee
-	ibcFeeKeeper "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/keeper"
+	ibcFeeKeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
 	// IBC Transfer
-	ibcTransferKeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
-	ibcTransferTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	ibcTransferKeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
+	ibcTransferTypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	// ICA Controller
-	icaControllerKeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/keeper"
-	icaControllerTypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
+	icaControllerKeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/keeper"
+	icaControllerTypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/types"
 	// ICA Host
-	icaHostKeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/keeper"
-	icaHostTypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
+	icaHostKeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/keeper"
+	icaHostTypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
 	// Mint
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	// Parameters
 	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	// PFM
-	pfmKeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/keeper"
-	pfmTypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/types"
+	pfmKeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/keeper"
+	pfmTypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
 	// Pool
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	// Query
@@ -75,7 +75,7 @@ import (
 	// Team
 	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
 	// Upgrade
-	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 )
 
 type Keepers struct {

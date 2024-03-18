@@ -3,9 +3,9 @@ package keeper
 import (
 	"encoding/binary"
 
+	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/stakers/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

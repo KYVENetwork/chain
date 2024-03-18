@@ -1,10 +1,10 @@
 package v1_3_types
 
 import (
+	"cosmossdk.io/store/prefix"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	"github.com/KYVENetwork/chain/x/pool/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

@@ -3,8 +3,8 @@ package keeper
 import (
 	"strings"
 
+	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/x/funders/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"

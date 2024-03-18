@@ -23,7 +23,7 @@ import (
 	"github.com/KYVENetwork/chain/x/team/keeper"
 	"github.com/KYVENetwork/chain/x/team/types"
 	// Upgrade
-	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 )
 
 var (

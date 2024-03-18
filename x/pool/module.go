@@ -24,7 +24,7 @@ import (
 	"github.com/KYVENetwork/chain/x/pool/types"
 
 	// Upgrade
-	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 )
 
 var (

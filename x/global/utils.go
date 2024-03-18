@@ -10,7 +10,7 @@ import (
 	// Auth
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	// FeeGrant
-	feeGrantKeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
+	feeGrantKeeper "cosmossdk.io/x/feegrant/keeper"
 	// Global
 	"github.com/KYVENetwork/chain/x/global/keeper"
 	// Staking
