@@ -175,13 +175,15 @@ func (AppModule) ConsensusVersion() uint64 { return 1 }
 
 // BeginBlock contains the logic that is automatically triggered at the beginning of each block
 func (am AppModule) BeginBlock(ctx context.Context) error {
-	am.keeper.InitMemStore(ctx)
-	SplitInflation(ctx, am.keeper, am.bankKeeper, am.mintKeeper, am.poolKeeper, am.teamKeeper, am.upgradeKeeper)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	am.keeper.InitMemStore(sdkCtx)
+	SplitInflation(sdkCtx, am.keeper, am.bankKeeper, am.mintKeeper, am.poolKeeper, am.teamKeeper, am.upgradeKeeper)
+	return nil
 }
 
 // EndBlock contains the logic that is automatically triggered at the end of each block
 func (am AppModule) EndBlock(ctx context.Context) error {
-	am.keeper.HandleUploadTimeout(sdk.WrapSDKContext(ctx))
+	am.keeper.HandleUploadTimeout(ctx)
 	return nil
 }
 

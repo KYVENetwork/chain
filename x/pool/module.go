@@ -166,7 +166,7 @@ func (am AppModule) BeginBlock(_ context.Context) error {
 
 // EndBlock contains the logic that is automatically triggered at the end of each block
 func (am AppModule) EndBlock(ctx context.Context) error {
-	am.keeper.HandlePoolUpgrades(ctx)
+	am.keeper.HandlePoolUpgrades(sdk.UnwrapSDKContext(ctx))
 	return nil
 }
 

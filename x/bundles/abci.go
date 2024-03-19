@@ -21,8 +21,14 @@ import (
 )
 
 func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk bankKeeper.Keeper, mk mintKeeper.Keeper, pk keeper.Keeper, tk teamKeeper.Keeper, uk upgradeKeeper.Keeper) {
-	minter := mk.GetMinter(ctx)
-	params := mk.GetParams(ctx)
+	minter, err := mk.Minter.Get(ctx)
+	if err != nil {
+		util.PanicHalt(uk, ctx, "failed to get minter")
+	}
+	params, err := mk.Params.Get(ctx)
+	if err != nil {
+		util.PanicHalt(uk, ctx, "failed to get params")
+	}
 
 	// get total inflation rewards for current block
 	blockProvision := minter.BlockProvision(params).Amount.Int64()

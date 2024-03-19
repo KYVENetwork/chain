@@ -151,13 +151,13 @@ func (AppModule) ConsensusVersion() uint64 { return 1 }
 
 // BeginBlock contains the logic that is automatically triggered at the beginning of each block
 func (am AppModule) BeginBlock(ctx context.Context) error {
-	am.keeper.InitMemStore(ctx)
+	am.keeper.InitMemStore(sdk.UnwrapSDKContext(ctx))
 	return nil
 }
 
 // EndBlock contains the logic that is automatically triggered at the end of each block
 func (am AppModule) EndBlock(ctx context.Context) error {
-	am.keeper.ProcessDelegatorUnbondingQueue(ctx)
+	am.keeper.ProcessDelegatorUnbondingQueue(sdk.UnwrapSDKContext(ctx))
 	return nil
 }
 

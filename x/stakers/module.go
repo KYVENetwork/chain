@@ -157,8 +157,9 @@ func (am AppModule) BeginBlock(_ context.Context) error {
 
 // EndBlock contains the logic that is automatically triggered at the end of each block
 func (am AppModule) EndBlock(ctx context.Context) error {
-	am.keeper.ProcessCommissionChangeQueue(ctx)
-	am.keeper.ProcessLeavePoolQueue(ctx)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	am.keeper.ProcessCommissionChangeQueue(sdkCtx)
+	am.keeper.ProcessLeavePoolQueue(sdkCtx)
 	return nil
 }
 
