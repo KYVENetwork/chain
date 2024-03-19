@@ -32,7 +32,7 @@ message DelegationEntry {
 
   // value is the quotient of collected rewards and total stake according to F1-distribution
   string value = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/tyoes.DecProto",
     (gogoproto.nullable) = false
   ];
 }
@@ -73,7 +73,7 @@ message DelegationSlash {
   uint64 k_index = 2;
   // fraction that got slashed
   string fraction = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/tyoes.DecProto",
     (gogoproto.nullable) = false
   ];
 }
