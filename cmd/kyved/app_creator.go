@@ -6,7 +6,7 @@ import (
 
 	"cosmossdk.io/log"
 	kyveApp "github.com/KYVENetwork/chain/app"
-	dbm "github.com/cometbft/cometbft-db"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/server"
 	serverTypes "github.com/cosmos/cosmos-sdk/server/types"
