@@ -24,7 +24,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	"github.com/cosmos/cosmos-sdk/client/grpc/node"
 	"github.com/cosmos/cosmos-sdk/codec"
-	addressCodec "github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -240,6 +239,7 @@ func NewKYVEApp(
 	legacyAmino := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 	txConfig := encodingConfig.TxConfig
+	addressCdc := encodingConfig.AddressCoded
 
 	// Below we could construct and set an application specific mempool and
 	// ABCI 1.0 PrepareProposal and ProcessProposal handlers. These defaults are
@@ -356,8 +356,6 @@ func NewKYVEApp(
 	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icaHostTypes.SubModuleName)
 
 	app.CapabilityKeeper.Seal()
-
-	addressCdc := addressCodec.NewBech32Codec(sdk.Bech32MainPrefix)
 
 	// add keepers
 	app.AccountKeeper = authKeeper.NewAccountKeeper(

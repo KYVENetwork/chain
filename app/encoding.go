@@ -3,10 +3,13 @@
 package app
 
 import (
+	"cosmossdk.io/core/address"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
+	addressCodec "github.com/cosmos/cosmos-sdk/codec/address"
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 )
 
@@ -17,6 +20,7 @@ type EncodingConfig struct {
 	Marshaler         codec.Codec
 	TxConfig          client.TxConfig
 	Amino             *codec.LegacyAmino
+	AddressCoded      address.Codec
 }
 
 // NewEncodingConfig creates an EncodingConfig instance.
@@ -25,12 +29,14 @@ func NewEncodingConfig() EncodingConfig {
 	interfaceRegistry := codecTypes.NewInterfaceRegistry()
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	txCfg := tx.NewTxConfig(marshaler, tx.DefaultSignModes)
+	addressCdc := addressCodec.NewBech32Codec(sdk.Bech32MainPrefix)
 
 	encodingConfig := EncodingConfig{
 		InterfaceRegistry: interfaceRegistry,
 		Marshaler:         marshaler,
 		TxConfig:          txCfg,
 		Amino:             amino,
+		AddressCoded:      addressCdc,
 	}
 
 	return encodingConfig

@@ -12,7 +12,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -89,26 +88,31 @@ func NewRootCmd(encodingConfig kyveApp.EncodingConfig) *cobra.Command {
 	rootCmd.AddCommand(
 		genUtilCli.InitCmd(kyveApp.ModuleBasics, kyveApp.DefaultNodeHome),
 		// TODO(@john): Investigate why the one directly from the module is nil.
-		genUtilCli.CollectGenTxsCmd(bankTypes.GenesisBalancesIterator{}, kyveApp.DefaultNodeHome, genUtilTypes.DefaultMessageValidator),
-		genUtilCli.MigrateGenesisCmd(),
+		genUtilCli.CollectGenTxsCmd(bankTypes.GenesisBalancesIterator{}, kyveApp.DefaultNodeHome, genUtilTypes.DefaultMessageValidator, ac.encodingConfig.AddressCoded),
+		// TODO(@rapha): fix migrations
+		genUtilCli.MigrateGenesisCmd(nil),
 		genUtilCli.GenTxCmd(
 			kyveApp.ModuleBasics,
 			encodingConfig.TxConfig,
 			bankTypes.GenesisBalancesIterator{},
 			kyveApp.DefaultNodeHome,
+			ac.encodingConfig.AddressCoded,
 		),
 		infoCommand(),
 		genUtilCli.ValidateGenesisCmd(kyveApp.ModuleBasics),
 		addGenesisAccountCmd(kyveApp.DefaultNodeHome),
 		tmCli.NewCompletionCmd(rootCmd, true),
 		debug.Cmd(),
-		config.Cmd(),
+		// TODO(@rapha): fix config
+		//config.Cmd(),
 		pruning.Cmd(ac.createApp, kyveApp.DefaultNodeHome),
 
-		rpc.StatusCommand(),
+		// TODO(@rapha): fix StatusCommand
+		//rpc.StatusCommand(),
 		queryCommand(),
 		txCommand(),
-		keys.Commands(kyveApp.DefaultNodeHome),
+		// TODO(@rapha): fix this
+		//keys.Commands(kyveApp.DefaultNodeHome),
 	)
 
 	return rootCmd
@@ -125,9 +129,11 @@ func queryCommand() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		rpc.BlockCommand(),
+		// TODO(@rapha): fix this
+		//rpc.BlockCommand(),
 		rpc.ValidatorCommand(),
-		authCli.GetAccountCmd(),
+		// TODO(@rapha): fix this
+		//authCli.GetAccountCmd(),
 		authCli.QueryTxCmd(),
 		authCli.QueryTxsByEventsCmd(),
 	)
