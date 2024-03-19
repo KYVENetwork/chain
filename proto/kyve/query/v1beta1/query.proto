@@ -96,7 +96,7 @@ message StakerMetadata {
   // get transferred to the staker before the remaining
   // rewards are split across all delegators
   string commission = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.DecProto",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
     (gogoproto.nullable) = false
   ];
 
@@ -133,7 +133,7 @@ message CommissionChangeEntry {
   // commission is the new commission that will
   // become active once the change-time is over
   string commission = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.DecProto",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
     (gogoproto.nullable) = false
   ];
 
