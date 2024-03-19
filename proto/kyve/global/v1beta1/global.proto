@@ -57,7 +57,7 @@ message GasRefund {
   string type = 1;
   // fraction in decimal representation between 0 and 1
   string fraction = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/tyoes.DecProto",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.DecProto",
     (gogoproto.nullable) = false
   ];
 }

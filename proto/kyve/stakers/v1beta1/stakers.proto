@@ -13,7 +13,7 @@ message Staker {
   string address = 1;
   // commission ...
   string commission = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/tyoes.DecProto",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.DecProto",
     (gogoproto.nullable) = false
   ];
   // moniker ...
@@ -62,7 +62,7 @@ message CommissionChangeEntry {
   // commission is the new commission which will
   // be applied after the waiting time is over.
   string commission = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/tyoes.DecProto",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.DecProto",
     (gogoproto.nullable) = false
   ];
   // creation_date is the UNIX-timestamp in seconds
