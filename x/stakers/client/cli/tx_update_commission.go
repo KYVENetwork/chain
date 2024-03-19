@@ -20,7 +20,7 @@ func CmdUpdateCommission() *cobra.Command {
 				return err
 			}
 
-			commission, err := sdk.NewDecFromStr(args[0])
+			commission, err := math.LegacyNewDecFromStr(args[0])
 			if err != nil {
 				return err
 			}

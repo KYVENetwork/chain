@@ -21,7 +21,7 @@ func CmdCreateStaker() *cobra.Command {
 				return err
 			}
 
-			argCommission, err := sdk.NewDecFromStr(args[1])
+			argCommission, err := math.LegacyNewDecFromStr(args[1])
 			if err != nil {
 				return err
 			}
