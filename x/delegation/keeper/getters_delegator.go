@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"cosmossdk.io/store/prefix"
+	storeTypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/delegation/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -77,7 +78,7 @@ func (k Keeper) RemoveDelegator(
 // GetAllDelegators returns all delegators (of all stakers)
 func (k Keeper) GetAllDelegators(ctx sdk.Context) (list []types.Delegator) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegatorKeyPrefix)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 
@@ -92,7 +93,7 @@ func (k Keeper) GetAllDelegators(ctx sdk.Context) (list []types.Delegator) {
 
 func (k Keeper) GetStakersByDelegator(ctx sdk.Context, delegator string) (list []string) {
 	delegatorStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegatorKeyPrefixIndex2)
-	iterator := sdk.KVStorePrefixIterator(delegatorStore, util.GetByteKey(delegator))
+	iterator := storeTypes.KVStorePrefixIterator(delegatorStore, util.GetByteKey(delegator))
 
 	defer iterator.Close()
 

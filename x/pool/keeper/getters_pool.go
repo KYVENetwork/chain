@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	storeTypes "cosmossdk.io/store/types"
 	"encoding/binary"
 	"strings"
 
@@ -71,7 +72,7 @@ func (k Keeper) RemovePool(ctx sdk.Context, id uint64) {
 // GetAllPools returns all pools
 func (k Keeper) GetAllPools(ctx sdk.Context) (list []types.Pool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.PoolKey)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 

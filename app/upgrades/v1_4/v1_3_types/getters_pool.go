@@ -2,6 +2,7 @@ package v1_3_types
 
 import (
 	"cosmossdk.io/store/prefix"
+	storeTypes "cosmossdk.io/store/types"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	"github.com/KYVENetwork/chain/x/pool/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -11,7 +12,7 @@ import (
 // GetAllPools returns all pools
 func GetAllPools(ctx sdk.Context, poolKeeper poolKeeper.Keeper, cdc codec.BinaryCodec) (list []Pool, err error) {
 	store := prefix.NewStore(ctx.KVStore(poolKeeper.StoreKey()), types.PoolKey)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	//goland:noinspection GoUnhandledErrorResult
 	defer iterator.Close()

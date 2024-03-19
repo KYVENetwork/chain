@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"cosmossdk.io/math"
+	storeTypes "cosmossdk.io/store/types"
 	"encoding/binary"
 
 	"cosmossdk.io/store/prefix"
@@ -169,7 +170,7 @@ func (k Keeper) GetPaginatedStakerQuery(
 // GetAllStakers returns all staker
 func (k Keeper) GetAllStakers(ctx sdk.Context) (list []types.Staker) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.StakerKeyPrefix)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 
@@ -286,7 +287,7 @@ func (k Keeper) removeActiveStaker(ctx sdk.Context, staker string) {
 // that is member of at least one pool.
 func (k Keeper) getAllActiveStakers(ctx sdk.Context) (list []string) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.ActiveStakerIndex)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		list = append(list, string(iterator.Key()))

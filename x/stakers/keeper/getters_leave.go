@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"cosmossdk.io/store/prefix"
+	storeTypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -74,7 +75,7 @@ func (k Keeper) RemoveLeavePoolEntry(ctx sdk.Context, leavePoolEntry *types.Leav
 // GetAllLeavePoolEntries ...
 func (k Keeper) GetAllLeavePoolEntries(ctx sdk.Context) (list []types.LeavePoolEntry) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.LeavePoolEntryKeyPrefix)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 

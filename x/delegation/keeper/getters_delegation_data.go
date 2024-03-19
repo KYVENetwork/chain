@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"cosmossdk.io/store/prefix"
+	storeTypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/delegation/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -58,7 +59,7 @@ func (k Keeper) RemoveDelegationData(ctx sdk.Context, stakerAddress string) {
 // GetAllDelegationData returns all delegationData entries
 func (k Keeper) GetAllDelegationData(ctx sdk.Context) (list []types.DelegationData) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegationDataKeyPrefix)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {

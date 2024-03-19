@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"cosmossdk.io/store/prefix"
+	storeTypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/bundles/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -29,7 +30,7 @@ func (k Keeper) GetRoundRobinProgress(ctx sdk.Context, poolId uint64) (val types
 // GetAllRoundRobinProgress returns the round-robin progress of all pools
 func (k Keeper) GetAllRoundRobinProgress(ctx sdk.Context) (list []types.RoundRobinProgress) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.RoundRobinProgressPrefix)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	for ; iterator.Valid(); iterator.Next() {
 		var val types.RoundRobinProgress

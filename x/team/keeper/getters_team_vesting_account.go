@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	storeTypes "cosmossdk.io/store/types"
 	"encoding/binary"
 
 	"cosmossdk.io/store/prefix"
@@ -92,7 +93,7 @@ func (k Keeper) GetTeamVestingAccount(ctx sdk.Context, id uint64) (tva types.Tea
 // GetTeamVestingAccounts returns all team vesting accounts
 func (k Keeper) GetTeamVestingAccounts(ctx sdk.Context) (teamVestingAccounts []types.TeamVestingAccount) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.TeamVestingAccountKey)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 

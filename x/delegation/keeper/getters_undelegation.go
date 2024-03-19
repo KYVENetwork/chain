@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	storeTypes "cosmossdk.io/store/types"
 	"encoding/binary"
 
 	"cosmossdk.io/store/prefix"
@@ -57,7 +58,7 @@ func (k Keeper) RemoveUndelegationQueueEntry(ctx sdk.Context, undelegationQueueE
 // GetAllUnbondingDelegationQueueEntries returns all delegator unbondings
 func (k Keeper) GetAllUnbondingDelegationQueueEntries(ctx sdk.Context) (list []types.UndelegationQueueEntry) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.UndelegationQueueKeyPrefix)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 
@@ -73,7 +74,7 @@ func (k Keeper) GetAllUnbondingDelegationQueueEntries(ctx sdk.Context) (list []t
 // GetAllUnbondingDelegationQueueEntriesOfDelegator returns all delegator unbondings of the given address
 func (k Keeper) GetAllUnbondingDelegationQueueEntriesOfDelegator(ctx sdk.Context, address string) (list []types.UndelegationQueueEntry) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), util.GetByteKey(types.UndelegationQueueKeyPrefixIndex2, address))
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {

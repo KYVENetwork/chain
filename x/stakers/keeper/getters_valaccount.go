@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	storeTypes "cosmossdk.io/store/types"
 	"encoding/binary"
 
 	"cosmossdk.io/store/prefix"
@@ -36,7 +37,7 @@ func (k Keeper) ResetPoints(ctx sdk.Context, poolId uint64, stakerAddress string
 func (k Keeper) GetAllValaccountsOfPool(ctx sdk.Context, poolId uint64) (val []*types.Valaccount) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.ValaccountPrefix)
 
-	iterator := sdk.KVStorePrefixIterator(store, util.GetByteKey(poolId))
+	iterator := storeTypes.KVStorePrefixIterator(store, util.GetByteKey(poolId))
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -52,7 +53,7 @@ func (k Keeper) GetAllValaccountsOfPool(ctx sdk.Context, poolId uint64) (val []*
 func (k Keeper) GetValaccountsFromStaker(ctx sdk.Context, stakerAddress string) (val []*types.Valaccount) {
 	storeIndex2 := prefix.NewStore(ctx.KVStore(k.storeKey), types.ValaccountPrefixIndex2)
 
-	iterator := sdk.KVStorePrefixIterator(storeIndex2, util.GetByteKey(stakerAddress))
+	iterator := storeTypes.KVStorePrefixIterator(storeIndex2, util.GetByteKey(stakerAddress))
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -71,7 +72,7 @@ func (k Keeper) GetValaccountsFromStaker(ctx sdk.Context, stakerAddress string) 
 // currently participating.
 func (k Keeper) GetPoolCount(ctx sdk.Context, stakerAddress string) (poolCount uint64) {
 	storeIndex2 := prefix.NewStore(ctx.KVStore(k.storeKey), types.ValaccountPrefixIndex2)
-	iterator := sdk.KVStorePrefixIterator(storeIndex2, util.GetByteKey(stakerAddress))
+	iterator := storeTypes.KVStorePrefixIterator(storeIndex2, util.GetByteKey(stakerAddress))
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -141,7 +142,7 @@ func (k Keeper) GetValaccount(ctx sdk.Context, poolId uint64, stakerAddress stri
 // GetAllValaccounts ...
 func (k Keeper) GetAllValaccounts(ctx sdk.Context) (list []types.Valaccount) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.ValaccountPrefix)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {

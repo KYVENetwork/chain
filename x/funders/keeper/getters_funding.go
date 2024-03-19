@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"cosmossdk.io/store/prefix"
+	storeTypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/funders/types"
 	queryTypes "github.com/KYVENetwork/chain/x/query/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -36,7 +37,7 @@ func (k Keeper) GetFunding(ctx sdk.Context, funderAddress string, poolId uint64)
 func (k Keeper) GetFundingsOfFunder(ctx sdk.Context, funderAddress string) (fundings []types.Funding) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FundingKeyPrefixByFunder)
 
-	iterator := sdk.KVStorePrefixIterator(store, types.FundingKeyByFunderIter(funderAddress))
+	iterator := storeTypes.KVStorePrefixIterator(store, types.FundingKeyByFunderIter(funderAddress))
 	//goland:noinspection GoUnhandledErrorResult
 	defer iterator.Close()
 
@@ -52,7 +53,7 @@ func (k Keeper) GetFundingsOfFunder(ctx sdk.Context, funderAddress string) (fund
 func (k Keeper) GetFundingsOfPool(ctx sdk.Context, poolId uint64) (fundings []types.Funding) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FundingKeyPrefixByPool)
 
-	iterator := sdk.KVStorePrefixIterator(store, types.FundingKeyByPoolIter(poolId))
+	iterator := storeTypes.KVStorePrefixIterator(store, types.FundingKeyByPoolIter(poolId))
 	//goland:noinspection GoUnhandledErrorResult
 	defer iterator.Close()
 
@@ -67,7 +68,7 @@ func (k Keeper) GetFundingsOfPool(ctx sdk.Context, poolId uint64) (fundings []ty
 // GetAllFundings returns all fundings
 func (k Keeper) GetAllFundings(ctx sdk.Context) (fundings []types.Funding) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FundingKeyPrefixByFunder)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	//goland:noinspection GoUnhandledErrorResult
 	defer iterator.Close()

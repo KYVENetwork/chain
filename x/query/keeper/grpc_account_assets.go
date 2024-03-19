@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	storeTypes "cosmossdk.io/store/types"
 
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 
@@ -46,7 +47,7 @@ func (k Keeper) AccountAssets(goCtx context.Context, req *types.QueryAccountAsse
 	delegatorStore := prefix.NewStore(
 		ctx.KVStore(k.delegationKeeper.StoreKey()),
 		util.GetByteKey(delegationtypes.DelegatorKeyPrefixIndex2, req.Address))
-	delegatorIterator := sdk.KVStorePrefixIterator(delegatorStore, nil)
+	delegatorIterator := storeTypes.KVStorePrefixIterator(delegatorStore, nil)
 	defer delegatorIterator.Close()
 
 	for ; delegatorIterator.Valid(); delegatorIterator.Next() {

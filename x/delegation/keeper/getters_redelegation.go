@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	storeTypes "cosmossdk.io/store/types"
 	"encoding/binary"
 
 	"cosmossdk.io/store/prefix"
@@ -21,7 +22,7 @@ func (k Keeper) SetRedelegationCooldown(ctx sdk.Context, redelegationCooldown ty
 // GetRedelegationCooldownEntries ...
 func (k Keeper) GetRedelegationCooldownEntries(ctx sdk.Context, delegatorAddress string) (creationDates []uint64) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.RedelegationCooldownPrefix, util.GetByteKey(delegatorAddress)...))
-	iterator := sdk.KVStorePrefixIterator(store, nil)
+	iterator := storeTypes.KVStorePrefixIterator(store, nil)
 
 	defer iterator.Close()
 
@@ -40,7 +41,7 @@ func (k Keeper) RemoveRedelegationCooldown(ctx sdk.Context, delegatorAddress str
 // GetAllRedelegationCooldownEntries ...
 func (k Keeper) GetAllRedelegationCooldownEntries(ctx sdk.Context) (list []types.RedelegationCooldown) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.RedelegationCooldownPrefix)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 

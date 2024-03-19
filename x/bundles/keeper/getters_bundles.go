@@ -44,7 +44,7 @@ func (k Keeper) GetBundleProposal(ctx sdk.Context, poolId uint64) (val types.Bun
 // GetAllBundleProposals returns all bundle proposals of all pools
 func (k Keeper) GetAllBundleProposals(ctx sdk.Context) (list []types.BundleProposal) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.BundleKeyPrefix)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	for ; iterator.Valid(); iterator.Next() {
 		var val types.BundleProposal
@@ -82,7 +82,7 @@ func (k Keeper) SetFinalizedBundleIndexes(ctx sdk.Context, finalizedBundle types
 
 func (k Keeper) GetAllFinalizedBundles(ctx sdk.Context) (list []types.FinalizedBundle) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FinalizedBundlePrefix)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	for ; iterator.Valid(); iterator.Next() {
 		var val types.FinalizedBundle
@@ -95,7 +95,7 @@ func (k Keeper) GetAllFinalizedBundles(ctx sdk.Context) (list []types.FinalizedB
 
 func (k Keeper) GetFinalizedBundlesByPool(ctx sdk.Context, poolId uint64) (list []types.FinalizedBundle) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FinalizedBundlePrefix)
-	iterator := sdk.KVStorePrefixIterator(store, util.GetByteKey(poolId))
+	iterator := storeTypes.KVStorePrefixIterator(store, util.GetByteKey(poolId))
 
 	for ; iterator.Valid(); iterator.Next() {
 		var val types.FinalizedBundle

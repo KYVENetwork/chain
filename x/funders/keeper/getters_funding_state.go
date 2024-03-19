@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"cosmossdk.io/store/prefix"
+	storeTypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/funders/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -30,7 +31,7 @@ func (k Keeper) GetFundingState(ctx sdk.Context, poolId uint64) (fundingState ty
 // GetAllFundingStates returns all FundingStates
 func (k Keeper) GetAllFundingStates(ctx sdk.Context) (fundingStates []types.FundingState) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FundingStateKeyPrefix)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	//goland:noinspection GoUnhandledErrorResult
 	defer iterator.Close()

@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	storeTypes "cosmossdk.io/store/types"
 	"encoding/binary"
 
 	"cosmossdk.io/store/prefix"
@@ -63,7 +64,7 @@ func (k Keeper) RemoveCommissionChangeEntry(ctx sdk.Context, commissionChangeEnt
 // GetAllCommissionChangeEntries returns all pending commission change entries of all stakers
 func (k Keeper) GetAllCommissionChangeEntries(ctx sdk.Context) (list []types.CommissionChangeEntry) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CommissionChangeEntryKeyPrefix)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 

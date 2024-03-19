@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	storeTypes "cosmossdk.io/store/types"
 	"strings"
 
 	"cosmossdk.io/store/prefix"
@@ -35,7 +36,7 @@ func (k Keeper) GetFunder(ctx sdk.Context, funderAddress string) (funder types.F
 // GetAllFunders returns all funders
 func (k Keeper) GetAllFunders(ctx sdk.Context) (funders []types.Funder) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FunderKeyPrefix)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	//goland:noinspection GoUnhandledErrorResult
 	defer iterator.Close()
