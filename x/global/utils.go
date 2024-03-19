@@ -1,6 +1,7 @@
 package global
 
 import (
+	"bytes"
 	sdkmath "cosmossdk.io/math"
 	"math"
 
@@ -24,7 +25,7 @@ func GetFeeAccount(ctx sdk.Context, tx sdk.FeeTx, feeGrantKeeper feeGrantKeeper.
 	feeGranter := tx.FeeGranter()
 
 	account := feePayer
-	if feeGranter != nil && !feeGranter.Equals(feePayer) {
+	if feeGranter != nil && !bytes.Equal(feeGranter, feePayer) {
 		err := feeGrantKeeper.UseGrantedFees(ctx, feeGranter, feePayer, fee, tx.GetMsgs())
 		if err != nil {
 			return nil, sdkErrors.Wrapf(err, "%s does not not allow to pay fees for %s", feeGranter, feePayer)
@@ -41,9 +42,13 @@ func GetFeeAccount(ctx sdk.Context, tx sdk.FeeTx, feeGrantKeeper feeGrantKeeper.
 // https://github.com/cosmos/cosmos-sdk/blob/release/v0.46.x/x/auth/ante/validator_tx_fee.go#L12
 // this code runs within the consensus layer.
 func BuildTxFeeChecker(ctx sdk.Context, fk keeper.Keeper, sk stakingKeeper.Keeper) ante.TxFeeChecker {
-	consensusMinGasPrices := sdk.NewDecCoins(sdk.NewDecCoinFromDec(sk.BondDenom(ctx), fk.GetMinGasPrice(ctx)))
-
 	return func(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {
+		bondDenom, err := sk.BondDenom(ctx)
+		if err != nil {
+			return nil, 0, sdkErrors.Wrap(errorsTypes.ErrNotFound, "failed to get bond denom")
+		}
+		consensusMinGasPrices := sdk.NewDecCoins(sdk.NewDecCoinFromDec(bondDenom, fk.GetMinGasPrice(ctx)))
+
 		feeTx, ok := tx.(sdk.FeeTx)
 		if !ok {
 			return nil, 0, sdkErrors.Wrap(errorsTypes.ErrTxDecode, "Tx must be a FeeTx")

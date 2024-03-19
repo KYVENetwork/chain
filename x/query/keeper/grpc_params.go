@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-
 	"github.com/KYVENetwork/chain/x/query/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"google.golang.org/grpc/codes"
@@ -18,7 +17,10 @@ func (k Keeper) Params(goCtx context.Context, req *types.QueryParamsRequest) (*t
 	bp := k.bundleKeeper.GetParams(ctx)
 	dp := k.delegationKeeper.GetParams(ctx)
 	globalParams := k.globalKeeper.GetParams(ctx)
-	govParams := k.govKeeper.GetParams(ctx)
+	govParams, err := k.govKeeper.Params.Get(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 	sp := k.stakerKeeper.GetParams(ctx)
 	pp := k.poolKeeper.GetParams(ctx)
 	fp := k.fundersKeeper.GetParams(ctx)

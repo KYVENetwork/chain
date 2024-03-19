@@ -1,6 +1,7 @@
 package v1_4
 
 import (
+	"context"
 	"errors"
 
 	"github.com/KYVENetwork/chain/app/upgrades/v1_4/v1_3_types"
@@ -10,7 +11,6 @@ import (
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
-	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -22,7 +22,6 @@ import (
 	distributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govTypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingTypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
@@ -53,8 +52,9 @@ func CreateUpgradeHandler(
 	bankKeeper bankKeeper.Keeper,
 	accountKeeper authKeeper.AccountKeeper,
 ) upgradeTypes.UpgradeHandler {
-	return func(ctx sdk.Context, _ upgradeTypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		logger := ctx.Logger().With("upgrade", UpgradeName)
+	return func(ctx context.Context, _ upgradeTypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		sdkCtx := sdk.UnwrapSDKContext(ctx)
+		logger := sdkCtx.Logger().With("upgrade", UpgradeName)
 		logger.Info("Run v1.4 upgrade")
 
 		distributionSpace, _ := paramsKeeper.GetSubspace("distribution")
@@ -82,17 +82,17 @@ func CreateUpgradeHandler(
 		slashingSpace.WithKeyTable(slashingTypes.ParamKeyTable())
 
 		// Migrate consensus parameters from x/params to dedicated x/consensus module.
-		baseAppSubspace := paramsKeeper.Subspace(baseapp.Paramspace).
-			WithKeyTable(paramsTypes.ConsensusParamsKeyTable())
-		baseapp.MigrateParams(ctx, baseAppSubspace, &consensusKeeper)
+		//baseAppSubspace := paramsKeeper.Subspace(baseapp.Paramspace).
+		//	WithKeyTable(paramsTypes.ConsensusParamsKeyTable())
+		//baseapp.MigrateParams(ctx, baseAppSubspace, &consensusKeeper)
 
 		var err error
 
 		// ibc-go v7.0 to v7.1 upgrade
 		// explicitly update the IBC 02-client params, adding the localhost client type
-		params := ibcKeeper.ClientKeeper.GetParams(ctx)
+		params := ibcKeeper.ClientKeeper.GetParams(sdkCtx)
 		params.AllowedClients = append(params.AllowedClients, exported.Localhost)
-		ibcKeeper.ClientKeeper.SetParams(ctx, params)
+		ibcKeeper.ClientKeeper.SetParams(sdkCtx, params)
 
 		// Run module migrations.
 		vm, err = mm.RunMigrations(ctx, configurator, vm)
@@ -101,13 +101,13 @@ func CreateUpgradeHandler(
 		}
 
 		// Prune expired Tendermint consensus states.
-		_, err = ibcTmMigrations.PruneExpiredConsensusStates(ctx, cdc, ibcKeeper.ClientKeeper)
+		_, err = ibcTmMigrations.PruneExpiredConsensusStates(sdkCtx, cdc, ibcKeeper.ClientKeeper)
 		if err != nil {
 			return vm, err
 		}
 
 		// Migrate initial deposit ratio.
-		err = migrateInitialDepositRatio(ctx, globalKeeper, govKeeper)
+		err = migrateInitialDepositRatio(sdkCtx, globalKeeper, govKeeper)
 		if err != nil {
 			return vm, err
 		}
@@ -119,18 +119,18 @@ func CreateUpgradeHandler(
 		// Therefore, this migration will be performed in the v1.5 upgrade.
 
 		// Migrate funders.
-		err = migrateFundersAndPools(ctx, cdc, poolKeeper, fundersKeeper, bankKeeper, accountKeeper)
+		err = migrateFundersAndPools(sdkCtx, cdc, poolKeeper, fundersKeeper, bankKeeper, accountKeeper)
 		if err != nil {
 			return vm, err
 		}
 
 		// Set min gas for funder creation in global module
-		globalParams := globalKeeper.GetParams(ctx)
+		globalParams := globalKeeper.GetParams(sdkCtx)
 		globalParams.GasAdjustments = append(globalParams.GasAdjustments, globalTypes.GasAdjustment{
 			Type:   "/kyve.funders.v1beta1.MsgCreateFunder",
 			Amount: 50_000_000,
 		})
-		globalKeeper.SetParams(ctx, globalParams)
+		globalKeeper.SetParams(sdkCtx, globalParams)
 
 		return vm, nil
 	}
@@ -145,10 +145,13 @@ func migrateInitialDepositRatio(
 ) error {
 	minInitialDepositRatio := globalKeeper.GetMinInitialDepositRatio(ctx)
 
-	params := govKeeper.GetParams(ctx)
+	params, err := govKeeper.Params.Get(ctx)
+	if err != nil {
+		return err
+	}
 	params.MinInitialDepositRatio = minInitialDepositRatio.String()
 
-	return govKeeper.SetParams(ctx, params)
+	return govKeeper.Params.Set(ctx, params)
 }
 
 type FundingMigration struct {
