@@ -1,9 +1,8 @@
 package keeper
 
 import (
+	"cosmossdk.io/log"
 	"fmt"
-
-	"github.com/cometbft/cometbft/libs/log"
 
 	storetypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/bundles/types"

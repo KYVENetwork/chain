@@ -1,13 +1,13 @@
 package keeper
 
 import (
+	"cosmossdk.io/log"
 	"fmt"
 
 	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 
 	storeTypes "cosmossdk.io/store/types"
-	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
