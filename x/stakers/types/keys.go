@@ -1,8 +1,8 @@
 package types
 
 import (
+	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/util"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (
@@ -62,7 +62,7 @@ var (
 
 const MaxStakers = 50
 
-var DefaultCommission = sdk.MustNewDecFromStr("0.1")
+var DefaultCommission = math.LegacyMustNewDecFromStr("0.1")
 
 // StakerKey returns the store Key to retrieve a Staker from the index fields
 func StakerKey(staker string) []byte {

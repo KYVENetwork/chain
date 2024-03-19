@@ -9,16 +9,16 @@ import (
 )
 
 // DefaultMinGasPrice is 0 (i.e. disabled)
-var DefaultMinGasPrice = sdk.NewDec(0)
+var DefaultMinGasPrice = math.LegacyNewDec(0)
 
 // DefaultBurnRatio is 0% (i.e. disabled)
-var DefaultBurnRatio = sdk.NewDec(0)
+var DefaultBurnRatio = math.LegacyNewDec(0)
 
 // DefaultMinInitialDepositRatio is 0% (i.e. disabled)
-var DefaultMinInitialDepositRatio = sdk.NewDec(0)
+var DefaultMinInitialDepositRatio = math.LegacyNewDec(0)
 
 // NewParams creates a new Params instance
-func NewParams(minGasPrice sdk.Dec, burnRatio sdk.Dec, gasAdjustments []GasAdjustment, gasRefunds []GasRefund, minInitialDepositRatio sdk.Dec) Params {
+func NewParams(minGasPrice math.LegacyDec, burnRatio math.LegacyDec, gasAdjustments []GasAdjustment, gasRefunds []GasRefund, minInitialDepositRatio math.LegacyDec) Params {
 	return Params{
 		MinGasPrice:            minGasPrice,
 		BurnRatio:              burnRatio,
@@ -64,7 +64,7 @@ func (p Params) Validate() error {
 
 // validateMinGasPrice ...
 func validateMinGasPrice(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(sdk.Coin)
 
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -83,7 +83,7 @@ func validateMinGasPrice(i interface{}) error {
 
 // validateBurnRatio ...
 func validateBurnRatio(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(sdk.Coin)
 
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -97,7 +97,7 @@ func validateBurnRatio(i interface{}) error {
 		return fmt.Errorf("value cannot be negative: %s", i)
 	}
 
-	if v.GT(sdk.OneDec()) {
+	if v.IsGT(sdk.NewCoin(Denom, math.NewInt(1))) {
 		return fmt.Errorf("value cannot be greater than 1: %s", v)
 	}
 
@@ -141,7 +141,7 @@ func validateGasRefund(i interface{}) error {
 		return fmt.Errorf("value cannot be negative: %s", v.Fraction)
 	}
 
-	if v.Fraction.GT(sdk.OneDec()) {
+	if v.Fraction.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("value cannot be greater than 1: %s", v.Fraction)
 	}
 
@@ -150,7 +150,7 @@ func validateGasRefund(i interface{}) error {
 
 // validateMinInitialDepositRatio ...
 func validateMinInitialDepositRatio(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -164,7 +164,7 @@ func validateMinInitialDepositRatio(i interface{}) error {
 		return fmt.Errorf("value cannot be negative: %s", i)
 	}
 
-	if v.GT(sdk.OneDec()) {
+	if v.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("value cannot be greater than 1: %s", v)
 	}
 

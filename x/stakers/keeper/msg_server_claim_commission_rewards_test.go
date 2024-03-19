@@ -1,12 +1,12 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -163,11 +163,11 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		balanceUploader := s.GetBalanceFromAddress(i.STAKER_0)
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		totalDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert payout transfer
@@ -200,11 +200,11 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 
 		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
 
@@ -228,11 +228,11 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 
 		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
 	})
@@ -252,11 +252,11 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 
 		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
 
@@ -278,11 +278,11 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 
 		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward - 100))
 
@@ -304,11 +304,11 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 
 		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward - 100))
 
@@ -376,11 +376,11 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		networkFee = s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward = uint64(sdk.NewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
+		treasuryReward = uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
 		storageReward = uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward = pool.InflationShareWeight - treasuryReward - storageReward
 
-		uploaderPayoutReward = uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward = uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 
 		Expect(uploader.CommissionRewards).To(Equal(2*(uploaderPayoutReward+storageReward) - 300))
 

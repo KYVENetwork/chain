@@ -1,6 +1,7 @@
 package global
 
 import (
+	sdkmath "cosmossdk.io/math"
 	"math"
 
 	sdkErrors "cosmossdk.io/errors"
@@ -57,7 +58,7 @@ func BuildTxFeeChecker(ctx sdk.Context, fk keeper.Keeper, sk stakingKeeper.Keepe
 
 		// Determine the required fees by multiplying each required minimum gas
 		// price by the gas limit, where fee = ceil(minGasPrice * gasLimit).
-		glDec := sdk.NewDec(int64(gas))
+		glDec := sdkmath.LegacyNewDec(int64(gas))
 		for i, gp := range consensusMinGasPrices {
 			fee := gp.Amount.Mul(glDec)
 			requiredFees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())

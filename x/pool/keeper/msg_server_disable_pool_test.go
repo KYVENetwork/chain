@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
@@ -214,8 +215,8 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		s.App().PoolKeeper.SetParams(s.Ctx(), types.Params{
-			ProtocolInflationShare:  sdk.MustNewDecFromStr("0.1"),
-			PoolInflationPayoutRate: sdk.MustNewDecFromStr("0.05"),
+			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0.1"),
+			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.05"),
 		})
 
 		for i := 0; i < 100; i++ {

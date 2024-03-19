@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	fundersTypes "github.com/KYVENetwork/chain/x/funders/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -10,7 +11,6 @@ import (
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 /*
@@ -232,11 +232,11 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// calculate uploader rewards
 		// calculate uploader rewards
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert payout transfer
@@ -377,16 +377,16 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// calculate uploader rewards
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		totalDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// divide with 4 because uploader only has 25% of total delegation
-		uploaderDelegationReward := uint64(sdk.NewDec(int64(totalDelegationReward)).Quo(sdk.NewDec(4)).TruncateInt64())
-		delegatorDelegationReward := uint64(sdk.NewDec(int64(totalDelegationReward)).Quo(sdk.NewDec(4)).Mul(sdk.NewDec(3)).TruncateInt64())
+		uploaderDelegationReward := uint64(math.LegacyNewDec(int64(totalDelegationReward)).Quo(math.LegacyNewDec(4)).TruncateInt64())
+		delegatorDelegationReward := uint64(math.LegacyNewDec(int64(totalDelegationReward)).Quo(math.LegacyNewDec(4)).Mul(math.LegacyNewDec(3)).TruncateInt64())
 
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
@@ -555,16 +555,16 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// calculate uploader rewards
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		totalDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// divide with 4 because uploader only has 25% of total delegation
-		uploaderDelegationReward := uint64(sdk.NewDec(int64(totalDelegationReward)).Quo(sdk.NewDec(4)).TruncateInt64())
-		delegatorDelegationReward := uint64(sdk.NewDec(int64(totalDelegationReward)).Quo(sdk.NewDec(4)).Mul(sdk.NewDec(3)).TruncateInt64())
+		uploaderDelegationReward := uint64(math.LegacyNewDec(int64(totalDelegationReward)).Quo(math.LegacyNewDec(4)).TruncateInt64())
+		delegatorDelegationReward := uint64(math.LegacyNewDec(int64(totalDelegationReward)).Quo(math.LegacyNewDec(4)).Mul(math.LegacyNewDec(3)).TruncateInt64())
 
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
@@ -734,16 +734,16 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// calculate uploader rewards
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		totalDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// divide with 4 because uploader only has 25% of total delegation
-		uploaderDelegationReward := uint64(sdk.NewDec(int64(totalDelegationReward)).Quo(sdk.NewDec(4)).TruncateInt64())
-		delegatorDelegationReward := uint64(sdk.NewDec(int64(totalDelegationReward)).Quo(sdk.NewDec(4)).Mul(sdk.NewDec(3)).TruncateInt64())
+		uploaderDelegationReward := uint64(math.LegacyNewDec(int64(totalDelegationReward)).Quo(math.LegacyNewDec(4)).TruncateInt64())
+		delegatorDelegationReward := uint64(math.LegacyNewDec(int64(totalDelegationReward)).Quo(math.LegacyNewDec(4)).Mul(math.LegacyNewDec(3)).TruncateInt64())
 
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
@@ -903,8 +903,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// calculate voter slashes
 		fraction := s.App().DelegationKeeper.GetVoteSlash(s.Ctx())
-		slashAmountVoter := uint64(sdk.NewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
-		slashAmountDelegator := uint64(sdk.NewDec(int64(300 * i.KYVE)).Mul(fraction).TruncateInt64())
+		slashAmountVoter := uint64(math.LegacyNewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
+		slashAmountDelegator := uint64(math.LegacyNewDec(int64(300 * i.KYVE)).Mul(fraction).TruncateInt64())
 
 		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_2, i.STAKER_2)).To(Equal(100*i.KYVE - slashAmountVoter))
 		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_2, i.CHARLIE)).To(Equal(300*i.KYVE - slashAmountDelegator))
@@ -923,16 +923,16 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// calculate uploader rewards
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		totalDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// divide with 4 because uploader only has 25% of total delegation
-		uploaderDelegationReward := uint64(sdk.NewDec(int64(totalDelegationReward)).Quo(sdk.NewDec(4)).TruncateInt64())
-		delegatorDelegationReward := uint64(sdk.NewDec(int64(totalDelegationReward)).Quo(sdk.NewDec(4)).Mul(sdk.NewDec(3)).TruncateInt64())
+		uploaderDelegationReward := uint64(math.LegacyNewDec(int64(totalDelegationReward)).Quo(math.LegacyNewDec(4)).TruncateInt64())
+		delegatorDelegationReward := uint64(math.LegacyNewDec(int64(totalDelegationReward)).Quo(math.LegacyNewDec(4)).Mul(math.LegacyNewDec(3)).TruncateInt64())
 
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))

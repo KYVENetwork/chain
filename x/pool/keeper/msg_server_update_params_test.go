@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -127,8 +128,8 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(submitErr).NotTo(HaveOccurred())
 		Expect(voteErr).NotTo(HaveOccurred())
 
-		Expect(updatedParams.ProtocolInflationShare).To(Equal(sdk.MustNewDecFromStr("0.2")))
-		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(sdk.MustNewDecFromStr("0.05")))
+		Expect(updatedParams.ProtocolInflationShare).To(Equal(math.LegacyMustNewDecFromStr("0.2")))
+		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(math.LegacyMustNewDecFromStr("0.05")))
 	})
 
 	It("Update no params", func() {
@@ -227,7 +228,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(submitErr).NotTo(HaveOccurred())
 		Expect(voteErr).NotTo(HaveOccurred())
 
-		Expect(updatedParams.ProtocolInflationShare).To(Equal(sdk.MustNewDecFromStr("0.07")))
+		Expect(updatedParams.ProtocolInflationShare).To(Equal(math.LegacyMustNewDecFromStr("0.07")))
 		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(types.DefaultPoolInflationPayoutRate))
 	})
 
@@ -294,7 +295,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(voteErr).NotTo(HaveOccurred())
 
 		Expect(updatedParams.ProtocolInflationShare).To(Equal(types.DefaultProtocolInflationShare))
-		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(sdk.MustNewDecFromStr("0.2")))
+		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(math.LegacyMustNewDecFromStr("0.2")))
 	})
 
 	It("Update pool inflation payout rate with invalid value", func() {

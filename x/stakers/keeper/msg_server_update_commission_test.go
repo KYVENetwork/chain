@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -54,7 +55,7 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
-			Commission: sdk.MustNewDecFromStr("0.5"),
+			Commission: math.LegacyMustNewDecFromStr("0.5"),
 		})
 		s.PerformValidityChecks()
 
@@ -67,14 +68,14 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.CommitAfterSeconds(1)
 
 		staker, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker.Commission).To(Equal(sdk.MustNewDecFromStr("0.5")))
+		Expect(staker.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 	})
 
 	It("Update commission to 0% from previously default commission", func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
-			Commission: sdk.ZeroDec(),
+			Commission: math.LegacyZeroDec(),
 		})
 		s.PerformValidityChecks()
 
@@ -87,14 +88,14 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.CommitAfterSeconds(1)
 
 		staker, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker.Commission).To(Equal(sdk.ZeroDec()))
+		Expect(staker.Commission).To(Equal(math.LegacyZeroDec()))
 	})
 
 	It("Update commission to 100% from previously default commission", func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
-			Commission: sdk.OneDec(),
+			Commission: math.LegacyOneDec(),
 		})
 		s.PerformValidityChecks()
 
@@ -114,7 +115,7 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
-			Commission: sdk.MustNewDecFromStr("-0.5"),
+			Commission: math.LegacyMustNewDecFromStr("-0.5"),
 		})
 		s.PerformValidityChecks()
 
@@ -127,7 +128,7 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
-			Commission: sdk.NewDec(2),
+			Commission: math.LegacyNewDec(2),
 		})
 		s.PerformValidityChecks()
 
@@ -140,19 +141,19 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
-			Commission: sdk.MustNewDecFromStr("0.5"),
+			Commission: math.LegacyMustNewDecFromStr("0.5"),
 		})
 		s.PerformValidityChecks()
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
-			Commission: sdk.MustNewDecFromStr("0.2"),
+			Commission: math.LegacyMustNewDecFromStr("0.2"),
 		})
 		s.PerformValidityChecks()
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
-			Commission: sdk.MustNewDecFromStr("0.3"),
+			Commission: math.LegacyMustNewDecFromStr("0.3"),
 		})
 		s.PerformValidityChecks()
 
@@ -165,19 +166,19 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.CommitAfterSeconds(1)
 
 		staker, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker.Commission).To(Equal(sdk.MustNewDecFromStr("0.3")))
+		Expect(staker.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.3")))
 	})
 
 	It("Update commission multiple times during the commission change time with the same value", func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
-			Commission: sdk.MustNewDecFromStr("0.5"),
+			Commission: math.LegacyMustNewDecFromStr("0.5"),
 		})
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
-			Commission: sdk.MustNewDecFromStr("0.2"),
+			Commission: math.LegacyMustNewDecFromStr("0.2"),
 		})
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
@@ -208,12 +209,12 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
-			Commission: sdk.MustNewDecFromStr("0.5"),
+			Commission: math.LegacyMustNewDecFromStr("0.5"),
 		})
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_1,
-			Commission: sdk.MustNewDecFromStr("0.5"),
+			Commission: math.LegacyMustNewDecFromStr("0.5"),
 		})
 
 		s.PerformValidityChecks()
@@ -230,9 +231,9 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.CommitAfterSeconds(1)
 
 		staker0, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker0.Commission).To(Equal(sdk.MustNewDecFromStr("0.5")))
+		Expect(staker0.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 
 		staker1, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_1)
-		Expect(staker1.Commission).To(Equal(sdk.MustNewDecFromStr("0.5")))
+		Expect(staker1.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 	})
 })

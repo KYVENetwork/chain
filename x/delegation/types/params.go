@@ -1,8 +1,8 @@
 package types
 
 import (
+	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/util"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // DefaultUnbondingDelegationTime ...
@@ -15,22 +15,22 @@ var DefaultRedelegationCooldown = uint64(60 * 60 * 24 * 5)
 var DefaultRedelegationMaxAmount = uint64(5)
 
 // DefaultVoteSlash ...
-var DefaultVoteSlash = sdk.MustNewDecFromStr("0.1")
+var DefaultVoteSlash = math.LegacyMustNewDecFromStr("0.1")
 
 // DefaultUploadSlash ...
-var DefaultUploadSlash = sdk.MustNewDecFromStr("0.2")
+var DefaultUploadSlash = math.LegacyMustNewDecFromStr("0.2")
 
 // DefaultTimeoutSlash ...
-var DefaultTimeoutSlash = sdk.MustNewDecFromStr("0.02")
+var DefaultTimeoutSlash = math.LegacyMustNewDecFromStr("0.02")
 
 // NewParams creates a new Params instance
 func NewParams(
 	unbondingDelegationTime uint64,
 	redelegationCooldown uint64,
 	redelegationMaxAmount uint64,
-	voteSlash sdk.Dec,
-	uploadSlash sdk.Dec,
-	timeoutSlash sdk.Dec,
+	voteSlash math.LegacyDec,
+	uploadSlash math.LegacyDec,
+	timeoutSlash math.LegacyDec,
 ) Params {
 	return Params{
 		UnbondingDelegationTime: unbondingDelegationTime,

@@ -1,10 +1,10 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	"github.com/KYVENetwork/chain/x/team/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -82,8 +82,8 @@ var _ = Describe("abci.go", Ordered, func() {
 
 			// get the team balance and total supply at current block which will
 			// be used to calculate distribution in BeginBlock of next block
-			teamBalance := sdk.NewDec(int64(s.GetBalanceFromModule(types.ModuleName)))
-			totalSupply := sdk.NewDec(s.App().BankKeeper.GetSupply(s.Ctx(), globalTypes.Denom).Amount.Int64())
+			teamBalance := math.LegacyNewDec(int64(s.GetBalanceFromModule(types.ModuleName)))
+			totalSupply := math.LegacyNewDec(s.App().BankKeeper.GetSupply(s.Ctx(), globalTypes.Denom).Amount.Int64())
 
 			// get current team and validators reward for this block
 			r1 := s.App().TeamKeeper.GetTeamInfo(s.Ctx()).TotalAuthorityRewards
@@ -112,7 +112,7 @@ var _ = Describe("abci.go", Ordered, func() {
 			Expect(teamReward + communityReward).To(Equal(blockProvision.Amount.Uint64()))
 
 			// calculate if distribution share matches with team balance and total supply
-			Expect(teamBalance.Mul(sdk.NewDec(blockProvision.Amount.Int64())).Quo(totalSupply).TruncateInt64()).To(Equal(int64(teamReward)))
+			Expect(teamBalance.Mul(math.LegacyNewDec(blockProvision.Amount.Int64())).Quo(totalSupply).TruncateInt64()).To(Equal(int64(teamReward)))
 		}
 	})
 })

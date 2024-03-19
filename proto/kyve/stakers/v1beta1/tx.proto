@@ -36,7 +36,7 @@ message MsgCreateStaker {
   // commission is the percentage that is deducted from rewards before
   // distributing the staker's delegators.
   string commission = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -69,7 +69,7 @@ message MsgUpdateCommission {
   string creator = 1;
   // commission ...
   string commission = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }

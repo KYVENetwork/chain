@@ -50,7 +50,7 @@ var _ = Describe("RefundFeeDecorator", Ordered, func() {
 		params.GasRefunds = []types.GasRefund{
 			{
 				Type:     "/kyve.bundles.v1beta1.MsgSubmitBundleProposal",
-				Fraction: sdk.NewDec(1).QuoInt64(10),
+				Fraction: math.LegacyNewDec(1).QuoInt64(10),
 			},
 			{
 				Type:     "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
@@ -62,7 +62,7 @@ var _ = Describe("RefundFeeDecorator", Ordered, func() {
 			},
 			{
 				Type:     "/kyve.stakers.v1beta1.MsgCreateStaker",
-				Fraction: sdk.NewDec(2).QuoInt64(3),
+				Fraction: math.LegacyNewDec(2).QuoInt64(3),
 			},
 		}
 		s.App().GlobalKeeper.SetParams(s.Ctx(), params)

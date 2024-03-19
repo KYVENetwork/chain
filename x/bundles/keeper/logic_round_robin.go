@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"cosmossdk.io/math"
 	"sort"
 
 	"github.com/KYVENetwork/chain/x/bundles/types"
@@ -103,7 +104,7 @@ func (k Keeper) LoadRoundRobinValidatorSet(ctx sdk.Context, poolId uint64) Round
 	for newAddress, isNew := range newValidators {
 		if isNew {
 			// Put new validators at the end of the queue with an additional penalty factor.
-			vs.Progress[newAddress] = sdk.MustNewDecFromStr("-1.125").MulInt64(totalDelegation).TruncateInt64()
+			vs.Progress[newAddress] = math.LegacyMustNewDecFromStr("-1.125").MulInt64(totalDelegation).TruncateInt64()
 		}
 	}
 
@@ -200,14 +201,14 @@ func (vs *RoundRobinValidatorSet) normalize() {
 
 		totalProgress = 0
 		for _, val := range vs.Validators {
-			decProgress := sdk.NewDec(vs.Progress[val.Address])
+			decProgress := math.LegacyNewDec(vs.Progress[val.Address])
 			vs.Progress[val.Address] = decProgress.MulInt64(threshold).QuoInt64(diff).TruncateInt64()
 			totalProgress += vs.Progress[val.Address]
 		}
 	}
 
 	// center priorities around zero and update
-	avg := sdk.NewDec(totalProgress).QuoInt64(vs.size()).TruncateInt64()
+	avg := math.LegacyNewDec(totalProgress).QuoInt64(vs.size()).TruncateInt64()
 	for key := range vs.Progress {
 		vs.Progress[key] -= avg
 	}

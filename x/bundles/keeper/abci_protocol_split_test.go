@@ -1,11 +1,11 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -30,8 +30,8 @@ var _ = Describe("abci.go", Ordered, func() {
 		s = i.NewCleanChain()
 
 		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  sdk.MustNewDecFromStr("0.1"),
-			PoolInflationPayoutRate: sdk.MustNewDecFromStr("0.1"),
+			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0.1"),
+			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
 		})
 
 		// create clean pool for every test case

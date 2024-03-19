@@ -1,20 +1,20 @@
 package types
 
 import (
+	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/util"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // DefaultProtocolInflationShare ...
-var DefaultProtocolInflationShare = sdk.ZeroDec()
+var DefaultProtocolInflationShare = math.LegacyZeroDec()
 
 // DefaultPoolInflationPayoutRate ...
-var DefaultPoolInflationPayoutRate = sdk.MustNewDecFromStr("0.05")
+var DefaultPoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.05")
 
 // NewParams creates a new Params instance
 func NewParams(
-	protocolInflationShare sdk.Dec,
-	poolInflationPayoutRate sdk.Dec,
+	protocolInflationShare math.LegacyDec,
+	poolInflationPayoutRate math.LegacyDec,
 ) Params {
 	return Params{
 		ProtocolInflationShare:  protocolInflationShare,

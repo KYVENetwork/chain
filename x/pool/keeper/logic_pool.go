@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/util"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
@@ -41,7 +42,7 @@ func (k Keeper) ChargeInflationPool(ctx sdk.Context, poolId uint64) (payout uint
 	balance := k.bankKeeper.GetBalance(ctx, account, globalTypes.Denom).Amount.Int64()
 
 	// charge X percent from current pool balance and use it as payout
-	payout = uint64(sdk.NewDec(balance).Mul(k.GetPoolInflationPayoutRate(ctx)).TruncateInt64())
+	payout = uint64(math.LegacyNewDec(balance).Mul(k.GetPoolInflationPayoutRate(ctx)).TruncateInt64())
 
 	// transfer funds to pool module account so bundle reward can be paid out from there
 	if err := util.TransferFromAddressToModule(k.bankKeeper, ctx, account.String(), types.ModuleName, payout); err != nil {

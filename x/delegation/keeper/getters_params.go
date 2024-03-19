@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/x/delegation/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -34,21 +35,21 @@ func (k Keeper) GetRedelegationMaxAmount(ctx sdk.Context) (res uint64) {
 }
 
 // GetVoteSlash returns the VoteSlash param
-func (k Keeper) GetVoteSlash(ctx sdk.Context) (res sdk.Dec) {
+func (k Keeper) GetVoteSlash(ctx sdk.Context) (res math.LegacyDec) {
 	return k.GetParams(ctx).VoteSlash
 }
 
 // GetUploadSlash returns the UploadSlash param
-func (k Keeper) GetUploadSlash(ctx sdk.Context) (res sdk.Dec) {
+func (k Keeper) GetUploadSlash(ctx sdk.Context) (res math.LegacyDec) {
 	return k.GetParams(ctx).UploadSlash
 }
 
 // GetTimeoutSlash returns the TimeoutSlash param
-func (k Keeper) GetTimeoutSlash(ctx sdk.Context) (res sdk.Dec) {
+func (k Keeper) GetTimeoutSlash(ctx sdk.Context) (res math.LegacyDec) {
 	return k.GetParams(ctx).TimeoutSlash
 }
 
-func (k Keeper) getSlashFraction(ctx sdk.Context, slashType types.SlashType) (slashAmountRatio sdk.Dec) {
+func (k Keeper) getSlashFraction(ctx sdk.Context, slashType types.SlashType) (slashAmountRatio math.LegacyDec) {
 	// Retrieve slash fraction from params
 	switch slashType {
 	case types.SLASH_TYPE_TIMEOUT:

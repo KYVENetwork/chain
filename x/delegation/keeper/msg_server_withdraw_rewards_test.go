@@ -4,7 +4,6 @@ import (
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakerstypes "github.com/KYVENetwork/chain/x/stakers/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -206,7 +205,7 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 
 		// ACT
 		params := s.App().DelegationKeeper.GetParams(s.Ctx())
-		params.UploadSlash = sdk.MustNewDecFromStr("0.5")
+		params.UploadSlash = math.LegacyMustNewDecFromStr("0.5")
 		s.App().DelegationKeeper.SetParams(s.Ctx(), params)
 
 		// Slash 50%

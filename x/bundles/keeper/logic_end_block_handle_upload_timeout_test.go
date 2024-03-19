@@ -1,13 +1,13 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -678,7 +678,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 
 		// check if next uploader not got slashed
 		slashAmountRatio := s.App().DelegationKeeper.GetTimeoutSlash(s.Ctx())
-		expectedBalance := 100*i.KYVE - uint64(sdk.NewDec(int64(100*i.KYVE)).Mul(slashAmountRatio).TruncateInt64())
+		expectedBalance := 100*i.KYVE - uint64(math.LegacyNewDec(int64(100*i.KYVE)).Mul(slashAmountRatio).TruncateInt64())
 
 		Expect(expectedBalance).To(Equal(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_2, i.STAKER_2)))
 	})
@@ -1157,7 +1157,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 
 		// check if next uploader not got slashed
 		slashAmountRatio := s.App().DelegationKeeper.GetTimeoutSlash(s.Ctx())
-		expectedBalance := 100*i.KYVE - uint64(sdk.NewDec(int64(100*i.KYVE)).Mul(slashAmountRatio).TruncateInt64())
+		expectedBalance := 100*i.KYVE - uint64(math.LegacyNewDec(int64(100*i.KYVE)).Mul(slashAmountRatio).TruncateInt64())
 
 		Expect(expectedBalance).To(Equal(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_2, i.STAKER_2)))
 	})

@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -16,12 +17,12 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 }
 
 // GetProtocolInflationShare returns the ProtocolInflationShare param.
-func (k Keeper) GetProtocolInflationShare(ctx sdk.Context) (res sdk.Dec) {
+func (k Keeper) GetProtocolInflationShare(ctx sdk.Context) (res math.LegacyDec) {
 	return k.GetParams(ctx).ProtocolInflationShare
 }
 
 // GetPoolInflationPayoutRate returns the GetPoolInflationPayoutRate param
-func (k Keeper) GetPoolInflationPayoutRate(ctx sdk.Context) (res sdk.Dec) {
+func (k Keeper) GetPoolInflationPayoutRate(ctx sdk.Context) (res math.LegacyDec) {
 	return k.GetParams(ctx).PoolInflationPayoutRate
 }
 

@@ -30,9 +30,9 @@ func DistributeTeamInflation(ctx sdk.Context, bk bankKeeper.Keeper, tk keeper.Ke
 		// get current vesting progress
 		status := keeper.GetVestingStatus(account, uint64(ctx.BlockTime().Unix()))
 		// calculate reward share of account
-		accountShare := sdk.NewDec(int64(status.TotalVestedAmount - account.UnlockedClaimed)).Quo(sdk.NewDec(int64(types.TEAM_ALLOCATION)))
+		accountShare := math.LegacyNewDec(int64(status.TotalVestedAmount - account.UnlockedClaimed)).Quo(math.LegacyNewDec(int64(types.TEAM_ALLOCATION)))
 		// calculate total inflation rewards for account for this block
-		accountRewards := uint64(sdk.NewDec(teamModuleRewards).Mul(accountShare).TruncateInt64())
+		accountRewards := uint64(math.LegacyNewDec(teamModuleRewards).Mul(accountShare).TruncateInt64())
 
 		// save inflation rewards to account
 		account.TotalRewards += accountRewards

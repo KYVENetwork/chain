@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"cosmossdk.io/math"
 	"encoding/binary"
 
 	"cosmossdk.io/store/prefix"
@@ -43,7 +44,7 @@ func (k Keeper) updateStakerCommissionRewards(ctx sdk.Context, address string, a
 }
 
 // UpdateStakerCommission ...
-func (k Keeper) UpdateStakerCommission(ctx sdk.Context, address string, commission sdk.Dec) {
+func (k Keeper) UpdateStakerCommission(ctx sdk.Context, address string, commission math.LegacyDec) {
 	staker, found := k.GetStaker(ctx, address)
 	if found {
 		staker.Commission = commission

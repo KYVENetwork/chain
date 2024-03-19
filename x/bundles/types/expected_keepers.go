@@ -2,6 +2,7 @@ package types
 
 import (
 	"context"
+	"cosmossdk.io/math"
 	"cosmossdk.io/x/upgrade/types"
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
@@ -42,7 +43,7 @@ type PoolKeeper interface {
 
 type StakerKeeper interface {
 	GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (stakers []string)
-	GetCommission(ctx sdk.Context, stakerAddress string) sdk.Dec
+	GetCommission(ctx sdk.Context, stakerAddress string) math.LegacyDec
 	IncreaseStakerCommissionRewards(ctx sdk.Context, address string, amount uint64) error
 	AssertValaccountAuthorized(ctx sdk.Context, poolId uint64, stakerAddress string, valaddress string) error
 

@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/x/bundles/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -24,12 +25,12 @@ func (k Keeper) GetUploadTimeout(ctx sdk.Context) (res uint64) {
 }
 
 // GetStorageCost returns the StorageCost param
-func (k Keeper) GetStorageCost(ctx sdk.Context) (res sdk.Dec) {
+func (k Keeper) GetStorageCost(ctx sdk.Context) (res math.LegacyDec) {
 	return k.GetParams(ctx).StorageCost
 }
 
 // GetNetworkFee returns the NetworkFee param
-func (k Keeper) GetNetworkFee(ctx sdk.Context) (res sdk.Dec) {
+func (k Keeper) GetNetworkFee(ctx sdk.Context) (res math.LegacyDec) {
 	return k.GetParams(ctx).NetworkFee
 }
 

@@ -1,18 +1,18 @@
 package types
 
 import (
+	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/util"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // DefaultUploadTimeout ...
 var DefaultUploadTimeout = uint64(600)
 
 // DefaultStorageCost ...
-var DefaultStorageCost = sdk.MustNewDecFromStr("0.025")
+var DefaultStorageCost = math.LegacyMustNewDecFromStr("0.025")
 
 // DefaultNetworkFee ...
-var DefaultNetworkFee = sdk.MustNewDecFromStr("0.01")
+var DefaultNetworkFee = math.LegacyMustNewDecFromStr("0.01")
 
 // DefaultMaxPoints ...
 var DefaultMaxPoints = uint64(24)
@@ -20,8 +20,8 @@ var DefaultMaxPoints = uint64(24)
 // NewParams creates a new Params instance
 func NewParams(
 	uploadTimeout uint64,
-	storageCost sdk.Dec,
-	networkFee sdk.Dec,
+	storageCost math.LegacyDec,
+	networkFee math.LegacyDec,
 	maxPoints uint64,
 ) Params {
 	return Params{

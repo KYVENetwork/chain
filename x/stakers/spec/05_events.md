@@ -33,7 +33,7 @@ message EventCreateStaker {
   uint64 amount = 2;
   // commission
   string commission = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -79,7 +79,7 @@ message EventUpdateCommission {
   string staker = 1;
   // commission ...
   string commission = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }

@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/x/global/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -19,12 +20,12 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 }
 
 // GetMinGasPrice returns the MinGasPrice param.
-func (k Keeper) GetMinGasPrice(ctx sdk.Context) (res sdk.Dec) {
+func (k Keeper) GetMinGasPrice(ctx sdk.Context) (res math.LegacyDec) {
 	return k.GetParams(ctx).MinGasPrice
 }
 
 // GetBurnRatio returns the BurnRatio param.
-func (k Keeper) GetBurnRatio(ctx sdk.Context) (res sdk.Dec) {
+func (k Keeper) GetBurnRatio(ctx sdk.Context) (res math.LegacyDec) {
 	return k.GetParams(ctx).BurnRatio
 }
 
@@ -39,7 +40,7 @@ func (k Keeper) GetGasRefunds(ctx sdk.Context) (res []types.GasRefund) {
 }
 
 // GetMinInitialDepositRatio returns the MinInitialDepositRatio param.
-func (k Keeper) GetMinInitialDepositRatio(ctx sdk.Context) (res sdk.Dec) {
+func (k Keeper) GetMinInitialDepositRatio(ctx sdk.Context) (res math.LegacyDec) {
 	return k.GetParams(ctx).MinInitialDepositRatio
 }
 

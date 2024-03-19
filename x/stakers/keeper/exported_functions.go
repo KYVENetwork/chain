@@ -38,8 +38,8 @@ func (k Keeper) GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (sta
 	return stakers
 }
 
-// GetCommission returns the commission of a staker as a parsed sdk.Dec
-func (k Keeper) GetCommission(ctx sdk.Context, stakerAddress string) sdk.Dec {
+// GetCommission returns the commission of a staker as a parsed math.LegacyDec
+func (k Keeper) GetCommission(ctx sdk.Context, stakerAddress string) math.LegacyDec {
 	staker, _ := k.GetStaker(ctx, stakerAddress)
 	return staker.Commission
 }
@@ -101,8 +101,8 @@ func (k Keeper) GetActiveValidators(ctx context.Context) (validators []interface
 		validator := govV1Types.NewValidatorGovInfo(
 			sdk.ValAddress(sdk.MustAccAddressFromBech32(address)),
 			math.NewInt(delegation),
-			sdk.NewDec(delegation),
-			sdk.ZeroDec(),
+			math.LegacyNewDec(delegation),
+			math.LegacyZeroDec(),
 			govV1Types.WeightedVoteOptions{},
 		)
 
@@ -114,7 +114,7 @@ func (k Keeper) GetActiveValidators(ctx context.Context) (validators []interface
 
 // GetDelegations returns the address and the delegation amount of all active protocol-stakers the
 // delegator as delegated to. This is used to calculate the vote weight each delegator has.
-func (k Keeper) GetDelegations(ctx context.Context, delegator string) (validators []string, amounts []sdk.Dec) {
+func (k Keeper) GetDelegations(ctx context.Context, delegator string) (validators []string, amounts []math.LegacyDec) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	for _, validator := range k.delegationKeeper.GetStakersByDelegator(sdkCtx, delegator) {
 		if k.isActiveStaker(sdkCtx, validator) {
@@ -122,7 +122,7 @@ func (k Keeper) GetDelegations(ctx context.Context, delegator string) (validator
 
 			amounts = append(
 				amounts,
-				sdk.NewDec(int64(k.delegationKeeper.GetDelegationAmountOfDelegator(sdkCtx, validator, delegator))),
+				math.LegacyNewDec(int64(k.delegationKeeper.GetDelegationAmountOfDelegator(sdkCtx, validator, delegator))),
 			)
 		}
 	}
