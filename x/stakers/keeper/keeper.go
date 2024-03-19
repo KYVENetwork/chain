@@ -3,8 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/log"
 	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
-	"github.com/cometbft/cometbft/libs/log"
 
 	storetypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/stakers/types"

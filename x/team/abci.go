@@ -1,6 +1,7 @@
 package team
 
 import (
+	"cosmossdk.io/math"
 	"fmt"
 
 	"github.com/KYVENetwork/chain/util"

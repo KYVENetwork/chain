@@ -4,9 +4,9 @@ import (
 	"errors"
 	"io"
 
+	"cosmossdk.io/log"
 	kyveApp "github.com/KYVENetwork/chain/app"
 	dbm "github.com/cometbft/cometbft-db"
-	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/server"
 	serverTypes "github.com/cosmos/cosmos-sdk/server/types"

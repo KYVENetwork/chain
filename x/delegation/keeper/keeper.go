@@ -71,7 +71,7 @@ func (k Keeper) InitMemStore(gasCtx sdk.Context) {
 	if !memStoreInitialized {
 
 		// Update mem index
-		noGasCtx := gasCtx.WithBlockGasMeter(sdk.NewInfiniteGasMeter())
+		noGasCtx := gasCtx.WithBlockGasMeter(storetypes.NewInfiniteGasMeter())
 		for _, entry := range k.GetAllDelegationData(noGasCtx) {
 			k.SetStakerIndex(noGasCtx, entry.Staker)
 		}

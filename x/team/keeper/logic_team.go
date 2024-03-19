@@ -14,8 +14,14 @@ import (
 // for the current block
 func (k Keeper) GetTeamBlockProvision(ctx sdk.Context) int64 {
 	// Compute team allocation of minted coins.
-	minter := k.mintKeeper.GetMinter(ctx)
-	params := k.mintKeeper.GetParams(ctx)
+	minter, err := k.mintKeeper.Minter.Get(ctx)
+	if err != nil {
+		util.PanicHalt(k.upgradeKeeper, ctx, fmt.Sprintf("failed to get minter: %v", err))
+	}
+	params, err := k.mintKeeper.Params.Get(ctx)
+	if err != nil {
+		util.PanicHalt(k.upgradeKeeper, ctx, fmt.Sprintf("failed to get mint params: %v", err))
+	}
 
 	// get total inflation rewards for current block
 	blockProvision := minter.BlockProvision(params)
