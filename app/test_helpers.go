@@ -7,10 +7,10 @@ import (
 	"cosmossdk.io/math"
 
 	"cosmossdk.io/log"
-	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtProto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmtTypes "github.com/cometbft/cometbft/types"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -70,11 +70,11 @@ func DefaultGenesisWithValSet(codec codec.Codec) map[string]json.RawMessage {
 			Jailed:            false,
 			Status:            stakingTypes.Bonded,
 			Tokens:            sdk.DefaultPowerReduction,
-			DelegatorShares:   sdk.OneDec(),
+			DelegatorShares:   math.LegacyOneDec(),
 			Description:       stakingTypes.Description{},
 			UnbondingHeight:   0,
 			UnbondingTime:     time.Unix(0, 0).UTC(),
-			Commission:        stakingTypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
+			Commission:        stakingTypes.NewCommission(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec()),
 			MinSelfDelegation: math.ZeroInt(),
 		},
 	}
@@ -85,7 +85,7 @@ func DefaultGenesisWithValSet(codec codec.Codec) map[string]json.RawMessage {
 	)
 
 	delegations := []stakingTypes.Delegation{
-		stakingTypes.NewDelegation(delegator.GetAddress(), validator.Address.Bytes(), sdk.OneDec()),
+		stakingTypes.NewDelegation(delegator.GetAddress().String(), validator.Address.String(), math.LegacyOneDec()),
 	}
 
 	// Default genesis state.
@@ -143,14 +143,17 @@ func Setup() *App {
 	}
 
 	// Initialize the chain
-	app.InitChain(
-		abci.RequestInitChain{
+	_, err = app.InitChain(
+		&abci.RequestInitChain{
 			ChainId:         "kyve-test",
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
 		},
 	)
+	if err != nil {
+		panic(err)
+	}
 
 	return app
 }

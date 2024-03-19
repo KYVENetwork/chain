@@ -670,7 +670,6 @@ func NewKYVEApp(
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.StakingKeeper,
-		app.StakersKeeper,
 		app.DistributionKeeper,
 		app.MsgServiceRouter(),
 		govConfig,
