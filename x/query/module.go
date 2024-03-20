@@ -9,8 +9,6 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-
 	"github.com/KYVENetwork/chain/x/query/client/cli"
 	"github.com/KYVENetwork/chain/x/query/keeper"
 	"github.com/KYVENetwork/chain/x/query/types"
@@ -22,10 +20,9 @@ import (
 )
 
 var (
-	_ module.AppModuleBasic = (*AppModule)(nil)
-	// TODO: implement this
-	//_ module.AppModuleSimulation = (*AppModule)(nil)
-	//_ module.HasGenesis          = (*AppModule)(nil)
+	_ module.AppModuleBasic      = (*AppModule)(nil)
+	_ module.AppModuleSimulation = (*AppModule)(nil)
+	_ module.HasGenesis          = (*AppModule)(nil)
 	_ module.HasInvariants       = (*AppModule)(nil)
 	_ module.HasConsensusVersion = (*AppModule)(nil)
 
@@ -134,8 +131,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 // InitGenesis performs the module's genesis initialization. It returns no validator updates.
-func (am AppModule) InitGenesis(_ sdk.Context, _ codec.JSONCodec, _ json.RawMessage) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
+func (am AppModule) InitGenesis(_ sdk.Context, _ codec.JSONCodec, _ json.RawMessage) {
 }
 
 // ExportGenesis returns the module's exported genesis state as raw JSON bytes.
