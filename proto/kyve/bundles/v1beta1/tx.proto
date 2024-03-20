@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package kyve.bundles.v1beta1;
 
+import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 
@@ -9,6 +10,7 @@ option go_package = "github.com/KYVENetwork/chain/x/bundles/types";
 
 // Msg defines the Msg service.
 service Msg {
+  option (cosmos.msg.v1.service) = true;
   // SubmitBundleProposal ...
   rpc SubmitBundleProposal(MsgSubmitBundleProposal) returns (MsgSubmitBundleProposalResponse);
   // VoteBundleProposal ...
@@ -25,6 +27,7 @@ service Msg {
 
 // MsgSubmitBundleProposal defines a SDK message for submitting a bundle proposal.
 message MsgSubmitBundleProposal {
+  option (cosmos.msg.v1.signer) = "creator";
   // creator ...
   string creator = 1;
   // staker ...
@@ -68,6 +71,7 @@ enum VoteType {
 
 // MsgVoteBundleProposal defines a SDK message for voting on a bundle proposal.
 message MsgVoteBundleProposal {
+  option (cosmos.msg.v1.signer) = "creator";
   // creator ...
   string creator = 1;
   // staker ...
@@ -85,6 +89,7 @@ message MsgVoteBundleProposalResponse {}
 
 // MsgClaimUploaderRole defines a SDK message for claiming the uploader role.
 message MsgClaimUploaderRole {
+  option (cosmos.msg.v1.signer) = "creator";
   // creator ...
   string creator = 1;
   // staker ...
@@ -98,6 +103,7 @@ message MsgClaimUploaderRoleResponse {}
 
 // MsgSubmitBundleProposal defines a SDK message for submitting a bundle proposal.
 message MsgSkipUploaderRole {
+  option (cosmos.msg.v1.signer) = "creator";
   // creator ...
   string creator = 1;
   // staker ...
@@ -113,6 +119,7 @@ message MsgSkipUploaderRoleResponse {}
 
 // MsgUpdateParams defines a SDK message for updating the module parameters.
 message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
   // authority is the address of the governance account.
   string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
