@@ -132,6 +132,13 @@ func RegisterKyveModules(registry cdctypes.InterfaceRegistry) map[string]appmodu
 		teamTypes.ModuleName:       teamModule.AppModule{},
 		fundersTypes.ModuleName:    fundersModule.AppModule{},
 	}
+	for _, module := range modules {
+		if mod, ok := module.(interface {
+			RegisterInterfaces(registry cdctypes.InterfaceRegistry)
+		}); ok {
+			mod.RegisterInterfaces(registry)
+		}
+	}
 
 	return modules
 }

@@ -197,7 +197,7 @@ func (suite *KeeperTestSuite) SetupApp(startTime int64) {
 	ePriv := ed25519.GenPrivKeyFromSecret([]byte{1})
 	suite.consAddress = sdk.ConsAddress(ePriv.PubKey().Address())
 
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, tmproto.Header{
 		Height:          1,
 		ChainID:         "kyve-test",
 		Time:            time.Unix(startTime, 0).UTC(),
@@ -223,25 +223,25 @@ func (suite *KeeperTestSuite) SetupApp(startTime int64) {
 	})
 	suite.registerQueryClients()
 
-	mintParams := suite.app.MintKeeper.GetParams(suite.ctx)
+	mintParams, _ := suite.app.MintKeeper.Params.Get(suite.ctx)
 	mintParams.MintDenom = suite.denom
-	_ = suite.app.MintKeeper.SetParams(suite.ctx, mintParams)
+	_ = suite.app.MintKeeper.Params.Set(suite.ctx, mintParams)
 
-	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
+	stakingParams, _ := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = suite.denom
 	_ = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 
-	govParams := suite.app.GovKeeper.GetParams(suite.ctx)
+	govParams, _ := suite.app.GovKeeper.Params.Get(suite.ctx)
 	govParams.MinDeposit = sdk.NewCoins(sdk.NewInt64Coin(KYVE_DENOM, int64(100_000_000_000))) // set min deposit to 100 KYVE
-	_ = suite.app.GovKeeper.SetParams(suite.ctx, govParams)
+	_ = suite.app.GovKeeper.Params.Set(suite.ctx, govParams)
 
 	// Set Validator
 	valAddr := sdk.ValAddress(suite.address.Bytes())
-	validator, _ := stakingtypes.NewValidator(valAddr, ePriv.PubKey(), stakingtypes.Description{})
+	validator, _ := stakingtypes.NewValidator(valAddr.String(), ePriv.PubKey(), stakingtypes.Description{})
 	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
 	//_ = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
 	_ = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
-	validators := suite.app.StakingKeeper.GetValidators(suite.ctx, 1)
+	validators, _ := suite.app.StakingKeeper.GetValidators(suite.ctx, 1)
 	suite.validator = validators[0]
 }
 
@@ -255,14 +255,13 @@ func (suite *KeeperTestSuite) CommitAfterSeconds(seconds uint64) {
 
 func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	header := suite.ctx.BlockHeader()
-	suite.app.EndBlock(abci.RequestEndBlock{Height: header.Height})
-	_ = suite.app.Commit()
-
-	header.Height += 1
 	header.Time = header.Time.Add(t)
-	suite.app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
-	suite.ctx = suite.app.BaseApp.NewContext(false, header)
+	// TODO: check if this does still the same as before
+	_, _ = suite.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: header.Height})
+	_, _ = suite.app.Commit()
+
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, header)
 
 	suite.registerQueryClients()
 }

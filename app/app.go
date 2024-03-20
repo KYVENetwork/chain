@@ -487,3 +487,8 @@ func BlockedAddresses() map[string]bool {
 	}
 	return result
 }
+
+// InterfaceRegistry returns an InterfaceRegistry
+func (app *App) InterfaceRegistry() codectypes.InterfaceRegistry {
+	return app.interfaceRegistry
+}

@@ -208,7 +208,7 @@ func init() {
 // App extends an ABCI application, but with most of its parameters exported.
 // They are exported for convenience in creating helper functions, as object
 // capabilities aren't needed for testing.
-type AppOld struct {
+type App struct {
 	*baseapp.BaseApp
 	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
@@ -312,7 +312,7 @@ func NewKYVEApp(
 		bundlesTypes.MemStoreKey, delegationTypes.MemStoreKey,
 	)
 
-	app := &AppOld{
+	app := &App{
 		BaseApp:           bApp,
 		legacyAmino:       legacyAmino,
 		appCodec:          appCodec,

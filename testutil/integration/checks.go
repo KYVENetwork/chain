@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"cosmossdk.io/store"
 	"time"
 
 	"github.com/KYVENetwork/chain/x/funders"
@@ -578,7 +579,7 @@ func (suite *KeeperTestSuite) verifyFullStaker(fullStaker querytypes.FullStaker,
 	}
 }
 
-func (suite *KeeperTestSuite) deleteStore(store sdk.KVStore) {
+func (suite *KeeperTestSuite) deleteStore(store store.KVStore) {
 	iterator := store.Iterator(nil, nil)
 	keys := make([][]byte, 0)
 	for ; iterator.Valid(); iterator.Next() {

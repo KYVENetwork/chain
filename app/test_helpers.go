@@ -1,7 +1,8 @@
-package old
+package app
 
 import (
 	"encoding/json"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	"time"
 
 	"cosmossdk.io/math"
@@ -12,7 +13,6 @@ import (
 	cmtTypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/codec"
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptoCodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
@@ -53,7 +53,7 @@ type EmptyAppOptions struct{}
 
 func (ao EmptyAppOptions) Get(_ string) interface{} { return nil }
 
-func DefaultGenesisWithValSet(codec codec.Codec) map[string]json.RawMessage {
+func DefaultGenesisWithValSet(app *App) map[string]json.RawMessage {
 	bondingDenom := globalTypes.Denom
 
 	// Generate a new validator.
@@ -89,12 +89,11 @@ func DefaultGenesisWithValSet(codec codec.Codec) map[string]json.RawMessage {
 	}
 
 	// Default genesis state.
-	config := MakeEncodingConfig()
-	genesisState := ModuleBasics.DefaultGenesis(config.Marshaler)
+	genesisState := app.DefaultGenesis()
 
 	// Update x/auth state.
 	authGenesis := authTypes.NewGenesisState(authTypes.DefaultParams(), []authTypes.GenesisAccount{delegator})
-	genesisState[authTypes.ModuleName] = codec.MustMarshalJSON(authGenesis)
+	genesisState[authTypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)
 
 	// Update x/bank state.
 	bondedCoins := sdk.NewCoins(sdk.NewCoin(bondingDenom, sdk.DefaultPowerReduction))
@@ -111,14 +110,14 @@ func DefaultGenesisWithValSet(codec codec.Codec) map[string]json.RawMessage {
 			Coins:   teamCoins,
 		},
 	}, bondedCoins.Add(sdk.NewInt64Coin(globalTypes.Denom, int64(teamTypes.TEAM_ALLOCATION))), []bankTypes.Metadata{}, []bankTypes.SendEnabled{})
-	genesisState[bankTypes.ModuleName] = codec.MustMarshalJSON(bankGenesis)
+	genesisState[bankTypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
 	// Update x/staking state.
 	stakingParams := stakingTypes.DefaultParams()
 	stakingParams.BondDenom = bondingDenom
 
 	stakingGenesis := stakingTypes.NewGenesisState(stakingParams, validators, delegations)
-	genesisState[stakingTypes.ModuleName] = codec.MustMarshalJSON(stakingGenesis)
+	genesisState[stakingTypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
 	// Return.
 	return genesisState
@@ -133,10 +132,19 @@ func Setup() *App {
 	setPrefixes("kyve")
 
 	// app := NewKYVEApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, 5, config, EmptyAppOptions{})
-	app := NewKYVEApp(log.NewNopLogger(), db, nil, true, EmptyAppOptions{}, baseapp.SetChainID("kyve-test"))
-	// init chain must be called to stop deliverState from being nil
+	app, err := New(log.NewNopLogger(), db, nil, true, EmptyAppOptions{}, baseapp.SetChainID("kyve-test"))
+	if err != nil {
+		panic(err)
+	}
 
-	genesisState := DefaultGenesisWithValSet(app.AppCodec())
+	// TODO: Do we need this?
+	kyveModules := RegisterKyveModules(app.InterfaceRegistry())
+	for name, mod := range kyveModules {
+		app.ModuleManager.Modules[name] = module.CoreAppModuleBasicAdaptor(name, mod)
+		//app.autoCliOpts.Modules[name] = mod
+	}
+
+	genesisState := DefaultGenesisWithValSet(app)
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	if err != nil {
 		panic(err)
@@ -171,4 +179,5 @@ func setPrefixes(accountAddressPrefix string) {
 	config.SetBech32PrefixForAccount(accountAddressPrefix, accountPubKeyPrefix)
 	config.SetBech32PrefixForValidator(validatorAddressPrefix, validatorPubKeyPrefix)
 	config.SetBech32PrefixForConsensusNode(consNodeAddressPrefix, consNodePubKeyPrefix)
+	config.Seal()
 }
