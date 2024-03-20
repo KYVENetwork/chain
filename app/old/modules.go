@@ -1,4 +1,4 @@
-package app
+package old
 
 import (
 	"github.com/KYVENetwork/chain/x/funders"

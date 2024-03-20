@@ -31,7 +31,7 @@ func (app *App) ExportAppStateAndValidators(forZeroHeight bool, jailAllowedAddrs
 		app.prepForZeroHeightGenesis(ctx, jailAllowedAddrs)
 	}
 
-	genState, err := app.mm.ExportGenesisForModules(ctx, app.appCodec, modulesToExport)
+	genState, err := app.ModuleManager.ExportGenesisForModules(ctx, app.appCodec, modulesToExport)
 	if err != nil {
 		return serverTypes.ExportedApp{}, err
 	}
@@ -82,7 +82,7 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 		if err != nil {
 			log.Panic(err)
 		}
-		_, err = app.DistributionKeeper.WithdrawValidatorCommission(ctx, valAddr)
+		_, err = app.DistrKeeper.WithdrawValidatorCommission(ctx, valAddr)
 		if err != nil {
 			log.Panic(err)
 		}
@@ -105,14 +105,14 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 
 		delAddr := sdk.MustAccAddressFromBech32(delegation.DelegatorAddress)
 
-		_, _ = app.DistributionKeeper.WithdrawDelegationRewards(ctx, delAddr, valAddr)
+		_, _ = app.DistrKeeper.WithdrawDelegationRewards(ctx, delAddr, valAddr)
 	}
 
 	// clear validator slash events
-	app.DistributionKeeper.DeleteAllValidatorSlashEvents(ctx)
+	app.DistrKeeper.DeleteAllValidatorSlashEvents(ctx)
 
 	// clear validator historical rewards
-	app.DistributionKeeper.DeleteAllValidatorHistoricalRewards(ctx)
+	app.DistrKeeper.DeleteAllValidatorHistoricalRewards(ctx)
 
 	// set context height to zero
 	height := ctx.BlockHeight()
@@ -125,21 +125,21 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 			log.Panic(err)
 		}
 		// donate any unwithdrawn outstanding reward fraction tokens to the community pool
-		scraps, err := app.DistributionKeeper.GetValidatorOutstandingRewardsCoins(ctx, valAddr)
+		scraps, err := app.DistrKeeper.GetValidatorOutstandingRewardsCoins(ctx, valAddr)
 		if err != nil {
 			log.Panic(err)
 		}
-		feePool, err := app.DistributionKeeper.FeePool.Get(ctx)
+		feePool, err := app.DistrKeeper.FeePool.Get(ctx)
 		if err != nil {
 			log.Panic(err)
 		}
 		feePool.CommunityPool = feePool.CommunityPool.Add(scraps...)
-		err = app.DistributionKeeper.FeePool.Set(ctx, feePool)
+		err = app.DistrKeeper.FeePool.Set(ctx, feePool)
 		if err != nil {
 			log.Panic(err)
 		}
 
-		if err := app.DistributionKeeper.Hooks().AfterValidatorCreated(ctx, valAddr); err != nil {
+		if err := app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, valAddr); err != nil {
 			log.Panic(err)
 		}
 		return false
@@ -156,12 +156,12 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 		}
 		delAddr := sdk.MustAccAddressFromBech32(del.DelegatorAddress)
 
-		if err := app.DistributionKeeper.Hooks().BeforeDelegationCreated(ctx, delAddr, valAddr); err != nil {
+		if err := app.DistrKeeper.Hooks().BeforeDelegationCreated(ctx, delAddr, valAddr); err != nil {
 			// never called as BeforeDelegationCreated always returns nil
 			panic(fmt.Errorf("error while incrementing period: %w", err))
 		}
 
-		if err := app.DistributionKeeper.Hooks().AfterDelegationModified(ctx, delAddr, valAddr); err != nil {
+		if err := app.DistrKeeper.Hooks().AfterDelegationModified(ctx, delAddr, valAddr); err != nil {
 			// never called as AfterDelegationModified always returns nil
 			panic(fmt.Errorf("error while creating a new delegation period record: %w", err))
 		}

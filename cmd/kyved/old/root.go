@@ -1,11 +1,6 @@
-package main
+package old
 
 import (
-	"fmt"
-	"os"
-	"strconv"
-	"time"
-
 	kyveApp "github.com/KYVENetwork/chain/app"
 	tmCli "github.com/cometbft/cometbft/libs/cli"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -15,8 +10,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/server"
-	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
+	"os"
 
 	// Auth
 	authCli "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
@@ -28,10 +23,6 @@ import (
 	// GenUtil
 	genUtilCli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genUtilTypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	// Global
-	globalTypes "github.com/KYVENetwork/chain/x/global/types"
-	// Team
-	teamTypes "github.com/KYVENetwork/chain/x/team/types"
 )
 
 // NewRootCmd creates a new root command for the KYVE chain daemon.
@@ -103,7 +94,7 @@ func NewRootCmd(encodingConfig kyveApp.EncodingConfig) *cobra.Command {
 		addGenesisAccountCmd(kyveApp.DefaultNodeHome),
 		tmCli.NewCompletionCmd(rootCmd, true),
 		debug.Cmd(),
-		// TODO(@rapha): fix config
+		// TODO(@rapha): fix StatusCommand
 		//config.Cmd(),
 		pruning.Cmd(ac.createApp, kyveApp.DefaultNodeHome),
 
@@ -169,39 +160,4 @@ func txCommand() *cobra.Command {
 	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
 
 	return cmd
-}
-
-func infoCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "info",
-		Short: "Transactions subcommands",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println("Information about build variables:")
-			fmt.Printf("Version: %s\n", version.Version)
-			fmt.Printf("Denom: %s\n", globalTypes.Denom)
-			fmt.Printf("Team-Foundation-Authority: %s\n", teamTypes.FOUNDATION_ADDRESS)
-			fmt.Printf("Team-BCP-Authority: %s\n", teamTypes.BCP_ADDRESS)
-			fmt.Printf("Team-Allocation: %s\n", formatInt(teamTypes.TEAM_ALLOCATION))
-			fmt.Printf("Team-TGE: %s\n", time.Unix(int64(teamTypes.TGE), 0).String())
-			return nil
-		},
-	}
-
-	return cmd
-}
-
-func formatInt(number uint64) string {
-	output := strconv.FormatUint(number, 10)
-	startOffset := 3
-
-	outputIndex := len(output)
-	if len(output) >= 6 {
-		outputIndex -= 6
-		output = output[:outputIndex] + "." + output[outputIndex:]
-		for outputIndex > startOffset {
-			outputIndex -= 3
-			output = output[:outputIndex] + "," + output[outputIndex:]
-		}
-	}
-	return output
 }

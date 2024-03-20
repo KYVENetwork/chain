@@ -1,6 +1,6 @@
 // https://github.com/ignite/cli/blob/v0.25.1/ignite/pkg/cosmoscmd/encoding.go
 
-package app
+package old
 
 import (
 	"cosmossdk.io/core/address"

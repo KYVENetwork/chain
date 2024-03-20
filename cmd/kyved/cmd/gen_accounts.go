@@ -1,6 +1,6 @@
 // https://github.com/ignite/cli/blob/v0.25.1/ignite/pkg/cosmoscmd/genaccounts.go
 
-package main
+package cmd
 
 import (
 	"bufio"
