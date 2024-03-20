@@ -9,7 +9,6 @@ import (
 	queryKeeper "github.com/KYVENetwork/chain/x/query/keeper"
 	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
 	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
-	pfmKeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/keeper"
 	"io"
 	"os"
 	"path/filepath"
@@ -138,7 +137,6 @@ type App struct {
 	ICAControllerKeeper icacontrollerkeeper.Keeper
 	ICAHostKeeper       icahostkeeper.Keeper
 	TransferKeeper      ibctransferkeeper.Keeper // TODO: was IBCTransferKeeper before
-	PFMKeeper           *pfmKeeper.Keeper        // TODO: remove?
 
 	// Scoped IBC
 	ScopedIBCKeeper           capabilitykeeper.ScopedKeeper
