@@ -4,8 +4,6 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // DefaultMinGasPrice is 0 (i.e. disabled)
@@ -64,7 +62,7 @@ func (p Params) Validate() error {
 
 // validateMinGasPrice ...
 func validateMinGasPrice(i interface{}) error {
-	v, ok := i.(sdk.Coin)
+	v, ok := i.(math.LegacyDec)
 
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -83,7 +81,7 @@ func validateMinGasPrice(i interface{}) error {
 
 // validateBurnRatio ...
 func validateBurnRatio(i interface{}) error {
-	v, ok := i.(sdk.Coin)
+	v, ok := i.(math.LegacyDec)
 
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -97,7 +95,7 @@ func validateBurnRatio(i interface{}) error {
 		return fmt.Errorf("value cannot be negative: %s", i)
 	}
 
-	if v.IsGT(sdk.NewCoin(Denom, math.NewInt(1))) {
+	if v.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("value cannot be greater than 1: %s", v)
 	}
 

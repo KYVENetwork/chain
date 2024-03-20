@@ -3,12 +3,10 @@ package util
 import (
 	"cosmossdk.io/math"
 	"fmt"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func ValidateDecimal(i interface{}) error {
-	v, ok := i.(sdk.Coin)
+	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid type: %T", i)
 	}
