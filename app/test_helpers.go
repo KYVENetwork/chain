@@ -2,6 +2,8 @@ package app
 
 import (
 	"encoding/json"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"time"
 
@@ -13,10 +15,7 @@ import (
 	cmtTypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
-	cryptoCodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	// Auth
@@ -57,16 +56,14 @@ func DefaultGenesisWithValSet(app *App) map[string]json.RawMessage {
 	bondingDenom := globalTypes.Denom
 
 	// Generate a new validator.
-	key, _ := mock.NewPV().GetPubKey()
-	validator := cmtTypes.NewValidator(key, 1)
-
-	publicKey, _ := cryptoCodec.FromTmPubKeyInterface(validator.PubKey)
-	publicKeyAny, _ := codecTypes.NewAnyWithValue(publicKey)
+	pubKey := ed25519.GenPrivKey().PubKey()
+	valAddress := sdk.ValAddress(pubKey.Address()).String()
+	pkAny, _ := codectypes.NewAnyWithValue(pubKey)
 
 	validators := []stakingTypes.Validator{
 		{
-			OperatorAddress:   sdk.ValAddress(validator.Address).String(),
-			ConsensusPubkey:   publicKeyAny,
+			OperatorAddress:   valAddress,
+			ConsensusPubkey:   pkAny,
 			Jailed:            false,
 			Status:            stakingTypes.Bonded,
 			Tokens:            sdk.DefaultPowerReduction,
@@ -85,7 +82,7 @@ func DefaultGenesisWithValSet(app *App) map[string]json.RawMessage {
 	)
 
 	delegations := []stakingTypes.Delegation{
-		stakingTypes.NewDelegation(delegator.GetAddress().String(), validator.Address.String(), math.LegacyOneDec()),
+		stakingTypes.NewDelegation(delegator.GetAddress().String(), valAddress, math.LegacyOneDec()),
 	}
 
 	// Default genesis state.
@@ -129,7 +126,7 @@ func Setup() *App {
 
 	// config := MakeEncodingConfig()
 
-	setPrefixes("kyve")
+	setPrefixes(AccountAddressPrefix)
 
 	// app := NewKYVEApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, 5, config, EmptyAppOptions{})
 	app, err := New(log.NewNopLogger(), db, nil, true, EmptyAppOptions{}, baseapp.SetChainID("kyve-test"))
@@ -174,8 +171,15 @@ func setPrefixes(accountAddressPrefix string) {
 	consNodeAddressPrefix := accountAddressPrefix + "valcons"
 	consNodePubKeyPrefix := accountAddressPrefix + "valconspub"
 
-	// Set and seal config
 	config := sdk.GetConfig()
+
+	// Return if prefixes are already set
+	if config.GetBech32AccountAddrPrefix() == accountAddressPrefix &&
+		config.GetBech32AccountPubPrefix() == accountPubKeyPrefix {
+		return
+	}
+
+	// Set and seal config
 	config.SetBech32PrefixForAccount(accountAddressPrefix, accountPubKeyPrefix)
 	config.SetBech32PrefixForValidator(validatorAddressPrefix, validatorPubKeyPrefix)
 	config.SetBech32PrefixForConsensusNode(consNodeAddressPrefix, consNodePubKeyPrefix)

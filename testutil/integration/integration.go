@@ -254,14 +254,18 @@ func (suite *KeeperTestSuite) CommitAfterSeconds(seconds uint64) {
 }
 
 func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
-	header := suite.ctx.BlockHeader()
-	header.Time = header.Time.Add(t)
-
-	// TODO: check if this does still the same as before
-	_, _ = suite.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: header.Height})
+	_, _ = suite.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: suite.ctx.BlockHeader().Height})
 	_, _ = suite.app.Commit()
 
-	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, header)
+	// TODO: check if this has still the same behavior as before
+	header := suite.ctx.BlockHeader()
+	header.Height += 1
+	header.Time = header.Time.Add(t)
+
+	ctx := suite.app.BaseApp.NewContextLegacy(true, header)
+	_, _ = suite.app.ModuleManager.BeginBlock(ctx)
+
+	suite.ctx = ctx
 
 	suite.registerQueryClients()
 }
