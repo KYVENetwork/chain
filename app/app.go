@@ -112,11 +112,11 @@ type App struct {
 	interfaceRegistry codectypes.InterfaceRegistry
 
 	// keepers
-	AccountKeeper         authkeeper.AccountKeeper
-	BankKeeper            bankkeeper.Keeper
-	StakingKeeper         *stakingkeeper.Keeper
-	DistrKeeper           distrkeeper.Keeper     // TODO: was DistributionKeeper before
-	ConsensusParamsKeeper consensuskeeper.Keeper // TODO: was ConsensusKeeper before
+	AccountKeeper      authkeeper.AccountKeeper
+	BankKeeper         bankkeeper.Keeper
+	StakingKeeper      *stakingkeeper.Keeper
+	DistributionKeeper distrkeeper.Keeper
+	ConsensusKeeper    consensuskeeper.Keeper
 
 	SlashingKeeper       slashingkeeper.Keeper
 	MintKeeper           mintkeeper.Keeper
@@ -136,7 +136,7 @@ type App struct {
 	IBCFeeKeeper        ibcfeekeeper.Keeper
 	ICAControllerKeeper icacontrollerkeeper.Keeper
 	ICAHostKeeper       icahostkeeper.Keeper
-	TransferKeeper      ibctransferkeeper.Keeper // TODO: was IBCTransferKeeper before
+	IBCTransferKeeper   ibctransferkeeper.Keeper
 
 	// Scoped IBC
 	ScopedIBCKeeper           capabilitykeeper.ScopedKeeper
@@ -276,8 +276,8 @@ func New(
 		&app.AccountKeeper,
 		&app.BankKeeper,
 		&app.StakingKeeper,
-		&app.DistrKeeper,
-		&app.ConsensusParamsKeeper,
+		&app.DistributionKeeper,
+		&app.ConsensusKeeper,
 		&app.SlashingKeeper,
 		&app.MintKeeper,
 		&app.GovKeeper,

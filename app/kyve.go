@@ -55,7 +55,7 @@ func (app *App) registerKyveModules() {
 
 		app.AccountKeeper,
 		app.BankKeeper,
-		app.DistrKeeper,
+		app.DistributionKeeper,
 		app.MintKeeper,
 		app.UpgradeKeeper,
 		app.TeamKeeper,
@@ -70,7 +70,7 @@ func (app *App) registerKyveModules() {
 
 		app.AccountKeeper,
 		app.BankKeeper,
-		app.DistrKeeper,
+		app.DistributionKeeper,
 		app.PoolKeeper,
 		app.UpgradeKeeper,
 	)
@@ -84,7 +84,7 @@ func (app *App) registerKyveModules() {
 
 		app.AccountKeeper,
 		app.BankKeeper,
-		app.DistrKeeper,
+		app.DistributionKeeper,
 		app.PoolKeeper,
 		app.UpgradeKeeper,
 		app.StakersKeeper,
@@ -116,7 +116,7 @@ func (app *App) registerKyveModules() {
 
 		app.AccountKeeper,
 		app.BankKeeper,
-		app.DistrKeeper,
+		app.DistributionKeeper,
 		app.PoolKeeper,
 		app.StakersKeeper,
 		app.DelegationKeeper,
