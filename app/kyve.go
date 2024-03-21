@@ -17,6 +17,8 @@ import (
 	poolModule "github.com/KYVENetwork/chain/x/pool"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
+	queryModule "github.com/KYVENetwork/chain/x/query"
+	queryTypes "github.com/KYVENetwork/chain/x/query/types"
 	stakersModule "github.com/KYVENetwork/chain/x/stakers"
 	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
 	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
@@ -131,6 +133,7 @@ func RegisterKyveModules(registry cdctypes.InterfaceRegistry) map[string]appmodu
 		stakersTypes.ModuleName:    stakersModule.AppModule{},
 		teamTypes.ModuleName:       teamModule.AppModule{},
 		fundersTypes.ModuleName:    fundersModule.AppModule{},
+		queryTypes.ModuleName:      queryModule.AppModule{},
 	}
 	for _, module := range modules {
 		if mod, ok := module.(interface {
