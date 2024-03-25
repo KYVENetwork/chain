@@ -1,8 +1,10 @@
 package keeper
 
 import (
+	"cosmossdk.io/core/store"
 	"cosmossdk.io/log"
 	"fmt"
+	"github.com/KYVENetwork/chain/util"
 
 	storetypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/bundles/types"
@@ -12,15 +14,15 @@ import (
 
 type (
 	Keeper struct {
-		cdc      codec.BinaryCodec
-		storeKey storetypes.StoreKey
-		memKey   storetypes.StoreKey
-		logger   log.Logger
+		cdc          codec.BinaryCodec
+		storeService store.KVStoreService
+		memService   store.MemoryStoreService
+		logger       log.Logger
 
 		authority string
 
 		accountKeeper    types.AccountKeeper
-		bankKeeper       types.BankKeeper
+		bankKeeper       util.BankKeeper
 		distrkeeper      types.DistrKeeper
 		poolKeeper       types.PoolKeeper
 		stakerKeeper     types.StakerKeeper
@@ -31,14 +33,14 @@ type (
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	storeKey storetypes.StoreKey,
-	memKey storetypes.StoreKey,
+	storeService store.KVStoreService,
+	memService store.MemoryStoreService,
 	logger log.Logger,
 
 	authority string,
 
 	accountKeeper types.AccountKeeper,
-	bankKeeper types.BankKeeper,
+	bankKeeper util.BankKeeper,
 	distrkeeper types.DistrKeeper,
 	poolKeeper types.PoolKeeper,
 	stakerKeeper types.StakerKeeper,
@@ -46,10 +48,10 @@ func NewKeeper(
 	fundersKeeper types.FundersKeeper,
 ) *Keeper {
 	return &Keeper{
-		cdc:      cdc,
-		storeKey: storeKey,
-		memKey:   memKey,
-		logger:   logger,
+		cdc:          cdc,
+		storeService: storeService,
+		memService:   memService,
+		logger:       logger,
 
 		authority: authority,
 

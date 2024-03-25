@@ -3,20 +3,19 @@ package bundles
 import (
 	"context"
 	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	storetypes "cosmossdk.io/store/types"
 	"encoding/json"
 	"fmt"
+	"github.com/KYVENetwork/chain/util"
 	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 
@@ -116,10 +115,10 @@ type AppModule struct {
 
 	keeper             keeper.Keeper
 	accountKeeper      types.AccountKeeper
-	bankKeeper         bankKeeper.Keeper
+	bankKeeper         util.BankKeeper
 	distributionKeeper distributionKeeper.Keeper
 	mintKeeper         mintKeeper.Keeper
-	upgradeKeeper      upgradeKeeper.Keeper
+	upgradeKeeper      util.UpgradeKeeper
 	poolKeeper         poolKeeper.Keeper
 	teamKeeper         teamKeeper.Keeper
 }
@@ -128,10 +127,10 @@ func NewAppModule(
 	cdc codec.Codec,
 	keeper keeper.Keeper,
 	accountKeeper types.AccountKeeper,
-	bankKeeper bankKeeper.Keeper,
+	bankKeeper util.BankKeeper,
 	distributionKeeper distributionKeeper.Keeper,
 	mintKeeper mintKeeper.Keeper,
-	upgradeKeeper upgradeKeeper.Keeper,
+	upgradeKeeper util.UpgradeKeeper,
 	poolKeeper poolKeeper.Keeper,
 	teamKeeper teamKeeper.Keeper,
 ) AppModule {
@@ -209,17 +208,17 @@ func init() {
 type ModuleInputs struct {
 	depinject.In
 
-	Cdc      codec.Codec
-	Config   *modulev1.Module
-	StoreKey storetypes.StoreKey
-	MemKey   storetypes.StoreKey
-	Logger   log.Logger
+	Cdc          codec.Codec
+	Config       *modulev1.Module
+	StoreService store.KVStoreService
+	MemService   store.MemoryStoreService
+	Logger       log.Logger
 
 	AccountKeeper      types.AccountKeeper
-	BankKeeper         bankKeeper.Keeper
+	BankKeeper         util.BankKeeper
 	DistributionKeeper distributionKeeper.Keeper
 	MintKeeper         mintKeeper.Keeper
-	UpgradeKeeper      upgradeKeeper.Keeper
+	UpgradeKeeper      util.UpgradeKeeper
 	PoolKeeper         poolKeeper.Keeper
 	TeamKeeper         teamKeeper.Keeper
 	StakersKeeper      stakersKeeper.Keeper
@@ -242,8 +241,8 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 	}
 	k := keeper.NewKeeper(
 		in.Cdc,
-		in.StoreKey,
-		in.MemKey,
+		in.StoreService,
+		in.MemService,
 		in.Logger,
 		authority.String(),
 		in.AccountKeeper,

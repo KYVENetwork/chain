@@ -3,6 +3,7 @@ package keeper
 import (
 	"encoding/binary"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	"time"
 
 	cosmossdk_io_math "cosmossdk.io/math"
@@ -20,7 +21,8 @@ import (
 // SetBundleProposal stores a current bundle proposal in the KV-Store.
 // There is only one bundle proposal per pool
 func (k Keeper) SetBundleProposal(ctx sdk.Context, bundleProposal types.BundleProposal) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.BundleKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.BundleKeyPrefix)
 	b := k.cdc.MustMarshal(&bundleProposal)
 	store.Set(types.BundleProposalKey(
 		bundleProposal.PoolId,
@@ -29,7 +31,8 @@ func (k Keeper) SetBundleProposal(ctx sdk.Context, bundleProposal types.BundlePr
 
 // GetBundleProposal returns the bundle proposal for the given pool with id `poolId`
 func (k Keeper) GetBundleProposal(ctx sdk.Context, poolId uint64) (val types.BundleProposal, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.BundleKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.BundleKeyPrefix)
 
 	b := store.Get(types.BundleProposalKey(poolId))
 	if b == nil {
@@ -43,7 +46,8 @@ func (k Keeper) GetBundleProposal(ctx sdk.Context, poolId uint64) (val types.Bun
 
 // GetAllBundleProposals returns all bundle proposals of all pools
 func (k Keeper) GetAllBundleProposals(ctx sdk.Context) (list []types.BundleProposal) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.BundleKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.BundleKeyPrefix)
 	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -61,7 +65,8 @@ func (k Keeper) GetAllBundleProposals(ctx sdk.Context) (list []types.BundlePropo
 
 // SetFinalizedBundle stores a finalized bundle identified by its `poolId` and `id`.
 func (k Keeper) SetFinalizedBundle(ctx sdk.Context, finalizedBundle types.FinalizedBundle) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FinalizedBundlePrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.FinalizedBundlePrefix)
 	b := k.cdc.MustMarshal(&finalizedBundle)
 	store.Set(types.FinalizedBundleKey(
 		finalizedBundle.PoolId,
@@ -74,14 +79,16 @@ func (k Keeper) SetFinalizedBundle(ctx sdk.Context, finalizedBundle types.Finali
 // SetFinalizedBundleIndexes sets an in-memory reference for every bundle sorted by pool/fromIndex
 // to allow querying for specific bundle ranges.
 func (k Keeper) SetFinalizedBundleIndexes(ctx sdk.Context, finalizedBundle types.FinalizedBundle) {
-	indexByStorageIndex := prefix.NewStore(ctx.KVStore(k.memKey), types.FinalizedBundleByIndexPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.memService.OpenMemoryStore(ctx))
+	indexByStorageIndex := prefix.NewStore(storeAdapter, types.FinalizedBundleByIndexPrefix)
 	indexByStorageIndex.Set(
 		types.FinalizedBundleByIndexKey(finalizedBundle.PoolId, finalizedBundle.FromIndex),
 		util.GetByteKey(finalizedBundle.Id))
 }
 
 func (k Keeper) GetAllFinalizedBundles(ctx sdk.Context) (list []types.FinalizedBundle) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FinalizedBundlePrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.FinalizedBundlePrefix)
 	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -94,7 +101,8 @@ func (k Keeper) GetAllFinalizedBundles(ctx sdk.Context) (list []types.FinalizedB
 }
 
 func (k Keeper) GetFinalizedBundlesByPool(ctx sdk.Context, poolId uint64) (list []types.FinalizedBundle) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FinalizedBundlePrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.FinalizedBundlePrefix)
 	iterator := storeTypes.KVStorePrefixIterator(store, util.GetByteKey(poolId))
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -108,7 +116,8 @@ func (k Keeper) GetFinalizedBundlesByPool(ctx sdk.Context, poolId uint64) (list 
 
 // GetFinalizedBundle returns a finalized bundle by its identifier
 func (k Keeper) GetFinalizedBundle(ctx sdk.Context, poolId, id uint64) (val types.FinalizedBundle, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FinalizedBundlePrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.FinalizedBundlePrefix)
 
 	b := store.Get(types.FinalizedBundleKey(poolId, id))
 	if b == nil {
@@ -182,7 +191,8 @@ func (k Keeper) GetPaginatedFinalizedBundleQuery(ctx sdk.Context, pagination *qu
 	}
 
 	// Init Bundles Store
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), util.GetByteKey(types.FinalizedBundlePrefix, poolId))
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, util.GetByteKey(types.FinalizedBundlePrefix, poolId))
 
 	// Get latest bundle id by obtaining last item from the iterator
 	reverseIterator := store.ReverseIterator(nil, nil)
@@ -241,7 +251,8 @@ func (k Keeper) GetPaginatedFinalizedBundleQuery(ctx sdk.Context, pagination *qu
 }
 
 func (k Keeper) GetFinalizedBundleByIndex(ctx sdk.Context, poolId, index uint64) (val queryTypes.FinalizedBundle, found bool) {
-	proposalIndexStore := prefix.NewStore(ctx.KVStore(k.memKey), util.GetByteKey(types.FinalizedBundleByIndexPrefix, poolId))
+	storeAdapter := runtime.KVStoreAdapter(k.memService.OpenMemoryStore(ctx))
+	proposalIndexStore := prefix.NewStore(storeAdapter, util.GetByteKey(types.FinalizedBundleByIndexPrefix, poolId))
 	proposalIndexIterator := proposalIndexStore.ReverseIterator(nil, util.GetByteKey(index+1))
 	defer proposalIndexIterator.Close()
 
@@ -263,15 +274,17 @@ func (k Keeper) GetFinalizedBundleByIndex(ctx sdk.Context, poolId, index uint64)
 
 // SetBundleVersionMap stores the bundle version map
 func (k Keeper) SetBundleVersionMap(ctx sdk.Context, bundleVersionMap types.BundleVersionMap) {
-	store := ctx.KVStore(k.storeKey)
+	store := k.storeService.OpenKVStore(ctx)
 	b := k.cdc.MustMarshal(&bundleVersionMap)
-	store.Set(types.FinalizedBundleVersionMapKey, b)
+	// TODO: handle ignored error
+	_ = store.Set(types.FinalizedBundleVersionMapKey, b)
 }
 
 // GetBundleVersionMap returns the bundle version map
 func (k Keeper) GetBundleVersionMap(ctx sdk.Context) (val types.BundleVersionMap) {
-	store := ctx.KVStore(k.storeKey)
-	b := store.Get(types.FinalizedBundleVersionMapKey)
+	store := k.storeService.OpenKVStore(ctx)
+	// TODO: handle ignored error
+	b, _ := store.Get(types.FinalizedBundleVersionMapKey)
 	if b == nil {
 		val.Versions = make([]*types.BundleVersionEntry, 0)
 		return val

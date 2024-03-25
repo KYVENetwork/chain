@@ -8,19 +8,16 @@ import (
 
 	// Auth
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	// Bank
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+
 	// Mint
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool/keeper"
 	// Team
 	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
-	// Upgrade
-	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 )
 
-func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk bankKeeper.Keeper, mk mintKeeper.Keeper, pk keeper.Keeper, tk teamKeeper.Keeper, uk upgradeKeeper.Keeper) {
+func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk util.BankKeeper, mk mintKeeper.Keeper, pk keeper.Keeper, tk teamKeeper.Keeper, uk util.UpgradeKeeper) {
 	minter, err := mk.Minter.Get(ctx)
 	if err != nil {
 		util.PanicHalt(uk, ctx, "failed to get minter")
