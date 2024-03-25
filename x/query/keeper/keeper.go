@@ -22,7 +22,6 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/query/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
@@ -32,6 +31,7 @@ type (
 		storeKey   storetypes.StoreKey
 		memKey     storetypes.StoreKey
 		paramstore paramtypes.Subspace
+		logger     log.Logger
 
 		accountKeeper    authkeeper.AccountKeeper
 		bankKeeper       bankkeeper.Keeper
@@ -52,6 +52,7 @@ func NewKeeper(
 	storeKey,
 	memKey storetypes.StoreKey,
 	ps paramtypes.Subspace,
+	logger log.Logger,
 
 	accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
@@ -85,6 +86,6 @@ func NewKeeper(
 	}
 }
 
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+func (k Keeper) Logger() log.Logger {
+	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }

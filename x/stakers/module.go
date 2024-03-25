@@ -3,13 +3,23 @@ package stakers
 import (
 	"context"
 	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/depinject"
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
+	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 	"encoding/json"
 	"fmt"
+	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	// this line is used by starport scaffolding # 1
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
+	modulev1 "github.com/KYVENetwork/chain/api/kyve/stakers/module"
 	"github.com/KYVENetwork/chain/x/stakers/client/cli"
 	"github.com/KYVENetwork/chain/x/stakers/keeper"
 	"github.com/KYVENetwork/chain/x/stakers/types"
@@ -164,3 +174,65 @@ func (am AppModule) IsOnePerModuleType() {}
 
 // IsAppModule implements the appmodule.AppModule interface.
 func (am AppModule) IsAppModule() {}
+
+// ----------------------------------------------------------------------------
+// App Wiring Setup
+// ----------------------------------------------------------------------------
+
+func init() {
+	appmodule.Register(
+		&modulev1.Module{},
+		appmodule.Provide(ProvideModule),
+	)
+}
+
+type ModuleInputs struct {
+	depinject.In
+
+	Cdc      codec.Codec
+	Config   *modulev1.Module
+	StoreKey storetypes.StoreKey
+	MemKey   storetypes.StoreKey
+	Logger   log.Logger
+
+	AccountKeeper      types.AccountKeeper
+	BankKeeper         bankKeeper.Keeper
+	DistributionKeeper distributionKeeper.Keeper
+	UpgradeKeeper      upgradeKeeper.Keeper
+	PoolKeeper         poolKeeper.Keeper
+}
+
+type ModuleOutputs struct {
+	depinject.Out
+
+	BundlesKeeper keeper.Keeper
+	Module        appmodule.AppModule
+}
+
+func ProvideModule(in ModuleInputs) ModuleOutputs {
+	// default to governance authority if not provided
+	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
+	if in.Config.Authority != "" {
+		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
+	}
+	k := keeper.NewKeeper(
+		in.Cdc,
+		in.StoreKey,
+		in.MemKey,
+		in.Logger,
+		authority.String(),
+		in.AccountKeeper,
+		in.BankKeeper,
+		in.DistributionKeeper,
+		in.PoolKeeper,
+		in.UpgradeKeeper,
+	)
+	m := NewAppModule(
+		in.Cdc,
+		*k,
+		in.AccountKeeper,
+		in.BankKeeper,
+	)
+
+	return ModuleOutputs{BundlesKeeper: *k, Module: m}
+}

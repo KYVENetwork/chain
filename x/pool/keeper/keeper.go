@@ -26,6 +26,7 @@ type (
 		cdc      codec.BinaryCodec
 		storeKey storeTypes.StoreKey
 		memKey   storeTypes.StoreKey
+		logger   log.Logger
 
 		authority string
 
@@ -44,6 +45,7 @@ func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storeTypes.StoreKey,
 	memKey storeTypes.StoreKey,
+	logger log.Logger,
 
 	authority string,
 
@@ -58,6 +60,7 @@ func NewKeeper(
 		cdc:      cdc,
 		storeKey: storeKey,
 		memKey:   memKey,
+		logger:   logger,
 
 		authority: authority,
 
@@ -97,8 +100,8 @@ func SetFundersKeeper(k *Keeper, fundersKeeper types.FundersKeeper) {
 	k.fundersKeeper = fundersKeeper
 }
 
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+func (k Keeper) Logger() log.Logger {
+	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
 func (k Keeper) StoreKey() storeTypes.StoreKey {

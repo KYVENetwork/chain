@@ -3,10 +3,17 @@ package funders
 import (
 	"context"
 	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/depinject"
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
+	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 	"encoding/json"
 	"fmt"
-
 	"github.com/KYVENetwork/chain/util"
+	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	// this line is used by starport scaffolding # 1
 
@@ -21,6 +28,8 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+
+	modulev1 "github.com/KYVENetwork/chain/api/kyve/funders/module"
 )
 
 var (
@@ -161,3 +170,64 @@ func (am AppModule) IsOnePerModuleType() {}
 
 // IsAppModule implements the appmodule.AppModule interface.
 func (am AppModule) IsAppModule() {}
+
+// ----------------------------------------------------------------------------
+// App Wiring Setup
+// ----------------------------------------------------------------------------
+
+func init() {
+	appmodule.Register(
+		&modulev1.Module{},
+		appmodule.Provide(ProvideModule),
+	)
+}
+
+type ModuleInputs struct {
+	depinject.In
+
+	Cdc      codec.Codec
+	Config   *modulev1.Module
+	StoreKey storetypes.StoreKey
+	MemKey   storetypes.StoreKey
+	Logger   log.Logger
+
+	AccountKeeper util.AccountKeeper
+	BankKeeper    bankKeeper.Keeper
+	UpgradeKeeper upgradeKeeper.Keeper
+	PoolKeeper    poolKeeper.Keeper
+}
+
+type ModuleOutputs struct {
+	depinject.Out
+
+	FundersKeeper keeper.Keeper
+	Module        appmodule.AppModule
+}
+
+func ProvideModule(in ModuleInputs) ModuleOutputs {
+	// default to governance authority if not provided
+	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
+	if in.Config.Authority != "" {
+		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
+	}
+
+	k := keeper.NewKeeper(
+		in.Cdc,
+		in.StoreKey,
+		in.MemKey,
+		in.Logger,
+		authority.String(),
+		in.AccountKeeper,
+		in.BankKeeper,
+		in.PoolKeeper,
+		in.UpgradeKeeper,
+	)
+	m := NewAppModule(
+		in.Cdc,
+		*k,
+		in.AccountKeeper,
+		in.BankKeeper,
+	)
+
+	return ModuleOutputs{FundersKeeper: *k, Module: m}
+}

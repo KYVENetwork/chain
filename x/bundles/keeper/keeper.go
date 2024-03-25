@@ -15,6 +15,7 @@ type (
 		cdc      codec.BinaryCodec
 		storeKey storetypes.StoreKey
 		memKey   storetypes.StoreKey
+		logger   log.Logger
 
 		authority string
 
@@ -32,6 +33,7 @@ func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storetypes.StoreKey,
 	memKey storetypes.StoreKey,
+	logger log.Logger,
 
 	authority string,
 
@@ -47,6 +49,7 @@ func NewKeeper(
 		cdc:      cdc,
 		storeKey: storeKey,
 		memKey:   memKey,
+		logger:   logger,
 
 		authority: authority,
 
@@ -60,8 +63,8 @@ func NewKeeper(
 	}
 }
 
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+func (k Keeper) Logger() log.Logger {
+	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
 // A mem-store initialization needs to be performed in the begin-block.

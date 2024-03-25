@@ -3,8 +3,15 @@ package bundles
 import (
 	"context"
 	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/depinject"
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
 	"encoding/json"
 	"fmt"
+	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
+	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
@@ -26,6 +33,8 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+
+	modulev1 "github.com/KYVENetwork/chain/api/kyve/bundles/module"
 )
 
 var (
@@ -139,9 +148,6 @@ func NewAppModule(
 	}
 }
 
-// Deprecated: use RegisterServices
-func (AppModule) QuerierRoute() string { return types.RouterKey }
-
 // RegisterServices registers a gRPC query service to respond to the module-specific gRPC queries
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
@@ -188,3 +194,77 @@ func (am AppModule) IsOnePerModuleType() {}
 
 // IsAppModule implements the appmodule.AppModule interface.
 func (am AppModule) IsAppModule() {}
+
+// ----------------------------------------------------------------------------
+// App Wiring Setup
+// ----------------------------------------------------------------------------
+
+func init() {
+	appmodule.Register(
+		&modulev1.Module{},
+		appmodule.Provide(ProvideModule),
+	)
+}
+
+type ModuleInputs struct {
+	depinject.In
+
+	Cdc      codec.Codec
+	Config   *modulev1.Module
+	StoreKey storetypes.StoreKey
+	MemKey   storetypes.StoreKey
+	Logger   log.Logger
+
+	AccountKeeper      types.AccountKeeper
+	BankKeeper         bankKeeper.Keeper
+	DistributionKeeper distributionKeeper.Keeper
+	MintKeeper         mintKeeper.Keeper
+	UpgradeKeeper      upgradeKeeper.Keeper
+	PoolKeeper         poolKeeper.Keeper
+	TeamKeeper         teamKeeper.Keeper
+	StakersKeeper      stakersKeeper.Keeper
+	DelegationKeeper   delegationKeeper.Keeper
+	FundersKeeper      types.FundersKeeper
+}
+
+type ModuleOutputs struct {
+	depinject.Out
+
+	BundlesKeeper keeper.Keeper
+	Module        appmodule.AppModule
+}
+
+func ProvideModule(in ModuleInputs) ModuleOutputs {
+	// default to governance authority if not provided
+	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
+	if in.Config.Authority != "" {
+		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
+	}
+	k := keeper.NewKeeper(
+		in.Cdc,
+		in.StoreKey,
+		in.MemKey,
+		in.Logger,
+		authority.String(),
+		in.AccountKeeper,
+		in.BankKeeper,
+		in.DistributionKeeper,
+		in.PoolKeeper,
+		in.StakersKeeper,
+		in.DelegationKeeper,
+		in.FundersKeeper,
+	)
+	m := NewAppModule(
+		in.Cdc,
+		*k,
+		in.AccountKeeper,
+		in.BankKeeper,
+		in.DistributionKeeper,
+		in.MintKeeper,
+		in.UpgradeKeeper,
+		in.PoolKeeper,
+		in.TeamKeeper,
+	)
+
+	return ModuleOutputs{BundlesKeeper: *k, Module: m}
+}

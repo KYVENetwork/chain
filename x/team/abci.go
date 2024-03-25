@@ -58,5 +58,5 @@ func DistributeTeamInflation(ctx sdk.Context, bk bankKeeper.Keeper, tk keeper.Ke
 		util.PanicHalt(uk, ctx, err.Error())
 	}
 
-	tk.Logger(ctx).Info("distributed portion of minted coins", "amount", teamModuleRewards)
+	tk.Logger().Info("distributed portion of minted coins", "amount", teamModuleRewards)
 }

@@ -3,12 +3,31 @@ package query
 import (
 	"context"
 	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/depinject"
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
+	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 	"encoding/json"
+	bundlekeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
+	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
+	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
+	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
+	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
+	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
+	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+
 	// this line is used by starport scaffolding # 1
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
+	modulev1 "github.com/KYVENetwork/chain/api/kyve/query/module"
 	"github.com/KYVENetwork/chain/x/query/client/cli"
 	"github.com/KYVENetwork/chain/x/query/keeper"
 	"github.com/KYVENetwork/chain/x/query/types"
@@ -157,3 +176,75 @@ func (am AppModule) IsOnePerModuleType() {}
 
 // IsAppModule implements the appmodule.AppModule interface.
 func (am AppModule) IsAppModule() {}
+
+// ----------------------------------------------------------------------------
+// App Wiring Setup
+// ----------------------------------------------------------------------------
+
+func init() {
+	appmodule.Register(
+		&modulev1.Module{},
+		appmodule.Provide(ProvideModule),
+	)
+}
+
+type ModuleInputs struct {
+	depinject.In
+
+	Cdc      codec.Codec
+	Config   *modulev1.Module
+	StoreKey storetypes.StoreKey
+	MemKey   storetypes.StoreKey
+	Logger   log.Logger
+	Subspace paramtypes.Subspace
+
+	AccountKeeper      authkeeper.AccountKeeper
+	BankKeeper         bankKeeper.Keeper
+	DistributionKeeper distributionKeeper.Keeper
+	MintKeeper         mintKeeper.Keeper
+	UpgradeKeeper      upgradeKeeper.Keeper
+	PoolKeeper         poolKeeper.Keeper
+	TeamKeeper         teamKeeper.Keeper
+	StakersKeeper      stakersKeeper.Keeper
+	DelegationKeeper   delegationKeeper.Keeper
+	BundlesKeeper      bundlekeeper.Keeper
+	GlobalKeeper       globalKeeper.Keeper
+	GovKeeper          govkeeper.Keeper
+	FundersKeeper      fundersKeeper.Keeper
+}
+
+type ModuleOutputs struct {
+	depinject.Out
+
+	QueryKeeper keeper.Keeper
+	Module      appmodule.AppModule
+}
+
+func ProvideModule(in ModuleInputs) ModuleOutputs {
+	k := keeper.NewKeeper(
+		in.Cdc,
+		in.StoreKey,
+		in.MemKey,
+		in.Subspace,
+		in.Logger,
+		in.AccountKeeper,
+		in.BankKeeper,
+		in.DistributionKeeper,
+		in.PoolKeeper,
+		in.StakersKeeper,
+		in.DelegationKeeper,
+		in.BundlesKeeper,
+		in.GlobalKeeper,
+		in.GovKeeper,
+		in.TeamKeeper,
+		in.FundersKeeper,
+	)
+	m := NewAppModule(
+		in.Cdc,
+		*k,
+		in.AccountKeeper,
+		in.BankKeeper,
+	)
+
+	return ModuleOutputs{QueryKeeper: *k, Module: m}
+}

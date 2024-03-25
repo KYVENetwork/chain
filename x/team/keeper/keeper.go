@@ -9,8 +9,6 @@ import (
 
 	storeTypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	// Auth
 	authKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	// Bank
@@ -23,6 +21,7 @@ type (
 	Keeper struct {
 		cdc      codec.BinaryCodec
 		storeKey storeTypes.StoreKey
+		logger   log.Logger
 
 		accountKeeper authKeeper.AccountKeeper
 		bankKeeper    bankKeeper.Keeper
@@ -34,6 +33,8 @@ type (
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storeTypes.StoreKey,
+	logger log.Logger,
+
 	accountKeeper authKeeper.AccountKeeper,
 	bankKeeper bankKeeper.Keeper,
 	mintKeeper mintKeeper.Keeper,
@@ -42,6 +43,7 @@ func NewKeeper(
 	return &Keeper{
 		cdc:      cdc,
 		storeKey: storeKey,
+		logger:   logger,
 
 		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
@@ -50,8 +52,8 @@ func NewKeeper(
 	}
 }
 
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+func (k Keeper) Logger() log.Logger {
+	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
 func (k Keeper) StoreKey() storeTypes.StoreKey {

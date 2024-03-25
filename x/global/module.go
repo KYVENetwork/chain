@@ -3,14 +3,18 @@ package global
 import (
 	"context"
 	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/depinject"
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
 	"encoding/json"
 	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
@@ -24,6 +28,8 @@ import (
 	"github.com/KYVENetwork/chain/x/global/types"
 	// Upgrade
 	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
+
+	modulev1 "github.com/KYVENetwork/chain/api/kyve/global/module"
 )
 
 var (
@@ -171,3 +177,57 @@ func (am AppModule) IsOnePerModuleType() {}
 
 // IsAppModule implements the appmodule.AppModule interface.
 func (am AppModule) IsAppModule() {}
+
+// ----------------------------------------------------------------------------
+// App Wiring Setup
+// ----------------------------------------------------------------------------
+
+func init() {
+	appmodule.Register(
+		&modulev1.Module{},
+		appmodule.Provide(ProvideModule),
+	)
+}
+
+type ModuleInputs struct {
+	depinject.In
+
+	Cdc      codec.Codec
+	Config   *modulev1.Module
+	StoreKey storetypes.StoreKey
+	Logger   log.Logger
+
+	AccountKeeper authKeeper.AccountKeeper
+	BankKeeper    bankKeeper.Keeper
+	UpgradeKeeper upgradeKeeper.Keeper
+}
+
+type ModuleOutputs struct {
+	depinject.Out
+
+	BundlesKeeper keeper.Keeper
+	Module        appmodule.AppModule
+}
+
+func ProvideModule(in ModuleInputs) ModuleOutputs {
+	// default to governance authority if not provided
+	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
+	if in.Config.Authority != "" {
+		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
+	}
+	k := keeper.NewKeeper(
+		in.Cdc,
+		in.StoreKey,
+		in.Logger,
+		authority.String(),
+	)
+	m := NewAppModule(
+		in.Cdc,
+		in.AccountKeeper,
+		in.BankKeeper,
+		*k,
+		in.UpgradeKeeper,
+	)
+
+	return ModuleOutputs{BundlesKeeper: *k, Module: m}
+}

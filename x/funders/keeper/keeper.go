@@ -8,7 +8,6 @@ import (
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/funders/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type (
@@ -16,10 +15,11 @@ type (
 		cdc      codec.BinaryCodec
 		storeKey storetypes.StoreKey
 		memKey   storetypes.StoreKey
+		logger   log.Logger
 
 		authority string
 
-		accountKeeper types.AccountKeeper
+		accountKeeper util.AccountKeeper
 		bankKeeper    util.BankKeeper
 		poolKeeper    types.PoolKeeper
 		upgradeKeeper util.UpgradeKeeper
@@ -30,10 +30,11 @@ func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey,
 	memKey storetypes.StoreKey,
+	logger log.Logger,
 
 	authority string,
 
-	accountKeeper types.AccountKeeper,
+	accountKeeper util.AccountKeeper,
 	bankKeeper util.BankKeeper,
 	poolKeeper types.PoolKeeper,
 	upgradeKeeper util.UpgradeKeeper,
@@ -42,6 +43,7 @@ func NewKeeper(
 		cdc:      cdc,
 		storeKey: storeKey,
 		memKey:   memKey,
+		logger:   logger,
 
 		authority: authority,
 
@@ -52,8 +54,8 @@ func NewKeeper(
 	}
 }
 
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+func (k Keeper) Logger() log.Logger {
+	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
 func (k Keeper) StoreKey() storetypes.StoreKey {

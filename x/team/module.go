@@ -3,14 +3,17 @@ package team
 import (
 	"context"
 	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/depinject"
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
 	"encoding/json"
 	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	authKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
@@ -24,6 +27,7 @@ import (
 	"github.com/KYVENetwork/chain/x/team/types"
 	// Upgrade
 	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
+	modulev1 "github.com/KYVENetwork/chain/api/kyve/team/module"
 )
 
 var (
@@ -171,3 +175,57 @@ func (am AppModule) IsOnePerModuleType() {}
 
 // IsAppModule implements the appmodule.AppModule interface.
 func (am AppModule) IsAppModule() {}
+
+// ----------------------------------------------------------------------------
+// App Wiring Setup
+// ----------------------------------------------------------------------------
+
+func init() {
+	appmodule.Register(
+		&modulev1.Module{},
+		appmodule.Provide(ProvideModule),
+	)
+}
+
+type ModuleInputs struct {
+	depinject.In
+
+	Cdc      codec.Codec
+	Config   *modulev1.Module
+	StoreKey storetypes.StoreKey
+	MemKey   storetypes.StoreKey
+	Logger   log.Logger
+
+	AccountKeeper authKeeper.AccountKeeper
+	BankKeeper    bankKeeper.Keeper
+	MintKeeper    mintKeeper.Keeper
+	UpgradeKeeper upgradeKeeper.Keeper
+}
+
+type ModuleOutputs struct {
+	depinject.Out
+
+	TeamKeeper keeper.Keeper
+	Module     appmodule.AppModule
+}
+
+func ProvideModule(in ModuleInputs) ModuleOutputs {
+	k := keeper.NewKeeper(
+		in.Cdc,
+		in.StoreKey,
+		in.Logger,
+		in.AccountKeeper,
+		in.BankKeeper,
+		in.MintKeeper,
+		in.UpgradeKeeper,
+	)
+	m := NewAppModule(
+		in.Cdc,
+		in.BankKeeper,
+		in.MintKeeper,
+		*k,
+		in.UpgradeKeeper,
+	)
+
+	return ModuleOutputs{TeamKeeper: *k, Module: m}
+}
