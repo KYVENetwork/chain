@@ -1,18 +1,26 @@
 version: v1
 name: buf.build/kyve/chain
 deps:
-  - buf.build/cosmos/cosmos-proto
+  - buf.build/protocolbuffers/wellknowntypes
   - buf.build/cosmos/cosmos-sdk:v0.47.0
+  - buf.build/cosmos/cosmos-proto
   - buf.build/cosmos/gogo-proto
   - buf.build/googleapis/googleapis
+  - buf.build/cosmos/ics23
+  - buf.build/cosmos/ibc
 breaking:
   use:
     - FILE
 lint:
+  except:
+    - UNARY_RPC
+    - COMMENT_FIELD
+    - SERVICE_SUFFIX
+    - PACKAGE_VERSION_SUFFIX
+    - RPC_REQUEST_STANDARD_NAME
+  ignore:
+    - tendermint
   use:
     - DEFAULT
     - COMMENTS
-  except:
-    - SERVICE_SUFFIX
-    - RPC_REQUEST_STANDARD_NAME
-    - RPC_RESPONSE_STANDARD_NAME
+    - FILE_LOWER_SNAKE_CASE

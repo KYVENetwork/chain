@@ -19,6 +19,8 @@ RUN npm install -g swagger-combine
 
 COPY --from=BUILDER /usr/local/bin /usr/local/bin
 
+COPY proto proto
+
 # Inject user id and group id to avoid permission issues when running as a root user
 ARG USER_ID=1000
 ARG USER_GID=1000
@@ -33,5 +35,9 @@ RUN if ! getent passwd $USER_ID; then \
   adduser -D -u $USER_ID -G $(getent group $USER_GID | cut -d: -f1) myuser; \
 fi
 
+RUN chown -R $USER_ID:$USER_GID proto
+
 # Change to user
 USER $USER_ID
+
+RUN cd proto && buf mod update
