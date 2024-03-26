@@ -1,7 +1,9 @@
 package keeper
 
 import (
+	"cosmossdk.io/core/store"
 	"fmt"
+	"github.com/KYVENetwork/chain/util"
 
 	"cosmossdk.io/log"
 	storeTypes "cosmossdk.io/store/types"
@@ -9,67 +11,54 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	// Bank
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	// Distribution
-	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	// Mint
-	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
+
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool/types"
-	// Team
-	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
 )
 
 type (
 	Keeper struct {
-		cdc      codec.BinaryCodec
-		storeKey storeTypes.StoreKey
-		memKey   storeTypes.StoreKey
-		logger   log.Logger
+		cdc          codec.BinaryCodec
+		storeService store.KVStoreService
+		memService   store.MemoryStoreService
+		logger       log.Logger
 
 		authority string
 
 		stakersKeeper types.StakersKeeper
 		accountKeeper types.AccountKeeper
-		bankKeeper    bankKeeper.Keeper
-		distrkeeper   distributionKeeper.Keeper
-		mintKeeper    mintKeeper.Keeper
-		upgradeKeeper types.UpgradeKeeper
-		teamKeeper    teamKeeper.Keeper
+		bankKeeper    types.BankKeeper
+		distrkeeper   util.DistributionKeeper
+		upgradeKeeper util.UpgradeKeeper
 		fundersKeeper types.FundersKeeper
 	}
 )
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	storeKey storeTypes.StoreKey,
-	memKey storeTypes.StoreKey,
+	storeService store.KVStoreService,
+	memService store.MemoryStoreService,
 	logger log.Logger,
 
 	authority string,
 
 	accountKeeper types.AccountKeeper,
-	bankKeeper bankKeeper.Keeper,
-	distrKeeper distributionKeeper.Keeper,
-	mintKeeper mintKeeper.Keeper,
-	upgradeKeeper types.UpgradeKeeper,
-	teamKeeper teamKeeper.Keeper,
+	bankKeeper types.BankKeeper,
+	distrKeeper util.DistributionKeeper,
+	upgradeKeeper util.UpgradeKeeper,
 ) *Keeper {
 	return &Keeper{
-		cdc:      cdc,
-		storeKey: storeKey,
-		memKey:   memKey,
-		logger:   logger,
+		cdc:          cdc,
+		storeService: storeService,
+		memService:   memService,
+		logger:       logger,
 
 		authority: authority,
 
 		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
 		distrkeeper:   distrKeeper,
-		mintKeeper:    mintKeeper,
 		upgradeKeeper: upgradeKeeper,
-		teamKeeper:    teamKeeper,
 	}
 }
 
@@ -105,5 +94,6 @@ func (k Keeper) Logger() log.Logger {
 }
 
 func (k Keeper) StoreKey() storeTypes.StoreKey {
-	return k.storeKey
+	// TODO: Check this
+	return storeTypes.NewKVStoreKey(types.StoreKey)
 }

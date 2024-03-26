@@ -3,35 +3,26 @@ package pool
 import (
 	"context"
 	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	storetypes "cosmossdk.io/store/types"
 	"encoding/json"
 	"fmt"
-	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
-
+	"github.com/KYVENetwork/chain/util"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
-
-	// Bank
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool/client/cli"
 	"github.com/KYVENetwork/chain/x/pool/keeper"
 	"github.com/KYVENetwork/chain/x/pool/types"
-
-	// Upgrade
-	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 
 	modulev1 "github.com/KYVENetwork/chain/api/kyve/pool/module"
 )
@@ -115,16 +106,16 @@ type AppModule struct {
 
 	keeper        keeper.Keeper
 	accountKeeper types.AccountKeeper
-	bankKeeper    bankKeeper.Keeper
-	upgradeKeeper upgradeKeeper.Keeper
+	bankKeeper    types.BankKeeper
+	upgradeKeeper util.UpgradeKeeper
 }
 
 func NewAppModule(
 	cdc codec.Codec,
 	keeper keeper.Keeper,
 	accountKeeper types.AccountKeeper,
-	bankKeeper bankKeeper.Keeper,
-	upgradeKeeper upgradeKeeper.Keeper,
+	bankKeeper types.BankKeeper,
+	upgradeKeeper util.UpgradeKeeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: NewAppModuleBasic(cdc),
@@ -196,18 +187,16 @@ func init() {
 type ModuleInputs struct {
 	depinject.In
 
-	Cdc      codec.Codec
-	Config   *modulev1.Module
-	StoreKey storetypes.StoreKey
-	MemKey   storetypes.StoreKey
-	Logger   log.Logger
+	Cdc          codec.Codec
+	Config       *modulev1.Module
+	StoreService store.KVStoreService
+	MemService   store.MemoryStoreService
+	Logger       log.Logger
 
 	AccountKeeper      types.AccountKeeper
-	BankKeeper         bankKeeper.Keeper
-	DistributionKeeper distributionKeeper.Keeper
-	MintKeeper         mintKeeper.Keeper
-	UpgradeKeeper      upgradeKeeper.Keeper
-	TeamKeeper         teamKeeper.Keeper
+	BankKeeper         types.BankKeeper
+	DistributionKeeper util.DistributionKeeper
+	UpgradeKeeper      util.UpgradeKeeper
 }
 
 type ModuleOutputs struct {
@@ -225,16 +214,14 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 	}
 	k := keeper.NewKeeper(
 		in.Cdc,
-		in.StoreKey,
-		in.MemKey,
+		in.StoreService,
+		in.MemService,
 		in.Logger,
 		authority.String(),
 		in.AccountKeeper,
 		in.BankKeeper,
 		in.DistributionKeeper,
-		in.MintKeeper,
 		in.UpgradeKeeper,
-		in.TeamKeeper,
 	)
 	m := NewAppModule(
 		in.Cdc,

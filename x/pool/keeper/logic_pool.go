@@ -7,6 +7,7 @@ import (
 	"github.com/KYVENetwork/chain/util"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	"github.com/KYVENetwork/chain/x/pool/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -23,7 +24,8 @@ func (k Keeper) GetPoolWithError(ctx sdk.Context, poolId uint64) (types.Pool, er
 
 // AssertPoolExists returns nil if the pool exists and types.ErrPoolNotFound if it does not.
 func (k Keeper) AssertPoolExists(ctx sdk.Context, poolId uint64) error {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.PoolKey)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.PoolKey)
 	if store.Has(types.PoolKeyPrefix(poolId)) {
 		return nil
 	}
