@@ -3,11 +3,12 @@ package global
 import (
 	"context"
 	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	storetypes "cosmossdk.io/store/types"
 	"encoding/json"
 	"fmt"
+	"github.com/KYVENetwork/chain/util"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -26,8 +27,6 @@ import (
 	"github.com/KYVENetwork/chain/x/global/client/cli"
 	"github.com/KYVENetwork/chain/x/global/keeper"
 	"github.com/KYVENetwork/chain/x/global/types"
-	// Upgrade
-	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 
 	modulev1 "github.com/KYVENetwork/chain/api/kyve/global/module"
 )
@@ -112,7 +111,7 @@ type AppModule struct {
 	ak     authKeeper.AccountKeeper
 	bk     bankKeeper.Keeper
 	keeper keeper.Keeper
-	uk     upgradeKeeper.Keeper
+	uk     util.UpgradeKeeper
 }
 
 func NewAppModule(
@@ -120,7 +119,7 @@ func NewAppModule(
 	ak authKeeper.AccountKeeper,
 	bk bankKeeper.Keeper,
 	keeper keeper.Keeper,
-	uk upgradeKeeper.Keeper,
+	uk util.UpgradeKeeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: NewAppModuleBasic(cdc),
@@ -192,14 +191,14 @@ func init() {
 type ModuleInputs struct {
 	depinject.In
 
-	Cdc      codec.Codec
-	Config   *modulev1.Module
-	StoreKey storetypes.StoreKey
-	Logger   log.Logger
+	Cdc          codec.Codec
+	Config       *modulev1.Module
+	StoreService store.KVStoreService
+	Logger       log.Logger
 
 	AccountKeeper authKeeper.AccountKeeper
 	BankKeeper    bankKeeper.Keeper
-	UpgradeKeeper upgradeKeeper.Keeper
+	UpgradeKeeper util.UpgradeKeeper
 }
 
 type ModuleOutputs struct {
@@ -217,7 +216,7 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 	}
 	k := keeper.NewKeeper(
 		in.Cdc,
-		in.StoreKey,
+		in.StoreService,
 		in.Logger,
 		authority.String(),
 	)
