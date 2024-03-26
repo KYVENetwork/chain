@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"cosmossdk.io/core/store"
 	"cosmossdk.io/log"
 	"fmt"
 
@@ -12,10 +13,10 @@ import (
 
 type (
 	Keeper struct {
-		cdc      codec.BinaryCodec
-		storeKey storetypes.StoreKey
-		memKey   storetypes.StoreKey
-		logger   log.Logger
+		cdc          codec.BinaryCodec
+		storeService store.KVStoreService
+		memService   store.MemoryStoreService
+		logger       log.Logger
 
 		authority string
 
@@ -28,8 +29,8 @@ type (
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	storeKey,
-	memKey storetypes.StoreKey,
+	storeService store.KVStoreService,
+	memService store.MemoryStoreService,
 	logger log.Logger,
 
 	authority string,
@@ -40,10 +41,10 @@ func NewKeeper(
 	upgradeKeeper util.UpgradeKeeper,
 ) *Keeper {
 	return &Keeper{
-		cdc:      cdc,
-		storeKey: storeKey,
-		memKey:   memKey,
-		logger:   logger,
+		cdc:          cdc,
+		storeService: storeService,
+		memService:   memService,
+		logger:       logger,
 
 		authority: authority,
 
@@ -59,5 +60,6 @@ func (k Keeper) Logger() log.Logger {
 }
 
 func (k Keeper) StoreKey() storetypes.StoreKey {
-	return k.storeKey
+	// TODO: Check this
+	return storetypes.NewKVStoreKey(types.StoreKey)
 }

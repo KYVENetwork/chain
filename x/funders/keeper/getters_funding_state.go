@@ -4,18 +4,21 @@ import (
 	"cosmossdk.io/store/prefix"
 	storeTypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/funders/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // DoesFundingStateExist checks if the FundingState exists
 func (k Keeper) DoesFundingStateExist(ctx sdk.Context, poolId uint64) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FundingStateKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.FundingStateKeyPrefix)
 	return store.Has(types.FundingStateKey(poolId))
 }
 
 // GetFundingState returns the FundingState
 func (k Keeper) GetFundingState(ctx sdk.Context, poolId uint64) (fundingState types.FundingState, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FundingStateKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.FundingStateKeyPrefix)
 
 	b := store.Get(types.FundingStateKey(
 		poolId,
@@ -30,7 +33,8 @@ func (k Keeper) GetFundingState(ctx sdk.Context, poolId uint64) (fundingState ty
 
 // GetAllFundingStates returns all FundingStates
 func (k Keeper) GetAllFundingStates(ctx sdk.Context) (fundingStates []types.FundingState) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FundingStateKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.FundingStateKeyPrefix)
 	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	//goland:noinspection GoUnhandledErrorResult
@@ -47,7 +51,8 @@ func (k Keeper) GetAllFundingStates(ctx sdk.Context) (fundingStates []types.Fund
 // SetFundingState sets a specific FundingState in the store from its index
 func (k Keeper) SetFundingState(ctx sdk.Context, fundingState *types.FundingState) {
 	b := k.cdc.MustMarshal(fundingState)
-	storeByFunder := prefix.NewStore(ctx.KVStore(k.storeKey), types.FundingStateKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	storeByFunder := prefix.NewStore(storeAdapter, types.FundingStateKeyPrefix)
 	storeByFunder.Set(types.FundingStateKey(
 		fundingState.PoolId,
 	), b)

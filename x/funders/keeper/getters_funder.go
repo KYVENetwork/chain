@@ -2,6 +2,7 @@ package keeper
 
 import (
 	storeTypes "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	"strings"
 
 	"cosmossdk.io/store/prefix"
@@ -14,13 +15,15 @@ import (
 
 // DoesFunderExist checks if the funding exists
 func (k Keeper) DoesFunderExist(ctx sdk.Context, funderAddress string) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FunderKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.FunderKeyPrefix)
 	return store.Has(types.FunderKey(funderAddress))
 }
 
 // GetFunder returns the funder
 func (k Keeper) GetFunder(ctx sdk.Context, funderAddress string) (funder types.Funder, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FunderKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.FunderKeyPrefix)
 
 	b := store.Get(types.FunderKey(
 		funderAddress,
@@ -35,7 +38,8 @@ func (k Keeper) GetFunder(ctx sdk.Context, funderAddress string) (funder types.F
 
 // GetAllFunders returns all funders
 func (k Keeper) GetAllFunders(ctx sdk.Context) (funders []types.Funder) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FunderKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.FunderKeyPrefix)
 	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	//goland:noinspection GoUnhandledErrorResult
@@ -51,7 +55,8 @@ func (k Keeper) GetAllFunders(ctx sdk.Context) (funders []types.Funder) {
 
 // SetFunder sets a specific funder in the store from its index
 func (k Keeper) SetFunder(ctx sdk.Context, funder *types.Funder) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FunderKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.FunderKeyPrefix)
 	b := k.cdc.MustMarshal(funder)
 	store.Set(types.FunderKey(
 		funder.Address,
@@ -66,7 +71,8 @@ func (k Keeper) GetPaginatedFundersQuery(
 ) ([]types.Funder, *query.PageResponse, error) {
 	var funders []types.Funder
 
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.FunderKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.FunderKeyPrefix)
 
 	pageRes, err := query.FilteredPaginate(store, pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
 		var funder types.Funder
