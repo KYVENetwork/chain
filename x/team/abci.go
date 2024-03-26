@@ -9,17 +9,13 @@ import (
 
 	// Auth
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	// Bank
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	// Team
 	"github.com/KYVENetwork/chain/x/team/keeper"
 	"github.com/KYVENetwork/chain/x/team/types"
-	// Upgrade
-	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 )
 
-func DistributeTeamInflation(ctx sdk.Context, bk bankKeeper.Keeper, tk keeper.Keeper, uk upgradeKeeper.Keeper) {
+func DistributeTeamInflation(ctx sdk.Context, bk util.BankKeeper, tk keeper.Keeper, uk util.UpgradeKeeper) {
 	// get the total team reward the module is eligible for in this block
 	teamModuleRewards := tk.GetTeamBlockProvision(ctx)
 

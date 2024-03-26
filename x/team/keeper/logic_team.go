@@ -3,7 +3,6 @@ package keeper
 import (
 	"cosmossdk.io/math"
 	"fmt"
-
 	"github.com/KYVENetwork/chain/util"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	"github.com/KYVENetwork/chain/x/team/types"

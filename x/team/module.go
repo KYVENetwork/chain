@@ -3,30 +3,26 @@ package team
 import (
 	"context"
 	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	storetypes "cosmossdk.io/store/types"
 	"encoding/json"
 	"fmt"
+	"github.com/KYVENetwork/chain/util"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	authKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	// Bank
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	// Mint
-	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	// Team
 	"github.com/KYVENetwork/chain/x/team/client/cli"
 	"github.com/KYVENetwork/chain/x/team/keeper"
 	"github.com/KYVENetwork/chain/x/team/types"
-	// Upgrade
-	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
+
 	modulev1 "github.com/KYVENetwork/chain/api/kyve/team/module"
 )
 
@@ -107,18 +103,18 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 type AppModule struct {
 	AppModuleBasic
 
-	bk     bankKeeper.Keeper
+	bk     util.BankKeeper
 	mk     mintKeeper.Keeper
 	keeper keeper.Keeper
-	uk     upgradeKeeper.Keeper
+	uk     util.UpgradeKeeper
 }
 
 func NewAppModule(
 	cdc codec.Codec,
-	bk bankKeeper.Keeper,
+	bk util.BankKeeper,
 	mk mintKeeper.Keeper,
 	keeper keeper.Keeper,
-	uk upgradeKeeper.Keeper,
+	uk util.UpgradeKeeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: NewAppModuleBasic(cdc),
@@ -190,16 +186,15 @@ func init() {
 type ModuleInputs struct {
 	depinject.In
 
-	Cdc      codec.Codec
-	Config   *modulev1.Module
-	StoreKey storetypes.StoreKey
-	MemKey   storetypes.StoreKey
-	Logger   log.Logger
+	Cdc          codec.Codec
+	Config       *modulev1.Module
+	StoreService store.KVStoreService
+	Logger       log.Logger
 
-	AccountKeeper authKeeper.AccountKeeper
-	BankKeeper    bankKeeper.Keeper
+	AccountKeeper util.AccountKeeper
+	BankKeeper    types.BankKeeper
 	MintKeeper    mintKeeper.Keeper
-	UpgradeKeeper upgradeKeeper.Keeper
+	UpgradeKeeper util.UpgradeKeeper
 }
 
 type ModuleOutputs struct {
@@ -212,7 +207,7 @@ type ModuleOutputs struct {
 func ProvideModule(in ModuleInputs) ModuleOutputs {
 	k := keeper.NewKeeper(
 		in.Cdc,
-		in.StoreKey,
+		in.StoreService,
 		in.Logger,
 		in.AccountKeeper,
 		in.BankKeeper,

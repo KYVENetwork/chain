@@ -1,49 +1,46 @@
 package keeper
 
 import (
+	"cosmossdk.io/core/store"
 	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
 	"fmt"
-
-	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
+	"github.com/KYVENetwork/chain/util"
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 
-	storeTypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	// Auth
-	authKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	// Bank
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+
 	// Team
 	"github.com/KYVENetwork/chain/x/team/types"
 )
 
 type (
 	Keeper struct {
-		cdc      codec.BinaryCodec
-		storeKey storeTypes.StoreKey
-		logger   log.Logger
+		cdc          codec.BinaryCodec
+		storeService store.KVStoreService
+		logger       log.Logger
 
-		accountKeeper authKeeper.AccountKeeper
-		bankKeeper    bankKeeper.Keeper
+		accountKeeper util.AccountKeeper
+		bankKeeper    types.BankKeeper
 		mintKeeper    mintKeeper.Keeper
-		upgradeKeeper upgradeKeeper.Keeper
+		upgradeKeeper util.UpgradeKeeper
 	}
 )
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	storeKey storeTypes.StoreKey,
+	storeService store.KVStoreService,
 	logger log.Logger,
 
-	accountKeeper authKeeper.AccountKeeper,
-	bankKeeper bankKeeper.Keeper,
+	accountKeeper util.AccountKeeper,
+	bankKeeper types.BankKeeper,
 	mintKeeper mintKeeper.Keeper,
-	upgradeKeeper upgradeKeeper.Keeper,
+	upgradeKeeper util.UpgradeKeeper,
 ) *Keeper {
 	return &Keeper{
-		cdc:      cdc,
-		storeKey: storeKey,
-		logger:   logger,
+		cdc:          cdc,
+		storeService: storeService,
+		logger:       logger,
 
 		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
@@ -56,6 +53,7 @@ func (k Keeper) Logger() log.Logger {
 	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-func (k Keeper) StoreKey() storeTypes.StoreKey {
-	return k.storeKey
+func (k Keeper) StoreKey() storetypes.StoreKey {
+	// TODO: Check this
+	return storetypes.NewKVStoreKey(types.StoreKey)
 }
