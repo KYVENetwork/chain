@@ -4,6 +4,7 @@ import (
 	"cosmossdk.io/store/prefix"
 	storeTypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/stakers/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -13,14 +14,15 @@ import (
 
 // SetLeavePoolEntry ...
 func (k Keeper) SetLeavePoolEntry(ctx sdk.Context, leavePoolEntry types.LeavePoolEntry) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.LeavePoolEntryKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.LeavePoolEntryKeyPrefix)
 	b := k.cdc.MustMarshal(&leavePoolEntry)
 	store.Set(types.LeavePoolEntryKey(
 		leavePoolEntry.Index,
 	), b)
 
 	// Insert the same entry with a different key prefix for query lookup
-	indexStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LeavePoolEntryKeyPrefixIndex2)
+	indexStore := prefix.NewStore(storeAdapter, types.LeavePoolEntryKeyPrefixIndex2)
 	indexStore.Set(types.LeavePoolEntryKeyIndex2(
 		leavePoolEntry.Staker,
 		leavePoolEntry.PoolId,
@@ -29,7 +31,8 @@ func (k Keeper) SetLeavePoolEntry(ctx sdk.Context, leavePoolEntry types.LeavePoo
 
 // GetLeavePoolEntry ...
 func (k Keeper) GetLeavePoolEntry(ctx sdk.Context, index uint64) (val types.LeavePoolEntry, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.LeavePoolEntryKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.LeavePoolEntryKeyPrefix)
 
 	b := store.Get(types.LeavePoolEntryKey(index))
 	if b == nil {
@@ -42,7 +45,8 @@ func (k Keeper) GetLeavePoolEntry(ctx sdk.Context, index uint64) (val types.Leav
 
 // GetLeavePoolEntryByIndex2 ...
 func (k Keeper) GetLeavePoolEntryByIndex2(ctx sdk.Context, staker string, poolId uint64) (val types.LeavePoolEntry, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.LeavePoolEntryKeyPrefixIndex2)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.LeavePoolEntryKeyPrefixIndex2)
 
 	b := store.Get(types.LeavePoolEntryKeyIndex2(staker, poolId))
 	if b == nil {
@@ -55,17 +59,19 @@ func (k Keeper) GetLeavePoolEntryByIndex2(ctx sdk.Context, staker string, poolId
 
 // DoesLeavePoolEntryExistByIndex2 ...
 func (k Keeper) DoesLeavePoolEntryExistByIndex2(ctx sdk.Context, staker string, poolId uint64) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.LeavePoolEntryKeyPrefixIndex2)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.LeavePoolEntryKeyPrefixIndex2)
 
 	return store.Has(types.LeavePoolEntryKeyIndex2(staker, poolId))
 }
 
 // RemoveLeavePoolEntry ...
 func (k Keeper) RemoveLeavePoolEntry(ctx sdk.Context, leavePoolEntry *types.LeavePoolEntry) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.LeavePoolEntryKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.LeavePoolEntryKeyPrefixIndex2)
 	store.Delete(types.LeavePoolEntryKey(leavePoolEntry.Index))
 
-	indexStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LeavePoolEntryKeyPrefixIndex2)
+	indexStore := prefix.NewStore(storeAdapter, types.LeavePoolEntryKeyPrefixIndex2)
 	indexStore.Delete(types.LeavePoolEntryKeyIndex2(
 		leavePoolEntry.Staker,
 		leavePoolEntry.PoolId,
@@ -74,7 +80,8 @@ func (k Keeper) RemoveLeavePoolEntry(ctx sdk.Context, leavePoolEntry *types.Leav
 
 // GetAllLeavePoolEntries ...
 func (k Keeper) GetAllLeavePoolEntries(ctx sdk.Context) (list []types.LeavePoolEntry) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.LeavePoolEntryKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.LeavePoolEntryKeyPrefixIndex2)
 	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()

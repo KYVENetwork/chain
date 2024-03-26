@@ -4,6 +4,7 @@ import (
 	"cosmossdk.io/math"
 	storeTypes "cosmossdk.io/store/types"
 	"encoding/binary"
+	"github.com/cosmos/cosmos-sdk/runtime"
 
 	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/util"
@@ -107,7 +108,8 @@ func (k Keeper) getAllStakersOfPool(ctx sdk.Context, poolId uint64) []types.Stak
 
 // setStaker set a specific staker in the store from its index
 func (k Keeper) setStaker(ctx sdk.Context, staker types.Staker) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.StakerKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.StakerKeyPrefix)
 	b := k.cdc.MustMarshal(&staker)
 	store.Set(types.StakerKey(
 		staker.Address,
@@ -116,7 +118,8 @@ func (k Keeper) setStaker(ctx sdk.Context, staker types.Staker) {
 
 // DoesStakerExist returns true if the staker exists
 func (k Keeper) DoesStakerExist(ctx sdk.Context, staker string) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.StakerKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.StakerKeyPrefix)
 	return store.Has(types.StakerKey(staker))
 }
 
@@ -125,7 +128,8 @@ func (k Keeper) GetStaker(
 	ctx sdk.Context,
 	staker string,
 ) (val types.Staker, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.StakerKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.StakerKeyPrefix)
 
 	b := store.Get(types.StakerKey(
 		staker,
@@ -143,7 +147,8 @@ func (k Keeper) GetPaginatedStakerQuery(
 	pagination *query.PageRequest,
 	accumulator func(staker types.Staker),
 ) (*query.PageResponse, error) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.StakerKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.StakerKeyPrefix)
 
 	pageRes, err := query.FilteredPaginate(store, pagination, func(
 		key []byte,
@@ -169,7 +174,8 @@ func (k Keeper) GetPaginatedStakerQuery(
 
 // GetAllStakers returns all staker
 func (k Keeper) GetAllStakers(ctx sdk.Context) (list []types.Staker) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.StakerKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.StakerKeyPrefix)
 	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
@@ -203,7 +209,7 @@ func (k Keeper) subtractOneFromCount(ctx sdk.Context, poolId uint64) {
 
 // getStat get the total number of pool
 func (k Keeper) getStat(ctx sdk.Context, poolId uint64, statType types.STAKER_STATS) uint64 {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte{})
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	bz := store.Get(util.GetByteKey(string(statType), poolId))
 	if bz == nil {
 		return 0
@@ -213,7 +219,7 @@ func (k Keeper) getStat(ctx sdk.Context, poolId uint64, statType types.STAKER_ST
 
 // setStat set the total number of pool
 func (k Keeper) setStat(ctx sdk.Context, poolId uint64, statType types.STAKER_STATS, count uint64) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte{})
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	bz := make([]byte, 8)
 	binary.BigEndian.PutUint64(bz, count)
 	store.Set(util.GetByteKey(string(statType), poolId), bz)
@@ -225,7 +231,8 @@ func (k Keeper) setStat(ctx sdk.Context, poolId uint64, statType types.STAKER_ST
 // Active Staker stores all stakers that are at least in one pool
 
 func (k Keeper) isActiveStaker(ctx sdk.Context, staker string) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.ActiveStakerIndex)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.ActiveStakerIndex)
 	return store.Has(types.ActiveStakerKeyIndex(staker))
 }
 
@@ -233,7 +240,8 @@ func (k Keeper) isActiveStaker(ctx sdk.Context, staker string) bool {
 // The amount tracks the number of pools the staker is in. It also allows
 // to determine that a given staker is at least in one pool.
 func (k Keeper) AddActiveStaker(ctx sdk.Context, staker string) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.ActiveStakerIndex)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.ActiveStakerIndex)
 	// Get current count
 	count := uint64(0)
 	storeBytes := store.Get(types.ActiveStakerKeyIndex(staker))
@@ -257,7 +265,8 @@ func (k Keeper) AddActiveStaker(ctx sdk.Context, staker string) {
 // Therefore, one can be sure, that only stakers which are participating in
 // at least one pool are part of the set
 func (k Keeper) removeActiveStaker(ctx sdk.Context, staker string) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.ActiveStakerIndex)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.ActiveStakerIndex)
 	// Get current count
 	count := uint64(0)
 	storeBytes := store.Get(types.ActiveStakerKeyIndex(staker))
@@ -286,7 +295,8 @@ func (k Keeper) removeActiveStaker(ctx sdk.Context, staker string) {
 // getAllActiveStakers returns all active stakers, i.e. every staker
 // that is member of at least one pool.
 func (k Keeper) getAllActiveStakers(ctx sdk.Context) (list []string) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.ActiveStakerIndex)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.ActiveStakerIndex)
 	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {

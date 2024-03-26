@@ -3,12 +3,12 @@ package stakers
 import (
 	"context"
 	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	storetypes "cosmossdk.io/store/types"
-	upgradeKeeper "cosmossdk.io/x/upgrade/keeper"
 	"encoding/json"
 	"fmt"
+	"github.com/KYVENetwork/chain/util"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -189,16 +189,16 @@ func init() {
 type ModuleInputs struct {
 	depinject.In
 
-	Cdc      codec.Codec
-	Config   *modulev1.Module
-	StoreKey storetypes.StoreKey
-	MemKey   storetypes.StoreKey
-	Logger   log.Logger
+	Cdc          codec.Codec
+	Config       *modulev1.Module
+	StoreService store.KVStoreService
+	MemService   store.MemoryStoreService
+	Logger       log.Logger
 
 	AccountKeeper      types.AccountKeeper
 	BankKeeper         bankKeeper.Keeper
 	DistributionKeeper distributionKeeper.Keeper
-	UpgradeKeeper      upgradeKeeper.Keeper
+	UpgradeKeeper      util.UpgradeKeeper
 	PoolKeeper         poolKeeper.Keeper
 }
 
@@ -217,8 +217,8 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 	}
 	k := keeper.NewKeeper(
 		in.Cdc,
-		in.StoreKey,
-		in.MemKey,
+		in.StoreService,
+		in.MemService,
 		in.Logger,
 		authority.String(),
 		in.AccountKeeper,

@@ -2,7 +2,6 @@ package types
 
 import (
 	"context"
-	"cosmossdk.io/x/upgrade/types"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -27,10 +26,6 @@ type BankKeeper interface {
 type PoolKeeper interface {
 	AssertPoolExists(ctx sdk.Context, poolId uint64) error
 	GetPoolWithError(ctx sdk.Context, poolId uint64) (poolTypes.Pool, error)
-}
-
-type UpgradeKeeper interface {
-	ScheduleUpgrade(ctx context.Context, plan types.Plan) error
 }
 
 type DelegationKeeper interface {
