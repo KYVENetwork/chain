@@ -31,28 +31,20 @@ accounts:
       - 1000000000000000tkyve
     mnemonic: open home share route party lake room solution quantum pact model avocado
       humor dilemma review desert turtle total humor produce rate keen eagle fee
-  - name: team
-    coins:
-      - 165000000000000tkyve
-    address: kyve1e29j95xmsw3zmvtrk4st8e89z5n72v7nf70ma4
   - name: foundation
     coins:
       # for fees
       - 1000000tkyve
+    #    address: kyve1fd4qu868n7arav8vteghcppxxa0p2vna5f5ep8
     mnemonic: evidence taxi material cabin annual phrase practice unhappy safe jealous
       section drink illness panther bread aim mouse dolphin deliver ready doll finger search cheap
-  #    address: kyve1fd4qu868n7arav8vteghcppxxa0p2vna5f5ep8
   - name: foundation_inflation
     coins:
       # for fees
       - 1000000tkyve
+    #    address: kyve1tuxsc7ez79aydyee86qxm05zyx0l7d78c2zzsn
     mnemonic: hold urge sustain chef furnace foam oven fall harsh core anchor during crew secret
       craft rhythm choose gold soft aisle sort phrase enter orphan
-#    address: kyve1tuxsc7ez79aydyee86qxm05zyx0l7d78c2zzsn
-  - name: funders-module   # funders module
-    coins:
-      - 5300000000000tkyve
-    address: kyve1vg5325u5mat0y44g73n8t8z2le26fsa4n947f5
 faucet:
   name: faucet
   coins:
@@ -63,6 +55,19 @@ client:
     path: docs/swagger/swagger.yml
 genesis:
   app_state:
+    bank:
+      balances:
+        - address: "kyve1e29j95xmsw3zmvtrk4st8e89z5n72v7nf70ma4"  # team module
+          coins:
+            - denom: "tkyve"
+              amount: "165000000000000000"
+        - address: "kyve1vg5325u5mat0y44g73n8t8z2le26fsa4n947f5"  # funders module
+          coins:
+            - denom: "tkyve"
+              amount: "5300000000000000"
+      supply:
+        - denom: "tkyve"
+          amount: "170300000000000000"  # all balances together
     delegation:
       params:
         unbonding_delegation_time: 10
@@ -222,9 +227,9 @@ genesis:
           total_funded: 23000000000
       funding_state_list:
         - pool_id: 0
-          active_funder_addresses: ["kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd", "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat"]
+          active_funder_addresses: [ "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd", "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat" ]
         - pool_id: 1
-          active_funder_addresses: ["kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat"]
+          active_funder_addresses: [ "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat" ]
   chain_id: kyve-local
 validators:
   - name: alice
