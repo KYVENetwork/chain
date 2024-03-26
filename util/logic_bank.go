@@ -1,35 +1,9 @@
 package util
 
 import (
-	"context"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
-
-type BankKeeper interface {
-	SendCoins(ctx context.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
-	SendCoinsFromModuleToAccount(
-		ctx context.Context,
-		senderModule string,
-		recipientAddr sdk.AccAddress,
-		amt sdk.Coins,
-	) error
-	SendCoinsFromModuleToModule(ctx context.Context, senderModule, recipientModule string, amt sdk.Coins) error
-	SendCoinsFromAccountToModule(
-		ctx context.Context,
-		senderAddr sdk.AccAddress,
-		recipientModule string,
-		amt sdk.Coins,
-	) error
-}
-
-type DistrKeeper interface {
-	FundCommunityPool(ctx context.Context, amount sdk.Coins, sender sdk.AccAddress) error
-}
-
-type AccountKeeper interface {
-	GetModuleAddress(moduleName string) sdk.AccAddress
-}
 
 // TransferFromAddressToAddress sends tokens from the given address to a specified address.
 func TransferFromAddressToAddress(
