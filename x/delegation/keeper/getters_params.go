@@ -3,12 +3,13 @@ package keeper
 import (
 	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/x/delegation/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // GetParams returns the current x/delegation module parameters.
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
-	store := ctx.KVStore(k.storeKey)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 
 	bz := store.Get(types.ParamsKey)
 	if bz == nil {
@@ -64,7 +65,7 @@ func (k Keeper) getSlashFraction(ctx sdk.Context, slashType types.SlashType) (sl
 
 // SetParams sets the x/delegation module parameters.
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
-	store := ctx.KVStore(k.storeKey)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	bz := k.cdc.MustMarshal(&params)
 	store.Set(types.ParamsKey, bz)
 }

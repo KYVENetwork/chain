@@ -3,6 +3,7 @@ package keeper
 import (
 	storeTypes "cosmossdk.io/store/types"
 	"encoding/binary"
+	"github.com/cosmos/cosmos-sdk/runtime"
 
 	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/util"
@@ -16,14 +17,15 @@ import (
 
 // SetUndelegationQueueEntry ...
 func (k Keeper) SetUndelegationQueueEntry(ctx sdk.Context, undelegationQueueEntry types.UndelegationQueueEntry) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.UndelegationQueueKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.UndelegationQueueKeyPrefix)
 	b := k.cdc.MustMarshal(&undelegationQueueEntry)
 	store.Set(types.UndelegationQueueKey(
 		undelegationQueueEntry.Index,
 	), b)
 
 	// Insert the same entry with a different key prefix for query lookup
-	indexStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.UndelegationQueueKeyPrefixIndex2)
+	indexStore := prefix.NewStore(storeAdapter, types.UndelegationQueueKeyPrefixIndex2)
 	indexStore.Set(types.UndelegationQueueKeyIndex2(
 		undelegationQueueEntry.Delegator,
 		undelegationQueueEntry.Index,
@@ -32,7 +34,8 @@ func (k Keeper) SetUndelegationQueueEntry(ctx sdk.Context, undelegationQueueEntr
 
 // GetUndelegationQueueEntry ...
 func (k Keeper) GetUndelegationQueueEntry(ctx sdk.Context, index uint64) (val types.UndelegationQueueEntry, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.UndelegationQueueKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.UndelegationQueueKeyPrefix)
 
 	b := store.Get(types.UndelegationQueueKey(index))
 	if b == nil {
@@ -45,10 +48,11 @@ func (k Keeper) GetUndelegationQueueEntry(ctx sdk.Context, index uint64) (val ty
 
 // RemoveUndelegationQueueEntry ...
 func (k Keeper) RemoveUndelegationQueueEntry(ctx sdk.Context, undelegationQueueEntry *types.UndelegationQueueEntry) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.UndelegationQueueKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.UndelegationQueueKeyPrefix)
 	store.Delete(types.UndelegationQueueKey(undelegationQueueEntry.Index))
 
-	indexStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.UndelegationQueueKeyPrefixIndex2)
+	indexStore := prefix.NewStore(storeAdapter, types.UndelegationQueueKeyPrefixIndex2)
 	indexStore.Delete(types.UndelegationQueueKeyIndex2(
 		undelegationQueueEntry.Delegator,
 		undelegationQueueEntry.Index,
@@ -57,7 +61,8 @@ func (k Keeper) RemoveUndelegationQueueEntry(ctx sdk.Context, undelegationQueueE
 
 // GetAllUnbondingDelegationQueueEntries returns all delegator unbondings
 func (k Keeper) GetAllUnbondingDelegationQueueEntries(ctx sdk.Context) (list []types.UndelegationQueueEntry) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.UndelegationQueueKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.UndelegationQueueKeyPrefix)
 	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
@@ -73,7 +78,8 @@ func (k Keeper) GetAllUnbondingDelegationQueueEntries(ctx sdk.Context) (list []t
 
 // GetAllUnbondingDelegationQueueEntriesOfDelegator returns all delegator unbondings of the given address
 func (k Keeper) GetAllUnbondingDelegationQueueEntriesOfDelegator(ctx sdk.Context, address string) (list []types.UndelegationQueueEntry) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), util.GetByteKey(types.UndelegationQueueKeyPrefixIndex2, address))
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, util.GetByteKey(types.UndelegationQueueKeyPrefixIndex2, address))
 	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 	defer iterator.Close()
 
@@ -93,7 +99,8 @@ func (k Keeper) GetAllUnbondingDelegationQueueEntriesOfDelegator(ctx sdk.Context
 
 // GetQueueState returns the state for the undelegation queue
 func (k Keeper) GetQueueState(ctx sdk.Context) (state types.QueueState) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte{})
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, []byte{})
 	b := store.Get(types.QueueKey)
 
 	if b == nil {
@@ -106,7 +113,8 @@ func (k Keeper) GetQueueState(ctx sdk.Context) (state types.QueueState) {
 
 // SetQueueState saves the undelegation queue state
 func (k Keeper) SetQueueState(ctx sdk.Context, state types.QueueState) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte{})
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, []byte{})
 	b := k.cdc.MustMarshal(&state)
 	store.Set(types.QueueKey, b)
 }

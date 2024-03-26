@@ -1,8 +1,10 @@
 package keeper
 
 import (
+	"cosmossdk.io/core/store"
 	"cosmossdk.io/log"
 	"fmt"
+	"github.com/KYVENetwork/chain/util"
 
 	storetypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/delegation/types"
@@ -12,42 +14,42 @@ import (
 
 type (
 	Keeper struct {
-		cdc      codec.BinaryCodec
-		storeKey storetypes.StoreKey
-		memKey   storetypes.StoreKey
-		logger   log.Logger
+		cdc          codec.BinaryCodec
+		storeService store.KVStoreService
+		memService   store.MemoryStoreService
+		logger       log.Logger
 
 		authority string
 
 		accountKeeper types.AccountKeeper
-		bankKeeper    types.BankKeeper
+		bankKeeper    util.BankKeeper
 		distrKeeper   types.DistrKeeper
 		poolKeeper    types.PoolKeeper
-		upgradeKeeper types.UpgradeKeeper
+		upgradeKeeper util.UpgradeKeeper
 		stakersKeeper types.StakersKeeper
 	}
 )
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	storeKey storetypes.StoreKey,
-	memKey storetypes.StoreKey,
+	storeService store.KVStoreService,
+	memService store.MemoryStoreService,
 	logger log.Logger,
 
 	authority string,
 
 	accountKeeper types.AccountKeeper,
-	bankKeeper types.BankKeeper,
+	bankKeeper util.BankKeeper,
 	distrkeeper types.DistrKeeper,
 	poolKeeper types.PoolKeeper,
-	upgradeKeeper types.UpgradeKeeper,
+	upgradeKeeper util.UpgradeKeeper,
 	stakersKeeper types.StakersKeeper,
 ) *Keeper {
 	return &Keeper{
-		cdc:      cdc,
-		storeKey: storeKey,
-		memKey:   memKey,
-		logger:   logger,
+		cdc:          cdc,
+		storeService: storeService,
+		memService:   memService,
+		logger:       logger,
 
 		authority: authority,
 
@@ -65,7 +67,8 @@ func (k Keeper) Logger() log.Logger {
 }
 
 func (k Keeper) StoreKey() storetypes.StoreKey {
-	return k.storeKey
+	// TODO: Check this
+	return storetypes.NewKVStoreKey(types.StoreKey)
 }
 
 var memStoreInitialized = false

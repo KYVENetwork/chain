@@ -5,6 +5,7 @@ import (
 	storeTypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/delegation/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -15,7 +16,8 @@ import (
 // SetDelegationSlashEntry for the affected staker with the index of the period
 // the slash is starting.
 func (k Keeper) SetDelegationSlashEntry(ctx sdk.Context, slashEntry types.DelegationSlash) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegationSlashEntriesKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.DelegationSlashEntriesKeyPrefix)
 	b := k.cdc.MustMarshal(&slashEntry)
 	store.Set(types.DelegationEntriesKey(
 		slashEntry.Staker,
@@ -29,7 +31,8 @@ func (k Keeper) GetDelegationSlashEntry(
 	stakerAddress string,
 	kIndex uint64,
 ) (val types.DelegationSlash, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegationSlashEntriesKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.DelegationSlashEntriesKeyPrefix)
 
 	b := store.Get(types.DelegationSlashEntriesKey(
 		stakerAddress,
@@ -49,7 +52,8 @@ func (k Keeper) RemoveDelegationSlashEntry(
 	stakerAddress string,
 	kIndex uint64,
 ) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegationSlashEntriesKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.DelegationSlashEntriesKeyPrefix)
 	store.Delete(types.DelegationSlashEntriesKey(
 		stakerAddress,
 		kIndex,
@@ -58,7 +62,8 @@ func (k Keeper) RemoveDelegationSlashEntry(
 
 // GetAllDelegationSlashEntries returns all delegation slash entries (of all stakers)
 func (k Keeper) GetAllDelegationSlashEntries(ctx sdk.Context) (list []types.DelegationSlash) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegationSlashEntriesKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.DelegationSlashEntriesKeyPrefix)
 	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
@@ -75,7 +80,8 @@ func (k Keeper) GetAllDelegationSlashEntries(ctx sdk.Context) (list []types.Dele
 // GetAllDelegationSlashesBetween returns all Slashes that happened between the given periods
 // `start` and `end` are both inclusive.
 func (k Keeper) GetAllDelegationSlashesBetween(ctx sdk.Context, staker string, start uint64, end uint64) (list []types.DelegationSlash) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegationSlashEntriesKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.DelegationSlashEntriesKeyPrefix)
 
 	// use iterator with end+1 because the end of the iterator is exclusive
 	iterator := store.Iterator(util.GetByteKey(staker, start), util.GetByteKey(staker, end+1))
