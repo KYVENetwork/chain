@@ -2,16 +2,15 @@ package keeper
 
 import (
 	"fmt"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
 	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
 
-	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
-	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-
 	delegationkeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
+	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
 	poolkeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	stakerskeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
+	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
@@ -54,7 +53,6 @@ func NewKeeper(
 	delegationKeeper delegationkeeper.Keeper,
 	bundleKeeper types.BundlesKeeper,
 	globalKeeper globalKeeper.Keeper,
-	govKeeper govkeeper.Keeper,
 	teamKeeper teamKeeper.Keeper,
 	fundersKeeper fundersKeeper.Keeper,
 ) *Keeper {
@@ -70,7 +68,6 @@ func NewKeeper(
 		delegationKeeper: delegationKeeper,
 		bundleKeeper:     bundleKeeper,
 		globalKeeper:     globalKeeper,
-		govKeeper:        govKeeper,
 		teamKeeper:       teamKeeper,
 		fundersKeeper:    fundersKeeper,
 	}
@@ -82,4 +79,8 @@ func (k Keeper) Logger() log.Logger {
 
 func (k *Keeper) SetBundlesKeeper(bundlesKeeper types.BundlesKeeper) {
 	k.bundleKeeper = bundlesKeeper
+}
+
+func (k *Keeper) SetGovKeeper(govKeeper govkeeper.Keeper) {
+	k.govKeeper = govKeeper
 }

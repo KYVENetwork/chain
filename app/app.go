@@ -340,9 +340,10 @@ func New(
 	// Set keepers that have circular dependencies
 	app.StakersKeeper.SetDelegationKeeper(app.DelegationKeeper)
 	app.PoolKeeper.SetStakersKeeper(app.StakersKeeper)
+	app.MintKeeper.SetProtocolStakingKeeper(app.StakersKeeper)
 	app.PoolKeeper.SetFundersKeeper(app.FundersKeeper)
 	app.QueryKeeper.SetBundlesKeeper(app.BundlesKeeper)
-	app.MintKeeper.SetProtocolStakingKeeper(app.StakersKeeper)
+	app.QueryKeeper.SetGovKeeper(*app.GovKeeper)
 
 	// Ante handler
 	anteHandler, err := NewAnteHandler(

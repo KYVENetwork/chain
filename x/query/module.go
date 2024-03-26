@@ -18,7 +18,6 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	// this line is used by starport scaffolding # 1
 
@@ -204,8 +203,7 @@ type ModuleInputs struct {
 	DelegationKeeper   delegationKeeper.Keeper
 	BundlesKeeper      bundlekeeper.Keeper
 	GlobalKeeper       globalKeeper.Keeper
-	//GovKeeper          govkeeper.Keeper
-	FundersKeeper fundersKeeper.Keeper
+	FundersKeeper      fundersKeeper.Keeper
 }
 
 type ModuleOutputs struct {
@@ -227,9 +225,6 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		in.DelegationKeeper,
 		in.BundlesKeeper,
 		in.GlobalKeeper,
-		// TODO: fix this
-		govkeeper.Keeper{},
-		//in.GovKeeper,
 		in.TeamKeeper,
 		in.FundersKeeper,
 	)
