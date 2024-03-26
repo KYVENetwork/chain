@@ -65,6 +65,10 @@ func SetDelegationKeeper(k *Keeper, delegationKeeper delegationKeeper.Keeper) {
 	k.delegationKeeper = delegationKeeper
 }
 
+func (k *Keeper) SetDelegationKeeper(delegationKeeper delegationKeeper.Keeper) {
+	k.delegationKeeper = delegationKeeper
+}
+
 func (k Keeper) Logger() log.Logger {
 	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }

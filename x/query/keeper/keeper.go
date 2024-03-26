@@ -9,7 +9,6 @@ import (
 	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
-	bundlekeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
 	delegationkeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	poolkeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	stakerskeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
@@ -34,11 +33,12 @@ type (
 		poolKeeper       poolkeeper.Keeper
 		stakerKeeper     stakerskeeper.Keeper
 		delegationKeeper delegationkeeper.Keeper
-		bundleKeeper     bundlekeeper.Keeper
-		globalKeeper     globalKeeper.Keeper
-		govKeeper        govkeeper.Keeper
-		teamKeeper       teamKeeper.Keeper
-		fundersKeeper    fundersKeeper.Keeper
+		// TODO: rename to bundlesKeeper
+		bundleKeeper  types.BundlesKeeper
+		globalKeeper  globalKeeper.Keeper
+		govKeeper     govkeeper.Keeper
+		teamKeeper    teamKeeper.Keeper
+		fundersKeeper fundersKeeper.Keeper
 	}
 )
 
@@ -52,7 +52,7 @@ func NewKeeper(
 	poolKeeper poolkeeper.Keeper,
 	stakerKeeper stakerskeeper.Keeper,
 	delegationKeeper delegationkeeper.Keeper,
-	bundleKeeper bundlekeeper.Keeper,
+	bundleKeeper types.BundlesKeeper,
 	globalKeeper globalKeeper.Keeper,
 	govKeeper govkeeper.Keeper,
 	teamKeeper teamKeeper.Keeper,
@@ -78,4 +78,8 @@ func NewKeeper(
 
 func (k Keeper) Logger() log.Logger {
 	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
+}
+
+func (k *Keeper) SetBundlesKeeper(bundlesKeeper types.BundlesKeeper) {
+	k.bundleKeeper = bundlesKeeper
 }

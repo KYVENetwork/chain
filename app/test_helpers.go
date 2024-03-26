@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
-	"github.com/cosmos/cosmos-sdk/types/module"
 	"time"
 
 	"cosmossdk.io/math"
@@ -132,13 +131,6 @@ func Setup() *App {
 	app, err := New(log.NewNopLogger(), db, nil, true, EmptyAppOptions{}, baseapp.SetChainID("kyve-test"))
 	if err != nil {
 		panic(err)
-	}
-
-	// TODO: Do we need this?
-	kyveModules := RegisterKyveModules(app.InterfaceRegistry())
-	for name, mod := range kyveModules {
-		app.ModuleManager.Modules[name] = module.CoreAppModuleBasicAdaptor(name, mod)
-		//app.autoCliOpts.Modules[name] = mod
 	}
 
 	genesisState := DefaultGenesisWithValSet(app)

@@ -9,6 +9,7 @@ import (
 	queryKeeper "github.com/KYVENetwork/chain/x/query/keeper"
 	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
 	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
+	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"io"
 	"os"
 	"path/filepath"
@@ -25,6 +26,7 @@ import (
 	_ "cosmossdk.io/x/feegrant/module" // import for side-effects
 	_ "cosmossdk.io/x/upgrade"         // import for side-effects
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
+	"github.com/KYVENetwork/chain/docs"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -36,13 +38,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/cosmos/cosmos-sdk/x/auth"
 	_ "github.com/cosmos/cosmos-sdk/x/auth" // import for side-effects
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	_ "github.com/cosmos/cosmos-sdk/x/auth/vesting" // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/auth/vesting"   // import for side-effects
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	_ "github.com/cosmos/cosmos-sdk/x/authz/module" // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/bank"         // import for side-effects
@@ -80,10 +79,7 @@ import (
 	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
-
 	// this line is used by starport scaffolding # stargate/app/moduleImport
-
-	"github.com/KYVENetwork/chain/docs"
 )
 
 const (
@@ -290,16 +286,15 @@ func New(
 		&app.GroupKeeper,
 		&app.CircuitBreakerKeeper,
 
-		// TODO: uncomment once app-wiring is ready
 		// Kyve keepers
-		//&app.BundlesKeeper,
-		//&app.DelegationKeeper,
-		//&app.GlobalKeeper,
-		//&app.PoolKeeper,
-		//&app.QueryKeeper,
-		//&app.StakersKeeper,
-		//&app.TeamKeeper,
-		//&app.FundersKeeper,
+		&app.BundlesKeeper,
+		&app.DelegationKeeper,
+		&app.GlobalKeeper,
+		&app.PoolKeeper,
+		&app.QueryKeeper,
+		&app.StakersKeeper,
+		&app.TeamKeeper,
+		&app.FundersKeeper,
 		// this line is used by starport scaffolding # stargate/app/keeperDefinition
 	); err != nil {
 		panic(err)
@@ -342,8 +337,41 @@ func New(
 	// Register legacy modules
 	app.registerIBCModules()
 
-	// Register kyve modules
-	app.registerKyveModules()
+	// Set keepers that have circular dependencies
+	app.StakersKeeper.SetDelegationKeeper(app.DelegationKeeper)
+	app.PoolKeeper.SetStakersKeeper(app.StakersKeeper)
+	app.PoolKeeper.SetFundersKeeper(app.FundersKeeper)
+	app.QueryKeeper.SetBundlesKeeper(app.BundlesKeeper)
+	app.MintKeeper.SetProtocolStakingKeeper(app.StakersKeeper)
+
+	// Ante handler
+	anteHandler, err := NewAnteHandler(
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.FeeGrantKeeper,
+		app.GlobalKeeper,
+		app.IBCKeeper,
+		*app.StakingKeeper,
+		ante.DefaultSigVerificationGasConsumer,
+		app.txConfig.SignModeHandler(),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	app.SetAnteHandler(anteHandler)
+
+	// Post handler
+	postHandler, err := NewPostHandler(
+		app.BankKeeper,
+		app.FeeGrantKeeper,
+		app.GlobalKeeper,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	app.SetPostHandler(postHandler)
 
 	// register streaming services
 	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
@@ -357,11 +385,11 @@ func New(
 	// create the simulation manager and define the order of the modules for deterministic simulations
 	//
 	// NOTE: this is not required apps that don't use the simulator for fuzz testing transactions
-	overrideModules := map[string]module.AppModuleSimulation{
-		authtypes.ModuleName: auth.NewAppModule(app.appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
-	}
-	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, overrideModules)
-	app.sm.RegisterStoreDecoders()
+	//overrideModules := map[string]module.AppModuleSimulation{
+	//	authtypes.ModuleName: auth.NewAppModule(app.appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
+	//}
+	//app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, overrideModules)
+	//app.sm.RegisterStoreDecoders()
 
 	// A custom InitChainer can be set if extra pre-init-genesis logic is required.
 	// By default, when using app wiring enabled module, this is not required.
@@ -446,6 +474,7 @@ func (app *App) GetCapabilityScopedKeeper(moduleName string) capabilitykeeper.Sc
 
 // SimulationManager implements the SimulationApp interface.
 func (app *App) SimulationManager() *module.SimulationManager {
+	panic("SimulationManager is not implemented")
 	return app.sm
 }
 

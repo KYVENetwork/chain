@@ -112,12 +112,6 @@ func NewRootCmd() *cobra.Command {
 		autoCliOpts.Modules[name] = mod
 	}
 
-	kyveModules := app.RegisterKyveModules(clientCtx.InterfaceRegistry)
-	for name, mod := range kyveModules {
-		moduleBasicManager[name] = module.CoreAppModuleBasicAdaptor(name, mod)
-		autoCliOpts.Modules[name] = mod
-	}
-
 	initRootCmd(rootCmd, clientCtx.TxConfig, clientCtx.InterfaceRegistry, clientCtx.Codec, moduleBasicManager)
 
 	overwriteFlagDefaults(rootCmd, map[string]string{

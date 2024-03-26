@@ -29,6 +29,14 @@ import (
 	evidencetypes "cosmossdk.io/x/evidence/types"
 	"cosmossdk.io/x/feegrant"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+	bundlesmodulev1 "github.com/KYVENetwork/chain/api/kyve/bundles/module"
+	delegationmodulev1 "github.com/KYVENetwork/chain/api/kyve/delegation/module"
+	fundersmodulev1 "github.com/KYVENetwork/chain/api/kyve/funders/module"
+	globalmodulev1 "github.com/KYVENetwork/chain/api/kyve/global/module"
+	poolmodulev1 "github.com/KYVENetwork/chain/api/kyve/pool/module"
+	querymodulev1 "github.com/KYVENetwork/chain/api/kyve/query/module"
+	stakersmodulev1 "github.com/KYVENetwork/chain/api/kyve/stakers/module"
+	teammodulev1 "github.com/KYVENetwork/chain/api/kyve/team/module"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -44,7 +52,6 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	pfmtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
@@ -96,7 +103,6 @@ var (
 		group.ModuleName,
 		consensustypes.ModuleName,
 		circuittypes.ModuleName,
-		pfmtypes.ModuleName,
 
 		// KYVE modules
 		bundlestypes.ModuleName,
@@ -131,7 +137,6 @@ var (
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
-		pfmtypes.ModuleName,
 
 		// KYVE modules
 		bundlestypes.ModuleName,
@@ -180,15 +185,23 @@ var (
 
 	// module account permissions
 	moduleAccPerms = []*authmodulev1.ModuleAccountPermission{
-		{Account: authtypes.FeeCollectorName},
+		{Account: authtypes.FeeCollectorName, Permissions: []string{authtypes.Burner}},
 		{Account: distrtypes.ModuleName},
 		{Account: minttypes.ModuleName, Permissions: []string{authtypes.Minter}},
-		{Account: stakingtypes.BondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
-		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
+		{Account: stakingtypes.BondedPoolName, Permissions: []string{authtypes.Burner, authtypes.Staking}},
+		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, authtypes.Staking}},
 		{Account: govtypes.ModuleName, Permissions: []string{authtypes.Burner}},
 		{Account: ibctransfertypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
 		{Account: ibcfeetypes.ModuleName},
 		{Account: icatypes.ModuleName},
+
+		// KYVE
+		{Account: bundlestypes.ModuleName},
+		{Account: delegationtypes.ModuleName},
+		{Account: pooltypes.ModuleName},
+		{Account: stakerstypes.ModuleName},
+		{Account: teamtypes.ModuleName},
+		{Account: funderstypes.ModuleName},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 
@@ -319,11 +332,40 @@ var (
 				Name:   circuittypes.ModuleName,
 				Config: appconfig.WrapAny(&circuitmodulev1.Module{}),
 			},
-			// TODO: add kyve modules when they support app-wiring
-			//{
-			//	Name:   kyvemoduletypes.ModuleName,
-			//	Config: appconfig.WrapAny(&kyvemodulev1.Module{}),
-			//},
+
+			// Kyve modules
+			{
+				Name:   bundlestypes.ModuleName,
+				Config: appconfig.WrapAny(&bundlesmodulev1.Module{}),
+			},
+			{
+				Name:   delegationtypes.ModuleName,
+				Config: appconfig.WrapAny(&delegationmodulev1.Module{}),
+			},
+			{
+				Name:   globaltypes.ModuleName,
+				Config: appconfig.WrapAny(&globalmodulev1.Module{}),
+			},
+			{
+				Name:   pooltypes.ModuleName,
+				Config: appconfig.WrapAny(&poolmodulev1.Module{}),
+			},
+			{
+				Name:   querytypes.ModuleName,
+				Config: appconfig.WrapAny(&querymodulev1.Module{}),
+			},
+			{
+				Name:   stakerstypes.ModuleName,
+				Config: appconfig.WrapAny(&stakersmodulev1.Module{}),
+			},
+			{
+				Name:   teamtypes.ModuleName,
+				Config: appconfig.WrapAny(&teammodulev1.Module{}),
+			},
+			{
+				Name:   funderstypes.ModuleName,
+				Config: appconfig.WrapAny(&fundersmodulev1.Module{}),
+			},
 			// this line is used by starport scaffolding # stargate/app/moduleConfig
 		},
 	})

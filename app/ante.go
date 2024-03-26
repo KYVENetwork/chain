@@ -57,8 +57,6 @@ func NewAnteHandler(
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }
 
-//
-
 func NewPostHandler(
 	bankKeeper bankKeeper.Keeper,
 	feeGrantKeeper feeGrantKeeper.Keeper,

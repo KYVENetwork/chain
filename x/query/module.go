@@ -6,6 +6,7 @@ import (
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	"encoding/json"
+	"fmt"
 	"github.com/KYVENetwork/chain/util"
 	bundlekeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
 	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
