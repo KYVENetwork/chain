@@ -19,19 +19,14 @@ import (
 
 	"cosmossdk.io/log"
 
-	storetypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/query/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 type (
 	Keeper struct {
-		cdc        codec.BinaryCodec
-		storeKey   storetypes.StoreKey
-		memKey     storetypes.StoreKey
-		paramstore paramtypes.Subspace
-		logger     log.Logger
+		cdc    codec.BinaryCodec
+		logger log.Logger
 
 		accountKeeper    authkeeper.AccountKeeper
 		bankKeeper       bankkeeper.Keeper
@@ -49,9 +44,6 @@ type (
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	storeKey,
-	memKey storetypes.StoreKey,
-	ps paramtypes.Subspace,
 	logger log.Logger,
 
 	accountKeeper authkeeper.AccountKeeper,
@@ -67,10 +59,8 @@ func NewKeeper(
 	fundersKeeper fundersKeeper.Keeper,
 ) *Keeper {
 	return &Keeper{
-		cdc:        cdc,
-		storeKey:   storeKey,
-		memKey:     memKey,
-		paramstore: ps,
+		cdc:    cdc,
+		logger: logger,
 
 		accountKeeper:    accountKeeper,
 		bankKeeper:       bankKeeper,
