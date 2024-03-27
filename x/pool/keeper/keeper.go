@@ -81,11 +81,11 @@ func (k Keeper) EnsurePoolAccount(ctx sdk.Context, id uint64) {
 	k.accountKeeper.SetAccount(ctx, account)
 }
 
-func (k *Keeper) SetStakersKeeper(stakersKeeper types.StakersKeeper) {
+func SetStakersKeeper(k *Keeper, stakersKeeper types.StakersKeeper) {
 	k.stakersKeeper = stakersKeeper
 }
 
-func (k *Keeper) SetFundersKeeper(fundersKeeper types.FundersKeeper) {
+func SetFundersKeeper(k *Keeper, fundersKeeper types.FundersKeeper) {
 	k.fundersKeeper = fundersKeeper
 }
 

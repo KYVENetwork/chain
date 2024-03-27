@@ -46,8 +46,8 @@ func NewKeeper(
 	stakerKeeper types.StakerKeeper,
 	delegationKeeper types.DelegationKeeper,
 	fundersKeeper types.FundersKeeper,
-) *Keeper {
-	return &Keeper{
+) Keeper {
+	return Keeper{
 		cdc:          cdc,
 		storeService: storeService,
 		memService:   memService,

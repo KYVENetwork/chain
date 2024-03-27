@@ -44,8 +44,8 @@ func NewKeeper(
 	poolKeeper types.PoolKeeper,
 	upgradeKeeper util.UpgradeKeeper,
 	stakersKeeper types.StakersKeeper,
-) *Keeper {
-	return &Keeper{
+) Keeper {
+	return Keeper{
 		cdc:          cdc,
 		storeService: storeService,
 		memService:   memService,

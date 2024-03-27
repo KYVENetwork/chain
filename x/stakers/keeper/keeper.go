@@ -4,10 +4,9 @@ import (
 	"cosmossdk.io/core/store"
 	"fmt"
 	"github.com/KYVENetwork/chain/util"
-
-	"cosmossdk.io/log"
 	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 
+	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -62,10 +61,6 @@ func NewKeeper(
 }
 
 func SetDelegationKeeper(k *Keeper, delegationKeeper delegationKeeper.Keeper) {
-	k.delegationKeeper = delegationKeeper
-}
-
-func (k *Keeper) SetDelegationKeeper(delegationKeeper delegationKeeper.Keeper) {
 	k.delegationKeeper = delegationKeeper
 }
 

@@ -224,9 +224,9 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		in.Cdc,
 		in.AccountKeeper,
 		in.BankKeeper,
-		*k,
+		k,
 		in.UpgradeKeeper,
 	)
 
-	return ModuleOutputs{BundlesKeeper: *k, Module: m}
+	return ModuleOutputs{BundlesKeeper: k, Module: m}
 }

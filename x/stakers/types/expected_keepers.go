@@ -27,9 +27,3 @@ type PoolKeeper interface {
 	AssertPoolExists(ctx sdk.Context, poolId uint64) error
 	GetPoolWithError(ctx sdk.Context, poolId uint64) (poolTypes.Pool, error)
 }
-
-type DelegationKeeper interface {
-	GetDelegationAmount(ctx sdk.Context, staker string) uint64
-	GetDelegationAmountOfDelegator(ctx sdk.Context, stakerAddress string, delegatorAddress string) uint64
-	GetStakersByDelegator(ctx sdk.Context, delegator string) []string
-}

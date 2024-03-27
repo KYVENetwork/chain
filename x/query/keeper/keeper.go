@@ -29,13 +29,13 @@ type (
 		accountKeeper    authkeeper.AccountKeeper
 		bankKeeper       bankkeeper.Keeper
 		distrkeeper      distrkeeper.Keeper
-		poolKeeper       poolkeeper.Keeper
-		stakerKeeper     stakerskeeper.Keeper
+		poolKeeper       *poolkeeper.Keeper
+		stakerKeeper     *stakerskeeper.Keeper
 		delegationKeeper delegationkeeper.Keeper
 		// TODO: rename to bundlesKeeper
 		bundleKeeper  types.BundlesKeeper
 		globalKeeper  globalKeeper.Keeper
-		govKeeper     govkeeper.Keeper
+		govKeeper     *govkeeper.Keeper
 		teamKeeper    teamKeeper.Keeper
 		fundersKeeper fundersKeeper.Keeper
 	}
@@ -48,15 +48,16 @@ func NewKeeper(
 	accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
 	distrkeeper distrkeeper.Keeper,
-	poolKeeper poolkeeper.Keeper,
-	stakerKeeper stakerskeeper.Keeper,
+	poolKeeper *poolkeeper.Keeper,
+	stakerKeeper *stakerskeeper.Keeper,
 	delegationKeeper delegationkeeper.Keeper,
 	bundleKeeper types.BundlesKeeper,
 	globalKeeper globalKeeper.Keeper,
+	govKeeper *govkeeper.Keeper,
 	teamKeeper teamKeeper.Keeper,
 	fundersKeeper fundersKeeper.Keeper,
-) *Keeper {
-	return &Keeper{
+) Keeper {
+	return Keeper{
 		cdc:    cdc,
 		logger: logger,
 
@@ -68,6 +69,7 @@ func NewKeeper(
 		delegationKeeper: delegationKeeper,
 		bundleKeeper:     bundleKeeper,
 		globalKeeper:     globalKeeper,
+		govKeeper:        govKeeper,
 		teamKeeper:       teamKeeper,
 		fundersKeeper:    fundersKeeper,
 	}
@@ -75,12 +77,4 @@ func NewKeeper(
 
 func (k Keeper) Logger() log.Logger {
 	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-func (k *Keeper) SetBundlesKeeper(bundlesKeeper types.BundlesKeeper) {
-	k.bundleKeeper = bundlesKeeper
-}
-
-func (k *Keeper) SetGovKeeper(govKeeper govkeeper.Keeper) {
-	k.govKeeper = govKeeper
 }

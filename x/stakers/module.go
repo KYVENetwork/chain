@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/KYVENetwork/chain/util"
+	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -107,14 +108,14 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 type AppModule struct {
 	AppModuleBasic
 
-	keeper        keeper.Keeper
+	keeper        *keeper.Keeper
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
 }
 
 func NewAppModule(
 	cdc codec.Codec,
-	keeper keeper.Keeper,
+	keeper *keeper.Keeper,
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
 ) AppModule {
@@ -183,6 +184,7 @@ func init() {
 	appmodule.Register(
 		&modulev1.Module{},
 		appmodule.Provide(ProvideModule),
+		appmodule.Invoke(InvokeSetDelegationKeeper),
 	)
 }
 
@@ -199,13 +201,13 @@ type ModuleInputs struct {
 	BankKeeper         bankKeeper.Keeper
 	DistributionKeeper distributionKeeper.Keeper
 	UpgradeKeeper      util.UpgradeKeeper
-	PoolKeeper         poolKeeper.Keeper
+	PoolKeeper         *poolKeeper.Keeper
 }
 
 type ModuleOutputs struct {
 	depinject.Out
 
-	BundlesKeeper keeper.Keeper
+	StakersKeeper *keeper.Keeper
 	Module        appmodule.AppModule
 }
 
@@ -229,10 +231,21 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 	)
 	m := NewAppModule(
 		in.Cdc,
-		*k,
+		k,
 		in.AccountKeeper,
 		in.BankKeeper,
 	)
 
-	return ModuleOutputs{BundlesKeeper: *k, Module: m}
+	return ModuleOutputs{StakersKeeper: k, Module: m}
+}
+
+func InvokeSetDelegationKeeper(
+	k *keeper.Keeper,
+	delegationKeeper delegationKeeper.Keeper,
+) error {
+	if k == nil {
+		return fmt.Errorf("keeper is nil")
+	}
+	keeper.SetDelegationKeeper(k, delegationKeeper)
+	return nil
 }

@@ -6,7 +6,6 @@ import (
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	"encoding/json"
-	"fmt"
 	"github.com/KYVENetwork/chain/util"
 	bundlekeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
 	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
@@ -18,7 +17,8 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+
 	// this line is used by starport scaffolding # 1
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -195,13 +195,13 @@ type ModuleInputs struct {
 	AccountKeeper      authkeeper.AccountKeeper
 	BankKeeper         bankKeeper.Keeper
 	DistributionKeeper distributionKeeper.Keeper
-	MintKeeper         mintKeeper.Keeper
 	UpgradeKeeper      util.UpgradeKeeper
-	PoolKeeper         poolKeeper.Keeper
+	PoolKeeper         *poolKeeper.Keeper
 	TeamKeeper         teamKeeper.Keeper
-	StakersKeeper      stakersKeeper.Keeper
+	StakersKeeper      *stakersKeeper.Keeper
 	DelegationKeeper   delegationKeeper.Keeper
 	BundlesKeeper      bundlekeeper.Keeper
+	GovKeeper          *govkeeper.Keeper
 	GlobalKeeper       globalKeeper.Keeper
 	FundersKeeper      fundersKeeper.Keeper
 }
@@ -225,15 +225,16 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		in.DelegationKeeper,
 		in.BundlesKeeper,
 		in.GlobalKeeper,
+		in.GovKeeper,
 		in.TeamKeeper,
 		in.FundersKeeper,
 	)
 	m := NewAppModule(
 		in.Cdc,
-		*k,
+		k,
 		in.AccountKeeper,
 		in.BankKeeper,
 	)
 
-	return ModuleOutputs{QueryKeeper: *k, Module: m}
+	return ModuleOutputs{QueryKeeper: k, Module: m}
 }

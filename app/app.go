@@ -144,9 +144,9 @@ type App struct {
 	BundlesKeeper    bundlesKeeper.Keeper
 	DelegationKeeper delegationKeeper.Keeper
 	GlobalKeeper     globalKeeper.Keeper
-	PoolKeeper       poolKeeper.Keeper
+	PoolKeeper       *poolKeeper.Keeper
 	QueryKeeper      queryKeeper.Keeper
-	StakersKeeper    stakersKeeper.Keeper
+	StakersKeeper    *stakersKeeper.Keeper
 	TeamKeeper       teamKeeper.Keeper
 	FundersKeeper    fundersKeeper.Keeper
 
@@ -336,14 +336,6 @@ func New(
 
 	// Register legacy modules
 	app.registerIBCModules()
-
-	// Set keepers that have circular dependencies
-	app.StakersKeeper.SetDelegationKeeper(app.DelegationKeeper)
-	app.PoolKeeper.SetStakersKeeper(app.StakersKeeper)
-	app.MintKeeper.SetProtocolStakingKeeper(app.StakersKeeper)
-	app.PoolKeeper.SetFundersKeeper(app.FundersKeeper)
-	app.QueryKeeper.SetBundlesKeeper(app.BundlesKeeper)
-	app.QueryKeeper.SetGovKeeper(*app.GovKeeper)
 
 	// Ante handler
 	anteHandler, err := NewAnteHandler(

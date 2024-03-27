@@ -39,8 +39,8 @@ func NewKeeper(
 	bankKeeper util.BankKeeper,
 	poolKeeper types.PoolKeeper,
 	upgradeKeeper util.UpgradeKeeper,
-) *Keeper {
-	return &Keeper{
+) Keeper {
+	return Keeper{
 		cdc:          cdc,
 		storeService: storeService,
 		memService:   memService,

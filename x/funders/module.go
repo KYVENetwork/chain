@@ -193,7 +193,7 @@ type ModuleInputs struct {
 	AccountKeeper util.AccountKeeper
 	BankKeeper    bankKeeper.Keeper
 	UpgradeKeeper util.UpgradeKeeper
-	PoolKeeper    poolKeeper.Keeper
+	PoolKeeper    *poolKeeper.Keeper
 }
 
 type ModuleOutputs struct {
@@ -223,10 +223,10 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 	)
 	m := NewAppModule(
 		in.Cdc,
-		*k,
+		k,
 		in.AccountKeeper,
 		in.BankKeeper,
 	)
 
-	return ModuleOutputs{FundersKeeper: *k, Module: m}
+	return ModuleOutputs{FundersKeeper: k, Module: m}
 }

@@ -4,6 +4,7 @@ import (
 	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/util"
 	bundlesKeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
+	"github.com/KYVENetwork/chain/x/bundles/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	// Auth
@@ -11,13 +12,12 @@ import (
 
 	// Mint
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
-	// Pool
-	"github.com/KYVENetwork/chain/x/pool/keeper"
+
 	// Team
 	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
 )
 
-func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk util.BankKeeper, mk mintKeeper.Keeper, pk keeper.Keeper, tk teamKeeper.Keeper, uk util.UpgradeKeeper) {
+func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk util.BankKeeper, mk mintKeeper.Keeper, pk types.PoolKeeper, tk teamKeeper.Keeper, uk util.UpgradeKeeper) {
 	minter, err := mk.Minter.Get(ctx)
 	if err != nil {
 		util.PanicHalt(uk, ctx, "failed to get minter")
@@ -93,5 +93,5 @@ func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk util.BankKeeper,
 	}
 
 	// rest gets transferred to chain
-	pk.Logger().Info("split portion of minted coins to protocol", "amount", protocolBlockProvision)
+	k.Logger().Info("split portion of minted coins to protocol", "amount", protocolBlockProvision)
 }

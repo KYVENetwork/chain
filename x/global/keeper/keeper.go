@@ -24,8 +24,8 @@ func NewKeeper(
 	storeService store.KVStoreService,
 	logger log.Logger,
 	authority string,
-) *Keeper {
-	return &Keeper{
+) Keeper {
+	return Keeper{
 		cdc:          cdc,
 		storeService: storeService,
 		logger:       logger,

@@ -104,7 +104,7 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 type AppModule struct {
 	AppModuleBasic
 
-	keeper        keeper.Keeper
+	keeper        *keeper.Keeper
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
 	upgradeKeeper util.UpgradeKeeper
@@ -112,7 +112,7 @@ type AppModule struct {
 
 func NewAppModule(
 	cdc codec.Codec,
-	keeper keeper.Keeper,
+	keeper *keeper.Keeper,
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
 	upgradeKeeper util.UpgradeKeeper,
@@ -181,6 +181,7 @@ func init() {
 	appmodule.Register(
 		&modulev1.Module{},
 		appmodule.Provide(ProvideModule),
+		appmodule.Invoke(InvokeSetStakersKeeper, InvokeSetFundersKeeper),
 	)
 }
 
@@ -202,7 +203,7 @@ type ModuleInputs struct {
 type ModuleOutputs struct {
 	depinject.Out
 
-	PoolKeeper keeper.Keeper
+	PoolKeeper *keeper.Keeper
 	Module     appmodule.AppModule
 }
 
@@ -225,11 +226,39 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 	)
 	m := NewAppModule(
 		in.Cdc,
-		*k,
+		k,
 		in.AccountKeeper,
 		in.BankKeeper,
 		in.UpgradeKeeper,
 	)
 
-	return ModuleOutputs{PoolKeeper: *k, Module: m}
+	return ModuleOutputs{PoolKeeper: k, Module: m}
+}
+
+func InvokeSetStakersKeeper(
+	k *keeper.Keeper,
+	stakersKeeper types.StakersKeeper,
+) error {
+	if k == nil {
+		return fmt.Errorf("keeper is nil")
+	}
+	if stakersKeeper == nil {
+		return fmt.Errorf("stakers keeper is nil")
+	}
+	keeper.SetStakersKeeper(k, stakersKeeper)
+	return nil
+}
+
+func InvokeSetFundersKeeper(
+	k *keeper.Keeper,
+	fundersKeeper types.FundersKeeper,
+) error {
+	if k == nil {
+		return fmt.Errorf("keeper is nil")
+	}
+	if fundersKeeper == nil {
+		return fmt.Errorf("funders keeper is nil")
+	}
+	keeper.SetFundersKeeper(k, fundersKeeper)
+	return nil
 }

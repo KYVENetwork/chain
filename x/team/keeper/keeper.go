@@ -36,8 +36,8 @@ func NewKeeper(
 	bankKeeper types.BankKeeper,
 	mintKeeper mintKeeper.Keeper,
 	upgradeKeeper util.UpgradeKeeper,
-) *Keeper {
-	return &Keeper{
+) Keeper {
+	return Keeper{
 		cdc:          cdc,
 		storeService: storeService,
 		logger:       logger,

@@ -10,11 +10,9 @@ import (
 	"fmt"
 	"github.com/KYVENetwork/chain/util"
 	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
-	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
 	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
@@ -119,7 +117,7 @@ type AppModule struct {
 	distributionKeeper distributionKeeper.Keeper
 	mintKeeper         mintKeeper.Keeper
 	upgradeKeeper      util.UpgradeKeeper
-	poolKeeper         poolKeeper.Keeper
+	poolKeeper         types.PoolKeeper
 	teamKeeper         teamKeeper.Keeper
 }
 
@@ -131,7 +129,7 @@ func NewAppModule(
 	distributionKeeper distributionKeeper.Keeper,
 	mintKeeper mintKeeper.Keeper,
 	upgradeKeeper util.UpgradeKeeper,
-	poolKeeper poolKeeper.Keeper,
+	poolKeeper types.PoolKeeper,
 	teamKeeper teamKeeper.Keeper,
 ) AppModule {
 	return AppModule{
@@ -219,9 +217,9 @@ type ModuleInputs struct {
 	DistributionKeeper distributionKeeper.Keeper
 	MintKeeper         mintKeeper.Keeper
 	UpgradeKeeper      util.UpgradeKeeper
-	PoolKeeper         poolKeeper.Keeper
+	PoolKeeper         types.PoolKeeper
 	TeamKeeper         teamKeeper.Keeper
-	StakersKeeper      stakersKeeper.Keeper
+	StakersKeeper      types.StakerKeeper
 	DelegationKeeper   delegationKeeper.Keeper
 	FundersKeeper      types.FundersKeeper
 }
@@ -255,7 +253,7 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 	)
 	m := NewAppModule(
 		in.Cdc,
-		*k,
+		k,
 		in.AccountKeeper,
 		in.BankKeeper,
 		in.DistributionKeeper,
@@ -265,5 +263,5 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		in.TeamKeeper,
 	)
 
-	return ModuleOutputs{BundlesKeeper: *k, Module: m}
+	return ModuleOutputs{BundlesKeeper: k, Module: m}
 }
