@@ -37,12 +37,13 @@ TEST CASES - logic_bundles.go
 */
 
 var _ = Describe("logic_bundles.go", Ordered, func() {
-	s := i.NewCleanChain()
-	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
+	var s *i.KeeperTestSuite
+	var gov string
 
 	BeforeEach(func() {
 		// init new clean chain
 		s = i.NewCleanChain()
+		gov = s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 
 		// create clean pool for every test case
 		msg := &pooltypes.MsgCreatePool{
@@ -197,7 +198,6 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert pool can run while voting power of one node is too high", func() {
 		// ASSERT
-		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 		msg := &pooltypes.MsgCreatePool{
 			Authority:            gov,
 			Name:                 "PoolTest",

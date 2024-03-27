@@ -34,7 +34,7 @@ TEST CASES - inflation splitting
 */
 
 var _ = Describe("inflation splitting", Ordered, func() {
-	s := i.NewCleanChain()
+	var s *i.KeeperTestSuite
 
 	BeforeEach(func() {
 		// init new clean chain

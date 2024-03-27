@@ -29,7 +29,7 @@ TEST CASES - msg_server_submit_bundle_proposal.go
 */
 
 var _ = Describe("msg_server_submit_bundle_proposal.go", Ordered, func() {
-	s := i.NewCleanChain()
+	var s *i.KeeperTestSuite
 
 	BeforeEach(func() {
 		// init new clean chain

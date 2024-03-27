@@ -21,7 +21,7 @@ TEST CASES - msg_server_skip_uploader_role.go
 */
 
 var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
-	s := i.NewCleanChain()
+	var s *i.KeeperTestSuite
 
 	BeforeEach(func() {
 		// init new clean chain

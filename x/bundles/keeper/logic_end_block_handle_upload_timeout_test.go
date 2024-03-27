@@ -39,7 +39,7 @@ TEST CASES - logic_end_block_handle_upload_timeout.go
 */
 
 var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
-	s := i.NewCleanChain()
+	var s *i.KeeperTestSuite
 
 	BeforeEach(func() {
 		// init new clean chain

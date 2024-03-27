@@ -25,22 +25,20 @@ TEST CASES - zero delegation
 */
 
 var _ = Describe("zero delegation", Ordered, func() {
-	s := i.NewCleanChain()
-
-	initialBalanceStaker0 := s.GetBalanceFromAddress(i.STAKER_0)
-	initialBalanceValaddress0 := s.GetBalanceFromAddress(i.VALADDRESS_0_A)
-
-	initialBalanceStaker1 := s.GetBalanceFromAddress(i.STAKER_1)
-	initialBalanceValaddress1 := s.GetBalanceFromAddress(i.VALADDRESS_1_A)
-
-	// initialBalanceStaker2 := s.GetBalanceFromAddress(i.STAKER_2)
-	// initialBalanceValaddress2 := s.GetBalanceFromAddress(i.VALADDRESS_2_A)
+	var s *i.KeeperTestSuite
+	var initialBalanceStaker0, initialBalanceValaddress0, initialBalanceStaker1, initialBalanceValaddress1 uint64
 
 	amountPerBundle := uint64(10_000)
 
 	BeforeEach(func() {
 		// init new clean chain
 		s = i.NewCleanChain()
+
+		initialBalanceStaker0 = s.GetBalanceFromAddress(i.STAKER_0)
+		initialBalanceValaddress0 = s.GetBalanceFromAddress(i.VALADDRESS_0_A)
+
+		initialBalanceStaker1 = s.GetBalanceFromAddress(i.STAKER_1)
+		initialBalanceValaddress1 = s.GetBalanceFromAddress(i.VALADDRESS_1_A)
 
 		// create clean pool for every test case
 		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()

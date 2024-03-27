@@ -23,11 +23,12 @@ TEST CASES - abci.go
 */
 
 var _ = Describe("abci.go", Ordered, func() {
-	s := i.NewCleanChain()
-	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
+	var s *i.KeeperTestSuite
+	var gov string
 
 	BeforeEach(func() {
 		s = i.NewCleanChain()
+		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 
 		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
 			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0.1"),

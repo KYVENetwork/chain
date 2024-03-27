@@ -27,7 +27,7 @@ TEST CASES - points
 */
 
 var _ = Describe("points", Ordered, func() {
-	s := i.NewCleanChain()
+	var s *i.KeeperTestSuite
 
 	BeforeEach(func() {
 		// init new clean chain
