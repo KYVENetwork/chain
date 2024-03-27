@@ -70,7 +70,8 @@ func (k Keeper) EnsurePoolAccount(ctx sdk.Context, id uint64) {
 
 	if account == nil {
 		// account doesn't exist, initialise a new module account.
-		account = authTypes.NewEmptyModuleAccount(name)
+		newAcc := authTypes.NewEmptyModuleAccount(name)
+		account = k.accountKeeper.NewAccountWithAddress(ctx, newAcc.GetAddress())
 	} else {
 		// account exists, adjust it to a module account.
 		baseAccount := authTypes.NewBaseAccount(address, nil, account.GetAccountNumber(), 0)
