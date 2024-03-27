@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-
 	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/util"
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
@@ -22,7 +21,7 @@ func (k Keeper) StakersByDelegator(goCtx context.Context, req *types.QueryStaker
 
 	var stakers []types.DelegationForStakerResponse
 
-	delegatorStore := prefix.NewStore(ctx.KVStore(k.delegationKeeper.StoreKey()), util.GetByteKey(delegationtypes.DelegatorKeyPrefixIndex2, req.Delegator))
+	delegatorStore := prefix.NewStore(ctx.KVStore(k.delegationStoreKey), util.GetByteKey(delegationtypes.DelegatorKeyPrefixIndex2, req.Delegator))
 
 	pageRes, err := query.FilteredPaginate(delegatorStore, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
 		if accumulate {

@@ -3,7 +3,6 @@ package keeper
 import (
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/log"
-	storetypes "cosmossdk.io/store/types"
 	"fmt"
 	"github.com/KYVENetwork/chain/util"
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
@@ -51,9 +50,4 @@ func NewKeeper(
 
 func (k Keeper) Logger() log.Logger {
 	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-func (k Keeper) StoreKey() storetypes.StoreKey {
-	// TODO: Check this
-	return storetypes.NewKVStoreKey(types.StoreKey)
 }

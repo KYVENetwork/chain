@@ -7,7 +7,6 @@ import (
 	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 
 	"cosmossdk.io/log"
-	storetypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 )
@@ -66,9 +65,4 @@ func SetDelegationKeeper(k *Keeper, delegationKeeper delegationKeeper.Keeper) {
 
 func (k Keeper) Logger() log.Logger {
 	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-func (k Keeper) StoreKey() storetypes.StoreKey {
-	// TODO: Check this
-	return storetypes.NewKVStoreKey(types.StoreKey)
 }

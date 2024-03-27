@@ -66,11 +66,6 @@ func (k Keeper) Logger() log.Logger {
 	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-func (k Keeper) StoreKey() storetypes.StoreKey {
-	// TODO: Check this
-	return storetypes.NewKVStoreKey(types.StoreKey)
-}
-
 var memStoreInitialized = false
 
 func (k Keeper) InitMemStore(gasCtx sdk.Context) {

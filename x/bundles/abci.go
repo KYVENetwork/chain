@@ -12,12 +12,9 @@ import (
 
 	// Mint
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
-
-	// Team
-	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
 )
 
-func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk util.BankKeeper, mk mintKeeper.Keeper, pk types.PoolKeeper, tk teamKeeper.Keeper, uk util.UpgradeKeeper) {
+func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk util.BankKeeper, mk mintKeeper.Keeper, pk types.PoolKeeper, tk types.TeamKeeper, uk util.UpgradeKeeper) {
 	minter, err := mk.Minter.Get(ctx)
 	if err != nil {
 		util.PanicHalt(uk, ctx, "failed to get minter")

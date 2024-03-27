@@ -5,7 +5,6 @@ import (
 	"cosmossdk.io/log"
 	"fmt"
 
-	storetypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/funders/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -57,9 +56,4 @@ func NewKeeper(
 
 func (k Keeper) Logger() log.Logger {
 	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-func (k Keeper) StoreKey() storetypes.StoreKey {
-	// TODO: Check this
-	return storetypes.NewKVStoreKey(types.StoreKey)
 }

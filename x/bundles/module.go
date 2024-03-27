@@ -9,12 +9,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/KYVENetwork/chain/util"
-	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
-	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 
 	// this line is used by starport scaffolding # 1
@@ -114,11 +111,11 @@ type AppModule struct {
 	keeper             keeper.Keeper
 	accountKeeper      types.AccountKeeper
 	bankKeeper         util.BankKeeper
-	distributionKeeper distributionKeeper.Keeper
+	distributionKeeper util.DistributionKeeper
 	mintKeeper         mintKeeper.Keeper
 	upgradeKeeper      util.UpgradeKeeper
 	poolKeeper         types.PoolKeeper
-	teamKeeper         teamKeeper.Keeper
+	teamKeeper         types.TeamKeeper
 }
 
 func NewAppModule(
@@ -126,11 +123,11 @@ func NewAppModule(
 	keeper keeper.Keeper,
 	accountKeeper types.AccountKeeper,
 	bankKeeper util.BankKeeper,
-	distributionKeeper distributionKeeper.Keeper,
+	distributionKeeper util.DistributionKeeper,
 	mintKeeper mintKeeper.Keeper,
 	upgradeKeeper util.UpgradeKeeper,
 	poolKeeper types.PoolKeeper,
-	teamKeeper teamKeeper.Keeper,
+	teamKeeper types.TeamKeeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic:     NewAppModuleBasic(cdc),
@@ -214,13 +211,13 @@ type ModuleInputs struct {
 
 	AccountKeeper      types.AccountKeeper
 	BankKeeper         util.BankKeeper
-	DistributionKeeper distributionKeeper.Keeper
+	DistributionKeeper util.DistributionKeeper
 	MintKeeper         mintKeeper.Keeper
 	UpgradeKeeper      util.UpgradeKeeper
 	PoolKeeper         types.PoolKeeper
-	TeamKeeper         teamKeeper.Keeper
+	TeamKeeper         types.TeamKeeper
 	StakersKeeper      types.StakerKeeper
-	DelegationKeeper   delegationKeeper.Keeper
+	DelegationKeeper   types.DelegationKeeper
 	FundersKeeper      types.FundersKeeper
 }
 

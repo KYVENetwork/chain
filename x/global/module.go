@@ -204,8 +204,8 @@ type ModuleInputs struct {
 type ModuleOutputs struct {
 	depinject.Out
 
-	BundlesKeeper keeper.Keeper
-	Module        appmodule.AppModule
+	GlobalKeeper keeper.Keeper
+	Module       appmodule.AppModule
 }
 
 func ProvideModule(in ModuleInputs) ModuleOutputs {
@@ -228,5 +228,5 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		in.UpgradeKeeper,
 	)
 
-	return ModuleOutputs{BundlesKeeper: k, Module: m}
+	return ModuleOutputs{GlobalKeeper: k, Module: m}
 }

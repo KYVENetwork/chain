@@ -1,14 +1,6 @@
 package app
 
 import (
-	bundlesKeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
-	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
-	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
-	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
-	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
-	queryKeeper "github.com/KYVENetwork/chain/x/query/keeper"
-	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
-	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"io"
 	"os"
@@ -79,6 +71,24 @@ import (
 	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
+
+	// Kyve modules
+	_ "github.com/KYVENetwork/chain/x/bundles"
+	bundleskeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
+	_ "github.com/KYVENetwork/chain/x/delegation" // import for side-effects
+	delegationkeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
+	_ "github.com/KYVENetwork/chain/x/funders" // import for side-effects
+	funderskeeper "github.com/KYVENetwork/chain/x/funders/keeper"
+	_ "github.com/KYVENetwork/chain/x/global" // import for side-effects
+	globalkeeper "github.com/KYVENetwork/chain/x/global/keeper"
+	_ "github.com/KYVENetwork/chain/x/pool" // import for side-effects
+	poolkeeper "github.com/KYVENetwork/chain/x/pool/keeper"
+	_ "github.com/KYVENetwork/chain/x/query" // import for side-effects
+	querykeeper "github.com/KYVENetwork/chain/x/query/keeper"
+	_ "github.com/KYVENetwork/chain/x/stakers" // import for side-effects
+	stakerskeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
+	_ "github.com/KYVENetwork/chain/x/team" // import for side-effects
+	teamkeeper "github.com/KYVENetwork/chain/x/team/keeper"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
 
@@ -141,14 +151,14 @@ type App struct {
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
 
 	// KYVE
-	BundlesKeeper    bundlesKeeper.Keeper
-	DelegationKeeper delegationKeeper.Keeper
-	GlobalKeeper     globalKeeper.Keeper
-	PoolKeeper       *poolKeeper.Keeper
-	QueryKeeper      queryKeeper.Keeper
-	StakersKeeper    *stakersKeeper.Keeper
-	TeamKeeper       teamKeeper.Keeper
-	FundersKeeper    fundersKeeper.Keeper
+	BundlesKeeper    bundleskeeper.Keeper
+	DelegationKeeper delegationkeeper.Keeper
+	GlobalKeeper     globalkeeper.Keeper
+	PoolKeeper       *poolkeeper.Keeper
+	QueryKeeper      querykeeper.Keeper
+	StakersKeeper    *stakerskeeper.Keeper
+	TeamKeeper       teamkeeper.Keeper
+	FundersKeeper    funderskeeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -336,6 +346,9 @@ func New(
 
 	// Register legacy modules
 	app.registerIBCModules()
+
+	// Register
+	app.QueryKeeper.RegisterStoreKeys(app.GetStoreKeys())
 
 	// Ante handler
 	anteHandler, err := NewAnteHandler(

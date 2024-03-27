@@ -78,7 +78,7 @@ func TransferFromModuleToModule(
 }
 
 // TransferFromAddressToTreasury sends tokens from a given address to the treasury (community spend pool).
-func TransferFromAddressToTreasury(distrKeeper DistrKeeper, ctx sdk.Context, address string, amount uint64) error {
+func TransferFromAddressToTreasury(distrKeeper DistributionKeeper, ctx sdk.Context, address string, amount uint64) error {
 	sender, errAddress := sdk.AccAddressFromBech32(address)
 	if errAddress != nil {
 		return errAddress
@@ -95,7 +95,7 @@ func TransferFromAddressToTreasury(distrKeeper DistrKeeper, ctx sdk.Context, add
 // TransferFromModuleToTreasury sends tokens from a module to the treasury (community spend pool).
 func TransferFromModuleToTreasury(
 	accountKeeper AccountKeeper,
-	distrKeeper DistrKeeper,
+	distrKeeper DistributionKeeper,
 	ctx sdk.Context,
 	module string,
 	amount uint64,

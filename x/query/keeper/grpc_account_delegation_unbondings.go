@@ -23,7 +23,7 @@ func (k Keeper) AccountDelegationUnbondings(goCtx context.Context, req *types.Qu
 
 	var delegationUnbondings []types.DelegationUnbonding
 
-	store := prefix.NewStore(ctx.KVStore(k.delegationKeeper.StoreKey()), util.GetByteKey(delegationtypes.UndelegationQueueKeyPrefixIndex2, req.Address))
+	store := prefix.NewStore(ctx.KVStore(k.delegationStoreKey), util.GetByteKey(delegationtypes.UndelegationQueueKeyPrefixIndex2, req.Address))
 	pageRes, err := query.FilteredPaginate(store, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
 		if accumulate {
 			index := binary.BigEndian.Uint64(key[0:8])

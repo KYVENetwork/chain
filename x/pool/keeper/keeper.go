@@ -6,7 +6,6 @@ import (
 	"github.com/KYVENetwork/chain/util"
 
 	"cosmossdk.io/log"
-	storeTypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -92,9 +91,4 @@ func SetFundersKeeper(k *Keeper, fundersKeeper types.FundersKeeper) {
 
 func (k Keeper) Logger() log.Logger {
 	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-func (k Keeper) StoreKey() storeTypes.StoreKey {
-	// TODO: Check this
-	return storeTypes.NewKVStoreKey(types.StoreKey)
 }

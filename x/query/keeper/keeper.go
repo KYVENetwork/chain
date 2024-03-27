@@ -1,7 +1,9 @@
 package keeper
 
 import (
+	storeTypes "cosmossdk.io/store/types"
 	"fmt"
+	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
 	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
@@ -26,10 +28,13 @@ type (
 		cdc    codec.BinaryCodec
 		logger log.Logger
 
-		accountKeeper    authkeeper.AccountKeeper
-		bankKeeper       bankkeeper.Keeper
-		distrkeeper      distrkeeper.Keeper
-		poolKeeper       *poolkeeper.Keeper
+		delegationStoreKey storeTypes.StoreKey
+
+		accountKeeper authkeeper.AccountKeeper
+		bankKeeper    bankkeeper.Keeper
+		distrkeeper   distrkeeper.Keeper
+		poolKeeper    *poolkeeper.Keeper
+		// TODO: rename to stakersKeeper
 		stakerKeeper     *stakerskeeper.Keeper
 		delegationKeeper delegationkeeper.Keeper
 		// TODO: rename to bundlesKeeper
@@ -77,4 +82,12 @@ func NewKeeper(
 
 func (k Keeper) Logger() log.Logger {
 	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
+}
+
+func (k Keeper) RegisterStoreKeys(storeKeys []storeTypes.StoreKey) {
+	for _, key := range storeKeys {
+		if key.Name() == delegationtypes.StoreKey {
+			k.delegationStoreKey = key
+		}
+	}
 }

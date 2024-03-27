@@ -1,7 +1,6 @@
 package types
 
 import (
-	"context"
 	"cosmossdk.io/math"
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
@@ -11,10 +10,6 @@ import (
 // AccountKeeper defines the expected account keeper used for simulations (noalias)
 type AccountKeeper interface {
 	GetModuleAddress(moduleName string) sdk.AccAddress
-}
-
-type DistrKeeper interface {
-	FundCommunityPool(ctx context.Context, amount sdk.Coins, sender sdk.AccAddress) error
 }
 
 type PoolKeeper interface {
@@ -54,4 +49,8 @@ type DelegationKeeper interface {
 
 type FundersKeeper interface {
 	ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint64, err error)
+}
+
+type TeamKeeper interface {
+	GetTeamBlockProvision(ctx sdk.Context) int64
 }
