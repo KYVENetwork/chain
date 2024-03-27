@@ -2,6 +2,10 @@ package integration
 
 import (
 	"cosmossdk.io/store"
+	storeTypes "cosmossdk.io/store/types"
+	"fmt"
+	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
+	teamtypes "github.com/KYVENetwork/chain/x/team/types"
 	"time"
 
 	"github.com/KYVENetwork/chain/x/funders"
@@ -15,7 +19,7 @@ import (
 	poolmodule "github.com/KYVENetwork/chain/x/pool"
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	"github.com/KYVENetwork/chain/x/stakers"
-	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
+	stakerstypes "github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/KYVENetwork/chain/x/team"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	. "github.com/onsi/gomega"
@@ -149,9 +153,7 @@ func (suite *KeeperTestSuite) VerifyPoolGenesisImportExport() {
 	genState := poolmodule.ExportGenesis(suite.Ctx(), suite.App().PoolKeeper)
 
 	// Delete all entries in Pool Store
-	store := suite.Ctx().KVStore(suite.App().PoolKeeper.StoreKey())
-	suite.deleteStore(store)
-
+	suite.deleteStore(suite.getStoreByKeyName(pooltypes.StoreKey))
 	err := genState.Validate()
 	Expect(err).To(BeNil())
 	poolmodule.InitGenesis(suite.Ctx(), suite.App().PoolKeeper, *genState)
@@ -169,7 +171,7 @@ func (suite *KeeperTestSuite) VerifyStakersModuleAssetsIntegrity() {
 		expectedBalance += staker.CommissionRewards
 	}
 
-	moduleAcc := suite.App().AccountKeeper.GetModuleAccount(suite.Ctx(), stakertypes.ModuleName).GetAddress()
+	moduleAcc := suite.App().AccountKeeper.GetModuleAccount(suite.Ctx(), stakerstypes.ModuleName).GetAddress()
 	actualBalance = suite.App().BankKeeper.GetBalance(suite.Ctx(), moduleAcc, globalTypes.Denom).Amount.Uint64()
 
 	Expect(actualBalance).To(Equal(expectedBalance))
@@ -234,8 +236,8 @@ func (suite *KeeperTestSuite) VerifyStakersGenesisImportExport() {
 	genState := stakers.ExportGenesis(suite.Ctx(), suite.App().StakersKeeper)
 
 	// Delete all entries in Stakers Store
-	store := suite.Ctx().KVStore(suite.App().StakersKeeper.StoreKey())
-	iterator := store.Iterator(nil, nil)
+	st := suite.getStoreByKeyName(stakerstypes.StoreKey)
+	iterator := st.Iterator(nil, nil)
 	keys := make([][]byte, 0)
 	for ; iterator.Valid(); iterator.Next() {
 		key := make([]byte, len(iterator.Key()))
@@ -244,7 +246,7 @@ func (suite *KeeperTestSuite) VerifyStakersGenesisImportExport() {
 	}
 	iterator.Close()
 	for _, key := range keys {
-		store.Delete(key)
+		st.Delete(key)
 	}
 
 	err := genState.Validate()
@@ -405,8 +407,8 @@ func (suite *KeeperTestSuite) VerifyTeamGenesisImportExport() {
 	genState := team.ExportGenesis(suite.Ctx(), suite.App().TeamKeeper)
 
 	// Delete all entries in Stakers Store
-	store := suite.Ctx().KVStore(suite.App().TeamKeeper.StoreKey())
-	iterator := store.Iterator(nil, nil)
+	st := suite.getStoreByKeyName(teamtypes.StoreKey)
+	iterator := st.Iterator(nil, nil)
 	keys := make([][]byte, 0)
 	for ; iterator.Valid(); iterator.Next() {
 		key := make([]byte, len(iterator.Key()))
@@ -415,7 +417,7 @@ func (suite *KeeperTestSuite) VerifyTeamGenesisImportExport() {
 	}
 	iterator.Close()
 	for _, key := range keys {
-		store.Delete(key)
+		st.Delete(key)
 	}
 
 	err := genState.Validate()
@@ -431,8 +433,7 @@ func (suite *KeeperTestSuite) VerifyFundersGenesisImportExport() {
 	genState := funders.ExportGenesis(suite.Ctx(), suite.App().FundersKeeper)
 
 	// Delete all entries in Funders Store
-	store := suite.Ctx().KVStore(suite.App().FundersKeeper.StoreKey())
-	suite.deleteStore(store)
+	suite.deleteStore(suite.getStoreByKeyName(funderstypes.StoreKey))
 
 	err := genState.Validate()
 	Expect(err).To(BeNil())
@@ -591,4 +592,14 @@ func (suite *KeeperTestSuite) deleteStore(store store.KVStore) {
 	for _, key := range keys {
 		store.Delete(key)
 	}
+}
+
+func (suite *KeeperTestSuite) getStoreByKeyName(keyName string) storeTypes.KVStore {
+	keys := suite.app.GetStoreKeys()
+	for _, key := range keys {
+		if key.Name() == keyName {
+			return suite.Ctx().KVStore(key)
+		}
+	}
+	panic(fmt.Errorf("store with name %s not found", keyName))
 }

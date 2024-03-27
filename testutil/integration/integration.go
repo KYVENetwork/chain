@@ -1,6 +1,7 @@
 package integration
 
 import (
+	abci "github.com/cometbft/cometbft/abci/types"
 	mrand "math/rand"
 	"time"
 
@@ -8,7 +9,6 @@ import (
 
 	"github.com/KYVENetwork/chain/app"
 	stakerstypes "github.com/KYVENetwork/chain/x/stakers/types"
-	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
@@ -254,19 +254,10 @@ func (suite *KeeperTestSuite) CommitAfterSeconds(seconds uint64) {
 }
 
 func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
-	_, _ = suite.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: suite.ctx.BlockHeader().Height})
-	_, _ = suite.app.Commit()
-
-	// TODO: check if this has still the same behavior as before
-	header := suite.ctx.BlockHeader()
-	header.Height += 1
-	header.Time = header.Time.Add(t)
-
-	ctx := suite.app.BaseApp.NewContextLegacy(true, header)
-	_, _ = suite.app.ModuleManager.BeginBlock(ctx)
-
-	suite.ctx = ctx
-
+	_, _ = suite.app.FinalizeBlock(&abci.RequestFinalizeBlock{
+		Height: suite.ctx.BlockHeight(),
+		Time:   suite.ctx.BlockTime().Add(t)},
+	)
 	suite.registerQueryClients()
 }
 
