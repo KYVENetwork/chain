@@ -28,7 +28,8 @@ var _ = Describe("msg_server_cancel_runtime_upgrade.go", Ordered, func() {
 	s := i.NewCleanChain()
 
 	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
-	votingPeriod := s.App().GovKeeper.GetParams(s.Ctx()).VotingPeriod
+	params, _ := s.App().GovKeeper.Params.Get(s.Ctx())
+	votingPeriod := params.VotingPeriod
 
 	var currentTime uint64
 
@@ -102,7 +103,7 @@ var _ = Describe("msg_server_cancel_runtime_upgrade.go", Ordered, func() {
 		s.CommitAfter(*votingPeriod)
 		s.Commit()
 
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
+		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
 
 		Expect(submitErr).To(Not(HaveOccurred()))
 		Expect(voteErr).To(Not(HaveOccurred()))
@@ -154,7 +155,7 @@ var _ = Describe("msg_server_cancel_runtime_upgrade.go", Ordered, func() {
 		s.CommitAfter(*votingPeriod)
 		s.Commit()
 
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
+		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
 
 		Expect(submitErr).To(Not(HaveOccurred()))
 		Expect(voteErr).To(Not(HaveOccurred()))

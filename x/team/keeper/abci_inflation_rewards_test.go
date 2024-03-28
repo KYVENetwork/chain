@@ -67,9 +67,10 @@ var _ = Describe("abci.go", Ordered, func() {
 
 		for t := 0; t < 100; t++ {
 			// ACT
-			b1 = s.App().DistributionKeeper.GetFeePool(s.Ctx()).CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64()
+			feePool, _ := s.App().DistributionKeeper.FeePool.Get(s.Ctx())
+			b1 = feePool.CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64()
 			s.Commit()
-			b2 = s.App().DistributionKeeper.GetFeePool(s.Ctx()).CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64()
+			b2 = feePool.CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64()
 
 			// ASSERT
 			Expect(b2).To(BeNumerically(">", b1))
@@ -87,7 +88,8 @@ var _ = Describe("abci.go", Ordered, func() {
 
 			// get current team and validators reward for this block
 			r1 := s.App().TeamKeeper.GetTeamInfo(s.Ctx()).TotalAuthorityRewards
-			c1 := uint64(s.App().DistributionKeeper.GetFeePool(s.Ctx()).CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64())
+			feePool, _ := s.App().DistributionKeeper.FeePool.Get(s.Ctx())
+			c1 := uint64(feePool.CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64())
 
 			// ACT
 
@@ -96,14 +98,14 @@ var _ = Describe("abci.go", Ordered, func() {
 
 			// calculate delta for team and community rewards in order to verify distribution
 			r2 := s.App().TeamKeeper.GetTeamInfo(s.Ctx()).TotalAuthorityRewards
-			c2 := uint64(s.App().DistributionKeeper.GetFeePool(s.Ctx()).CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64())
+			c2 := uint64(feePool.CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64())
 
 			teamReward := r2 - r1
 			communityReward := c2 - c1
 
 			// get block reward for this block
-			minter := s.App().MintKeeper.GetMinter(s.Ctx())
-			params := s.App().MintKeeper.GetParams(s.Ctx())
+			minter, _ := s.App().MintKeeper.Minter.Get(s.Ctx())
+			params, _ := s.App().MintKeeper.Params.Get(s.Ctx())
 			blockProvision := minter.BlockProvision(params)
 
 			// ASSERT

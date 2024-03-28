@@ -3,7 +3,6 @@ package global_test
 import (
 	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -36,10 +35,10 @@ var _ = Describe("AbciEndBlocker", Ordered, func() {
 	BeforeEach(func() {
 		s = i.NewCleanChain()
 
-		mintParams := s.App().MintKeeper.GetParams(s.Ctx())
-		mintParams.InflationMax = sdk.ZeroDec()
-		mintParams.InflationMin = sdk.ZeroDec()
-		_ = s.App().MintKeeper.SetParams(s.Ctx(), mintParams)
+		mintParams, _ := s.App().MintKeeper.Params.Get(s.Ctx())
+		mintParams.InflationMax = math.LegacyZeroDec()
+		mintParams.InflationMin = math.LegacyZeroDec()
+		_ = s.App().MintKeeper.Params.Set(s.Ctx(), mintParams)
 
 		accountBalanceBefore = s.GetBalanceFromAddress(i.DUMMY[0])
 		totalSupplyBefore = s.App().BankKeeper.GetSupply(s.Ctx(), types.Denom).Amount.Uint64()
@@ -53,7 +52,7 @@ var _ = Describe("AbciEndBlocker", Ordered, func() {
 	It("BurnRatio = 0.0", func() {
 		// ARRANGE
 		// default burn ratio is zero
-		denom := s.App().StakingKeeper.BondDenom(s.Ctx())
+		denom, _ := s.App().StakingKeeper.BondDenom(s.Ctx())
 		tx := BuildTestTx(math.NewInt(1), denom, i.DUMMY[0], encodingConfig)
 
 		// ACT
@@ -76,11 +75,11 @@ var _ = Describe("AbciEndBlocker", Ordered, func() {
 		// ARRANGE
 		// set burn ratio to 0.3
 		params := types.DefaultParams()
-		params.BurnRatio = sdk.OneDec().MulInt64(2).QuoInt64(3)
+		params.BurnRatio = math.LegacyOneDec().MulInt64(2).QuoInt64(3)
 		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
 
 		// default burn ratio is zero
-		denom := s.App().StakingKeeper.BondDenom(s.Ctx())
+		denom, _ := s.App().StakingKeeper.BondDenom(s.Ctx())
 		tx := BuildTestTx(math.NewInt(1), denom, i.DUMMY[0], encodingConfig)
 
 		// ACT
@@ -104,10 +103,10 @@ var _ = Describe("AbciEndBlocker", Ordered, func() {
 		// ARRANGE
 		// set burn ratio to 0.5
 		params := types.DefaultParams()
-		params.BurnRatio = sdk.OneDec().QuoInt64(2)
+		params.BurnRatio = math.LegacyOneDec().QuoInt64(2)
 		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
 
-		denom := s.App().StakingKeeper.BondDenom(s.Ctx())
+		denom, _ := s.App().StakingKeeper.BondDenom(s.Ctx())
 		tx := BuildTestTx(math.NewInt(1), denom, i.DUMMY[0], encodingConfig)
 
 		// ACT
@@ -130,10 +129,10 @@ var _ = Describe("AbciEndBlocker", Ordered, func() {
 		// ARRANGE
 		// set burn ratio to 0.5
 		params := types.DefaultParams()
-		params.BurnRatio = sdk.OneDec()
+		params.BurnRatio = math.LegacyOneDec()
 		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
 
-		denom := s.App().StakingKeeper.BondDenom(s.Ctx())
+		denom, _ := s.App().StakingKeeper.BondDenom(s.Ctx())
 		tx := BuildTestTx(math.NewInt(1), denom, i.DUMMY[0], encodingConfig)
 
 		// ACT

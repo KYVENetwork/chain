@@ -39,7 +39,8 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 	s := i.NewCleanChain()
 
 	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
-	votingPeriod := s.App().GovKeeper.GetParams(s.Ctx()).VotingPeriod
+	params, _ := s.App().GovKeeper.Params.Get(s.Ctx())
+	votingPeriod := params.VotingPeriod
 	fundingAmount := 100 * i.KYVE
 
 	BeforeEach(func() {
@@ -164,7 +165,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		s.Commit()
 
 		// ASSERT
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
+		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
 
 		Expect(submitErr).To(Not(HaveOccurred()))
 		Expect(voteErr).To(Not(HaveOccurred()))
@@ -193,7 +194,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		s.Commit()
 
 		// ASSERT
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
+		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		Expect(submitErr).To(Not(HaveOccurred()))
@@ -242,7 +243,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		s.Commit()
 
 		// ASSERT
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
+		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		Expect(submitErr).To(Not(HaveOccurred()))
@@ -276,7 +277,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		s.Commit()
 
 		// ASSERT
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
+		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		Expect(submitErr).To(Not(HaveOccurred()))
@@ -310,7 +311,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		s.Commit()
 
 		// ASSERT
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
+		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
 		Expect(submitErr).To(Not(HaveOccurred()))
@@ -344,7 +345,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		s.Commit()
 
 		// ASSERT
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
+		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
 		firstPool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 		secondPool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 1)
 
@@ -411,7 +412,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		s.Commit()
 
 		// ASSERT
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
+		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
 
 		Expect(s.App().StakersKeeper.GetAllValaccounts(s.Ctx())).To(HaveLen(0))
 		Expect(s.App().StakersKeeper.GetActiveStakers(s.Ctx())).To(HaveLen(0))
@@ -486,7 +487,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		s.Commit()
 
 		// ASSERT
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
+		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
 
 		Expect(s.App().StakersKeeper.GetAllValaccounts(s.Ctx())).To(HaveLen(1))
 		Expect(s.App().StakersKeeper.GetActiveStakers(s.Ctx())).To(HaveLen(1))
@@ -576,7 +577,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		s.Commit()
 
 		// ASSERT
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
+		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
 
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 

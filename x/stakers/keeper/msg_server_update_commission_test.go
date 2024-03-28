@@ -2,7 +2,6 @@ package keeper_test
 
 import (
 	"cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -108,7 +107,7 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.CommitAfterSeconds(1)
 
 		staker, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker.Commission).To(Equal(sdk.OneDec()))
+		Expect(staker.Commission).To(Equal(math.LegacyOneDec()))
 	})
 
 	It("Update commission with a negative number from previously default commission", func() {

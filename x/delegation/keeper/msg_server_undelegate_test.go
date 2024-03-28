@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

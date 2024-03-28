@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/cosmos/ibc-go/v8/testing/simapp/params"
+	"google.golang.org/protobuf/proto"
 )
 
 // BuildEncodingConfig ...
@@ -17,7 +18,7 @@ func BuildEncodingConfig() params.EncodingConfig {
 
 	encodingConfig := params.EncodingConfig{
 		InterfaceRegistry: interfaceRegistry,
-		Marshaler:         codec,
+		Codec:             codec,
 		TxConfig:          tx.NewTxConfig(codec, tx.DefaultSignModes),
 		Amino:             cdc,
 	}
@@ -45,6 +46,10 @@ func BuildTestTx(gasPrice math.Int, denom string, feePayer string, encodingConfi
 var _ sdk.Tx = &InvalidTx{}
 
 type InvalidTx struct{}
+
+func (t InvalidTx) GetMsgsV2() ([]proto.Message, error) {
+	return nil, nil
+}
 
 func (InvalidTx) GetMsgs() []sdk.Msg   { return []sdk.Msg{nil} }
 func (InvalidTx) ValidateBasic() error { return nil }

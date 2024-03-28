@@ -33,7 +33,7 @@ var _ = Describe("RefundFeeDecorator", Ordered, func() {
 	encodingConfig := BuildEncodingConfig()
 	rfd := global.NewRefundFeeDecorator(s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper)
 	dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
-	denom := s.App().StakingKeeper.BondDenom(s.Ctx())
+	denom, _ := s.App().StakingKeeper.BondDenom(s.Ctx())
 
 	accountBalanceBefore := s.GetBalanceFromAddress(i.DUMMY[0])
 
@@ -44,7 +44,7 @@ var _ = Describe("RefundFeeDecorator", Ordered, func() {
 		rfd = global.NewRefundFeeDecorator(s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper)
 		dfd = global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
 
-		denom = s.App().StakingKeeper.BondDenom(s.Ctx())
+		denom, _ = s.App().StakingKeeper.BondDenom(s.Ctx())
 
 		params := types.DefaultParams()
 		params.GasRefunds = []types.GasRefund{
@@ -54,11 +54,11 @@ var _ = Describe("RefundFeeDecorator", Ordered, func() {
 			},
 			{
 				Type:     "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
-				Fraction: sdk.OneDec(),
+				Fraction: math.LegacyOneDec(),
 			},
 			{
 				Type:     "/kyve.bundles.v1beta1.MsgSkipUploaderRole",
-				Fraction: sdk.ZeroDec(),
+				Fraction: math.LegacyZeroDec(),
 			},
 			{
 				Type:     "/kyve.stakers.v1beta1.MsgCreateStaker",
