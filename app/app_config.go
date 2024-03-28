@@ -124,6 +124,10 @@ var (
 	beginBlockers = []string{
 		// cosmos sdk modules
 		minttypes.ModuleName,
+		// NOTE: x/team must be run before x/distribution and after x/mint.
+		teamtypes.ModuleName,
+		// NOTE: x/bundles must be run before x/distribution and after x/team.
+		bundlestypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -139,13 +143,11 @@ var (
 		ibcfeetypes.ModuleName,
 
 		// KYVE modules
-		bundlestypes.ModuleName,
 		delegationtypes.ModuleName,
 		globaltypes.ModuleName,
 		pooltypes.ModuleName,
 		querytypes.ModuleName,
 		stakerstypes.ModuleName,
-		teamtypes.ModuleName,
 		funderstypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	}
@@ -191,6 +193,8 @@ var (
 		{Account: stakingtypes.BondedPoolName, Permissions: []string{authtypes.Burner, authtypes.Staking}},
 		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, authtypes.Staking}},
 		{Account: govtypes.ModuleName, Permissions: []string{authtypes.Burner}},
+
+		// IBC
 		{Account: ibctransfertypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
 		{Account: ibcfeetypes.ModuleName},
 		{Account: icatypes.ModuleName},
@@ -212,6 +216,20 @@ var (
 		minttypes.ModuleName,
 		stakingtypes.BondedPoolName,
 		stakingtypes.NotBondedPoolName,
+
+		// IBC
+		ibctransfertypes.ModuleName,
+		ibcfeetypes.ModuleName,
+		icatypes.ModuleName,
+
+		// KYVE
+		bundlestypes.ModuleName,
+		delegationtypes.ModuleName,
+		pooltypes.ModuleName,
+		stakerstypes.ModuleName,
+		teamtypes.ModuleName,
+		funderstypes.ModuleName,
+
 		// We allow the following module accounts to receive funds:
 		// govtypes.ModuleName
 	}

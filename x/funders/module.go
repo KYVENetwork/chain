@@ -11,7 +11,6 @@ import (
 	"github.com/KYVENetwork/chain/util"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	// this line is used by starport scaffolding # 1
@@ -191,7 +190,7 @@ type ModuleInputs struct {
 	Logger       log.Logger
 
 	AccountKeeper util.AccountKeeper
-	BankKeeper    bankKeeper.Keeper
+	BankKeeper    util.BankKeeper
 	UpgradeKeeper util.UpgradeKeeper
 	PoolKeeper    *poolKeeper.Keeper
 }

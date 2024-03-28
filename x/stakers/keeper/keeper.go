@@ -20,9 +20,9 @@ type (
 
 		authority string
 
-		accountKeeper    types.AccountKeeper
-		bankKeeper       types.BankKeeper
-		distrkeeper      types.DistrKeeper
+		accountKeeper    util.AccountKeeper
+		bankKeeper       util.BankKeeper
+		distrkeeper      util.DistributionKeeper
 		poolKeeper       types.PoolKeeper
 		upgradeKeeper    util.UpgradeKeeper
 		delegationKeeper delegationKeeper.Keeper
@@ -37,9 +37,9 @@ func NewKeeper(
 
 	authority string,
 
-	accountKeeper types.AccountKeeper,
-	bankKeeper types.BankKeeper,
-	distrkeeper types.DistrKeeper,
+	accountKeeper util.AccountKeeper,
+	bankKeeper util.BankKeeper,
+	distrkeeper util.DistributionKeeper,
 	poolKeeper types.PoolKeeper,
 	upgradeKeeper util.UpgradeKeeper,
 ) *Keeper {

@@ -3,12 +3,10 @@ package team
 import (
 	"cosmossdk.io/math"
 	"fmt"
+	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/KYVENetwork/chain/util"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	// Auth
-	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	// Team
 	"github.com/KYVENetwork/chain/x/team/keeper"

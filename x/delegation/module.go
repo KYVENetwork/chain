@@ -12,7 +12,6 @@ import (
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -195,7 +194,7 @@ type ModuleInputs struct {
 	Logger       log.Logger
 
 	AccountKeeper      types.AccountKeeper
-	BankKeeper         bankKeeper.Keeper
+	BankKeeper         util.BankKeeper
 	DistributionKeeper distributionKeeper.Keeper
 	UpgradeKeeper      util.UpgradeKeeper
 	PoolKeeper         *poolKeeper.Keeper

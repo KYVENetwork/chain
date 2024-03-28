@@ -12,7 +12,6 @@ import (
 	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	// this line is used by starport scaffolding # 1
@@ -109,15 +108,15 @@ type AppModule struct {
 	AppModuleBasic
 
 	keeper        *keeper.Keeper
-	accountKeeper types.AccountKeeper
-	bankKeeper    types.BankKeeper
+	accountKeeper util.AccountKeeper
+	bankKeeper    util.BankKeeper
 }
 
 func NewAppModule(
 	cdc codec.Codec,
 	keeper *keeper.Keeper,
-	accountKeeper types.AccountKeeper,
-	bankKeeper types.BankKeeper,
+	accountKeeper util.AccountKeeper,
+	bankKeeper util.BankKeeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: NewAppModuleBasic(cdc),
@@ -197,8 +196,8 @@ type ModuleInputs struct {
 	MemService   store.MemoryStoreService
 	Logger       log.Logger
 
-	AccountKeeper      types.AccountKeeper
-	BankKeeper         bankKeeper.Keeper
+	AccountKeeper      util.AccountKeeper
+	BankKeeper         util.BankKeeper
 	DistributionKeeper distributionKeeper.Keeper
 	UpgradeKeeper      util.UpgradeKeeper
 	PoolKeeper         *poolKeeper.Keeper

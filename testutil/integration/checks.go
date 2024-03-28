@@ -317,11 +317,10 @@ func (suite *KeeperTestSuite) VerifyBundlesGenesisImportExport() {
 // ========================
 
 func (suite *KeeperTestSuite) VerifyDelegationQueries() {
-	goCtx := sdk.WrapSDKContext(suite.Ctx())
 	for _, delegator := range suite.App().DelegationKeeper.GetAllDelegators(suite.Ctx()) {
 
 		// Query: delegator/{staker}/{delegator}
-		resD, errD := suite.App().QueryKeeper.Delegator(goCtx, &querytypes.QueryDelegatorRequest{
+		resD, errD := suite.App().QueryKeeper.Delegator(suite.Ctx(), &querytypes.QueryDelegatorRequest{
 			Staker:    delegator.Staker,
 			Delegator: delegator.Delegator,
 		})
@@ -332,7 +331,7 @@ func (suite *KeeperTestSuite) VerifyDelegationQueries() {
 		Expect(resD.Delegator.CurrentReward).To(Equal(suite.App().DelegationKeeper.GetOutstandingRewards(suite.Ctx(), delegator.Staker, delegator.Delegator)))
 
 		// Query: stakers_by_delegator/{delegator}
-		resSbD, errSbD := suite.App().QueryKeeper.StakersByDelegator(goCtx, &querytypes.QueryStakersByDelegatorRequest{
+		resSbD, errSbD := suite.App().QueryKeeper.StakersByDelegator(suite.Ctx(), &querytypes.QueryStakersByDelegatorRequest{
 			Pagination: nil,
 			Delegator:  delegator.Delegator,
 		})
@@ -355,7 +354,7 @@ func (suite *KeeperTestSuite) VerifyDelegationQueries() {
 
 	for _, staker := range suite.App().StakersKeeper.GetAllStakers(suite.Ctx()) {
 		// Query: delegators_by_staker/{staker}
-		resDbS, errDbS := suite.App().QueryKeeper.DelegatorsByStaker(goCtx, &querytypes.QueryDelegatorsByStakerRequest{
+		resDbS, errDbS := suite.App().QueryKeeper.DelegatorsByStaker(suite.Ctx(), &querytypes.QueryDelegatorsByStakerRequest{
 			Pagination: nil,
 			Staker:     staker.Address,
 		})
