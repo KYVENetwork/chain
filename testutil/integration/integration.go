@@ -140,21 +140,17 @@ func (suite *KeeperTestSuite) Mint(address string, amount uint64) error {
 
 	suite.Commit()
 
-	sender, err := sdk.AccAddressFromBech32(address)
+	receiver, err := sdk.AccAddressFromBech32(address)
 	if err != nil {
 		return err
 	}
 
-	err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, mintTypes.ModuleName, sender, coins)
+	err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, mintTypes.ModuleName, receiver, coins)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-type QueryClients struct {
-	stakersClient stakerstypes.QueryClient
 }
 
 type KeeperTestSuite struct {
@@ -163,7 +159,6 @@ type KeeperTestSuite struct {
 	ctx sdk.Context
 
 	app         *app.App
-	queries     QueryClients
 	address     common.Address
 	consAddress sdk.ConsAddress
 	validator   stakingtypes.Validator
@@ -221,7 +216,6 @@ func (suite *KeeperTestSuite) SetupApp(startTime int64) {
 		ConsensusHash:      tmhash.Sum([]byte("consensus")),
 		LastResultsHash:    tmhash.Sum([]byte("last_result")),
 	})
-	suite.registerQueryClients()
 
 	mintParams, _ := suite.app.MintKeeper.Params.Get(suite.ctx)
 	mintParams.MintDenom = suite.denom
@@ -254,11 +248,23 @@ func (suite *KeeperTestSuite) CommitAfterSeconds(seconds uint64) {
 }
 
 func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
-	_, _ = suite.app.FinalizeBlock(&abci.RequestFinalizeBlock{
-		Height: suite.ctx.BlockHeight(),
-		Time:   suite.ctx.BlockTime().Add(t)},
-	)
-	suite.registerQueryClients()
+	header := suite.ctx.BlockHeader()
+	_, err := suite.app.FinalizeBlock(&abci.RequestFinalizeBlock{
+		Height: header.Height,
+		Time:   header.Time,
+	})
+	if err != nil {
+		panic(err)
+	}
+	_, err = suite.app.Commit()
+	if err != nil {
+		panic(err)
+	}
+
+	header.Height += 1
+	header.Time = header.Time.Add(t)
+
+	suite.ctx = suite.app.BaseApp.NewUncachedContext(false, header)
 }
 
 func (suite *KeeperTestSuite) registerQueryClients() {

@@ -123,12 +123,12 @@ func DefaultGenesisWithValSet(app *App) map[string]json.RawMessage {
 func Setup() *App {
 	db := dbm.NewMemDB()
 
-	// config := MakeEncodingConfig()
-
 	setPrefixes(AccountAddressPrefix)
 
-	// app := NewKYVEApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, 5, config, EmptyAppOptions{})
-	app, err := New(log.NewNopLogger(), db, nil, true, EmptyAppOptions{}, baseapp.SetChainID("kyve-test"))
+	//cw := zerolog.NewConsoleWriter()
+	//logger := log.NewCustomLogger(zerolog.New(cw).Level(zerolog.DebugLevel))
+	logger := log.NewNopLogger()
+	app, err := New(logger, db, nil, true, EmptyAppOptions{}, baseapp.SetChainID("kyve-test"))
 	if err != nil {
 		panic(err)
 	}

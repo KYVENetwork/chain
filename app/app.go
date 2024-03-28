@@ -347,6 +347,7 @@ func New(
 	// Register legacy modules
 	app.registerIBCModules()
 
+	// TODO: check if this works like expected
 	// Register
 	app.QueryKeeper.RegisterStoreKeys(app.GetStoreKeys())
 
