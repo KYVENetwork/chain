@@ -107,10 +107,10 @@ var (
 		// KYVE modules
 		bundlestypes.ModuleName,
 		delegationtypes.ModuleName,
-		globaltypes.ModuleName,
 		pooltypes.ModuleName,
 		querytypes.ModuleName,
 		stakerstypes.ModuleName,
+		globaltypes.ModuleName,
 		teamtypes.ModuleName,
 		funderstypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
@@ -144,10 +144,10 @@ var (
 
 		// KYVE modules
 		delegationtypes.ModuleName,
-		globaltypes.ModuleName,
 		pooltypes.ModuleName,
 		querytypes.ModuleName,
 		stakerstypes.ModuleName,
+		globaltypes.ModuleName,
 		funderstypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	}
@@ -171,10 +171,10 @@ var (
 		// KYVE modules
 		bundlestypes.ModuleName,
 		delegationtypes.ModuleName,
-		globaltypes.ModuleName,
 		pooltypes.ModuleName,
 		querytypes.ModuleName,
 		stakerstypes.ModuleName,
+		globaltypes.ModuleName,
 		teamtypes.ModuleName,
 		funderstypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
