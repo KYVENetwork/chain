@@ -8,12 +8,10 @@ import (
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 
 	"github.com/KYVENetwork/chain/app"
-	stakerstypes "github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
 	"github.com/cometbft/cometbft/version"
-	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
@@ -265,11 +263,4 @@ func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	header.Time = header.Time.Add(t)
 
 	suite.ctx = suite.app.BaseApp.NewUncachedContext(false, header)
-}
-
-func (suite *KeeperTestSuite) registerQueryClients() {
-	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-
-	stakerstypes.RegisterQueryServer(queryHelper, suite.app.StakersKeeper)
-	suite.queries.stakersClient = stakerstypes.NewQueryClient(queryHelper)
 }

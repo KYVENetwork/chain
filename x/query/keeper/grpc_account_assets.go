@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	storeTypes "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 
@@ -44,9 +45,8 @@ func (k Keeper) AccountAssets(goCtx context.Context, req *types.QueryAccountAsse
 	// ================================================
 
 	// Iterate all Delegator entries
-	delegatorStore := prefix.NewStore(
-		ctx.KVStore(k.delegationStoreKey),
-		util.GetByteKey(delegationtypes.DelegatorKeyPrefixIndex2, req.Address))
+	storeAdapter := runtime.KVStoreAdapter(k.delegationStoreService.OpenKVStore(ctx))
+	delegatorStore := prefix.NewStore(storeAdapter, util.GetByteKey(delegationtypes.DelegatorKeyPrefixIndex2, req.Address))
 	delegatorIterator := storeTypes.KVStorePrefixIterator(delegatorStore, nil)
 	defer delegatorIterator.Close()
 

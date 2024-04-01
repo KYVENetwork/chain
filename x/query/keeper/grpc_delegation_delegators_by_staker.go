@@ -6,6 +6,7 @@ import (
 	"github.com/KYVENetwork/chain/util"
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	"github.com/KYVENetwork/chain/x/query/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
@@ -20,8 +21,8 @@ func (k Keeper) DelegatorsByStaker(goCtx context.Context, req *types.QueryDelega
 
 	var delegators []types.StakerDelegatorResponse
 
-	store := ctx.KVStore(k.delegationStoreKey)
-	delegatorStore := prefix.NewStore(store, util.GetByteKey(delegationtypes.DelegatorKeyPrefix, req.Staker))
+	storeAdapter := runtime.KVStoreAdapter(k.delegationStoreService.OpenKVStore(ctx))
+	delegatorStore := prefix.NewStore(storeAdapter, util.GetByteKey(delegationtypes.DelegatorKeyPrefix, req.Staker))
 
 	pageRes, err := query.FilteredPaginate(delegatorStore, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
 		if accumulate {

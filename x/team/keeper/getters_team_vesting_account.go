@@ -12,7 +12,8 @@ import (
 
 // GetAuthority get the authority
 func (k Keeper) GetAuthority(ctx sdk.Context) (authority types.Authority) {
-	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, []byte{})
 	byteKey := types.AuthorityKey
 	bz := store.Get(byteKey)
 
@@ -27,7 +28,8 @@ func (k Keeper) GetAuthority(ctx sdk.Context) (authority types.Authority) {
 
 // SetAuthority set the authority
 func (k Keeper) SetAuthority(ctx sdk.Context, authority types.Authority) {
-	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, []byte{})
 	byteKey := types.AuthorityKey
 	b := k.cdc.MustMarshal(&authority)
 	store.Set(byteKey, b)
@@ -35,7 +37,8 @@ func (k Keeper) SetAuthority(ctx sdk.Context, authority types.Authority) {
 
 // GetTeamVestingAccountCount get the total number of team vesting accounts
 func (k Keeper) GetTeamVestingAccountCount(ctx sdk.Context) uint64 {
-	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, []byte{})
 	byteKey := types.TeamVestingAccountCountKey
 	bz := store.Get(byteKey)
 
@@ -50,7 +53,8 @@ func (k Keeper) GetTeamVestingAccountCount(ctx sdk.Context) uint64 {
 
 // SetTeamVestingAccountCount set the total number of team vesting accounts
 func (k Keeper) SetTeamVestingAccountCount(ctx sdk.Context, count uint64) {
-	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, []byte{})
 	byteKey := types.TeamVestingAccountCountKey
 	bz := make([]byte, 8)
 	binary.BigEndian.PutUint64(bz, count)

@@ -204,8 +204,9 @@ type ModuleInputs struct {
 type ModuleOutputs struct {
 	depinject.Out
 
-	DelegationKeeper keeper.Keeper
-	Module           appmodule.AppModule
+	DelegationKeeper       keeper.Keeper
+	DelegationStoreService types.DelegationKVStoreService
+	Module                 appmodule.AppModule
 }
 
 func ProvideModule(in ModuleInputs) ModuleOutputs {
@@ -235,5 +236,5 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		in.BankKeeper,
 	)
 
-	return ModuleOutputs{DelegationKeeper: k, Module: m}
+	return ModuleOutputs{DelegationKeeper: k, Module: m, DelegationStoreService: in.StoreService}
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/KYVENetwork/chain/util"
 	bundlekeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
 	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
+	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
 	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
@@ -192,6 +193,8 @@ type ModuleInputs struct {
 	Config *modulev1.Module
 	Logger log.Logger
 
+	DelegationStoreService delegationtypes.DelegationKVStoreService
+
 	AccountKeeper      authkeeper.AccountKeeper
 	BankKeeper         bankKeeper.Keeper
 	DistributionKeeper distributionKeeper.Keeper
@@ -217,6 +220,7 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 	k := keeper.NewKeeper(
 		in.Cdc,
 		in.Logger,
+		in.DelegationStoreService,
 		in.AccountKeeper,
 		in.BankKeeper,
 		in.DistributionKeeper,
