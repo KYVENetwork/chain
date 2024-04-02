@@ -29,7 +29,7 @@ func NewAnteHandler(
 	feeGrantKeeper feeGrantKeeper.Keeper,
 	globalKeeper globalKeeper.Keeper,
 	ibcKeeper *ibcKeeper.Keeper,
-	stakingKeeper stakingKeeper.Keeper,
+	stakingKeeper *stakingKeeper.Keeper,
 	sigGasConsumer ante.SignatureVerificationGasConsumer,
 	signModeHandler *txsigning.HandlerMap,
 ) (sdk.AnteHandler, error) {

@@ -354,7 +354,7 @@ func New(
 		app.FeeGrantKeeper,
 		app.GlobalKeeper,
 		app.IBCKeeper,
-		*app.StakingKeeper,
+		app.StakingKeeper,
 		ante.DefaultSigVerificationGasConsumer,
 		app.txConfig.SignModeHandler(),
 	)

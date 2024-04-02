@@ -41,7 +41,7 @@ func GetFeeAccount(ctx sdk.Context, tx sdk.FeeTx, feeGrantKeeper feeGrantKeeper.
 // In contrast to
 // https://github.com/cosmos/cosmos-sdk/blob/release/v0.46.x/x/auth/ante/validator_tx_fee.go#L12
 // this code runs within the consensus layer.
-func BuildTxFeeChecker(ctx sdk.Context, fk keeper.Keeper, sk stakingKeeper.Keeper) ante.TxFeeChecker {
+func BuildTxFeeChecker(ctx sdk.Context, fk keeper.Keeper, sk *stakingKeeper.Keeper) ante.TxFeeChecker {
 	return func(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {
 		bondDenom, err := sk.BondDenom(ctx)
 		if err != nil {
