@@ -143,10 +143,10 @@ var (
 		ibcfeetypes.ModuleName,
 
 		// KYVE modules
-		delegationtypes.ModuleName,
 		pooltypes.ModuleName,
-		querytypes.ModuleName,
 		stakerstypes.ModuleName,
+		delegationtypes.ModuleName,
+		querytypes.ModuleName,
 		globaltypes.ModuleName,
 		funderstypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
@@ -169,11 +169,11 @@ var (
 		ibcfeetypes.ModuleName,
 
 		// KYVE modules
-		bundlestypes.ModuleName,
-		delegationtypes.ModuleName,
 		pooltypes.ModuleName,
-		querytypes.ModuleName,
 		stakerstypes.ModuleName,
+		delegationtypes.ModuleName,
+		bundlestypes.ModuleName,
+		querytypes.ModuleName,
 		globaltypes.ModuleName,
 		teamtypes.ModuleName,
 		funderstypes.ModuleName,
