@@ -13,7 +13,7 @@ var (
 )
 
 func (msg *MsgDelegate) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
+	bz := Amino.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 

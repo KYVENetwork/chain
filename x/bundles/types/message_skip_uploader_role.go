@@ -22,7 +22,7 @@ func NewMsgSkipUploaderRole(creator string, staker string, poolId uint64, fromIn
 }
 
 func (msg *MsgSkipUploaderRole) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
+	bz := Amino.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 

@@ -160,7 +160,7 @@ type App struct {
 	FundersKeeper    funderskeeper.Keeper
 
 	// simulation manager
-	sm *module.SimulationManager
+	//sm *module.SimulationManager
 }
 
 func init() {
@@ -477,7 +477,7 @@ func (app *App) GetCapabilityScopedKeeper(moduleName string) capabilitykeeper.Sc
 // SimulationManager implements the SimulationApp interface.
 func (app *App) SimulationManager() *module.SimulationManager {
 	panic("SimulationManager is not implemented")
-	return app.sm
+	//return app.sm
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided

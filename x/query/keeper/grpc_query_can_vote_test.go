@@ -9,7 +9,6 @@ import (
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -114,7 +113,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 
 	It("Call can vote if pool does not exist", func() {
 		// ACT
-		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
+		canVote, err := s.App().QueryKeeper.CanVote(s.Ctx(), &querytypes.QueryCanVoteRequest{
 			PoolId:    1,
 			Staker:    i.STAKER_1,
 			Voter:     i.VALADDRESS_1_A,
@@ -152,7 +151,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
 
 		// ACT
-		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
+		canVote, err := s.App().QueryKeeper.CanVote(s.Ctx(), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
 			Voter:     i.VALADDRESS_1_A,
@@ -185,7 +184,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
 
 		// ACT
-		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
+		canVote, err := s.App().QueryKeeper.CanVote(s.Ctx(), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
 			Voter:     i.VALADDRESS_1_A,
@@ -223,7 +222,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		s.CommitAfterSeconds(1)
 
 		// ACT
-		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
+		canVote, err := s.App().QueryKeeper.CanVote(s.Ctx(), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
 			Voter:     i.VALADDRESS_1_A,
@@ -250,7 +249,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 
 	It("Call can vote with a valaccount which does not exist", func() {
 		// ACT
-		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
+		canVote, err := s.App().QueryKeeper.CanVote(s.Ctx(), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_0,
 			Voter:     i.VALADDRESS_1_A,
@@ -282,7 +281,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		s.CommitAfterSeconds(1)
 
 		// ACT
-		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
+		canVote, err := s.App().QueryKeeper.CanVote(s.Ctx(), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
 			Voter:     i.VALADDRESS_1_A,
@@ -309,7 +308,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 
 	It("Call can vote with a different storage id than the current one", func() {
 		// ACT
-		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
+		canVote, err := s.App().QueryKeeper.CanVote(s.Ctx(), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
 			Voter:     i.VALADDRESS_1_A,
@@ -347,7 +346,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		Expect(txErr).To(BeNil())
 
 		// ACT
-		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
+		canVote, err := s.App().QueryKeeper.CanVote(s.Ctx(), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
 			Voter:     i.VALADDRESS_1_A,
@@ -385,7 +384,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		Expect(txErr).To(BeNil())
 
 		// ACT
-		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
+		canVote, err := s.App().QueryKeeper.CanVote(s.Ctx(), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
 			Voter:     i.VALADDRESS_1_A,
@@ -423,7 +422,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		Expect(txErr).To(BeNil())
 
 		// ACT
-		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
+		canVote, err := s.App().QueryKeeper.CanVote(s.Ctx(), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
 			Voter:     i.VALADDRESS_1_A,
@@ -449,7 +448,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 
 	It("Call can vote on an active pool with a data bundle with valid args", func() {
 		// ACT
-		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
+		canVote, err := s.App().QueryKeeper.CanVote(s.Ctx(), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
 			Voter:     i.VALADDRESS_1_A,
@@ -482,7 +481,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		})
 
 		// ACT
-		canVote, err := s.App().QueryKeeper.CanVote(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanVoteRequest{
+		canVote, err := s.App().QueryKeeper.CanVote(s.Ctx(), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
 			Voter:     i.VALADDRESS_1_A,

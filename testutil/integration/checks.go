@@ -25,8 +25,6 @@ import (
 	"github.com/KYVENetwork/chain/x/team"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	. "github.com/onsi/gomega"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (suite *KeeperTestSuite) PerformValidityChecks() {
@@ -78,8 +76,8 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 
 	poolsQuery := make([]querytypes.PoolResponse, 0)
 
-	activePoolsQuery, activePoolsQueryErr := suite.App().QueryKeeper.Pools(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryPoolsRequest{})
-	disabledPoolsQuery, disabledPoolsQueryErr := suite.App().QueryKeeper.Pools(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryPoolsRequest{
+	activePoolsQuery, activePoolsQueryErr := suite.App().QueryKeeper.Pools(suite.Ctx(), &querytypes.QueryPoolsRequest{})
+	disabledPoolsQuery, disabledPoolsQueryErr := suite.App().QueryKeeper.Pools(suite.Ctx(), &querytypes.QueryPoolsRequest{
 		Disabled: true,
 	})
 
@@ -112,7 +110,7 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 		Expect(poolsQuery[i].TotalDelegation).To(Equal(totalDelegationState))
 
 		// test pool by id
-		poolByIdQuery, poolByIdQueryErr := suite.App().QueryKeeper.Pool(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryPoolRequest{
+		poolByIdQuery, poolByIdQueryErr := suite.App().QueryKeeper.Pool(suite.Ctx(), &querytypes.QueryPoolRequest{
 			Id: poolsState[i].Id,
 		})
 
@@ -138,7 +136,7 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 			}
 		}
 
-		stakersByPoolQuery, stakersByPoolQueryErr := suite.App().QueryKeeper.StakersByPool(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryStakersByPoolRequest{
+		stakersByPoolQuery, stakersByPoolQueryErr := suite.App().QueryKeeper.StakersByPool(suite.Ctx(), &querytypes.QueryStakersByPoolRequest{
 			PoolId: poolsState[i].Id,
 		})
 
@@ -207,7 +205,7 @@ func (suite *KeeperTestSuite) VerifyActiveStakers() {
 
 func (suite *KeeperTestSuite) VerifyStakersQueries() {
 	stakersState := suite.App().StakersKeeper.GetAllStakers(suite.Ctx())
-	stakersQuery, stakersQueryErr := suite.App().QueryKeeper.Stakers(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryStakersRequest{
+	stakersQuery, stakersQueryErr := suite.App().QueryKeeper.Stakers(suite.Ctx(), &querytypes.QueryStakersRequest{
 		Pagination: &query.PageRequest{
 			Limit: 1000,
 		},
@@ -225,7 +223,7 @@ func (suite *KeeperTestSuite) VerifyStakersQueries() {
 		address := stakersState[i].Address
 		suite.verifyFullStaker(stakersMap[address], address)
 
-		stakerByAddressQuery, stakersByAddressQueryErr := suite.App().QueryKeeper.Staker(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryStakerRequest{
+		stakerByAddressQuery, stakersByAddressQueryErr := suite.App().QueryKeeper.Staker(suite.Ctx(), &querytypes.QueryStakerRequest{
 			Address: address,
 		})
 
@@ -286,7 +284,7 @@ func (suite *KeeperTestSuite) VerifyBundlesQueries() {
 
 	for _, pool := range pools {
 		finalizedBundlesState := suite.App().BundlesKeeper.GetFinalizedBundlesByPool(suite.Ctx(), pool.Id)
-		finalizedBundlesQuery, finalizedBundlesQueryErr := suite.App().QueryKeeper.FinalizedBundlesQuery(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryFinalizedBundlesRequest{
+		finalizedBundlesQuery, finalizedBundlesQueryErr := suite.App().QueryKeeper.FinalizedBundlesQuery(suite.Ctx(), &querytypes.QueryFinalizedBundlesRequest{
 			PoolId: pool.Id,
 		})
 
@@ -295,7 +293,7 @@ func (suite *KeeperTestSuite) VerifyBundlesQueries() {
 
 		for i := range finalizedBundlesState {
 
-			finalizedBundle, finalizedBundleQueryErr := suite.App().QueryKeeper.FinalizedBundleQuery(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryFinalizedBundleRequest{
+			finalizedBundle, finalizedBundleQueryErr := suite.App().QueryKeeper.FinalizedBundleQuery(suite.Ctx(), &querytypes.QueryFinalizedBundleRequest{
 				PoolId: pool.Id,
 				Id:     finalizedBundlesState[i].Id,
 			})

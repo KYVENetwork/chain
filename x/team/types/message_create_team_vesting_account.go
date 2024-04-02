@@ -13,7 +13,7 @@ var (
 )
 
 func (msg *MsgCreateTeamVestingAccount) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
+	bz := Amino.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 

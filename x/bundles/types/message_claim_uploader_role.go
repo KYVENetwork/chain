@@ -21,7 +21,7 @@ func NewMsgClaimUploaderRole(creator string, staker string, poolId uint64) *MsgC
 }
 
 func (msg *MsgClaimUploaderRole) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
+	bz := Amino.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
