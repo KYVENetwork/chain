@@ -95,8 +95,6 @@ func queryCommand() *cobra.Command {
 		server.QueryBlockResultsCmd(),
 	)
 
-	//app.ModuleBasics.AddQueryCommands(cmd)
-
 	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
 
 	return cmd
