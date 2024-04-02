@@ -1,9 +1,10 @@
 package cmd
 
 import (
-	"github.com/KYVENetwork/chain/app"
 	"os"
 	"strings"
+
+	"github.com/KYVENetwork/chain/app"
 
 	"cosmossdk.io/client/v2/autocli"
 	clientv2keyring "cosmossdk.io/client/v2/autocli/keyring"

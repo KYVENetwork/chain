@@ -2,12 +2,14 @@ package funders
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	"encoding/json"
-	"fmt"
+
 	"github.com/KYVENetwork/chain/util"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"

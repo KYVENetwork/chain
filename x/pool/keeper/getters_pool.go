@@ -1,10 +1,12 @@
 package keeper
 
 import (
-	storeTypes "cosmossdk.io/store/types"
 	"encoding/binary"
-	"github.com/cosmos/cosmos-sdk/runtime"
 	"strings"
+
+	storeTypes "cosmossdk.io/store/types"
+
+	"github.com/cosmos/cosmos-sdk/runtime"
 
 	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/x/pool/types"

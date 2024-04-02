@@ -2,12 +2,14 @@ package bundles
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	"encoding/json"
-	"fmt"
+
 	"github.com/KYVENetwork/chain/util"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"

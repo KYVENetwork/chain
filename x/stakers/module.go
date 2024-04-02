@@ -2,12 +2,14 @@ package stakers
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	"encoding/json"
-	"fmt"
+
 	"github.com/KYVENetwork/chain/util"
 	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"

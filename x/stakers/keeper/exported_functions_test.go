@@ -1,8 +1,9 @@
 package keeper_test
 
 import (
-	"github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	"strconv"
+
+	"github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 

@@ -1,9 +1,10 @@
 package keeper
 
 import (
+	"fmt"
+
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/log"
-	"fmt"
 
 	"github.com/KYVENetwork/chain/x/global/types"
 	"github.com/cosmos/cosmos-sdk/codec"

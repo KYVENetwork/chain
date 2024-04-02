@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"encoding/binary"
+
 	"github.com/cosmos/cosmos-sdk/runtime"
 
 	"cosmossdk.io/store/prefix"

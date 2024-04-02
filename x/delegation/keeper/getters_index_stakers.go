@@ -2,9 +2,10 @@ package keeper
 
 import (
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/runtime"
 	"math"
 	"sort"
+
+	"github.com/cosmos/cosmos-sdk/runtime"
 
 	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/util"

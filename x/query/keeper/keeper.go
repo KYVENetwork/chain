@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 

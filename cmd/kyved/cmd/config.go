@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+
 	"github.com/KYVENetwork/chain/app"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	cmtcfg "github.com/cometbft/cometbft/config"

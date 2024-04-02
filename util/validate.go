@@ -1,8 +1,9 @@
 package util
 
 import (
-	"cosmossdk.io/math"
 	"fmt"
+
+	"cosmossdk.io/math"
 )
 
 func ValidateDecimal(i interface{}) error {

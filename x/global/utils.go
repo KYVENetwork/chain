@@ -2,8 +2,9 @@ package global
 
 import (
 	"bytes"
-	sdkmath "cosmossdk.io/math"
 	"math"
+
+	sdkmath "cosmossdk.io/math"
 
 	sdkErrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"

@@ -1,9 +1,10 @@
 package keeper
 
 import (
+	"strings"
+
 	storeTypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
-	"strings"
 
 	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/x/funders/types"

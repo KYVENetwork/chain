@@ -2,9 +2,10 @@ package app
 
 import (
 	"encoding/json"
+	"time"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
-	"time"
 
 	"cosmossdk.io/math"
 
@@ -125,8 +126,8 @@ func Setup() *App {
 
 	setPrefixes(AccountAddressPrefix)
 
-	//cw := zerolog.NewConsoleWriter()
-	//logger := log.NewCustomLogger(zerolog.New(cw).Level(zerolog.DebugLevel))
+	// cw := zerolog.NewConsoleWriter()
+	// logger := log.NewCustomLogger(zerolog.New(cw).Level(zerolog.DebugLevel))
 	logger := log.NewNopLogger()
 	app, err := New(logger, db, nil, true, EmptyAppOptions{}, baseapp.SetChainID("kyve-test"))
 	if err != nil {

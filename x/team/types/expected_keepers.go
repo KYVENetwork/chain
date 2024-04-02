@@ -2,6 +2,7 @@ package types
 
 import (
 	"context"
+
 	"github.com/KYVENetwork/chain/util"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

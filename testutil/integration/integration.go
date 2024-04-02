@@ -1,9 +1,10 @@
 package integration
 
 import (
-	abci "github.com/cometbft/cometbft/abci/types"
 	mrand "math/rand"
 	"time"
+
+	abci "github.com/cometbft/cometbft/abci/types"
 
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 

@@ -3,8 +3,9 @@ package keeper
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/runtime"
 	"time"
+
+	"github.com/cosmos/cosmos-sdk/runtime"
 
 	cosmossdk_io_math "cosmossdk.io/math"
 

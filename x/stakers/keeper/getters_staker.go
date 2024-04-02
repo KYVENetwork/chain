@@ -1,9 +1,11 @@
 package keeper
 
 import (
+	"encoding/binary"
+
 	"cosmossdk.io/math"
 	storeTypes "cosmossdk.io/store/types"
-	"encoding/binary"
+
 	"github.com/cosmos/cosmos-sdk/runtime"
 
 	"cosmossdk.io/store/prefix"

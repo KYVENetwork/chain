@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/KYVENetwork/chain/app"
 	"github.com/KYVENetwork/chain/cmd/kyved/cmd"
-	"os"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )

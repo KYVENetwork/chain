@@ -1,12 +1,14 @@
 package integration
 
 import (
+	"fmt"
+	"time"
+
 	"cosmossdk.io/store"
 	storeTypes "cosmossdk.io/store/types"
-	"fmt"
+
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	teamtypes "github.com/KYVENetwork/chain/x/team/types"
-	"time"
 
 	"github.com/KYVENetwork/chain/x/funders"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"

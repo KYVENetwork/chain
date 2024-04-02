@@ -1,10 +1,15 @@
 package cmd
 
 import (
-	"cosmossdk.io/log"
-	confixcmd "cosmossdk.io/tools/confix/cmd"
 	"errors"
 	"fmt"
+	"io"
+	"strconv"
+	"time"
+
+	"cosmossdk.io/log"
+	confixcmd "cosmossdk.io/tools/confix/cmd"
+
 	"github.com/KYVENetwork/chain/app"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	teamTypes "github.com/KYVENetwork/chain/x/team/types"
@@ -27,9 +32,6 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"io"
-	"strconv"
-	"time"
 )
 
 func initRootCmd(
