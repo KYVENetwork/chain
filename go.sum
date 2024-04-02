@@ -243,8 +243,8 @@ github.com/Djarvur/go-err113 v0.0.0-20210108212216-aea10b59be24 h1:sHglBQTwgx+rW
 github.com/Djarvur/go-err113 v0.0.0-20210108212216-aea10b59be24/go.mod h1:4UJr5HIiMZrwgkSPdsjy2uOQExX/WEILpIrO9UPGuXs=
 github.com/GaijinEntertainment/go-exhaustruct/v2 v2.3.0 h1:+r1rSv4gvYn0wmRjC8X7IAzX8QezqtFV9m0MUHFJgts=
 github.com/GaijinEntertainment/go-exhaustruct/v2 v2.3.0/go.mod h1:b3g59n2Y+T5xmcxJL+UEG2f8cQploZm1mR/v6BW0mU0=
-github.com/KYVENetwork/cosmos-sdk v0.50.5-kyve-rc0 h1:lK0qP2vwGOdnRdoUkP1YSdeQQSoGKMRqojoQ3kTX9OU=
-github.com/KYVENetwork/cosmos-sdk v0.50.5-kyve-rc0/go.mod h1:VAp+d9UcrbMZyZPetVZBOTQj/lNAOrcD2ADGoFCChCA=
+github.com/KYVENetwork/cosmos-sdk v0.50.5-kyve-rc1 h1:8/Jda0LczV7EZFi2uR2sBv2s+eH1i4p17N93mxt1dek=
+github.com/KYVENetwork/cosmos-sdk v0.50.5-kyve-rc1/go.mod h1:VAp+d9UcrbMZyZPetVZBOTQj/lNAOrcD2ADGoFCChCA=
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
 github.com/Masterminds/semver v1.5.0 h1:H65muMkzWKEuNDnfl9d70GUjFniHKHRbFPGBuZ3QEww=
 github.com/Masterminds/semver v1.5.0/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF078ddwwvV3Y=
