@@ -400,7 +400,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		p, v := BuildGovernanceTxs(s, []sdk.Msg{msgFirstPool})
 
 		msgVoteStaker0 := govV1Types.NewMsgVote(sdk.MustAccAddressFromBech32(i.STAKER_0), 1, govV1Types.VoteOption_VOTE_OPTION_YES, "")
-		msgVoteStaker1 := govV1Types.NewMsgVote(sdk.MustAccAddressFromBech32(i.STAKER_0), 1, govV1Types.VoteOption_VOTE_OPTION_YES, "")
+		msgVoteStaker1 := govV1Types.NewMsgVote(sdk.MustAccAddressFromBech32(i.STAKER_1), 1, govV1Types.VoteOption_VOTE_OPTION_YES, "")
 
 		// ACT
 		_, submitErr := s.RunTx(&p)
@@ -475,7 +475,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		p, v := BuildGovernanceTxs(s, []sdk.Msg{msgFirstPool})
 
 		msgVoteStaker0 := govV1Types.NewMsgVote(sdk.MustAccAddressFromBech32(i.STAKER_0), 1, govV1Types.VoteOption_VOTE_OPTION_YES, "")
-		msgVoteStaker1 := govV1Types.NewMsgVote(sdk.MustAccAddressFromBech32(i.STAKER_0), 1, govV1Types.VoteOption_VOTE_OPTION_YES, "")
+		msgVoteStaker1 := govV1Types.NewMsgVote(sdk.MustAccAddressFromBech32(i.STAKER_1), 1, govV1Types.VoteOption_VOTE_OPTION_YES, "")
 
 		// ACT
 		_, submitErr := s.RunTx(&p)
@@ -565,7 +565,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		p, v := BuildGovernanceTxs(s, []sdk.Msg{msgFirstPool})
 
 		msgVoteStaker0 := govV1Types.NewMsgVote(sdk.MustAccAddressFromBech32(i.STAKER_0), 1, govV1Types.VoteOption_VOTE_OPTION_YES, "")
-		msgVoteStaker1 := govV1Types.NewMsgVote(sdk.MustAccAddressFromBech32(i.STAKER_0), 1, govV1Types.VoteOption_VOTE_OPTION_YES, "")
+		msgVoteStaker1 := govV1Types.NewMsgVote(sdk.MustAccAddressFromBech32(i.STAKER_1), 1, govV1Types.VoteOption_VOTE_OPTION_YES, "")
 
 		// ACT
 		_, submitErr := s.RunTx(&p)
