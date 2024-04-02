@@ -68,7 +68,7 @@ func (k Keeper) DoesLeavePoolEntryExistByIndex2(ctx sdk.Context, staker string, 
 // RemoveLeavePoolEntry ...
 func (k Keeper) RemoveLeavePoolEntry(ctx sdk.Context, leavePoolEntry *types.LeavePoolEntry) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.LeavePoolEntryKeyPrefixIndex2)
+	store := prefix.NewStore(storeAdapter, types.LeavePoolEntryKeyPrefix)
 	store.Delete(types.LeavePoolEntryKey(leavePoolEntry.Index))
 
 	indexStore := prefix.NewStore(storeAdapter, types.LeavePoolEntryKeyPrefixIndex2)
@@ -81,7 +81,7 @@ func (k Keeper) RemoveLeavePoolEntry(ctx sdk.Context, leavePoolEntry *types.Leav
 // GetAllLeavePoolEntries ...
 func (k Keeper) GetAllLeavePoolEntries(ctx sdk.Context) (list []types.LeavePoolEntry) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.LeavePoolEntryKeyPrefixIndex2)
+	store := prefix.NewStore(storeAdapter, types.LeavePoolEntryKeyPrefix)
 	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
