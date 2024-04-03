@@ -39,9 +39,8 @@ var (
 	_ module.HasInvariants       = (*AppModule)(nil)
 	_ module.HasConsensusVersion = (*AppModule)(nil)
 
-	_ appmodule.AppModule       = (*AppModule)(nil)
-	_ appmodule.HasBeginBlocker = (*AppModule)(nil)
-	_ appmodule.HasEndBlocker   = (*AppModule)(nil)
+	_ appmodule.AppModule     = (*AppModule)(nil)
+	_ appmodule.HasEndBlocker = (*AppModule)(nil)
 )
 
 // ----------------------------------------------------------------------------
@@ -160,11 +159,6 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 
 // ConsensusVersion is a sequence number for state-breaking change of the module. It should be incremented on each consensus-breaking change introduced by the module. To avoid wrong/empty versions, the initial version should be set to 1
 func (AppModule) ConsensusVersion() uint64 { return 1 }
-
-// BeginBlock contains the logic that is automatically triggered at the beginning of each block
-func (am AppModule) BeginBlock(_ context.Context) error {
-	return nil
-}
 
 // EndBlock contains the logic that is automatically triggered at the end of each block
 func (am AppModule) EndBlock(ctx context.Context) error {
