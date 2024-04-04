@@ -70,6 +70,7 @@ var _ = Describe("abci.go", Ordered, func() {
 			feePool, _ := s.App().DistributionKeeper.FeePool.Get(s.Ctx())
 			b1 = feePool.CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64()
 			s.Commit()
+			feePool, _ = s.App().DistributionKeeper.FeePool.Get(s.Ctx())
 			b2 = feePool.CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64()
 
 			// ASSERT
@@ -98,6 +99,7 @@ var _ = Describe("abci.go", Ordered, func() {
 
 			// calculate delta for team and community rewards in order to verify distribution
 			r2 := s.App().TeamKeeper.GetTeamInfo(s.Ctx()).TotalAuthorityRewards
+			feePool, _ = s.App().DistributionKeeper.FeePool.Get(s.Ctx())
 			c2 := uint64(feePool.CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64())
 
 			teamReward := r2 - r1

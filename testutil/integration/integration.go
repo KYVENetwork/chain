@@ -248,6 +248,8 @@ func (suite *KeeperTestSuite) CommitAfterSeconds(seconds uint64) {
 
 func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	header := suite.ctx.BlockHeader()
+	header.Time = header.Time.Add(t)
+
 	_, err := suite.app.FinalizeBlock(&abci.RequestFinalizeBlock{
 		Height: header.Height,
 		Time:   header.Time,
@@ -261,7 +263,17 @@ func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	}
 
 	header.Height += 1
-	header.Time = header.Time.Add(t)
 
 	suite.ctx = suite.app.BaseApp.NewUncachedContext(false, header)
+}
+
+func (suite *KeeperTestSuite) WaitSeconds(seconds uint64) {
+	suite.Wait(time.Second * time.Duration(seconds))
+}
+
+func (suite *KeeperTestSuite) Wait(t time.Duration) {
+	header := suite.ctx.BlockHeader()
+	header.Time = header.Time.Add(t)
+
+	suite.ctx = suite.ctx.WithBlockTime(suite.ctx.BlockTime().Add(t))
 }

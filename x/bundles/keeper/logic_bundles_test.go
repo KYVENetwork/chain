@@ -486,7 +486,8 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			PoolId:  0,
 		})
 
-		s.CommitAfterSeconds(60)
+		s.Commit()
+		s.WaitSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_0_A,
@@ -502,7 +503,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			BundleSummary: "test_value",
 		})
 
-		s.CommitAfterSeconds(60)
+		s.Commit()
 
 		// ACT
 		err := s.App().BundlesKeeper.AssertCanVote(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1_A, "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI")
@@ -543,7 +544,8 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			PoolId:  0,
 		})
 
-		s.CommitAfterSeconds(60)
+		s.Commit()
+		s.WaitSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_0_A,
@@ -559,7 +561,8 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			BundleSummary: "test_value",
 		})
 
-		s.CommitAfterSeconds(60)
+		s.Commit()
+		s.WaitSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgVoteBundleProposal{
 			Creator:   i.VALADDRESS_1_A,
@@ -608,7 +611,8 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			PoolId:  0,
 		})
 
-		s.CommitAfterSeconds(60)
+		s.Commit()
+		s.WaitSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_0_A,
@@ -624,7 +628,8 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			BundleSummary: "test_value",
 		})
 
-		s.CommitAfterSeconds(60)
+		s.Commit()
+		s.WaitSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgVoteBundleProposal{
 			Creator:   i.VALADDRESS_1_A,
@@ -673,7 +678,8 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			PoolId:  0,
 		})
 
-		s.CommitAfterSeconds(60)
+		s.Commit()
+		s.WaitSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundlesTypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_0_A,
@@ -689,7 +695,8 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			BundleSummary: "test_value",
 		})
 
-		s.CommitAfterSeconds(60)
+		s.Commit()
+		s.WaitSeconds(60)
 
 		// ACT
 		err := s.App().BundlesKeeper.AssertCanVote(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1_A, "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI")
@@ -732,7 +739,8 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			PoolId:  0,
 		})
 
-		s.CommitAfterSeconds(60)
+		s.Commit()
+		s.WaitSeconds(60)
 
 		// ACT
 		err := s.App().BundlesKeeper.AssertCanPropose(s.Ctx(), 0, i.STAKER_2, i.VALADDRESS_2_A, 0)
@@ -773,7 +781,8 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			PoolId:  0,
 		})
 
-		s.CommitAfterSeconds(60)
+		s.Commit()
+		s.WaitSeconds(60)
 
 		// ACT
 		err := s.App().BundlesKeeper.AssertCanPropose(s.Ctx(), 0, i.STAKER_1, i.VALADDRESS_1_A, 0)
@@ -814,7 +823,8 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			PoolId:  0,
 		})
 
-		s.CommitAfterSeconds(30)
+		s.Commit()
+		s.WaitSeconds(30)
 
 		// ACT
 		err := s.App().BundlesKeeper.AssertCanPropose(s.Ctx(), 0, i.STAKER_0, i.VALADDRESS_0_A, 0)
@@ -858,7 +868,8 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			PoolId:  0,
 		})
 
-		s.CommitAfterSeconds(60)
+		s.Commit()
+		s.WaitSeconds(60)
 
 		// ACT
 		err := s.App().BundlesKeeper.AssertCanPropose(s.Ctx(), 0, i.STAKER_0, i.VALADDRESS_0_A, 1000)
@@ -899,7 +910,8 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			PoolId:  0,
 		})
 
-		s.CommitAfterSeconds(60)
+		s.Commit()
+		s.WaitSeconds(60)
 
 		// ACT
 		err := s.App().BundlesKeeper.AssertCanPropose(s.Ctx(), 0, i.STAKER_0, i.VALADDRESS_0_A, 0)
