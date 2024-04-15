@@ -6,13 +6,12 @@
 version: v1
 plugins:
   - name: gocosmos
-    out: ../
+    out: ../tmp-gen
     opt:
       - plugins=grpc
       - Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types
       - Mcosmos/orm/v1/orm.proto=cosmossdk.io/orm
   - name: grpc-gateway
-    out: ../
+    out: ../tmp-gen
     opt:
       - logtostderr=true
-#      - allow_colon_final_segments=true
