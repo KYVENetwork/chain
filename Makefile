@@ -2,7 +2,7 @@ COMMIT := $(shell git log -1 --format='%H')
 GO_VERSION := $(shell go version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f1,2)
 
 # VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
-VERSION := v1.4.0
+VERSION := v1.5.0
 
 TEAM_ALLOCATION := 165000000000000
 ifeq ($(ENV),kaon)
