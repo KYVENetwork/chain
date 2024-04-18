@@ -1,6 +1,9 @@
 package app
 
 import (
+	v1_5 "github.com/KYVENetwork/chain/app/upgrades/v1_5"
+	abci "github.com/cometbft/cometbft/abci/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"io"
 	"os"
 	"path/filepath"
@@ -394,11 +397,33 @@ func New(
 	// For instance, the upgrade module will set automatically the module version map in its init genesis thanks to app wiring.
 	// However, when registering a module manually (i.e. that does not support app wiring), the module version map
 	// must be set manually as follow. The upgrade module will de-duplicate the module version map.
-	//
-	// app.SetInitChainer(func(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
-	// 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.ModuleManager.GetVersionMap())
-	// 	return app.App.InitChainer(ctx, req)
-	// })
+
+	app.SetInitChainer(func(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
+		// We need this because IBC modules don't support dependency injection yet
+		err := app.UpgradeKeeper.SetModuleVersionMap(ctx, app.ModuleManager.GetVersionMap())
+		if err != nil {
+			return nil, err
+		}
+		return app.App.InitChainer(ctx, req)
+	})
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v1_5.UpgradeName,
+		v1_5.CreateUpgradeHandler(
+			app.ModuleManager,
+			app.Configurator(),
+		),
+	)
+
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		return nil, err
+	}
+
+	if upgradeInfo.Name == v1_5.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		// configure store loader that checks if version == upgradeHeight and applies store upgrades
+		app.SetStoreLoader(v1_5.CreateStoreLoader(upgradeInfo.Height))
+	}
 
 	if err := app.Load(loadLatest); err != nil {
 		return nil, err
