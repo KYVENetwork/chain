@@ -190,8 +190,8 @@ heighliner:
 
 heighliner-setup:
 	@echo "🤖 Installing Heighliner..."
-	@git clone https://github.com/strangelove-ventures/heighliner.git
-	@cd heighliner && go install && cd ..
+	@git clone https://github.com/strangelove-ventures/heighliner.git /tmp/heighliner
+	@cd /tmp/heighliner && go install && cd ..
 	@rm -rf heighliner
 	@echo "✅ Completed installation!"
 
