@@ -22,8 +22,17 @@ paths:
                     type: string
                     format: uint64
                     description: upload_timeout ...
-                  storage_cost:
-                    type: string
+                  storage_costs:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                          description: value ...
+                      description: >-
+                        LegacyDecValue defines a wrapper around a string that
+                        represents a LegacyDec.
                     description: storage_cost ...
                   network_fee:
                     type: string
@@ -4269,8 +4278,17 @@ paths:
                     type: string
                     format: uint64
                     description: upload_timeout ...
-                  storage_cost:
-                    type: string
+                  storage_costs:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                          description: value ...
+                      description: >-
+                        LegacyDecValue defines a wrapper around a string that
+                        represents a LegacyDec.
                     description: storage_cost ...
                   network_fee:
                     type: string

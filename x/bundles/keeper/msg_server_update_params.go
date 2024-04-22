@@ -2,9 +2,8 @@ package keeper
 
 import (
 	"context"
-	"encoding/json"
-
 	"cosmossdk.io/errors"
+	"encoding/json"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	// Bundles

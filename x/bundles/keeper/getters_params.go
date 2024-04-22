@@ -21,8 +21,16 @@ func (k Keeper) GetUploadTimeout(ctx sdk.Context) (res uint64) {
 }
 
 // GetStorageCost returns the StorageCost param
-func (k Keeper) GetStorageCost(ctx sdk.Context) (res math.LegacyDec) {
-	return k.GetParams(ctx).StorageCost
+func (k Keeper) GetStorageCost(ctx sdk.Context, storageProviderId uint32) (res math.LegacyDec) {
+	storageMap := k.GetParams(ctx).StorageCosts
+	if storageCost, ok := storageMap[storageProviderId]; ok {
+		return storageCost.Value
+	}
+	// default to storage provider 0
+	if storageCost, ok := storageMap[0]; ok {
+		return storageCost.Value
+	}
+	return math.LegacyNewDec(0)
 }
 
 // GetNetworkFee returns the NetworkFee param

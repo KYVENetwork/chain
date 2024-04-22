@@ -234,7 +234,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// calculate uploader rewards
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), 0).MulInt64(100).TruncateInt64())
 		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
@@ -379,7 +379,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// calculate uploader rewards
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), 0).MulInt64(100).TruncateInt64())
 		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
@@ -557,7 +557,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// calculate uploader rewards
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), 0).MulInt64(100).TruncateInt64())
 		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
@@ -736,7 +736,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// calculate uploader rewards
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), 0).MulInt64(100).TruncateInt64())
 		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
@@ -925,7 +925,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// calculate uploader rewards
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), 0).MulInt64(100).TruncateInt64())
 		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
