@@ -3,23 +3,24 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/core/store"
+	"cosmossdk.io/log"
+
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/funders/types"
-	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type (
 	Keeper struct {
-		cdc      codec.BinaryCodec
-		storeKey storetypes.StoreKey
-		memKey   storetypes.StoreKey
+		cdc          codec.BinaryCodec
+		storeService store.KVStoreService
+		memService   store.MemoryStoreService
+		logger       log.Logger
 
 		authority string
 
-		accountKeeper types.AccountKeeper
+		accountKeeper util.AccountKeeper
 		bankKeeper    util.BankKeeper
 		poolKeeper    types.PoolKeeper
 		upgradeKeeper util.UpgradeKeeper
@@ -28,20 +29,22 @@ type (
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	storeKey,
-	memKey storetypes.StoreKey,
+	storeService store.KVStoreService,
+	memService store.MemoryStoreService,
+	logger log.Logger,
 
 	authority string,
 
-	accountKeeper types.AccountKeeper,
+	accountKeeper util.AccountKeeper,
 	bankKeeper util.BankKeeper,
 	poolKeeper types.PoolKeeper,
 	upgradeKeeper util.UpgradeKeeper,
-) *Keeper {
-	return &Keeper{
-		cdc:      cdc,
-		storeKey: storeKey,
-		memKey:   memKey,
+) Keeper {
+	return Keeper{
+		cdc:          cdc,
+		storeService: storeService,
+		memService:   memService,
+		logger:       logger,
 
 		authority: authority,
 
@@ -52,10 +55,6 @@ func NewKeeper(
 	}
 }
 
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-func (k Keeper) StoreKey() storetypes.StoreKey {
-	return k.storeKey
+func (k Keeper) Logger() log.Logger {
+	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }

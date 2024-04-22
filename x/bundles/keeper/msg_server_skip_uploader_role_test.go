@@ -21,7 +21,7 @@ TEST CASES - msg_server_skip_uploader_role.go
 */
 
 var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
-	s := i.NewCleanChain()
+	var s *i.KeeperTestSuite
 
 	BeforeEach(func() {
 		// init new clean chain
@@ -87,7 +87,8 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 			PoolId:  0,
 		})
 
-		s.CommitAfterSeconds(60)
+		s.Commit()
+		s.WaitSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_0_A,
@@ -110,7 +111,8 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 
 	It("Skip uploader role on data bundle if staker is next uploader", func() {
 		// ARRANGE
-		s.CommitAfterSeconds(60)
+		s.Commit()
+		s.WaitSeconds(60)
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{
@@ -144,7 +146,8 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 
 	It("Skip uploader on data bundle after uploader role has already been skipped", func() {
 		// ARRANGE
-		s.CommitAfterSeconds(60)
+		s.Commit()
+		s.WaitSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{
 			Creator:   i.VALADDRESS_1_A,
@@ -153,7 +156,8 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 			FromIndex: 100,
 		})
 
-		s.CommitAfterSeconds(60)
+		s.Commit()
+		s.WaitSeconds(60)
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{

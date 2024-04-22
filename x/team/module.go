@@ -5,30 +5,37 @@ import (
 	"encoding/json"
 	"fmt"
 
-	abci "github.com/cometbft/cometbft/abci/types"
+	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/core/store"
+	"cosmossdk.io/depinject"
+	"cosmossdk.io/log"
+
+	"github.com/KYVENetwork/chain/util"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	// Bank
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	// Mint
-	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	// Team
 	"github.com/KYVENetwork/chain/x/team/client/cli"
 	"github.com/KYVENetwork/chain/x/team/keeper"
 	"github.com/KYVENetwork/chain/x/team/types"
-	// Upgrade
-	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+
+	modulev1 "github.com/KYVENetwork/chain/api/kyve/team/module"
 )
 
 var (
-	_ module.AppModule      = AppModule{}
-	_ module.AppModuleBasic = AppModuleBasic{}
+	_ module.AppModuleBasic      = (*AppModule)(nil)
+	_ module.HasGenesis          = (*AppModule)(nil)
+	_ module.HasInvariants       = (*AppModule)(nil)
+	_ module.HasConsensusVersion = (*AppModule)(nil)
+
+	_ appmodule.AppModule       = (*AppModule)(nil)
+	_ appmodule.HasBeginBlocker = (*AppModule)(nil)
 )
 
 // ----------------------------------------------------------------------------
@@ -96,18 +103,18 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 type AppModule struct {
 	AppModuleBasic
 
-	bk     bankKeeper.Keeper
+	bk     util.BankKeeper
 	mk     mintKeeper.Keeper
 	keeper keeper.Keeper
-	uk     upgradeKeeper.Keeper
+	uk     util.UpgradeKeeper
 }
 
 func NewAppModule(
 	cdc codec.Codec,
-	bk bankKeeper.Keeper,
+	bk util.BankKeeper,
 	mk mintKeeper.Keeper,
 	keeper keeper.Keeper,
-	uk upgradeKeeper.Keeper,
+	uk util.UpgradeKeeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: NewAppModuleBasic(cdc),
@@ -131,14 +138,12 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 // InitGenesis performs the module's genesis initialization. It returns no validator updates.
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) {
 	var genState types.GenesisState
 	// Initialize global index to index in genesis state
 	cdc.MustUnmarshalJSON(gs, &genState)
 
 	InitGenesis(ctx, am.keeper, genState)
-
-	return []abci.ValidatorUpdate{}
 }
 
 // ExportGenesis returns the module's exported genesis state as raw JSON bytes.
@@ -151,11 +156,66 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 func (AppModule) ConsensusVersion() uint64 { return 1 }
 
 // BeginBlock contains the logic that is automatically triggered at the beginning of each block
-func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
-	DistributeTeamInflation(ctx, am.bk, am.keeper, am.uk)
+func (am AppModule) BeginBlock(ctx context.Context) error {
+	DistributeTeamInflation(sdk.UnwrapSDKContext(ctx), am.bk, am.keeper, am.uk)
+	return nil
 }
 
-// EndBlock contains the logic that is automatically triggered at the end of each block
-func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (am AppModule) IsOnePerModuleType() {}
+
+// IsAppModule implements the appmodule.AppModule interface.
+func (am AppModule) IsAppModule() {}
+
+// ----------------------------------------------------------------------------
+// App Wiring Setup
+// ----------------------------------------------------------------------------
+
+func init() {
+	appmodule.Register(
+		&modulev1.Module{},
+		appmodule.Provide(ProvideModule),
+	)
+}
+
+type ModuleInputs struct {
+	depinject.In
+
+	Cdc          codec.Codec
+	Config       *modulev1.Module
+	StoreService store.KVStoreService
+	Logger       log.Logger
+
+	AccountKeeper util.AccountKeeper
+	BankKeeper    types.BankKeeper
+	MintKeeper    mintKeeper.Keeper
+	UpgradeKeeper util.UpgradeKeeper
+}
+
+type ModuleOutputs struct {
+	depinject.Out
+
+	TeamKeeper keeper.Keeper
+	Module     appmodule.AppModule
+}
+
+func ProvideModule(in ModuleInputs) ModuleOutputs {
+	k := keeper.NewKeeper(
+		in.Cdc,
+		in.StoreService,
+		in.Logger,
+		in.AccountKeeper,
+		in.BankKeeper,
+		in.MintKeeper,
+		in.UpgradeKeeper,
+	)
+	m := NewAppModule(
+		in.Cdc,
+		in.BankKeeper,
+		in.MintKeeper,
+		k,
+		in.UpgradeKeeper,
+	)
+
+	return ModuleOutputs{TeamKeeper: k, Module: m}
 }

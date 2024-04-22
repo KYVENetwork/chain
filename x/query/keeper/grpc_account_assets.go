@@ -3,12 +3,15 @@ package keeper
 import (
 	"context"
 
+	storeTypes "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
+
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 
+	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/util"
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	"github.com/KYVENetwork/chain/x/query/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -43,10 +46,9 @@ func (k Keeper) AccountAssets(goCtx context.Context, req *types.QueryAccountAsse
 	// ================================================
 
 	// Iterate all Delegator entries
-	delegatorStore := prefix.NewStore(
-		ctx.KVStore(k.delegationKeeper.StoreKey()),
-		util.GetByteKey(delegationtypes.DelegatorKeyPrefixIndex2, req.Address))
-	delegatorIterator := sdk.KVStorePrefixIterator(delegatorStore, nil)
+	storeAdapter := runtime.KVStoreAdapter(k.delegationStoreService.OpenKVStore(ctx))
+	delegatorStore := prefix.NewStore(storeAdapter, util.GetByteKey(delegationtypes.DelegatorKeyPrefixIndex2, req.Address))
+	delegatorIterator := storeTypes.KVStorePrefixIterator(delegatorStore, nil)
 	defer delegatorIterator.Close()
 
 	for ; delegatorIterator.Valid(); delegatorIterator.Next() {

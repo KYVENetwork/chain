@@ -5,9 +5,11 @@ import (
 	"math"
 	"sort"
 
+	"github.com/cosmos/cosmos-sdk/runtime"
+
+	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/delegation/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
@@ -75,7 +77,8 @@ func arrayPaginationAccumulator(slice []string, pagination *query.PageRequest, a
 // by its total delegation
 func (k Keeper) SetStakerIndex(ctx sdk.Context, staker string) {
 	amount := k.GetDelegationAmount(ctx, staker)
-	store := prefix.NewStore(ctx.KVStore(k.memKey), types.StakerIndexKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.memService.OpenMemoryStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.StakerIndexKeyPrefix)
 	store.Set(types.StakerIndexKey(math.MaxUint64-amount, staker), []byte{0})
 }
 
@@ -83,14 +86,16 @@ func (k Keeper) SetStakerIndex(ctx sdk.Context, staker string) {
 // by its total delegation
 func (k Keeper) RemoveStakerIndex(ctx sdk.Context, staker string) {
 	amount := k.GetDelegationAmount(ctx, staker)
-	store := prefix.NewStore(ctx.KVStore(k.memKey), types.StakerIndexKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.memService.OpenMemoryStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.StakerIndexKeyPrefix)
 	store.Delete(types.StakerIndexKey(math.MaxUint64-amount, staker))
 }
 
 // GetPaginatedStakersByDelegation returns all stakers (active and inactive)
 // sorted by its current total delegation. It supports the cosmos query.PageRequest pagination.
 func (k Keeper) GetPaginatedStakersByDelegation(ctx sdk.Context, pagination *query.PageRequest, accumulator func(staker string, accumulate bool) bool) (*query.PageResponse, error) {
-	store := prefix.NewStore(ctx.KVStore(k.memKey), types.StakerIndexKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.memService.OpenMemoryStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.StakerIndexKeyPrefix)
 
 	pageRes, err := query.FilteredPaginate(store, pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
 		address := string(key[8 : 8+43])
@@ -123,7 +128,8 @@ func (k Keeper) GetPaginatedActiveStakersByDelegation(ctx sdk.Context, paginatio
 // GetPaginatedInactiveStakersByDelegation returns all inactive stakers
 // sorted by its current total delegation. It supports the cosmos query.PageRequest pagination.
 func (k Keeper) GetPaginatedInactiveStakersByDelegation(ctx sdk.Context, pagination *query.PageRequest, accumulator func(staker string, accumulate bool) bool) (*query.PageResponse, error) {
-	store := prefix.NewStore(ctx.KVStore(k.memKey), types.StakerIndexKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.memService.OpenMemoryStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.StakerIndexKeyPrefix)
 
 	pageRes, err := query.FilteredPaginate(store, pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
 		address := string(key[8 : 8+43])

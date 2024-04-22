@@ -9,7 +9,6 @@ import (
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -124,7 +123,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 
 	It("Call can propose if pool does not exist", func() {
 		// ACT
-		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
+		canPropose, err := s.App().QueryKeeper.CanPropose(s.Ctx(), &querytypes.QueryCanProposeRequest{
 			PoolId:    1,
 			Staker:    i.STAKER_1,
 			Proposer:  i.VALADDRESS_1_A,
@@ -168,7 +167,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
 
 		// ACT
-		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
+		canPropose, err := s.App().QueryKeeper.CanPropose(s.Ctx(), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
 			Proposer:  i.VALADDRESS_1_A,
@@ -207,7 +206,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
 
 		// ACT
-		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
+		canPropose, err := s.App().QueryKeeper.CanPropose(s.Ctx(), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
 			Proposer:  i.VALADDRESS_1_A,
@@ -251,7 +250,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		s.CommitAfterSeconds(1)
 
 		// ACT
-		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
+		canPropose, err := s.App().QueryKeeper.CanPropose(s.Ctx(), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
 			Proposer:  i.VALADDRESS_1_A,
@@ -284,7 +283,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 
 	It("Call can propose with a valaccount which does not exist", func() {
 		// ACT
-		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
+		canPropose, err := s.App().QueryKeeper.CanPropose(s.Ctx(), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_0,
 			Proposer:  i.VALADDRESS_1_A,
@@ -324,14 +323,14 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 
 		// ACT
 		if bundleProposal.NextUploader == i.STAKER_0 {
-			canPropose, err = s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
+			canPropose, err = s.App().QueryKeeper.CanPropose(s.Ctx(), &querytypes.QueryCanProposeRequest{
 				PoolId:    0,
 				Staker:    i.STAKER_1,
 				Proposer:  i.VALADDRESS_1_A,
 				FromIndex: 100,
 			})
 		} else {
-			canPropose, err = s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
+			canPropose, err = s.App().QueryKeeper.CanPropose(s.Ctx(), &querytypes.QueryCanProposeRequest{
 				PoolId:    0,
 				Staker:    i.STAKER_0,
 				Proposer:  i.VALADDRESS_0_A,
@@ -395,7 +394,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
 
 		// ACT
-		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
+		canPropose, err := s.App().QueryKeeper.CanPropose(s.Ctx(), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
 			Proposer:  i.VALADDRESS_1_A,
@@ -430,14 +429,14 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 
 	It("Call can propose with an invalid from index", func() {
 		// ACT
-		canPropose_1, err_1 := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
+		canPropose_1, err_1 := s.App().QueryKeeper.CanPropose(s.Ctx(), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
 			Proposer:  i.VALADDRESS_1_A,
 			FromIndex: 99,
 		})
 
-		canPropose_2, err_2 := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
+		canPropose_2, err_2 := s.App().QueryKeeper.CanPropose(s.Ctx(), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
 			Proposer:  i.VALADDRESS_1_A,
@@ -494,7 +493,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 
 	It("Call can propose on an active pool as the next uploader with valid args", func() {
 		// ACT
-		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
+		canPropose, err := s.App().QueryKeeper.CanPropose(s.Ctx(), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
 			Proposer:  i.VALADDRESS_1_A,
@@ -533,7 +532,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		})
 
 		// ACT
-		canPropose, err := s.App().QueryKeeper.CanPropose(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanProposeRequest{
+		canPropose, err := s.App().QueryKeeper.CanPropose(s.Ctx(), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,
 			Staker:    i.STAKER_1,
 			Proposer:  i.VALADDRESS_1_A,

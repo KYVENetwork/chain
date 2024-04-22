@@ -6,7 +6,6 @@ import (
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -72,7 +71,7 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 
 	It("Call can validate if pool does not exist", func() {
 		// ACT
-		canValidate, err := s.App().QueryKeeper.CanValidate(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanValidateRequest{
+		canValidate, err := s.App().QueryKeeper.CanValidate(s.Ctx(), &querytypes.QueryCanValidateRequest{
 			PoolId:     2,
 			Valaddress: i.VALADDRESS_0_A,
 		})
@@ -86,7 +85,7 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 
 	It("Call can validate if valaddress does not exist", func() {
 		// ACT
-		canValidate, err := s.App().QueryKeeper.CanValidate(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanValidateRequest{
+		canValidate, err := s.App().QueryKeeper.CanValidate(s.Ctx(), &querytypes.QueryCanValidateRequest{
 			PoolId:     0,
 			Valaddress: i.VALADDRESS_2_A,
 		})
@@ -100,7 +99,7 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 
 	It("Call can validate with a valaddress which belongs to another pool", func() {
 		// ACT
-		canValidate, err := s.App().QueryKeeper.CanValidate(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanValidateRequest{
+		canValidate, err := s.App().QueryKeeper.CanValidate(s.Ctx(), &querytypes.QueryCanValidateRequest{
 			PoolId:     0,
 			Valaddress: i.VALADDRESS_1_A,
 		})
@@ -114,7 +113,7 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 
 	It("Call can validate with a valid valaddress", func() {
 		// ACT
-		canValidate, err := s.App().QueryKeeper.CanValidate(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryCanValidateRequest{
+		canValidate, err := s.App().QueryKeeper.CanValidate(s.Ctx(), &querytypes.QueryCanValidateRequest{
 			PoolId:     0,
 			Valaddress: i.VALADDRESS_0_A,
 		})

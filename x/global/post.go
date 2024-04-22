@@ -2,6 +2,7 @@ package global
 
 import (
 	sdkErrors "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -10,7 +11,7 @@ import (
 	// Bank
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	// FeeGrant
-	feeGrantKeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
+	feeGrantKeeper "cosmossdk.io/x/feegrant/keeper"
 	// Global
 	"github.com/KYVENetwork/chain/x/global/keeper"
 )
@@ -47,7 +48,7 @@ func (rfd RefundFeeDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 	}
 
 	// Find the refund percentage based on the transaction message type.
-	refundPercentage := sdk.ZeroDec()
+	refundPercentage := math.LegacyZeroDec()
 	gasRefunds := rfd.globalKeeper.GetGasRefunds(ctx)
 	for _, refund := range gasRefunds {
 		if sdk.MsgTypeURL(msgs[0]) == refund.Type {
@@ -64,7 +65,7 @@ func (rfd RefundFeeDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 	// Calculate the refund amount.
 	refund := sdk.NewCoins()
 	for _, coin := range fee {
-		amount := sdk.NewDecFromInt(coin.Amount).Mul(refundPercentage)
+		amount := math.LegacyNewDecFromInt(coin.Amount).Mul(refundPercentage)
 		refund = refund.Add(sdk.NewCoin(coin.Denom, amount.TruncateInt()))
 	}
 

@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package kyve.query.v1beta1;
 
+// TODO change gov import
 import "cosmos/gov/v1/gov.proto";
 import "google/api/annotations.proto";
 import "kyve/bundles/v1beta1/params.proto";

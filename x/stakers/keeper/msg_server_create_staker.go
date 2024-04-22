@@ -32,6 +32,7 @@ func (k msgServer) CreateStaker(
 		Commission: msg.Commission,
 	})
 
+	// TODO: maybe we should expose the 'Delegate' function from the delegation module
 	// Perform initial self delegation
 	delegationMsgServer := delegationKeeper.NewMsgServerImpl(k.delegationKeeper)
 	if _, err := delegationMsgServer.Delegate(ctx, &delegationTypes.MsgDelegate{

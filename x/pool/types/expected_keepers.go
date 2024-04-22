@@ -1,18 +1,26 @@
 package types
 
 import (
+	"context"
+
+	upgradetypes "cosmossdk.io/x/upgrade/types"
+	"github.com/KYVENetwork/chain/util"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth/types"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
 type AccountKeeper interface {
-	GetAccount(ctx sdk.Context, addr sdk.AccAddress) types.AccountI
-	SetAccount(ctx sdk.Context, acc types.AccountI)
+	GetAccount(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
+	SetAccount(ctx context.Context, acc sdk.AccountI)
+	NewAccountWithAddress(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
+}
+
+type BankKeeper interface {
+	util.BankKeeper
+	GetBalance(ctx context.Context, addr sdk.AccAddress, denom string) sdk.Coin
 }
 
 type UpgradeKeeper interface {
-	ScheduleUpgrade(ctx sdk.Context, plan upgradetypes.Plan) error
+	ScheduleUpgrade(ctx context.Context, plan upgradetypes.Plan) error
 }
 
 type StakersKeeper interface {

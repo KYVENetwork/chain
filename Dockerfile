@@ -1,7 +1,7 @@
 ARG IMG_TAG=latest
 
 # Compile the kyved binary
-FROM golang:1.20-alpine AS kyved-builder
+FROM golang:1.22-alpine AS kyved-builder
 
 # Install make
 RUN apk add --no-cache make

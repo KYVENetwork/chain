@@ -3,6 +3,8 @@ package keeper_test
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
+
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -48,16 +50,17 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 
-	minDeposit := s.App().GovKeeper.GetParams(s.Ctx()).MinDeposit
-	votingPeriod := s.App().GovKeeper.GetParams(s.Ctx()).VotingPeriod
+	params, _ := s.App().GovKeeper.Params.Get(s.Ctx())
+	minDeposit := params.MinDeposit
+	votingPeriod := params.VotingPeriod
 
-	delegations := s.App().StakingKeeper.GetAllDelegations(s.Ctx())
+	delegations, _ := s.App().StakingKeeper.GetAllDelegations(s.Ctx())
 	voter := sdk.MustAccAddressFromBech32(delegations[0].DelegatorAddress)
 
 	BeforeEach(func() {
 		s = i.NewCleanChain()
 
-		delegations := s.App().StakingKeeper.GetAllDelegations(s.Ctx())
+		delegations, _ := s.App().StakingKeeper.GetAllDelegations(s.Ctx())
 		voter = sdk.MustAccAddressFromBech32(delegations[0].DelegatorAddress)
 	})
 
@@ -104,7 +107,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		// ACT
@@ -138,7 +141,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -158,8 +161,8 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(submitErr).NotTo(HaveOccurred())
 		Expect(voteErr).NotTo(HaveOccurred())
 
-		Expect(updatedParams.MinGasPrice).To(Equal(sdk.MustNewDecFromStr("1.5")))
-		Expect(updatedParams.BurnRatio).To(Equal(sdk.MustNewDecFromStr("0.2")))
+		Expect(updatedParams.MinGasPrice).To(Equal(math.LegacyMustNewDecFromStr("1.5")))
+		Expect(updatedParams.BurnRatio).To(Equal(math.LegacyMustNewDecFromStr("0.2")))
 		Expect(updatedParams.GasAdjustments).To(Equal([]types.GasAdjustment{
 			{
 				Type:   "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
@@ -169,10 +172,10 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.GasRefunds).To(Equal([]types.GasRefund{
 			{
 				Type:     "/kyve.bundles.v1beta1.MsgSubmitBundleProposal",
-				Fraction: sdk.MustNewDecFromStr("0.75"),
+				Fraction: math.LegacyMustNewDecFromStr("0.75"),
 			},
 		}))
-		Expect(updatedParams.MinInitialDepositRatio).To(Equal(sdk.MustNewDecFromStr("0.2")))
+		Expect(updatedParams.MinInitialDepositRatio).To(Equal(math.LegacyMustNewDecFromStr("0.2")))
 	})
 
 	It("Update no params", func() {
@@ -185,7 +188,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -224,7 +227,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		// ACT
@@ -257,7 +260,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -277,7 +280,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(submitErr).NotTo(HaveOccurred())
 		Expect(voteErr).NotTo(HaveOccurred())
 
-		Expect(updatedParams.MinGasPrice).To(Equal(sdk.MustNewDecFromStr("1.5")))
+		Expect(updatedParams.MinGasPrice).To(Equal(math.LegacyMustNewDecFromStr("1.5")))
 		Expect(updatedParams.BurnRatio).To(Equal(types.DefaultBurnRatio))
 		Expect(updatedParams.GasAdjustments).To(BeNil())
 		Expect(updatedParams.GasRefunds).To(BeNil())
@@ -296,7 +299,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		// ACT
@@ -329,7 +332,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -350,7 +353,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(voteErr).NotTo(HaveOccurred())
 
 		Expect(updatedParams.MinGasPrice).To(Equal(types.DefaultMinGasPrice))
-		Expect(updatedParams.BurnRatio).To(Equal(sdk.MustNewDecFromStr("0.5")))
+		Expect(updatedParams.BurnRatio).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 		Expect(updatedParams.GasAdjustments).To(BeNil())
 		Expect(updatedParams.GasRefunds).To(BeNil())
 		Expect(updatedParams.MinInitialDepositRatio).To(Equal(types.DefaultMinInitialDepositRatio))
@@ -368,7 +371,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		// ACT
@@ -404,7 +407,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -451,7 +454,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		// ACT
@@ -487,7 +490,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -513,7 +516,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.GasRefunds).To(Equal([]types.GasRefund{
 			{
 				Type:     "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
-				Fraction: sdk.MustNewDecFromStr("0.5"),
+				Fraction: math.LegacyMustNewDecFromStr("0.5"),
 			},
 		}))
 		Expect(updatedParams.MinInitialDepositRatio).To(Equal(types.DefaultMinInitialDepositRatio))
@@ -534,7 +537,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		// ACT
@@ -567,7 +570,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -591,7 +594,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.BurnRatio).To(Equal(types.DefaultBurnRatio))
 		Expect(updatedParams.GasAdjustments).To(BeNil())
 		Expect(updatedParams.GasRefunds).To(BeNil())
-		Expect(updatedParams.MinInitialDepositRatio).To(Equal(sdk.MustNewDecFromStr("0.5")))
+		Expect(updatedParams.MinInitialDepositRatio).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 	})
 
 	It("Update min gas price with invalid value", func() {
@@ -606,7 +609,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		// ACT

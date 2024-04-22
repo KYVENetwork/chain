@@ -1,27 +1,28 @@
 package bundles
 
 import (
+	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/util"
 	bundlesKeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
+	"github.com/KYVENetwork/chain/x/bundles/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	// Auth
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	// Bank
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+
 	// Mint
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
-	// Pool
-	"github.com/KYVENetwork/chain/x/pool/keeper"
-	// Team
-	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
-	// Upgrade
-	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 )
 
-func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk bankKeeper.Keeper, mk mintKeeper.Keeper, pk keeper.Keeper, tk teamKeeper.Keeper, uk upgradeKeeper.Keeper) {
-	minter := mk.GetMinter(ctx)
-	params := mk.GetParams(ctx)
+func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk util.BankKeeper, mk mintKeeper.Keeper, pk types.PoolKeeper, tk types.TeamKeeper, uk util.UpgradeKeeper) {
+	minter, err := mk.Minter.Get(ctx)
+	if err != nil {
+		util.PanicHalt(uk, ctx, "failed to get minter")
+	}
+	params, err := mk.Params.Get(ctx)
+	if err != nil {
+		util.PanicHalt(uk, ctx, "failed to get params")
+	}
 
 	// get total inflation rewards for current block
 	blockProvision := minter.BlockProvision(params).Amount.Int64()
@@ -30,7 +31,7 @@ func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk bankKeeper.Keepe
 	remainingBlockProvision := blockProvision - tk.GetTeamBlockProvision(ctx)
 
 	// calculate block provision for protocol based on protocol inflation share
-	protocolBlockProvision := sdk.NewDec(remainingBlockProvision).Mul(pk.GetProtocolInflationShare(ctx)).TruncateInt64()
+	protocolBlockProvision := math.LegacyNewDec(remainingBlockProvision).Mul(pk.GetProtocolInflationShare(ctx)).TruncateInt64()
 
 	if protocolBlockProvision == 0 {
 		return
@@ -58,9 +59,9 @@ func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk bankKeeper.Keepe
 		// only include active pools
 		if err := k.AssertPoolCanRun(ctx, pool.Id); err == nil {
 			// calculate pool share based of inflation share weight
-			amount := uint64(sdk.NewDec(int64(pool.InflationShareWeight)).
-				Quo(sdk.NewDec(int64(totalInflationShareWeight))).
-				Mul(sdk.NewDec(protocolBlockProvision)).
+			amount := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).
+				Quo(math.LegacyNewDec(int64(totalInflationShareWeight))).
+				Mul(math.LegacyNewDec(protocolBlockProvision)).
 				TruncateInt64())
 
 			// transfer funds to pool account
@@ -89,5 +90,5 @@ func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk bankKeeper.Keepe
 	}
 
 	// rest gets transferred to chain
-	pk.Logger(ctx).Info("split portion of minted coins to protocol", "amount", protocolBlockProvision)
+	k.Logger().Info("split portion of minted coins to protocol", "amount", protocolBlockProvision)
 }

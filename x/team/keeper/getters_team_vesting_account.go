@@ -3,14 +3,19 @@ package keeper
 import (
 	"encoding/binary"
 
+	storeTypes "cosmossdk.io/store/types"
+
+	"github.com/cosmos/cosmos-sdk/runtime"
+
+	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/x/team/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // GetAuthority get the authority
 func (k Keeper) GetAuthority(ctx sdk.Context) (authority types.Authority) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte{})
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, []byte{})
 	byteKey := types.AuthorityKey
 	bz := store.Get(byteKey)
 
@@ -25,7 +30,8 @@ func (k Keeper) GetAuthority(ctx sdk.Context) (authority types.Authority) {
 
 // SetAuthority set the authority
 func (k Keeper) SetAuthority(ctx sdk.Context, authority types.Authority) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte{})
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, []byte{})
 	byteKey := types.AuthorityKey
 	b := k.cdc.MustMarshal(&authority)
 	store.Set(byteKey, b)
@@ -33,7 +39,8 @@ func (k Keeper) SetAuthority(ctx sdk.Context, authority types.Authority) {
 
 // GetTeamVestingAccountCount get the total number of team vesting accounts
 func (k Keeper) GetTeamVestingAccountCount(ctx sdk.Context) uint64 {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte{})
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, []byte{})
 	byteKey := types.TeamVestingAccountCountKey
 	bz := store.Get(byteKey)
 
@@ -48,7 +55,8 @@ func (k Keeper) GetTeamVestingAccountCount(ctx sdk.Context) uint64 {
 
 // SetTeamVestingAccountCount set the total number of team vesting accounts
 func (k Keeper) SetTeamVestingAccountCount(ctx sdk.Context, count uint64) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte{})
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, []byte{})
 	byteKey := types.TeamVestingAccountCountKey
 	bz := make([]byte, 8)
 	binary.BigEndian.PutUint64(bz, count)
@@ -66,7 +74,8 @@ func (k Keeper) AppendTeamVestingAccount(
 	// Set the ID of the appended value
 	tva.Id = count
 
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.TeamVestingAccountKey)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.TeamVestingAccountKey)
 	appendedValue := k.cdc.MustMarshal(&tva)
 	store.Set(types.TeamVestingAccountKeyPrefix(tva.Id), appendedValue)
 
@@ -78,7 +87,8 @@ func (k Keeper) AppendTeamVestingAccount(
 
 // GetTeamVestingAccount returns a team vesting account given its address.
 func (k Keeper) GetTeamVestingAccount(ctx sdk.Context, id uint64) (tva types.TeamVestingAccount, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.TeamVestingAccountKey)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.TeamVestingAccountKey)
 	b := store.Get(types.TeamVestingAccountKeyPrefix(id))
 
 	if b == nil {
@@ -91,8 +101,9 @@ func (k Keeper) GetTeamVestingAccount(ctx sdk.Context, id uint64) (tva types.Tea
 
 // GetTeamVestingAccounts returns all team vesting accounts
 func (k Keeper) GetTeamVestingAccounts(ctx sdk.Context) (teamVestingAccounts []types.TeamVestingAccount) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.TeamVestingAccountKey)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.TeamVestingAccountKey)
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 
@@ -107,7 +118,8 @@ func (k Keeper) GetTeamVestingAccounts(ctx sdk.Context) (teamVestingAccounts []t
 
 // SetTeamVestingAccount sets a specific team vesting account in the store.
 func (k Keeper) SetTeamVestingAccount(ctx sdk.Context, tva types.TeamVestingAccount) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.TeamVestingAccountKey)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.TeamVestingAccountKey)
 	b := k.cdc.MustMarshal(&tva)
 	store.Set(types.TeamVestingAccountKeyPrefix(tva.Id), b)
 }

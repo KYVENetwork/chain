@@ -9,7 +9,7 @@ import (
 	// Bank
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	// FeeGrant
-	feeGrantKeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
+	feeGrantKeeper "cosmossdk.io/x/feegrant/keeper"
 	// Global
 	"github.com/KYVENetwork/chain/x/global/keeper"
 	// Staking
@@ -26,10 +26,10 @@ type DeductFeeDecorator struct {
 	bankKeeper     bankKeeper.Keeper
 	feeGrantKeeper feeGrantKeeper.Keeper
 	globalKeeper   keeper.Keeper
-	stakingKeeper  stakingKeeper.Keeper
+	stakingKeeper  *stakingKeeper.Keeper
 }
 
-func NewDeductFeeDecorator(ak authKeeper.AccountKeeper, bk bankKeeper.Keeper, fk feeGrantKeeper.Keeper, gk keeper.Keeper, sk stakingKeeper.Keeper) DeductFeeDecorator {
+func NewDeductFeeDecorator(ak authKeeper.AccountKeeper, bk bankKeeper.Keeper, fk feeGrantKeeper.Keeper, gk keeper.Keeper, sk *stakingKeeper.Keeper) DeductFeeDecorator {
 	return DeductFeeDecorator{
 		accountKeeper:  ak,
 		bankKeeper:     bk,

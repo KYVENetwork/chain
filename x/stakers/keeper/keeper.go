@@ -3,49 +3,53 @@ package keeper
 import (
 	"fmt"
 
-	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/core/store"
 
+	"github.com/KYVENetwork/chain/util"
+	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
+
+	"cosmossdk.io/log"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type (
 	Keeper struct {
-		cdc      codec.BinaryCodec
-		storeKey storetypes.StoreKey
-		memKey   storetypes.StoreKey
+		cdc          codec.BinaryCodec
+		storeService store.KVStoreService
+		memService   store.MemoryStoreService
+		logger       log.Logger
 
 		authority string
 
-		accountKeeper    types.AccountKeeper
-		bankKeeper       types.BankKeeper
-		distrkeeper      types.DistrKeeper
+		accountKeeper    util.AccountKeeper
+		bankKeeper       util.BankKeeper
+		distrkeeper      util.DistributionKeeper
 		poolKeeper       types.PoolKeeper
-		upgradeKeeper    types.UpgradeKeeper
+		upgradeKeeper    util.UpgradeKeeper
 		delegationKeeper delegationKeeper.Keeper
 	}
 )
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	storeKey storetypes.StoreKey,
-	memKey storetypes.StoreKey,
+	storeService store.KVStoreService,
+	memService store.MemoryStoreService,
+	logger log.Logger,
 
 	authority string,
 
-	accountKeeper types.AccountKeeper,
-	bankKeeper types.BankKeeper,
-	distrkeeper types.DistrKeeper,
+	accountKeeper util.AccountKeeper,
+	bankKeeper util.BankKeeper,
+	distrkeeper util.DistributionKeeper,
 	poolKeeper types.PoolKeeper,
-	upgradeKeeper types.UpgradeKeeper,
+	upgradeKeeper util.UpgradeKeeper,
 ) *Keeper {
 	return &Keeper{
-		cdc:      cdc,
-		storeKey: storeKey,
-		memKey:   memKey,
+		cdc:          cdc,
+		storeService: storeService,
+		memService:   memService,
+		logger:       logger,
 
 		authority: authority,
 
@@ -61,10 +65,6 @@ func SetDelegationKeeper(k *Keeper, delegationKeeper delegationKeeper.Keeper) {
 	k.delegationKeeper = delegationKeeper
 }
 
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-func (k Keeper) StoreKey() storetypes.StoreKey {
-	return k.storeKey
+func (k Keeper) Logger() log.Logger {
+	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }

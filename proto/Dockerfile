@@ -1,19 +1,19 @@
 FROM bufbuild/buf:latest as BUILDER
-FROM golang:1.20-alpine
+FROM golang:1.22-alpine
 
+# Install packages
 RUN apk add --no-cache \
   nodejs \
   npm \
   git \
   make
 
+# Install protoc plugins
+RUN go install github.com/cosmos/gogoproto/protoc-gen-gocosmos@latest
+RUN go install github.com/cosmos/cosmos-proto/cmd/protoc-gen-go-pulsar@latest
+RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 RUN go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway@latest
-RUN go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger@latest
-
-RUN git clone https://github.com/cosmos/gogoproto.git; \
-  cd gogoproto; \
-  go mod download; \
-  make install
+RUN go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
 
 RUN npm install -g swagger-combine
 

@@ -3,17 +3,18 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/core/store"
+	"cosmossdk.io/log"
+
 	"github.com/KYVENetwork/chain/x/global/types"
-	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type (
 	Keeper struct {
-		cdc      codec.BinaryCodec
-		storeKey storeTypes.StoreKey
+		cdc          codec.BinaryCodec
+		storeService store.KVStoreService
+		logger       log.Logger
 
 		authority string
 	}
@@ -21,16 +22,19 @@ type (
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	storeKey storeTypes.StoreKey,
+	storeService store.KVStoreService,
+	logger log.Logger,
 	authority string,
-) *Keeper {
-	return &Keeper{
-		cdc:       cdc,
-		storeKey:  storeKey,
+) Keeper {
+	return Keeper{
+		cdc:          cdc,
+		storeService: storeService,
+		logger:       logger,
+
 		authority: authority,
 	}
 }
 
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+func (k Keeper) Logger() log.Logger {
+	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }

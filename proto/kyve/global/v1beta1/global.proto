@@ -10,12 +10,12 @@ option go_package = "github.com/KYVENetwork/chain/x/global/types";
 message Params {
   // min_gas_price defines the minimum gas price value for all transactions.
   string min_gas_price = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // burn_ratio defines the ratio of transaction fees burnt.
   string burn_ratio = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
@@ -35,7 +35,7 @@ message Params {
   // polluting the proposals page.
   string min_initial_deposit_ratio = 5 [
     deprecated = true,
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -57,7 +57,7 @@ message GasRefund {
   string type = 1;
   // fraction in decimal representation between 0 and 1
   string fraction = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }

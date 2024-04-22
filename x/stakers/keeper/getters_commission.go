@@ -3,14 +3,19 @@ package keeper
 import (
 	"encoding/binary"
 
+	storeTypes "cosmossdk.io/store/types"
+
+	"github.com/cosmos/cosmos-sdk/runtime"
+
+	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/x/stakers/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // SetCommissionChangeEntry ...
 func (k Keeper) SetCommissionChangeEntry(ctx sdk.Context, commissionChangeEntry types.CommissionChangeEntry) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CommissionChangeEntryKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.CommissionChangeEntryKeyPrefix)
 	b := k.cdc.MustMarshal(&commissionChangeEntry)
 	store.Set(types.CommissionChangeEntryKey(commissionChangeEntry.Index), b)
 
@@ -18,13 +23,14 @@ func (k Keeper) SetCommissionChangeEntry(ctx sdk.Context, commissionChangeEntry 
 	indexBytes := make([]byte, 8)
 	binary.BigEndian.PutUint64(indexBytes, commissionChangeEntry.Index)
 
-	indexStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.CommissionChangeEntryKeyPrefixIndex2)
+	indexStore := prefix.NewStore(storeAdapter, types.CommissionChangeEntryKeyPrefixIndex2)
 	indexStore.Set(types.CommissionChangeEntryKeyIndex2(commissionChangeEntry.Staker), indexBytes)
 }
 
 // GetCommissionChangeEntry ...
 func (k Keeper) GetCommissionChangeEntry(ctx sdk.Context, index uint64) (val types.CommissionChangeEntry, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CommissionChangeEntryKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.CommissionChangeEntryKeyPrefix)
 
 	b := store.Get(types.CommissionChangeEntryKey(index))
 	if b == nil {
@@ -37,7 +43,8 @@ func (k Keeper) GetCommissionChangeEntry(ctx sdk.Context, index uint64) (val typ
 
 // GetCommissionChangeEntryByIndex2 returns a pending commission change entry by staker address (if there is one)
 func (k Keeper) GetCommissionChangeEntryByIndex2(ctx sdk.Context, staker string) (val types.CommissionChangeEntry, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CommissionChangeEntryKeyPrefixIndex2)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.CommissionChangeEntryKeyPrefixIndex2)
 
 	b := store.Get(types.CommissionChangeEntryKeyIndex2(staker))
 	if b == nil {
@@ -51,10 +58,11 @@ func (k Keeper) GetCommissionChangeEntryByIndex2(ctx sdk.Context, staker string)
 
 // RemoveCommissionChangeEntry ...
 func (k Keeper) RemoveCommissionChangeEntry(ctx sdk.Context, commissionChangeEntry *types.CommissionChangeEntry) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CommissionChangeEntryKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.CommissionChangeEntryKeyPrefix)
 	store.Delete(types.CommissionChangeEntryKey(commissionChangeEntry.Index))
 
-	indexStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.CommissionChangeEntryKeyPrefixIndex2)
+	indexStore := prefix.NewStore(storeAdapter, types.CommissionChangeEntryKeyPrefixIndex2)
 	indexStore.Delete(types.CommissionChangeEntryKeyIndex2(
 		commissionChangeEntry.Staker,
 	))
@@ -62,8 +70,9 @@ func (k Keeper) RemoveCommissionChangeEntry(ctx sdk.Context, commissionChangeEnt
 
 // GetAllCommissionChangeEntries returns all pending commission change entries of all stakers
 func (k Keeper) GetAllCommissionChangeEntries(ctx sdk.Context) (list []types.CommissionChangeEntry) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CommissionChangeEntryKeyPrefix)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.CommissionChangeEntryKeyPrefix)
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 

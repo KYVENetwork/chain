@@ -1,22 +1,22 @@
 package app
 
 import (
+	txsigning "cosmossdk.io/x/tx/signing"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	// Auth
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	// Bank
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	// FeeGrant
-	feeGrantKeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
+	feeGrantKeeper "cosmossdk.io/x/feegrant/keeper"
 	// Global
 	"github.com/KYVENetwork/chain/x/global"
 	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
 	// IBC Core
-	ibcAnte "github.com/cosmos/ibc-go/v7/modules/core/ante"
-	ibcKeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
+	ibcAnte "github.com/cosmos/ibc-go/v8/modules/core/ante"
+	ibcKeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	// Staking
 	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 )
@@ -29,9 +29,9 @@ func NewAnteHandler(
 	feeGrantKeeper feeGrantKeeper.Keeper,
 	globalKeeper globalKeeper.Keeper,
 	ibcKeeper *ibcKeeper.Keeper,
-	stakingKeeper stakingKeeper.Keeper,
+	stakingKeeper *stakingKeeper.Keeper,
 	sigGasConsumer ante.SignatureVerificationGasConsumer,
-	signModeHandler signing.SignModeHandler,
+	signModeHandler *txsigning.HandlerMap,
 ) (sdk.AnteHandler, error) {
 	deductFeeDecorator := global.NewDeductFeeDecorator(accountKeeper, bankKeeper, feeGrantKeeper, globalKeeper, stakingKeeper)
 
@@ -56,8 +56,6 @@ func NewAnteHandler(
 
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }
-
-//
 
 func NewPostHandler(
 	bankKeeper bankKeeper.Keeper,

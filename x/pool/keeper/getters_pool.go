@@ -4,8 +4,12 @@ import (
 	"encoding/binary"
 	"strings"
 
+	storeTypes "cosmossdk.io/store/types"
+
+	"github.com/cosmos/cosmos-sdk/runtime"
+
+	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/x/pool/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
@@ -14,7 +18,8 @@ import (
 
 // GetPoolCount get the total number of pools
 func (k Keeper) GetPoolCount(ctx sdk.Context) uint64 {
-	bz := ctx.KVStore(k.storeKey).Get(types.PoolCountKey)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	bz := store.Get(types.PoolCountKey)
 	if bz == nil {
 		return 0
 	}
@@ -23,9 +28,10 @@ func (k Keeper) GetPoolCount(ctx sdk.Context) uint64 {
 
 // SetPoolCount sets the total number of pools
 func (k Keeper) SetPoolCount(ctx sdk.Context, count uint64) {
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	bz := make([]byte, 8)
 	binary.BigEndian.PutUint64(bz, count)
-	ctx.KVStore(k.storeKey).Set(types.PoolCountKey, bz)
+	store.Set(types.PoolCountKey, bz)
 }
 
 // AppendPool appends a pool in the store with a new id and updates the count
@@ -34,7 +40,8 @@ func (k Keeper) AppendPool(ctx sdk.Context, pool types.Pool) uint64 {
 	// Set the ID of the appended value
 	pool.Id = count
 
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.PoolKey)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.PoolKey)
 	appendedValue := k.cdc.MustMarshal(&pool)
 	store.Set(types.PoolKeyPrefix(pool.Id), appendedValue)
 
@@ -46,14 +53,16 @@ func (k Keeper) AppendPool(ctx sdk.Context, pool types.Pool) uint64 {
 
 // SetPool sets a specific pool in the store
 func (k Keeper) SetPool(ctx sdk.Context, pool types.Pool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.PoolKey)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.PoolKey)
 	b := k.cdc.MustMarshal(&pool)
 	store.Set(types.PoolKeyPrefix(pool.Id), b)
 }
 
 // GetPool returns a pool from its ID
 func (k Keeper) GetPool(ctx sdk.Context, id uint64) (val types.Pool, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.PoolKey)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.PoolKey)
 	b := store.Get(types.PoolKeyPrefix(id))
 	if b == nil {
 		return val, false
@@ -64,14 +73,16 @@ func (k Keeper) GetPool(ctx sdk.Context, id uint64) (val types.Pool, found bool)
 
 // RemovePool removes a pool from the store
 func (k Keeper) RemovePool(ctx sdk.Context, id uint64) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.PoolKey)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.PoolKey)
 	store.Delete(types.PoolKeyPrefix(id))
 }
 
 // GetAllPools returns all pools
 func (k Keeper) GetAllPools(ctx sdk.Context) (list []types.Pool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.PoolKey)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.PoolKey)
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 
@@ -89,13 +100,14 @@ func (k Keeper) GetPaginatedPoolsQuery(
 	ctx sdk.Context,
 	pagination *query.PageRequest,
 	search string,
-	runtime string,
+	poolRuntime string,
 	disabled bool,
 	storageProviderId uint32,
 ) ([]types.Pool, *query.PageResponse, error) {
 	var pools []types.Pool
 
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.PoolKey)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.PoolKey)
 
 	pageRes, err := query.FilteredPaginate(store, pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
 		var pool types.Pool
@@ -109,7 +121,7 @@ func (k Keeper) GetPaginatedPoolsQuery(
 		}
 
 		// filter runtime
-		if runtime != "" && runtime != pool.Runtime {
+		if poolRuntime != "" && poolRuntime != pool.Runtime {
 			return false, nil
 		}
 

@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -9,7 +10,7 @@ import (
 // The queue is checked in every endBlock and when the commissionChangeTime
 // is over the new commission will be applied to the user.
 // If another entry is currently in the queue it will be removed.
-func (k Keeper) orderNewCommissionChange(ctx sdk.Context, staker string, commission sdk.Dec) {
+func (k Keeper) orderNewCommissionChange(ctx sdk.Context, staker string, commission math.LegacyDec) {
 	// Remove existing queue entry
 	queueEntry, found := k.GetCommissionChangeEntryByIndex2(ctx, staker)
 	if found {

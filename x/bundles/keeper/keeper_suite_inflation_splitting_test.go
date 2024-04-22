@@ -1,12 +1,12 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -34,7 +34,7 @@ TEST CASES - inflation splitting
 */
 
 var _ = Describe("inflation splitting", Ordered, func() {
-	s := i.NewCleanChain()
+	var s *i.KeeperTestSuite
 
 	BeforeEach(func() {
 		// init new clean chain
@@ -114,8 +114,8 @@ var _ = Describe("inflation splitting", Ordered, func() {
 	It("Produce a valid bundle with no funders and 0% inflation splitting", func() {
 		// ARRANGE
 		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  sdk.MustNewDecFromStr("0"),
-			PoolInflationPayoutRate: sdk.MustNewDecFromStr("0.1"),
+			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0"),
+			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
 		})
 
 		// mine some blocks
@@ -194,8 +194,8 @@ var _ = Describe("inflation splitting", Ordered, func() {
 	It("Produce a valid bundle with no funders and 10% inflation splitting", func() {
 		// ARRANGE
 		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  sdk.MustNewDecFromStr("0.1"),
-			PoolInflationPayoutRate: sdk.MustNewDecFromStr("0.1"),
+			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0.1"),
+			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
 		})
 
 		// mine some blocks
@@ -255,7 +255,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		b2 := s.GetBalanceFromPool(0)
 		Expect(b1).To(BeNumerically(">", b2))
 
-		payout := uint64(sdk.NewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateInt64())
+		payout := uint64(math.LegacyNewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateInt64())
 		Expect(b1 - b2).To(Equal(payout))
 
 		// assert bundle reward
@@ -265,11 +265,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		totalPayout := payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
@@ -287,8 +287,8 @@ var _ = Describe("inflation splitting", Ordered, func() {
 	It("Produce a valid bundle with no funders and 100% inflation splitting", func() {
 		// ARRANGE
 		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  sdk.MustNewDecFromStr("1"),
-			PoolInflationPayoutRate: sdk.MustNewDecFromStr("0.2"),
+			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("1"),
+			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.2"),
 		})
 
 		// mine some blocks
@@ -348,7 +348,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		b2 := s.GetBalanceFromPool(0)
 		Expect(b1).To(BeNumerically(">", b2))
 
-		payout := uint64(sdk.NewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateInt64())
+		payout := uint64(math.LegacyNewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateInt64())
 		Expect(b1 - b2).To(Equal(payout))
 
 		// assert bundle reward
@@ -358,11 +358,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		totalPayout := payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
@@ -380,8 +380,8 @@ var _ = Describe("inflation splitting", Ordered, func() {
 	It("Produce a valid bundle with sufficient funders and 0% inflation splitting", func() {
 		// ARRANGE
 		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  sdk.MustNewDecFromStr("0"),
-			PoolInflationPayoutRate: sdk.MustNewDecFromStr("0.1"),
+			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0"),
+			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
 		})
 
 		// mine some blocks
@@ -464,11 +464,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		totalPayout := pool.InflationShareWeight
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
@@ -486,8 +486,8 @@ var _ = Describe("inflation splitting", Ordered, func() {
 	It("Produce a valid bundle with sufficient funders and 10% inflation splitting", func() {
 		// ARRANGE
 		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  sdk.MustNewDecFromStr("0.1"),
-			PoolInflationPayoutRate: sdk.MustNewDecFromStr("0.3"),
+			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0.1"),
+			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.3"),
 		})
 
 		// mine some blocks
@@ -561,7 +561,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		b2 := s.GetBalanceFromPool(0)
 		Expect(b1).To(BeNumerically(">", b2))
 
-		payout := uint64(sdk.NewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateInt64())
+		payout := uint64(math.LegacyNewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateInt64())
 		Expect(b1 - b2).To(Equal(payout))
 
 		// assert bundle reward
@@ -571,11 +571,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		totalPayout := pool.InflationShareWeight + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
@@ -593,8 +593,8 @@ var _ = Describe("inflation splitting", Ordered, func() {
 	It("Produce a valid bundle with sufficient funders and 100% inflation splitting", func() {
 		// ARRANGE
 		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  sdk.MustNewDecFromStr("1"),
-			PoolInflationPayoutRate: sdk.MustNewDecFromStr("0.1"),
+			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("1"),
+			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
 		})
 
 		// mine some blocks
@@ -668,7 +668,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		b2 := s.GetBalanceFromPool(0)
 		Expect(b1).To(BeNumerically(">", b2))
 
-		payout := uint64(sdk.NewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateInt64())
+		payout := uint64(math.LegacyNewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateInt64())
 		Expect(b1 - b2).To(Equal(payout))
 
 		// assert bundle reward
@@ -678,11 +678,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		totalPayout := pool.InflationShareWeight + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
@@ -700,8 +700,8 @@ var _ = Describe("inflation splitting", Ordered, func() {
 	It("Produce a valid bundle with insufficient funders and 0% inflation splitting", func() {
 		// ARRANGE
 		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  sdk.MustNewDecFromStr("0"),
-			PoolInflationPayoutRate: sdk.MustNewDecFromStr("0.1"),
+			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0"),
+			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
 		})
 
 		// mine some blocks
@@ -783,11 +783,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		totalPayout := uint64(300)
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
@@ -805,8 +805,8 @@ var _ = Describe("inflation splitting", Ordered, func() {
 	It("Produce a valid bundle with insufficient funders and 30% inflation splitting", func() {
 		// ARRANGE
 		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  sdk.MustNewDecFromStr("0.1"),
-			PoolInflationPayoutRate: sdk.MustNewDecFromStr("0.3"),
+			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0.1"),
+			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.3"),
 		})
 
 		// mine some blocks
@@ -880,7 +880,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		b2 := s.GetBalanceFromPool(0)
 		Expect(b1).To(BeNumerically(">", b2))
 
-		payout := uint64(sdk.NewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateInt64())
+		payout := uint64(math.LegacyNewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateInt64())
 		Expect(b1 - b2).To(Equal(payout))
 
 		// assert bundle reward
@@ -890,11 +890,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		totalPayout := 300 + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
@@ -912,8 +912,8 @@ var _ = Describe("inflation splitting", Ordered, func() {
 	It("Produce a valid bundle with insufficient funders and 10% inflation splitting", func() {
 		// ARRANGE
 		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  sdk.MustNewDecFromStr("1"),
-			PoolInflationPayoutRate: sdk.MustNewDecFromStr("0.1"),
+			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("1"),
+			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
 		})
 
 		// mine some blocks
@@ -987,7 +987,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		b2 := s.GetBalanceFromPool(0)
 		Expect(b1).To(BeNumerically(">", b2))
 
-		payout := uint64(sdk.NewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateInt64())
+		payout := uint64(math.LegacyNewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateInt64())
 		Expect(b1 - b2).To(Equal(payout))
 
 		// assert bundle reward
@@ -997,11 +997,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		totalPayout := 300 + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
@@ -1019,8 +1019,8 @@ var _ = Describe("inflation splitting", Ordered, func() {
 	It("Produce a valid bundle with some insufficient funders and 0% inflation splitting", func() {
 		// ARRANGE
 		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  sdk.MustNewDecFromStr("0"),
-			PoolInflationPayoutRate: sdk.MustNewDecFromStr("0.1"),
+			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0"),
+			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
 		})
 
 		// mine some blocks
@@ -1102,11 +1102,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		totalPayout := (pool.InflationShareWeight / 2) + 200
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
@@ -1124,8 +1124,8 @@ var _ = Describe("inflation splitting", Ordered, func() {
 	It("Produce a valid bundle with some insufficient funders and 30% inflation splitting", func() {
 		// ARRANGE
 		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  sdk.MustNewDecFromStr("0.1"),
-			PoolInflationPayoutRate: sdk.MustNewDecFromStr("0.3"),
+			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0.1"),
+			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.3"),
 		})
 
 		// mine some blocks
@@ -1199,7 +1199,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		b2 := s.GetBalanceFromPool(0)
 		Expect(b1).To(BeNumerically(">", b2))
 
-		payout := uint64(sdk.NewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateInt64())
+		payout := uint64(math.LegacyNewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateInt64())
 		Expect(b1 - b2).To(Equal(payout))
 
 		// assert bundle reward
@@ -1209,11 +1209,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		totalPayout := (pool.InflationShareWeight / 2) + 200 + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
@@ -1231,8 +1231,8 @@ var _ = Describe("inflation splitting", Ordered, func() {
 	It("Produce a valid bundle with some insufficient funders and 10% inflation splitting", func() {
 		// ARRANGE
 		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  sdk.MustNewDecFromStr("1"),
-			PoolInflationPayoutRate: sdk.MustNewDecFromStr("0.1"),
+			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("1"),
+			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
 		})
 
 		// mine some blocks
@@ -1306,7 +1306,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		b2 := s.GetBalanceFromPool(0)
 		Expect(b1).To(BeNumerically(">", b2))
 
-		payout := uint64(sdk.NewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateInt64())
+		payout := uint64(math.LegacyNewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateInt64())
 		Expect(b1 - b2).To(Equal(payout))
 
 		// assert bundle reward
@@ -1316,11 +1316,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		totalPayout := (pool.InflationShareWeight / 2) + 200 + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
-		uploaderPayoutReward := uint64(sdk.NewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards

@@ -9,7 +9,7 @@ import (
 var _ sdk.Msg = &MsgUpdateFunder{}
 
 func (msg *MsgUpdateFunder) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
+	bz := Amino.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 

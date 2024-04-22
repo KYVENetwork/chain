@@ -26,14 +26,15 @@ TEST CASES - funding bundles
 */
 
 var _ = Describe("funding bundles", Ordered, func() {
-	s := i.NewCleanChain()
-
-	initialBalanceAlice := s.GetBalanceFromAddress(i.ALICE)
-	initialBalanceBob := s.GetBalanceFromAddress(i.BOB)
+	var s *i.KeeperTestSuite
+	var initialBalanceAlice uint64
+	var initialBalanceBob uint64
 
 	BeforeEach(func() {
 		// init new clean chain
 		s = i.NewCleanChain()
+		initialBalanceAlice = s.GetBalanceFromAddress(i.ALICE)
+		initialBalanceBob = s.GetBalanceFromAddress(i.BOB)
 
 		params := s.App().FundersKeeper.GetParams(s.Ctx())
 		params.MinFundingMultiple = 0

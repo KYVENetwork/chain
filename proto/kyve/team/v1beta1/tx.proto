@@ -2,12 +2,14 @@ syntax = "proto3";
 
 package kyve.team.v1beta1;
 
+import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/team/types";
 
 // Msg defines the Msg service.
 service Msg {
+  option (cosmos.msg.v1.service) = true;
   // ClaimUnlocked ...
   rpc ClaimUnlocked(MsgClaimUnlocked) returns (MsgClaimUnlockedResponse);
   // Clawback ...
@@ -22,6 +24,7 @@ service Msg {
 
 // MsgClaimUnlockedTokens ...
 message MsgClaimUnlocked {
+  option (cosmos.msg.v1.signer) = "authority";
   // authority is the foundation which is allowed to payout unlocked tokens
   string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // id is the unique identifier of the team member
@@ -37,6 +40,7 @@ message MsgClaimUnlockedResponse {}
 
 // MsgClaimAuthorityRewards ...
 message MsgClaimAuthorityRewards {
+  option (cosmos.msg.v1.signer) = "authority";
   // authority is the foundation which is allowed to payout unlocked tokens
   string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // amount of $KYVE that will be paid to the recipient and marked as deducted from the authority inflation rewards
@@ -50,6 +54,7 @@ message MsgClaimAuthorityRewardsResponse {}
 
 // MsgClaimAccountRewards ...
 message MsgClaimAccountRewards {
+  option (cosmos.msg.v1.signer) = "authority";
   // authority is the foundation which is allowed to payout unlocked tokens
   string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // id is the unique identifier of the team member
@@ -65,6 +70,7 @@ message MsgClaimAccountRewardsResponse {}
 
 // MsgClawback ...
 message MsgClawback {
+  option (cosmos.msg.v1.signer) = "authority";
   // authority is the foundation which is allowed to modify team accounts
   string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // id is the unique identifier of the team member
@@ -78,6 +84,7 @@ message MsgClawbackResponse {}
 
 // MsgCreateTeamVestingAccount ...
 message MsgCreateTeamVestingAccount {
+  option (cosmos.msg.v1.signer) = "authority";
   // authority ...
   string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // total_allocation is the number of tokens reserved for this team member.

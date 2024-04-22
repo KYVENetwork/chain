@@ -20,10 +20,7 @@ func RegisterInterfaces(registry codecTypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgUpdateParams{})
 }
 
-var (
-	Amino     = codec.NewLegacyAmino()
-	ModuleCdc = codec.NewAminoCodec(Amino)
-)
+var Amino = codec.NewLegacyAmino()
 
 func init() {
 	RegisterLegacyAminoCodec(Amino)

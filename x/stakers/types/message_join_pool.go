@@ -14,7 +14,7 @@ var (
 )
 
 func (msg *MsgJoinPool) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
+	bz := Amino.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 

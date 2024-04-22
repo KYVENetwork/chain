@@ -1,12 +1,12 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -25,22 +25,20 @@ TEST CASES - zero delegation
 */
 
 var _ = Describe("zero delegation", Ordered, func() {
-	s := i.NewCleanChain()
-
-	initialBalanceStaker0 := s.GetBalanceFromAddress(i.STAKER_0)
-	initialBalanceValaddress0 := s.GetBalanceFromAddress(i.VALADDRESS_0_A)
-
-	initialBalanceStaker1 := s.GetBalanceFromAddress(i.STAKER_1)
-	initialBalanceValaddress1 := s.GetBalanceFromAddress(i.VALADDRESS_1_A)
-
-	// initialBalanceStaker2 := s.GetBalanceFromAddress(i.STAKER_2)
-	// initialBalanceValaddress2 := s.GetBalanceFromAddress(i.VALADDRESS_2_A)
+	var s *i.KeeperTestSuite
+	var initialBalanceStaker0, initialBalanceValaddress0, initialBalanceStaker1, initialBalanceValaddress1 uint64
 
 	amountPerBundle := uint64(10_000)
 
 	BeforeEach(func() {
 		// init new clean chain
 		s = i.NewCleanChain()
+
+		initialBalanceStaker0 = s.GetBalanceFromAddress(i.STAKER_0)
+		initialBalanceValaddress0 = s.GetBalanceFromAddress(i.VALADDRESS_0_A)
+
+		initialBalanceStaker1 = s.GetBalanceFromAddress(i.STAKER_1)
+		initialBalanceValaddress1 = s.GetBalanceFromAddress(i.VALADDRESS_1_A)
 
 		// create clean pool for every test case
 		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
@@ -295,7 +293,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 
 		// calculate voter slashes
 		fraction := s.App().DelegationKeeper.GetVoteSlash(s.Ctx())
-		slashAmountVoter := uint64(sdk.NewDec(int64(0 * i.KYVE)).Mul(fraction).TruncateInt64())
+		slashAmountVoter := uint64(math.LegacyNewDec(int64(0 * i.KYVE)).Mul(fraction).TruncateInt64())
 		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_2, i.STAKER_2)).To(Equal(0*i.KYVE - slashAmountVoter))
 
 		Expect(s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200*i.KYVE - slashAmountVoter))
@@ -465,7 +463,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 
 		// calculate uploader rewards
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(sdk.NewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
+		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
 		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
@@ -633,7 +631,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 
 		// calculate uploader slashes
 		fraction := s.App().DelegationKeeper.GetUploadSlash(s.Ctx())
-		slashAmount := uint64(sdk.NewDec(int64(0 * i.KYVE)).Mul(fraction).TruncateInt64())
+		slashAmount := uint64(math.LegacyNewDec(int64(0 * i.KYVE)).Mul(fraction).TruncateInt64())
 
 		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(0*i.KYVE - slashAmount))
 		Expect(s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200*i.KYVE - slashAmount))
@@ -775,7 +773,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 
 		// check if voter got slashed
 		slashAmountRatio := s.App().DelegationKeeper.GetTimeoutSlash(s.Ctx())
-		expectedBalance := 0*i.KYVE - uint64(sdk.NewDec(int64(0*i.KYVE)).Mul(slashAmountRatio).TruncateInt64())
+		expectedBalance := 0*i.KYVE - uint64(math.LegacyNewDec(int64(0*i.KYVE)).Mul(slashAmountRatio).TruncateInt64())
 
 		Expect(expectedBalance).To(Equal(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.STAKER_1)))
 	})

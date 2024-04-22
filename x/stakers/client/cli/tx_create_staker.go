@@ -1,11 +1,11 @@
 package cli
 
 import (
+	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 )
@@ -21,7 +21,7 @@ func CmdCreateStaker() *cobra.Command {
 				return err
 			}
 
-			argCommission, err := sdk.NewDecFromStr(args[1])
+			argCommission, err := math.LegacyNewDecFromStr(args[1])
 			if err != nil {
 				return err
 			}

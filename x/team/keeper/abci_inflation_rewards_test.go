@@ -1,10 +1,10 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	"github.com/KYVENetwork/chain/x/team/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -67,9 +67,11 @@ var _ = Describe("abci.go", Ordered, func() {
 
 		for t := 0; t < 100; t++ {
 			// ACT
-			b1 = s.App().DistributionKeeper.GetFeePool(s.Ctx()).CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64()
+			feePool, _ := s.App().DistributionKeeper.FeePool.Get(s.Ctx())
+			b1 = feePool.CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64()
 			s.Commit()
-			b2 = s.App().DistributionKeeper.GetFeePool(s.Ctx()).CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64()
+			feePool, _ = s.App().DistributionKeeper.FeePool.Get(s.Ctx())
+			b2 = feePool.CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64()
 
 			// ASSERT
 			Expect(b2).To(BeNumerically(">", b1))
@@ -82,12 +84,13 @@ var _ = Describe("abci.go", Ordered, func() {
 
 			// get the team balance and total supply at current block which will
 			// be used to calculate distribution in BeginBlock of next block
-			teamBalance := sdk.NewDec(int64(s.GetBalanceFromModule(types.ModuleName)))
-			totalSupply := sdk.NewDec(s.App().BankKeeper.GetSupply(s.Ctx(), globalTypes.Denom).Amount.Int64())
+			teamBalance := math.LegacyNewDec(int64(s.GetBalanceFromModule(types.ModuleName)))
+			totalSupply := math.LegacyNewDec(s.App().BankKeeper.GetSupply(s.Ctx(), globalTypes.Denom).Amount.Int64())
 
 			// get current team and validators reward for this block
 			r1 := s.App().TeamKeeper.GetTeamInfo(s.Ctx()).TotalAuthorityRewards
-			c1 := uint64(s.App().DistributionKeeper.GetFeePool(s.Ctx()).CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64())
+			feePool, _ := s.App().DistributionKeeper.FeePool.Get(s.Ctx())
+			c1 := uint64(feePool.CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64())
 
 			// ACT
 
@@ -96,14 +99,15 @@ var _ = Describe("abci.go", Ordered, func() {
 
 			// calculate delta for team and community rewards in order to verify distribution
 			r2 := s.App().TeamKeeper.GetTeamInfo(s.Ctx()).TotalAuthorityRewards
-			c2 := uint64(s.App().DistributionKeeper.GetFeePool(s.Ctx()).CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64())
+			feePool, _ = s.App().DistributionKeeper.FeePool.Get(s.Ctx())
+			c2 := uint64(feePool.CommunityPool.AmountOf(globalTypes.Denom).TruncateInt64())
 
 			teamReward := r2 - r1
 			communityReward := c2 - c1
 
 			// get block reward for this block
-			minter := s.App().MintKeeper.GetMinter(s.Ctx())
-			params := s.App().MintKeeper.GetParams(s.Ctx())
+			minter, _ := s.App().MintKeeper.Minter.Get(s.Ctx())
+			params, _ := s.App().MintKeeper.Params.Get(s.Ctx())
 			blockProvision := minter.BlockProvision(params)
 
 			// ASSERT
@@ -112,7 +116,7 @@ var _ = Describe("abci.go", Ordered, func() {
 			Expect(teamReward + communityReward).To(Equal(blockProvision.Amount.Uint64()))
 
 			// calculate if distribution share matches with team balance and total supply
-			Expect(teamBalance.Mul(sdk.NewDec(blockProvision.Amount.Int64())).Quo(totalSupply).TruncateInt64()).To(Equal(int64(teamReward)))
+			Expect(teamBalance.Mul(math.LegacyNewDec(blockProvision.Amount.Int64())).Quo(totalSupply).TruncateInt64()).To(Equal(int64(teamReward)))
 		}
 	})
 })

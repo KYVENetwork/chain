@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
 
@@ -238,7 +239,7 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout uin
 	bundleReward.Total = totalPayout
 
 	// calculate share of treasury from total payout
-	bundleReward.Treasury = uint64(sdk.NewDec(int64(totalPayout)).Mul(k.GetNetworkFee(ctx)).TruncateInt64())
+	bundleReward.Treasury = uint64(math.LegacyNewDec(int64(totalPayout)).Mul(k.GetNetworkFee(ctx)).TruncateInt64())
 
 	// calculate wanted storage reward the uploader should receive
 	storageReward := uint64(k.GetStorageCost(ctx).MulInt64(int64(bundleProposal.DataSize)).TruncateInt64())
@@ -259,7 +260,7 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout uin
 	// payout delegators
 	if k.delegationKeeper.GetDelegationAmount(ctx, bundleProposal.Uploader) > 0 {
 		commission := k.stakerKeeper.GetCommission(ctx, bundleProposal.Uploader)
-		commissionRewards := uint64(sdk.NewDec(int64(totalNodeReward)).Mul(commission).TruncateInt64())
+		commissionRewards := uint64(math.LegacyNewDec(int64(totalNodeReward)).Mul(commission).TruncateInt64())
 
 		bundleReward.Uploader += commissionRewards
 		bundleReward.Delegation = totalNodeReward - commissionRewards

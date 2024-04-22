@@ -1,8 +1,10 @@
 package keeper
 
 import (
+	"cosmossdk.io/store/prefix"
+	storeTypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/delegation/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -14,7 +16,8 @@ import (
 // SetDelegationEntry set a specific delegationEntry in the store for the staker
 // and a given index
 func (k Keeper) SetDelegationEntry(ctx sdk.Context, delegationEntries types.DelegationEntry) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegationEntriesKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.DelegationEntriesKeyPrefix)
 	b := k.cdc.MustMarshal(&delegationEntries)
 	store.Set(types.DelegationEntriesKey(
 		delegationEntries.Staker,
@@ -28,7 +31,8 @@ func (k Keeper) GetDelegationEntry(
 	stakerAddress string,
 	kIndex uint64,
 ) (val types.DelegationEntry, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegationEntriesKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.DelegationEntriesKeyPrefix)
 
 	b := store.Get(types.DelegationEntriesKey(
 		stakerAddress,
@@ -49,7 +53,8 @@ func (k Keeper) RemoveDelegationEntry(
 	stakerAddress string,
 	kIndex uint64,
 ) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegationEntriesKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.DelegationEntriesKeyPrefix)
 	store.Delete(types.DelegationEntriesKey(
 		stakerAddress,
 		kIndex,
@@ -58,8 +63,9 @@ func (k Keeper) RemoveDelegationEntry(
 
 // GetAllDelegationEntries returns all delegationEntries (of all stakers)
 func (k Keeper) GetAllDelegationEntries(ctx sdk.Context) (list []types.DelegationEntry) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegationEntriesKeyPrefix)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.DelegationEntriesKeyPrefix)
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 

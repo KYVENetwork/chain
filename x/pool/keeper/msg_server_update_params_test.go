@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -37,16 +38,17 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 
-	minDeposit := s.App().GovKeeper.GetParams(s.Ctx()).MinDeposit
-	votingPeriod := s.App().GovKeeper.GetParams(s.Ctx()).VotingPeriod
+	params, _ := s.App().GovKeeper.Params.Get(s.Ctx())
+	minDeposit := params.MinDeposit
+	votingPeriod := params.VotingPeriod
 
-	delegations := s.App().StakingKeeper.GetAllDelegations(s.Ctx())
+	delegations, _ := s.App().StakingKeeper.GetAllDelegations(s.Ctx())
 	voter := sdk.MustAccAddressFromBech32(delegations[0].DelegatorAddress)
 
 	BeforeEach(func() {
 		s = i.NewCleanChain()
 
-		delegations := s.App().StakingKeeper.GetAllDelegations(s.Ctx())
+		delegations, _ := s.App().StakingKeeper.GetAllDelegations(s.Ctx())
 		voter = sdk.MustAccAddressFromBech32(delegations[0].DelegatorAddress)
 	})
 
@@ -84,7 +86,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		// ACT
@@ -107,7 +109,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -127,8 +129,8 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(submitErr).NotTo(HaveOccurred())
 		Expect(voteErr).NotTo(HaveOccurred())
 
-		Expect(updatedParams.ProtocolInflationShare).To(Equal(sdk.MustNewDecFromStr("0.2")))
-		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(sdk.MustNewDecFromStr("0.05")))
+		Expect(updatedParams.ProtocolInflationShare).To(Equal(math.LegacyMustNewDecFromStr("0.2")))
+		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(math.LegacyMustNewDecFromStr("0.05")))
 	})
 
 	It("Update no params", func() {
@@ -141,7 +143,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -177,7 +179,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		// ACT
@@ -207,7 +209,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -227,7 +229,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(submitErr).NotTo(HaveOccurred())
 		Expect(voteErr).NotTo(HaveOccurred())
 
-		Expect(updatedParams.ProtocolInflationShare).To(Equal(sdk.MustNewDecFromStr("0.07")))
+		Expect(updatedParams.ProtocolInflationShare).To(Equal(math.LegacyMustNewDecFromStr("0.07")))
 		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(types.DefaultPoolInflationPayoutRate))
 	})
 
@@ -243,7 +245,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		// ACT
@@ -273,7 +275,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		vote := govV1Types.NewMsgVote(
@@ -294,7 +296,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(voteErr).NotTo(HaveOccurred())
 
 		Expect(updatedParams.ProtocolInflationShare).To(Equal(types.DefaultProtocolInflationShare))
-		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(sdk.MustNewDecFromStr("0.2")))
+		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(math.LegacyMustNewDecFromStr("0.2")))
 	})
 
 	It("Update pool inflation payout rate with invalid value", func() {
@@ -309,7 +311,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		}
 
 		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary",
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
 		)
 
 		// ACT

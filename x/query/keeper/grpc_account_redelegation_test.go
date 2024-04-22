@@ -6,7 +6,6 @@ import (
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -89,7 +88,7 @@ var _ = Describe("grpc_account_redelegation.go", Ordered, func() {
 		})
 
 		// ASSERT
-		res, err := s.App().QueryKeeper.AccountRedelegation(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryAccountRedelegationRequest{Address: i.ALICE})
+		res, err := s.App().QueryKeeper.AccountRedelegation(s.Ctx(), &querytypes.QueryAccountRedelegationRequest{Address: i.ALICE})
 		Expect(err).To(BeNil())
 
 		Expect(res.AvailableSlots).To(Equal(uint64(4)))
@@ -110,7 +109,7 @@ var _ = Describe("grpc_account_redelegation.go", Ordered, func() {
 
 		// Assert
 
-		res, err := s.App().QueryKeeper.AccountRedelegation(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryAccountRedelegationRequest{Address: i.ALICE})
+		res, err := s.App().QueryKeeper.AccountRedelegation(s.Ctx(), &querytypes.QueryAccountRedelegationRequest{Address: i.ALICE})
 		Expect(err).To(BeNil())
 
 		Expect(res.AvailableSlots).To(Equal(uint64(5)))
@@ -133,7 +132,7 @@ var _ = Describe("grpc_account_redelegation.go", Ordered, func() {
 		}
 		// Assert
 
-		res, err := s.App().QueryKeeper.AccountRedelegation(sdk.WrapSDKContext(s.Ctx()), &querytypes.QueryAccountRedelegationRequest{Address: i.ALICE})
+		res, err := s.App().QueryKeeper.AccountRedelegation(s.Ctx(), &querytypes.QueryAccountRedelegationRequest{Address: i.ALICE})
 		Expect(err).To(BeNil())
 
 		Expect(res.AvailableSlots).To(Equal(uint64(0)))

@@ -4,10 +4,12 @@ import (
 	"context"
 	"encoding/binary"
 
+	"github.com/cosmos/cosmos-sdk/runtime"
+
+	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/util"
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	"github.com/KYVENetwork/chain/x/query/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
@@ -23,7 +25,8 @@ func (k Keeper) AccountDelegationUnbondings(goCtx context.Context, req *types.Qu
 
 	var delegationUnbondings []types.DelegationUnbonding
 
-	store := prefix.NewStore(ctx.KVStore(k.delegationKeeper.StoreKey()), util.GetByteKey(delegationtypes.UndelegationQueueKeyPrefixIndex2, req.Address))
+	storeAdapter := runtime.KVStoreAdapter(k.delegationStoreService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, util.GetByteKey(delegationtypes.UndelegationQueueKeyPrefixIndex2, req.Address))
 	pageRes, err := query.FilteredPaginate(store, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
 		if accumulate {
 			index := binary.BigEndian.Uint64(key[0:8])

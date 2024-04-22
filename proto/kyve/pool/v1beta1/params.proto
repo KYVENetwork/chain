@@ -10,13 +10,13 @@ option go_package = "github.com/KYVENetwork/chain/x/pool/types";
 message Params {
   // protocol_inflation_share ...
   string protocol_inflation_share = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
   // pool_inflation_payout_rate ...
   string pool_inflation_payout_rate = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }

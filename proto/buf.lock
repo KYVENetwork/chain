@@ -9,15 +9,30 @@ deps:
   - remote: buf.build
     owner: cosmos
     repository: cosmos-sdk
-    commit: 954f7b05f38440fc8250134b15adec47
-    digest: shake256:2ab4404fd04a7d1d52df0e2d0f2d477a3d83ffd88d876957bf3fedfd702c8e52833d65b3ce1d89a3c5adf2aab512616b0e4f51d8463f07eda9a8a3317ee3ac54
+    commit: 5a6ab7bc14314acaa912d5e53aef1c2f
+    digest: shake256:02c00c73493720055f9b57553a35b5550023a3c1914123b247956288a78fb913aff70e66552777ae14d759467e119079d484af081264a5dd607a94d9fbc8116b
   - remote: buf.build
     owner: cosmos
     repository: gogo-proto
-    commit: 5e5b9fdd01804356895f8f79a6f1ddc1
-    digest: shake256:0b85da49e2e5f9ebc4806eae058e2f56096ff3b1c59d1fb7c190413dd15f45dd456f0b69ced9059341c80795d2b6c943de15b120a9e0308b499e43e4b5fc2952
+    commit: 88ef6483f90f478fb938c37dde52ece3
+    digest: shake256:89c45df2aa11e0cff97b0d695436713db3d993d76792e9f8dc1ae90e6ab9a9bec55503d48ceedd6b86069ab07d3041b32001b2bfe0227fa725dd515ff381e5ba
+  - remote: buf.build
+    owner: cosmos
+    repository: ibc
+    commit: e2006674271c4a53bf0b98b66de0fc50
+    digest: shake256:0b14a68d79c8e911da13735affed05674e2d81f157a9a804f8761db29fba77f61af1e711181cfde8bbf3a81a81c0ac9f553b269f95d59896dd193251aa35929e
+  - remote: buf.build
+    owner: cosmos
+    repository: ics23
+    commit: a9ee7c290ef34ee69d3f141b9b44dcee
+    digest: shake256:255dbee3e92a370723bf4d72b34868b18e7570543f30f79c0c8c10a5a332d230175e0c29cb7ebcb8020706312e3cd37c23974df0bacfb60a4afb968fee4c1afc
   - remote: buf.build
     owner: googleapis
     repository: googleapis
-    commit: cc916c31859748a68fd229a3c8d7a2e8
-    digest: shake256:469b049d0eb04203d5272062636c078decefc96fec69739159c25d85349c50c34c7706918a8b216c5c27f76939df48452148cff8c5c3ae77fa6ba5c25c1b8bf8
+    commit: 4ed3bc159a8b4ac68fe253218760d035
+    digest: shake256:7149cf5e9955c692d381e557830555d4e93f205a0f1b8e2dfdae46d029369aa3fc1980e35df0d310f7cc3b622f93e19ad276769a283a967dd3065ddfd3a40e13
+  - remote: buf.build
+    owner: protocolbuffers
+    repository: wellknowntypes
+    commit: 3186086b2a8e44d9acdeeef2423c5de7
+    digest: shake256:3b9dc2f56d9ed2e4001f95b701985fd803f7e2559b19b6a18d5f4e792cfdde320e765638de69fff037edc202b0006532d7ff19eab9465526b5ec628e4a5e5a1a

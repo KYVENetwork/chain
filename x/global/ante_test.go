@@ -42,8 +42,8 @@ TEST CASES - DeductFeeDecorator
 var _ = Describe("DeductFeeDecorator", Ordered, func() {
 	s := i.NewCleanChain()
 	encodingConfig := BuildEncodingConfig()
-	dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
-	denom := s.App().StakingKeeper.BondDenom(s.Ctx())
+	dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
+	denom, _ := s.App().StakingKeeper.BondDenom(s.Ctx())
 
 	accountBalanceBefore := s.GetBalanceFromAddress(i.DUMMY[0])
 	collectorBalanceBefore := s.GetBalanceFromModule(authTypes.FeeCollectorName)
@@ -51,8 +51,8 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 	BeforeEach(func() {
 		s = i.NewCleanChain()
 		encodingConfig = BuildEncodingConfig()
-		denom = s.App().StakingKeeper.BondDenom(s.Ctx())
-		dfd = global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
+		denom, _ = s.App().StakingKeeper.BondDenom(s.Ctx())
+		dfd = global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
 	})
 
 	AfterEach(func() {
@@ -61,7 +61,7 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 
 	It("Invalid transaction.", func() {
 		// ARRANGE
-		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
+		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
 
 		// ACT
 		_, err := dfd.AnteHandle(s.Ctx(), &InvalidTx{}, false, AnteNextFn)
@@ -72,9 +72,9 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 
 	It("consensusGasPrice = 0.0; validatorGasPrice = 0.0 - deliverTX", func() {
 		// ARRANGE
-		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
+		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
 
-		denom := s.App().StakingKeeper.BondDenom(s.Ctx())
+		denom, _ := s.App().StakingKeeper.BondDenom(s.Ctx())
 		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
 
 		// ACT
@@ -91,9 +91,9 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 
 	It("consensusGasPrice = 0.0; validatorGasPrice = 0.0 - checkTX", func() {
 		// ARRANGE
-		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
+		dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
 
-		denom := s.App().StakingKeeper.BondDenom(s.Ctx())
+		denom, _ := s.App().StakingKeeper.BondDenom(s.Ctx())
 		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
 
 		// ACT
@@ -111,7 +111,7 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 	It("consensusGasPrice = 1.0; validatorGasPrice = 0.0 - deliverTX - not enough fees", func() {
 		// ARRANGE
 		params := types.DefaultParams()
-		params.MinGasPrice = sdk.OneDec()
+		params.MinGasPrice = math.LegacyOneDec()
 		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
 		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
 
@@ -130,7 +130,7 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 	It("consensusGasPrice = 1.0; validatorGasPrice = 0.0 - deliverTX - enough fees", func() {
 		// ARRANGE
 		params := types.DefaultParams()
-		params.MinGasPrice = sdk.OneDec()
+		params.MinGasPrice = math.LegacyOneDec()
 		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
 		tx := BuildTestTx(math.NewInt(1), denom, i.DUMMY[0], encodingConfig)
 
@@ -149,7 +149,7 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 	It("consensusGasPrice = 1.0; validatorGasPrice = 0.0 - checkTx - not enough fees", func() {
 		// ARRANGE
 		params := types.DefaultParams()
-		params.MinGasPrice = sdk.OneDec()
+		params.MinGasPrice = math.LegacyOneDec()
 		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
 		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
 
@@ -168,7 +168,7 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 	It("consensusGasPrice = 1.0; validatorGasPrice = 0.0 - checkTx - enough fees", func() {
 		// ARRANGE
 		params := types.DefaultParams()
-		params.MinGasPrice = sdk.OneDec()
+		params.MinGasPrice = math.LegacyOneDec()
 		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
 		tx := BuildTestTx(math.NewInt(1), denom, i.DUMMY[0], encodingConfig)
 
@@ -187,10 +187,10 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 	It("consensusGasPrice = 1.0; validatorGasPrice = 2.0 - deliverTX - not enough fees", func() {
 		// ARRANGE
 		params := types.DefaultParams()
-		params.MinGasPrice = sdk.OneDec()
+		params.MinGasPrice = math.LegacyOneDec()
 		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
 
-		ctx := s.Ctx().WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(denom, sdk.NewInt(2))))
+		ctx := s.Ctx().WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(2))))
 		s.SetCtx(ctx)
 		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
 
@@ -209,10 +209,10 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 	It("consensusGasPrice = 1.0; validatorGasPrice = 2.0 - deliverTX - not enough fees for validator but enough for consensus.", func() {
 		// ARRANGE
 		params := types.DefaultParams()
-		params.MinGasPrice = sdk.OneDec()
+		params.MinGasPrice = math.LegacyOneDec()
 		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
 
-		ctx := s.Ctx().WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(denom, sdk.NewInt(2))))
+		ctx := s.Ctx().WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(2))))
 		s.SetCtx(ctx)
 		tx := BuildTestTx(math.NewInt(1), denom, i.DUMMY[0], encodingConfig)
 
@@ -231,10 +231,10 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 	It("consensusGasPrice = 1.0; validatorGasPrice = 2.0 - checkTx - not enough fees", func() {
 		// ARRANGE
 		params := types.DefaultParams()
-		params.MinGasPrice = sdk.OneDec()
+		params.MinGasPrice = math.LegacyOneDec()
 		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
 
-		ctx := s.Ctx().WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(denom, sdk.NewInt(2))))
+		ctx := s.Ctx().WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(2))))
 		s.SetCtx(ctx)
 		tx := BuildTestTx(math.ZeroInt(), denom, i.DUMMY[0], encodingConfig)
 
@@ -253,10 +253,10 @@ var _ = Describe("DeductFeeDecorator", Ordered, func() {
 	It("consensusGasPrice = 1.0; validatorGasPrice = 2.0 - checkTx - not enough fees for validator but enough for consensus.", func() {
 		// ARRANGE
 		params := types.DefaultParams()
-		params.MinGasPrice = sdk.OneDec()
+		params.MinGasPrice = math.LegacyOneDec()
 		s.App().GlobalKeeper.SetParams(s.Ctx(), params)
 
-		ctx := s.Ctx().WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(denom, sdk.NewInt(2))))
+		ctx := s.Ctx().WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(2))))
 		s.SetCtx(ctx)
 		tx := BuildTestTx(math.NewInt(1), denom, i.DUMMY[0], encodingConfig)
 
@@ -291,7 +291,7 @@ var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
 
 	// NOTE: This will change as implementation changes.
 	// TODO: Why does this change as the implementation changes?
-	BaseCost := 32109
+	BaseCost := 32716
 
 	BeforeEach(func() {
 		s = i.NewCleanChain()

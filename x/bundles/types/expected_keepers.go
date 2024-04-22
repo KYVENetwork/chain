@@ -1,31 +1,15 @@
 package types
 
 import (
+	"cosmossdk.io/math"
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
 // AccountKeeper defines the expected account keeper used for simulations (noalias)
 type AccountKeeper interface {
 	GetModuleAddress(moduleName string) sdk.AccAddress
-}
-
-type DistrKeeper interface {
-	FundCommunityPool(ctx sdk.Context, amount sdk.Coins, sender sdk.AccAddress) error
-}
-
-// BankKeeper defines the expected interface needed to retrieve account balances.
-type BankKeeper interface {
-	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
-	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
-	SendCoinsFromModuleToModule(ctx sdk.Context, senderModule, recipientModule string, amt sdk.Coins) error
-	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
-}
-
-type UpgradeKeeper interface {
-	ScheduleUpgrade(ctx sdk.Context, plan types.Plan) error
 }
 
 type PoolKeeper interface {
@@ -37,11 +21,12 @@ type PoolKeeper interface {
 
 	GetAllPools(ctx sdk.Context) (list []pooltypes.Pool)
 	ChargeInflationPool(ctx sdk.Context, poolId uint64) (payout uint64, err error)
+	GetProtocolInflationShare(ctx sdk.Context) (res math.LegacyDec)
 }
 
 type StakerKeeper interface {
 	GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (stakers []string)
-	GetCommission(ctx sdk.Context, stakerAddress string) sdk.Dec
+	GetCommission(ctx sdk.Context, stakerAddress string) math.LegacyDec
 	IncreaseStakerCommissionRewards(ctx sdk.Context, address string, amount uint64) error
 	AssertValaccountAuthorized(ctx sdk.Context, poolId uint64, stakerAddress string, valaddress string) error
 
@@ -64,4 +49,8 @@ type DelegationKeeper interface {
 
 type FundersKeeper interface {
 	ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint64, err error)
+}
+
+type TeamKeeper interface {
+	GetTeamBlockProvision(ctx sdk.Context) int64
 }

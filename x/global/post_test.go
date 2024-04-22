@@ -32,8 +32,8 @@ var _ = Describe("RefundFeeDecorator", Ordered, func() {
 	s := i.NewCleanChain()
 	encodingConfig := BuildEncodingConfig()
 	rfd := global.NewRefundFeeDecorator(s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper)
-	dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
-	denom := s.App().StakingKeeper.BondDenom(s.Ctx())
+	dfd := global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
+	denom, _ := s.App().StakingKeeper.BondDenom(s.Ctx())
 
 	accountBalanceBefore := s.GetBalanceFromAddress(i.DUMMY[0])
 
@@ -42,27 +42,27 @@ var _ = Describe("RefundFeeDecorator", Ordered, func() {
 
 		accountBalanceBefore = s.GetBalanceFromAddress(i.DUMMY[0])
 		rfd = global.NewRefundFeeDecorator(s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper)
-		dfd = global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, *s.App().StakingKeeper)
+		dfd = global.NewDeductFeeDecorator(s.App().AccountKeeper, s.App().BankKeeper, s.App().FeeGrantKeeper, s.App().GlobalKeeper, s.App().StakingKeeper)
 
-		denom = s.App().StakingKeeper.BondDenom(s.Ctx())
+		denom, _ = s.App().StakingKeeper.BondDenom(s.Ctx())
 
 		params := types.DefaultParams()
 		params.GasRefunds = []types.GasRefund{
 			{
 				Type:     "/kyve.bundles.v1beta1.MsgSubmitBundleProposal",
-				Fraction: sdk.NewDec(1).QuoInt64(10),
+				Fraction: math.LegacyNewDec(1).QuoInt64(10),
 			},
 			{
 				Type:     "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
-				Fraction: sdk.OneDec(),
+				Fraction: math.LegacyOneDec(),
 			},
 			{
 				Type:     "/kyve.bundles.v1beta1.MsgSkipUploaderRole",
-				Fraction: sdk.ZeroDec(),
+				Fraction: math.LegacyZeroDec(),
 			},
 			{
 				Type:     "/kyve.stakers.v1beta1.MsgCreateStaker",
-				Fraction: sdk.NewDec(2).QuoInt64(3),
+				Fraction: math.LegacyNewDec(2).QuoInt64(3),
 			},
 		}
 		s.App().GlobalKeeper.SetParams(s.Ctx(), params)

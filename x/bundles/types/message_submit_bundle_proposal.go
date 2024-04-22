@@ -29,7 +29,7 @@ func NewMsgSubmitBundleProposal(creator string, staker string, poolId uint64, st
 }
 
 func (msg *MsgSubmitBundleProposal) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
+	bz := Amino.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 

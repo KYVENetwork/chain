@@ -3,70 +3,63 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/core/store"
+
+	"github.com/KYVENetwork/chain/util"
+
+	"cosmossdk.io/log"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	// Bank
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	// Distribution
-	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	// Mint
-	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
+
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool/types"
-	// Team
-	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
 )
 
 type (
 	Keeper struct {
-		cdc      codec.BinaryCodec
-		storeKey storeTypes.StoreKey
-		memKey   storeTypes.StoreKey
+		cdc          codec.BinaryCodec
+		storeService store.KVStoreService
+		memService   store.MemoryStoreService
+		logger       log.Logger
 
 		authority string
 
 		stakersKeeper types.StakersKeeper
 		accountKeeper types.AccountKeeper
-		bankKeeper    bankKeeper.Keeper
-		distrkeeper   distributionKeeper.Keeper
-		mintKeeper    mintKeeper.Keeper
-		upgradeKeeper types.UpgradeKeeper
-		teamKeeper    teamKeeper.Keeper
+		bankKeeper    types.BankKeeper
+		distrkeeper   util.DistributionKeeper
+		upgradeKeeper util.UpgradeKeeper
 		fundersKeeper types.FundersKeeper
 	}
 )
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	storeKey storeTypes.StoreKey,
-	memKey storeTypes.StoreKey,
+	storeService store.KVStoreService,
+	memService store.MemoryStoreService,
+	logger log.Logger,
 
 	authority string,
 
 	accountKeeper types.AccountKeeper,
-	bankKeeper bankKeeper.Keeper,
-	distrKeeper distributionKeeper.Keeper,
-	mintKeeper mintKeeper.Keeper,
-	upgradeKeeper types.UpgradeKeeper,
-	teamKeeper teamKeeper.Keeper,
+	bankKeeper types.BankKeeper,
+	distrKeeper util.DistributionKeeper,
+	upgradeKeeper util.UpgradeKeeper,
 ) *Keeper {
 	return &Keeper{
-		cdc:      cdc,
-		storeKey: storeKey,
-		memKey:   memKey,
+		cdc:          cdc,
+		storeService: storeService,
+		memService:   memService,
+		logger:       logger,
 
 		authority: authority,
 
 		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
 		distrkeeper:   distrKeeper,
-		mintKeeper:    mintKeeper,
 		upgradeKeeper: upgradeKeeper,
-		teamKeeper:    teamKeeper,
 	}
 }
 
@@ -78,7 +71,8 @@ func (k Keeper) EnsurePoolAccount(ctx sdk.Context, id uint64) {
 
 	if account == nil {
 		// account doesn't exist, initialise a new module account.
-		account = authTypes.NewEmptyModuleAccount(name)
+		newAcc := authTypes.NewEmptyModuleAccount(name)
+		account = k.accountKeeper.NewAccountWithAddress(ctx, newAcc.GetAddress())
 	} else {
 		// account exists, adjust it to a module account.
 		baseAccount := authTypes.NewBaseAccount(address, nil, account.GetAccountNumber(), 0)
@@ -97,10 +91,6 @@ func SetFundersKeeper(k *Keeper, fundersKeeper types.FundersKeeper) {
 	k.fundersKeeper = fundersKeeper
 }
 
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-func (k Keeper) StoreKey() storeTypes.StoreKey {
-	return k.storeKey
+func (k Keeper) Logger() log.Logger {
+	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }

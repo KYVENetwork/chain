@@ -3,13 +3,31 @@ package query
 import (
 	"context"
 	"encoding/json"
+
+	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/depinject"
+	"cosmossdk.io/log"
+
+	"github.com/KYVENetwork/chain/util"
+	bundlekeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
+	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
+	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
+	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
+	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
+	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
+	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
+	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+
 	// this line is used by starport scaffolding # 1
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-
+	modulev1 "github.com/KYVENetwork/chain/api/kyve/query/module"
 	"github.com/KYVENetwork/chain/x/query/client/cli"
 	"github.com/KYVENetwork/chain/x/query/keeper"
 	"github.com/KYVENetwork/chain/x/query/types"
@@ -21,8 +39,12 @@ import (
 )
 
 var (
-	_ module.AppModule      = AppModule{}
-	_ module.AppModuleBasic = AppModuleBasic{}
+	_ module.AppModuleBasic      = (*AppModule)(nil)
+	_ module.HasGenesis          = (*AppModule)(nil)
+	_ module.HasInvariants       = (*AppModule)(nil)
+	_ module.HasConsensusVersion = (*AppModule)(nil)
+
+	_ appmodule.AppModule = (*AppModule)(nil)
 )
 
 // ----------------------------------------------------------------------------
@@ -125,8 +147,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 // InitGenesis performs the module's genesis initialization. It returns no validator updates.
-func (am AppModule) InitGenesis(_ sdk.Context, _ codec.JSONCodec, _ json.RawMessage) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
+func (am AppModule) InitGenesis(_ sdk.Context, _ codec.JSONCodec, _ json.RawMessage) {
 }
 
 // ExportGenesis returns the module's exported genesis state as raw JSON bytes.
@@ -137,10 +158,76 @@ func (am AppModule) ExportGenesis(_ sdk.Context, _ codec.JSONCodec) json.RawMess
 // ConsensusVersion is a sequence number for state-breaking change of the module. It should be incremented on each consensus-breaking change introduced by the module. To avoid wrong/empty versions, the initial version should be set to 1
 func (AppModule) ConsensusVersion() uint64 { return 1 }
 
-// BeginBlock contains the logic that is automatically triggered at the beginning of each block
-func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (am AppModule) IsOnePerModuleType() {}
 
-// EndBlock contains the logic that is automatically triggered at the end of each block
-func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
+// IsAppModule implements the appmodule.AppModule interface.
+func (am AppModule) IsAppModule() {}
+
+// ----------------------------------------------------------------------------
+// App Wiring Setup
+// ----------------------------------------------------------------------------
+
+func init() {
+	appmodule.Register(
+		&modulev1.Module{},
+		appmodule.Provide(ProvideModule),
+	)
+}
+
+type ModuleInputs struct {
+	depinject.In
+
+	Cdc    codec.Codec
+	Config *modulev1.Module
+	Logger log.Logger
+
+	DelegationStoreService delegationtypes.DelegationKVStoreService
+
+	AccountKeeper      authkeeper.AccountKeeper
+	BankKeeper         bankKeeper.Keeper
+	DistributionKeeper distributionKeeper.Keeper
+	UpgradeKeeper      util.UpgradeKeeper
+	PoolKeeper         *poolKeeper.Keeper
+	TeamKeeper         teamKeeper.Keeper
+	StakersKeeper      *stakersKeeper.Keeper
+	DelegationKeeper   delegationKeeper.Keeper
+	BundlesKeeper      bundlekeeper.Keeper
+	GovKeeper          *govkeeper.Keeper
+	GlobalKeeper       globalKeeper.Keeper
+	FundersKeeper      fundersKeeper.Keeper
+}
+
+type ModuleOutputs struct {
+	depinject.Out
+
+	QueryKeeper keeper.Keeper
+	Module      appmodule.AppModule
+}
+
+func ProvideModule(in ModuleInputs) ModuleOutputs {
+	k := keeper.NewKeeper(
+		in.Cdc,
+		in.Logger,
+		in.DelegationStoreService,
+		in.AccountKeeper,
+		in.BankKeeper,
+		in.DistributionKeeper,
+		in.PoolKeeper,
+		in.StakersKeeper,
+		in.DelegationKeeper,
+		in.BundlesKeeper,
+		in.GlobalKeeper,
+		in.GovKeeper,
+		in.TeamKeeper,
+		in.FundersKeeper,
+	)
+	m := NewAppModule(
+		in.Cdc,
+		k,
+		in.AccountKeeper,
+		in.BankKeeper,
+	)
+
+	return ModuleOutputs{QueryKeeper: k, Module: m}
 }

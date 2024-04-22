@@ -1,7 +1,14 @@
 package integration
 
 import (
+	"fmt"
 	"time"
+
+	"cosmossdk.io/store"
+	storeTypes "cosmossdk.io/store/types"
+
+	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
+	teamtypes "github.com/KYVENetwork/chain/x/team/types"
 
 	"github.com/KYVENetwork/chain/x/funders"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
@@ -14,12 +21,10 @@ import (
 	poolmodule "github.com/KYVENetwork/chain/x/pool"
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	"github.com/KYVENetwork/chain/x/stakers"
-	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
+	stakerstypes "github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/KYVENetwork/chain/x/team"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	. "github.com/onsi/gomega"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (suite *KeeperTestSuite) PerformValidityChecks() {
@@ -71,8 +76,8 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 
 	poolsQuery := make([]querytypes.PoolResponse, 0)
 
-	activePoolsQuery, activePoolsQueryErr := suite.App().QueryKeeper.Pools(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryPoolsRequest{})
-	disabledPoolsQuery, disabledPoolsQueryErr := suite.App().QueryKeeper.Pools(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryPoolsRequest{
+	activePoolsQuery, activePoolsQueryErr := suite.App().QueryKeeper.Pools(suite.Ctx(), &querytypes.QueryPoolsRequest{})
+	disabledPoolsQuery, disabledPoolsQueryErr := suite.App().QueryKeeper.Pools(suite.Ctx(), &querytypes.QueryPoolsRequest{
 		Disabled: true,
 	})
 
@@ -105,7 +110,7 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 		Expect(poolsQuery[i].TotalDelegation).To(Equal(totalDelegationState))
 
 		// test pool by id
-		poolByIdQuery, poolByIdQueryErr := suite.App().QueryKeeper.Pool(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryPoolRequest{
+		poolByIdQuery, poolByIdQueryErr := suite.App().QueryKeeper.Pool(suite.Ctx(), &querytypes.QueryPoolRequest{
 			Id: poolsState[i].Id,
 		})
 
@@ -131,7 +136,7 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 			}
 		}
 
-		stakersByPoolQuery, stakersByPoolQueryErr := suite.App().QueryKeeper.StakersByPool(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryStakersByPoolRequest{
+		stakersByPoolQuery, stakersByPoolQueryErr := suite.App().QueryKeeper.StakersByPool(suite.Ctx(), &querytypes.QueryStakersByPoolRequest{
 			PoolId: poolsState[i].Id,
 		})
 
@@ -148,9 +153,7 @@ func (suite *KeeperTestSuite) VerifyPoolGenesisImportExport() {
 	genState := poolmodule.ExportGenesis(suite.Ctx(), suite.App().PoolKeeper)
 
 	// Delete all entries in Pool Store
-	store := suite.Ctx().KVStore(suite.App().PoolKeeper.StoreKey())
-	suite.deleteStore(store)
-
+	suite.deleteStore(suite.getStoreByKeyName(pooltypes.StoreKey))
 	err := genState.Validate()
 	Expect(err).To(BeNil())
 	poolmodule.InitGenesis(suite.Ctx(), suite.App().PoolKeeper, *genState)
@@ -168,7 +171,7 @@ func (suite *KeeperTestSuite) VerifyStakersModuleAssetsIntegrity() {
 		expectedBalance += staker.CommissionRewards
 	}
 
-	moduleAcc := suite.App().AccountKeeper.GetModuleAccount(suite.Ctx(), stakertypes.ModuleName).GetAddress()
+	moduleAcc := suite.App().AccountKeeper.GetModuleAccount(suite.Ctx(), stakerstypes.ModuleName).GetAddress()
 	actualBalance = suite.App().BankKeeper.GetBalance(suite.Ctx(), moduleAcc, globalTypes.Denom).Amount.Uint64()
 
 	Expect(actualBalance).To(Equal(expectedBalance))
@@ -202,7 +205,7 @@ func (suite *KeeperTestSuite) VerifyActiveStakers() {
 
 func (suite *KeeperTestSuite) VerifyStakersQueries() {
 	stakersState := suite.App().StakersKeeper.GetAllStakers(suite.Ctx())
-	stakersQuery, stakersQueryErr := suite.App().QueryKeeper.Stakers(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryStakersRequest{
+	stakersQuery, stakersQueryErr := suite.App().QueryKeeper.Stakers(suite.Ctx(), &querytypes.QueryStakersRequest{
 		Pagination: &query.PageRequest{
 			Limit: 1000,
 		},
@@ -220,7 +223,7 @@ func (suite *KeeperTestSuite) VerifyStakersQueries() {
 		address := stakersState[i].Address
 		suite.verifyFullStaker(stakersMap[address], address)
 
-		stakerByAddressQuery, stakersByAddressQueryErr := suite.App().QueryKeeper.Staker(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryStakerRequest{
+		stakerByAddressQuery, stakersByAddressQueryErr := suite.App().QueryKeeper.Staker(suite.Ctx(), &querytypes.QueryStakerRequest{
 			Address: address,
 		})
 
@@ -233,8 +236,8 @@ func (suite *KeeperTestSuite) VerifyStakersGenesisImportExport() {
 	genState := stakers.ExportGenesis(suite.Ctx(), suite.App().StakersKeeper)
 
 	// Delete all entries in Stakers Store
-	store := suite.Ctx().KVStore(suite.App().StakersKeeper.StoreKey())
-	iterator := store.Iterator(nil, nil)
+	st := suite.getStoreByKeyName(stakerstypes.StoreKey)
+	iterator := st.Iterator(nil, nil)
 	keys := make([][]byte, 0)
 	for ; iterator.Valid(); iterator.Next() {
 		key := make([]byte, len(iterator.Key()))
@@ -243,7 +246,7 @@ func (suite *KeeperTestSuite) VerifyStakersGenesisImportExport() {
 	}
 	iterator.Close()
 	for _, key := range keys {
-		store.Delete(key)
+		st.Delete(key)
 	}
 
 	err := genState.Validate()
@@ -281,7 +284,7 @@ func (suite *KeeperTestSuite) VerifyBundlesQueries() {
 
 	for _, pool := range pools {
 		finalizedBundlesState := suite.App().BundlesKeeper.GetFinalizedBundlesByPool(suite.Ctx(), pool.Id)
-		finalizedBundlesQuery, finalizedBundlesQueryErr := suite.App().QueryKeeper.FinalizedBundlesQuery(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryFinalizedBundlesRequest{
+		finalizedBundlesQuery, finalizedBundlesQueryErr := suite.App().QueryKeeper.FinalizedBundlesQuery(suite.Ctx(), &querytypes.QueryFinalizedBundlesRequest{
 			PoolId: pool.Id,
 		})
 
@@ -290,7 +293,7 @@ func (suite *KeeperTestSuite) VerifyBundlesQueries() {
 
 		for i := range finalizedBundlesState {
 
-			finalizedBundle, finalizedBundleQueryErr := suite.App().QueryKeeper.FinalizedBundleQuery(sdk.WrapSDKContext(suite.Ctx()), &querytypes.QueryFinalizedBundleRequest{
+			finalizedBundle, finalizedBundleQueryErr := suite.App().QueryKeeper.FinalizedBundleQuery(suite.Ctx(), &querytypes.QueryFinalizedBundleRequest{
 				PoolId: pool.Id,
 				Id:     finalizedBundlesState[i].Id,
 			})
@@ -314,11 +317,10 @@ func (suite *KeeperTestSuite) VerifyBundlesGenesisImportExport() {
 // ========================
 
 func (suite *KeeperTestSuite) VerifyDelegationQueries() {
-	goCtx := sdk.WrapSDKContext(suite.Ctx())
 	for _, delegator := range suite.App().DelegationKeeper.GetAllDelegators(suite.Ctx()) {
 
 		// Query: delegator/{staker}/{delegator}
-		resD, errD := suite.App().QueryKeeper.Delegator(goCtx, &querytypes.QueryDelegatorRequest{
+		resD, errD := suite.App().QueryKeeper.Delegator(suite.Ctx(), &querytypes.QueryDelegatorRequest{
 			Staker:    delegator.Staker,
 			Delegator: delegator.Delegator,
 		})
@@ -329,7 +331,7 @@ func (suite *KeeperTestSuite) VerifyDelegationQueries() {
 		Expect(resD.Delegator.CurrentReward).To(Equal(suite.App().DelegationKeeper.GetOutstandingRewards(suite.Ctx(), delegator.Staker, delegator.Delegator)))
 
 		// Query: stakers_by_delegator/{delegator}
-		resSbD, errSbD := suite.App().QueryKeeper.StakersByDelegator(goCtx, &querytypes.QueryStakersByDelegatorRequest{
+		resSbD, errSbD := suite.App().QueryKeeper.StakersByDelegator(suite.Ctx(), &querytypes.QueryStakersByDelegatorRequest{
 			Pagination: nil,
 			Delegator:  delegator.Delegator,
 		})
@@ -352,7 +354,7 @@ func (suite *KeeperTestSuite) VerifyDelegationQueries() {
 
 	for _, staker := range suite.App().StakersKeeper.GetAllStakers(suite.Ctx()) {
 		// Query: delegators_by_staker/{staker}
-		resDbS, errDbS := suite.App().QueryKeeper.DelegatorsByStaker(goCtx, &querytypes.QueryDelegatorsByStakerRequest{
+		resDbS, errDbS := suite.App().QueryKeeper.DelegatorsByStaker(suite.Ctx(), &querytypes.QueryDelegatorsByStakerRequest{
 			Pagination: nil,
 			Staker:     staker.Address,
 		})
@@ -404,8 +406,8 @@ func (suite *KeeperTestSuite) VerifyTeamGenesisImportExport() {
 	genState := team.ExportGenesis(suite.Ctx(), suite.App().TeamKeeper)
 
 	// Delete all entries in Stakers Store
-	store := suite.Ctx().KVStore(suite.App().TeamKeeper.StoreKey())
-	iterator := store.Iterator(nil, nil)
+	st := suite.getStoreByKeyName(teamtypes.StoreKey)
+	iterator := st.Iterator(nil, nil)
 	keys := make([][]byte, 0)
 	for ; iterator.Valid(); iterator.Next() {
 		key := make([]byte, len(iterator.Key()))
@@ -414,7 +416,7 @@ func (suite *KeeperTestSuite) VerifyTeamGenesisImportExport() {
 	}
 	iterator.Close()
 	for _, key := range keys {
-		store.Delete(key)
+		st.Delete(key)
 	}
 
 	err := genState.Validate()
@@ -430,8 +432,7 @@ func (suite *KeeperTestSuite) VerifyFundersGenesisImportExport() {
 	genState := funders.ExportGenesis(suite.Ctx(), suite.App().FundersKeeper)
 
 	// Delete all entries in Funders Store
-	store := suite.Ctx().KVStore(suite.App().FundersKeeper.StoreKey())
-	suite.deleteStore(store)
+	suite.deleteStore(suite.getStoreByKeyName(funderstypes.StoreKey))
 
 	err := genState.Validate()
 	Expect(err).To(BeNil())
@@ -578,7 +579,7 @@ func (suite *KeeperTestSuite) verifyFullStaker(fullStaker querytypes.FullStaker,
 	}
 }
 
-func (suite *KeeperTestSuite) deleteStore(store sdk.KVStore) {
+func (suite *KeeperTestSuite) deleteStore(store store.KVStore) {
 	iterator := store.Iterator(nil, nil)
 	keys := make([][]byte, 0)
 	for ; iterator.Valid(); iterator.Next() {
@@ -590,4 +591,14 @@ func (suite *KeeperTestSuite) deleteStore(store sdk.KVStore) {
 	for _, key := range keys {
 		store.Delete(key)
 	}
+}
+
+func (suite *KeeperTestSuite) getStoreByKeyName(keyName string) storeTypes.KVStore {
+	keys := suite.app.GetStoreKeys()
+	for _, key := range keys {
+		if key.Name() == keyName {
+			return suite.Ctx().KVStore(key)
+		}
+	}
+	panic(fmt.Errorf("store with name %s not found", keyName))
 }

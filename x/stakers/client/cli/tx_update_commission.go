@@ -1,11 +1,11 @@
 package cli
 
 import (
+	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +20,7 @@ func CmdUpdateCommission() *cobra.Command {
 				return err
 			}
 
-			commission, err := sdk.NewDecFromStr(args[0])
+			commission, err := math.LegacyNewDecFromStr(args[0])
 			if err != nil {
 				return err
 			}

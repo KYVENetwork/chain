@@ -3,9 +3,10 @@ package keeper_test
 import (
 	"strconv"
 
+	"github.com/cosmos/cosmos-sdk/x/gov/keeper"
+
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 
-	kyveApp "github.com/KYVENetwork/chain/app"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -45,7 +46,7 @@ var _ = Describe("Protocol Governance Voting", Ordered, func() {
 		s = i.NewCleanChain()
 
 		// Create a test proposal.
-		proposeTx := CreateTestProposal(s.Ctx(), s.App().Keepers)
+		proposeTx := CreateTestProposal(s.Ctx(), s.App().GovKeeper)
 		_ = s.RunTxSuccess(proposeTx)
 
 		// Initialise a protocol validator.
@@ -98,8 +99,8 @@ var _ = Describe("Protocol Governance Voting", Ordered, func() {
 		_ = s.RunTxSuccess(delegatorTx)
 
 		// ASSERT
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
-		_, _, tally := s.App().GovKeeper.Tally(s.Ctx(), proposal)
+		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
+		_, _, tally, _ := s.App().GovKeeper.Tally(s.Ctx(), proposal)
 
 		Expect(tally.YesCount).To(Equal(strconv.Itoa(int(delegatorAmount))))
 	})
@@ -114,8 +115,8 @@ var _ = Describe("Protocol Governance Voting", Ordered, func() {
 		_ = s.RunTxSuccess(validatorTx)
 
 		// ASSERT
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
-		_, _, tally := s.App().GovKeeper.Tally(s.Ctx(), proposal)
+		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
+		_, _, tally, _ := s.App().GovKeeper.Tally(s.Ctx(), proposal)
 
 		Expect(tally.YesCount).To(Equal(strconv.Itoa(int(delegatorAmount + validatorAmount))))
 	})
@@ -135,8 +136,8 @@ var _ = Describe("Protocol Governance Voting", Ordered, func() {
 		_ = s.RunTxSuccess(delegatorTx)
 
 		// ASSERT
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
-		_, _, tally := s.App().GovKeeper.Tally(s.Ctx(), proposal)
+		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
+		_, _, tally, _ := s.App().GovKeeper.Tally(s.Ctx(), proposal)
 
 		Expect(tally.YesCount).To(Equal(strconv.Itoa(int(validatorAmount + delegatorAmount))))
 	})
@@ -156,19 +157,19 @@ var _ = Describe("Protocol Governance Voting", Ordered, func() {
 		_ = s.RunTxSuccess(delegatorTx)
 
 		// ASSERT
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
-		_, _, tally := s.App().GovKeeper.Tally(s.Ctx(), proposal)
+		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
+		_, _, tally, _ := s.App().GovKeeper.Tally(s.Ctx(), proposal)
 
 		Expect(tally.YesCount).To(Equal(strconv.Itoa(int(validatorAmount))))
 		Expect(tally.NoCount).To(Equal(strconv.Itoa(int(delegatorAmount))))
 	})
 })
 
-func CreateTestProposal(ctx sdk.Context, keepers kyveApp.Keepers) sdk.Msg {
-	minDeposit := keepers.GovKeeper.GetParams(ctx).MinDeposit
+func CreateTestProposal(ctx sdk.Context, govKeeper *keeper.Keeper) sdk.Msg {
+	params, _ := govKeeper.Params.Get(ctx)
 
 	proposal, _ := govTypes.NewMsgSubmitProposal(
-		[]sdk.Msg{}, minDeposit, i.DUMMY[0], "metadata", "title", "summary",
+		[]sdk.Msg{}, params.MinDeposit, i.DUMMY[0], "metadata", "title", "summary", false,
 	)
 
 	return proposal

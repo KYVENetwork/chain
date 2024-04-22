@@ -52,7 +52,7 @@ func leaveDummy(s *i.KeeperTestSuite, index uint64) {
 }
 
 var _ = Describe("logic_round_robin.go", Ordered, func() {
-	s := i.NewCleanChain()
+	var s *i.KeeperTestSuite
 
 	BeforeEach(func() {
 		// init new clean chain

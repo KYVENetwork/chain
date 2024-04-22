@@ -5,31 +5,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-type BankKeeper interface {
-	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
-	SendCoinsFromModuleToAccount(
-		ctx sdk.Context,
-		senderModule string,
-		recipientAddr sdk.AccAddress,
-		amt sdk.Coins,
-	) error
-	SendCoinsFromModuleToModule(ctx sdk.Context, senderModule, recipientModule string, amt sdk.Coins) error
-	SendCoinsFromAccountToModule(
-		ctx sdk.Context,
-		senderAddr sdk.AccAddress,
-		recipientModule string,
-		amt sdk.Coins,
-	) error
-}
-
-type DistrKeeper interface {
-	FundCommunityPool(ctx sdk.Context, amount sdk.Coins, sender sdk.AccAddress) error
-}
-
-type AccountKeeper interface {
-	GetModuleAddress(moduleName string) sdk.AccAddress
-}
-
 // TransferFromAddressToAddress sends tokens from the given address to a specified address.
 func TransferFromAddressToAddress(
 	bankKeeper BankKeeper,
@@ -103,7 +78,7 @@ func TransferFromModuleToModule(
 }
 
 // TransferFromAddressToTreasury sends tokens from a given address to the treasury (community spend pool).
-func TransferFromAddressToTreasury(distrKeeper DistrKeeper, ctx sdk.Context, address string, amount uint64) error {
+func TransferFromAddressToTreasury(distrKeeper DistributionKeeper, ctx sdk.Context, address string, amount uint64) error {
 	sender, errAddress := sdk.AccAddressFromBech32(address)
 	if errAddress != nil {
 		return errAddress
@@ -120,7 +95,7 @@ func TransferFromAddressToTreasury(distrKeeper DistrKeeper, ctx sdk.Context, add
 // TransferFromModuleToTreasury sends tokens from a module to the treasury (community spend pool).
 func TransferFromModuleToTreasury(
 	accountKeeper AccountKeeper,
-	distrKeeper DistrKeeper,
+	distrKeeper DistributionKeeper,
 	ctx sdk.Context,
 	module string,
 	amount uint64,

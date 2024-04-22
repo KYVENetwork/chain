@@ -28,7 +28,8 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 	s := i.NewCleanChain()
 
 	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
-	votingPeriod := s.App().GovKeeper.GetParams(s.Ctx()).VotingPeriod
+	params, _ := s.App().GovKeeper.Params.Get(s.Ctx())
+	votingPeriod := params.VotingPeriod
 
 	BeforeEach(func() {
 		s = i.NewCleanChain()
@@ -121,7 +122,7 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 		s.Commit()
 
 		// ASSERT
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
+		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
 
 		Expect(submitErr).To(Not(HaveOccurred()))
 		Expect(voteErr).To(Not(HaveOccurred()))
@@ -194,7 +195,7 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 		s.CommitAfter(*votingPeriod)
 		s.Commit()
 
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
+		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
 
 		Expect(submitErr).To(Not(HaveOccurred()))
 		Expect(voteErr).To(Not(HaveOccurred()))
@@ -228,7 +229,7 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 		s.Commit()
 
 		// ARRANGE
-		proposal, _ = s.App().GovKeeper.GetProposal(s.Ctx(), 2)
+		proposal, _ = s.App().GovKeeper.Proposals.Get(s.Ctx(), 2)
 
 		Expect(submitErr).To(Not(HaveOccurred()))
 		Expect(voteErr).To(Not(HaveOccurred()))
@@ -303,7 +304,7 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 		s.Commit()
 
 		// ASSERT
-		proposal, _ := s.App().GovKeeper.GetProposal(s.Ctx(), 1)
+		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
 
 		Expect(submitErr).To(Not(HaveOccurred()))
 		Expect(voteErr).To(Not(HaveOccurred()))

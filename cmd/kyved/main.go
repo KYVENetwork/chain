@@ -1,16 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
-	kyveApp "github.com/KYVENetwork/chain/app"
-	serverCmd "github.com/cosmos/cosmos-sdk/server/cmd"
+	"github.com/KYVENetwork/chain/app"
+	"github.com/KYVENetwork/chain/cmd/kyved/cmd"
+
+	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )
 
 func main() {
-	initSDKConfig(kyveApp.AccountAddressPrefix)
-	rootCmd := NewRootCmd(kyveApp.MakeEncodingConfig())
-	if err := serverCmd.Execute(rootCmd, "", kyveApp.DefaultNodeHome); err != nil {
+	rootCmd := cmd.NewRootCmd()
+	if err := svrcmd.Execute(rootCmd, "", app.DefaultNodeHome); err != nil {
+		fmt.Fprintln(rootCmd.OutOrStderr(), err)
 		os.Exit(1)
 	}
 }

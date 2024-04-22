@@ -1,7 +1,10 @@
 package global
 
 import (
+	"bytes"
 	"math"
+
+	sdkmath "cosmossdk.io/math"
 
 	sdkErrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,7 +13,7 @@ import (
 	// Auth
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	// FeeGrant
-	feeGrantKeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
+	feeGrantKeeper "cosmossdk.io/x/feegrant/keeper"
 	// Global
 	"github.com/KYVENetwork/chain/x/global/keeper"
 	// Staking
@@ -23,7 +26,7 @@ func GetFeeAccount(ctx sdk.Context, tx sdk.FeeTx, feeGrantKeeper feeGrantKeeper.
 	feeGranter := tx.FeeGranter()
 
 	account := feePayer
-	if feeGranter != nil && !feeGranter.Equals(feePayer) {
+	if feeGranter != nil && !bytes.Equal(feeGranter, feePayer) {
 		err := feeGrantKeeper.UseGrantedFees(ctx, feeGranter, feePayer, fee, tx.GetMsgs())
 		if err != nil {
 			return nil, sdkErrors.Wrapf(err, "%s does not not allow to pay fees for %s", feeGranter, feePayer)
@@ -39,10 +42,14 @@ func GetFeeAccount(ctx sdk.Context, tx sdk.FeeTx, feeGrantKeeper feeGrantKeeper.
 // In contrast to
 // https://github.com/cosmos/cosmos-sdk/blob/release/v0.46.x/x/auth/ante/validator_tx_fee.go#L12
 // this code runs within the consensus layer.
-func BuildTxFeeChecker(ctx sdk.Context, fk keeper.Keeper, sk stakingKeeper.Keeper) ante.TxFeeChecker {
-	consensusMinGasPrices := sdk.NewDecCoins(sdk.NewDecCoinFromDec(sk.BondDenom(ctx), fk.GetMinGasPrice(ctx)))
-
+func BuildTxFeeChecker(ctx sdk.Context, fk keeper.Keeper, sk *stakingKeeper.Keeper) ante.TxFeeChecker {
 	return func(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {
+		bondDenom, err := sk.BondDenom(ctx)
+		if err != nil {
+			return nil, 0, sdkErrors.Wrap(errorsTypes.ErrNotFound, "failed to get bond denom")
+		}
+		consensusMinGasPrices := sdk.NewDecCoins(sdk.NewDecCoinFromDec(bondDenom, fk.GetMinGasPrice(ctx)))
+
 		feeTx, ok := tx.(sdk.FeeTx)
 		if !ok {
 			return nil, 0, sdkErrors.Wrap(errorsTypes.ErrTxDecode, "Tx must be a FeeTx")
@@ -57,7 +64,7 @@ func BuildTxFeeChecker(ctx sdk.Context, fk keeper.Keeper, sk stakingKeeper.Keepe
 
 		// Determine the required fees by multiplying each required minimum gas
 		// price by the gas limit, where fee = ceil(minGasPrice * gasLimit).
-		glDec := sdk.NewDec(int64(gas))
+		glDec := sdkmath.LegacyNewDec(int64(gas))
 		for i, gp := range consensusMinGasPrices {
 			fee := gp.Amount.Mul(glDec)
 			requiredFees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())

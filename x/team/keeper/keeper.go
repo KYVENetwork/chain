@@ -3,45 +3,45 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/core/store"
+	"cosmossdk.io/log"
+
+	"github.com/KYVENetwork/chain/util"
 	mintKeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
-	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 
-	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storeTypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	// Auth
-	authKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	// Bank
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	// Team
 	"github.com/KYVENetwork/chain/x/team/types"
 )
 
 type (
 	Keeper struct {
-		cdc      codec.BinaryCodec
-		storeKey storeTypes.StoreKey
+		cdc          codec.BinaryCodec
+		storeService store.KVStoreService
+		logger       log.Logger
 
-		accountKeeper authKeeper.AccountKeeper
-		bankKeeper    bankKeeper.Keeper
+		accountKeeper util.AccountKeeper
+		bankKeeper    types.BankKeeper
 		mintKeeper    mintKeeper.Keeper
-		upgradeKeeper upgradeKeeper.Keeper
+		upgradeKeeper util.UpgradeKeeper
 	}
 )
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	storeKey storeTypes.StoreKey,
-	accountKeeper authKeeper.AccountKeeper,
-	bankKeeper bankKeeper.Keeper,
+	storeService store.KVStoreService,
+	logger log.Logger,
+
+	accountKeeper util.AccountKeeper,
+	bankKeeper types.BankKeeper,
 	mintKeeper mintKeeper.Keeper,
-	upgradeKeeper upgradeKeeper.Keeper,
-) *Keeper {
-	return &Keeper{
-		cdc:      cdc,
-		storeKey: storeKey,
+	upgradeKeeper util.UpgradeKeeper,
+) Keeper {
+	return Keeper{
+		cdc:          cdc,
+		storeService: storeService,
+		logger:       logger,
 
 		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
@@ -50,10 +50,6 @@ func NewKeeper(
 	}
 }
 
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-func (k Keeper) StoreKey() storeTypes.StoreKey {
-	return k.storeKey
+func (k Keeper) Logger() log.Logger {
+	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }

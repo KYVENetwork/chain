@@ -1,13 +1,15 @@
 package keeper
 
 import (
+	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/x/delegation/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // GetParams returns the current x/delegation module parameters.
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
-	store := ctx.KVStore(k.storeKey)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 
 	bz := store.Get(types.ParamsKey)
 	if bz == nil {
@@ -34,21 +36,21 @@ func (k Keeper) GetRedelegationMaxAmount(ctx sdk.Context) (res uint64) {
 }
 
 // GetVoteSlash returns the VoteSlash param
-func (k Keeper) GetVoteSlash(ctx sdk.Context) (res sdk.Dec) {
+func (k Keeper) GetVoteSlash(ctx sdk.Context) (res math.LegacyDec) {
 	return k.GetParams(ctx).VoteSlash
 }
 
 // GetUploadSlash returns the UploadSlash param
-func (k Keeper) GetUploadSlash(ctx sdk.Context) (res sdk.Dec) {
+func (k Keeper) GetUploadSlash(ctx sdk.Context) (res math.LegacyDec) {
 	return k.GetParams(ctx).UploadSlash
 }
 
 // GetTimeoutSlash returns the TimeoutSlash param
-func (k Keeper) GetTimeoutSlash(ctx sdk.Context) (res sdk.Dec) {
+func (k Keeper) GetTimeoutSlash(ctx sdk.Context) (res math.LegacyDec) {
 	return k.GetParams(ctx).TimeoutSlash
 }
 
-func (k Keeper) getSlashFraction(ctx sdk.Context, slashType types.SlashType) (slashAmountRatio sdk.Dec) {
+func (k Keeper) getSlashFraction(ctx sdk.Context, slashType types.SlashType) (slashAmountRatio math.LegacyDec) {
 	// Retrieve slash fraction from params
 	switch slashType {
 	case types.SLASH_TYPE_TIMEOUT:
@@ -63,7 +65,7 @@ func (k Keeper) getSlashFraction(ctx sdk.Context, slashType types.SlashType) (sl
 
 // SetParams sets the x/delegation module parameters.
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
-	store := ctx.KVStore(k.storeKey)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	bz := k.cdc.MustMarshal(&params)
 	store.Set(types.ParamsKey, bz)
 }

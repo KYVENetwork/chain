@@ -2,7 +2,7 @@ COMMIT := $(shell git log -1 --format='%H')
 GO_VERSION := $(shell go version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f1,2)
 
 # VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
-VERSION := v1.4.0
+VERSION := v1.5.0
 
 TEAM_ALLOCATION := 165000000000000
 ifeq ($(ENV),kaon)
@@ -34,8 +34,8 @@ ldflags := $(strip $(ldflags))
 BUILD_FLAGS := -ldflags '$(ldflags)' -tags 'ledger' -trimpath
 
 .PHONY: proto-setup proto-format proto-lint proto-gen \
-	format lint vet test build release dev
-all: ensure_environment ensure_version proto-all format lint test build
+	format lint vet test build release dev interchaintest
+all: ensure_environment ensure_version proto-all format lint test interchaintest build
 
 ###############################################################################
 ###                                  Build                                  ###
@@ -115,8 +115,8 @@ ifndef ENV
 endif
 
 ensure_version:
-ifneq ($(GO_VERSION),1.20)
-	$(error ❌  Please run Go v1.20.x..)
+ifneq ($(GO_VERSION),1.22)
+	$(error ❌  Please run Go v1.22.x..)
 endif
 
 ###############################################################################
@@ -179,19 +179,19 @@ proto-setup:
 ###                           Tests & Simulation                            ###
 ###############################################################################
 
+ensure_heighliner:
+	@which heighliner > /dev/null || (echo "❌ Heighliner not found. Please install it by running 'make heighliner-setup'." && exit 1)
+	@docker inspect kaon:local > /dev/null || (echo "❌ Kaon image not found. Please build it by running 'make heighliner'." && exit 1)
+
 heighliner:
 	@echo "🤖 Building Kaon image..."
 	@heighliner build --chain kaon --local 1> /dev/null
 	@echo "✅ Completed build!"
 
-	@echo "🤖 Building KYVE image..."
-	@heighliner build --chain kyve --local 1> /dev/null
-	@echo "✅ Completed build!"
-
 heighliner-setup:
 	@echo "🤖 Installing Heighliner..."
-	@git clone https://github.com/strangelove-ventures/heighliner.git
-	@cd heighliner && go install && cd ..
+	@git clone https://github.com/strangelove-ventures/heighliner.git /tmp/heighliner
+	@cd /tmp/heighliner && go install && cd ..
 	@rm -rf heighliner
 	@echo "✅ Completed installation!"
 
@@ -199,3 +199,8 @@ test:
 	@echo "🤖 Running tests..."
 	@go test -cover -mod=readonly ./x/...
 	@echo "✅ Completed tests!"
+
+interchaintest: ensure_heighliner
+	@echo "🤖 Running interchain tests..."
+	@go test -mod=readonly ./interchaintest/...
+	@echo "✅ Completed interchain tests!"

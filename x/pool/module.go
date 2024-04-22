@@ -5,31 +5,38 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/core/store"
+	"cosmossdk.io/depinject"
+	"cosmossdk.io/log"
+
+	"github.com/KYVENetwork/chain/util"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
-
-	abci "github.com/cometbft/cometbft/abci/types"
-
-	// Bank
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	// Pool
 	"github.com/KYVENetwork/chain/x/pool/client/cli"
 	"github.com/KYVENetwork/chain/x/pool/keeper"
 	"github.com/KYVENetwork/chain/x/pool/types"
 
-	// Upgrade
-	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+	modulev1 "github.com/KYVENetwork/chain/api/kyve/pool/module"
 )
 
 var (
-	_ module.AppModule      = AppModule{}
-	_ module.AppModuleBasic = AppModuleBasic{}
+	_ module.AppModuleBasic      = (*AppModule)(nil)
+	_ module.HasGenesis          = (*AppModule)(nil)
+	_ module.HasInvariants       = (*AppModule)(nil)
+	_ module.HasConsensusVersion = (*AppModule)(nil)
+
+	_ appmodule.AppModule     = (*AppModule)(nil)
+	_ appmodule.HasEndBlocker = (*AppModule)(nil)
 )
 
 // ----------------------------------------------------------------------------
@@ -97,18 +104,18 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 type AppModule struct {
 	AppModuleBasic
 
-	keeper        keeper.Keeper
+	keeper        *keeper.Keeper
 	accountKeeper types.AccountKeeper
-	bankKeeper    bankKeeper.Keeper
-	upgradeKeeper upgradeKeeper.Keeper
+	bankKeeper    types.BankKeeper
+	upgradeKeeper util.UpgradeKeeper
 }
 
 func NewAppModule(
 	cdc codec.Codec,
-	keeper keeper.Keeper,
+	keeper *keeper.Keeper,
 	accountKeeper types.AccountKeeper,
-	bankKeeper bankKeeper.Keeper,
-	upgradeKeeper upgradeKeeper.Keeper,
+	bankKeeper types.BankKeeper,
+	upgradeKeeper util.UpgradeKeeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: NewAppModuleBasic(cdc),
@@ -132,14 +139,12 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 // InitGenesis performs the module's genesis initialization. It returns no validator updates.
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) {
 	var genState types.GenesisState
 	// Initialize global index to index in genesis state
 	cdc.MustUnmarshalJSON(gs, &genState)
 
 	InitGenesis(ctx, am.keeper, genState)
-
-	return []abci.ValidatorUpdate{}
 }
 
 // ExportGenesis returns the module's exported genesis state as raw JSON bytes.
@@ -151,11 +156,104 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 // ConsensusVersion is a sequence number for state-breaking change of the module. It should be incremented on each consensus-breaking change introduced by the module. To avoid wrong/empty versions, the initial version should be set to 1
 func (AppModule) ConsensusVersion() uint64 { return 1 }
 
-// BeginBlock contains the logic that is automatically triggered at the beginning of each block
-func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
-
 // EndBlock contains the logic that is automatically triggered at the end of each block
-func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	am.keeper.HandlePoolUpgrades(ctx)
-	return []abci.ValidatorUpdate{}
+func (am AppModule) EndBlock(ctx context.Context) error {
+	am.keeper.HandlePoolUpgrades(sdk.UnwrapSDKContext(ctx))
+	return nil
+}
+
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (am AppModule) IsOnePerModuleType() {}
+
+// IsAppModule implements the appmodule.AppModule interface.
+func (am AppModule) IsAppModule() {}
+
+// ----------------------------------------------------------------------------
+// App Wiring Setup
+// ----------------------------------------------------------------------------
+
+func init() {
+	appmodule.Register(
+		&modulev1.Module{},
+		appmodule.Provide(ProvideModule),
+		appmodule.Invoke(InvokeSetStakersKeeper, InvokeSetFundersKeeper),
+	)
+}
+
+type ModuleInputs struct {
+	depinject.In
+
+	Cdc          codec.Codec
+	Config       *modulev1.Module
+	StoreService store.KVStoreService
+	MemService   store.MemoryStoreService
+	Logger       log.Logger
+
+	AccountKeeper      types.AccountKeeper
+	BankKeeper         types.BankKeeper
+	DistributionKeeper util.DistributionKeeper
+	UpgradeKeeper      util.UpgradeKeeper
+}
+
+type ModuleOutputs struct {
+	depinject.Out
+
+	PoolKeeper *keeper.Keeper
+	Module     appmodule.AppModule
+}
+
+func ProvideModule(in ModuleInputs) ModuleOutputs {
+	// default to governance authority if not provided
+	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
+	if in.Config.Authority != "" {
+		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
+	}
+	k := keeper.NewKeeper(
+		in.Cdc,
+		in.StoreService,
+		in.MemService,
+		in.Logger,
+		authority.String(),
+		in.AccountKeeper,
+		in.BankKeeper,
+		in.DistributionKeeper,
+		in.UpgradeKeeper,
+	)
+	m := NewAppModule(
+		in.Cdc,
+		k,
+		in.AccountKeeper,
+		in.BankKeeper,
+		in.UpgradeKeeper,
+	)
+
+	return ModuleOutputs{PoolKeeper: k, Module: m}
+}
+
+func InvokeSetStakersKeeper(
+	k *keeper.Keeper,
+	stakersKeeper types.StakersKeeper,
+) error {
+	if k == nil {
+		return fmt.Errorf("keeper is nil")
+	}
+	if stakersKeeper == nil {
+		return fmt.Errorf("stakers keeper is nil")
+	}
+	keeper.SetStakersKeeper(k, stakersKeeper)
+	return nil
+}
+
+func InvokeSetFundersKeeper(
+	k *keeper.Keeper,
+	fundersKeeper types.FundersKeeper,
+) error {
+	if k == nil {
+		return fmt.Errorf("keeper is nil")
+	}
+	if fundersKeeper == nil {
+		return fmt.Errorf("funders keeper is nil")
+	}
+	keeper.SetFundersKeeper(k, fundersKeeper)
+	return nil
 }

@@ -2,10 +2,12 @@ package keeper
 
 import (
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
+	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/util"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	"github.com/KYVENetwork/chain/x/pool/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -22,7 +24,8 @@ func (k Keeper) GetPoolWithError(ctx sdk.Context, poolId uint64) (types.Pool, er
 
 // AssertPoolExists returns nil if the pool exists and types.ErrPoolNotFound if it does not.
 func (k Keeper) AssertPoolExists(ctx sdk.Context, poolId uint64) error {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.PoolKey)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.PoolKey)
 	if store.Has(types.PoolKeyPrefix(poolId)) {
 		return nil
 	}
@@ -41,7 +44,7 @@ func (k Keeper) ChargeInflationPool(ctx sdk.Context, poolId uint64) (payout uint
 	balance := k.bankKeeper.GetBalance(ctx, account, globalTypes.Denom).Amount.Int64()
 
 	// charge X percent from current pool balance and use it as payout
-	payout = uint64(sdk.NewDec(balance).Mul(k.GetPoolInflationPayoutRate(ctx)).TruncateInt64())
+	payout = uint64(math.LegacyNewDec(balance).Mul(k.GetPoolInflationPayoutRate(ctx)).TruncateInt64())
 
 	// transfer funds to pool module account so bundle reward can be paid out from there
 	if err := util.TransferFromAddressToModule(k.bankKeeper, ctx, account.String(), types.ModuleName, payout); err != nil {

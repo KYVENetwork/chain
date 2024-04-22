@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"context"
+
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -37,8 +39,8 @@ func (k Keeper) GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (sta
 	return stakers
 }
 
-// GetCommission returns the commission of a staker as a parsed sdk.Dec
-func (k Keeper) GetCommission(ctx sdk.Context, stakerAddress string) sdk.Dec {
+// GetCommission returns the commission of a staker as a parsed math.LegacyDec
+func (k Keeper) GetCommission(ctx sdk.Context, stakerAddress string) math.LegacyDec {
 	staker, _ := k.GetStaker(ctx, stakerAddress)
 	return staker.Commission
 }
@@ -75,11 +77,12 @@ func (k Keeper) GetActiveStakers(ctx sdk.Context) []string {
 // TotalBondedTokens returns all tokens which are currently bonded by the protocol
 // I.e. the sum of all delegation of all stakers that are currently participating
 // in at least one pool
-func (k Keeper) TotalBondedTokens(ctx sdk.Context) math.Int {
+func (k Keeper) TotalBondedTokens(ctx context.Context) math.Int {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	bondedTokens := math.ZeroInt()
 
-	for _, validator := range k.getAllActiveStakers(ctx) {
-		delegation := int64(k.delegationKeeper.GetDelegationAmount(ctx, validator))
+	for _, validator := range k.getAllActiveStakers(sdkCtx) {
+		delegation := int64(k.delegationKeeper.GetDelegationAmount(sdkCtx, validator))
 
 		bondedTokens = bondedTokens.Add(math.NewInt(delegation))
 	}
@@ -91,15 +94,16 @@ func (k Keeper) TotalBondedTokens(ctx sdk.Context) math.Int {
 // are needed by the governance to calculate the voting powers.
 // The interface needs to correspond to github.com/cosmos/cosmos-sdk/x/gov/types/v1.ValidatorGovInfo
 // But as there is no direct dependency in the cosmos-sdk-fork this value is passed as an interface{}
-func (k Keeper) GetActiveValidators(ctx sdk.Context) (validators []interface{}) {
-	for _, address := range k.getAllActiveStakers(ctx) {
-		delegation := int64(k.delegationKeeper.GetDelegationAmount(ctx, address))
+func (k Keeper) GetActiveValidators(ctx context.Context) (validators []interface{}) {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	for _, address := range k.getAllActiveStakers(sdkCtx) {
+		delegation := int64(k.delegationKeeper.GetDelegationAmount(sdkCtx, address))
 
 		validator := govV1Types.NewValidatorGovInfo(
 			sdk.ValAddress(sdk.MustAccAddressFromBech32(address)),
 			math.NewInt(delegation),
-			sdk.NewDec(delegation),
-			sdk.ZeroDec(),
+			math.LegacyNewDec(delegation),
+			math.LegacyZeroDec(),
 			govV1Types.WeightedVoteOptions{},
 		)
 
@@ -111,14 +115,15 @@ func (k Keeper) GetActiveValidators(ctx sdk.Context) (validators []interface{}) 
 
 // GetDelegations returns the address and the delegation amount of all active protocol-stakers the
 // delegator as delegated to. This is used to calculate the vote weight each delegator has.
-func (k Keeper) GetDelegations(ctx sdk.Context, delegator string) (validators []string, amounts []sdk.Dec) {
-	for _, validator := range k.delegationKeeper.GetStakersByDelegator(ctx, delegator) {
-		if k.isActiveStaker(ctx, validator) {
+func (k Keeper) GetDelegations(ctx context.Context, delegator string) (validators []string, amounts []math.LegacyDec) {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	for _, validator := range k.delegationKeeper.GetStakersByDelegator(sdkCtx, delegator) {
+		if k.isActiveStaker(sdkCtx, validator) {
 			validators = append(validators, validator)
 
 			amounts = append(
 				amounts,
-				sdk.NewDec(int64(k.delegationKeeper.GetDelegationAmountOfDelegator(ctx, validator, delegator))),
+				math.LegacyNewDec(int64(k.delegationKeeper.GetDelegationAmountOfDelegator(sdkCtx, validator, delegator))),
 			)
 		}
 	}

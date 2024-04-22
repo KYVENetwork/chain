@@ -3,15 +3,20 @@ package keeper
 import (
 	"encoding/binary"
 
+	storeTypes "cosmossdk.io/store/types"
+
+	"github.com/cosmos/cosmos-sdk/runtime"
+
+	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/delegation/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // SetRedelegationCooldown ...
 func (k Keeper) SetRedelegationCooldown(ctx sdk.Context, redelegationCooldown types.RedelegationCooldown) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.RedelegationCooldownPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.RedelegationCooldownPrefix)
 	store.Set(types.RedelegationCooldownKey(
 		redelegationCooldown.Address,
 		redelegationCooldown.CreationDate,
@@ -20,8 +25,9 @@ func (k Keeper) SetRedelegationCooldown(ctx sdk.Context, redelegationCooldown ty
 
 // GetRedelegationCooldownEntries ...
 func (k Keeper) GetRedelegationCooldownEntries(ctx sdk.Context, delegatorAddress string) (creationDates []uint64) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.RedelegationCooldownPrefix, util.GetByteKey(delegatorAddress)...))
-	iterator := sdk.KVStorePrefixIterator(store, nil)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, append(types.RedelegationCooldownPrefix, util.GetByteKey(delegatorAddress)...))
+	iterator := storeTypes.KVStorePrefixIterator(store, nil)
 
 	defer iterator.Close()
 
@@ -33,14 +39,16 @@ func (k Keeper) GetRedelegationCooldownEntries(ctx sdk.Context, delegatorAddress
 
 // RemoveRedelegationCooldown ...
 func (k Keeper) RemoveRedelegationCooldown(ctx sdk.Context, delegatorAddress string, block uint64) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.RedelegationCooldownPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.RedelegationCooldownPrefix)
 	store.Delete(types.RedelegationCooldownKey(delegatorAddress, block))
 }
 
 // GetAllRedelegationCooldownEntries ...
 func (k Keeper) GetAllRedelegationCooldownEntries(ctx sdk.Context) (list []types.RedelegationCooldown) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.RedelegationCooldownPrefix)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.RedelegationCooldownPrefix)
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 

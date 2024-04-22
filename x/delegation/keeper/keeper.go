@@ -3,49 +3,55 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/core/store"
+	"cosmossdk.io/log"
 
+	"github.com/KYVENetwork/chain/util"
+
+	storetypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/delegation/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type (
 	Keeper struct {
-		cdc      codec.BinaryCodec
-		storeKey storetypes.StoreKey
-		memKey   storetypes.StoreKey
+		cdc          codec.BinaryCodec
+		storeService store.KVStoreService
+		memService   store.MemoryStoreService
+		logger       log.Logger
 
 		authority string
 
 		accountKeeper types.AccountKeeper
-		bankKeeper    types.BankKeeper
+		bankKeeper    util.BankKeeper
 		distrKeeper   types.DistrKeeper
 		poolKeeper    types.PoolKeeper
-		upgradeKeeper types.UpgradeKeeper
+		upgradeKeeper util.UpgradeKeeper
 		stakersKeeper types.StakersKeeper
 	}
 )
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	storeKey storetypes.StoreKey,
-	memKey storetypes.StoreKey,
+	storeService store.KVStoreService,
+	memService store.MemoryStoreService,
+	logger log.Logger,
 
 	authority string,
 
 	accountKeeper types.AccountKeeper,
-	bankKeeper types.BankKeeper,
+	bankKeeper util.BankKeeper,
 	distrkeeper types.DistrKeeper,
 	poolKeeper types.PoolKeeper,
-	upgradeKeeper types.UpgradeKeeper,
+	upgradeKeeper util.UpgradeKeeper,
 	stakersKeeper types.StakersKeeper,
-) *Keeper {
-	return &Keeper{
-		cdc:      cdc,
-		storeKey: storeKey,
-		memKey:   memKey,
+) Keeper {
+	return Keeper{
+		cdc:          cdc,
+		storeService: storeService,
+		memService:   memService,
+		logger:       logger,
 
 		authority: authority,
 
@@ -58,12 +64,8 @@ func NewKeeper(
 	}
 }
 
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-func (k Keeper) StoreKey() storetypes.StoreKey {
-	return k.storeKey
+func (k Keeper) Logger() log.Logger {
+	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
 var memStoreInitialized = false
@@ -72,7 +74,7 @@ func (k Keeper) InitMemStore(gasCtx sdk.Context) {
 	if !memStoreInitialized {
 
 		// Update mem index
-		noGasCtx := gasCtx.WithBlockGasMeter(sdk.NewInfiniteGasMeter())
+		noGasCtx := gasCtx.WithBlockGasMeter(storetypes.NewInfiniteGasMeter())
 		for _, entry := range k.GetAllDelegationData(noGasCtx) {
 			k.SetStakerIndex(noGasCtx, entry.Staker)
 		}

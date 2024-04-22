@@ -4,12 +4,10 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func ValidateDecimal(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid type: %T", i)
 	}
@@ -50,12 +48,12 @@ func ValidatePositiveNumber(i interface{}) error {
 }
 
 func ValidatePercentage(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid type: %T", i)
 	}
 
-	if v.IsNil() || v.IsNegative() || v.GT(sdk.OneDec()) {
+	if v.IsNil() || v.IsNegative() || v.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("invalid percentage: %s", v)
 	}
 

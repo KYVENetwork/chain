@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
+
 	"github.com/KYVENetwork/chain/util"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	"github.com/KYVENetwork/chain/x/team/types"
@@ -13,8 +15,14 @@ import (
 // for the current block
 func (k Keeper) GetTeamBlockProvision(ctx sdk.Context) int64 {
 	// Compute team allocation of minted coins.
-	minter := k.mintKeeper.GetMinter(ctx)
-	params := k.mintKeeper.GetParams(ctx)
+	minter, err := k.mintKeeper.Minter.Get(ctx)
+	if err != nil {
+		util.PanicHalt(k.upgradeKeeper, ctx, fmt.Sprintf("failed to get minter: %v", err))
+	}
+	params, err := k.mintKeeper.Params.Get(ctx)
+	if err != nil {
+		util.PanicHalt(k.upgradeKeeper, ctx, fmt.Sprintf("failed to get mint params: %v", err))
+	}
 
 	// get total inflation rewards for current block
 	blockProvision := minter.BlockProvision(params)
@@ -27,15 +35,15 @@ func (k Keeper) GetTeamBlockProvision(ctx sdk.Context) int64 {
 	// We subtract current inflation because it was already applied to the total supply because BeginBlocker
 	// x/mint runs before this method
 	totalSupply := k.bankKeeper.GetSupply(ctx, blockProvision.Denom).Amount.Int64() - blockProvision.Amount.Int64()
-	teamModuleRewardsShare := sdk.NewDec(int64(teamBalance)).Quo(sdk.NewDec(totalSupply))
+	teamModuleRewardsShare := math.LegacyNewDec(int64(teamBalance)).Quo(math.LegacyNewDec(totalSupply))
 
 	// if team module balance is greater than total supply panic
-	if teamModuleRewardsShare.GT(sdk.NewDec(int64(1))) {
+	if teamModuleRewardsShare.GT(math.LegacyNewDec(int64(1))) {
 		util.PanicHalt(k.upgradeKeeper, ctx, fmt.Sprintf("team module balance %v is higher than total supply %v", teamBalance, totalSupply))
 	}
 
 	// calculate the total reward in $KYVE the entire team module receives this block
-	return teamModuleRewardsShare.Mul(sdk.NewDec(blockProvision.Amount.Int64())).TruncateInt64()
+	return teamModuleRewardsShare.Mul(math.LegacyNewDec(blockProvision.Amount.Int64())).TruncateInt64()
 }
 
 // GetVestingStatus returns all computed values which are dependent on the time
@@ -140,9 +148,9 @@ func getVestedAmount(account types.TeamVestingAccount, time uint64) uint64 {
 
 	// if user is vesting less than the vesting duration the vested amount is linear to the membership time
 	if accountVestingDuration < types.VESTING_DURATION {
-		vested := sdk.NewDec(int64(account.TotalAllocation)).
-			Mul(sdk.NewDec(int64(accountVestingDuration))).
-			Quo(sdk.NewDec(int64(types.VESTING_DURATION)))
+		vested := math.LegacyNewDec(int64(account.TotalAllocation)).
+			Mul(math.LegacyNewDec(int64(accountVestingDuration))).
+			Quo(math.LegacyNewDec(int64(types.VESTING_DURATION)))
 
 		return uint64(vested.TruncateInt64())
 	}
@@ -181,9 +189,9 @@ func getUnlockedAmount(account types.TeamVestingAccount, time uint64) uint64 {
 		vested := getVestedAmount(account, time)
 
 		// calculate the unlocked amount linearly based on time
-		unlocked := sdk.NewDec(int64(vested)).
-			Mul(sdk.NewDec(int64(time - timeUnlock))).
-			Quo(sdk.NewDec(int64(types.UNLOCK_DURATION)))
+		unlocked := math.LegacyNewDec(int64(vested)).
+			Mul(math.LegacyNewDec(int64(time - timeUnlock))).
+			Quo(math.LegacyNewDec(int64(types.UNLOCK_DURATION)))
 
 		return uint64(unlocked.TruncateInt64())
 	}

@@ -1,13 +1,15 @@
 package keeper
 
 import (
+	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/x/global/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // GetParams returns the current x/global module parameters.
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
-	store := ctx.KVStore(k.storeKey)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 
 	bz := store.Get(types.ParamsKey)
 	if bz == nil {
@@ -19,12 +21,12 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 }
 
 // GetMinGasPrice returns the MinGasPrice param.
-func (k Keeper) GetMinGasPrice(ctx sdk.Context) (res sdk.Dec) {
+func (k Keeper) GetMinGasPrice(ctx sdk.Context) (res math.LegacyDec) {
 	return k.GetParams(ctx).MinGasPrice
 }
 
 // GetBurnRatio returns the BurnRatio param.
-func (k Keeper) GetBurnRatio(ctx sdk.Context) (res sdk.Dec) {
+func (k Keeper) GetBurnRatio(ctx sdk.Context) (res math.LegacyDec) {
 	return k.GetParams(ctx).BurnRatio
 }
 
@@ -39,13 +41,13 @@ func (k Keeper) GetGasRefunds(ctx sdk.Context) (res []types.GasRefund) {
 }
 
 // GetMinInitialDepositRatio returns the MinInitialDepositRatio param.
-func (k Keeper) GetMinInitialDepositRatio(ctx sdk.Context) (res sdk.Dec) {
+func (k Keeper) GetMinInitialDepositRatio(ctx sdk.Context) (res math.LegacyDec) {
 	return k.GetParams(ctx).MinInitialDepositRatio
 }
 
 // SetParams sets the x/global module parameters.
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
-	store := ctx.KVStore(k.storeKey)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	bz := k.cdc.MustMarshal(&params)
 	store.Set(types.ParamsKey, bz)
 }

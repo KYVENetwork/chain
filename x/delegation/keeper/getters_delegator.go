@@ -1,9 +1,11 @@
 package keeper
 
 import (
+	"cosmossdk.io/store/prefix"
+	storeTypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/delegation/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -16,14 +18,15 @@ import (
 
 // SetDelegator set a specific delegator in the store from its index
 func (k Keeper) SetDelegator(ctx sdk.Context, delegator types.Delegator) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegatorKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.DelegatorKeyPrefix)
 	b := k.cdc.MustMarshal(&delegator)
 	store.Set(types.DelegatorKey(
 		delegator.Staker,
 		delegator.Delegator,
 	), b)
 
-	indexStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegatorKeyPrefixIndex2)
+	indexStore := prefix.NewStore(storeAdapter, types.DelegatorKeyPrefixIndex2)
 	indexStore.Set(types.DelegatorKeyIndex2(
 		delegator.Delegator,
 		delegator.Staker,
@@ -36,7 +39,8 @@ func (k Keeper) GetDelegator(
 	stakerAddress string,
 	delegatorAddress string,
 ) (val types.Delegator, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegatorKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.DelegatorKeyPrefix)
 	b := store.Get(types.DelegatorKey(stakerAddress, delegatorAddress))
 	if b == nil {
 		return val, false
@@ -52,7 +56,8 @@ func (k Keeper) DoesDelegatorExist(
 	stakerAddress string,
 	delegatorAddress string,
 ) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegatorKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.DelegatorKeyPrefix)
 	return store.Has(types.DelegatorKey(stakerAddress, delegatorAddress))
 }
 
@@ -62,12 +67,13 @@ func (k Keeper) RemoveDelegator(
 	stakerAddress string,
 	delegatorAddress string,
 ) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegatorKeyPrefix)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.DelegatorKeyPrefix)
 	store.Delete(types.DelegatorKey(
 		stakerAddress,
 		delegatorAddress,
 	))
-	indexStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegatorKeyPrefixIndex2)
+	indexStore := prefix.NewStore(storeAdapter, types.DelegatorKeyPrefixIndex2)
 	indexStore.Delete(types.DelegatorKeyIndex2(
 		delegatorAddress,
 		stakerAddress,
@@ -76,8 +82,9 @@ func (k Keeper) RemoveDelegator(
 
 // GetAllDelegators returns all delegators (of all stakers)
 func (k Keeper) GetAllDelegators(ctx sdk.Context) (list []types.Delegator) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegatorKeyPrefix)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.DelegatorKeyPrefix)
+	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 
@@ -91,8 +98,9 @@ func (k Keeper) GetAllDelegators(ctx sdk.Context) (list []types.Delegator) {
 }
 
 func (k Keeper) GetStakersByDelegator(ctx sdk.Context, delegator string) (list []string) {
-	delegatorStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.DelegatorKeyPrefixIndex2)
-	iterator := sdk.KVStorePrefixIterator(delegatorStore, util.GetByteKey(delegator))
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	delegatorStore := prefix.NewStore(storeAdapter, types.DelegatorKeyPrefixIndex2)
+	iterator := storeTypes.KVStorePrefixIterator(delegatorStore, util.GetByteKey(delegator))
 
 	defer iterator.Close()
 

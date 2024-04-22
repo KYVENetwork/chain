@@ -4,16 +4,15 @@ import (
 	mrand "math/rand"
 	"time"
 
+	abci "github.com/cometbft/cometbft/abci/types"
+
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 
 	"github.com/KYVENetwork/chain/app"
-	stakerstypes "github.com/KYVENetwork/chain/x/stakers/types"
-	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
 	"github.com/cometbft/cometbft/version"
-	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
@@ -140,21 +139,17 @@ func (suite *KeeperTestSuite) Mint(address string, amount uint64) error {
 
 	suite.Commit()
 
-	sender, err := sdk.AccAddressFromBech32(address)
+	receiver, err := sdk.AccAddressFromBech32(address)
 	if err != nil {
 		return err
 	}
 
-	err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, mintTypes.ModuleName, sender, coins)
+	err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, mintTypes.ModuleName, receiver, coins)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-type QueryClients struct {
-	stakersClient stakerstypes.QueryClient
 }
 
 type KeeperTestSuite struct {
@@ -163,7 +158,6 @@ type KeeperTestSuite struct {
 	ctx sdk.Context
 
 	app         *app.App
-	queries     QueryClients
 	address     common.Address
 	consAddress sdk.ConsAddress
 	validator   stakingtypes.Validator
@@ -197,7 +191,7 @@ func (suite *KeeperTestSuite) SetupApp(startTime int64) {
 	ePriv := ed25519.GenPrivKeyFromSecret([]byte{1})
 	suite.consAddress = sdk.ConsAddress(ePriv.PubKey().Address())
 
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, tmproto.Header{
 		Height:          1,
 		ChainID:         "kyve-test",
 		Time:            time.Unix(startTime, 0).UTC(),
@@ -221,27 +215,26 @@ func (suite *KeeperTestSuite) SetupApp(startTime int64) {
 		ConsensusHash:      tmhash.Sum([]byte("consensus")),
 		LastResultsHash:    tmhash.Sum([]byte("last_result")),
 	})
-	suite.registerQueryClients()
 
-	mintParams := suite.app.MintKeeper.GetParams(suite.ctx)
+	mintParams, _ := suite.app.MintKeeper.Params.Get(suite.ctx)
 	mintParams.MintDenom = suite.denom
-	_ = suite.app.MintKeeper.SetParams(suite.ctx, mintParams)
+	_ = suite.app.MintKeeper.Params.Set(suite.ctx, mintParams)
 
-	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
+	stakingParams, _ := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = suite.denom
 	_ = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 
-	govParams := suite.app.GovKeeper.GetParams(suite.ctx)
+	govParams, _ := suite.app.GovKeeper.Params.Get(suite.ctx)
 	govParams.MinDeposit = sdk.NewCoins(sdk.NewInt64Coin(KYVE_DENOM, int64(100_000_000_000))) // set min deposit to 100 KYVE
-	_ = suite.app.GovKeeper.SetParams(suite.ctx, govParams)
+	_ = suite.app.GovKeeper.Params.Set(suite.ctx, govParams)
 
 	// Set Validator
 	valAddr := sdk.ValAddress(suite.address.Bytes())
-	validator, _ := stakingtypes.NewValidator(valAddr, ePriv.PubKey(), stakingtypes.Description{})
+	validator, _ := stakingtypes.NewValidator(valAddr.String(), ePriv.PubKey(), stakingtypes.Description{})
 	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
 	//_ = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
 	_ = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
-	validators := suite.app.StakingKeeper.GetValidators(suite.ctx, 1)
+	validators, _ := suite.app.StakingKeeper.GetValidators(suite.ctx, 1)
 	suite.validator = validators[0]
 }
 
@@ -255,21 +248,32 @@ func (suite *KeeperTestSuite) CommitAfterSeconds(seconds uint64) {
 
 func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	header := suite.ctx.BlockHeader()
-	suite.app.EndBlock(abci.RequestEndBlock{Height: header.Height})
-	_ = suite.app.Commit()
+	header.Time = header.Time.Add(t)
+
+	_, err := suite.app.FinalizeBlock(&abci.RequestFinalizeBlock{
+		Height: header.Height,
+		Time:   header.Time,
+	})
+	if err != nil {
+		panic(err)
+	}
+	_, err = suite.app.Commit()
+	if err != nil {
+		panic(err)
+	}
 
 	header.Height += 1
-	header.Time = header.Time.Add(t)
-	suite.app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
-	suite.ctx = suite.app.BaseApp.NewContext(false, header)
-
-	suite.registerQueryClients()
+	suite.ctx = suite.app.BaseApp.NewUncachedContext(false, header)
 }
 
-func (suite *KeeperTestSuite) registerQueryClients() {
-	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
+func (suite *KeeperTestSuite) WaitSeconds(seconds uint64) {
+	suite.Wait(time.Second * time.Duration(seconds))
+}
 
-	stakerstypes.RegisterQueryServer(queryHelper, suite.app.StakersKeeper)
-	suite.queries.stakersClient = stakerstypes.NewQueryClient(queryHelper)
+func (suite *KeeperTestSuite) Wait(t time.Duration) {
+	header := suite.ctx.BlockHeader()
+	header.Time = header.Time.Add(t)
+
+	suite.ctx = suite.ctx.WithBlockTime(suite.ctx.BlockTime().Add(t))
 }

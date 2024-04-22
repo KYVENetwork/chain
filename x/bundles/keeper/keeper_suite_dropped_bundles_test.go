@@ -20,7 +20,7 @@ TEST CASES - dropped bundles
 */
 
 var _ = Describe("dropped bundles", Ordered, func() {
-	s := i.NewCleanChain()
+	var s *i.KeeperTestSuite
 
 	initialBalanceStaker0 := s.GetBalanceFromAddress(i.STAKER_0)
 	initialBalanceValaddress0 := s.GetBalanceFromAddress(i.VALADDRESS_0_A)

@@ -24,12 +24,13 @@ TEST CASES - msg_server_claim_uploader_role.go
 */
 
 var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
-	s := i.NewCleanChain()
-	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
+	var s *i.KeeperTestSuite
+	var gov string
 
 	BeforeEach(func() {
 		// init new clean chain
 		s = i.NewCleanChain()
+		gov = s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 
 		// create clean pool for every test case
 		msg := &pooltypes.MsgCreatePool{

@@ -3,22 +3,19 @@ package team
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
+
+	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
 	"github.com/KYVENetwork/chain/util"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	// Auth
-	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	// Bank
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	// Team
 	"github.com/KYVENetwork/chain/x/team/keeper"
 	"github.com/KYVENetwork/chain/x/team/types"
-	// Upgrade
-	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 )
 
-func DistributeTeamInflation(ctx sdk.Context, bk bankKeeper.Keeper, tk keeper.Keeper, uk upgradeKeeper.Keeper) {
+func DistributeTeamInflation(ctx sdk.Context, bk util.BankKeeper, tk keeper.Keeper, uk util.UpgradeKeeper) {
 	// get the total team reward the module is eligible for in this block
 	teamModuleRewards := tk.GetTeamBlockProvision(ctx)
 
@@ -30,9 +27,9 @@ func DistributeTeamInflation(ctx sdk.Context, bk bankKeeper.Keeper, tk keeper.Ke
 		// get current vesting progress
 		status := keeper.GetVestingStatus(account, uint64(ctx.BlockTime().Unix()))
 		// calculate reward share of account
-		accountShare := sdk.NewDec(int64(status.TotalVestedAmount - account.UnlockedClaimed)).Quo(sdk.NewDec(int64(types.TEAM_ALLOCATION)))
+		accountShare := math.LegacyNewDec(int64(status.TotalVestedAmount - account.UnlockedClaimed)).Quo(math.LegacyNewDec(int64(types.TEAM_ALLOCATION)))
 		// calculate total inflation rewards for account for this block
-		accountRewards := uint64(sdk.NewDec(teamModuleRewards).Mul(accountShare).TruncateInt64())
+		accountRewards := uint64(math.LegacyNewDec(teamModuleRewards).Mul(accountShare).TruncateInt64())
 
 		// save inflation rewards to account
 		account.TotalRewards += accountRewards
@@ -57,5 +54,5 @@ func DistributeTeamInflation(ctx sdk.Context, bk bankKeeper.Keeper, tk keeper.Ke
 		util.PanicHalt(uk, ctx, err.Error())
 	}
 
-	tk.Logger(ctx).Info("distributed portion of minted coins", "amount", teamModuleRewards)
+	tk.Logger().Info("distributed portion of minted coins", "amount", teamModuleRewards)
 }
