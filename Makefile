@@ -35,7 +35,7 @@ BUILD_FLAGS := -ldflags '$(ldflags)' -tags 'ledger' -trimpath
 
 .PHONY: proto-setup proto-format proto-lint proto-gen \
 	format lint vet test build release dev interchaintest
-all: ensure_environment ensure_version proto-all format lint test build
+all: ensure_environment ensure_version proto-all format lint test interchaintest build
 
 ###############################################################################
 ###                                  Build                                  ###
@@ -179,7 +179,7 @@ proto-setup:
 ###                           Tests & Simulation                            ###
 ###############################################################################
 
-ensuer_heighliner:
+ensure_heighliner:
 	@which heighliner > /dev/null || (echo "❌ Heighliner not found. Please install it by running 'make heighliner-setup'." && exit 1)
 	@docker inspect kaon:local > /dev/null || (echo "❌ Kaon image not found. Please build it by running 'make heighliner'." && exit 1)
 
@@ -200,7 +200,7 @@ test:
 	@go test -cover -mod=readonly ./x/...
 	@echo "✅ Completed tests!"
 
-interchaintest: ensuer_heighliner
+interchaintest: ensure_heighliner
 	@echo "🤖 Running interchain tests..."
 	@go test -mod=readonly ./interchaintest/...
 	@echo "✅ Completed interchain tests!"
