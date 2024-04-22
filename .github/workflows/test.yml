@@ -17,3 +17,24 @@ jobs:
       # Test & coverage report creation
       - name: Test & coverage report creation
         run: go test -cover -mod=readonly ./x/...
+
+  interchaintest:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      # Setup Golang
+      - name: 🐿 Setup Golang
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: 'go.mod'
+      # Setup heighliner
+      - name: Setup heighliner
+        run: make heighliner-setup
+      # Run heighliner
+      - name: Run heighliner
+        run: make heighliner
+      # Run interchaintest
+      - name: Run interchaintest
+        run: make interchaintest
