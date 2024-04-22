@@ -3,15 +3,17 @@ package v1_5_test
 import (
 	"context"
 	"encoding/json"
-	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-
-	"cosmossdk.io/math"
 	"fmt"
-	"github.com/KYVENetwork/chain/app/upgrades/v1_5"
-	"github.com/strangelove-ventures/interchaintest/v8"
 	"strconv"
 	"testing"
 	"time"
+
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+
+	"cosmossdk.io/math"
+
+	"github.com/KYVENetwork/chain/app/upgrades/v1_5"
+	"github.com/strangelove-ventures/interchaintest/v8"
 
 	"github.com/docker/docker/client"
 	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
