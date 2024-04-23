@@ -6,9 +6,8 @@ import (
 	"cosmossdk.io/log"
 	"fmt"
 
-	"github.com/KYVENetwork/chain/util"
-
 	storetypes "cosmossdk.io/store/types"
+	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/bundles/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
