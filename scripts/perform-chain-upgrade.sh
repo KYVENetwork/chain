@@ -1,4 +1,5 @@
 #!/bin/bash
+# This script is only used for local testing. Do not use it in production.
 
 RED="\e[31m"
 ENDCOLOR="\e[0m"
@@ -26,11 +27,10 @@ fi
 
 get_height() {
   local height=
-  height=$($BINARY status --output json | jq '.sync_info.latest_block_height' | tr -d '\"')
-  if [[ -z "$height" ]]; then
-      height=$($BINARY status | jq '.sync_info.latest_block_height' | tr -d '\"')
+  height=$($BINARY status | jq '.sync_info.latest_block_height' | tr -d '\"')
+  if [ "$height" == "null" ]; then
+      height=$($BINARY status | jq '.SyncInfo.latest_block_height' | tr -d '\"')
       if [[ -z "$height" ]]; then
-          echo -e "$RED✗ Could not fetch latest block height. Make sure your node is running.$ENDCOLOR"
           exit 1
       fi
   fi
@@ -77,7 +77,7 @@ echo "Submitted proposal"
 echo ""
 
 # Get proposal ID
-ID=$($BINARY q gov proposals --page-limit 1 --page-reverse --proposal-status voting-period $JSON | jq '.proposals[0].id | tonumber')
+ID=$($BINARY q gov proposals --page-limit 1 --page-reverse --proposal-status voting-period $JSON 1&>/dev/null | jq '.proposals[0].id | tonumber')
 if [[ -z "$ID" ]]; then
     ID=$($BINARY q gov proposals --limit 1 --reverse --status voting_period $JSON | jq '.proposals[0].id | tonumber')
     if [[ -z "$ID" ]]; then
@@ -91,20 +91,49 @@ $BINARY tx gov vote $ID yes $ALICE_TX $CHAINHOME $TESTBACKEND $JSON | check_tx
 echo ""
 echo "Voted yes on proposal $ID"
 echo "Scheduled upgrade for height $UPGRADE_HEIGHT"
-echo ""
+
+did_proposal_pass() {
+  local result=$1
+  local status=$(echo "$result" | jq -r '.proposal.status')
+
+  if [ "$status" == "null" ]; then
+    status=$(echo "$result" | jq -r '.status')
+  fi
+
+  # status 3 or "PROPOSAL_STATUS_PASSED" is passed
+  if [[ "$status" -eq 3 || "$status" == "PROPOSAL_STATUS_PASSED" ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+did_proposal_fail() {
+  local result=$1
+  local status=$(echo "$result" | jq -r '.proposal.status')
+
+  if [ "$status" == "null" ]; then
+    status=$(echo "$result" | jq -r '.status')
+  fi
+
+  # everything except status 2 (PROPOSAL_STATUS_VOTING_PERIOD) or status 3 (PROPOSAL_STATUS_PASSED) is failed
+  if [[ "$status" -ne 2 && "$status" -ne 3 && "$status" != "PROPOSAL_STATUS_VOTING_PERIOD" && "$status" != "PROPOSAL_STATUS_PASSED" ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
 
 # Wait for upgrade and poll status
 elapsed_seconds=0
 progress_bar_length=$(expr $WAIT_BLOCKS \* 1)
 while true; do
   result=$($BINARY q gov proposal $ID $JSON)
-  status=$(echo "$result" | jq -r '.proposal.status')
 
-  # status 2 is voting, status 3 is passed, everything else is rejected or failed
-  if [[ "$status" -eq 3 ]]; then
+  if did_proposal_pass "$result"; then
     printf "\n\r✅ Upgrade successful! Took %02d seconds\n" "$elapsed_seconds"
     break
-  elif [[ "$status" -ne 2 ]]; then
+  elif did_proposal_fail "$result"; then
     printf "\n\r${RED}✗ Upgrade failed!\nCheck if your voting parameters are correct. They need to have a short voting time and a low quorum threshold.${ENDCOLOR}\n"
     break
   fi
