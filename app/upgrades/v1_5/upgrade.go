@@ -2,9 +2,11 @@ package v1_5
 
 import (
 	"context"
+	"fmt"
+
 	storetypes "cosmossdk.io/store/types"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
-	"fmt"
+
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types"
 	"github.com/KYVENetwork/chain/x/bundles/keeper"
 	bundlestypes "github.com/KYVENetwork/chain/x/bundles/types"
