@@ -1085,6 +1085,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
+		// assert storage reward
+		Expect(storageReward).To(Equal(uint64(90)))
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
 		// assert commission rewards
