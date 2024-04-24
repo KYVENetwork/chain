@@ -182,10 +182,15 @@ proto-setup:
 ensure_heighliner:
 	@which heighliner > /dev/null || (echo "❌ Heighliner not found. Please install it by running 'make heighliner-setup'." && exit 1)
 	@docker inspect kaon:local > /dev/null || (echo "❌ Kaon image not found. Please build it by running 'make heighliner'." && exit 1)
+	@docker inspect kyve:local > /dev/null || (echo "❌ Kyve image not found. Please build it by running 'make heighliner'." && exit 1)
 
 heighliner:
 	@echo "🤖 Building Kaon image..."
 	@heighliner build --chain kaon --local 1> /dev/null
+	@echo "✅ Completed build!"
+
+	@echo "🤖 Building Kyve image..."
+	@heighliner build --chain kyve --local 1> /dev/null
 	@echo "✅ Completed build!"
 
 heighliner-setup:

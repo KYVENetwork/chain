@@ -37,6 +37,27 @@ var testnetConfig = ibc.ChainConfig{
 	EncodingConfig:      nil,
 }
 
+var mainnetConfig = ibc.ChainConfig{
+	Type:    "cosmos",
+	Name:    "kyve",
+	ChainID: "kyve-1",
+	Images: []ibc.DockerImage{{
+		Repository: "ghcr.io/strangelove-ventures/heighliner/kyve",
+		Version:    previousVersion,
+		UidGid:     uidGid,
+	}},
+	Bin:                 "kyved",
+	Bech32Prefix:        "kyve",
+	Denom:               "ukyve",
+	GasPrices:           "0.02ukyve",
+	GasAdjustment:       5,
+	TrustingPeriod:      "112h",
+	NoHostMount:         false,
+	ModifyGenesis:       ModifyGenesis,
+	ConfigFileOverrides: nil,
+	EncodingConfig:      nil,
+}
+
 func ModifyGenesis(config ibc.ChainConfig, genbz []byte) ([]byte, error) {
 	genesis := make(map[string]interface{})
 	_ = json.Unmarshal(genbz, &genesis)
