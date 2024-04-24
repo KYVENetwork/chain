@@ -3,6 +3,7 @@ package keeper
 import (
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
+	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
 
@@ -509,4 +510,102 @@ func (k Keeper) GetVoteDistribution(ctx sdk.Context, poolId uint64) (voteDistrib
 	}
 
 	return
+}
+
+// tallyBundleProposal evaluates the votes of a bundle proposal and determines the outcome
+func (k msgServer) tallyBundleProposal(ctx sdk.Context, bundleProposal types.BundleProposal, poolId uint64) (types.TallyResult, error) {
+	// Increase points of stakers who did not vote at all + slash + remove if necessary.
+	// The protocol requires everybody to stay always active.
+	k.handleNonVoters(ctx, poolId)
+
+	// evaluate all votes and determine status based on the votes weighted with stake + delegation
+	voteDistribution := k.GetVoteDistribution(ctx, poolId)
+
+	// Handle tally outcome
+	switch voteDistribution.Status {
+	case types.BUNDLE_STATUS_VALID:
+		// If a bundle is valid the following things happen:
+		// 1. Funders and Inflation Pool are charged. The total payout is divided
+		//    between the uploader, its delegators and the treasury.
+		//    The appropriate funds are deducted from the total pool funds
+		// 2. The next uploader is randomly selected based on everybody who
+		//    voted valid on this bundle.
+		// 3. The bundle is finalized by added it permanently to the state.
+		// 4. The sender immediately starts the next round by registering
+		//    his new bundle proposal.
+
+		// charge the funders of the pool
+		fundersPayout, err := k.fundersKeeper.ChargeFundersOfPool(ctx, poolId)
+		if err != nil {
+			return types.TallyResult{}, err
+		}
+
+		// charge the inflation pool
+		inflationPayout, err := k.poolKeeper.ChargeInflationPool(ctx, poolId)
+		if err != nil {
+			return types.TallyResult{}, err
+		}
+
+		// calculate payouts to the different stakeholders like treasury, uploader and delegators
+		bundleReward := k.calculatePayouts(ctx, poolId, fundersPayout+inflationPayout)
+
+		// payout rewards to treasury
+		if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrkeeper, ctx, poolTypes.ModuleName, bundleReward.Treasury); err != nil {
+			return types.TallyResult{}, err
+		}
+
+		// payout rewards to uploader through commission rewards
+		if err := k.stakerKeeper.IncreaseStakerCommissionRewards(ctx, bundleProposal.Uploader, bundleReward.Uploader); err != nil {
+			return types.TallyResult{}, err
+		}
+
+		// payout rewards to delegators through delegation rewards
+		if err := k.delegationKeeper.PayoutRewards(ctx, bundleProposal.Uploader, bundleReward.Delegation, poolTypes.ModuleName); err != nil {
+			return types.TallyResult{}, err
+		}
+
+		// slash stakers who voted incorrectly
+		for _, voter := range bundleProposal.VotersInvalid {
+			k.slashDelegatorsAndRemoveStaker(ctx, poolId, voter, delegationTypes.SLASH_TYPE_VOTE)
+		}
+
+		return types.TallyResult{
+			Status:           types.TallyResultValid,
+			VoteDistribution: voteDistribution,
+			FundersPayout:    fundersPayout,
+			InflationPayout:  inflationPayout,
+			BundleReward:     bundleReward,
+		}, nil
+	case types.BUNDLE_STATUS_INVALID:
+		// If the bundles is invalid, everybody who voted incorrectly gets slashed.
+		// The bundle provided by the message-sender is of no mean, because the previous bundle
+		// turned out to be incorrect.
+		// There this round needs to start again and the message-sender stays uploader.
+
+		// slash stakers who voted incorrectly - uploader receives upload slash
+		for _, voter := range bundleProposal.VotersValid {
+			if voter == bundleProposal.Uploader {
+				k.slashDelegatorsAndRemoveStaker(ctx, poolId, voter, delegationTypes.SLASH_TYPE_UPLOAD)
+			} else {
+				k.slashDelegatorsAndRemoveStaker(ctx, poolId, voter, delegationTypes.SLASH_TYPE_VOTE)
+			}
+		}
+
+		return types.TallyResult{
+			Status:           types.TallyResultInvalid,
+			VoteDistribution: voteDistribution,
+			FundersPayout:    0,
+			InflationPayout:  0,
+			BundleReward:     types.BundleReward{},
+		}, nil
+	default:
+		// If the bundle is neither valid nor invalid the quorum has not been reached yet.
+		return types.TallyResult{
+			Status:           types.TallyResultNoQuorum,
+			VoteDistribution: voteDistribution,
+			FundersPayout:    0,
+			InflationPayout:  0,
+			BundleReward:     types.BundleReward{},
+		}, nil
+	}
 }

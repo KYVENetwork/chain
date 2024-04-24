@@ -35,3 +35,19 @@ func (bundleVersionMap BundleVersionMap) GetMap() (versionMap map[int32]uint64) 
 	}
 	return
 }
+
+type TallyResultStatus uint32
+
+const (
+	TallyResultValid TallyResultStatus = iota
+	TallyResultInvalid
+	TallyResultNoQuorum
+)
+
+type TallyResult struct {
+	Status           TallyResultStatus
+	VoteDistribution VoteDistribution
+	FundersPayout    uint64
+	InflationPayout  uint64
+	BundleReward     BundleReward
+}
