@@ -25,7 +25,9 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 		logger := sdk.UnwrapSDKContext(ctx).Logger().With("upgrade", UpgradeName)
 		logger.Info(fmt.Sprintf("performing upgrade %v", UpgradeName))
 
-		migrateStorageCosts(ctx, bundlesKeeper, poolKeeper, storeKeys, cdc)
+		if err := migrateStorageCosts(ctx, bundlesKeeper, poolKeeper, storeKeys, cdc); err != nil {
+			return nil, err
+		}
 
 		// TODO: migrate gov params
 
@@ -33,7 +35,7 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 	}
 }
 
-func migrateStorageCosts(ctx context.Context, bundlesKeeper keeper.Keeper, poolKeeper *poolkeeper.Keeper, storeKeys []storetypes.StoreKey, cdc codec.Codec) {
+func migrateStorageCosts(ctx context.Context, bundlesKeeper keeper.Keeper, poolKeeper *poolkeeper.Keeper, storeKeys []storetypes.StoreKey, cdc codec.Codec) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	var bundlesStoreKey storetypes.StoreKey
@@ -44,7 +46,7 @@ func migrateStorageCosts(ctx context.Context, bundlesKeeper keeper.Keeper, poolK
 		}
 	}
 	if bundlesStoreKey == nil {
-		panic("bundles store key not found")
+		return fmt.Errorf("store key not found: bundles")
 	}
 
 	// Get all storage providers
@@ -69,4 +71,5 @@ func migrateStorageCosts(ctx context.Context, bundlesKeeper keeper.Keeper, poolK
 	}
 
 	bundlesKeeper.SetParams(sdkCtx, newParams)
+	return nil
 }
