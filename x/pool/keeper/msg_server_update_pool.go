@@ -59,6 +59,9 @@ func (k msgServer) UpdatePool(goCtx context.Context, req *types.MsgUpdatePool) (
 	if update.CompressionId != nil {
 		pool.CurrentCompressionId = *update.CompressionId
 	}
+	if update.EndKey != nil {
+		pool.EndKey = *update.EndKey
+	}
 
 	k.SetPool(ctx, pool)
 
