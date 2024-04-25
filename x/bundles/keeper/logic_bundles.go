@@ -30,6 +30,11 @@ func (k Keeper) AssertPoolCanRun(ctx sdk.Context, poolId uint64) error {
 		return types.ErrPoolDisabled
 	}
 
+	// Error if the end key is reached
+	if pool.EndKey != "" && pool.CurrentKey == pool.EndKey {
+		return types.ErrEndKeyReached
+	}
+
 	// Get the total and the highest delegation of a single validator in the pool
 	totalDelegation, highestDelegation := k.delegationKeeper.GetTotalAndHighestDelegationOfPool(ctx, poolId)
 

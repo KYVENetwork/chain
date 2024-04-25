@@ -23,4 +23,5 @@ var (
 	ErrAlreadyVotedInvalid     = errors.Register(ModuleName, 1205, "already voted invalid on bundle proposal")
 	ErrAlreadyVotedAbstain     = errors.Register(ModuleName, 1206, "already voted abstain on bundle proposal")
 	ErrVotingPowerTooHigh      = errors.Register(ModuleName, 1207, "staker in pool has more than 50% voting power")
+	ErrEndKeyReached           = errors.Register(ModuleName, 1208, "end key reached")
 )

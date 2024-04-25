@@ -92,6 +92,8 @@ func (k Keeper) GetPoolStatus(ctx sdk.Context, pool *pooltypes.Pool) pooltypes.P
 		poolStatus = pooltypes.POOL_STATUS_UPGRADING
 	} else if pool.Disabled {
 		poolStatus = pooltypes.POOL_STATUS_DISABLED
+	} else if pool.EndKey != "" && pool.EndKey == pool.CurrentKey {
+		poolStatus = pooltypes.POOL_STATUS_END_KEY_REACHED
 	} else if totalDelegation < pool.MinDelegation {
 		poolStatus = pooltypes.POOL_STATUS_NOT_ENOUGH_DELEGATION
 	} else if highestDelegation*2 > totalDelegation {

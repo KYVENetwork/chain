@@ -20,6 +20,7 @@ TEST CASES - logic_bundles.go
 * Assert pool can run while min delegation is not reached
 * Assert pool can run
 * Assert pool can run while pool has no funds
+* Assert pool can run when endKey is reached
 
 * Assert can vote if sender is no staker
 * Assert can vote if bundle is dropped
@@ -329,6 +330,20 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 		// ASSERT
 		Expect(err).NotTo(HaveOccurred())
+	})
+
+	It("Assert pool can run when endKey is reached", func() {
+		// ASSERT
+		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		pool.EndKey = "0"
+		pool.CurrentKey = "0"
+		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
+
+		// ACT
+		err := s.App().BundlesKeeper.AssertPoolCanRun(s.Ctx(), 0)
+
+		// ASSERT
+		Expect(err).To(Equal(bundlesTypes.ErrEndKeyReached))
 	})
 
 	// ASSERT CAN VOTE
