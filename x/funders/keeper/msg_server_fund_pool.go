@@ -34,28 +34,47 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrFundingStateDoesNotExist.Error(), msg.PoolId)
 	}
 
+	// TODO:
+	// iterate through msg.Amounts
+	// -> check if each coin has an amount per bundle
+	// -> if a single coin is not in the whitelist we fail
+	// -> check for each coin if the min funding amount is reached
+	// -> check for each coin if the min funding amount per bundle is reached
+	// -> check for each coin if the min funding multiple is reached
+	// calculate funders value score
+	// ensureFreeSlot
+	// emit event
+
+	// Check if amount and amount_per_bundle have the same denom
+	if msg.Amount.Denom != msg.AmountPerBundle.Denom {
+		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrDifferentDenom.Error(), msg.Amount.Denom, msg.AmountPerBundle.Denom)
+	}
+
 	// Check if funding already exists
 	funding, found := k.GetFunding(ctx, msg.Creator, msg.PoolId)
 	if found {
-		// If so, update funding amount
-		funding.AddAmount(msg.Amount)
+		// If so, update funding amounts
+		funding.Amounts.Add(msg.Amount)
+
 		// If the amount per bundle is set, update it
-		if msg.AmountPerBundle > 0 {
-			funding.AmountPerBundle = msg.AmountPerBundle
+		if msg.AmountPerBundle.IsPositive() {
+			if f, c := funding.AmountsPerBundle.Find(msg.AmountPerBundle.Denom); f {
+				c.Amount = msg.AmountPerBundle.Amount
+			}
 		}
 	} else {
 		// If not, create new funding
 		funding = types.Funding{
-			FunderAddress:   msg.Creator,
-			PoolId:          msg.PoolId,
-			Amount:          msg.Amount,
-			AmountPerBundle: msg.AmountPerBundle,
-			TotalFunded:     0,
+			FunderAddress:    msg.Creator,
+			PoolId:           msg.PoolId,
+			Amounts:          sdk.NewCoins(msg.Amount),
+			AmountsPerBundle: sdk.NewCoins(msg.AmountPerBundle),
+			TotalFunded:      sdk.Coins{},
 		}
 	}
 
 	// Check if updated (or new) funding is compatible with module params
-	if err := k.ensureParamsCompatibility(ctx, funding); err != nil {
+	if err := k.ensureParamsCompatibility(ctx, msg); err != nil {
 		return nil, err
 	}
 

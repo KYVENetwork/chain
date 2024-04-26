@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 
 	"cosmossdk.io/errors"
 
@@ -82,38 +83,63 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint
 
 // GetLowestFunding returns the funding with the lowest amount
 // Precondition: len(fundings) > 0
-func (k Keeper) GetLowestFunding(fundings []types.Funding) (lowestFunding *types.Funding, err error) {
+func (k Keeper) GetLowestFunding(ctx sdk.Context, fundings []types.Funding, whitelist []*types.WhitelistCoinEntry) (lowestFunding *types.Funding, err error) {
 	if len(fundings) == 0 {
 		return nil, fmt.Errorf("no active fundings")
 	}
 
+
+
 	lowestFundingIndex := 0
 	for i := range fundings {
-		if fundings[i].Amount < fundings[lowestFundingIndex].Amount {
+		if fundings[i].GetScore(params.CoinWhitelist) < fundings[lowestFundingIndex].GetScore(params.CoinWhitelist) {
 			lowestFundingIndex = i
 		}
 	}
 	return &fundings[lowestFundingIndex], nil
 }
 
+
+
 // ensureParamsCompatibility checks compatibility of the provided funding with the pool params.
 // i.e.
+// - coin is in whitelist
 // - minimum funding per bundle
 // - minimum funding amount
 // - minimum funding multiple
-func (k Keeper) ensureParamsCompatibility(ctx sdk.Context, funding types.Funding) error {
+func (k Keeper) ensureParamsCompatibility(ctx sdk.Context, msg *types.MsgFundPool) error {
 	params := k.GetParams(ctx)
-	if funding.AmountPerBundle < params.MinFundingAmountPerBundle {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrAmountPerBundleTooLow.Error(), params.MinFundingAmountPerBundle)
+
+	var w *types.WhitelistCoinEntry
+	for _, entry := range params.CoinWhitelist {
+		if entry.CoinDenom == msg.Amount.Denom {
+			w = entry
+			break
+		}
 	}
-	if funding.Amount < params.MinFundingAmount {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinFundingAmount.Error(), params.MinFundingAmount)
+
+	// throw error if coin is not in whitelist. we only check msg.amount here since we know from before
+	// that msg.amount and msg.amount_per_bundle is equal
+	if w == nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrCoinNotWhitelisted.Error(), msg.Amount.Denom)
 	}
-	if funding.AmountPerBundle*params.MinFundingMultiple > funding.Amount {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinFundingMultiple.Error(), funding.AmountPerBundle, params.MinFundingAmount, funding.Amount)
+
+	if msg.Amount.Amount.Uint64() < w.MinFundingAmount {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinFundingAmount.Error(), w.MinFundingAmount, msg.Amount.Denom)
 	}
+
+	if msg.AmountPerBundle.Amount.Uint64() < w.MinFundingAmountPerBundle {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinAmountPerBundle.Error(), w.MinFundingAmountPerBundle, msg.Amount.Denom)
+	}
+
+	if msg.AmountPerBundle.Amount.Uint64()*params.MinFundingMultiple > msg.Amount.Amount.Uint64() {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinFundingMultiple.Error(), msg.AmountPerBundle, params.MinFundingMultiple, msg.Amount)
+	}
+
 	return nil
 }
+
+func (k Keeper)
 
 // ensureFreeSlot makes sure that a funder can add funding to a given pool.
 // If this is not possible an appropriate error is returned.
@@ -131,7 +157,12 @@ func (k Keeper) ensureFreeSlot(ctx sdk.Context, newFunding *types.Funding, fundi
 		return nil
 	}
 
-	lowestFunding, _ := k.GetLowestFunding(activeFundings)
+	params := k.GetParams(ctx)
+
+	lowestFunding, err := k.GetLowestFunding(ctx, activeFundings, params.CoinWhitelist)
+	if err != nil {
+		return err
+	}
 
 	if lowestFunding.FunderAddress == newFunding.FunderAddress {
 		// Funder already has a funding slot
@@ -139,16 +170,16 @@ func (k Keeper) ensureFreeSlot(ctx sdk.Context, newFunding *types.Funding, fundi
 	}
 
 	// Check if lowest funding is lower than new funding based on amount (amount per bundle is ignored)
-	if newFunding.Amount < lowestFunding.Amount {
-		return errors.Wrapf(errorsTypes.ErrLogic, types.ErrFundsTooLow.Error(), lowestFunding.Amount)
+	if newFunding.GetScore(params.CoinWhitelist) < lowestFunding.GetScore(params.CoinWhitelist) {
+		return errors.Wrapf(errorsTypes.ErrLogic, types.ErrFundsTooLow.Error(), lowestFunding.GetScore(params.CoinWhitelist))
 	}
 
 	// Defund lowest funder
-	if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, types.ModuleName, lowestFunding.FunderAddress, lowestFunding.Amount); err != nil {
+	recipient := sdk.MustAccAddressFromBech32(lowestFunding.FunderAddress)
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, lowestFunding.Amounts); err != nil {
 		return err
 	}
 
-	subtracted := lowestFunding.SubtractAmount(lowestFunding.Amount)
 	fundingState.SetInactive(lowestFunding)
 	k.SetFunding(ctx, lowestFunding)
 
@@ -156,7 +187,7 @@ func (k Keeper) ensureFreeSlot(ctx sdk.Context, newFunding *types.Funding, fundi
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventDefundPool{
 		PoolId:  fundingState.PoolId,
 		Address: lowestFunding.FunderAddress,
-		Amount:  subtracted,
+		Amounts:  lowestFunding.Amounts,
 	})
 
 	return nil

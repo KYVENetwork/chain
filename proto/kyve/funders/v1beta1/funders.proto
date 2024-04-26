@@ -2,7 +2,9 @@ syntax = "proto3";
 
 package kyve.funders.v1beta1;
 
-//import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/funders/types";
 
@@ -22,6 +24,23 @@ message Funder {
   string description = 6;
 }
 
+// TODO: do this because else we would have to check the following things:
+// if amounts and amounts_per_bundle are given seperately as arrays we would have to check the following:
+// - are those arrays of equal size
+// - are there any coins which are not whitelisted in one of those arrays
+// - is amounts_per_bundle a subset of amounts
+message FundEntry {
+  // amount is amount of the coin which is funded
+  cosmos.base.v1beta1.Coin amount = 1 [
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // amounts_per_bundle defines the amount of each coin that are distributed
+  // per finalized bundle
+  uint64 amount_per_bundle = 2;
+}
+
 // Funding is the object which holds info about the current funding
 // funder_address and pool_id (m2m) are unique together which means that
 // a funder can only fund each pool once and a pool can only be funded
@@ -31,12 +50,25 @@ message Funding {
   string funder_address = 1;
   // pool_id is the id of the pool this funding is for
   uint64 pool_id = 2;
-  // amount is the amount of funds in ukyve the funder has left
-  uint64 amount = 3;
-  // amount_per_bundle is the amount of funds in ukyve the funder pays per bundle
-  uint64 amount_per_bundle = 4;
-  // total_funded is the total amount of funds in ukyve the funder has funded
-  uint64 total_funded = 5;
+  // amounts is a list of coins the funder wants to fund the pool with
+  repeated cosmos.base.v1beta1.Coin amounts = 3 [
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // amounts_per_bundle defines the amount of each coin that are distributed
+  // per finalized bundle
+  repeated cosmos.base.v1beta1.Coin amounts_per_bundle = 4 [
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // total_funded is the total amount of coins that the funder has funded
+  repeated cosmos.base.v1beta1.Coin total_funded = 5 [
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }
 
 // FundingState is the object which holds info about the funding state of a pool
@@ -45,4 +77,23 @@ message FundingState {
   uint64 pool_id = 1;
   // active_funder_addresses is the list of all active fundings
   repeated string active_funder_addresses = 2;
+}
+
+// WhitelistCoinEntry is an object containing information around a coin which
+// is allowed to be funded in pools
+message WhitelistCoinEntry {
+  // coin_denom is the denom of a coin which is allowed to be funded, this value
+  // needs to be unique
+  string coin_denom = 1;
+  // min_funding_amount is the minimum required amount of this denom that needs
+  // to be funded
+  uint64 min_funding_amount = 2;
+  // min_funding_amount_per_bundle is the minimum required amount of this denom
+  // that needs to be funded per bundle
+  uint64 min_funding_amount_per_bundle = 3;
+  // coin_weight is a factor used to sort funders after their funding amounts
+  string coin_weight = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }

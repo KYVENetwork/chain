@@ -4,7 +4,12 @@
 package types
 
 import (
+	cosmossdk_io_math "cosmossdk.io/math"
 	fmt "fmt"
+	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+	types "github.com/cosmos/cosmos-sdk/types"
+	_ "github.com/cosmos/cosmos-sdk/types/tx/amino"
+	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
 	io "io"
 	math "math"
@@ -113,6 +118,66 @@ func (m *Funder) GetDescription() string {
 	return ""
 }
 
+// TODO: do this because else we would have to check the following things:
+// if amounts and amounts_per_bundle are given seperately as arrays we would have to check the following:
+// - are those arrays of equal size
+// - are there any coins which are not whitelisted in one of those arrays
+// - is amounts_per_bundle a subset of amounts
+type FundEntry struct {
+	// amount is amount of the coin which is funded
+	Amount types.Coin `protobuf:"bytes,1,opt,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount"`
+	// amounts_per_bundle defines the amount of each coin that are distributed
+	// per finalized bundle
+	AmountPerBundle uint64 `protobuf:"varint,2,opt,name=amount_per_bundle,json=amountPerBundle,proto3" json:"amount_per_bundle,omitempty"`
+}
+
+func (m *FundEntry) Reset()         { *m = FundEntry{} }
+func (m *FundEntry) String() string { return proto.CompactTextString(m) }
+func (*FundEntry) ProtoMessage()    {}
+func (*FundEntry) Descriptor() ([]byte, []int) {
+	return fileDescriptor_252d80f89b0fa299, []int{1}
+}
+func (m *FundEntry) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *FundEntry) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_FundEntry.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *FundEntry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FundEntry.Merge(m, src)
+}
+func (m *FundEntry) XXX_Size() int {
+	return m.Size()
+}
+func (m *FundEntry) XXX_DiscardUnknown() {
+	xxx_messageInfo_FundEntry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FundEntry proto.InternalMessageInfo
+
+func (m *FundEntry) GetAmount() types.Coin {
+	if m != nil {
+		return m.Amount
+	}
+	return types.Coin{}
+}
+
+func (m *FundEntry) GetAmountPerBundle() uint64 {
+	if m != nil {
+		return m.AmountPerBundle
+	}
+	return 0
+}
+
 // Funding is the object which holds info about the current funding
 // funder_address and pool_id (m2m) are unique together which means that
 // a funder can only fund each pool once and a pool can only be funded
@@ -122,19 +187,20 @@ type Funding struct {
 	FunderAddress string `protobuf:"bytes,1,opt,name=funder_address,json=funderAddress,proto3" json:"funder_address,omitempty"`
 	// pool_id is the id of the pool this funding is for
 	PoolId uint64 `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
-	// amount is the amount of funds in ukyve the funder has left
-	Amount uint64 `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`
-	// amount_per_bundle is the amount of funds in ukyve the funder pays per bundle
-	AmountPerBundle uint64 `protobuf:"varint,4,opt,name=amount_per_bundle,json=amountPerBundle,proto3" json:"amount_per_bundle,omitempty"`
-	// total_funded is the total amount of funds in ukyve the funder has funded
-	TotalFunded uint64 `protobuf:"varint,5,opt,name=total_funded,json=totalFunded,proto3" json:"total_funded,omitempty"`
+	// amounts is a list of coins the funder wants to fund the pool with
+	Amounts github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,3,rep,name=amounts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amounts"`
+	// amounts_per_bundle defines the amount of each coin that are distributed
+	// per finalized bundle
+	AmountsPerBundle github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,4,rep,name=amounts_per_bundle,json=amountsPerBundle,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amounts_per_bundle"`
+	// total_funded is the total amount of coins that the funder has funded
+	TotalFunded github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,5,rep,name=total_funded,json=totalFunded,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"total_funded"`
 }
 
 func (m *Funding) Reset()         { *m = Funding{} }
 func (m *Funding) String() string { return proto.CompactTextString(m) }
 func (*Funding) ProtoMessage()    {}
 func (*Funding) Descriptor() ([]byte, []int) {
-	return fileDescriptor_252d80f89b0fa299, []int{1}
+	return fileDescriptor_252d80f89b0fa299, []int{2}
 }
 func (m *Funding) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -177,25 +243,25 @@ func (m *Funding) GetPoolId() uint64 {
 	return 0
 }
 
-func (m *Funding) GetAmount() uint64 {
+func (m *Funding) GetAmounts() github_com_cosmos_cosmos_sdk_types.Coins {
 	if m != nil {
-		return m.Amount
+		return m.Amounts
 	}
-	return 0
+	return nil
 }
 
-func (m *Funding) GetAmountPerBundle() uint64 {
+func (m *Funding) GetAmountsPerBundle() github_com_cosmos_cosmos_sdk_types.Coins {
 	if m != nil {
-		return m.AmountPerBundle
+		return m.AmountsPerBundle
 	}
-	return 0
+	return nil
 }
 
-func (m *Funding) GetTotalFunded() uint64 {
+func (m *Funding) GetTotalFunded() github_com_cosmos_cosmos_sdk_types.Coins {
 	if m != nil {
 		return m.TotalFunded
 	}
-	return 0
+	return nil
 }
 
 // FundingState is the object which holds info about the funding state of a pool
@@ -210,7 +276,7 @@ func (m *FundingState) Reset()         { *m = FundingState{} }
 func (m *FundingState) String() string { return proto.CompactTextString(m) }
 func (*FundingState) ProtoMessage()    {}
 func (*FundingState) Descriptor() ([]byte, []int) {
-	return fileDescriptor_252d80f89b0fa299, []int{2}
+	return fileDescriptor_252d80f89b0fa299, []int{3}
 }
 func (m *FundingState) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -253,10 +319,82 @@ func (m *FundingState) GetActiveFunderAddresses() []string {
 	return nil
 }
 
+// WhitelistCoinEntry is an object containing information around a coin which
+// is allowed to be funded in pools
+type WhitelistCoinEntry struct {
+	// coin_denom is the denom of a coin which is allowed to be funded, this value
+	// needs to be unique
+	CoinDenom string `protobuf:"bytes,1,opt,name=coin_denom,json=coinDenom,proto3" json:"coin_denom,omitempty"`
+	// min_funding_amount is the minimum required amount of this denom that needs
+	// to be funded
+	MinFundingAmount uint64 `protobuf:"varint,2,opt,name=min_funding_amount,json=minFundingAmount,proto3" json:"min_funding_amount,omitempty"`
+	// min_funding_amount_per_bundle is the minimum required amount of this denom
+	// that needs to be funded per bundle
+	MinFundingAmountPerBundle uint64 `protobuf:"varint,3,opt,name=min_funding_amount_per_bundle,json=minFundingAmountPerBundle,proto3" json:"min_funding_amount_per_bundle,omitempty"`
+	// coin_weight is a factor used to sort funders after their funding amounts
+	CoinWeight cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=coin_weight,json=coinWeight,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"coin_weight"`
+}
+
+func (m *WhitelistCoinEntry) Reset()         { *m = WhitelistCoinEntry{} }
+func (m *WhitelistCoinEntry) String() string { return proto.CompactTextString(m) }
+func (*WhitelistCoinEntry) ProtoMessage()    {}
+func (*WhitelistCoinEntry) Descriptor() ([]byte, []int) {
+	return fileDescriptor_252d80f89b0fa299, []int{4}
+}
+func (m *WhitelistCoinEntry) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *WhitelistCoinEntry) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_WhitelistCoinEntry.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *WhitelistCoinEntry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_WhitelistCoinEntry.Merge(m, src)
+}
+func (m *WhitelistCoinEntry) XXX_Size() int {
+	return m.Size()
+}
+func (m *WhitelistCoinEntry) XXX_DiscardUnknown() {
+	xxx_messageInfo_WhitelistCoinEntry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_WhitelistCoinEntry proto.InternalMessageInfo
+
+func (m *WhitelistCoinEntry) GetCoinDenom() string {
+	if m != nil {
+		return m.CoinDenom
+	}
+	return ""
+}
+
+func (m *WhitelistCoinEntry) GetMinFundingAmount() uint64 {
+	if m != nil {
+		return m.MinFundingAmount
+	}
+	return 0
+}
+
+func (m *WhitelistCoinEntry) GetMinFundingAmountPerBundle() uint64 {
+	if m != nil {
+		return m.MinFundingAmountPerBundle
+	}
+	return 0
+}
+
 func init() {
 	proto.RegisterType((*Funder)(nil), "kyve.funders.v1beta1.Funder")
+	proto.RegisterType((*FundEntry)(nil), "kyve.funders.v1beta1.FundEntry")
 	proto.RegisterType((*Funding)(nil), "kyve.funders.v1beta1.Funding")
 	proto.RegisterType((*FundingState)(nil), "kyve.funders.v1beta1.FundingState")
+	proto.RegisterType((*WhitelistCoinEntry)(nil), "kyve.funders.v1beta1.WhitelistCoinEntry")
 }
 
 func init() {
@@ -264,32 +402,47 @@ func init() {
 }
 
 var fileDescriptor_252d80f89b0fa299 = []byte{
-	// 386 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x54, 0x92, 0xd1, 0x8a, 0xd3, 0x40,
-	0x14, 0x86, 0x3b, 0xbb, 0x31, 0x75, 0x67, 0x57, 0xc5, 0x41, 0xdd, 0xc1, 0x8b, 0x50, 0x03, 0xc2,
-	0x22, 0xd2, 0xb0, 0x08, 0xde, 0x5b, 0xb0, 0x20, 0x82, 0x48, 0x04, 0x41, 0x6f, 0xc2, 0x24, 0x73,
-	0x6c, 0x87, 0xb6, 0x33, 0x61, 0xe6, 0xa4, 0xb5, 0x6f, 0xe1, 0x93, 0x88, 0x8f, 0xe1, 0x65, 0x2f,
-	0xbd, 0x94, 0xf6, 0x45, 0x96, 0xcc, 0xa4, 0xa5, 0xbd, 0xcb, 0xff, 0xff, 0xe7, 0x90, 0xef, 0x1f,
-	0x0e, 0x4d, 0x67, 0xeb, 0x25, 0x64, 0x3f, 0x1a, 0x2d, 0xc1, 0xba, 0x6c, 0x79, 0x5b, 0x02, 0x8a,
-	0xdb, 0xbd, 0x1e, 0xd6, 0xd6, 0xa0, 0x61, 0x4f, 0xda, 0x99, 0xe1, 0xde, 0xeb, 0x66, 0xd2, 0xdf,
-	0x84, 0xc6, 0x63, 0xef, 0x31, 0x4e, 0xfb, 0x42, 0x4a, 0x0b, 0xce, 0x71, 0x32, 0x20, 0x37, 0x17,
-	0xf9, 0x5e, 0xb6, 0xc9, 0xc2, 0x68, 0x35, 0x03, 0xcb, 0xcf, 0x42, 0xd2, 0x49, 0xf6, 0x9c, 0xde,
-	0x57, 0x12, 0x34, 0x2a, 0x5c, 0xf3, 0x73, 0x1f, 0x1d, 0x74, 0xbb, 0xb5, 0x82, 0xd2, 0x29, 0x04,
-	0x1e, 0x85, 0xad, 0x4e, 0xb6, 0x49, 0x65, 0x34, 0x8a, 0x0a, 0xf9, 0xbd, 0x90, 0x74, 0x92, 0x0d,
-	0xe8, 0xa5, 0x04, 0x57, 0x59, 0x55, 0xa3, 0x32, 0x9a, 0xc7, 0x3e, 0x3d, 0xb6, 0xd2, 0x3f, 0x84,
-	0xf6, 0x5b, 0x60, 0xa5, 0x27, 0xec, 0x25, 0x7d, 0x18, 0xfa, 0x14, 0xa7, 0xe0, 0x0f, 0x82, 0xfb,
-	0xae, 0xc3, 0xbf, 0xa6, 0xfd, 0xda, 0x98, 0x79, 0xa1, 0xa4, 0xc7, 0x8f, 0xf2, 0xb8, 0x95, 0x1f,
-	0x24, 0x7b, 0x46, 0x63, 0xb1, 0x30, 0x8d, 0x46, 0xcf, 0x1e, 0xe5, 0x9d, 0x62, 0xaf, 0xe8, 0xe3,
-	0xf0, 0x55, 0xd4, 0x60, 0x8b, 0xb2, 0xd1, 0x72, 0x1e, 0x3a, 0x44, 0xf9, 0xa3, 0x10, 0x7c, 0x06,
-	0x3b, 0xf2, 0x36, 0x7b, 0x41, 0xaf, 0xd0, 0xa0, 0x98, 0x17, 0xfe, 0x9f, 0xd2, 0x17, 0x8a, 0xf2,
-	0x4b, 0xef, 0xf9, 0x87, 0x95, 0x69, 0x41, 0xaf, 0x3a, 0xe2, 0x2f, 0x28, 0x10, 0x8e, 0x79, 0xc8,
-	0x09, 0xcf, 0x5b, 0x7a, 0x2d, 0x2a, 0x54, 0x4b, 0x28, 0x4e, 0x6b, 0x81, 0xe3, 0x67, 0x83, 0xf3,
-	0x9b, 0x8b, 0xfc, 0x69, 0x88, 0xc7, 0xc7, 0xf5, 0xc0, 0x8d, 0xc6, 0x7f, 0xb7, 0x09, 0xd9, 0x6c,
-	0x13, 0xf2, 0x7f, 0x9b, 0x90, 0x5f, 0xbb, 0xa4, 0xb7, 0xd9, 0x25, 0xbd, 0x7f, 0xbb, 0xa4, 0xf7,
-	0xfd, 0xf5, 0x44, 0xe1, 0xb4, 0x29, 0x87, 0x95, 0x59, 0x64, 0x1f, 0xbf, 0x7d, 0x7d, 0xff, 0x09,
-	0x70, 0x65, 0xec, 0x2c, 0xab, 0xa6, 0x42, 0xe9, 0xec, 0xe7, 0xe1, 0x64, 0x70, 0x5d, 0x83, 0x2b,
-	0x63, 0x7f, 0x29, 0x6f, 0xee, 0x02, 0x00, 0x00, 0xff, 0xff, 0xf6, 0x1c, 0xef, 0x4f, 0x4f, 0x02,
-	0x00, 0x00,
+	// 633 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0xcd, 0x6e, 0x13, 0x3d,
+	0x14, 0xcd, 0x34, 0x6d, 0xf2, 0xc5, 0xe9, 0x07, 0xad, 0x55, 0xd4, 0x69, 0x51, 0xa7, 0x51, 0x10,
+	0x52, 0x55, 0x95, 0x19, 0x15, 0x04, 0x6b, 0x1a, 0xda, 0x4a, 0x08, 0x84, 0x50, 0x90, 0xa8, 0x60,
+	0x33, 0x72, 0xc6, 0x97, 0x19, 0x93, 0x8c, 0x1d, 0x8d, 0x9d, 0x96, 0x6c, 0x78, 0x06, 0x5e, 0x81,
+	0x1d, 0xea, 0x02, 0xf1, 0x18, 0x5d, 0x76, 0x89, 0x58, 0x14, 0xd4, 0x2e, 0x10, 0x6f, 0x81, 0xfc,
+	0x93, 0x30, 0x85, 0x75, 0x37, 0x89, 0xef, 0x3d, 0x3e, 0xbe, 0xd7, 0xe7, 0xdc, 0x31, 0x6a, 0xf7,
+	0xc7, 0x87, 0x10, 0xbd, 0x19, 0x71, 0x0a, 0x85, 0x8c, 0x0e, 0xb7, 0x7b, 0xa0, 0xc8, 0xf6, 0x24,
+	0x0e, 0x87, 0x85, 0x50, 0x02, 0x2f, 0xe9, 0x3d, 0xe1, 0x24, 0xe7, 0xf6, 0xac, 0x06, 0x89, 0x90,
+	0xb9, 0x90, 0x51, 0x8f, 0x48, 0x98, 0x12, 0x13, 0xc1, 0xb8, 0x65, 0xad, 0x2e, 0xa5, 0x22, 0x15,
+	0x66, 0x19, 0xe9, 0x95, 0xcb, 0x2e, 0x92, 0x9c, 0x71, 0x11, 0x99, 0x5f, 0x9b, 0x6a, 0x7f, 0xf6,
+	0x50, 0x6d, 0xdf, 0x1c, 0x8e, 0x7d, 0x54, 0x27, 0x94, 0x16, 0x20, 0xa5, 0xef, 0xb5, 0xbc, 0x8d,
+	0x46, 0x77, 0x12, 0x6a, 0x24, 0x17, 0x9c, 0xf5, 0xa1, 0xf0, 0x67, 0x2c, 0xe2, 0x42, 0xbc, 0x8a,
+	0xfe, 0x63, 0x14, 0xb8, 0x62, 0x6a, 0xec, 0x57, 0x0d, 0x34, 0x8d, 0x35, 0xeb, 0x08, 0x7a, 0x92,
+	0x29, 0xf0, 0x67, 0x2d, 0xcb, 0x85, 0x1a, 0x49, 0x04, 0x57, 0x24, 0x51, 0xfe, 0x9c, 0x45, 0x5c,
+	0x88, 0x5b, 0xa8, 0x49, 0x41, 0x26, 0x05, 0x1b, 0x2a, 0x26, 0xb8, 0x5f, 0x33, 0x68, 0x39, 0xd5,
+	0xfe, 0xe8, 0xa1, 0x86, 0x6e, 0x78, 0x8f, 0xab, 0x62, 0x8c, 0x33, 0x54, 0x23, 0xb9, 0x18, 0x71,
+	0x65, 0x5a, 0x6e, 0xde, 0x5d, 0x09, 0xad, 0x30, 0xa1, 0x16, 0x66, 0xa2, 0x56, 0xf8, 0x48, 0x30,
+	0xde, 0xb9, 0x7f, 0x72, 0xb6, 0x5e, 0x39, 0xfe, 0xbe, 0xbe, 0x91, 0x32, 0x95, 0x8d, 0x7a, 0x61,
+	0x22, 0xf2, 0xc8, 0xa9, 0x68, 0xff, 0xee, 0x48, 0xda, 0x8f, 0xd4, 0x78, 0x08, 0xd2, 0x10, 0xe4,
+	0xa7, 0x9f, 0x5f, 0x36, 0xbd, 0xae, 0x3b, 0x1f, 0x6f, 0xa2, 0x45, 0xbb, 0x8a, 0x87, 0x50, 0xc4,
+	0xbd, 0x11, 0xa7, 0x03, 0x30, 0x6a, 0xcc, 0x76, 0xaf, 0x5b, 0xe0, 0x39, 0x14, 0x1d, 0x93, 0x6e,
+	0x1f, 0x57, 0x51, 0x5d, 0xf7, 0xc8, 0x78, 0x8a, 0x6f, 0xa3, 0x6b, 0xd6, 0xbc, 0xf8, 0xb2, 0xb8,
+	0xff, 0xdb, 0xec, 0x8e, 0x93, 0x78, 0x19, 0xd5, 0x87, 0x42, 0x0c, 0x62, 0x46, 0xdd, 0xa1, 0x35,
+	0x1d, 0x3e, 0xa6, 0xf8, 0x2d, 0xaa, 0xdb, 0xe3, 0xa5, 0x5f, 0x6d, 0x55, 0xaf, 0xe4, 0x8a, 0x93,
+	0x02, 0xf8, 0x3d, 0xc2, 0x6e, 0x59, 0xbe, 0xe4, 0xec, 0x15, 0x95, 0x5d, 0x70, 0xb5, 0xa6, 0xba,
+	0x61, 0x89, 0xe6, 0x95, 0x50, 0x64, 0x10, 0x1b, 0x6d, 0xa8, 0x3f, 0x77, 0x45, 0x95, 0x9b, 0xa6,
+	0x8a, 0x19, 0x7b, 0xda, 0x8e, 0xd1, 0xbc, 0xf3, 0xea, 0x85, 0x22, 0x0a, 0xca, 0x4e, 0x78, 0x97,
+	0x9c, 0x78, 0x80, 0x96, 0x49, 0xa2, 0xd8, 0x21, 0xc4, 0x97, 0x0d, 0x05, 0xe9, 0xcf, 0xb4, 0xaa,
+	0x1b, 0x8d, 0xee, 0x0d, 0x0b, 0xef, 0x97, 0x8d, 0x05, 0xd9, 0xfe, 0xe5, 0x21, 0x7c, 0x90, 0x31,
+	0x05, 0x03, 0x26, 0x95, 0xee, 0xc2, 0x8e, 0xee, 0x1a, 0x42, 0xfa, 0x83, 0x8d, 0x29, 0x70, 0x91,
+	0xbb, 0xa1, 0x68, 0xe8, 0xcc, 0xae, 0x4e, 0xe0, 0x2d, 0x84, 0x73, 0xc6, 0x4d, 0x29, 0xc6, 0xd3,
+	0xd8, 0x4d, 0xb9, 0x9d, 0x8d, 0x85, 0x9c, 0x71, 0xd7, 0xf3, 0x8e, 0x9d, 0xce, 0x87, 0x68, 0xed,
+	0xdf, 0xdd, 0x65, 0x13, 0xab, 0x86, 0xb8, 0xf2, 0x37, 0xf1, 0x8f, 0xf6, 0xbb, 0xa8, 0x69, 0xda,
+	0x39, 0x02, 0x96, 0x66, 0xca, 0x7e, 0xb1, 0x9d, 0x5b, 0x5a, 0xdf, 0x6f, 0x67, 0xeb, 0x37, 0xad,
+	0x9a, 0x92, 0xf6, 0x43, 0x26, 0xa2, 0x9c, 0xa8, 0x2c, 0x7c, 0x0a, 0x29, 0x49, 0xc6, 0xbb, 0x90,
+	0x74, 0xcd, 0x35, 0x0e, 0x0c, 0xad, 0xb3, 0x7f, 0x72, 0x1e, 0x78, 0xa7, 0xe7, 0x81, 0xf7, 0xe3,
+	0x3c, 0xf0, 0x3e, 0x5c, 0x04, 0x95, 0xd3, 0x8b, 0xa0, 0xf2, 0xf5, 0x22, 0xa8, 0xbc, 0xde, 0x2a,
+	0x59, 0xf4, 0xe4, 0xd5, 0xcb, 0xbd, 0x67, 0xa0, 0x8e, 0x44, 0xd1, 0x8f, 0x92, 0x8c, 0x30, 0x1e,
+	0xbd, 0x9b, 0xbe, 0x82, 0xc6, 0xac, 0x5e, 0xcd, 0xbc, 0x4e, 0xf7, 0x7e, 0x07, 0x00, 0x00, 0xff,
+	0xff, 0x12, 0xe5, 0x08, 0x8e, 0x22, 0x05, 0x00, 0x00,
 }
 
 func (m *Funder) Marshal() (dAtA []byte, err error) {
@@ -357,6 +510,44 @@ func (m *Funder) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *FundEntry) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *FundEntry) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *FundEntry) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.AmountPerBundle != 0 {
+		i = encodeVarintFunders(dAtA, i, uint64(m.AmountPerBundle))
+		i--
+		dAtA[i] = 0x10
+	}
+	{
+		size, err := m.Amount.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintFunders(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
 func (m *Funding) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -377,20 +568,47 @@ func (m *Funding) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.TotalFunded != 0 {
-		i = encodeVarintFunders(dAtA, i, uint64(m.TotalFunded))
-		i--
-		dAtA[i] = 0x28
+	if len(m.TotalFunded) > 0 {
+		for iNdEx := len(m.TotalFunded) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.TotalFunded[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintFunders(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x2a
+		}
 	}
-	if m.AmountPerBundle != 0 {
-		i = encodeVarintFunders(dAtA, i, uint64(m.AmountPerBundle))
-		i--
-		dAtA[i] = 0x20
+	if len(m.AmountsPerBundle) > 0 {
+		for iNdEx := len(m.AmountsPerBundle) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.AmountsPerBundle[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintFunders(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
+		}
 	}
-	if m.Amount != 0 {
-		i = encodeVarintFunders(dAtA, i, uint64(m.Amount))
-		i--
-		dAtA[i] = 0x18
+	if len(m.Amounts) > 0 {
+		for iNdEx := len(m.Amounts) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Amounts[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintFunders(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
 	}
 	if m.PoolId != 0 {
 		i = encodeVarintFunders(dAtA, i, uint64(m.PoolId))
@@ -444,6 +662,56 @@ func (m *FundingState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *WhitelistCoinEntry) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *WhitelistCoinEntry) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *WhitelistCoinEntry) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.CoinWeight.Size()
+		i -= size
+		if _, err := m.CoinWeight.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintFunders(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x22
+	if m.MinFundingAmountPerBundle != 0 {
+		i = encodeVarintFunders(dAtA, i, uint64(m.MinFundingAmountPerBundle))
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.MinFundingAmount != 0 {
+		i = encodeVarintFunders(dAtA, i, uint64(m.MinFundingAmount))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.CoinDenom) > 0 {
+		i -= len(m.CoinDenom)
+		copy(dAtA[i:], m.CoinDenom)
+		i = encodeVarintFunders(dAtA, i, uint64(len(m.CoinDenom)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintFunders(dAtA []byte, offset int, v uint64) int {
 	offset -= sovFunders(v)
 	base := offset
@@ -488,6 +756,20 @@ func (m *Funder) Size() (n int) {
 	return n
 }
 
+func (m *FundEntry) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Amount.Size()
+	n += 1 + l + sovFunders(uint64(l))
+	if m.AmountPerBundle != 0 {
+		n += 1 + sovFunders(uint64(m.AmountPerBundle))
+	}
+	return n
+}
+
 func (m *Funding) Size() (n int) {
 	if m == nil {
 		return 0
@@ -501,14 +783,23 @@ func (m *Funding) Size() (n int) {
 	if m.PoolId != 0 {
 		n += 1 + sovFunders(uint64(m.PoolId))
 	}
-	if m.Amount != 0 {
-		n += 1 + sovFunders(uint64(m.Amount))
+	if len(m.Amounts) > 0 {
+		for _, e := range m.Amounts {
+			l = e.Size()
+			n += 1 + l + sovFunders(uint64(l))
+		}
 	}
-	if m.AmountPerBundle != 0 {
-		n += 1 + sovFunders(uint64(m.AmountPerBundle))
+	if len(m.AmountsPerBundle) > 0 {
+		for _, e := range m.AmountsPerBundle {
+			l = e.Size()
+			n += 1 + l + sovFunders(uint64(l))
+		}
 	}
-	if m.TotalFunded != 0 {
-		n += 1 + sovFunders(uint64(m.TotalFunded))
+	if len(m.TotalFunded) > 0 {
+		for _, e := range m.TotalFunded {
+			l = e.Size()
+			n += 1 + l + sovFunders(uint64(l))
+		}
 	}
 	return n
 }
@@ -528,6 +819,27 @@ func (m *FundingState) Size() (n int) {
 			n += 1 + l + sovFunders(uint64(l))
 		}
 	}
+	return n
+}
+
+func (m *WhitelistCoinEntry) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.CoinDenom)
+	if l > 0 {
+		n += 1 + l + sovFunders(uint64(l))
+	}
+	if m.MinFundingAmount != 0 {
+		n += 1 + sovFunders(uint64(m.MinFundingAmount))
+	}
+	if m.MinFundingAmountPerBundle != 0 {
+		n += 1 + sovFunders(uint64(m.MinFundingAmountPerBundle))
+	}
+	l = m.CoinWeight.Size()
+	n += 1 + l + sovFunders(uint64(l))
 	return n
 }
 
@@ -779,6 +1091,108 @@ func (m *Funder) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *FundEntry) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowFunders
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: FundEntry: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: FundEntry: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFunders
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthFunders
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthFunders
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AmountPerBundle", wireType)
+			}
+			m.AmountPerBundle = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFunders
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.AmountPerBundle |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipFunders(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthFunders
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *Funding) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -860,10 +1274,10 @@ func (m *Funding) Unmarshal(dAtA []byte) error {
 				}
 			}
 		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amounts", wireType)
 			}
-			m.Amount = 0
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowFunders
@@ -873,16 +1287,31 @@ func (m *Funding) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Amount |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			if msglen < 0 {
+				return ErrInvalidLengthFunders
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthFunders
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Amounts = append(m.Amounts, types.Coin{})
+			if err := m.Amounts[len(m.Amounts)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		case 4:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field AmountPerBundle", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AmountsPerBundle", wireType)
 			}
-			m.AmountPerBundle = 0
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowFunders
@@ -892,16 +1321,31 @@ func (m *Funding) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.AmountPerBundle |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			if msglen < 0 {
+				return ErrInvalidLengthFunders
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthFunders
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.AmountsPerBundle = append(m.AmountsPerBundle, types.Coin{})
+			if err := m.AmountsPerBundle[len(m.AmountsPerBundle)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		case 5:
-			if wireType != 0 {
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field TotalFunded", wireType)
 			}
-			m.TotalFunded = 0
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowFunders
@@ -911,11 +1355,26 @@ func (m *Funding) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.TotalFunded |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			if msglen < 0 {
+				return ErrInvalidLengthFunders
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthFunders
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.TotalFunded = append(m.TotalFunded, types.Coin{})
+			if err := m.TotalFunded[len(m.TotalFunded)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipFunders(dAtA[iNdEx:])
@@ -1016,6 +1475,160 @@ func (m *FundingState) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.ActiveFunderAddresses = append(m.ActiveFunderAddresses, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipFunders(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthFunders
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *WhitelistCoinEntry) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowFunders
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: WhitelistCoinEntry: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: WhitelistCoinEntry: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CoinDenom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFunders
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthFunders
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthFunders
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.CoinDenom = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinFundingAmount", wireType)
+			}
+			m.MinFundingAmount = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFunders
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MinFundingAmount |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinFundingAmountPerBundle", wireType)
+			}
+			m.MinFundingAmountPerBundle = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFunders
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MinFundingAmountPerBundle |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CoinWeight", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFunders
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthFunders
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthFunders
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.CoinWeight.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

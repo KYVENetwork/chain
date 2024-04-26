@@ -1,19 +1,22 @@
 package types
 
-func (f *Funding) AddAmount(amount uint64) {
-	f.Amount += amount
-}
+import sdk "github.com/cosmos/cosmos-sdk/types"
 
-func (f *Funding) SubtractAmount(amount uint64) (subtracted uint64) {
-	subtracted = amount
-	if f.Amount < amount {
-		subtracted = f.Amount
+func (f *Funding) GetScore(whitelist []*WhitelistCoinEntry) (score uint64) {
+	// create map for easier lookup
+	w := make(map[string]WhitelistCoinEntry)
+	for _, entry := range whitelist {
+		w[entry.CoinDenom] = *entry
 	}
-	f.Amount -= subtracted
-	return subtracted
+
+	for _, coin := range f.Amounts {
+		score += uint64(w[coin.Denom].CoinWeight.MulInt64(coin.Amount.Int64()).TruncateInt64())
+	}
+
+	return
 }
 
-func (f *Funding) ChargeOneBundle() (amount uint64) {
+func (f *Funding) ChargeOneBundle() (amounts sdk.Coins) {
 	amount = f.SubtractAmount(f.AmountPerBundle)
 	f.TotalFunded += amount
 	return amount

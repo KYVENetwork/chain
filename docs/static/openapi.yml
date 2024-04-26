@@ -4536,14 +4536,47 @@ paths:
                 description: funders_params ...
                 type: object
                 properties:
-                  min_funding_amount:
-                    type: string
-                    format: uint64
-                    description: Minimum amount of tokens that can be funded.
-                  min_funding_amount_per_bundle:
-                    type: string
-                    format: uint64
-                    description: Minimum amount of tokens that can be funded per bundle.
+                  coin_whitelist:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        coin_denom:
+                          type: string
+                          title: >-
+                            coin_denom is the denom of a coin which is allowed
+                            to be funded, this value
+
+                            needs to be unique
+                        min_funding_amount:
+                          type: string
+                          format: uint64
+                          title: >-
+                            min_funding_amount is the minimum required amount of
+                            this denom that needs
+
+                            to be funded
+                        min_funding_amount_per_bundle:
+                          type: string
+                          format: uint64
+                          title: >-
+                            min_funding_amount_per_bundle is the minimum
+                            required amount of this denom
+
+                            that needs to be funded per bundle
+                        coin_weight:
+                          type: string
+                          title: >-
+                            coin_weight is a factor used to sort funders after
+                            their funding amounts
+                      title: >-
+                        WhitelistCoinEntry is an object containing information
+                        around a coin which
+
+                        is allowed to be funded in pools
+                    title: >-
+                      coin_whitelist is a list of coins that are allowed to fund
+                      a pool
                   min_funding_multiple:
                     type: string
                     format: uint64
@@ -4552,9 +4585,9 @@ paths:
                       amount_per_bundle.
 
                       In other words this param ensures, that a funder provides
-                      at least funding for
+                      at least
 
-                      `min_funding_multiple` bundles.
+                      funding for `min_funding_multiple` bundles.
             description: QueryParamsResponse ...
         default:
           description: An unexpected error response.
@@ -5042,24 +5075,71 @@ paths:
                           type: string
                           format: uint64
                           title: pool_id is the id of the pool this funding is for
-                        amount:
-                          type: string
-                          format: uint64
+                        amounts:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a token with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
                           title: >-
-                            amount is the amount of funds in ukyve the funder
-                            has left
-                        amount_per_bundle:
-                          type: string
-                          format: uint64
+                            amounts is a list of coins the funder wants to fund
+                            the pool with
+                        amounts_per_bundle:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a token with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
                           title: >-
-                            amount_per_bundle is the amount of funds in ukyve
-                            the funder pays per bundle
+                            amounts_per_bundle defines the amount of each coin
+                            that are distributed
+
+                            per finalized bundle
                         total_funded:
-                          type: string
-                          format: uint64
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a token with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
                           title: >-
-                            total_funded is the total amount of funds in ukyve
-                            the funder has funded
+                            total_funded is the total amount of coins that the
+                            funder has funded
                       description: >-
                         Funding is the object which holds info about the current
                         funding
@@ -5575,24 +5655,71 @@ paths:
                             type: string
                             format: uint64
                             title: pool_id is the id of the pool this funding is for
-                          amount:
-                            type: string
-                            format: uint64
+                          amounts:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                denom:
+                                  type: string
+                                amount:
+                                  type: string
+                              description: >-
+                                Coin defines a token with a denomination and an
+                                amount.
+
+
+                                NOTE: The amount field is an Int which
+                                implements the custom method
+
+                                signatures required by gogoproto.
                             title: >-
-                              amount is the amount of funds in ukyve the funder
-                              has left
-                          amount_per_bundle:
-                            type: string
-                            format: uint64
+                              amounts is a list of coins the funder wants to
+                              fund the pool with
+                          amounts_per_bundle:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                denom:
+                                  type: string
+                                amount:
+                                  type: string
+                              description: >-
+                                Coin defines a token with a denomination and an
+                                amount.
+
+
+                                NOTE: The amount field is an Int which
+                                implements the custom method
+
+                                signatures required by gogoproto.
                             title: >-
-                              amount_per_bundle is the amount of funds in ukyve
-                              the funder pays per bundle
+                              amounts_per_bundle defines the amount of each coin
+                              that are distributed
+
+                              per finalized bundle
                           total_funded:
-                            type: string
-                            format: uint64
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                denom:
+                                  type: string
+                                amount:
+                                  type: string
+                              description: >-
+                                Coin defines a token with a denomination and an
+                                amount.
+
+
+                                NOTE: The amount field is an Int which
+                                implements the custom method
+
+                                signatures required by gogoproto.
                             title: >-
-                              total_funded is the total amount of funds in ukyve
-                              the funder has funded
+                              total_funded is the total amount of coins that the
+                              funder has funded
                         description: >-
                           Funding is the object which holds info about the
                           current funding
@@ -7866,21 +7993,67 @@ paths:
                     type: object
                     properties:
                       total_used_funds:
-                        type: string
-                        format: uint64
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a token with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
                         description: >-
                           total_used_funds are the total funds that have been
                           distributed by the funder.
                       total_allocated_funds:
-                        type: string
-                        format: uint64
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a token with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
                         description: >-
                           total_allocated_funds are the total funds that have
-                          been allocated by the funder. They can either get
-                          distributed or refunded.
+                          been allocated by the funder.
+
+                          They can either get distributed or refunded.
                       total_amount_per_bundle:
-                        type: string
-                        format: uint64
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a token with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
                         description: >-
                           total_amount_per_bundle is the total amount per bundle
                           of all fundings of the funder.
@@ -7899,23 +8072,76 @@ paths:
                   properties:
                     funder_address:
                       type: string
-                      title: funder_address
+                      title: funder_id is the id of the funder
                     pool_id:
                       type: string
                       format: uint64
-                      description: pool_id ...
-                    amount:
-                      type: string
-                      format: uint64
-                      description: amount ...
-                    amount_per_bundle:
-                      type: string
-                      format: uint64
-                      description: amount_per_bundle ...
+                      title: pool_id is the id of the pool this funding is for
+                    amounts:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: >-
+                        amounts is a list of coins the funder wants to fund the
+                        pool with
+                    amounts_per_bundle:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: >-
+                        amounts_per_bundle defines the amount of each coin that
+                        are distributed
+
+                        per finalized bundle
                     total_funded:
-                      type: string
-                      format: uint64
-                      description: total_funded ...
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: >-
+                        total_funded is the total amount of coins that the
+                        funder has funded
                   description: Funding ...
                 description: fundings ...
             description: >-
@@ -8192,21 +8418,67 @@ paths:
                       type: object
                       properties:
                         total_used_funds:
-                          type: string
-                          format: uint64
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a token with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
                           description: >-
                             total_used_funds are the total funds that have been
                             distributed by the funder.
                         total_allocated_funds:
-                          type: string
-                          format: uint64
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a token with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
                           description: >-
                             total_allocated_funds are the total funds that have
-                            been allocated by the funder. They can either get
-                            distributed or refunded.
+                            been allocated by the funder.
+
+                            They can either get distributed or refunded.
                         total_amount_per_bundle:
-                          type: string
-                          format: uint64
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a token with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
                           description: >-
                             total_amount_per_bundle is the total amount per
                             bundle of all fundings of the funder.
@@ -8514,23 +8786,76 @@ paths:
                   properties:
                     funder_address:
                       type: string
-                      title: funder_address
+                      title: funder_id is the id of the funder
                     pool_id:
                       type: string
                       format: uint64
-                      description: pool_id ...
-                    amount:
-                      type: string
-                      format: uint64
-                      description: amount ...
-                    amount_per_bundle:
-                      type: string
-                      format: uint64
-                      description: amount_per_bundle ...
+                      title: pool_id is the id of the pool this funding is for
+                    amounts:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: >-
+                        amounts is a list of coins the funder wants to fund the
+                        pool with
+                    amounts_per_bundle:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: >-
+                        amounts_per_bundle defines the amount of each coin that
+                        are distributed
+
+                        per finalized bundle
                     total_funded:
-                      type: string
-                      format: uint64
-                      description: total_funded ...
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: >-
+                        total_funded is the total amount of coins that the
+                        funder has funded
                   description: Funding ...
                 description: fundings ...
             description: >-
@@ -8842,23 +9167,76 @@ paths:
                   properties:
                     funder_address:
                       type: string
-                      title: funder_address
+                      title: funder_id is the id of the funder
                     pool_id:
                       type: string
                       format: uint64
-                      description: pool_id ...
-                    amount:
-                      type: string
-                      format: uint64
-                      description: amount ...
-                    amount_per_bundle:
-                      type: string
-                      format: uint64
-                      description: amount_per_bundle ...
+                      title: pool_id is the id of the pool this funding is for
+                    amounts:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: >-
+                        amounts is a list of coins the funder wants to fund the
+                        pool with
+                    amounts_per_bundle:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: >-
+                        amounts_per_bundle defines the amount of each coin that
+                        are distributed
+
+                        per finalized bundle
                     total_funded:
-                      type: string
-                      format: uint64
-                      description: total_funded ...
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: >-
+                        total_funded is the total amount of coins that the
+                        funder has funded
                   description: Funding ...
                 description: fundings ...
             description: >-
