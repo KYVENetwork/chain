@@ -3,6 +3,8 @@ package keeper
 import (
 	"context"
 
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
+
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/bundles/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -92,7 +94,8 @@ func (k msgServer) SubmitBundleProposal(goCtx context.Context, msg *types.MsgSub
 		}
 
 		// payout rewards to delegators through delegation rewards
-		if err := k.delegationKeeper.PayoutRewards(ctx, bundleProposal.Uploader, bundleReward.Delegation, poolTypes.ModuleName); err != nil {
+		bundleRewardCoins := sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(bundleReward.Delegation)))
+		if err := k.delegationKeeper.PayoutRewards(ctx, bundleProposal.Uploader, bundleRewardCoins, poolTypes.ModuleName); err != nil {
 			return nil, err
 		}
 

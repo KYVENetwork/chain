@@ -58,14 +58,14 @@ func (k Keeper) GetTotalAndHighestDelegationOfPool(ctx sdk.Context, poolId uint6
 	return
 }
 
-// PayoutRewards transfers `amount` $nKYVE from the `payerModuleName`-module to the delegation module.
+// PayoutRewards transfers `amount` from the `payerModuleName`-module to the delegation module.
 // It then awards these tokens internally to all delegators of staker `staker`.
 // Delegators can then receive these rewards if they call the `withdraw`-transaction.
-// If the staker has no delegators or the module to module transfer fails the method fails and
-// returns the error.
-func (k Keeper) PayoutRewards(ctx sdk.Context, staker string, amount uint64, payerModuleName string) error {
+// If the staker has no delegators or the module to module transfer fails, the method fails and
+// returns an error.
+func (k Keeper) PayoutRewards(ctx sdk.Context, staker string, amount sdk.Coins, payerModuleName string) error {
 	// Assert there is an amount
-	if amount == 0 {
+	if amount.Empty() {
 		return nil
 	}
 
@@ -78,7 +78,7 @@ func (k Keeper) PayoutRewards(ctx sdk.Context, staker string, amount uint64, pay
 	k.AddAmountToDelegationRewards(ctx, staker, amount)
 
 	// Transfer tokens to the delegation module
-	if err := util.TransferFromModuleToModule(k.bankKeeper, ctx, payerModuleName, types.ModuleName, amount); err != nil {
+	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, payerModuleName, types.ModuleName, amount); err != nil {
 		return err
 	}
 
@@ -115,6 +115,6 @@ func (k Keeper) SlashDelegators(ctx sdk.Context, poolId uint64, staker string, s
 
 // GetOutstandingRewards calculates the current rewards a delegator has collected for
 // the given staker.
-func (k Keeper) GetOutstandingRewards(ctx sdk.Context, staker string, delegator string) uint64 {
+func (k Keeper) GetOutstandingRewards(ctx sdk.Context, staker string, delegator string) sdk.Coins {
 	return k.f1GetOutstandingRewards(ctx, staker, delegator)
 }
