@@ -61,17 +61,17 @@ message EventFundPool {
   uint64 pool_id = 1;
   // address is the account address of the pool funder.
   string address = 2;
-  // amounts is a list of coins that the funder has funded
-  repeated cosmos.base.v1beta1.Coin amounts = 3 [
+  // amount is the amount the funder has funded
+  cosmos.base.v1beta1.Coin amount = 3 [
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"
   ];
-  // amounts_per_bundle is a list of amounts per coin per bundle
-  repeated cosmos.base.v1beta1.Coin amounts_per_bundle = 4 [
+  // amount_per_bundle is the amount the funder pays for each finalized bundle
+  cosmos.base.v1beta1.Coin amount_per_bundle = 4 [
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"
   ];
 }
 

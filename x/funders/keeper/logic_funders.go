@@ -1,12 +1,9 @@
 package keeper
 
 import (
-	"fmt"
-	globalTypes "github.com/KYVENetwork/chain/x/global/types"
-
 	"cosmossdk.io/errors"
+	"fmt"
 
-	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -21,16 +18,16 @@ func (k Keeper) CreateFundingState(ctx sdk.Context, poolId uint64) {
 	k.SetFundingState(ctx, &fundingState)
 }
 
-func (k Keeper) GetTotalActiveFunding(ctx sdk.Context, poolId uint64) (amount uint64) {
+func (k Keeper) GetTotalActiveFunding(ctx sdk.Context, poolId uint64) (amounts sdk.Coins) {
 	state, found := k.GetFundingState(ctx, poolId)
 	if !found {
-		return 0
+		return sdk.NewCoins()
 	}
 	for _, address := range state.ActiveFunderAddresses {
 		funding, _ := k.GetFunding(ctx, address, poolId)
-		amount += funding.Amount
+		amounts.Add(funding.Amounts...)
 	}
-	return amount
+	return
 }
 
 // ChargeFundersOfPool charges all funders of a pool with their amount_per_bundle
@@ -38,23 +35,23 @@ func (k Keeper) GetTotalActiveFunding(ctx sdk.Context, poolId uint64) (amount ui
 // the max amount is charged and the funder is removed from the active funders list.
 // The amount is transferred from the funders to the pool module account where it can be paid out.
 // If there are no more active funders, an event is emitted.
-func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint64, err error) {
+func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payouts sdk.Coins, err error) {
 	// Get funding state for pool
 	fundingState, found := k.GetFundingState(ctx, poolId)
 	if !found {
-		return 0, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrFundingStateDoesNotExist.Error(), poolId)
+		return sdk.NewCoins(), errors.Wrapf(errorsTypes.ErrNotFound, types.ErrFundingStateDoesNotExist.Error(), poolId)
 	}
 
 	// If there are no active fundings we immediately return
 	activeFundings := k.GetActiveFundings(ctx, fundingState)
 	if len(activeFundings) == 0 {
-		return 0, nil
+		return sdk.NewCoins(), nil
 	}
 
 	// This is the amount every funding will be charged
 	for _, funding := range activeFundings {
-		payout += funding.ChargeOneBundle()
-		if funding.Amount == 0 {
+		payouts.Add(funding.ChargeOneBundle()...)
+		if funding.Amounts.IsZero() {
 			fundingState.SetInactive(&funding)
 		}
 		k.SetFunding(ctx, &funding)
@@ -71,35 +68,30 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint
 	}
 
 	// Move funds to pool module account
-	if payout > 0 {
-		err = util.TransferFromModuleToModule(k.bankKeeper, ctx, types.ModuleName, pooltypes.ModuleName, payout)
-		if err != nil {
-			return 0, err
+	if !payouts.IsZero() {
+		if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, pooltypes.ModuleName, payouts); err != nil {
+			return sdk.NewCoins(), err
 		}
 	}
 
-	return payout, nil
+	return
 }
 
 // GetLowestFunding returns the funding with the lowest amount
 // Precondition: len(fundings) > 0
-func (k Keeper) GetLowestFunding(ctx sdk.Context, fundings []types.Funding, whitelist []*types.WhitelistCoinEntry) (lowestFunding *types.Funding, err error) {
+func (k Keeper) GetLowestFunding(fundings []types.Funding, whitelist []*types.WhitelistCoinEntry) (lowestFunding *types.Funding, err error) {
 	if len(fundings) == 0 {
 		return nil, fmt.Errorf("no active fundings")
 	}
 
-
-
 	lowestFundingIndex := 0
 	for i := range fundings {
-		if fundings[i].GetScore(params.CoinWhitelist) < fundings[lowestFundingIndex].GetScore(params.CoinWhitelist) {
+		if fundings[i].GetScore(whitelist) < fundings[lowestFundingIndex].GetScore(whitelist) {
 			lowestFundingIndex = i
 		}
 	}
 	return &fundings[lowestFundingIndex], nil
 }
-
-
 
 // ensureParamsCompatibility checks compatibility of the provided funding with the pool params.
 // i.e.
@@ -139,8 +131,6 @@ func (k Keeper) ensureParamsCompatibility(ctx sdk.Context, msg *types.MsgFundPoo
 	return nil
 }
 
-func (k Keeper)
-
 // ensureFreeSlot makes sure that a funder can add funding to a given pool.
 // If this is not possible an appropriate error is returned.
 // A pool has a fixed amount of funding-slots. If there are still free slots
@@ -159,7 +149,7 @@ func (k Keeper) ensureFreeSlot(ctx sdk.Context, newFunding *types.Funding, fundi
 
 	params := k.GetParams(ctx)
 
-	lowestFunding, err := k.GetLowestFunding(ctx, activeFundings, params.CoinWhitelist)
+	lowestFunding, err := k.GetLowestFunding(activeFundings, params.CoinWhitelist)
 	if err != nil {
 		return err
 	}
@@ -180,6 +170,7 @@ func (k Keeper) ensureFreeSlot(ctx sdk.Context, newFunding *types.Funding, fundi
 		return err
 	}
 
+	lowestFunding.Amounts.Sub(lowestFunding.Amounts...)
 	fundingState.SetInactive(lowestFunding)
 	k.SetFunding(ctx, lowestFunding)
 
@@ -187,7 +178,7 @@ func (k Keeper) ensureFreeSlot(ctx sdk.Context, newFunding *types.Funding, fundi
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventDefundPool{
 		PoolId:  fundingState.PoolId,
 		Address: lowestFunding.FunderAddress,
-		Amounts:  lowestFunding.Amounts,
+		Amounts: lowestFunding.Amounts,
 	})
 
 	return nil

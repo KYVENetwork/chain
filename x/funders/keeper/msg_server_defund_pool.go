@@ -24,7 +24,7 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrFundingDoesNotExist.Error(), msg.PoolId, msg.Creator)
 	}
 
-	if funding.Amount == 0 {
+	if !msg.Amounts.IsAllLTE(funding.Amounts) {
 		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrFundingIsUsedUp.Error(), msg.PoolId, msg.Creator)
 	}
 
@@ -35,8 +35,8 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 	}
 
 	// Subtract amount from funding
-	amount := funding.SubtractAmount(msg.Amount)
-	if funding.Amount == 0 {
+	funding.Amounts.Sub(msg.Amounts...)
+	if funding.Amounts.IsZero() {
 		fundingState.SetInactive(&funding)
 	} else {
 		// If funding is not fully revoked, check if updated funding is still compatible with params.
@@ -46,7 +46,8 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 	}
 
 	// Transfer tokens from this module to sender.
-	if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, types.ModuleName, msg.Creator, amount); err != nil {
+	recipient := sdk.MustAccAddressFromBech32(msg.Creator)
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, msg.Amounts); err != nil {
 		return nil, err
 	}
 
@@ -58,7 +59,7 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventDefundPool{
 		PoolId:  msg.PoolId,
 		Address: msg.Creator,
-		Amount:  amount,
+		Amounts: msg.Amounts,
 	})
 
 	return &types.MsgDefundPoolResponse{}, nil

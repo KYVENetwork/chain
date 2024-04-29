@@ -17,13 +17,14 @@ func (f *Funding) GetScore(whitelist []*WhitelistCoinEntry) (score uint64) {
 }
 
 func (f *Funding) ChargeOneBundle() (amounts sdk.Coins) {
-	amount = f.SubtractAmount(f.AmountPerBundle)
-	f.TotalFunded += amount
-	return amount
+	funded := f.Amounts.Sub(f.AmountsPerBundle...)
+	amounts.Add(funded...)
+	f.TotalFunded.Add(funded...)
+	return
 }
 
 func (f *Funding) IsActive() (isActive bool) {
-	return f.Amount > 0
+	return !f.Amounts.IsZero()
 }
 
 func (f *Funding) IsInactive() (isInactive bool) {
