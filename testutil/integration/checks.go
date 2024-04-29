@@ -2,6 +2,7 @@ package integration
 
 import (
 	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"time"
 
 	"cosmossdk.io/store"
@@ -452,7 +453,7 @@ func (suite *KeeperTestSuite) VerifyFundersModuleIntegrity() {
 		Expect(found).To(BeTrue())
 
 		// check if funding is active
-		if funding.Amount > 0 {
+		if !funding.Amounts.IsZero() {
 			key := string(funderstypes.FundingKeyByFunder(funding.FunderAddress, funding.PoolId))
 			allActiveFundings[key] = true
 		}
@@ -485,28 +486,28 @@ func (suite *KeeperTestSuite) VerifyFundersModuleIntegrity() {
 }
 
 func (suite *KeeperTestSuite) VerifyFundersModuleAssetsIntegrity() {
-	expectedBalance := uint64(0)
+	expectedBalance := sdk.NewCoins()
 	for _, funding := range suite.App().FundersKeeper.GetAllFundings(suite.Ctx()) {
-		expectedBalance += funding.Amount
+		expectedBalance = expectedBalance.Add(funding.Amounts...)
 	}
 
-	expectedFundingStateTotalAmount := uint64(0)
+	expectedFundingStateTotalAmount := sdk.NewCoins()
 	for _, fundingState := range suite.App().FundersKeeper.GetAllFundingStates(suite.Ctx()) {
 		activeFundings := suite.App().FundersKeeper.GetActiveFundings(suite.Ctx(), fundingState)
-		totalAmount := uint64(0)
+		totalAmount := sdk.NewCoins()
 		for _, activeFunding := range activeFundings {
-			totalAmount += activeFunding.Amount
+			totalAmount = totalAmount.Add(activeFunding.Amounts...)
 		}
 		totalActiveFunding := suite.App().FundersKeeper.GetTotalActiveFunding(suite.ctx, fundingState.PoolId)
 		Expect(totalAmount).To(Equal(totalActiveFunding))
-		expectedFundingStateTotalAmount += totalAmount
+		expectedFundingStateTotalAmount = expectedFundingStateTotalAmount.Add(totalAmount...)
 	}
 
 	// total amount of fundings should be equal to the amount of the funders module account
 	moduleAcc := suite.App().AccountKeeper.GetModuleAccount(suite.Ctx(), funderstypes.ModuleName).GetAddress()
-	actualBalance := suite.App().BankKeeper.GetBalance(suite.Ctx(), moduleAcc, globalTypes.Denom).Amount.Uint64()
-	Expect(actualBalance).To(Equal(expectedBalance))
-	Expect(actualBalance).To(Equal(expectedFundingStateTotalAmount))
+	actualBalance := suite.App().BankKeeper.GetAllBalances(suite.Ctx(), moduleAcc)
+	Expect(actualBalance.String()).To(Equal(expectedBalance.String()))
+	Expect(actualBalance.String()).To(Equal(expectedFundingStateTotalAmount.String()))
 }
 
 // ========================

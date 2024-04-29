@@ -16,6 +16,15 @@ func (suite *KeeperTestSuite) GetBalanceFromAddress(address string) uint64 {
 	return uint64(balance.Amount.Int64())
 }
 
+func (suite *KeeperTestSuite) GetBalancesFromAddress(address string) sdk.Coins {
+	accAddress, err := sdk.AccAddressFromBech32(address)
+	if err != nil {
+		return sdk.NewCoins()
+	}
+
+	return suite.App().BankKeeper.GetAllBalances(suite.Ctx(), accAddress)
+}
+
 func (suite *KeeperTestSuite) GetBalanceFromPool(poolId uint64) uint64 {
 	pool, found := suite.App().PoolKeeper.GetPool(suite.Ctx(), poolId)
 	if !found {
