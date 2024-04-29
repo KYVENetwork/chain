@@ -26,7 +26,7 @@ func (k Keeper) GetStorageCost(ctx sdk.Context, storageProviderId uint32) (res m
 	if int(storageProviderId) < len(storageCosts) {
 		return storageCosts[storageProviderId]
 	}
-	return storageCosts[0]
+	return math.LegacyZeroDec()
 }
 
 // GetNetworkFee returns the NetworkFee param
