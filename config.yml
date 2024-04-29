@@ -77,12 +77,15 @@ genesis:
         min_gas_price: "1"
     gov:
       params:
+        voting_period: 120s
         max_deposit_period: 300s
         min_deposit:
-          - amount: "50_000_000_000"
+          - amount: "50_000"
             denom: tkyve
-        voting_period: 20s
-        quorum: "0.001"
+        expedited_voting_period: 60s
+        expedited_min_deposit:
+          - amount: "100_000"
+            denom: tkyve
     mint:
       params:
         mint_denom: "tkyve"
