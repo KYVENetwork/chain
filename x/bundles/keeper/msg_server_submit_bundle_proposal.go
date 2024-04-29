@@ -59,8 +59,7 @@ func (k msgServer) SubmitBundleProposal(goCtx context.Context, msg *types.MsgSub
 		k.dropCurrentBundleProposal(ctx, msg.PoolId, result.VoteDistribution, bundleProposal.NextUploader)
 
 		return &types.MsgSubmitBundleProposalResponse{}, nil
-	case types.TallyResultNoQuorum:
+	default:
 		return nil, types.ErrQuorumNotReached
 	}
-	return nil, types.ErrQuorumNotReached
 }
