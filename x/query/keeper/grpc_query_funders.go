@@ -62,10 +62,10 @@ func (k Keeper) filterFundingsOnStatus(fundings []fundersTypes.Funding, fundingS
 
 	filtered := make([]fundersTypes.Funding, 0)
 	for _, funding := range fundings {
-		if fundingStatus == types.FUNDING_STATUS_ACTIVE && funding.Amount > 0 {
+		if fundingStatus == types.FUNDING_STATUS_ACTIVE && funding.Amounts.IsAllPositive() {
 			filtered = append(filtered, funding)
 		}
-		if fundingStatus == types.FUNDING_STATUS_INACTIVE && funding.Amount == 0 {
+		if fundingStatus == types.FUNDING_STATUS_INACTIVE && funding.Amounts.IsZero() {
 			filtered = append(filtered, funding)
 		}
 	}
@@ -73,21 +73,23 @@ func (k Keeper) filterFundingsOnStatus(fundings []fundersTypes.Funding, fundingS
 }
 
 func (k Keeper) parseFunder(funder *fundersTypes.Funder, fundings []fundersTypes.Funding) types.Funder {
-	totalUsedFunds := uint64(0)
-	totalAllocatedFunds := uint64(0)
-	totalAmountPerBundle := uint64(0)
-	poolsFunded := make([]uint64, 0)
+	stats := types.FundingStats{
+		TotalUsedFunds:       sdk.NewCoins(),
+		TotalAllocatedFunds:  sdk.NewCoins(),
+		TotalAmountPerBundle: sdk.NewCoins(),
+		PoolsFunded:          make([]uint64, 0),
+	}
 
 	for _, funding := range fundings {
 		// Only count active fundings for totalAmountPerBundle
 		if funding.IsActive() {
-			totalAmountPerBundle += funding.AmountPerBundle
+			stats.TotalAmountPerBundle = stats.TotalAmountPerBundle.Add(funding.AmountsPerBundle...)
 		}
 
-		totalUsedFunds += funding.TotalFunded
-		totalAllocatedFunds += funding.Amount
+		stats.TotalUsedFunds = stats.TotalUsedFunds.Add(funding.TotalFunded...)
+		stats.TotalAllocatedFunds = stats.TotalAllocatedFunds.Add(funding.Amounts...)
 
-		poolsFunded = append(poolsFunded, funding.PoolId)
+		stats.PoolsFunded = append(stats.PoolsFunded, funding.PoolId)
 	}
 
 	return types.Funder{
@@ -97,11 +99,6 @@ func (k Keeper) parseFunder(funder *fundersTypes.Funder, fundings []fundersTypes
 		Website:     funder.Website,
 		Contact:     funder.Contact,
 		Description: funder.Description,
-		Stats: &types.FundingStats{
-			TotalUsedFunds:       totalUsedFunds,
-			TotalAllocatedFunds:  totalAllocatedFunds,
-			TotalAmountPerBundle: totalAmountPerBundle,
-			PoolsFunded:          poolsFunded,
-		},
+		Stats:       &stats,
 	}
 }

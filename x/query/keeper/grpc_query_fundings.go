@@ -46,11 +46,11 @@ func (k Keeper) parseFundings(fundings []fundersTypes.Funding) []types.Funding {
 	fundingsData := make([]types.Funding, 0)
 	for _, funding := range fundings {
 		fundingsData = append(fundingsData, types.Funding{
-			FunderAddress:   funding.FunderAddress,
-			PoolId:          funding.PoolId,
-			Amount:          funding.Amount,
-			AmountPerBundle: funding.AmountPerBundle,
-			TotalFunded:     funding.TotalFunded,
+			FunderAddress:    funding.FunderAddress,
+			PoolId:           funding.PoolId,
+			Amounts:          funding.Amounts,
+			AmountsPerBundle: funding.AmountsPerBundle,
+			TotalFunded:      funding.TotalFunded,
 		})
 	}
 	return fundingsData
