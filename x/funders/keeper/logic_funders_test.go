@@ -5,6 +5,7 @@ import (
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	globaltypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -13,12 +14,14 @@ import (
 
 TEST CASES - logic_funders.go
 
-* Charge funders once
+* Charge funders once with one coin
+* TODO: Charge funders once with multiple coins
 * Charge funders until one funder runs out of funds
 * Charge funders until all funders run out of funds
 * Charge funder with less funds than amount_per_bundle
 * Charge without fundings
-* Check if the lowest funding is returned correctly
+* Check if the lowest funding is returned correctly with one coin
+* Check if the lowest funding is returned correctly with multiple coins
 
 */
 
@@ -66,16 +69,16 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 
 		// fund pool
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 1 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          sdk.NewCoins(sdk.NewInt64Coin(i.A_DENOM, 100*i.T_KYVE)),
+			AmountsPerBundle: sdk.NewCoins(sdk.NewInt64Coin(i.A_DENOM, 1*i.T_KYVE)),
 		})
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          50 * i.KYVE,
-			AmountPerBundle: 10 * i.KYVE,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          sdk.NewCoins(sdk.NewInt64Coin(i.A_DENOM, 50*i.T_KYVE)),
+			AmountsPerBundle: sdk.NewCoins(sdk.NewInt64Coin(i.A_DENOM, 10*i.T_KYVE)),
 		})
 
 		fundersBalance := s.App().BankKeeper.GetBalance(s.Ctx(), fundersModuleAcc, globaltypes.Denom).Amount.Uint64()
@@ -86,33 +89,76 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		s.PerformValidityChecks()
 	})
 
-	It("Charge funders once", func() {
+	It("Charge funders once with one coin", func() {
 		// ACT
 		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
 		Expect(err).NotTo(HaveOccurred())
 
 		// ASSERT
-		Expect(payout).To(Equal(11 * i.KYVE))
+		Expect(payout.String()).To(Equal(i.ACoins(11 * i.T_KYVE).String()))
 
 		fundingAlice, foundAlice := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
 		Expect(foundAlice).To(BeTrue())
-		Expect(fundingAlice.Amount).To(Equal(99 * i.KYVE))
-		Expect(fundingAlice.TotalFunded).To(Equal(1 * i.KYVE))
+		Expect(fundingAlice.Amounts.String()).To(Equal(i.ACoins(99 * i.T_KYVE).String()))
+		Expect(fundingAlice.TotalFunded.String()).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
 
 		fundingBob, foundBob := s.App().FundersKeeper.GetFunding(s.Ctx(), i.BOB, 0)
 		Expect(foundBob).To(BeTrue())
-		Expect(fundingBob.Amount).To(Equal(40 * i.KYVE))
-		Expect(fundingBob.TotalFunded).To(Equal(10 * i.KYVE))
+		Expect(fundingBob.Amounts.String()).To(Equal(i.ACoins(40 * i.T_KYVE).String()))
+		Expect(fundingBob.TotalFunded.String()).To(Equal(i.ACoins(10 * i.T_KYVE).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
 		Expect(fundingState.ActiveFunderAddresses[1]).To(Equal(i.BOB))
 
-		fundersBalance := s.App().BankKeeper.GetBalance(s.Ctx(), fundersModuleAcc, globaltypes.Denom).Amount.Uint64()
-		poolBalance := s.App().BankKeeper.GetBalance(s.Ctx(), poolModuleAcc, globaltypes.Denom).Amount.Uint64()
-		Expect(fundersBalance).To(Equal(139 * i.KYVE))
-		Expect(poolBalance).To(Equal(11 * i.KYVE))
+		fundersBalance := s.App().BankKeeper.GetBalance(s.Ctx(), fundersModuleAcc, i.A_DENOM).Amount.Uint64()
+		poolBalance := s.App().BankKeeper.GetBalance(s.Ctx(), poolModuleAcc, i.A_DENOM).Amount.Uint64()
+		Expect(fundersBalance).To(Equal(139 * i.T_KYVE))
+		Expect(poolBalance).To(Equal(11 * i.T_KYVE))
+	})
+
+	It("Charge funders once with multiple coins", func() {
+		// ARRANGE
+		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          sdk.NewCoins(sdk.NewInt64Coin(i.B_DENOM, 1000*i.T_KYVE)),
+			AmountsPerBundle: sdk.NewCoins(sdk.NewInt64Coin(i.B_DENOM, 20*i.T_KYVE)),
+		})
+		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          sdk.NewCoins(sdk.NewInt64Coin(i.C_DENOM, 100*i.T_KYVE)),
+			AmountsPerBundle: sdk.NewCoins(sdk.NewInt64Coin(i.C_DENOM, 2*i.T_KYVE)),
+		})
+
+		// ACT
+		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+		Expect(err).NotTo(HaveOccurred())
+
+		// ASSERT
+		Expect(payout.String()).To(Equal(sdk.NewCoins(i.ACoin(11), i.BCoin(20), i.CCoin(2)).String()))
+
+		fundingAlice, foundAlice := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
+		Expect(foundAlice).To(BeTrue())
+		Expect(fundingAlice.Amounts.String()).To(Equal(sdk.NewCoins(i.ACoin(99*i.T_KYVE), i.BCoin(980*i.T_KYVE)).String()))
+		Expect(fundingAlice.TotalFunded.String()).To(Equal(sdk.NewCoins(i.ACoin(40*i.T_KYVE), i.CCoin(98*i.T_KYVE)).String()))
+
+		fundingBob, foundBob := s.App().FundersKeeper.GetFunding(s.Ctx(), i.BOB, 0)
+		Expect(foundBob).To(BeTrue())
+		Expect(fundingBob.Amounts.String()).To(Equal(i.ACoins(40 * i.T_KYVE).String()))
+		Expect(fundingBob.TotalFunded.String()).To(Equal(i.ACoins(10 * i.T_KYVE).String()))
+
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
+		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
+		Expect(fundingState.ActiveFunderAddresses[1]).To(Equal(i.BOB))
+
+		fundersBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), fundersModuleAcc)
+		poolBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), poolModuleAcc)
+		Expect(fundersBalance.String()).To(Equal(sdk.NewCoins(i.ACoin(139), i.BCoin(980), i.CCoin(98)).String()))
+		Expect(poolBalance.String()).To(Equal(sdk.NewCoins(i.ACoin(11), i.BCoin(20), i.CCoin(2)).String()))
 	})
 
 	It("Charge funders until one funder runs out of funds", func() {

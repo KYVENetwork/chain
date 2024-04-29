@@ -58,11 +58,38 @@ var (
 )
 
 const (
-	KYVE  = uint64(1_000_000_000)
-	TKYVE = uint64(1)
+	KYVE   = uint64(1_000_000_000)
+	T_KYVE = int64(KYVE)
 )
 
 var KYVE_DENOM = globalTypes.Denom
+var A_DENOM = "acoin"
+var B_DENOM = "bcoin"
+var C_DENOM = "ccoin"
+
+func ACoin(amount int64) sdk.Coin {
+	return sdk.NewInt64Coin(A_DENOM, amount)
+}
+
+func ACoins(amount int64) sdk.Coins {
+	return sdk.NewCoins(ACoin(amount))
+}
+
+func BCoin(amount int64) sdk.Coin {
+	return sdk.NewInt64Coin(B_DENOM, amount)
+}
+
+func BCoins(amount int64) sdk.Coins {
+	return sdk.NewCoins(ACoin(amount))
+}
+
+func CCoin(amount int64) sdk.Coin {
+	return sdk.NewInt64Coin(C_DENOM, amount)
+}
+
+func CCoins(amount int64) sdk.Coins {
+	return sdk.NewCoins(ACoin(amount))
+}
 
 func NewCleanChain() *KeeperTestSuite {
 	s := KeeperTestSuite{}
@@ -131,7 +158,13 @@ func (suite *KeeperTestSuite) initDummyAccounts() {
 }
 
 func (suite *KeeperTestSuite) Mint(address string, amount uint64) error {
-	coins := sdk.NewCoins(sdk.NewInt64Coin(KYVE_DENOM, int64(amount)))
+	// mint coins ukyve, A, B, C
+	coins := sdk.NewCoins(
+		sdk.NewInt64Coin(KYVE_DENOM, int64(amount)),
+		sdk.NewInt64Coin(A_DENOM, int64(amount)),
+		sdk.NewInt64Coin(B_DENOM, int64(amount)),
+		sdk.NewInt64Coin(C_DENOM, int64(amount)),
+	)
 	err := suite.app.BankKeeper.MintCoins(suite.ctx, mintTypes.ModuleName, coins)
 	if err != nil {
 		return err
