@@ -77,7 +77,7 @@ echo "Submitted proposal"
 echo ""
 
 # Get proposal ID
-ID=$($BINARY q gov proposals --page-limit 1 --page-reverse --proposal-status voting-period $JSON 1&>/dev/null | jq '.proposals[0].id | tonumber')
+ID=$($BINARY q gov proposals --page-limit 1 --page-reverse --proposal-status voting-period $JSON | jq '.proposals[0].id | tonumber' | tee /dev/null)
 if [[ -z "$ID" ]]; then
     ID=$($BINARY q gov proposals --limit 1 --reverse --status voting_period $JSON | jq '.proposals[0].id | tonumber')
     if [[ -z "$ID" ]]; then

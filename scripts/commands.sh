@@ -9,8 +9,8 @@ ENDCOLOR="\e[0m"
 
 export BINARY=${1:-"kyved"}
 
-# Check if binary is running
-if ! command -v $BINARY &> /dev/null; then
+# Check if binary is executable
+if ! command -v "$BINARY" &> /dev/null; then
   echo -e "$RED✗ $BINARY binary not found. Please install it or use the correct path.$ENDCOLOR"
   return
 fi
@@ -33,9 +33,12 @@ export JSON="--output json"
 check_tx() {
   echo "🔍 Checking transaction..."
 
-  local tx_output=$(cat -)
-  local tx_hash=$(echo "$tx_output" | jq -r '.txhash' | tr -d '.')
-  local code=$(echo "$tx_output" | jq -r '.code' | tr -d '.')
+  local tx_output
+  local tx_hash
+  local code
+  tx_output=$(cat -)
+  tx_hash=$(echo "$tx_output" | jq -r '.txhash' | tr -d '.')
+  code=$(echo "$tx_output" | jq -r '.code' | tr -d '.')
 
   if [[ -z "$tx_hash" || "$code" -ne 0 ]]; then
     local raw_log=$(echo "$tx_output" | jq -r '.raw_log')
