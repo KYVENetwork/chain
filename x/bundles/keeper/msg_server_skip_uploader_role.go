@@ -31,7 +31,7 @@ func (k msgServer) SkipUploaderRole(goCtx context.Context, msg *types.MsgSkipUpl
 
 	switch result.Status {
 	case types.TallyResultValid:
-		// Register the current bundle and finalize it
+		// Finalize bundle by adding it to the store
 		k.finalizeCurrentBundleProposal(ctx, msg.PoolId, result.VoteDistribution, result.FundersPayout, result.InflationPayout, result.BundleReward, nextUploader)
 
 		// Register empty bundle with next uploader

@@ -46,7 +46,7 @@ func (k msgServer) SubmitBundleProposal(goCtx context.Context, msg *types.MsgSub
 		// Get next uploader from stakers who voted `valid`
 		nextUploader := k.chooseNextUploaderFromList(ctx, msg.PoolId, bundleProposal.VotersValid)
 
-		// Bundle is finalized by adding it to the store
+		// Finalize bundle by adding it to the store
 		k.finalizeCurrentBundleProposal(ctx, msg.PoolId, result.VoteDistribution, result.FundersPayout, result.InflationPayout, result.BundleReward, nextUploader)
 
 		// Register the provided bundle as a new proposal for the next round
