@@ -3,6 +3,7 @@ package keeper_test
 import (
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -166,7 +167,7 @@ var _ = Describe("msg_server_delegate.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ACT
-		PayoutRewards(s, i.ALICE, 10*i.KYVE, nil)
+		PayoutRewards(s, i.ALICE, sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(10*i.KYVE))))
 
 		// ASSERT
 
@@ -214,7 +215,7 @@ var _ = Describe("msg_server_delegate.go", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1])).To(BeEmpty())
 
 		// ACT
-		PayoutRewards(s, i.ALICE, 10*i.KYVE, nil)
+		PayoutRewards(s, i.ALICE, sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(10*i.KYVE))))
 
 		// ASSERT
 

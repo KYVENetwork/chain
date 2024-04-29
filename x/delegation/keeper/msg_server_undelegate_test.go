@@ -4,6 +4,7 @@ import (
 	"cosmossdk.io/math"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -410,7 +411,7 @@ var _ = Describe("msg_server_undelegate.go", Ordered, func() {
 		// Alice: 100   100/130 * 10 * 1e9 = 7_692_307_692
 		// Dummy0: 10   10/130 * 10 * 1e9 = 769_230_769
 		// Dummy1: 20   20/130 * 10 * 1e9 = 1_538_461_538
-		PayoutRewards(s, i.ALICE, 10*i.KYVE, nil)
+		PayoutRewards(s, i.ALICE, sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(10*i.KYVE))))
 
 		// Collect
 		s.RunTxDelegatorSuccess(&types.MsgWithdrawRewards{
@@ -494,7 +495,7 @@ var _ = Describe("msg_server_undelegate.go", Ordered, func() {
 		// Alice: 50    50 / 75 * 10 * 1e9 = 6_666_666_666
 		// Dummy0: 5    5 / 75 * 10 * 1e9 = 666_666_666
 		// Dummy1: 20   20 / 75 * 10 * 1e9 = 2_666_666_666
-		PayoutRewards(s, i.ALICE, 10*i.KYVE, nil)
+		PayoutRewards(s, i.ALICE, sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(10*i.KYVE))))
 
 		// ASSERT
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0]).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(666_666_666)))
@@ -577,7 +578,7 @@ var _ = Describe("msg_server_undelegate.go", Ordered, func() {
 		// Alice: 25    25 / 32.5 * 1e10 = 7_692_307_692
 		// Dummy0: 2.5  2.5 / 32.5 * 1e10 = 769_230_769
 		// Dummy1: 5    5 / 32.5 * 1e10 = 1_538_461_538
-		PayoutRewards(s, i.ALICE, 10*i.KYVE, nil)
+		PayoutRewards(s, i.ALICE, sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(10*i.KYVE))))
 
 		s.CommitAfterSeconds(s.App().DelegationKeeper.GetUnbondingDelegationTime(s.Ctx()) + 1)
 		s.CommitAfterSeconds(1)
