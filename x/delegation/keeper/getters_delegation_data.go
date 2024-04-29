@@ -18,7 +18,7 @@ import (
 func (k Keeper) AddAmountToDelegationRewards(ctx sdk.Context, stakerAddress string, amount sdk.Coins) {
 	delegationData, found := k.GetDelegationData(ctx, stakerAddress)
 	if found {
-		delegationData.CurrentRewards.Add(amount...)
+		delegationData.CurrentRewards = delegationData.CurrentRewards.Add(amount...)
 		k.SetDelegationData(ctx, delegationData)
 	}
 }

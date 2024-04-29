@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"cosmossdk.io/math"
 	fundersTypes "github.com/KYVENetwork/chain/x/funders/types"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -245,7 +246,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// assert commission rewards
 		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -394,19 +395,19 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// assert commission rewards
 		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 		// assert delegator delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.ALICE)).To(Equal(delegatorDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.ALICE).AmountOf(globalTypes.Denom).Uint64()).To(Equal(delegatorDelegationReward))
 
 		// check voter rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeEmpty())
 
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
 		// assert commission rewards
 		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -572,12 +573,12 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// assert commission rewards
 		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 		// assert delegator delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.ALICE)).To(Equal(delegatorDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.ALICE).AmountOf(globalTypes.Denom).Uint64()).To(Equal(delegatorDelegationReward))
 
 		// check voter rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.CHARLIE)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.CHARLIE)).To(BeEmpty())
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -751,12 +752,12 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// assert commission rewards
 		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 		// assert delegator delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.ALICE)).To(Equal(delegatorDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.ALICE).AmountOf(globalTypes.Denom).Uint64()).To(Equal(delegatorDelegationReward))
 
 		// check voter rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.CHARLIE)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.CHARLIE)).To(BeEmpty())
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -940,12 +941,12 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// assert commission rewards
 		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 		// assert delegator delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.ALICE)).To(Equal(delegatorDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.ALICE).AmountOf(globalTypes.Denom).Uint64()).To(Equal(delegatorDelegationReward))
 
 		// check voter rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.CHARLIE)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.CHARLIE)).To(BeEmpty())
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 

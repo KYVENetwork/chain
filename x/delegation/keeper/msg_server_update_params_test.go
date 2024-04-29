@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
-
 	"cosmossdk.io/math"
 
 	i "github.com/KYVENetwork/chain/testutil/integration"
@@ -518,7 +516,6 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		// ASSERT
 		updatedParams := s.App().DelegationKeeper.GetParams(s.Ctx())
 
-		fmt.Println(msg.ValidateBasic())
 		Expect(submitErr).To(HaveOccurred())
 
 		Expect(updatedParams.UnbondingDelegationTime).To(Equal(types.DefaultUnbondingDelegationTime))

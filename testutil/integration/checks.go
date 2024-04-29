@@ -328,7 +328,7 @@ func (suite *KeeperTestSuite) VerifyDelegationQueries() {
 		Expect(resD.Delegator.Delegator).To(Equal(delegator.Delegator))
 		Expect(resD.Delegator.Staker).To(Equal(delegator.Staker))
 		Expect(resD.Delegator.DelegationAmount).To(Equal(suite.App().DelegationKeeper.GetDelegationAmountOfDelegator(suite.Ctx(), delegator.Staker, delegator.Delegator)))
-		Expect(resD.Delegator.CurrentReward).To(Equal(suite.App().DelegationKeeper.GetOutstandingRewards(suite.Ctx(), delegator.Staker, delegator.Delegator)))
+		Expect(resD.Delegator.CurrentRewards.String()).To(Equal(suite.App().DelegationKeeper.GetOutstandingRewards(suite.Ctx(), delegator.Staker, delegator.Delegator).String()))
 
 		// Query: stakers_by_delegator/{delegator}
 		resSbD, errSbD := suite.App().QueryKeeper.StakersByDelegator(suite.Ctx(), &querytypes.QueryStakersByDelegatorRequest{
@@ -339,7 +339,7 @@ func (suite *KeeperTestSuite) VerifyDelegationQueries() {
 		Expect(resSbD.Delegator).To(Equal(delegator.Delegator))
 		for _, sRes := range resSbD.Stakers {
 			Expect(sRes.DelegationAmount).To(Equal(suite.App().DelegationKeeper.GetDelegationAmountOfDelegator(suite.Ctx(), sRes.Staker.Address, delegator.Delegator)))
-			Expect(sRes.CurrentReward).To(Equal(suite.App().DelegationKeeper.GetOutstandingRewards(suite.Ctx(), sRes.Staker.Address, delegator.Delegator)))
+			Expect(sRes.CurrentRewards.String()).To(Equal(suite.App().DelegationKeeper.GetOutstandingRewards(suite.Ctx(), sRes.Staker.Address, delegator.Delegator).String()))
 			suite.verifyFullStaker(*sRes.Staker, sRes.Staker.Address)
 		}
 	}
@@ -367,7 +367,7 @@ func (suite *KeeperTestSuite) VerifyDelegationQueries() {
 		for _, delegator := range resDbS.Delegators {
 			Expect(stakersDelegators[delegator.Staker][delegator.Delegator]).ToNot(BeNil())
 			Expect(delegator.DelegationAmount).To(Equal(suite.App().DelegationKeeper.GetDelegationAmountOfDelegator(suite.Ctx(), delegator.Staker, delegator.Delegator)))
-			Expect(delegator.CurrentReward).To(Equal(suite.App().DelegationKeeper.GetOutstandingRewards(suite.Ctx(), delegator.Staker, delegator.Delegator)))
+			Expect(delegator.CurrentRewards.String()).To(Equal(suite.App().DelegationKeeper.GetOutstandingRewards(suite.Ctx(), delegator.Staker, delegator.Delegator).String()))
 		}
 	}
 }
@@ -377,7 +377,7 @@ func (suite *KeeperTestSuite) VerifyDelegationModuleIntegrity() {
 
 	for _, delegator := range suite.App().DelegationKeeper.GetAllDelegators(suite.Ctx()) {
 		expectedBalance += suite.App().DelegationKeeper.GetDelegationAmountOfDelegator(suite.Ctx(), delegator.Staker, delegator.Delegator)
-		expectedBalance += suite.App().DelegationKeeper.GetOutstandingRewards(suite.Ctx(), delegator.Staker, delegator.Delegator)
+		expectedBalance += suite.App().DelegationKeeper.GetOutstandingRewards(suite.Ctx(), delegator.Staker, delegator.Delegator).AmountOf(globalTypes.Denom).Uint64()
 	}
 
 	// Due to rounding errors the delegation module will get a very few nKYVE over the time.

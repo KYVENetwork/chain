@@ -3,8 +3,10 @@ package keeper_test
 import (
 	"cosmossdk.io/math"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakerstypes "github.com/KYVENetwork/chain/x/stakers/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -91,7 +93,7 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 		// Alice: 100
 		// Dummy0: 10
 		// Dummy1: 0
-		PayoutRewards(s, i.ALICE, 20*i.KYVE)
+		PayoutRewards(s, i.ALICE, 20*i.KYVE, nil)
 
 		// ASSERT
 		delegationModuleBalanceAfter := s.GetBalanceFromModule(types.ModuleName)
@@ -100,9 +102,9 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 		Expect(delegationModuleBalanceAfter).To(Equal(delegationModuleBalanceBefore + 20*i.KYVE))
 		Expect(fundersModuleBalanceAfter).To(Equal(fundersModuleBalanceBefore - 20*i.KYVE))
 
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(Equal(uint64(6666666666)))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1])).To(Equal(uint64(6666666666)))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[2])).To(Equal(uint64(6666666666)))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0]).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(6666666666)))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1]).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(6666666666)))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[2]).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(6666666666)))
 
 		s.RunTxDelegatorSuccess(&types.MsgWithdrawRewards{
 			Creator: i.DUMMY[0],
@@ -164,9 +166,9 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 
 		// ACT
 		// not enough balance in pool module
-		err1 := s.App().DelegationKeeper.PayoutRewards(s.Ctx(), i.ALICE, 20000*i.KYVE, pooltypes.ModuleName)
+		err1 := s.App().DelegationKeeper.PayoutRewards(s.Ctx(), i.ALICE, sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(20000*i.KYVE))), pooltypes.ModuleName)
 		// staker does not exist
-		err2 := s.App().DelegationKeeper.PayoutRewards(s.Ctx(), i.DUMMY[20], 1*i.KYVE, pooltypes.ModuleName)
+		err2 := s.App().DelegationKeeper.PayoutRewards(s.Ctx(), i.DUMMY[20], sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(1*i.KYVE))), pooltypes.ModuleName)
 
 		// ASSERT
 		Expect(err1).To(HaveOccurred())
@@ -183,7 +185,7 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 		startBalance := s.GetBalanceFromAddress(i.DUMMY[0])
 
 		// ACT
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(Equal(uint64(0)))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(BeEmpty())
 
 		s.RunTxDelegatorSuccess(&types.MsgWithdrawRewards{
 			Creator: i.DUMMY[0],
@@ -192,7 +194,7 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 
 		// ASSERT
 		Expect(s.GetBalanceFromAddress(i.DUMMY[0])).To(Equal(startBalance))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(Equal(uint64(0)))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(BeEmpty())
 	})
 
 	It("Withdraw rewards with multiple slashes", func() {
@@ -211,22 +213,22 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 
 		// Slash 50%
 		s.App().DelegationKeeper.SlashDelegators(s.Ctx(), 0, i.ALICE, types.SLASH_TYPE_UPLOAD)
-		PayoutRewards(s, i.ALICE, 5*i.KYVE)
+		PayoutRewards(s, i.ALICE, 5*i.KYVE, nil)
 
 		// Slash 50% again
 		s.App().DelegationKeeper.SlashDelegators(s.Ctx(), 0, i.ALICE, types.SLASH_TYPE_UPLOAD)
-		PayoutRewards(s, i.ALICE, 5*i.KYVE)
+		PayoutRewards(s, i.ALICE, 5*i.KYVE, nil)
 
 		s.PerformValidityChecks()
 
 		// ASSERT
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(Equal(10 * i.KYVE))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0]).AmountOf(globalTypes.Denom).Uint64()).To(Equal(10 * i.KYVE))
 
 		s.RunTxDelegatorSuccess(&types.MsgWithdrawRewards{
 			Creator: i.DUMMY[0],
 			Staker:  i.ALICE,
 		})
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(Equal(uint64(0)))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(BeEmpty())
 		Expect(s.GetBalanceFromAddress(i.DUMMY[0])).To(Equal(startBalance + 10*i.KYVE))
 	})
 })

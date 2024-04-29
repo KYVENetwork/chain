@@ -2,9 +2,11 @@ package keeper_test
 
 import (
 	"cosmossdk.io/math"
+
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	. "github.com/onsi/ginkgo/v2"
@@ -173,7 +175,7 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(totalDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(totalDelegationReward))
 
 		// assert commission rewards
 		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
