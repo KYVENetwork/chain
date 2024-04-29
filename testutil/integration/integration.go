@@ -1,8 +1,11 @@
 package integration
 
 import (
+	"encoding/hex"
 	mrand "math/rand"
 	"time"
+
+	"github.com/stretchr/testify/suite"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
@@ -18,8 +21,6 @@ import (
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/stretchr/testify/suite"
 )
 
 const (
@@ -158,7 +159,7 @@ type KeeperTestSuite struct {
 	ctx sdk.Context
 
 	app         *app.App
-	address     common.Address
+	address     [20]byte
 	consAddress sdk.ConsAddress
 	validator   stakingtypes.Validator
 	denom       string
@@ -185,7 +186,8 @@ func (suite *KeeperTestSuite) SetupApp(startTime int64) {
 
 	suite.denom = globalTypes.Denom
 
-	suite.address = common.HexToAddress("0xBf71F763e4DEd30139C40160AE74Df881D5C7A2d")
+	rawHex, _ := hex.DecodeString("0xBf71F763e4DEd30139C40160AE74Df881D5C7A2d")
+	suite.address = [20]byte(rawHex[:20])
 
 	// consensus key
 	ePriv := ed25519.GenPrivKeyFromSecret([]byte{1})
@@ -229,7 +231,7 @@ func (suite *KeeperTestSuite) SetupApp(startTime int64) {
 	_ = suite.app.GovKeeper.Params.Set(suite.ctx, govParams)
 
 	// Set Validator
-	valAddr := sdk.ValAddress(suite.address.Bytes())
+	valAddr := sdk.ValAddress(suite.address[:])
 	validator, _ := stakingtypes.NewValidator(valAddr.String(), ePriv.PubKey(), stakingtypes.Description{})
 	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
 	//_ = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
