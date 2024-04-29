@@ -12,10 +12,8 @@ import (
 var DefaultUploadTimeout = uint64(600)
 
 // DefaultStorageCosts ...
-func DefaultStorageCosts() map[uint32]LegacyDecValue {
-	return map[uint32]LegacyDecValue{
-		0: {Value: math.LegacyMustNewDecFromStr("0.025")},
-	}
+func DefaultStorageCosts() []math.LegacyDec {
+	return []math.LegacyDec{math.LegacyMustNewDecFromStr("0.025")}
 }
 
 // DefaultNetworkFee ...
@@ -27,7 +25,7 @@ var DefaultMaxPoints = uint64(24)
 // NewParams creates a new Params instance
 func NewParams(
 	uploadTimeout uint64,
-	storageCosts map[uint32]LegacyDecValue,
+	storageCosts []math.LegacyDec,
 	networkFee math.LegacyDec,
 	maxPoints uint64,
 ) Params {
@@ -59,7 +57,7 @@ func (p Params) Validate() error {
 		return fmt.Errorf("storage costs cannot be empty")
 	}
 	for _, v := range p.StorageCosts {
-		if err := util.ValidateDecimal(v.Value); err != nil {
+		if err := util.ValidateDecimal(v); err != nil {
 			return err
 		}
 	}

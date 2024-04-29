@@ -108,11 +108,9 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		// ARRANGE
 		payload := `{
 			"upload_timeout": 20,
-			"storage_costs": {
-				"0": {
-					"value": "0.05"	
-				}
-			},
+			"storage_costs": [
+				"0.05"	
+			],
 			"network_fee": "0.05",
 			"max_points": 15
 		}`
@@ -144,9 +142,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(voteErr).NotTo(HaveOccurred())
 
 		Expect(updatedParams.UploadTimeout).To(Equal(uint64(20)))
-		Expect(updatedParams.StorageCosts).To(Equal(map[uint32]types.LegacyDecValue{
-			0: {Value: math.LegacyMustNewDecFromStr("0.05")},
-		}))
+		Expect(updatedParams.StorageCosts).To(Equal([]math.LegacyDec{math.LegacyMustNewDecFromStr("0.05")}))
 		Expect(updatedParams.NetworkFee).To(Equal(math.LegacyMustNewDecFromStr("0.05")))
 		Expect(updatedParams.MaxPoints).To(Equal(uint64(15)))
 	})
@@ -292,14 +288,10 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 	It("Update storage costs", func() {
 		// ARRANGE
 		payload := `{
-			"storage_costs": {
-				"0": {
-					"value": "0.050000000000000000"
-				},
-				"1": {
-					"value": "0.08"
-				}
-			}
+			"storage_costs": [
+				"0.05",
+				"0.08"
+			]
 		}`
 
 		msg := &types.MsgUpdateParams{
@@ -329,9 +321,9 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(voteErr).NotTo(HaveOccurred())
 
 		Expect(updatedParams.UploadTimeout).To(Equal(types.DefaultUploadTimeout))
-		Expect(updatedParams.StorageCosts).To(Equal(map[uint32]types.LegacyDecValue{
-			0: {Value: math.LegacyMustNewDecFromStr("0.05")},
-			1: {Value: math.LegacyMustNewDecFromStr("0.08")},
+		Expect(updatedParams.StorageCosts).To(Equal([]math.LegacyDec{
+			math.LegacyMustNewDecFromStr("0.05"),
+			math.LegacyMustNewDecFromStr("0.08"),
 		}))
 		Expect(updatedParams.NetworkFee).To(Equal(types.DefaultNetworkFee))
 		Expect(updatedParams.MaxPoints).To(Equal(types.DefaultMaxPoints))
@@ -340,11 +332,9 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 	It("Update storage cost with invalid value", func() {
 		// ARRANGE
 		payload := `{
-			"storage_costs": {
-				"0": {
-					"value": "-100"
-				}
-			}
+			"storage_costs": [
+				"-100"
+			]
 		}`
 
 		msg := &types.MsgUpdateParams{

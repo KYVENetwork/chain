@@ -24,51 +24,12 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// LegacyDecValue defines a wrapper around a string that represents a LegacyDec.
-type LegacyDecValue struct {
-	// value ...
-	Value cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=value,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"value"`
-}
-
-func (m *LegacyDecValue) Reset()         { *m = LegacyDecValue{} }
-func (m *LegacyDecValue) String() string { return proto.CompactTextString(m) }
-func (*LegacyDecValue) ProtoMessage()    {}
-func (*LegacyDecValue) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cfd3a74b72a01aaa, []int{0}
-}
-func (m *LegacyDecValue) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *LegacyDecValue) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_LegacyDecValue.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *LegacyDecValue) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_LegacyDecValue.Merge(m, src)
-}
-func (m *LegacyDecValue) XXX_Size() int {
-	return m.Size()
-}
-func (m *LegacyDecValue) XXX_DiscardUnknown() {
-	xxx_messageInfo_LegacyDecValue.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_LegacyDecValue proto.InternalMessageInfo
-
 // Params defines the bundles module parameters.
 type Params struct {
 	// upload_timeout ...
 	UploadTimeout uint64 `protobuf:"varint,1,opt,name=upload_timeout,json=uploadTimeout,proto3" json:"upload_timeout,omitempty"`
-	// storage_cost ...
-	StorageCosts map[uint32]LegacyDecValue `protobuf:"bytes,2,rep,name=storage_costs,json=storageCosts,proto3" json:"storage_costs" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// storage_costs ...
+	StorageCosts []cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,rep,name=storage_costs,json=storageCosts,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"storage_costs"`
 	// network_fee ...
 	NetworkFee cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=network_fee,json=networkFee,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"network_fee"`
 	// max_points ...
@@ -79,7 +40,7 @@ func (m *Params) Reset()         { *m = Params{} }
 func (m *Params) String() string { return proto.CompactTextString(m) }
 func (*Params) ProtoMessage()    {}
 func (*Params) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cfd3a74b72a01aaa, []int{1}
+	return fileDescriptor_cfd3a74b72a01aaa, []int{0}
 }
 func (m *Params) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -115,13 +76,6 @@ func (m *Params) GetUploadTimeout() uint64 {
 	return 0
 }
 
-func (m *Params) GetStorageCosts() map[uint32]LegacyDecValue {
-	if m != nil {
-		return m.StorageCosts
-	}
-	return nil
-}
-
 func (m *Params) GetMaxPoints() uint64 {
 	if m != nil {
 		return m.MaxPoints
@@ -130,73 +84,32 @@ func (m *Params) GetMaxPoints() uint64 {
 }
 
 func init() {
-	proto.RegisterType((*LegacyDecValue)(nil), "kyve.bundles.v1beta1.LegacyDecValue")
 	proto.RegisterType((*Params)(nil), "kyve.bundles.v1beta1.Params")
-	proto.RegisterMapType((map[uint32]LegacyDecValue)(nil), "kyve.bundles.v1beta1.Params.StorageCostsEntry")
 }
 
 func init() { proto.RegisterFile("kyve/bundles/v1beta1/params.proto", fileDescriptor_cfd3a74b72a01aaa) }
 
 var fileDescriptor_cfd3a74b72a01aaa = []byte{
-	// 386 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x52, 0x4f, 0xef, 0xd2, 0x40,
-	0x14, 0x6c, 0x0b, 0xfe, 0x12, 0x16, 0x21, 0xba, 0xe1, 0xd0, 0x60, 0x2c, 0x88, 0x9a, 0x70, 0x30,
-	0xbb, 0x01, 0x2f, 0xca, 0x11, 0x81, 0x0b, 0xc6, 0x90, 0x6a, 0x48, 0xf0, 0xd2, 0x6c, 0xcb, 0xb3,
-	0x34, 0xa5, 0xdd, 0xa6, 0xbb, 0x45, 0xfa, 0x2d, 0xfc, 0x58, 0x1c, 0x39, 0x19, 0xe3, 0x81, 0x18,
-	0xf8, 0x22, 0xa6, 0x7f, 0x24, 0x1a, 0x39, 0xfc, 0x6e, 0x93, 0xd9, 0x99, 0x97, 0x99, 0xf7, 0x16,
-	0x3d, 0xf3, 0xd3, 0x1d, 0x50, 0x3b, 0x09, 0xd7, 0x5b, 0x10, 0x74, 0x37, 0xb0, 0x41, 0xb2, 0x01,
-	0x8d, 0x58, 0xcc, 0x02, 0x41, 0xa2, 0x98, 0x4b, 0x8e, 0x5b, 0x99, 0x84, 0x94, 0x12, 0x52, 0x4a,
-	0xda, 0x2d, 0x97, 0xbb, 0x3c, 0x17, 0xd0, 0x0c, 0x15, 0xda, 0xde, 0x1c, 0x35, 0xdf, 0x83, 0xcb,
-	0x9c, 0x74, 0x02, 0xce, 0x92, 0x6d, 0x13, 0xc0, 0x6f, 0xd1, 0x83, 0x5d, 0x06, 0x74, 0xb5, 0xab,
-	0xf6, 0x6b, 0xe3, 0xe7, 0x87, 0x53, 0x47, 0xf9, 0x79, 0xea, 0x3c, 0x71, 0xb8, 0x08, 0xb8, 0x10,
-	0x6b, 0x9f, 0x78, 0x9c, 0x06, 0x4c, 0x6e, 0xc8, 0xd5, 0x68, 0x16, 0x8e, 0xde, 0x77, 0x0d, 0xdd,
-	0x2d, 0xf2, 0x24, 0xf8, 0x25, 0x6a, 0x26, 0xd1, 0x96, 0xb3, 0xb5, 0x25, 0xbd, 0x00, 0x78, 0x22,
-	0xf3, 0x71, 0x55, 0xb3, 0x51, 0xb0, 0x9f, 0x0a, 0x12, 0xaf, 0x50, 0x43, 0x48, 0x1e, 0x33, 0x17,
-	0x2c, 0x87, 0x0b, 0x29, 0x74, 0xad, 0x5b, 0xe9, 0xd7, 0x87, 0x84, 0xdc, 0xaa, 0x40, 0x8a, 0xd9,
-	0xe4, 0x63, 0xe1, 0x78, 0x97, 0x19, 0xa6, 0xa1, 0x8c, 0xd3, 0x71, 0x35, 0x0b, 0x69, 0x3e, 0x14,
-	0x7f, 0x3d, 0xe0, 0x09, 0xaa, 0x87, 0x20, 0xbf, 0xf2, 0xd8, 0xb7, 0xbe, 0x00, 0xe8, 0x95, 0xfb,
-	0xb7, 0x41, 0xa5, 0x6f, 0x06, 0x80, 0x9f, 0x22, 0x14, 0xb0, 0xbd, 0x15, 0x71, 0x2f, 0x94, 0x42,
-	0xaf, 0xe6, 0x1d, 0x6a, 0x01, 0xdb, 0x2f, 0x72, 0xa2, 0x0d, 0xe8, 0xf1, 0x7f, 0x69, 0xf0, 0x23,
-	0x54, 0xf1, 0x21, 0xcd, 0x0b, 0x37, 0xcc, 0x0c, 0xe2, 0xd1, 0x9f, 0x9d, 0x6a, 0x5d, 0xb5, 0x5f,
-	0x1f, 0xbe, 0xb8, 0x5d, 0xef, 0xdf, 0x43, 0x94, 0x4b, 0x1d, 0x69, 0x6f, 0xd4, 0xf1, 0xec, 0x70,
-	0x36, 0xd4, 0xe3, 0xd9, 0x50, 0x7f, 0x9d, 0x0d, 0xf5, 0xdb, 0xc5, 0x50, 0x8e, 0x17, 0x43, 0xf9,
-	0x71, 0x31, 0x94, 0xcf, 0xaf, 0x5c, 0x4f, 0x6e, 0x12, 0x9b, 0x38, 0x3c, 0xa0, 0xf3, 0xd5, 0x72,
-	0xfa, 0xa1, 0x88, 0x4e, 0x9d, 0x0d, 0xf3, 0x42, 0xba, 0xbf, 0x7e, 0x14, 0x99, 0x46, 0x20, 0xec,
-	0xbb, 0xfc, 0xe8, 0xaf, 0x7f, 0x07, 0x00, 0x00, 0xff, 0xff, 0xec, 0x36, 0xc8, 0x87, 0x45, 0x02,
-	0x00, 0x00,
-}
-
-func (m *LegacyDecValue) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *LegacyDecValue) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *LegacyDecValue) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	{
-		size := m.Value.Size()
-		i -= size
-		if _, err := m.Value.MarshalTo(dAtA[i:]); err != nil {
-			return 0, err
-		}
-		i = encodeVarintParams(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0xa
-	return len(dAtA) - i, nil
+	// 302 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x90, 0x41, 0x4b, 0x02, 0x41,
+	0x18, 0x86, 0x77, 0x52, 0x04, 0xa7, 0xec, 0xb0, 0x78, 0x58, 0x8a, 0x46, 0x2b, 0x02, 0x0f, 0x31,
+	0x83, 0xf4, 0x0f, 0xcc, 0x24, 0x28, 0x42, 0x24, 0x82, 0xba, 0x2c, 0xb3, 0xe3, 0xd7, 0xba, 0xe8,
+	0xec, 0xb7, 0xec, 0xcc, 0x9a, 0xfe, 0x8b, 0x7e, 0x96, 0x47, 0x8f, 0xd1, 0x41, 0x42, 0xff, 0x48,
+	0xb8, 0xbb, 0x74, 0xee, 0xf6, 0xf1, 0xf2, 0x3c, 0x2f, 0x1f, 0x2f, 0x3d, 0x9f, 0x2e, 0xe7, 0x20,
+	0x82, 0x2c, 0x1e, 0xcf, 0xc0, 0x88, 0x79, 0x37, 0x00, 0x2b, 0xbb, 0x22, 0x91, 0xa9, 0xd4, 0x86,
+	0x27, 0x29, 0x5a, 0x74, 0x9b, 0x7b, 0x84, 0x97, 0x08, 0x2f, 0x91, 0x93, 0x66, 0x88, 0x21, 0xe6,
+	0x80, 0xd8, 0x5f, 0x05, 0x7b, 0xb1, 0x21, 0xb4, 0x36, 0xcc, 0x65, 0xf7, 0x8a, 0x1e, 0x67, 0xc9,
+	0x0c, 0xe5, 0xd8, 0xb7, 0x91, 0x06, 0xcc, 0xac, 0x47, 0xda, 0xa4, 0x53, 0x1d, 0x35, 0x8a, 0xf4,
+	0xb9, 0x08, 0xdd, 0x7b, 0xda, 0x30, 0x16, 0x53, 0x19, 0x82, 0xaf, 0xd0, 0x58, 0xe3, 0x1d, 0xb4,
+	0x2b, 0x9d, 0x7a, 0xef, 0x72, 0xb5, 0x69, 0x39, 0xdf, 0x9b, 0xd6, 0xa9, 0x42, 0xa3, 0xd1, 0x98,
+	0xf1, 0x94, 0x47, 0x28, 0xb4, 0xb4, 0x13, 0xfe, 0x08, 0xa1, 0x54, 0xcb, 0x3e, 0xa8, 0xd1, 0x51,
+	0x69, 0xde, 0xee, 0x45, 0xb7, 0x4f, 0x0f, 0x63, 0xb0, 0x1f, 0x98, 0x4e, 0xfd, 0x77, 0x00, 0xaf,
+	0xd2, 0x26, 0xff, 0xed, 0xa1, 0xa5, 0x37, 0x00, 0x70, 0xcf, 0x28, 0xd5, 0x72, 0xe1, 0x27, 0x18,
+	0xc5, 0xd6, 0x78, 0xd5, 0xfc, 0xe5, 0xba, 0x96, 0x8b, 0x61, 0x1e, 0xf4, 0x06, 0xab, 0x2d, 0x23,
+	0xeb, 0x2d, 0x23, 0x3f, 0x5b, 0x46, 0x3e, 0x77, 0xcc, 0x59, 0xef, 0x98, 0xf3, 0xb5, 0x63, 0xce,
+	0xdb, 0x75, 0x18, 0xd9, 0x49, 0x16, 0x70, 0x85, 0x5a, 0x3c, 0xbc, 0xbe, 0xdc, 0x3d, 0x15, 0x9d,
+	0x42, 0x4d, 0x64, 0x14, 0x8b, 0xc5, 0xdf, 0xc6, 0x76, 0x99, 0x80, 0x09, 0x6a, 0xf9, 0x5e, 0x37,
+	0xbf, 0x01, 0x00, 0x00, 0xff, 0xff, 0xea, 0xc2, 0xcd, 0x3f, 0x80, 0x01, 0x00, 0x00,
 }
 
 func (m *Params) Marshal() (dAtA []byte, err error) {
@@ -235,23 +148,15 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i--
 	dAtA[i] = 0x1a
 	if len(m.StorageCosts) > 0 {
-		for k := range m.StorageCosts {
-			v := m.StorageCosts[k]
-			baseI := i
+		for iNdEx := len(m.StorageCosts) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := (&v).MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
+				size := m.StorageCosts[iNdEx].Size()
+				i -= size
+				if _, err := m.StorageCosts[iNdEx].MarshalTo(dAtA[i:]); err != nil {
 					return 0, err
 				}
-				i -= size
 				i = encodeVarintParams(dAtA, i, uint64(size))
 			}
-			i--
-			dAtA[i] = 0x12
-			i = encodeVarintParams(dAtA, i, uint64(k))
-			i--
-			dAtA[i] = 0x8
-			i = encodeVarintParams(dAtA, i, uint64(baseI-i))
 			i--
 			dAtA[i] = 0x12
 		}
@@ -275,17 +180,6 @@ func encodeVarintParams(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *LegacyDecValue) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = m.Value.Size()
-	n += 1 + l + sovParams(uint64(l))
-	return n
-}
-
 func (m *Params) Size() (n int) {
 	if m == nil {
 		return 0
@@ -296,12 +190,9 @@ func (m *Params) Size() (n int) {
 		n += 1 + sovParams(uint64(m.UploadTimeout))
 	}
 	if len(m.StorageCosts) > 0 {
-		for k, v := range m.StorageCosts {
-			_ = k
-			_ = v
-			l = v.Size()
-			mapEntrySize := 1 + sovParams(uint64(k)) + 1 + l + sovParams(uint64(l))
-			n += mapEntrySize + 1 + sovParams(uint64(mapEntrySize))
+		for _, e := range m.StorageCosts {
+			l = e.Size()
+			n += 1 + l + sovParams(uint64(l))
 		}
 	}
 	l = m.NetworkFee.Size()
@@ -317,90 +208,6 @@ func sovParams(x uint64) (n int) {
 }
 func sozParams(x uint64) (n int) {
 	return sovParams(uint64((x << 1) ^ uint64((int64(x) >> 63))))
-}
-func (m *LegacyDecValue) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowParams
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: LegacyDecValue: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: LegacyDecValue: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Value", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowParams
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthParams
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthParams
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.Value.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipParams(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthParams
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
 }
 func (m *Params) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
@@ -454,7 +261,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field StorageCosts", wireType)
 			}
-			var msglen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowParams
@@ -464,106 +271,27 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if msglen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthParams
 			}
-			postIndex := iNdEx + msglen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthParams
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.StorageCosts == nil {
-				m.StorageCosts = make(map[uint32]LegacyDecValue)
+			var v cosmossdk_io_math.LegacyDec
+			m.StorageCosts = append(m.StorageCosts, v)
+			if err := m.StorageCosts[len(m.StorageCosts)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
 			}
-			var mapkey uint32
-			mapvalue := &LegacyDecValue{}
-			for iNdEx < postIndex {
-				entryPreIndex := iNdEx
-				var wire uint64
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return ErrIntOverflowParams
-					}
-					if iNdEx >= l {
-						return io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					wire |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				fieldNum := int32(wire >> 3)
-				if fieldNum == 1 {
-					for shift := uint(0); ; shift += 7 {
-						if shift >= 64 {
-							return ErrIntOverflowParams
-						}
-						if iNdEx >= l {
-							return io.ErrUnexpectedEOF
-						}
-						b := dAtA[iNdEx]
-						iNdEx++
-						mapkey |= uint32(b&0x7F) << shift
-						if b < 0x80 {
-							break
-						}
-					}
-				} else if fieldNum == 2 {
-					var mapmsglen int
-					for shift := uint(0); ; shift += 7 {
-						if shift >= 64 {
-							return ErrIntOverflowParams
-						}
-						if iNdEx >= l {
-							return io.ErrUnexpectedEOF
-						}
-						b := dAtA[iNdEx]
-						iNdEx++
-						mapmsglen |= int(b&0x7F) << shift
-						if b < 0x80 {
-							break
-						}
-					}
-					if mapmsglen < 0 {
-						return ErrInvalidLengthParams
-					}
-					postmsgIndex := iNdEx + mapmsglen
-					if postmsgIndex < 0 {
-						return ErrInvalidLengthParams
-					}
-					if postmsgIndex > l {
-						return io.ErrUnexpectedEOF
-					}
-					mapvalue = &LegacyDecValue{}
-					if err := mapvalue.Unmarshal(dAtA[iNdEx:postmsgIndex]); err != nil {
-						return err
-					}
-					iNdEx = postmsgIndex
-				} else {
-					iNdEx = entryPreIndex
-					skippy, err := skipParams(dAtA[iNdEx:])
-					if err != nil {
-						return err
-					}
-					if (skippy < 0) || (iNdEx+skippy) < 0 {
-						return ErrInvalidLengthParams
-					}
-					if (iNdEx + skippy) > postIndex {
-						return io.ErrUnexpectedEOF
-					}
-					iNdEx += skippy
-				}
-			}
-			m.StorageCosts[mapkey] = *mapvalue
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {

@@ -6,21 +6,15 @@ import "gogoproto/gogo.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/bundles/types";
 
-// LegacyDecValue defines a wrapper around a string that represents a LegacyDec.
-message LegacyDecValue {
-  // value ...
-  string value = 1 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-}
-
 // Params defines the bundles module parameters.
 message Params {
   // upload_timeout ...
   uint64 upload_timeout = 1;
-  // storage_cost ...
-  map<uint32, LegacyDecValue> storage_costs = 2 [(gogoproto.nullable) = false];
+  // storage_costs ...
+  repeated string storage_costs = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
   // network_fee ...
   string network_fee = 3 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",

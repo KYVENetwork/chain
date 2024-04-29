@@ -960,7 +960,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		storageProviderId := uint32(1)
 
 		params := s.App().BundlesKeeper.GetParams(s.Ctx())
-		params.StorageCosts[1] = bundletypes.LegacyDecValue{Value: math.LegacyMustNewDecFromStr("0.9")}
+		params.StorageCosts = append(params.StorageCosts, math.LegacyMustNewDecFromStr("0.9"))
 		s.App().BundlesKeeper.SetParams(s.Ctx(), params)
 
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)

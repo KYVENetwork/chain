@@ -2,6 +2,7 @@ package v1_5
 
 import (
 	"context"
+	"cosmossdk.io/math"
 	"fmt"
 
 	storetypes "cosmossdk.io/store/types"
@@ -22,10 +23,11 @@ const (
 
 func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, cdc codec.Codec, storeKeys []storetypes.StoreKey, bundlesKeeper keeper.Keeper, poolKeeper *poolkeeper.Keeper) upgradetypes.UpgradeHandler {
 	return func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-		logger := sdk.UnwrapSDKContext(ctx).Logger().With("upgrade", UpgradeName)
+		sdkCtx := sdk.UnwrapSDKContext(ctx)
+		logger := sdkCtx.Logger().With("upgrade", UpgradeName)
 		logger.Info(fmt.Sprintf("performing upgrade %v", UpgradeName))
 
-		if err := migrateStorageCosts(ctx, bundlesKeeper, poolKeeper, storeKeys, cdc); err != nil {
+		if err := migrateStorageCosts(sdkCtx, bundlesKeeper, poolKeeper, storeKeys, cdc); err != nil {
 			return nil, err
 		}
 
@@ -35,9 +37,7 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 	}
 }
 
-func migrateStorageCosts(ctx context.Context, bundlesKeeper keeper.Keeper, poolKeeper *poolkeeper.Keeper, storeKeys []storetypes.StoreKey, cdc codec.Codec) error {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-
+func migrateStorageCosts(sdkCtx sdk.Context, bundlesKeeper keeper.Keeper, poolKeeper *poolkeeper.Keeper, storeKeys []storetypes.StoreKey, cdc codec.Codec) error {
 	var bundlesStoreKey storetypes.StoreKey
 	for _, k := range storeKeys {
 		if k.Name() == "bundles" {
@@ -51,6 +51,7 @@ func migrateStorageCosts(ctx context.Context, bundlesKeeper keeper.Keeper, poolK
 
 	// Get all storage providers
 	storageIds := map[uint32]struct{}{}
+	storageIds[0] = struct{}{} // Default storage provider
 	for _, pool := range poolKeeper.GetAllPools(sdkCtx) {
 		storageIds[pool.CurrentStorageProviderId] = struct{}{}
 	}
@@ -60,14 +61,15 @@ func migrateStorageCosts(ctx context.Context, bundlesKeeper keeper.Keeper, poolK
 	oldParams := v1_4_types.GetParams(sdkCtx, bundlesStoreKey, cdc)
 	newParams := bundlestypes.Params{
 		UploadTimeout: oldParams.UploadTimeout,
-		StorageCosts:  make(map[uint32]bundlestypes.LegacyDecValue),
+		StorageCosts:  make([]math.LegacyDec, len(storageIds)),
 		NetworkFee:    oldParams.NetworkFee,
 		MaxPoints:     oldParams.MaxPoints,
 	}
 	for storageId := range storageIds {
-		newParams.StorageCosts[storageId] = bundlestypes.LegacyDecValue{
-			Value: oldParams.StorageCost,
+		if int(storageId) > len(newParams.StorageCosts) {
+			return fmt.Errorf("storage provider id %d is out of bounds", storageId)
 		}
+		newParams.StorageCosts[storageId] = oldParams.StorageCost
 	}
 
 	bundlesKeeper.SetParams(sdkCtx, newParams)
