@@ -16,10 +16,13 @@ func (f *Funding) GetScore(whitelist []*WhitelistCoinEntry) (score uint64) {
 	return
 }
 
-func (f *Funding) ChargeOneBundle() (amounts sdk.Coins) {
-	funded := f.Amounts.Sub(f.AmountsPerBundle...)
-	amounts.Add(funded...)
-	f.TotalFunded.Add(funded...)
+func (f *Funding) ChargeOneBundle() (payouts sdk.Coins) {
+	amounts := f.Amounts
+	f.Amounts = f.Amounts.Sub(f.AmountsPerBundle...)
+	// we add the diff here in case amount per bundle is greater than amount
+	diff := amounts.Sub(f.Amounts...)
+	payouts.Add(diff...)
+	f.TotalFunded.Add(diff...)
 	return
 }
 

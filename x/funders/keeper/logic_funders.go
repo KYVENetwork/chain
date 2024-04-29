@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	"fmt"
 
 	"github.com/KYVENetwork/chain/x/funders/types"
@@ -25,7 +26,7 @@ func (k Keeper) GetTotalActiveFunding(ctx sdk.Context, poolId uint64) (amounts s
 	}
 	for _, address := range state.ActiveFunderAddresses {
 		funding, _ := k.GetFunding(ctx, address, poolId)
-		amounts.Add(funding.Amounts...)
+		amounts = amounts.Add(funding.Amounts...)
 	}
 	return
 }
@@ -50,7 +51,7 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payouts sdk
 
 	// This is the amount every funding will be charged
 	for _, funding := range activeFundings {
-		payouts.Add(funding.ChargeOneBundle()...)
+		payouts = payouts.Add(funding.ChargeOneBundle()...)
 		if funding.Amounts.IsZero() {
 			fundingState.SetInactive(&funding)
 		}
@@ -99,33 +100,40 @@ func (k Keeper) GetLowestFunding(fundings []types.Funding, whitelist []*types.Wh
 // - minimum funding per bundle
 // - minimum funding amount
 // - minimum funding multiple
-func (k Keeper) ensureParamsCompatibility(ctx sdk.Context, msg *types.MsgFundPool) error {
+func (k Keeper) ensureParamsCompatibility(ctx sdk.Context, funding types.Funding) error {
 	params := k.GetParams(ctx)
 
-	var w *types.WhitelistCoinEntry
+	minFundingAmounts := sdk.NewCoins()
+	minFundingAmountsPerBundle := sdk.NewCoins()
+
 	for _, entry := range params.CoinWhitelist {
-		if entry.CoinDenom == msg.Amount.Denom {
-			w = entry
-			break
-		}
+		minFundingAmounts = minFundingAmounts.Add(sdk.NewInt64Coin(entry.CoinDenom, int64(entry.MinFundingAmount)))
+		minFundingAmountsPerBundle = minFundingAmountsPerBundle.Add(sdk.NewInt64Coin(entry.CoinDenom, int64(entry.MinFundingAmountPerBundle)))
 	}
 
-	// throw error if coin is not in whitelist. we only check msg.amount here since we know from before
-	// that msg.amount and msg.amount_per_bundle is equal
-	if w == nil {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrCoinNotWhitelisted.Error(), msg.Amount.Denom)
+	// throw error if a coin in amounts is not in the whitelist
+	if !funding.Amounts.DenomsSubsetOf(minFundingAmounts) {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrCoinNotWhitelisted.Error())
 	}
 
-	if msg.Amount.Amount.Uint64() < w.MinFundingAmount {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinFundingAmount.Error(), w.MinFundingAmount, msg.Amount.Denom)
+	// throw error if a coin in amounts per bundle is not in the whitelist
+	if !funding.AmountsPerBundle.DenomsSubsetOf(minFundingAmountsPerBundle) {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrCoinNotWhitelisted.Error())
 	}
 
-	if msg.AmountPerBundle.Amount.Uint64() < w.MinFundingAmountPerBundle {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinAmountPerBundle.Error(), w.MinFundingAmountPerBundle, msg.Amount.Denom)
+	// throw error if a coin is less than the minimum funding amount
+	if minFundingAmounts.IsAnyGT(funding.Amounts) {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinFundingAmount.Error())
 	}
 
-	if msg.AmountPerBundle.Amount.Uint64()*params.MinFundingMultiple > msg.Amount.Amount.Uint64() {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinFundingMultiple.Error(), msg.AmountPerBundle, params.MinFundingMultiple, msg.Amount)
+	// throw error if a coin is less than the minimum funding amount per bundle
+	if minFundingAmountsPerBundle.IsAnyGT(funding.AmountsPerBundle) {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinAmountPerBundle.Error())
+	}
+
+	// throw error if a coin can not fulfill the funding multiple threshold
+	if funding.AmountsPerBundle.MulInt(math.NewInt(int64(params.MinFundingMultiple))).IsAnyGT(funding.Amounts) {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinFundingMultiple.Error())
 	}
 
 	return nil
@@ -170,7 +178,7 @@ func (k Keeper) ensureFreeSlot(ctx sdk.Context, newFunding *types.Funding, fundi
 		return err
 	}
 
-	lowestFunding.Amounts.Sub(lowestFunding.Amounts...)
+	lowestFunding.Amounts = lowestFunding.Amounts.Sub(lowestFunding.Amounts...)
 	fundingState.SetInactive(lowestFunding)
 	k.SetFunding(ctx, lowestFunding)
 

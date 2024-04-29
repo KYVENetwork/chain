@@ -53,7 +53,7 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 	funding, found := k.GetFunding(ctx, msg.Creator, msg.PoolId)
 	if found {
 		// If so, update funding amounts
-		funding.Amounts.Add(msg.Amount)
+		funding.Amounts = funding.Amounts.Add(msg.Amount)
 
 		// If the amount per bundle is set, update it
 		if msg.AmountPerBundle.IsPositive() {
@@ -73,7 +73,7 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 	}
 
 	// Check if updated (or new) funding is compatible with module params
-	if err := k.ensureParamsCompatibility(ctx, msg); err != nil {
+	if err := k.ensureParamsCompatibility(ctx, funding); err != nil {
 		return nil, err
 	}
 
