@@ -33,6 +33,7 @@ func TestV1P2Upgrade(t *testing.T) {
 
 var _ = Describe(fmt.Sprintf("%s Upgrade Tests", v1_5.UpgradeName), Ordered, func() {
 	var kaon *cosmos.CosmosChain
+	var kyve *cosmos.CosmosChain
 
 	var ctx context.Context
 	var client *client.Client
@@ -40,6 +41,7 @@ var _ = Describe(fmt.Sprintf("%s Upgrade Tests", v1_5.UpgradeName), Ordered, fun
 	var interchain *interchaintest.Interchain
 
 	var kaonWallet *cosmos.CosmosWallet
+	var kyveWallet *cosmos.CosmosWallet
 
 	BeforeAll(func() {
 		numFullNodes := 0
@@ -51,14 +53,21 @@ var _ = Describe(fmt.Sprintf("%s Upgrade Tests", v1_5.UpgradeName), Ordered, fun
 				NumValidators: &numValidators,
 				NumFullNodes:  &numFullNodes,
 			},
+			{
+				Name:          "kyve",
+				ChainConfig:   mainnetConfig,
+				NumValidators: &numValidators,
+				NumFullNodes:  &numFullNodes,
+			},
 		})
 
 		chains, err := factory.Chains(GinkgoT().Name())
 		Expect(err).To(BeNil())
-		kaon = chains[0].(*cosmos.CosmosChain)
+		kaon, kyve = chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain)
 
 		interchain = interchaintest.NewInterchain().
-			AddChain(kaon)
+			AddChain(kaon).
+			AddChain(kyve)
 
 		ctx = context.Background()
 		client, network = interchaintest.DockerSetup(GinkgoT())
@@ -72,17 +81,23 @@ var _ = Describe(fmt.Sprintf("%s Upgrade Tests", v1_5.UpgradeName), Ordered, fun
 		Expect(err).To(BeNil())
 
 		wallets := interchaintest.GetAndFundTestUsers(
-			GinkgoT(), ctx, GinkgoT().Name(), math.NewInt(10_000_000_000), kaon,
+			GinkgoT(), ctx, GinkgoT().Name(), math.NewInt(10_000_000_000), kaon, kyve,
 		)
-		kaonWallet = wallets[0].(*cosmos.CosmosWallet)
+		kaonWallet, kyveWallet = wallets[0].(*cosmos.CosmosWallet), wallets[1].(*cosmos.CosmosWallet)
 	})
 
 	AfterAll(func() {
+		_ = kaon.StopAllNodes(ctx)
+		_ = kyve.StopAllNodes(ctx)
 		_ = interchain.Close()
 	})
 
-	It("", func() {
+	It("Kaon upgrade test", func() {
 		PerformUpgrade(ctx, client, kaon, kaonWallet, 10, "kaon")
+	})
+
+	It("Kyve upgrade test", func() {
+		PerformUpgrade(ctx, client, kyve, kyveWallet, 10, "kyve")
 	})
 })
 
