@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package kyve.delegation.v1beta1;
 
+import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
-import "amino/amino.proto";
 import "kyve/delegation/v1beta1/delegation.proto";
 import "kyve/delegation/v1beta1/params.proto";
 
@@ -81,8 +81,8 @@ message EventWithdrawRewards {
   string staker = 2;
   // amount ...
   repeated cosmos.base.v1beta1.Coin amount = 3 [
-    (gogoproto.nullable)     = false,
-    (amino.dont_omitempty)   = true,
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
 }
