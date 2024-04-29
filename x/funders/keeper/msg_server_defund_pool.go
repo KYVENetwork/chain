@@ -24,6 +24,7 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrFundingDoesNotExist.Error(), msg.PoolId, msg.Creator)
 	}
 
+	// Verify if funder has enough coins to defund
 	if !msg.Amounts.IsAllLTE(funding.Amounts) {
 		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrFundingIsUsedUp.Error(), msg.PoolId, msg.Creator)
 	}

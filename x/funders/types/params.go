@@ -1,48 +1,53 @@
 package types
 
 import (
+	"errors"
 	"github.com/KYVENetwork/chain/util"
 )
 
 const (
-	// DefaultMinFundingAmount 1000 Kyve
-	DefaultMinFundingAmount = uint64(1_000_000_000)
-	// DefaultMinFundingAmountPerBundle 0.1 Kyve
-	DefaultMinFundingAmountPerBundle = uint64(100_000)
 	// DefaultMinFundingMultiple 20
 	DefaultMinFundingMultiple = uint64(20)
 )
 
 // NewParams creates a new Params instance
-func NewParams(minFundingAmount uint64, minFundingAmountPerBundle uint64, minFundingMultiple uint64) Params {
+func NewParams(coinWhitelist []*WhitelistCoinEntry, minFundingMultiple uint64) Params {
 	return Params{
-		MinFundingAmount:          minFundingAmount,
-		MinFundingAmountPerBundle: minFundingAmountPerBundle,
-		MinFundingMultiple:        minFundingMultiple,
+		CoinWhitelist:      coinWhitelist,
+		MinFundingMultiple: minFundingMultiple,
 	}
 }
 
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
 	return NewParams(
-		DefaultMinFundingAmount,
-		DefaultMinFundingAmountPerBundle,
+		make([]*WhitelistCoinEntry, 0),
 		DefaultMinFundingMultiple,
 	)
 }
 
 // Validate validates the set of params
 func (p *Params) Validate() error {
-	if err := util.ValidateNumber(p.MinFundingAmount); err != nil {
+	if err := util.ValidateNumber(p.MinFundingMultiple); err != nil {
 		return err
 	}
 
-	if err := util.ValidateNumber(p.MinFundingAmountPerBundle); err != nil {
-		return err
-	}
+	for _, entry := range p.CoinWhitelist {
+		if entry.CoinDenom == "" {
+			return errors.New("coin denom is empty")
+		}
 
-	if err := util.ValidateNumber(p.MinFundingAmountPerBundle); err != nil {
-		return err
+		if err := util.ValidateNumber(entry.MinFundingAmount); err != nil {
+			return err
+		}
+
+		if err := util.ValidateNumber(entry.MinFundingAmountPerBundle); err != nil {
+			return err
+		}
+
+		if err := util.ValidateDecimal(entry.CoinWeight); err != nil {
+			return err
+		}
 	}
 
 	return nil

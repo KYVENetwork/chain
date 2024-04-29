@@ -33,42 +33,29 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrFundingStateDoesNotExist.Error(), msg.PoolId)
 	}
 
-	// TODO:
-	// iterate through msg.Amounts
-	// -> check if each coin has an amount per bundle
-	// -> if a single coin is not in the whitelist we fail
-	// -> check for each coin if the min funding amount is reached
-	// -> check for each coin if the min funding amount per bundle is reached
-	// -> check for each coin if the min funding multiple is reached
-	// calculate funders value score
-	// ensureFreeSlot
-	// emit event
-
-	// Check if amount and amount_per_bundle have the same denom
-	if msg.Amount.Denom != msg.AmountPerBundle.Denom {
-		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrDifferentDenom.Error(), msg.Amount.Denom, msg.AmountPerBundle.Denom)
-	}
+	amountsPerBundle := msg.AmountsPerBundle
 
 	// Check if funding already exists
 	funding, found := k.GetFunding(ctx, msg.Creator, msg.PoolId)
 	if found {
 		// If so, update funding amounts
-		funding.Amounts = funding.Amounts.Add(msg.Amount)
+		funding.Amounts = funding.Amounts.Add(msg.Amounts...)
 
-		// If the amount per bundle is set, update it
-		if msg.AmountPerBundle.IsPositive() {
-			if f, c := funding.AmountsPerBundle.Find(msg.AmountPerBundle.Denom); f {
-				c.Amount = msg.AmountPerBundle.Amount
+		// Replace all coins in funding.AmountsPerBundle with the values of msg.AmountsPerBundle
+		for _, coin := range funding.AmountsPerBundle {
+			if f, _ := amountsPerBundle.Find(coin.Denom); !f {
+				amountsPerBundle = amountsPerBundle.Add(coin)
 			}
 		}
+		funding.AmountsPerBundle = amountsPerBundle
 	} else {
 		// If not, create new funding
 		funding = types.Funding{
 			FunderAddress:    msg.Creator,
 			PoolId:           msg.PoolId,
-			Amounts:          sdk.NewCoins(msg.Amount),
-			AmountsPerBundle: sdk.NewCoins(msg.AmountPerBundle),
-			TotalFunded:      sdk.Coins{},
+			Amounts:          msg.Amounts,
+			AmountsPerBundle: amountsPerBundle,
+			TotalFunded:      sdk.NewCoins(),
 		}
 	}
 
@@ -86,7 +73,7 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 
 	// All checks passed, transfer funds from funder to module
 	sender := sdk.MustAccAddressFromBech32(msg.Creator)
-	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, sdk.NewCoins(msg.Amount)); err != nil {
+	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, msg.Amounts); err != nil {
 		return nil, err
 	}
 
@@ -99,10 +86,10 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 
 	// Emit a fund event.
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventFundPool{
-		PoolId:          msg.PoolId,
-		Address:         msg.Creator,
-		Amount:          msg.Amount,
-		AmountPerBundle: msg.AmountPerBundle,
+		PoolId:           msg.PoolId,
+		Address:          msg.Creator,
+		Amounts:          msg.Amounts,
+		AmountsPerBundle: msg.AmountsPerBundle,
 	})
 
 	return &types.MsgFundPoolResponse{}, nil

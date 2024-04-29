@@ -16,5 +16,5 @@ var (
 	ErrFundingStateDoesNotExist = errors.Register(ModuleName, 1107, "funding state for pool %v does not exist")
 	ErrMinFundingMultiple       = errors.Register(ModuleName, 1108, "per_bundle_amount times min_funding_multiple is smaller than funded_amount")
 	ErrCoinNotWhitelisted       = errors.Register(ModuleName, 1109, "coin not in whitelist")
-	ErrDifferentDenom           = errors.Register(ModuleName, 1110, "found denom %s in amount and denom %s in amount_per_bundle")
+	ErrCoinsNegative            = errors.Register(ModuleName, 1110, "all coins must be greater than zero")
 )

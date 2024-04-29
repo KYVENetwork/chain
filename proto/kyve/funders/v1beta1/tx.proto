@@ -75,18 +75,18 @@ message MsgFundPool {
   string creator = 1;
   // pool_id is the identifier of the pool
   uint64 pool_id = 2;
-  // amount is the amount of a coin the creator wants to fund
-  cosmos.base.v1beta1.Coin amount = 3 [
+  // amounts is a list of coins the creator wants to fund
+  repeated cosmos.base.v1beta1.Coin amounts = 3 [
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
-  // amount_per_bundle is the amount of the coin the creator wants to distribute
+  // amounts_per_bundle is a list of coins the creator wants to distribute
   // per finalized bundle
-  cosmos.base.v1beta1.Coin amount_per_bundle = 4 [
+  repeated cosmos.base.v1beta1.Coin amounts_per_bundle = 4 [
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
 }
 
