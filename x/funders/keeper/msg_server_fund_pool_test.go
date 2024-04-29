@@ -114,8 +114,8 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
 		Expect(funding.FunderAddress).To(Equal(i.ALICE))
 		Expect(funding.PoolId).To(Equal(uint64(0)))
-		Expect(funding.Amounts).To(Equal(i.ACoins(100 * i.T_KYVE).String()))
-		Expect(funding.AmountsPerBundle).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
+		Expect(funding.Amounts.String()).To(Equal(i.ACoins(100 * i.T_KYVE).String()))
+		Expect(funding.AmountsPerBundle.String()).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
 		Expect(funding.TotalFunded.IsZero()).To(BeTrue())
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
@@ -149,8 +149,8 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
 		Expect(funding.FunderAddress).To(Equal(i.ALICE))
 		Expect(funding.PoolId).To(Equal(uint64(0)))
-		Expect(funding.Amounts).To(Equal(i.ACoins(150 * i.T_KYVE).String()))
-		Expect(funding.AmountsPerBundle).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
+		Expect(funding.Amounts.String()).To(Equal(i.ACoins(150 * i.T_KYVE).String()))
+		Expect(funding.AmountsPerBundle.String()).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
 		Expect(funding.TotalFunded.IsZero()).To(BeTrue())
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
@@ -211,7 +211,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.BOB, 0)
 		Expect(funding.Amounts.String()).To(Equal(i.ACoins(50 * i.T_KYVE).String()))
 		Expect(funding.AmountsPerBundle.String()).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
-		Expect(funding.TotalFunded.IsZero()).To(Equal(BeTrue()))
+		Expect(funding.TotalFunded.IsZero()).To(BeTrue())
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		Expect(fundingState.PoolId).To(Equal(uint64(0)))
@@ -366,7 +366,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		Expect(initialBalance.Sub(balanceEnd...).IsZero()).To(BeTrue())
 
 		balanceAfterBob := s.GetBalancesFromAddress(i.BOB)
-		Expect(initialBalanceBob.Sub(balanceAfterBob...).String()).To(Equal(i.ACoins(200 * i.T_KYVE)))
+		Expect(initialBalanceBob.Sub(balanceAfterBob...).String()).To(Equal(i.ACoins(200 * i.T_KYVE).String()))
 	})
 
 	It("Refund a funding as the lowest funder", func() {

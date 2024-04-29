@@ -24,19 +24,21 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrFundingDoesNotExist.Error(), msg.PoolId, msg.Creator)
 	}
 
-	// Verify if funder has enough coins to defund
-	if !msg.Amounts.IsAllLTE(funding.Amounts) {
-		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrFundingIsUsedUp.Error(), msg.PoolId, msg.Creator)
-	}
-
 	// FundingState has to exist
 	fundingState, found := k.GetFundingState(ctx, msg.PoolId)
 	if !found {
 		util.PanicHalt(k.upgradeKeeper, ctx, fmt.Sprintf("FundingState for pool %d does not exist", msg.PoolId))
 	}
 
+	// If funder defunds more than he has we defund the entire amount of that coin
+	defundAmounts := funding.Amounts.Min(msg.Amounts)
+	if defundAmounts.IsZero() {
+		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrFundsTooLow.Error())
+	}
+
 	// Subtract amount from funding
-	funding.Amounts.Sub(msg.Amounts...)
+	funding.Amounts = funding.Amounts.Sub(defundAmounts...)
+
 	if funding.Amounts.IsZero() {
 		fundingState.SetInactive(&funding)
 	} else {
@@ -48,7 +50,7 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 
 	// Transfer tokens from this module to sender.
 	recipient := sdk.MustAccAddressFromBech32(msg.Creator)
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, msg.Amounts); err != nil {
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, defundAmounts); err != nil {
 		return nil, err
 	}
 
@@ -60,7 +62,7 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventDefundPool{
 		PoolId:  msg.PoolId,
 		Address: msg.Creator,
-		Amounts: msg.Amounts,
+		Amounts: defundAmounts,
 	})
 
 	return &types.MsgDefundPoolResponse{}, nil

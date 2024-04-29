@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"testing"
 
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
@@ -26,7 +27,7 @@ func PayoutRewards(s *i.KeeperTestSuite, staker string, amount uint64) {
 	// divide amount by number of active fundings so that total payout is equal to amount
 	activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
 	for _, funding := range activeFundings {
-		funding.AmountPerBundle = amount / uint64(len(activeFundings))
+		funding.AmountsPerBundle = sdk.NewCoins(sdk.NewInt64Coin(i.KYVE_DENOM, int64(amount/uint64(len(activeFundings)))))
 		s.App().FundersKeeper.SetFunding(s.Ctx(), &funding)
 	}
 
@@ -65,10 +66,10 @@ func CreateFundedPool(s *i.KeeperTestSuite) {
 	})
 
 	s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
-		Creator:         i.ALICE,
-		PoolId:          0,
-		Amount:          100 * i.KYVE,
-		AmountPerBundle: 1 * i.KYVE,
+		Creator:          i.ALICE,
+		PoolId:           0,
+		Amounts:          sdk.NewCoins(sdk.NewInt64Coin(i.KYVE_DENOM, 100*i.T_KYVE)),
+		AmountsPerBundle: sdk.NewCoins(sdk.NewInt64Coin(i.KYVE_DENOM, 1*i.T_KYVE)),
 	})
 
 	s.CommitAfterSeconds(7)

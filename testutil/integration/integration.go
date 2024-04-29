@@ -80,7 +80,7 @@ func BCoin(amount int64) sdk.Coin {
 }
 
 func BCoins(amount int64) sdk.Coins {
-	return sdk.NewCoins(ACoin(amount))
+	return sdk.NewCoins(BCoin(amount))
 }
 
 func CCoin(amount int64) sdk.Coin {
@@ -88,7 +88,7 @@ func CCoin(amount int64) sdk.Coin {
 }
 
 func CCoins(amount int64) sdk.Coins {
-	return sdk.NewCoins(ACoin(amount))
+	return sdk.NewCoins(CCoin(amount))
 }
 
 func NewCleanChain() *KeeperTestSuite {

@@ -225,14 +225,11 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 	})
 
 	It("Try to defund below minimum funding params (but not full defund)", func() {
-		// ACT
-		_, err := s.RunTx(&types.MsgDefundPool{
+		// ASSERT
+		s.RunTxFundersError(&types.MsgDefundPool{
 			Creator: i.ALICE,
 			PoolId:  0,
 			Amounts: i.ACoins(95 * i.T_KYVE),
 		})
-
-		// ASSERT
-		Expect(err.Error()).To(Equal("minimum funding amount of 1000000000kyve not reached: invalid request"))
 	})
 })

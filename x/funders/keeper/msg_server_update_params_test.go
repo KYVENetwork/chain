@@ -67,7 +67,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		// ASSERT
 		params := s.App().FundersKeeper.GetParams(s.Ctx())
 
-		Expect(params.CoinWhitelist).To(BeEmpty())
+		Expect(params.CoinWhitelist).To(Equal(types.DefaultCoinWhitelist))
 		Expect(params.MinFundingMultiple).To(Equal(types.DefaultMinFundingMultiple))
 	})
 
@@ -140,7 +140,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.CoinWhitelist[0].CoinDenom).To(Equal("acoin"))
 		Expect(updatedParams.CoinWhitelist[0].MinFundingAmount).To(Equal(uint64(20000000000)))
 		Expect(updatedParams.CoinWhitelist[0].MinFundingAmountPerBundle).To(Equal(uint64(2000000000)))
-		Expect(updatedParams.CoinWhitelist[0].CoinWeight.String()).To(Equal("5"))
+		Expect(updatedParams.CoinWhitelist[0].CoinWeight.TruncateInt64()).To(Equal(int64(5)))
 
 		Expect(updatedParams.MinFundingMultiple).To(Equal(uint64(25)))
 	})
@@ -245,7 +245,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.CoinWhitelist[0].CoinDenom).To(Equal("acoin"))
 		Expect(updatedParams.CoinWhitelist[0].MinFundingAmount).To(Equal(uint64(20000000000)))
 		Expect(updatedParams.CoinWhitelist[0].MinFundingAmountPerBundle).To(Equal(uint64(200000)))
-		Expect(updatedParams.CoinWhitelist[0].CoinWeight.String()).To(Equal("5"))
+		Expect(updatedParams.CoinWhitelist[0].CoinWeight.TruncateInt64()).To(Equal(int64(5)))
 
 		Expect(updatedParams.MinFundingMultiple).To(Equal(types.DefaultMinFundingMultiple))
 	})

@@ -2,6 +2,8 @@ package keeper
 
 import (
 	"context"
+	"errors"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/bundles/types"
@@ -67,7 +69,11 @@ func (k msgServer) SubmitBundleProposal(goCtx context.Context, msg *types.MsgSub
 		pool, _ := k.poolKeeper.GetPool(ctx, msg.PoolId)
 
 		// charge the funders of the pool
-		fundersPayout, err := k.fundersKeeper.ChargeFundersOfPool(ctx, msg.PoolId)
+		fundersPayouts, err := k.fundersKeeper.ChargeFundersOfPool(ctx, msg.PoolId)
+		found, fundersPayout := fundersPayouts.Find(globalTypes.Denom)
+		if !found {
+			return nil, errors.New("could not find denom ukyve in payouts")
+		}
 		if err != nil {
 			return &types.MsgSubmitBundleProposalResponse{}, err
 		}
@@ -79,7 +85,7 @@ func (k msgServer) SubmitBundleProposal(goCtx context.Context, msg *types.MsgSub
 		}
 
 		// calculate payouts to the different stakeholders like treasury, uploader and delegators
-		bundleReward := k.calculatePayouts(ctx, msg.PoolId, fundersPayout+inflationPayout)
+		bundleReward := k.calculatePayouts(ctx, msg.PoolId, fundersPayout.Amount.Uint64()+inflationPayout)
 
 		// payout rewards to treasury
 		if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrkeeper, ctx, poolTypes.ModuleName, bundleReward.Treasury); err != nil {
@@ -106,7 +112,7 @@ func (k msgServer) SubmitBundleProposal(goCtx context.Context, msg *types.MsgSub
 		// Get next uploader from stakers who voted `valid`
 		nextUploader := k.chooseNextUploaderFromList(ctx, msg.PoolId, bundleProposal.VotersValid)
 
-		k.finalizeCurrentBundleProposal(ctx, pool.Id, voteDistribution, fundersPayout, inflationPayout, bundleReward, nextUploader)
+		k.finalizeCurrentBundleProposal(ctx, pool.Id, voteDistribution, fundersPayout.Amount.Uint64(), inflationPayout, bundleReward, nextUploader)
 
 		// Register the provided bundle as a new proposal for the next round
 		k.registerBundleProposalFromUploader(ctx, msg, nextUploader)

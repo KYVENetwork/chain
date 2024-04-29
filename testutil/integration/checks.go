@@ -499,7 +499,7 @@ func (suite *KeeperTestSuite) VerifyFundersModuleAssetsIntegrity() {
 			totalAmount = totalAmount.Add(activeFunding.Amounts...)
 		}
 		totalActiveFunding := suite.App().FundersKeeper.GetTotalActiveFunding(suite.ctx, fundingState.PoolId)
-		Expect(totalAmount).To(Equal(totalActiveFunding))
+		Expect(totalAmount.String()).To(Equal(totalActiveFunding.String()))
 		expectedFundingStateTotalAmount = expectedFundingStateTotalAmount.Add(totalAmount...)
 	}
 

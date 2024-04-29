@@ -44,7 +44,7 @@ func (msg *MsgFundPool) ValidateBasic() error {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid amount")
 	}
 
-	if !msg.AmountsPerBundle.IsAllPositive() {
+	if msg.AmountsPerBundle.Len() > 0 && !msg.AmountsPerBundle.IsAllPositive() {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid amount per bundle")
 	}
 
