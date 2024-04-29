@@ -2,7 +2,7 @@ module github.com/KYVENetwork/chain/interchaintest
 
 go 1.22
 
-toolchain go1.22.2
+toolchain go1.22.0
 
 require (
 	cosmossdk.io/math v1.3.0
