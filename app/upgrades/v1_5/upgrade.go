@@ -2,6 +2,7 @@ package v1_5
 
 import (
 	"context"
+	"cosmossdk.io/math"
 	"fmt"
 
 	storetypes "cosmossdk.io/store/types"
@@ -48,26 +49,18 @@ func migrateStorageCosts(sdkCtx sdk.Context, bundlesKeeper keeper.Keeper, poolKe
 		return fmt.Errorf("store key not found: bundles")
 	}
 
-	// Get all storage providers
-	storageProviderIds := map[uint32]struct{}{}
-	for _, pool := range poolKeeper.GetAllPools(sdkCtx) {
-		storageProviderIds[pool.CurrentStorageProviderId] = struct{}{}
-	}
-
 	// Copy storage cost from old params to new params
 	// The storage cost of all storage providers will be the same after this migration
 	oldParams := v1_4_types.GetParams(sdkCtx, bundlesStoreKey, cdc)
 	newParams := bundlestypes.Params{
 		UploadTimeout: oldParams.UploadTimeout,
-		StorageCosts:  []bundlestypes.StorageCost{},
-		NetworkFee:    oldParams.NetworkFee,
-		MaxPoints:     oldParams.MaxPoints,
-	}
-	for storageProviderId := range storageProviderIds {
-		newParams.StorageCosts = append(newParams.StorageCosts, bundlestypes.StorageCost{
-			StorageProviderId: storageProviderId,
-			Cost:              oldParams.StorageCost,
-		})
+		StorageCosts: []bundlestypes.StorageCost{
+			// TODO: define value for storage provider id 1 and 2
+			{StorageProviderId: 1, Cost: math.LegacyMustNewDecFromStr("0.00")},
+			{StorageProviderId: 2, Cost: math.LegacyMustNewDecFromStr("0.00")},
+		},
+		NetworkFee: oldParams.NetworkFee,
+		MaxPoints:  oldParams.MaxPoints,
 	}
 
 	bundlesKeeper.SetParams(sdkCtx, newParams)
