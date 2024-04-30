@@ -15,8 +15,9 @@ import (
 TEST CASES - logic_funders.go
 
 * Charge funders once with one coin
-* TODO: Charge funders once with multiple coins
+* Charge funders once with multiple coins
 * Charge funders until one funder runs out of funds
+* Charge funders with multiple coins until he is completely out of funds
 * Charge funders until all funders run out of funds
 * Charge funder with less funds than amount_per_bundle
 * Charge without fundings
@@ -212,6 +213,54 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		poolBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), poolModuleAcc)
 		Expect(fundersBalance.String()).To(Equal(i.ACoins(95 * i.T_KYVE).String()))
 		Expect(poolBalance.String()).To(Equal(i.ACoins(55 * i.T_KYVE).String()))
+	})
+
+	It("Charge funders with multiple coins until he is completely out of funds", func() {
+		// ACT
+		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.BCoins(1000 * i.T_KYVE),
+			AmountsPerBundle: i.BCoins(20 * i.T_KYVE),
+		})
+		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.CCoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.CCoins(10 * i.T_KYVE),
+		})
+
+		for range [5]struct{}{} {
+			payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(payout.String()).To(Equal(sdk.NewCoins(i.ACoin(11*i.T_KYVE), i.BCoin(20*i.T_KYVE), i.CCoin(10*i.T_KYVE)).String()))
+		}
+
+		for range [5]struct{}{} {
+			payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(payout.String()).To(Equal(sdk.NewCoins(i.ACoin(1*i.T_KYVE), i.BCoin(20*i.T_KYVE), i.CCoin(10*i.T_KYVE)).String()))
+		}
+
+		// ASSERT
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
+		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
+
+		fundingAlice, foundAlice := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
+		Expect(foundAlice).To(BeTrue())
+		Expect(fundingAlice.Amounts.String()).To(Equal(sdk.NewCoins(i.ACoin(90*i.T_KYVE), i.BCoin(800*i.T_KYVE)).String()))
+		Expect(fundingAlice.TotalFunded.String()).To(Equal(sdk.NewCoins(i.ACoin(10*i.T_KYVE), i.BCoin(200*i.T_KYVE)).String()))
+
+		fundingBob, foundBob := s.App().FundersKeeper.GetFunding(s.Ctx(), i.BOB, 0)
+		Expect(foundBob).To(BeTrue())
+		Expect(fundingBob.Amounts.IsZero()).To(BeTrue())
+		Expect(fundingBob.TotalFunded.String()).To(Equal(sdk.NewCoins(i.ACoin(50*i.T_KYVE), i.CCoin(100*i.T_KYVE)).String()))
+
+		fundersBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), fundersModuleAcc)
+		poolBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), poolModuleAcc)
+		Expect(fundersBalance.String()).To(Equal(sdk.NewCoins(i.ACoin(90*i.T_KYVE), i.BCoin(800*i.T_KYVE)).String()))
+		Expect(poolBalance.String()).To(Equal(sdk.NewCoins(i.ACoin(60*i.T_KYVE), i.BCoin(200*i.T_KYVE), i.CCoin(100*i.T_KYVE)).String()))
 	})
 
 	It("Charge funders until all funders run out of funds", func() {

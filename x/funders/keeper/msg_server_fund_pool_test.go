@@ -16,17 +16,30 @@ TEST CASES - msg_server_fund_pool.go
 
 * Fund a pool with 100 coins
 * Fund additional 50 coins to an existing funding with 100 coins
+* Fund additional 50 different coins to an existing funding with 100 coins
+* Change amount per bundle after funding 100 coins
+* Change multiple amounts per bundle and also fund 50 additional coins after funding 100 coins
 * Try to fund more coins than available in balance
+* Try to fund multiple coins where one coin exceeds balance
 * Fund with a new funder less coins than the existing one
 * Fund with a new funder more coins than the existing one
+* Try funding with no amounts and no amounts per bundle
+* Try funding coin which is not in the whitelist
+* Try funding multiple coins where one coin is not in the whitelist
+* Try funding 100 coins but amount per bundle is not set yet and empty
+* TODO: Try funding 100 coins but amount per bundle is a different coin
+* TODO: Try changing the amount per bundle of a coin which is not funded
 * Try to fund with a non-existent funder
 * Try to fund less coins than the lowest funder with full funding slots
 * Fund more coins than the lowest funder with full funding slots
 * Refund a funding as the lowest funder
 * Try to fund a non-existent pool
 * Try to fund below the minimum amount
+* TODO: Try to fund multiple coins where one is below the minimum amount
 * Try to fund below the minimum amount per bundle
+* TODO: Try to fund multiple coins where one is below the minimum amount per bundle
 * Try to fund without fulfilling min_funding_multiple
+* TODO: Try to fund multiple coins where one is not fulfilling min_funding_multiple
 
 */
 
@@ -164,7 +177,150 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
 	})
 
+	It("Fund additional 50 different coins to an existing funding with 100 coins", func() {
+		// ARRANGE
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.ACoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.ACoins(1 * i.T_KYVE),
+		})
+
+		// ACT
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.BCoins(50 * i.T_KYVE),
+			AmountsPerBundle: i.BCoins(1 * i.T_KYVE),
+		})
+
+		// ASSERT
+		balanceAfter := s.GetBalancesFromAddress(i.ALICE)
+
+		Expect(initialBalance.Sub(balanceAfter...).String()).To(Equal(sdk.NewCoins(i.ACoin(100*i.T_KYVE), i.BCoin(50*i.T_KYVE)).String()))
+
+		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
+		Expect(funding.FunderAddress).To(Equal(i.ALICE))
+		Expect(funding.PoolId).To(Equal(uint64(0)))
+		Expect(funding.Amounts.String()).To(Equal(sdk.NewCoins(i.ACoin(100*i.T_KYVE), i.BCoin(50*i.T_KYVE)).String()))
+		Expect(funding.AmountsPerBundle.String()).To(Equal(sdk.NewCoins(i.ACoin(1*i.T_KYVE), i.BCoin(1*i.T_KYVE)).String()))
+		Expect(funding.TotalFunded.IsZero()).To(BeTrue())
+
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(fundingState.PoolId).To(Equal(uint64(0)))
+		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(1))
+		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
+
+		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings, whitelist)
+		Expect(err).To(BeNil())
+		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
+	})
+
+	It("Change amount per bundle after funding 100 coins", func() {
+		// ARRANGE
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.ACoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.ACoins(1 * i.T_KYVE),
+		})
+
+		// ACT
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          sdk.NewCoins(),
+			AmountsPerBundle: i.ACoins(2 * i.T_KYVE),
+		})
+
+		// ASSERT
+		balanceAfter := s.GetBalancesFromAddress(i.ALICE)
+
+		Expect(initialBalance.Sub(balanceAfter...).String()).To(Equal(i.ACoins(100 * i.T_KYVE).String()))
+
+		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
+		Expect(funding.FunderAddress).To(Equal(i.ALICE))
+		Expect(funding.PoolId).To(Equal(uint64(0)))
+		Expect(funding.Amounts.String()).To(Equal(i.ACoins(100 * i.T_KYVE).String()))
+		Expect(funding.AmountsPerBundle.String()).To(Equal(i.ACoins(2 * i.T_KYVE).String()))
+		Expect(funding.TotalFunded.IsZero()).To(BeTrue())
+
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(fundingState.PoolId).To(Equal(uint64(0)))
+		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(1))
+		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
+
+		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings, whitelist)
+		Expect(err).To(BeNil())
+		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
+	})
+
+	It("Change multiple amounts per bundle and also fund 50 additional coins after funding 100 coins", func() {
+		// ARRANGE
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.ACoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.ACoins(1 * i.T_KYVE),
+		})
+
+		// ACT
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.BCoins(50 * i.T_KYVE),
+			AmountsPerBundle: sdk.NewCoins(i.ACoin(2*i.T_KYVE), i.BCoin(1*i.T_KYVE)),
+		})
+
+		// ASSERT
+		balanceAfter := s.GetBalancesFromAddress(i.ALICE)
+
+		Expect(initialBalance.Sub(balanceAfter...).String()).To(Equal(sdk.NewCoins(i.ACoin(100*i.T_KYVE), i.BCoin(50*i.T_KYVE)).String()))
+
+		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
+		Expect(funding.FunderAddress).To(Equal(i.ALICE))
+		Expect(funding.PoolId).To(Equal(uint64(0)))
+		Expect(funding.Amounts.String()).To(Equal(sdk.NewCoins(i.ACoin(100*i.T_KYVE), i.BCoin(50*i.T_KYVE)).String()))
+		Expect(funding.AmountsPerBundle.String()).To(Equal(sdk.NewCoins(i.ACoin(2*i.T_KYVE), i.BCoin(1*i.T_KYVE)).String()))
+		Expect(funding.TotalFunded.IsZero()).To(BeTrue())
+
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(fundingState.PoolId).To(Equal(uint64(0)))
+		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(1))
+		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
+
+		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings, whitelist)
+		Expect(err).To(BeNil())
+		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
+	})
+
 	It("Try to fund more coins than available in balance", func() {
+		// ACT
+		_, currentBalance := s.GetBalancesFromAddress(i.ALICE).Find(i.A_DENOM)
+
+		s.RunTxFundersError(&funderstypes.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          sdk.NewCoins(currentBalance.Add(i.ACoin(1))),
+			AmountsPerBundle: i.ACoins(1 * i.T_KYVE),
+		})
+
+		// ASSERT
+		balanceAfter := s.GetBalancesFromAddress(i.ALICE)
+		Expect(initialBalance.Sub(balanceAfter...).IsZero()).To(BeTrue())
+
+		_, found := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
+		Expect(found).To(BeFalse())
+
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(fundingState.PoolId).To(Equal(uint64(0)))
+		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(0))
+	})
+
+	It("Try to fund multiple coins where one coin exceeds balance", func() {
 		// ACT
 		currentBalance := s.GetBalancesFromAddress(i.ALICE)
 
@@ -257,6 +413,92 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings, whitelist)
 		Expect(err).To(BeNil())
 		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
+	})
+
+	It("Try funding with no amounts and no amounts per bundle", func() {
+		// ASSERT
+		s.RunTxFundersError(&funderstypes.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          sdk.NewCoins(),
+			AmountsPerBundle: sdk.NewCoins(),
+		})
+	})
+
+	It("Try funding coin which is not in the whitelist", func() {
+		// ARRANGE
+		whitelist = []*funderstypes.WhitelistCoinEntry{
+			{
+				CoinDenom:                 i.A_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+			{
+				CoinDenom:                 i.B_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(2),
+			},
+		}
+		s.App().FundersKeeper.SetParams(s.Ctx(), funderstypes.NewParams(whitelist, 20))
+
+		// ASSERT
+		_, err := s.RunTx(&funderstypes.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.CCoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.CCoins(1 * i.T_KYVE),
+		})
+
+		// ASSERT
+		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(Equal(funderstypes.ErrCoinNotWhitelisted.Error()))
+	})
+
+	It("Try funding multiple coins where one coin is not in the whitelist", func() {
+		// ARRANGE
+		whitelist = []*funderstypes.WhitelistCoinEntry{
+			{
+				CoinDenom:                 i.A_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+			{
+				CoinDenom:                 i.B_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(2),
+			},
+		}
+		s.App().FundersKeeper.SetParams(s.Ctx(), funderstypes.NewParams(whitelist, 20))
+
+		// ACT
+		_, err := s.RunTx(&funderstypes.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          sdk.NewCoins(i.ACoin(100*i.T_KYVE), i.CCoin(100*i.T_KYVE)),
+			AmountsPerBundle: sdk.NewCoins(i.ACoin(1*i.T_KYVE), i.CCoin(1*i.T_KYVE)),
+		})
+
+		// ASSERT
+		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(Equal(funderstypes.ErrCoinNotWhitelisted.Error()))
+	})
+
+	It("Try funding 100 coins but amount per bundle is not set yet and empty", func() {
+		// ACT
+		_, err := s.RunTx(&funderstypes.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.ACoins(100 * i.T_KYVE),
+			AmountsPerBundle: sdk.NewCoins(),
+		})
+
+		// ASSERT
+		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(Equal(funderstypes.ErrInvalidAmountPerBundleCoin.Error()))
 	})
 
 	It("Try to fund with a non-existent funder", func() {

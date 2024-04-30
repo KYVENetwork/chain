@@ -40,7 +40,11 @@ func (msg *MsgFundPool) ValidateBasic() error {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid pool id")
 	}
 
-	if !msg.Amounts.IsAllPositive() {
+	if msg.Amounts.Len() == 0 && msg.AmountsPerBundle.Len() == 0 {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "empty request")
+	}
+
+	if msg.Amounts.Len() > 0 && !msg.Amounts.IsAllPositive() {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid amount")
 	}
 

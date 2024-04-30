@@ -97,6 +97,7 @@ func (k Keeper) GetLowestFunding(fundings []types.Funding, whitelist []*types.Wh
 // ensureParamsCompatibility checks compatibility of the provided funding with the pool params.
 // i.e.
 // - coin is in whitelist
+// - there is an amount per bundle for every coin
 // - minimum funding per bundle
 // - minimum funding amount
 // - minimum funding multiple
@@ -111,29 +112,34 @@ func (k Keeper) ensureParamsCompatibility(ctx sdk.Context, funding types.Funding
 		minFundingAmountsPerBundle = minFundingAmountsPerBundle.Add(sdk.NewInt64Coin(entry.CoinDenom, int64(entry.MinFundingAmountPerBundle)))
 	}
 
+	// throw error if there is a coin in amounts with no corresponding coin in amounts per bundle
+	if !funding.Amounts.DenomsSubsetOf(funding.AmountsPerBundle) {
+		return types.ErrInvalidAmountPerBundleCoin
+	}
+
 	// throw error if a coin in amounts is not in the whitelist
 	if !funding.Amounts.DenomsSubsetOf(minFundingAmounts) {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrCoinNotWhitelisted.Error())
+		return types.ErrCoinNotWhitelisted
 	}
 
 	// throw error if a coin in amounts per bundle is not in the whitelist
 	if !funding.AmountsPerBundle.DenomsSubsetOf(minFundingAmountsPerBundle) {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrCoinNotWhitelisted.Error())
+		return types.ErrCoinNotWhitelisted
 	}
 
 	// throw error if a coin is less than the minimum funding amount
 	if minFundingAmounts.IsAnyGT(funding.Amounts) {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinFundingAmount.Error())
+		return types.ErrMinFundingAmount
 	}
 
 	// throw error if a coin is less than the minimum funding amount per bundle
 	if minFundingAmountsPerBundle.IsAnyGT(funding.AmountsPerBundle) {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinAmountPerBundle.Error())
+		return types.ErrMinAmountPerBundle
 	}
 
 	// throw error if a coin can not fulfill the funding multiple threshold
 	if funding.AmountsPerBundle.MulInt(math.NewInt(int64(params.MinFundingMultiple))).IsAnyGT(funding.Amounts) {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrMinFundingMultiple.Error())
+		return types.ErrMinFundingMultiple
 	}
 
 	return nil
