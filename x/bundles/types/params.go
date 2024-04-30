@@ -1,8 +1,6 @@
 package types
 
 import (
-	"fmt"
-
 	"cosmossdk.io/math"
 
 	"github.com/KYVENetwork/chain/util"
@@ -12,9 +10,7 @@ import (
 var DefaultUploadTimeout = uint64(600)
 
 // DefaultStorageCosts ...
-func DefaultStorageCosts() []math.LegacyDec {
-	return []math.LegacyDec{math.LegacyMustNewDecFromStr("0.025")}
-}
+var DefaultStorageCosts []StorageCost
 
 // DefaultNetworkFee ...
 var DefaultNetworkFee = math.LegacyMustNewDecFromStr("0.01")
@@ -25,7 +21,7 @@ var DefaultMaxPoints = uint64(24)
 // NewParams creates a new Params instance
 func NewParams(
 	uploadTimeout uint64,
-	storageCosts []math.LegacyDec,
+	storageCosts []StorageCost,
 	networkFee math.LegacyDec,
 	maxPoints uint64,
 ) Params {
@@ -41,7 +37,7 @@ func NewParams(
 func DefaultParams() Params {
 	return NewParams(
 		DefaultUploadTimeout,
-		DefaultStorageCosts(),
+		DefaultStorageCosts,
 		DefaultNetworkFee,
 		DefaultMaxPoints,
 	)
@@ -53,11 +49,8 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if len(p.StorageCosts) == 0 {
-		return fmt.Errorf("storage costs cannot be empty")
-	}
 	for _, v := range p.StorageCosts {
-		if err := util.ValidateDecimal(v); err != nil {
+		if err := util.ValidateDecimal(v.Cost); err != nil {
 			return err
 		}
 	}

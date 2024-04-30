@@ -960,7 +960,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		storageProviderId := uint32(1)
 
 		params := s.App().BundlesKeeper.GetParams(s.Ctx())
-		params.StorageCosts = append(params.StorageCosts, math.LegacyMustNewDecFromStr("0.9"))
+		params.StorageCosts = append(params.StorageCosts, bundletypes.StorageCost{StorageProviderId: 1, Cost: math.LegacyMustNewDecFromStr("0.9")})
 		s.App().BundlesKeeper.SetParams(s.Ctx(), params)
 
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
@@ -1085,7 +1085,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
-		// assert storage reward
+		// assert storage reward -> 0.9 * 100
 		Expect(storageReward).To(Equal(uint64(90)))
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))

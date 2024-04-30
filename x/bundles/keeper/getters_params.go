@@ -23,8 +23,10 @@ func (k Keeper) GetUploadTimeout(ctx sdk.Context) (res uint64) {
 // GetStorageCost returns the StorageCost param
 func (k Keeper) GetStorageCost(ctx sdk.Context, storageProviderId uint32) (res math.LegacyDec) {
 	storageCosts := k.GetParams(ctx).StorageCosts
-	if int(storageProviderId) < len(storageCosts) {
-		return storageCosts[storageProviderId]
+	for _, storageCost := range storageCosts {
+		if storageCost.StorageProviderId == storageProviderId {
+			return storageCost.Cost
+		}
 	}
 	return math.LegacyZeroDec()
 }

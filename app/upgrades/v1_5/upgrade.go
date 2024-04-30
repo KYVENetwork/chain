@@ -2,7 +2,6 @@ package v1_5
 
 import (
 	"context"
-	"cosmossdk.io/math"
 	"fmt"
 
 	storetypes "cosmossdk.io/store/types"
@@ -50,10 +49,9 @@ func migrateStorageCosts(sdkCtx sdk.Context, bundlesKeeper keeper.Keeper, poolKe
 	}
 
 	// Get all storage providers
-	storageIds := map[uint32]struct{}{}
-	storageIds[0] = struct{}{} // Default storage provider
+	storageProviderIds := map[uint32]struct{}{}
 	for _, pool := range poolKeeper.GetAllPools(sdkCtx) {
-		storageIds[pool.CurrentStorageProviderId] = struct{}{}
+		storageProviderIds[pool.CurrentStorageProviderId] = struct{}{}
 	}
 
 	// Copy storage cost from old params to new params
@@ -61,15 +59,15 @@ func migrateStorageCosts(sdkCtx sdk.Context, bundlesKeeper keeper.Keeper, poolKe
 	oldParams := v1_4_types.GetParams(sdkCtx, bundlesStoreKey, cdc)
 	newParams := bundlestypes.Params{
 		UploadTimeout: oldParams.UploadTimeout,
-		StorageCosts:  make([]math.LegacyDec, len(storageIds)),
+		StorageCosts:  []bundlestypes.StorageCost{},
 		NetworkFee:    oldParams.NetworkFee,
 		MaxPoints:     oldParams.MaxPoints,
 	}
-	for storageId := range storageIds {
-		if int(storageId) > len(newParams.StorageCosts) {
-			return fmt.Errorf("storage provider id %d is out of bounds", storageId)
-		}
-		newParams.StorageCosts[storageId] = oldParams.StorageCost
+	for storageProviderId := range storageProviderIds {
+		newParams.StorageCosts = append(newParams.StorageCosts, bundlestypes.StorageCost{
+			StorageProviderId: storageProviderId,
+			Cost:              oldParams.StorageCost,
+		})
 	}
 
 	bundlesKeeper.SetParams(sdkCtx, newParams)

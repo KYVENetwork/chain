@@ -67,7 +67,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		params := s.App().BundlesKeeper.GetParams(s.Ctx())
 
 		Expect(params.UploadTimeout).To(Equal(types.DefaultUploadTimeout))
-		Expect(params.StorageCosts).To(Equal(types.DefaultStorageCosts()))
+		Expect(params.StorageCosts).To(Equal(types.DefaultStorageCosts))
 		Expect(params.NetworkFee).To(Equal(types.DefaultNetworkFee))
 		Expect(params.MaxPoints).To(Equal(types.DefaultMaxPoints))
 	})
@@ -109,7 +109,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		payload := `{
 			"upload_timeout": 20,
 			"storage_costs": [
-				"0.05"	
+				{"storage_provider_id": 0, "cost": "0.05"}
 			],
 			"network_fee": "0.05",
 			"max_points": 15
@@ -142,7 +142,10 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(voteErr).NotTo(HaveOccurred())
 
 		Expect(updatedParams.UploadTimeout).To(Equal(uint64(20)))
-		Expect(updatedParams.StorageCosts).To(Equal([]math.LegacyDec{math.LegacyMustNewDecFromStr("0.05")}))
+		Expect(updatedParams.StorageCosts).To(Equal([]types.StorageCost{{
+			StorageProviderId: 0,
+			Cost:              math.LegacyMustNewDecFromStr("0.05"),
+		}}))
 		Expect(updatedParams.NetworkFee).To(Equal(math.LegacyMustNewDecFromStr("0.05")))
 		Expect(updatedParams.MaxPoints).To(Equal(uint64(15)))
 	})
@@ -178,7 +181,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(voteErr).NotTo(HaveOccurred())
 
 		Expect(updatedParams.UploadTimeout).To(Equal(types.DefaultUploadTimeout))
-		Expect(updatedParams.StorageCosts).To(Equal(types.DefaultStorageCosts()))
+		Expect(updatedParams.StorageCosts).To(Equal(types.DefaultStorageCosts))
 		Expect(updatedParams.NetworkFee).To(Equal(types.DefaultNetworkFee))
 		Expect(updatedParams.MaxPoints).To(Equal(types.DefaultMaxPoints))
 	})
@@ -210,7 +213,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(submitErr).To(HaveOccurred())
 
 		Expect(updatedParams.UploadTimeout).To(Equal(types.DefaultUploadTimeout))
-		Expect(updatedParams.StorageCosts).To(Equal(types.DefaultStorageCosts()))
+		Expect(updatedParams.StorageCosts).To(Equal(types.DefaultStorageCosts))
 		Expect(updatedParams.NetworkFee).To(Equal(types.DefaultNetworkFee))
 		Expect(updatedParams.MaxPoints).To(Equal(types.DefaultMaxPoints))
 	})
@@ -248,7 +251,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(voteErr).NotTo(HaveOccurred())
 
 		Expect(updatedParams.UploadTimeout).To(Equal(uint64(20)))
-		Expect(updatedParams.StorageCosts).To(Equal(types.DefaultStorageCosts()))
+		Expect(updatedParams.StorageCosts).To(Equal(types.DefaultStorageCosts))
 		Expect(updatedParams.NetworkFee).To(Equal(types.DefaultNetworkFee))
 		Expect(updatedParams.MaxPoints).To(Equal(types.DefaultMaxPoints))
 	})
@@ -280,7 +283,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(submitErr).To(HaveOccurred())
 
 		Expect(updatedParams.UploadTimeout).To(Equal(types.DefaultUploadTimeout))
-		Expect(updatedParams.StorageCosts).To(Equal(types.DefaultStorageCosts()))
+		Expect(updatedParams.StorageCosts).To(Equal(types.DefaultStorageCosts))
 		Expect(updatedParams.NetworkFee).To(Equal(types.DefaultNetworkFee))
 		Expect(updatedParams.MaxPoints).To(Equal(types.DefaultMaxPoints))
 	})
@@ -289,8 +292,8 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		// ARRANGE
 		payload := `{
 			"storage_costs": [
-				"0.05",
-				"0.08"
+				{"storage_provider_id": 0, "cost": "0.05"},
+				{"storage_provider_id": 1, "cost": "0.08"}
 			]
 		}`
 
@@ -321,9 +324,9 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(voteErr).NotTo(HaveOccurred())
 
 		Expect(updatedParams.UploadTimeout).To(Equal(types.DefaultUploadTimeout))
-		Expect(updatedParams.StorageCosts).To(Equal([]math.LegacyDec{
-			math.LegacyMustNewDecFromStr("0.05"),
-			math.LegacyMustNewDecFromStr("0.08"),
+		Expect(updatedParams.StorageCosts).To(Equal([]types.StorageCost{
+			{StorageProviderId: 0, Cost: math.LegacyMustNewDecFromStr("0.05")},
+			{StorageProviderId: 1, Cost: math.LegacyMustNewDecFromStr("0.08")},
 		}))
 		Expect(updatedParams.NetworkFee).To(Equal(types.DefaultNetworkFee))
 		Expect(updatedParams.MaxPoints).To(Equal(types.DefaultMaxPoints))
@@ -358,7 +361,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(submitErr).To(HaveOccurred())
 
 		Expect(updatedParams.UploadTimeout).To(Equal(types.DefaultUploadTimeout))
-		Expect(updatedParams.StorageCosts).To(Equal(types.DefaultStorageCosts()))
+		Expect(updatedParams.StorageCosts).To(Equal(types.DefaultStorageCosts))
 		Expect(updatedParams.NetworkFee).To(Equal(types.DefaultNetworkFee))
 		Expect(updatedParams.MaxPoints).To(Equal(types.DefaultMaxPoints))
 	})
@@ -396,7 +399,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(voteErr).NotTo(HaveOccurred())
 
 		Expect(updatedParams.UploadTimeout).To(Equal(types.DefaultUploadTimeout))
-		Expect(updatedParams.StorageCosts).To(Equal(types.DefaultStorageCosts()))
+		Expect(updatedParams.StorageCosts).To(Equal(types.DefaultStorageCosts))
 		Expect(updatedParams.NetworkFee).To(Equal(math.LegacyMustNewDecFromStr("0.05")))
 		Expect(updatedParams.MaxPoints).To(Equal(types.DefaultMaxPoints))
 	})
@@ -428,7 +431,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(submitErr).To(HaveOccurred())
 
 		Expect(updatedParams.UploadTimeout).To(Equal(types.DefaultUploadTimeout))
-		Expect(updatedParams.StorageCosts).To(Equal(types.DefaultStorageCosts()))
+		Expect(updatedParams.StorageCosts).To(Equal(types.DefaultStorageCosts))
 		Expect(updatedParams.NetworkFee).To(Equal(types.DefaultNetworkFee))
 		Expect(updatedParams.MaxPoints).To(Equal(types.DefaultMaxPoints))
 	})
@@ -466,7 +469,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(voteErr).NotTo(HaveOccurred())
 
 		Expect(updatedParams.UploadTimeout).To(Equal(types.DefaultUploadTimeout))
-		Expect(updatedParams.StorageCosts).To(Equal(types.DefaultStorageCosts()))
+		Expect(updatedParams.StorageCosts).To(Equal(types.DefaultStorageCosts))
 		Expect(updatedParams.NetworkFee).To(Equal(types.DefaultNetworkFee))
 		Expect(updatedParams.MaxPoints).To(Equal(uint64(15)))
 	})
@@ -498,7 +501,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(submitErr).To(HaveOccurred())
 
 		Expect(updatedParams.UploadTimeout).To(Equal(types.DefaultUploadTimeout))
-		Expect(updatedParams.StorageCosts).To(Equal(types.DefaultStorageCosts()))
+		Expect(updatedParams.StorageCosts).To(Equal(types.DefaultStorageCosts))
 		Expect(updatedParams.NetworkFee).To(Equal(types.DefaultNetworkFee))
 		Expect(updatedParams.MaxPoints).To(Equal(types.DefaultMaxPoints))
 	})
