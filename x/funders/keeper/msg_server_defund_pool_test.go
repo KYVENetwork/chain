@@ -20,6 +20,8 @@ TEST CASES - msg_server_defund_pool.go
 * Try to defund nonexistent fundings
 * Try to defund a funding twice
 * Try to defund below minimum funding params (but not full defund)
+* Try to partially defund after a coin has been removed from the whitelist
+* Try to fully defund after a coin has been removed from the whitelist
 
 */
 
@@ -27,26 +29,7 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 	s := i.NewCleanChain()
 
 	initialBalance := s.GetBalancesFromAddress(i.ALICE)
-	whitelist := []*types.WhitelistCoinEntry{
-		{
-			CoinDenom:                 i.A_DENOM,
-			MinFundingAmount:          10 * i.KYVE,
-			MinFundingAmountPerBundle: 1 * i.KYVE,
-			CoinWeight:                math.LegacyNewDec(1),
-		},
-		{
-			CoinDenom:                 i.B_DENOM,
-			MinFundingAmount:          10 * i.KYVE,
-			MinFundingAmountPerBundle: 1 * i.KYVE,
-			CoinWeight:                math.LegacyNewDec(2),
-		},
-		{
-			CoinDenom:                 i.C_DENOM,
-			MinFundingAmount:          10 * i.KYVE,
-			MinFundingAmountPerBundle: 1 * i.KYVE,
-			CoinWeight:                math.LegacyNewDec(3),
-		},
-	}
+	var whitelist []*types.WhitelistCoinEntry
 
 	BeforeEach(func() {
 		// init new clean chain
@@ -73,6 +56,26 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 		s.RunTxPoolSuccess(msg)
 
 		// set whitelist
+		whitelist = []*types.WhitelistCoinEntry{
+			{
+				CoinDenom:                 i.A_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+			{
+				CoinDenom:                 i.B_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(2),
+			},
+			{
+				CoinDenom:                 i.C_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(3),
+			},
+		}
 		s.App().FundersKeeper.SetParams(s.Ctx(), types.NewParams(whitelist, 20))
 
 		// create funder
@@ -231,5 +234,73 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 			PoolId:  0,
 			Amounts: i.ACoins(95 * i.T_KYVE),
 		})
+	})
+
+	It("Try to partially defund after a coin has been removed from the whitelist", func() {
+		// ARRANGE
+		whitelist = []*types.WhitelistCoinEntry{
+			{
+				CoinDenom:                 i.B_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(2),
+			},
+			{
+				CoinDenom:                 i.C_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(3),
+			},
+		}
+		s.App().FundersKeeper.SetParams(s.Ctx(), types.NewParams(whitelist, 20))
+
+		// ACT
+		_, err := s.RunTx(&types.MsgDefundPool{
+			Creator: i.ALICE,
+			PoolId:  0,
+			Amounts: i.ACoins(50 * i.T_KYVE),
+		})
+
+		// ASSERT
+		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(Equal(types.ErrCoinNotWhitelisted.Error()))
+	})
+
+	It("Try to fully defund after a coin has been removed from the whitelist", func() {
+		// ARRANGE
+		whitelist = []*types.WhitelistCoinEntry{
+			{
+				CoinDenom:                 i.B_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(2),
+			},
+			{
+				CoinDenom:                 i.C_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(3),
+			},
+		}
+		s.App().FundersKeeper.SetParams(s.Ctx(), types.NewParams(whitelist, 20))
+
+		// ACT
+		s.RunTxFundersSuccess(&types.MsgDefundPool{
+			Creator: i.ALICE,
+			PoolId:  0,
+			Amounts: i.ACoins(100 * i.T_KYVE),
+		})
+
+		// ASSERT
+		balanceAfter := s.GetBalancesFromAddress(i.ALICE)
+		Expect(initialBalance.Sub(balanceAfter...).IsZero()).To(BeTrue())
+
+		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
+		Expect(funding.Amounts.IsZero()).To(BeTrue())
+		Expect(funding.AmountsPerBundle.String()).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
+		Expect(funding.TotalFunded.IsZero()).To(BeTrue())
+
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(0))
 	})
 })

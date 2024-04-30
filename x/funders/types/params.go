@@ -42,6 +42,7 @@ func DefaultParams() Params {
 }
 
 // Validate validates the set of params
+// TODO: fail if kyve denom is not in whitelist
 func (p *Params) Validate() error {
 	if err := util.ValidateNumber(p.MinFundingMultiple); err != nil {
 		return err

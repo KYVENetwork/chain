@@ -10,7 +10,9 @@ func (f *Funding) GetScore(whitelist []*WhitelistCoinEntry) (score uint64) {
 	}
 
 	for _, coin := range f.Amounts {
-		score += uint64(w[coin.Denom].CoinWeight.MulInt64(coin.Amount.Int64()).TruncateInt64())
+		if entry, found := w[coin.Denom]; found {
+			score += uint64(entry.CoinWeight.MulInt64(coin.Amount.Int64()).TruncateInt64())
+		}
 	}
 
 	return

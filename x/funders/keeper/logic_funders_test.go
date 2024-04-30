@@ -20,9 +20,11 @@ TEST CASES - logic_funders.go
 * Charge funders with multiple coins until he is completely out of funds
 * Charge funders until all funders run out of funds
 * Charge funder with less funds than amount_per_bundle
+* Charge funder that has coins which are not in the whitelist
 * Charge without fundings
 * Check if the lowest funding is returned correctly with one coin
 * Check if the lowest funding is returned correctly with multiple coins
+* Check if the lowest funding is returned correctly with coins which are not whitelisted
 
 */
 
@@ -31,26 +33,7 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 	fundersModuleAcc := s.App().AccountKeeper.GetModuleAccount(s.Ctx(), funderstypes.ModuleName).GetAddress()
 	poolModuleAcc := s.App().AccountKeeper.GetModuleAccount(s.Ctx(), pooltypes.ModuleName).GetAddress()
 
-	whitelist := []*funderstypes.WhitelistCoinEntry{
-		{
-			CoinDenom:                 i.A_DENOM,
-			MinFundingAmount:          10 * i.KYVE,
-			MinFundingAmountPerBundle: 1 * i.KYVE,
-			CoinWeight:                math.LegacyNewDec(1),
-		},
-		{
-			CoinDenom:                 i.B_DENOM,
-			MinFundingAmount:          10 * i.KYVE,
-			MinFundingAmountPerBundle: 1 * i.KYVE,
-			CoinWeight:                math.LegacyNewDec(2),
-		},
-		{
-			CoinDenom:                 i.C_DENOM,
-			MinFundingAmount:          10 * i.KYVE,
-			MinFundingAmountPerBundle: 1 * i.KYVE,
-			CoinWeight:                math.LegacyNewDec(3),
-		},
-	}
+	var whitelist []*funderstypes.WhitelistCoinEntry
 
 	BeforeEach(func() {
 		s = i.NewCleanChain()
@@ -76,6 +59,26 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		s.RunTxPoolSuccess(msg)
 
 		// set whitelist
+		whitelist = []*funderstypes.WhitelistCoinEntry{
+			{
+				CoinDenom:                 i.A_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+			{
+				CoinDenom:                 i.B_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(2),
+			},
+			{
+				CoinDenom:                 i.C_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(3),
+			},
+		}
 		s.App().FundersKeeper.SetParams(s.Ctx(), funderstypes.NewParams(whitelist, 20))
 
 		params := s.App().FundersKeeper.GetParams(s.Ctx())
@@ -358,6 +361,52 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		Expect(poolBalance.String()).To(Equal(i.ACoins(110 * i.T_KYVE).String()))
 	})
 
+	It("Charge funder that has coins which are not in the whitelist", func() {
+		// ARRANGE
+		whitelist = []*funderstypes.WhitelistCoinEntry{
+			{
+				CoinDenom:                 i.B_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(2),
+			},
+			{
+				CoinDenom:                 i.C_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(3),
+			},
+		}
+		s.App().FundersKeeper.SetParams(s.Ctx(), funderstypes.NewParams(whitelist, 20))
+
+		// ACT
+		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+		Expect(err).NotTo(HaveOccurred())
+
+		// ASSERT
+		Expect(payout.String()).To(Equal(i.ACoins(11 * i.T_KYVE).String()))
+
+		fundingAlice, foundAlice := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
+		Expect(foundAlice).To(BeTrue())
+		Expect(fundingAlice.Amounts.String()).To(Equal(i.ACoins(99 * i.T_KYVE).String()))
+		Expect(fundingAlice.TotalFunded.String()).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
+
+		fundingBob, foundBob := s.App().FundersKeeper.GetFunding(s.Ctx(), i.BOB, 0)
+		Expect(foundBob).To(BeTrue())
+		Expect(fundingBob.Amounts.String()).To(Equal(i.ACoins(40 * i.T_KYVE).String()))
+		Expect(fundingBob.TotalFunded.String()).To(Equal(i.ACoins(10 * i.T_KYVE).String()))
+
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
+		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
+		Expect(fundingState.ActiveFunderAddresses[1]).To(Equal(i.BOB))
+
+		fundersBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), fundersModuleAcc)
+		poolBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), poolModuleAcc)
+		Expect(fundersBalance.String()).To(Equal(i.ACoins(139 * i.T_KYVE).String()))
+		Expect(poolBalance.String()).To(Equal(i.ACoins(11 * i.T_KYVE).String()))
+	})
+
 	It("Charge without fundings", func() {
 		// ARRANGE
 		s.RunTxFundersSuccess(&funderstypes.MsgDefundPool{
@@ -397,7 +446,49 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		Expect(poolBalance.IsZero()).To(BeTrue())
 	})
 
-	It("Check if the lowest funding is returned correctly", func() {
+	It("Check if the lowest funding is returned correctly with one coin", func() {
+		whitelist := []*funderstypes.WhitelistCoinEntry{
+			{
+				CoinDenom:  i.A_DENOM,
+				CoinWeight: math.LegacyNewDec(1),
+			},
+			{
+				CoinDenom:  i.B_DENOM,
+				CoinWeight: math.LegacyNewDec(2),
+			},
+			{
+				CoinDenom:  i.C_DENOM,
+				CoinWeight: math.LegacyNewDec(3),
+			},
+		}
+
+		fundings := []funderstypes.Funding{
+			{
+				FunderAddress:    i.DUMMY[0],
+				PoolId:           0,
+				Amounts:          i.ACoins(1000 * i.T_KYVE),
+				AmountsPerBundle: i.ACoins(1 * i.T_KYVE),
+			},
+			{
+				FunderAddress:    i.DUMMY[1],
+				PoolId:           0,
+				Amounts:          i.ACoins(1100 * i.T_KYVE),
+				AmountsPerBundle: i.ACoins(1 * i.T_KYVE),
+			},
+			{
+				FunderAddress:    i.DUMMY[2],
+				PoolId:           0,
+				Amounts:          i.ACoins(900 * i.T_KYVE),
+				AmountsPerBundle: i.ACoins(1 * i.T_KYVE),
+			},
+		}
+
+		getLowestFunding, err := s.App().FundersKeeper.GetLowestFunding(fundings, whitelist)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(getLowestFunding.FunderAddress).To(Equal(i.DUMMY[2]))
+	})
+
+	It("Check if the lowest funding is returned correctly with multiple coins", func() {
 		whitelist := []*funderstypes.WhitelistCoinEntry{
 			{
 				CoinDenom:  i.A_DENOM,
@@ -437,5 +528,43 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		getLowestFunding, err := s.App().FundersKeeper.GetLowestFunding(fundings, whitelist)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(getLowestFunding.FunderAddress).To(Equal(i.DUMMY[1]))
+	})
+
+	It("Check if the lowest funding is returned correctly with coins which are not whitelisted", func() {
+		whitelist := []*funderstypes.WhitelistCoinEntry{
+			{
+				CoinDenom:  i.A_DENOM,
+				CoinWeight: math.LegacyNewDec(1),
+			},
+			{
+				CoinDenom:  i.B_DENOM,
+				CoinWeight: math.LegacyNewDec(2),
+			},
+		}
+
+		fundings := []funderstypes.Funding{
+			{
+				FunderAddress:    i.DUMMY[0],
+				PoolId:           0,
+				Amounts:          sdk.NewCoins(i.ACoin(1000*i.T_KYVE), i.BCoin(500*i.T_KYVE), i.CCoin(200*i.T_KYVE)),
+				AmountsPerBundle: sdk.NewCoins(i.ACoin(1*i.T_KYVE), i.BCoin(1*i.T_KYVE), i.CCoin(1)),
+			},
+			{
+				FunderAddress:    i.DUMMY[1],
+				PoolId:           0,
+				Amounts:          sdk.NewCoins(i.ACoin(1100*i.T_KYVE), i.BCoin(600*i.T_KYVE), i.CCoin(5*i.T_KYVE)),
+				AmountsPerBundle: sdk.NewCoins(i.ACoin(1*i.T_KYVE), i.BCoin(1*i.T_KYVE), i.CCoin(1)),
+			},
+			{
+				FunderAddress:    i.DUMMY[2],
+				PoolId:           0,
+				Amounts:          sdk.NewCoins(i.ACoin(500*i.T_KYVE), i.CCoin(700*i.T_KYVE)),
+				AmountsPerBundle: sdk.NewCoins(i.ACoin(1*i.T_KYVE), i.CCoin(1)),
+			},
+		}
+
+		getLowestFunding, err := s.App().FundersKeeper.GetLowestFunding(fundings, whitelist)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(getLowestFunding.FunderAddress).To(Equal(i.DUMMY[2]))
 	})
 })

@@ -124,7 +124,7 @@ func (k Keeper) ensureParamsCompatibility(ctx sdk.Context, funding types.Funding
 
 	// throw error if a coin in amounts per bundle is not in the whitelist
 	if !funding.AmountsPerBundle.DenomsSubsetOf(minFundingAmountsPerBundle) {
-		return types.ErrCoinNotWhitelisted
+		return types.ErrAmountPerBundleCoinNotWhitelisted
 	}
 
 	// throw error if a coin is less than the minimum funding amount
