@@ -529,16 +529,6 @@ func (k msgServer) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bun
 	// Handle tally outcome
 	switch voteDistribution.Status {
 	case types.BUNDLE_STATUS_VALID:
-		// If a bundle is valid the following things happen:
-		// 1. Funders and Inflation Pool are charged. The total payout is divided
-		//    between the uploader, its delegators and the treasury.
-		//    The appropriate funds are deducted from the total pool funds
-		// 2. The next uploader is randomly selected based on everybody who
-		//    voted valid on this bundle.
-		// 3. The bundle is finalized by added it permanently to the state.
-		// 4. The sender immediately starts the next round by registering
-		//    his new bundle proposal.
-
 		// charge the funders of the pool
 		fundersPayout, err := k.fundersKeeper.ChargeFundersOfPool(ctx, poolId)
 		if err != nil {

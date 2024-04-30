@@ -43,11 +43,10 @@ func (k msgServer) SubmitBundleProposal(goCtx context.Context, msg *types.MsgSub
 
 	switch result.Status {
 	case types.TallyResultValid:
-		// Determine next uploader and register next bundle
-
 		// Get next uploader from stakers who voted `valid`
 		nextUploader := k.chooseNextUploaderFromList(ctx, msg.PoolId, bundleProposal.VotersValid)
 
+		// Finalize bundle by adding it to the store
 		k.finalizeCurrentBundleProposal(ctx, msg.PoolId, result.VoteDistribution, result.FundersPayout, result.InflationPayout, result.BundleReward, nextUploader)
 
 		// Register the provided bundle as a new proposal for the next round
@@ -60,8 +59,7 @@ func (k msgServer) SubmitBundleProposal(goCtx context.Context, msg *types.MsgSub
 		k.dropCurrentBundleProposal(ctx, msg.PoolId, result.VoteDistribution, bundleProposal.NextUploader)
 
 		return &types.MsgSubmitBundleProposalResponse{}, nil
-	case types.TallyResultNoQuorum:
+	default:
 		return nil, types.ErrQuorumNotReached
 	}
-	return nil, types.ErrQuorumNotReached
 }
