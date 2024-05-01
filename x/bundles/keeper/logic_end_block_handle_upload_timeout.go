@@ -71,37 +71,45 @@ func (k Keeper) HandleUploadTimeout(goCtx context.Context) {
 
 		timedoutUploader := bundleProposal.NextUploader
 
-		// Previous round contains a bundle which needs to be validated now.
-		result, err := k.tallyBundleProposal(ctx, bundleProposal, pool.Id)
-		if err != nil {
-			// If we have an error here we have some kind of inconsistency in the state.
-			// TODO: panic here?
-			continue
-		}
-
-		switch result.Status {
-		case types.TallyResultValid:
-			// Get next uploader from stakers who voted `valid`
-			nextUploader := k.chooseNextUploaderFromList(ctx, pool.Id, bundleProposal.VotersValid)
-
-			// Finalize bundle by adding it to the store
-			k.finalizeCurrentBundleProposal(ctx, pool.Id, result.VoteDistribution, result.FundersPayout, result.InflationPayout, result.BundleReward, nextUploader)
-
-			// Register empty bundle with next uploader
-			bundleProposal = types.BundleProposal{
-				PoolId:       pool.Id,
-				NextUploader: nextUploader,
-				UpdatedAt:    uint64(ctx.BlockTime().Unix()),
+		// Check if we have a bundle proposal to validate.
+		if bundleProposal.StorageId != "" {
+			// Previous round contains a bundle which needs to be validated now.
+			result, err := k.tallyBundleProposal(ctx, bundleProposal, pool.Id)
+			if err != nil {
+				// If we have an error here we have some kind of inconsistency in the state.
+				// TODO: panic here?
+				continue
 			}
+
+			switch result.Status {
+			case types.TallyResultValid:
+				// Get next uploader from stakers who voted `valid`
+				nextUploader := k.chooseNextUploaderFromList(ctx, pool.Id, bundleProposal.VotersValid)
+
+				// Finalize bundle by adding it to the store
+				k.finalizeCurrentBundleProposal(ctx, pool.Id, result.VoteDistribution, result.FundersPayout, result.InflationPayout, result.BundleReward, nextUploader)
+
+				// Register empty bundle with next uploader
+				bundleProposal = types.BundleProposal{
+					PoolId:       pool.Id,
+					NextUploader: nextUploader,
+					UpdatedAt:    uint64(ctx.BlockTime().Unix()),
+				}
+				k.SetBundleProposal(ctx, bundleProposal)
+			default:
+				// In every other case the bundle is dropped.
+
+				// Get next uploader from all pool stakers
+				nextUploader := k.chooseNextUploader(ctx, pool.Id)
+
+				// Drop current bundle and set next uploader
+				k.dropCurrentBundleProposal(ctx, pool.Id, result.VoteDistribution, nextUploader)
+			}
+		} else {
+			// Update bundle proposal and choose next uploader
+			bundleProposal.NextUploader = k.chooseNextUploader(ctx, pool.Id)
+			bundleProposal.UpdatedAt = uint64(ctx.BlockTime().Unix())
 			k.SetBundleProposal(ctx, bundleProposal)
-		default:
-			// In every other case the bundle is dropped.
-
-			// Get next uploader from all pool stakers
-			nextUploader := k.chooseNextUploader(ctx, pool.Id)
-
-			// Drop current bundle and set next uploader
-			k.dropCurrentBundleProposal(ctx, pool.Id, result.VoteDistribution, nextUploader)
 		}
 
 		// Now we increase the points of the valaccount
