@@ -4,6 +4,7 @@ import (
 	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	"github.com/KYVENetwork/chain/x/funders/types"
+	globaltypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -57,6 +58,12 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 
 		// set whitelist
 		whitelist = []*types.WhitelistCoinEntry{
+			{
+				CoinDenom:                 globaltypes.Denom,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
 			{
 				CoinDenom:                 i.A_DENOM,
 				MinFundingAmount:          10 * i.KYVE,
@@ -240,6 +247,12 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 		// ARRANGE
 		whitelist = []*types.WhitelistCoinEntry{
 			{
+				CoinDenom:                 globaltypes.Denom,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+			{
 				CoinDenom:                 i.B_DENOM,
 				MinFundingAmount:          10 * i.KYVE,
 				MinFundingAmountPerBundle: 1 * i.KYVE,
@@ -269,6 +282,12 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 	It("Try to fully defund after a coin has been removed from the whitelist", func() {
 		// ARRANGE
 		whitelist = []*types.WhitelistCoinEntry{
+			{
+				CoinDenom:                 globaltypes.Denom,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
 			{
 				CoinDenom:                 i.B_DENOM,
 				MinFundingAmount:          10 * i.KYVE,

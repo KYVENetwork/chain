@@ -29,6 +29,8 @@ TEST CASES - msg_server_update_params.go
 
 * Update existing coin whitelist entry
 * Update existing coin whitelist entry with invalid value
+* Update multiple coin whitelist entries
+* Update coin whitelist entry without the native kyve coin
 
 * Update min-funding-multiple
 * Update min-funding-multiple with invalid value
@@ -45,6 +47,9 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 	BeforeEach(func() {
 		s = i.NewCleanChain()
+
+		// set whitelist
+		s.App().FundersKeeper.SetParams(s.Ctx(), types.DefaultParams())
 
 		gov = s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 		params, err := s.App().GovKeeper.Params.Get(s.Ctx())
@@ -67,7 +72,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		// ASSERT
 		params := s.App().FundersKeeper.GetParams(s.Ctx())
 
-		Expect(params.CoinWhitelist).To(Equal(types.DefaultCoinWhitelist))
+		Expect(params.CoinWhitelist).To(Equal(types.DefaultParams().CoinWhitelist))
 		Expect(params.MinFundingMultiple).To(Equal(types.DefaultMinFundingMultiple))
 	})
 
@@ -106,7 +111,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 	It("Update every param at once", func() {
 		// ARRANGE
 		payload := `{
-			"coin_whitelist": [{"coin_denom":"acoin","min_funding_amount":20000000000,"min_funding_amount_per_bundle":2000000000,"coin_weight":"5"}],
+			"coin_whitelist": [{"coin_denom":"tkyve","min_funding_amount":20000000000,"min_funding_amount_per_bundle":2000000000,"coin_weight":"5"}],
 			"min_funding_multiple": 25
 		}`
 
@@ -137,7 +142,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(voteErr).NotTo(HaveOccurred())
 
 		Expect(updatedParams.CoinWhitelist).To(HaveLen(1))
-		Expect(updatedParams.CoinWhitelist[0].CoinDenom).To(Equal("acoin"))
+		Expect(updatedParams.CoinWhitelist[0].CoinDenom).To(Equal("tkyve"))
 		Expect(updatedParams.CoinWhitelist[0].MinFundingAmount).To(Equal(uint64(20000000000)))
 		Expect(updatedParams.CoinWhitelist[0].MinFundingAmountPerBundle).To(Equal(uint64(2000000000)))
 		Expect(updatedParams.CoinWhitelist[0].CoinWeight.TruncateInt64()).To(Equal(int64(5)))
@@ -175,7 +180,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(submitErr).NotTo(HaveOccurred())
 		Expect(voteErr).NotTo(HaveOccurred())
 
-		Expect(updatedParams.CoinWhitelist).To(Equal(types.DefaultCoinWhitelist))
+		Expect(updatedParams.CoinWhitelist).To(Equal(types.DefaultParams().CoinWhitelist))
 		Expect(updatedParams.MinFundingMultiple).To(Equal(types.DefaultMinFundingMultiple))
 	})
 
@@ -205,14 +210,14 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 		Expect(submitErr).To(HaveOccurred())
 
-		Expect(updatedParams.CoinWhitelist).To(Equal(types.DefaultCoinWhitelist))
+		Expect(updatedParams.CoinWhitelist).To(Equal(types.DefaultParams().CoinWhitelist))
 		Expect(updatedParams.MinFundingMultiple).To(Equal(types.DefaultMinFundingMultiple))
 	})
 
 	It("Update existing coin whitelist entry", func() {
 		// ARRANGE
 		payload := `{
-			"coin_whitelist": [{"coin_denom":"acoin","min_funding_amount":20000000000,"min_funding_amount_per_bundle":200000,"coin_weight":"5"}]
+			"coin_whitelist": [{"coin_denom":"tkyve","min_funding_amount":20000000000,"min_funding_amount_per_bundle":200000,"coin_weight":"7"}]
 		}`
 
 		msg := &types.MsgUpdateParams{
@@ -242,10 +247,10 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(voteErr).NotTo(HaveOccurred())
 
 		Expect(updatedParams.CoinWhitelist).To(HaveLen(1))
-		Expect(updatedParams.CoinWhitelist[0].CoinDenom).To(Equal("acoin"))
+		Expect(updatedParams.CoinWhitelist[0].CoinDenom).To(Equal("tkyve"))
 		Expect(updatedParams.CoinWhitelist[0].MinFundingAmount).To(Equal(uint64(20000000000)))
 		Expect(updatedParams.CoinWhitelist[0].MinFundingAmountPerBundle).To(Equal(uint64(200000)))
-		Expect(updatedParams.CoinWhitelist[0].CoinWeight.TruncateInt64()).To(Equal(int64(5)))
+		Expect(updatedParams.CoinWhitelist[0].CoinWeight.TruncateInt64()).To(Equal(int64(7)))
 
 		Expect(updatedParams.MinFundingMultiple).To(Equal(types.DefaultMinFundingMultiple))
 	})
@@ -253,7 +258,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 	It("Update existing coin whitelist entry with invalid value", func() {
 		// ARRANGE
 		payload := `{
-			"coin_whitelist": [{"coin_denom":"acoin","min_funding_amount":invalid,"min_funding_amount_per_bundle":100000,"coin_weight":"1"}]
+			"coin_whitelist": [{"coin_denom":"tkyve","min_funding_amount":invalid,"min_funding_amount_per_bundle":100000,"coin_weight":"1"}]
 		}`
 
 		msg := &types.MsgUpdateParams{
@@ -276,7 +281,83 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 		Expect(submitErr).To(HaveOccurred())
 
-		Expect(updatedParams.CoinWhitelist).To(Equal(types.DefaultCoinWhitelist))
+		Expect(updatedParams.CoinWhitelist).To(Equal(types.DefaultParams().CoinWhitelist))
+		Expect(updatedParams.MinFundingMultiple).To(Equal(types.DefaultMinFundingMultiple))
+	})
+
+	It("Update multiple coin whitelist entries", func() {
+		// ARRANGE
+		payload := `{
+			"coin_whitelist": [{"coin_denom":"tkyve","min_funding_amount":20000000000,"min_funding_amount_per_bundle":200000,"coin_weight":"5"},{"coin_denom":"acoin","min_funding_amount":10000000000,"min_funding_amount_per_bundle":100000,"coin_weight":"2"}]
+		}`
+
+		msg := &types.MsgUpdateParams{
+			Authority: gov,
+			Payload:   payload,
+		}
+
+		proposal, _ := govV1Types.NewMsgSubmitProposal(
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
+		)
+
+		vote := govV1Types.NewMsgVote(
+			voter, 1, govV1Types.VoteOption_VOTE_OPTION_YES, "",
+		)
+
+		// ACT
+		_, submitErr := s.RunTx(proposal)
+		_, voteErr := s.RunTx(vote)
+
+		s.CommitAfter(*votingPeriod)
+		s.Commit()
+
+		// ASSERT
+		updatedParams := s.App().FundersKeeper.GetParams(s.Ctx())
+
+		Expect(submitErr).NotTo(HaveOccurred())
+		Expect(voteErr).NotTo(HaveOccurred())
+
+		Expect(updatedParams.CoinWhitelist).To(HaveLen(2))
+
+		Expect(updatedParams.CoinWhitelist[0].CoinDenom).To(Equal("tkyve"))
+		Expect(updatedParams.CoinWhitelist[0].MinFundingAmount).To(Equal(uint64(20000000000)))
+		Expect(updatedParams.CoinWhitelist[0].MinFundingAmountPerBundle).To(Equal(uint64(200000)))
+		Expect(updatedParams.CoinWhitelist[0].CoinWeight.TruncateInt64()).To(Equal(int64(5)))
+
+		Expect(updatedParams.CoinWhitelist[1].CoinDenom).To(Equal("acoin"))
+		Expect(updatedParams.CoinWhitelist[1].MinFundingAmount).To(Equal(uint64(10000000000)))
+		Expect(updatedParams.CoinWhitelist[1].MinFundingAmountPerBundle).To(Equal(uint64(100000)))
+		Expect(updatedParams.CoinWhitelist[1].CoinWeight.TruncateInt64()).To(Equal(int64(2)))
+
+		Expect(updatedParams.MinFundingMultiple).To(Equal(types.DefaultMinFundingMultiple))
+	})
+
+	It("Update coin whitelist entry without the native kyve coin", func() {
+		// ARRANGE
+		payload := `{
+			"coin_whitelist": [{"coin_denom":"acoin","min_funding_amount":10000000000,"min_funding_amount_per_bundle":100000,"coin_weight":"2"}]
+		}`
+
+		msg := &types.MsgUpdateParams{
+			Authority: gov,
+			Payload:   payload,
+		}
+
+		proposal, _ := govV1Types.NewMsgSubmitProposal(
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
+		)
+
+		// ACT
+		_, submitErr := s.RunTx(proposal)
+
+		s.CommitAfter(*votingPeriod)
+		s.Commit()
+
+		// ASSERT
+		updatedParams := s.App().FundersKeeper.GetParams(s.Ctx())
+		Expect(submitErr).To(HaveOccurred())
+
+		Expect(updatedParams.CoinWhitelist).To(Equal(types.DefaultParams().CoinWhitelist))
 		Expect(updatedParams.MinFundingMultiple).To(Equal(types.DefaultMinFundingMultiple))
 	})
 
@@ -312,7 +393,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(submitErr).NotTo(HaveOccurred())
 		Expect(voteErr).NotTo(HaveOccurred())
 
-		Expect(updatedParams.CoinWhitelist).To(Equal(types.DefaultCoinWhitelist))
+		Expect(updatedParams.CoinWhitelist).To(Equal(types.DefaultParams().CoinWhitelist))
 		Expect(updatedParams.MinFundingMultiple).To(Equal(uint64(9)))
 	})
 
@@ -342,7 +423,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 		Expect(submitErr).To(HaveOccurred())
 
-		Expect(updatedParams.CoinWhitelist).To(Equal(types.DefaultCoinWhitelist))
+		Expect(updatedParams.CoinWhitelist).To(Equal(types.DefaultParams().CoinWhitelist))
 		Expect(updatedParams.MinFundingMultiple).To(Equal(types.DefaultMinFundingMultiple))
 	})
 })

@@ -4,6 +4,7 @@ import (
 	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
+	globaltypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
@@ -60,6 +61,12 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 
 		// set whitelist
 		whitelist = []*funderstypes.WhitelistCoinEntry{
+			{
+				CoinDenom:                 globaltypes.Denom,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
 			{
 				CoinDenom:                 i.A_DENOM,
 				MinFundingAmount:          10 * i.KYVE,
@@ -365,6 +372,12 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		// ARRANGE
 		whitelist = []*funderstypes.WhitelistCoinEntry{
 			{
+				CoinDenom:                 globaltypes.Denom,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+			{
 				CoinDenom:                 i.B_DENOM,
 				MinFundingAmount:          10 * i.KYVE,
 				MinFundingAmountPerBundle: 1 * i.KYVE,
@@ -449,6 +462,12 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 	It("Check if the lowest funding is returned correctly with one coin", func() {
 		whitelist := []*funderstypes.WhitelistCoinEntry{
 			{
+				CoinDenom:                 globaltypes.Denom,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+			{
 				CoinDenom:  i.A_DENOM,
 				CoinWeight: math.LegacyNewDec(1),
 			},
@@ -491,6 +510,12 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 	It("Check if the lowest funding is returned correctly with multiple coins", func() {
 		whitelist := []*funderstypes.WhitelistCoinEntry{
 			{
+				CoinDenom:                 globaltypes.Denom,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+			{
 				CoinDenom:  i.A_DENOM,
 				CoinWeight: math.LegacyNewDec(1),
 			},
@@ -532,6 +557,12 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 
 	It("Check if the lowest funding is returned correctly with coins which are not whitelisted", func() {
 		whitelist := []*funderstypes.WhitelistCoinEntry{
+			{
+				CoinDenom:                 globaltypes.Denom,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
 			{
 				CoinDenom:  i.A_DENOM,
 				CoinWeight: math.LegacyNewDec(1),

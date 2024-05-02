@@ -4,6 +4,7 @@ import (
 	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
+	globaltypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
@@ -78,6 +79,12 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 
 		// set whitelist
 		whitelist = []*funderstypes.WhitelistCoinEntry{
+			{
+				CoinDenom:                 globaltypes.Denom,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
 			{
 				CoinDenom:                 i.A_DENOM,
 				MinFundingAmount:          10 * i.KYVE,
@@ -433,6 +440,12 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		// ARRANGE
 		whitelist = []*funderstypes.WhitelistCoinEntry{
 			{
+				CoinDenom:                 globaltypes.Denom,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+			{
 				CoinDenom:                 i.A_DENOM,
 				MinFundingAmount:          10 * i.KYVE,
 				MinFundingAmountPerBundle: 1 * i.KYVE,
@@ -471,6 +484,12 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 
 		whitelist = []*funderstypes.WhitelistCoinEntry{
 			{
+				CoinDenom:                 globaltypes.Denom,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+			{
 				CoinDenom:                 i.A_DENOM,
 				MinFundingAmount:          10 * i.KYVE,
 				MinFundingAmountPerBundle: 1 * i.KYVE,
@@ -501,6 +520,12 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 	It("Try funding multiple coins where one coin is not in the whitelist", func() {
 		// ARRANGE
 		whitelist = []*funderstypes.WhitelistCoinEntry{
+			{
+				CoinDenom:                 globaltypes.Denom,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
 			{
 				CoinDenom:                 i.A_DENOM,
 				MinFundingAmount:          10 * i.KYVE,
@@ -598,6 +623,12 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 	It("Try changing the amount per bundle of a coin which is not funded and whitelisted", func() {
 		// ARRANGE
 		whitelist = []*funderstypes.WhitelistCoinEntry{
+			{
+				CoinDenom:                 globaltypes.Denom,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
 			{
 				CoinDenom:                 i.A_DENOM,
 				MinFundingAmount:          10 * i.KYVE,
