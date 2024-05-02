@@ -266,7 +266,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
@@ -359,7 +359,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
@@ -465,7 +465,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
@@ -572,7 +572,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
@@ -679,7 +679,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
@@ -784,7 +784,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
@@ -891,7 +891,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
@@ -998,7 +998,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
@@ -1103,7 +1103,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
@@ -1210,7 +1210,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
@@ -1317,7 +1317,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
