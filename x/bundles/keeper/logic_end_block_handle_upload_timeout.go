@@ -76,8 +76,7 @@ func (k Keeper) HandleUploadTimeout(goCtx context.Context) {
 			// Previous round contains a bundle which needs to be validated now.
 			result, err := k.tallyBundleProposal(ctx, bundleProposal, pool.Id)
 			if err != nil {
-				// If we have an error here we have some kind of inconsistency in the state.
-				// TODO: panic here?
+				// If we have an error here we might have an inconsistent state.
 				continue
 			}
 
