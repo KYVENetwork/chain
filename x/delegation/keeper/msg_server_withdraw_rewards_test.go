@@ -24,7 +24,7 @@ TEST CASES - msg_server_withdraw_rewards.go
 * Withdraw rewards with multiple slashes
 * Payout rewards with multiple denoms
 * Payout mixed rewards multiple times and multiple delegation steps
-* Withdraw multiple denoms (exclusively)
+* Withdraw multiple denoms, one after the other
 */
 
 var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
@@ -406,7 +406,7 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 		Expect(s.GetCoinsFromModule(types.ModuleName).String()).To(Equal("2bcoin,28000000000tkyve"))
 	})
 
-	It("Withdraw multiple denoms (exclusively)", func() {
+	It("Withdraw multiple denoms, one after the other", func() {
 		mintErr1 := s.MintDenomToModule(pooltypes.ModuleName, 1000*1_000_000, "acoin")
 		Expect(mintErr1).To(BeNil())
 
