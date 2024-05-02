@@ -137,6 +137,11 @@ func (k Keeper) ensureParamsCompatibility(ctx sdk.Context, funding types.Funding
 		return types.ErrMinAmountPerBundle
 	}
 
+	// if MinFundingMultiple is zero we can already return
+	if params.MinFundingMultiple == 0 {
+		return nil
+	}
+
 	// throw error if a coin can not fulfill the funding multiple threshold
 	if funding.AmountsPerBundle.MulInt(math.NewInt(int64(params.MinFundingMultiple))).IsAnyGT(funding.Amounts) {
 		return types.ErrMinFundingMultiple

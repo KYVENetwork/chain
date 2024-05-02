@@ -35,7 +35,7 @@ func PayoutRewards(s *i.KeeperTestSuite, staker string, amount uint64) {
 	Expect(err).To(BeNil())
 	err = s.App().DelegationKeeper.PayoutRewards(s.Ctx(), staker, amount, pooltypes.ModuleName)
 	Expect(err).NotTo(HaveOccurred())
-	Expect(amount).To(Equal(payout))
+	Expect(amount).To(Equal(payout[0].Amount.Uint64()))
 }
 
 func CreateFundedPool(s *i.KeeperTestSuite) {
@@ -76,7 +76,7 @@ func CreateFundedPool(s *i.KeeperTestSuite) {
 
 	fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
-	Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100 * i.KYVE))
+	Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100 * i.KYVE))
 }
 
 func CheckAndContinueChainForOneMonth(s *i.KeeperTestSuite) {

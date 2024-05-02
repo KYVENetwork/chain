@@ -60,8 +60,8 @@ var _ = Describe("zero delegation", Ordered, func() {
 		}
 		s.RunTxPoolSuccess(msg)
 
-		params := s.App().FundersKeeper.GetParams(s.Ctx())
-		params.MinFundingAmountPerBundle = amountPerBundle
+		params := funderstypes.DefaultParams()
+		params.CoinWhitelist[0].MinFundingAmountPerBundle = amountPerBundle
 		s.App().FundersKeeper.SetParams(s.Ctx(), params)
 
 		// create funders
@@ -71,10 +71,10 @@ var _ = Describe("zero delegation", Ordered, func() {
 		})
 
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: amountPerBundle,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(int64(amountPerBundle)),
 		})
 
 		s.CommitAfterSeconds(60)
@@ -479,7 +479,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100*i.KYVE - 1*amountPerBundle))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100*i.KYVE - 1*amountPerBundle))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 
@@ -651,7 +651,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100 * i.KYVE))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100 * i.KYVE))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 
@@ -909,7 +909,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100 * i.KYVE))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100 * i.KYVE))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 })

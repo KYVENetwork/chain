@@ -68,6 +68,14 @@ var A_DENOM = "acoin"
 var B_DENOM = "bcoin"
 var C_DENOM = "ccoin"
 
+func KYVECoin(amount int64) sdk.Coin {
+	return sdk.NewInt64Coin(KYVE_DENOM, amount)
+}
+
+func KYVECoins(amount int64) sdk.Coins {
+	return sdk.NewCoins(KYVECoin(amount))
+}
+
 func ACoin(amount int64) sdk.Coin {
 	return sdk.NewInt64Coin(A_DENOM, amount)
 }

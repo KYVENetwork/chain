@@ -3,7 +3,6 @@ package keeper
 import (
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
-	"fmt"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 
@@ -532,9 +531,9 @@ func (k msgServer) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bun
 			return types.TallyResult{}, err
 		}
 
-		found, fundersPayout := fundersPayouts.Find(globalTypes.Denom)
-		if !found {
-			return types.TallyResult{}, fmt.Errorf("could not find denom ukyve in payouts")
+		fundersPayout := uint64(0)
+		if found, payout := fundersPayouts.Find(globalTypes.Denom); found {
+			fundersPayout = payout.Amount.Uint64()
 		}
 
 		// charge the inflation pool
@@ -544,7 +543,7 @@ func (k msgServer) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bun
 		}
 
 		// calculate payouts to the different stakeholders like treasury, uploader and delegators
-		bundleReward := k.calculatePayouts(ctx, poolId, fundersPayout.Amount.Uint64()+inflationPayout)
+		bundleReward := k.calculatePayouts(ctx, poolId, fundersPayout+inflationPayout)
 
 		// payout rewards to treasury
 		if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrkeeper, ctx, poolTypes.ModuleName, bundleReward.Treasury); err != nil {
@@ -569,7 +568,7 @@ func (k msgServer) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bun
 		return types.TallyResult{
 			Status:           types.TallyResultValid,
 			VoteDistribution: voteDistribution,
-			FundersPayout:    fundersPayout.Amount.Uint64(),
+			FundersPayout:    fundersPayout,
 			InflationPayout:  inflationPayout,
 			BundleReward:     bundleReward,
 		}, nil

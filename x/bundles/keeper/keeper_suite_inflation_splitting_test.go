@@ -60,9 +60,9 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 		s.RunTxPoolSuccess(msg)
 
-		params := s.App().FundersKeeper.GetParams(s.Ctx())
-		params.MinFundingAmountPerBundle = 1_000
-		params.MinFundingAmount = 100
+		params := funderstypes.DefaultParams()
+		params.CoinWhitelist[0].MinFundingAmount = 100
+		params.CoinWhitelist[0].MinFundingAmountPerBundle = 1_000
 		params.MinFundingMultiple = 0
 		s.App().FundersKeeper.SetParams(s.Ctx(), params)
 
@@ -390,17 +390,17 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 5_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 5_000,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -479,7 +479,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(200*i.KYVE - 10_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(200*i.KYVE - 10_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
 	})
 
@@ -496,17 +496,17 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 5_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 5_000,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -586,7 +586,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(200*i.KYVE - 10_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(200*i.KYVE - 10_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
 	})
 
@@ -603,17 +603,17 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 5_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 5_000,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -693,7 +693,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(200*i.KYVE - 10_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(200*i.KYVE - 10_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
 	})
 
@@ -710,17 +710,17 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100,
-			AmountPerBundle: 5_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          200,
-			AmountPerBundle: 5_000,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(200),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -798,7 +798,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).IsZero()).To(BeTrue())
 		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
@@ -815,17 +815,17 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100,
-			AmountPerBundle: 5_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          200,
-			AmountPerBundle: 5_000,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(200),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -905,7 +905,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).IsZero()).To(BeTrue())
 		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
@@ -922,17 +922,17 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100,
-			AmountPerBundle: 5_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          200,
-			AmountPerBundle: 5_000,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(200),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -1012,7 +1012,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).IsZero()).To(BeTrue())
 		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
@@ -1029,17 +1029,17 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 5_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          200,
-			AmountPerBundle: 5_000,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(200),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -1117,7 +1117,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100*i.KYVE - 5_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100*i.KYVE - 5_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 
@@ -1134,17 +1134,17 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 5_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          200,
-			AmountPerBundle: 5_000,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(200),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -1224,7 +1224,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100*i.KYVE - 5_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100*i.KYVE - 5_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 
@@ -1241,17 +1241,17 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 5_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          200,
-			AmountPerBundle: 5_000,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(200),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -1331,7 +1331,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100*i.KYVE - 5_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100*i.KYVE - 5_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 })
