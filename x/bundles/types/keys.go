@@ -1,6 +1,7 @@
 package types
 
 import (
+	"cosmossdk.io/collections"
 	"github.com/KYVENetwork/chain/util"
 )
 
@@ -13,12 +14,9 @@ const (
 
 	// RouterKey defines the module's message routing key
 	RouterKey = ModuleName
-
-	// MemStoreKey defines the in-memory store key
-	MemStoreKey = "mem_bundles"
 )
 
-var ParamsKey = []byte{0x00}
+var ParamsPrefix = collections.NewPrefix(0)
 
 var (
 	// BundleKeyPrefix ...
