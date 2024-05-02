@@ -557,27 +557,25 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(finalizedBundle.Uploader).To(Equal(i.STAKER_0))
 		Expect(finalizedBundle.StorageId).To(Equal("y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI"))
 
-		// check that next uploader didn't get removed from pool
+		// check that nobody got removed from the pool
 		poolStakers := s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)
 		Expect(poolStakers).To(HaveLen(2))
 
-		// check that next uploader received a point for not uploading
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
-		Expect(valaccount.Points).To(Equal(uint64(1)))
-
 		// check that staker 0 has no points
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
 		Expect(valaccount.Points).To(Equal(uint64(0)))
 
-		// check that uploader didn't get slashed
-		_, found := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_1)
-		Expect(found).To(BeTrue())
+		// check that staker 1 (next uploader) received a point for not uploading
+		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		Expect(valaccount.Points).To(Equal(uint64(1)))
 
-		Expect(s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
-
-		// check that next uploader didn't get slashed
+		// check that nobody got slashed
 		expectedBalance := 100 * i.KYVE
+		Expect(expectedBalance).To(Equal(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)))
 		Expect(expectedBalance).To(Equal(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.STAKER_1)))
+
+		// pool delegations equals delegations of staker 0 & 1
+		Expect(s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 	})
 
 	It("Staker is next uploader of bundle proposal and upload timeout passes with the previous bundle not reaching quorum", func() {
