@@ -343,6 +343,10 @@ func New(
 
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 
+	// Set the priority proposal handler
+	proposalHandler := NewPriorityProposalHandler(app.Logger(), app.txConfig.TxDecoder())
+	app.App.BaseApp.SetPrepareProposal(proposalHandler.PrepareProposal())
+
 	// Register legacy modules
 	app.registerIBCModules()
 
