@@ -1,9 +1,11 @@
 package types
 
 import (
-	"cosmossdk.io/math"
 	"errors"
 	"fmt"
+
+	"cosmossdk.io/math"
+
 	"github.com/KYVENetwork/chain/util"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 )

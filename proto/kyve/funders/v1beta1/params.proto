@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package kyve.funders.v1beta1;
 
-option go_package = "github.com/KYVENetwork/chain/x/funders/types";
-
 import "kyve/funders/v1beta1/funders.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/funders/types";
 
 // Params defines the funders module parameters.
 message Params {

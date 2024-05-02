@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package kyve.query.v1beta1;
 
+import "amino/amino.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "cosmos/base/v1beta1/coin.proto";
-import "amino/amino.proto";
 import "kyve/query/v1beta1/query.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/query/types";
@@ -60,8 +60,8 @@ message QueryAccountAssetsResponse {
   uint64 protocol_rewards = 6;
   // protocol_funding ...
   repeated cosmos.base.v1beta1.Coin protocol_funding = 7 [
-    (gogoproto.nullable)     = false,
-    (amino.dont_omitempty)   = true,
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
 }
@@ -120,8 +120,8 @@ message QueryAccountFundedListResponse {
 message Funded {
   // amounts ...
   repeated cosmos.base.v1beta1.Coin amounts = 3 [
-    (gogoproto.nullable)     = false,
-    (amino.dont_omitempty)   = true,
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
   // pool ...

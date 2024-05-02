@@ -1,9 +1,10 @@
 package keeper
 
 import (
+	"fmt"
+
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
-	"fmt"
 
 	"github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"

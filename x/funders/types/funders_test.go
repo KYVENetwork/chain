@@ -14,11 +14,10 @@ import (
 
 TEST CASES - funders.go
 
-* Funding.AddAmount
-* Funding.SubtractAmount
-* Funding.SubtractAmount - subtract more than available
 * Funding.ChargeOneBundle
 * Funding.ChargeOneBundle - charge more than available
+* Funding.ChargeOneBundle - charge with multiple coins
+* Funding.ChargeOneBundle - charge with no coins
 * FundintState.SetActive
 * FundintState.SetActive - add same funder twice
 * FundintState.SetInactive
@@ -78,10 +77,10 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 
 	It("Funding.ChargeOneBundle", func() {
 		// ACT
-		amounts := funding.ChargeOneBundle()
+		payouts := funding.ChargeOneBundle()
 
 		// ASSERT
-		Expect(amounts.String()).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
+		Expect(payouts.String()).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
 		Expect(funding.Amounts.String()).To(Equal(i.ACoins(99 * i.T_KYVE).String()))
 		Expect(funding.TotalFunded.String()).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
 	})
@@ -91,12 +90,40 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		funding.Amounts = i.ACoins(1 * i.T_KYVE / 2)
 
 		// ACT
-		amounts := funding.ChargeOneBundle()
+		payouts := funding.ChargeOneBundle()
 
 		// ASSERT
-		Expect(amounts.String()).To(Equal(i.ACoins(1 * i.T_KYVE / 2).String()))
+		Expect(payouts.String()).To(Equal(i.ACoins(1 * i.T_KYVE / 2).String()))
 		Expect(funding.Amounts.IsZero()).To(BeTrue())
 		Expect(funding.TotalFunded.String()).To(Equal(i.ACoins(1 * i.T_KYVE / 2).String()))
+	})
+
+	It("Funding.ChargeOneBundle - charge with multiple coins", func() {
+		// ARRANGE
+		funding.Amounts = sdk.NewCoins(i.ACoin(100*i.T_KYVE), i.BCoin(100*i.T_KYVE))
+		funding.AmountsPerBundle = sdk.NewCoins(i.ACoin(1*i.T_KYVE), i.BCoin(2*i.T_KYVE))
+
+		// ACT
+		payouts := funding.ChargeOneBundle()
+
+		// ASSERT
+		Expect(payouts.String()).To(Equal(sdk.NewCoins(i.ACoin(1*i.T_KYVE), i.BCoin(2*i.T_KYVE)).String()))
+		Expect(funding.Amounts.String()).To(Equal(sdk.NewCoins(i.ACoin(99*i.T_KYVE), i.BCoin(98*i.T_KYVE)).String()))
+		Expect(funding.TotalFunded.String()).To(Equal(sdk.NewCoins(i.ACoin(1*i.T_KYVE), i.BCoin(2*i.T_KYVE)).String()))
+	})
+
+	It("Funding.ChargeOneBundle - charge with no coins", func() {
+		// ARRANGE
+		funding.Amounts = sdk.NewCoins()
+		funding.AmountsPerBundle = sdk.NewCoins()
+
+		// ACT
+		payouts := funding.ChargeOneBundle()
+
+		// ASSERT
+		Expect(payouts.IsZero()).To(BeTrue())
+		Expect(funding.Amounts.IsZero()).To(BeTrue())
+		Expect(funding.TotalFunded.IsZero()).To(BeTrue())
 	})
 
 	It("FundintState.SetActive", func() {

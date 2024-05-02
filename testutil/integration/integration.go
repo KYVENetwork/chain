@@ -63,10 +63,12 @@ const (
 	T_KYVE = int64(KYVE)
 )
 
-var KYVE_DENOM = globalTypes.Denom
-var A_DENOM = "acoin"
-var B_DENOM = "bcoin"
-var C_DENOM = "ccoin"
+var (
+	KYVE_DENOM = globalTypes.Denom
+	A_DENOM    = "acoin"
+	B_DENOM    = "bcoin"
+	C_DENOM    = "ccoin"
+)
 
 func KYVECoin(amount int64) sdk.Coin {
 	return sdk.NewInt64Coin(KYVE_DENOM, amount)

@@ -2,8 +2,9 @@ package keeper_test
 
 import (
 	"fmt"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"testing"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 
