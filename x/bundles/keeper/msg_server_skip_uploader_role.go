@@ -15,19 +15,43 @@ func (k msgServer) SkipUploaderRole(goCtx context.Context, msg *types.MsgSkipUpl
 		return nil, err
 	}
 
-	pool, _ := k.poolKeeper.GetPool(ctx, msg.PoolId)
 	bundleProposal, _ := k.GetBundleProposal(ctx, msg.PoolId)
 
 	// reset points of uploader as node has proven to be active
 	k.resetPoints(ctx, msg.PoolId, msg.Staker)
 
+	// Previous round contains a bundle which needs to be validated now
+	result, err := k.tallyBundleProposal(ctx, bundleProposal, msg.PoolId)
+	if err != nil {
+		return nil, err
+	}
+
 	// Get next uploader, except the one who skipped
 	nextUploader := k.chooseNextUploader(ctx, msg.PoolId, msg.Staker)
 
-	bundleProposal.NextUploader = nextUploader
-	bundleProposal.UpdatedAt = uint64(ctx.BlockTime().Unix())
+	switch result.Status {
+	case types.TallyResultValid:
+		// Finalize bundle by adding it to the store
+		k.finalizeCurrentBundleProposal(ctx, msg.PoolId, result.VoteDistribution, result.FundersPayout, result.InflationPayout, result.BundleReward, nextUploader)
 
-	k.SetBundleProposal(ctx, bundleProposal)
+		// Register empty bundle with next uploader
+		bundleProposal = types.BundleProposal{
+			PoolId:       msg.PoolId,
+			NextUploader: nextUploader,
+			UpdatedAt:    uint64(ctx.BlockTime().Unix()),
+		}
+		k.SetBundleProposal(ctx, bundleProposal)
+	case types.TallyResultInvalid:
+		// Drop current bundle.
+		k.dropCurrentBundleProposal(ctx, msg.PoolId, result.VoteDistribution, nextUploader)
+	case types.TallyResultNoQuorum:
+		// Set next uploader and update the bundle proposal
+		bundleProposal.NextUploader = nextUploader
+		bundleProposal.UpdatedAt = uint64(ctx.BlockTime().Unix())
+		k.SetBundleProposal(ctx, bundleProposal)
+	}
+
+	pool, _ := k.poolKeeper.GetPool(ctx, msg.PoolId)
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventSkippedUploaderRole{
 		PoolId:           msg.PoolId,

@@ -17,6 +17,8 @@ TEST CASES - msg_server_skip_uploader_role.go
 * Skip uploader role on data bundle if staker is next uploader
 * Skip uploader on data bundle after uploader role has already been skipped
 * Skip uploader role on dropped bundle
+* Skip uploader role on data bundle with current round containing a valid bundle
+* Skip uploader role on data bundle with current round containing an invalid bundle
 
 */
 
@@ -87,6 +89,17 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 			PoolId:  0,
 		})
 
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_2,
+			Amount:  100 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_2,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_2_A,
+		})
+
 		s.Commit()
 		s.WaitSeconds(60)
 
@@ -142,6 +155,10 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 
 		// here the next uploader should be always be different after skipping
 		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_0))
+
+		// check that the bundle is not finalized
+		_, found = s.App().BundlesKeeper.GetFinalizedBundle(s.Ctx(), 0, 0)
+		Expect(found).To(BeFalse())
 	})
 
 	It("Skip uploader on data bundle after uploader role has already been skipped", func() {
@@ -186,7 +203,11 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// here the next uploader should be always be different after skipping
-		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_1))
+		Expect(bundleProposal.NextUploader).NotTo(Equal(i.STAKER_0))
+
+		// check that the bundle is not finalized
+		_, found = s.App().BundlesKeeper.GetFinalizedBundle(s.Ctx(), 0, 0)
+		Expect(found).To(BeFalse())
 	})
 
 	It("Skip uploader role on dropped bundle", func() {
@@ -225,6 +246,110 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// here the next uploader should be always be different after skipping
-		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_1))
+		Expect(bundleProposal.NextUploader).NotTo(Equal(i.STAKER_0))
+
+		// check that the bundle is not finalized
+		_, found = s.App().BundlesKeeper.GetFinalizedBundle(s.Ctx(), 0, 0)
+		Expect(found).To(BeFalse())
+	})
+
+	It("Skip uploader role on data bundle with current round containing a valid bundle", func() {
+		// ARRANGE
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_VALID,
+		})
+
+		s.Commit()
+		s.WaitSeconds(60)
+
+		// ACT
+		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{
+			Creator:   i.VALADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			FromIndex: 100,
+		})
+
+		// ASSERT
+		bundleProposal, found := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
+		Expect(found).To(BeTrue())
+
+		Expect(bundleProposal.PoolId).To(Equal(uint64(0)))
+		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_0))
+		Expect(bundleProposal.UpdatedAt).NotTo(BeZero())
+		Expect(bundleProposal.StorageId).To(BeEmpty())
+		Expect(bundleProposal.Uploader).To(BeEmpty())
+		Expect(bundleProposal.DataSize).To(BeZero())
+		Expect(bundleProposal.DataHash).To(BeEmpty())
+		Expect(bundleProposal.BundleSize).To(BeZero())
+		Expect(bundleProposal.FromKey).To(BeEmpty())
+		Expect(bundleProposal.ToKey).To(BeEmpty())
+		Expect(bundleProposal.BundleSummary).To(BeEmpty())
+		Expect(bundleProposal.UpdatedAt).NotTo(BeZero())
+		Expect(bundleProposal.VotersValid).To(BeEmpty())
+		Expect(bundleProposal.VotersInvalid).To(BeEmpty())
+		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
+
+		finalizedBundle, found := s.App().BundlesKeeper.GetFinalizedBundle(s.Ctx(), 0, 0)
+		Expect(found).To(BeTrue())
+
+		Expect(finalizedBundle.PoolId).To(Equal(uint64(0)))
+		Expect(finalizedBundle.Uploader).To(Equal(i.STAKER_0))
+	})
+
+	It("Skip uploader role on data bundle with current round containing an invalid bundle", func() {
+		// ARRANGE
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_INVALID,
+		})
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_2_A,
+			Staker:    i.STAKER_2,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_INVALID,
+		})
+
+		s.Commit()
+		s.WaitSeconds(60)
+
+		// ACT
+		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{
+			Creator:   i.VALADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			FromIndex: 100,
+		})
+
+		// ASSERT
+		bundleProposal, found := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
+		Expect(found).To(BeTrue())
+
+		Expect(bundleProposal.PoolId).To(Equal(uint64(0)))
+		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_2))
+		Expect(bundleProposal.StorageId).To(BeEmpty())
+		Expect(bundleProposal.Uploader).To(BeEmpty())
+		Expect(bundleProposal.DataSize).To(BeZero())
+		Expect(bundleProposal.DataHash).To(BeEmpty())
+		Expect(bundleProposal.BundleSize).To(BeZero())
+		Expect(bundleProposal.FromKey).To(BeEmpty())
+		Expect(bundleProposal.ToKey).To(BeEmpty())
+		Expect(bundleProposal.BundleSummary).To(BeEmpty())
+		Expect(bundleProposal.UpdatedAt).NotTo(BeZero())
+		Expect(bundleProposal.VotersValid).To(BeEmpty())
+		Expect(bundleProposal.VotersInvalid).To(BeEmpty())
+		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
+
+		// check that the bundle is not finalized
+		_, found = s.App().BundlesKeeper.GetFinalizedBundle(s.Ctx(), 0, 0)
+		Expect(found).To(BeFalse())
 	})
 })
