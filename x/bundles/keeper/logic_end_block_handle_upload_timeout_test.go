@@ -618,26 +618,29 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		_, found := s.App().BundlesKeeper.GetFinalizedBundle(s.Ctx(), 0, 0)
 		Expect(found).To(BeFalse())
 
-		// check that next uploader got not removed from pool
+		// check that nobody got removed from pool
 		poolStakers := s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)
 		Expect(poolStakers).To(HaveLen(2))
+		Expect(poolStakers).To(ContainElements(i.STAKER_0, i.STAKER_1))
+
+		// check that staker 0 (uploader) has no points
+		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		Expect(valaccount.Points).To(Equal(uint64(0)))
 
 		// check that staker 1 received a point for not voting
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
 		Expect(valaccount.Points).To(Equal(uint64(1)))
 
-		// check that next uploader didn't receive a point
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
-		Expect(valaccount.Points).To(Equal(uint64(0)))
+		// check that nobody got slashed
+		expectedBalance := 100 * i.KYVE
+		Expect(expectedBalance).To(Equal(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)))
+		Expect(expectedBalance).To(Equal(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.STAKER_1)))
 
 		_, found = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_1)
 		Expect(found).To(BeTrue())
 
+		// pool delegations equals delegations of staker 0 & 1
 		Expect(s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
-
-		// check that next uploader didn't get slashed
-		expectedBalance := 100 * i.KYVE
-		Expect(expectedBalance).To(Equal(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.STAKER_1)))
 	})
 
 	It("Staker is next uploader of bundle proposal and upload timeout passes with the previous bundle being invalid", func() {
