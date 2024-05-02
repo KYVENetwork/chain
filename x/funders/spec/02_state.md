@@ -1,14 +1,21 @@
+<!--
+order: 2
+-->
+
+# State
+
+The module is mainly responsible for holding the funders state
+and keeping track of each funded balance of a funder.
+
+## Funder
+
+A funder can exist independently of a pool and stores account information like address, moniker, description and so on.
+
+- Funder: `0x01 | FunderAddr -> ProtocolBuffer(funder)`
+
+```protobuf
 syntax = "proto3";
 
-package kyve.funders.v1beta1;
-
-import "cosmos/base/v1beta1/coin.proto";
-import "gogoproto/gogo.proto";
-import "amino/amino.proto";
-
-option go_package = "github.com/KYVENetwork/chain/x/funders/types";
-
-// Funder is the object which holds info about a single pool funder
 message Funder {
   // address ...
   string address = 1;
@@ -23,11 +30,20 @@ message Funder {
   // description are some additional notes the funder finds important
   string description = 6;
 }
+```
 
-// Funding is the object which holds info about the current funding
-// funder_address and pool_id (m2m) are unique together which means that
-// a funder can only fund each pool once and a pool can only be funded
-// by each funder once. However, a funder can update the amount of funds.
+## Funding
+
+Since funders and pools have a many-to-many relation we track the funding status in the `Funding` object containing
+the information about what the funder funded in the specific pool like the amount of coins and the corresponding
+amount per bundle. We also track how much the funder spent in total in the pool.
+
+- Funding: `0x02 | 0x00 | PoolId | FunderAddr -> ProtocolBuffer(funding)`
+- Funding: `0x02 | 0x01 | FunderAddr | PoolId -> ProtocolBuffer(funding)`
+
+```protobuf
+syntax = "proto3";
+
 message Funding {
   // funder_id is the id of the funder
   string funder_address = 1;
@@ -53,17 +69,37 @@ message Funding {
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
 }
+```
 
-// FundingState is the object which holds info about the funding state of a pool
+## FundingState
+
+`FundingState` is an object that keeps track of the funding state of the pool. It contains a list of all active 
+funders for each pool.
+
+- FundingState: `0x03 | PoolId -> ProtocolBuffer(fundingState)`
+
+```protobuf
+syntax = "proto3";
+
 message FundingState {
   // pool_id is the id of the pool this funding is for
   uint64 pool_id = 1;
   // active_funder_addresses is the list of all active fundings
   repeated string active_funder_addresses = 2;
 }
+```
 
-// WhitelistCoinEntry is an object containing information around a coin which
-// is allowed to be funded in pools
+## WhitelistCoinEntry
+
+With multiple coin funding being possible we also have to limit the amount of coin types funders can fund or 
+else a user could spam coins and dramatically increase the gas costs for protocol node operators. Therefore,
+we have a coin whitelist so a funder can only fund a coin if it is included in the whitelist. For each coin there are
+additional requirements like the minimum funding amount to also prevent spam. Note that the native $KYVE coin
+is always included in the whitelist and can't be removed.
+
+```protobuf
+syntax = "proto3";
+
 message WhitelistCoinEntry {
   // coin_denom is the denom of a coin which is allowed to be funded, this value
   // needs to be unique
@@ -80,3 +116,4 @@ message WhitelistCoinEntry {
     (gogoproto.nullable) = false
   ];
 }
+```
