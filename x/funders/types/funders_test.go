@@ -1,8 +1,11 @@
 package types_test
 
 import (
+	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	"github.com/KYVENetwork/chain/x/funders/types"
+	globaltypes "github.com/KYVENetwork/chain/x/global/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -24,16 +27,48 @@ TEST CASES - funders.go
 */
 
 var _ = Describe("logic_funders.go", Ordered, func() {
+	s := i.NewCleanChain()
+
 	funding := types.Funding{}
 	fundingState := types.FundingState{}
+	var whitelist []*types.WhitelistCoinEntry
 
 	BeforeEach(func() {
+		// set whitelist
+		whitelist = []*types.WhitelistCoinEntry{
+			{
+				CoinDenom:                 globaltypes.Denom,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+			{
+				CoinDenom:                 i.A_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+			{
+				CoinDenom:                 i.B_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(2),
+			},
+			{
+				CoinDenom:                 i.C_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(3),
+			},
+		}
+		s.App().FundersKeeper.SetParams(s.Ctx(), types.NewParams(whitelist, 20))
+
 		funding = types.Funding{
-			FunderAddress:   i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 1 * i.KYVE,
-			TotalFunded:     0,
+			FunderAddress:    i.ALICE,
+			PoolId:           0,
+			Amounts:          i.ACoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.ACoins(1 * i.T_KYVE),
+			TotalFunded:      sdk.NewCoins(),
 		}
 		fundingState = types.FundingState{
 			PoolId:                0,
@@ -41,54 +76,27 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		}
 	})
 
-	It("Funding.AddAmount", func() {
-		// ACT
-		funding.AddAmount(100 * i.KYVE)
-
-		// ASSERT
-		Expect(funding.Amount).To(Equal(200 * i.KYVE))
-		Expect(funding.TotalFunded).To(Equal(uint64(0)))
-	})
-
-	It("Funding.SubtractAmount", func() {
-		// ACT
-		funding.SubtractAmount(50 * i.KYVE)
-
-		// ASSERT
-		Expect(funding.Amount).To(Equal(50 * i.KYVE))
-		Expect(funding.TotalFunded).To(Equal(uint64(0)))
-	})
-
-	It("Funding.SubtractAmount - subtract more than available", func() {
-		// ACT
-		subtracted := funding.SubtractAmount(200 * i.KYVE)
-
-		// ASSERT
-		Expect(subtracted).To(Equal(100 * i.KYVE))
-		Expect(funding.Amount).To(Equal(uint64(0)))
-	})
-
 	It("Funding.ChargeOneBundle", func() {
 		// ACT
-		amount := funding.ChargeOneBundle()
+		amounts := funding.ChargeOneBundle()
 
 		// ASSERT
-		Expect(amount).To(Equal(1 * i.KYVE))
-		Expect(funding.Amount).To(Equal(99 * i.KYVE))
-		Expect(funding.TotalFunded).To(Equal(1 * i.KYVE))
+		Expect(amounts.String()).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
+		Expect(funding.Amounts.String()).To(Equal(i.ACoins(99 * i.T_KYVE).String()))
+		Expect(funding.TotalFunded.String()).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
 	})
 
 	It("Funding.ChargeOneBundle - charge more than available", func() {
 		// ARRANGE
-		funding.Amount = 1 * i.KYVE / 2
+		funding.Amounts = i.ACoins(1 * i.T_KYVE / 2)
 
 		// ACT
-		amount := funding.ChargeOneBundle()
+		amounts := funding.ChargeOneBundle()
 
 		// ASSERT
-		Expect(amount).To(Equal(1 * i.KYVE / 2))
-		Expect(funding.Amount).To(Equal(uint64(0)))
-		Expect(funding.TotalFunded).To(Equal(1 * i.KYVE / 2))
+		Expect(amounts.String()).To(Equal(i.ACoins(1 * i.T_KYVE / 2).String()))
+		Expect(funding.Amounts.IsZero()).To(BeTrue())
+		Expect(funding.TotalFunded.String()).To(Equal(i.ACoins(1 * i.T_KYVE / 2).String()))
 	})
 
 	It("FundintState.SetActive", func() {

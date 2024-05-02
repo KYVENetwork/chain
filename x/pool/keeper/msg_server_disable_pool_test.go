@@ -70,10 +70,10 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		})
 
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          fundingAmount,
-			AmountPerBundle: 1 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(int64(fundingAmount)),
+			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 
 		msg = &types.MsgCreatePool{
@@ -95,10 +95,10 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		s.RunTxPoolSuccess(msg)
 
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          1,
-			Amount:          fundingAmount,
-			AmountPerBundle: 1 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           1,
+			Amounts:          i.KYVECoins(int64(fundingAmount)),
+			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 	})
 

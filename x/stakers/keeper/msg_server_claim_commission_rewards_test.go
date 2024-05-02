@@ -89,16 +89,16 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 			Moniker: "Alice",
 		})
 
-		params := s.App().FundersKeeper.GetParams(s.Ctx())
-		params.MinFundingAmountPerBundle = 10_000
+		params := funderstypes.DefaultParams()
+		params.CoinWhitelist[0].MinFundingAmountPerBundle = 10_000
 		s.App().FundersKeeper.SetParams(s.Ctx(), params)
 
 		// create a valid bundle so that uploader earns commission rewards
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 10_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(10_000),
 		})
 
 		s.CommitAfterSeconds(60)
@@ -181,7 +181,7 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100*i.KYVE - 10_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100*i.KYVE - 10_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 

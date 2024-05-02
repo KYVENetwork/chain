@@ -291,7 +291,7 @@ var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
 
 	// NOTE: This will change as implementation changes.
 	// TODO: Why does this change as the implementation changes?
-	BaseCost := 32716
+	BaseCost := 63439
 
 	BeforeEach(func() {
 		s = i.NewCleanChain()
