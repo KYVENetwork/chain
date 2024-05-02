@@ -75,6 +75,9 @@ message FundingStats {
   ];
   // pools_funded are the ids of the pools that have been funded by the funder.
   repeated uint64 pools_funded = 4;
+  // score is the result of all coins of the funder currently allocated times the coin weight
+  // specified in the params
+  uint64 score = 5;
 }
 
 // Funding ...
@@ -102,6 +105,9 @@ message Funding {
     (amino.dont_omitempty)   = true,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
+  // score is the result of all coins allocated to this pool times the coin weight specified
+  // by the params
+  uint64 score = 6;
 }
 
 // FundingStatus ...
