@@ -56,7 +56,7 @@ func (k Keeper) AccountAssets(goCtx context.Context, req *types.QueryAccountAsse
 		staker := string(delegatorIterator.Key()[0:43])
 
 		response.ProtocolDelegation += k.delegationKeeper.GetDelegationAmountOfDelegator(ctx, staker, req.Address)
-		response.ProtocolRewards += k.delegationKeeper.GetOutstandingRewards(ctx, staker, req.Address)
+		response.ProtocolRewards.Add(k.delegationKeeper.GetOutstandingRewards(ctx, staker, req.Address)...)
 	}
 
 	// ======================================================

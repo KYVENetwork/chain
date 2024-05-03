@@ -267,8 +267,22 @@ paths:
                 format: uint64
                 title: protocol_delegation_unbonding
               protocol_rewards:
-                type: string
-                format: uint64
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a token with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
                 description: protocol_rewards ...
               protocol_funding:
                 type: string
@@ -3186,10 +3200,24 @@ paths:
                   delegator:
                     type: string
                     description: delegator ...
-                  current_reward:
-                    type: string
-                    format: uint64
-                    description: current_reward ...
+                  current_rewards:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a token with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                    description: current_rewards ...
                   delegation_amount:
                     type: string
                     format: uint64
@@ -3426,10 +3454,25 @@ paths:
                     delegator:
                       type: string
                       description: delegator ...
-                    current_reward:
-                      type: string
-                      format: uint64
-                      description: current_reward ...
+                    current_rewards:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      description: current_rewards ...
                     delegation_amount:
                       type: string
                       format: uint64
@@ -3980,10 +4023,25 @@ paths:
 
                         It contains almost all needed information for a
                         convenient usage
-                    current_reward:
-                      type: string
-                      format: uint64
-                      description: current_reward ...
+                    current_rewards:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      description: current_rewards ...
                     delegation_amount:
                       type: string
                       format: uint64

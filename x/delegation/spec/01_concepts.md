@@ -28,7 +28,7 @@ reward would cost an outrageous amount of gas. We have turned to the
 itself, payouts of rewards, and slashing events.
 
 The main idea is that if there is no change to delegation distribution (in
-other words, no new delegations or undelegations), there is no need to payout
+other words, no new delegations or undelegations), there is no need to pay out
 rewards. When users want to withdraw their rewards or update their
 delegation amount, their rewards are calculated and correctly distributed.
 
