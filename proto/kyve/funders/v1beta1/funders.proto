@@ -29,7 +29,7 @@ message Funder {
 // a funder can only fund each pool once and a pool can only be funded
 // by each funder once. However, a funder can update the amount of funds.
 message Funding {
-  // funder_id is the id of the funder
+  // funder_address is the address of the funder
   string funder_address = 1;
   // pool_id is the id of the pool this funding is for
   uint64 pool_id = 2;
@@ -60,23 +60,4 @@ message FundingState {
   uint64 pool_id = 1;
   // active_funder_addresses is the list of all active fundings
   repeated string active_funder_addresses = 2;
-}
-
-// WhitelistCoinEntry is an object containing information around a coin which
-// is allowed to be funded in pools
-message WhitelistCoinEntry {
-  // coin_denom is the denom of a coin which is allowed to be funded, this value
-  // needs to be unique
-  string coin_denom = 1;
-  // min_funding_amount is the minimum required amount of this denom that needs
-  // to be funded
-  uint64 min_funding_amount = 2;
-  // min_funding_amount_per_bundle is the minimum required amount of this denom
-  // that needs to be funded per bundle
-  uint64 min_funding_amount_per_bundle = 3;
-  // coin_weight is a factor used to sort funders after their funding amounts
-  string coin_weight = 4 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
 }

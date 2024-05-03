@@ -40,8 +40,12 @@ func (msg *MsgDefundPool) ValidateBasic() error {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid pool id")
 	}
 
-	if !msg.Amounts.IsAllPositive() {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid amount")
+	if msg.Amounts.Empty() {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "empty amount")
+	}
+
+	if err := msg.Amounts.Validate(); err != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid amount: %s", err)
 	}
 
 	return nil

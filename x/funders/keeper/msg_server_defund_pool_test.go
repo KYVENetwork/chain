@@ -1,11 +1,14 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	"github.com/KYVENetwork/chain/x/funders/types"
 	globaltypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -18,6 +21,7 @@ TEST CASES - msg_server_defund_pool.go
 * Defund more than actually funded
 * Defund full funding amount from a funder who has previously funded 100 coins
 * Defund as highest funder 75 coins in order to be the lowest funder afterward
+* Try to defund zero amounts
 * Try to defund nonexistent fundings
 * Try to defund a funding twice
 * Try to defund below minimum funding params (but not full defund)
@@ -201,6 +205,19 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 		lowestFunding, err = s.App().FundersKeeper.GetLowestFunding(activeFundings, whitelist)
 		Expect(err).To(BeNil())
 		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
+	})
+
+	It("Try to defund zero amounts", func() {
+		// ACT
+		_, err := s.RunTx(&types.MsgDefundPool{
+			Creator: i.ALICE,
+			PoolId:  0,
+			Amounts: sdk.NewCoins(),
+		})
+
+		// ASSERT
+		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(Equal(errors.Wrapf(errorsTypes.ErrInvalidRequest, "empty amount").Error()))
 	})
 
 	It("Try to defund nonexistent fundings", func() {
