@@ -34,8 +34,8 @@ message Funder {
 
 ## Funding
 
-Since funders and pools have a many-to-many relation we track the funding status in the `Funding` object containing
-the information about what the funder funded in the specific pool like the amount of coins and the corresponding
+Since funders and pools have a many-to-many relation, we track the funding status in the `Funding` object containing
+the information about what the funder funded in the specific pool, like the amount of coins and the corresponding
 amount per bundle. We also track how much the funder spent in total in the pool.
 
 - Funding: `0x02 | 0x00 | PoolId | FunderAddr -> ProtocolBuffer(funding)`

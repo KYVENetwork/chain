@@ -33,12 +33,14 @@ TEST CASES - msg_server_defund_pool.go
 var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 	s := i.NewCleanChain()
 
-	initialBalance := s.GetBalancesFromAddress(i.ALICE)
+	var initialBalance sdk.Coins
 	var whitelist []*types.WhitelistCoinEntry
 
 	BeforeEach(func() {
 		// init new clean chain
 		s = i.NewCleanChain()
+
+		initialBalance = s.GetBalancesFromAddress(i.ALICE)
 
 		// create clean pool for every test case
 		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
