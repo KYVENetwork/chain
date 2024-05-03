@@ -113,6 +113,7 @@ message Pool {
   // compression_id ...
   uint32 current_compression_id = 19;
 
-  // end_key ...
+  // end_key is the last key before the pool should stop indexing, it is
+  // inclusive
   string end_key = 20;
 }

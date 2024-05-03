@@ -4990,7 +4990,11 @@ paths:
                         description: compression_id ...
                       end_key:
                         type: string
-                        description: end_key ...
+                        title: >-
+                          end_key is the last key before the pool should stop
+                          indexing, it is
+
+                          inclusive
                   bundle_proposal:
                     description: bundle_proposal ...
                     type: object
@@ -5527,7 +5531,11 @@ paths:
                           description: compression_id ...
                         end_key:
                           type: string
-                          description: end_key ...
+                          title: >-
+                            end_key is the last key before the pool should stop
+                            indexing, it is
+
+                            inclusive
                     bundle_proposal:
                       description: bundle_proposal ...
                       type: object

@@ -127,7 +127,8 @@ type EventCreatePool struct {
 	// compression_id is the unique id of the compression type the bundles
 	// get compressed with
 	CompressionId uint32 `protobuf:"varint,14,opt,name=compression_id,json=compressionId,proto3" json:"compression_id,omitempty"`
-	// end_key is the last key before the pool should stop indexing
+	// end_key is the last key before the pool should stop indexing, it is
+	// inclusive
 	EndKey string `protobuf:"bytes,15,opt,name=end_key,json=endKey,proto3" json:"end_key,omitempty"`
 }
 

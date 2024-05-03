@@ -268,7 +268,8 @@ type Pool struct {
 	CurrentStorageProviderId uint32 `protobuf:"varint,18,opt,name=current_storage_provider_id,json=currentStorageProviderId,proto3" json:"current_storage_provider_id,omitempty"`
 	// compression_id ...
 	CurrentCompressionId uint32 `protobuf:"varint,19,opt,name=current_compression_id,json=currentCompressionId,proto3" json:"current_compression_id,omitempty"`
-	// end_key ...
+	// end_key is the last key before the pool should stop indexing, it is
+	// inclusive
 	EndKey string `protobuf:"bytes,20,opt,name=end_key,json=endKey,proto3" json:"end_key,omitempty"`
 }
 
