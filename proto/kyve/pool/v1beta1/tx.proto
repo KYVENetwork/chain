@@ -64,6 +64,8 @@ message MsgCreatePool {
   uint32 storage_provider_id = 13;
   // compression_id ...
   uint32 compression_id = 14;
+  // end_key ...
+  string end_key = 15;
 }
 
 // MsgCreatePoolResponse defines the Msg/CreatePool response type.

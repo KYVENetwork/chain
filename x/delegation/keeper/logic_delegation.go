@@ -16,7 +16,9 @@ func (k Keeper) performDelegation(ctx sdk.Context, stakerAddress string, delegat
 	if k.DoesDelegatorExist(ctx, stakerAddress, delegatorAddress) {
 		// If the sender is already a delegator, first perform an undelegation, before delegating.
 		// "perform a withdrawal"
-		_ = k.performWithdrawal(ctx, stakerAddress, delegatorAddress)
+		if _, err := k.performWithdrawal(ctx, stakerAddress, delegatorAddress); err != nil {
+			util.PanicHalt(k.upgradeKeeper, ctx, "no money left in module")
+		}
 
 		// Perform delegation by fully undelegating and then delegating the new amount
 		unDelegateAmount := k.f1RemoveDelegator(ctx, stakerAddress, delegatorAddress)
@@ -37,7 +39,9 @@ func (k Keeper) performUndelegation(ctx sdk.Context, stakerAddress string, deleg
 	defer k.SetStakerIndex(ctx, stakerAddress)
 
 	// Withdraw all outstanding rewards
-	k.performWithdrawal(ctx, stakerAddress, delegatorAddress)
+	if _, err := k.performWithdrawal(ctx, stakerAddress, delegatorAddress); err != nil {
+		util.PanicHalt(k.upgradeKeeper, ctx, "no money left in module")
+	}
 
 	// Perform an internal re-delegation.
 	undelegatedAmount := k.f1RemoveDelegator(ctx, stakerAddress, delegatorAddress)
@@ -55,11 +59,14 @@ func (k Keeper) performUndelegation(ctx sdk.Context, stakerAddress string, deleg
 
 // performWithdrawal withdraws all pending rewards from a user and transfers it.
 // The amount is returned by the function.
-func (k Keeper) performWithdrawal(ctx sdk.Context, stakerAddress, delegatorAddress string) uint64 {
+func (k Keeper) performWithdrawal(ctx sdk.Context, stakerAddress, delegatorAddress string) (sdk.Coins, error) {
 	reward := k.f1WithdrawRewards(ctx, stakerAddress, delegatorAddress)
-	err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, types.ModuleName, delegatorAddress, reward)
-	if err != nil {
-		util.PanicHalt(k.upgradeKeeper, ctx, "no money left in module")
+	recipient, errAddress := sdk.AccAddressFromBech32(delegatorAddress)
+	if errAddress != nil {
+		return nil, errAddress
+	}
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, reward); err != nil {
+		return nil, err
 	}
 
 	// Emit withdraw event.
@@ -69,5 +76,5 @@ func (k Keeper) performWithdrawal(ctx sdk.Context, stakerAddress, delegatorAddre
 		Amount:  reward,
 	})
 
-	return reward
+	return reward, nil
 }

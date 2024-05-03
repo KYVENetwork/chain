@@ -3,8 +3,6 @@ package keeper
 import (
 	"context"
 
-	"github.com/KYVENetwork/chain/util"
-
 	sdkErrors "cosmossdk.io/errors"
 	"github.com/KYVENetwork/chain/x/delegation/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -23,20 +21,11 @@ func (k msgServer) WithdrawRewards(
 		return nil, sdkErrors.Wrapf(types.ErrNotADelegator, "%s does not delegate to %s", msg.Creator, msg.Staker)
 	}
 
-	// Withdraw all rewards of the sender.
-	reward := k.f1WithdrawRewards(ctx, msg.Staker, msg.Creator)
-
-	// Transfer reward $KYVE from this module to sender.
-	if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, types.ModuleName, msg.Creator, reward); err != nil {
+	// Withdraw all rewards of the sender and send them back
+	_, err := k.performWithdrawal(ctx, msg.Staker, msg.Creator)
+	if err != nil {
 		return nil, err
 	}
-
-	// Emit a delegation event.
-	_ = ctx.EventManager().EmitTypedEvent(&types.EventWithdrawRewards{
-		Address: msg.Creator,
-		Staker:  msg.Staker,
-		Amount:  reward,
-	})
 
 	return &types.MsgWithdrawRewardsResponse{}, nil
 }

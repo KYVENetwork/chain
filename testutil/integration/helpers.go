@@ -25,6 +25,15 @@ func (suite *KeeperTestSuite) GetBalancesFromAddress(address string) sdk.Coins {
 	return suite.App().BankKeeper.GetAllBalances(suite.Ctx(), accAddress)
 }
 
+func (suite *KeeperTestSuite) GetCoinsFromAddress(address string) sdk.Coins {
+	accAddress, err := sdk.AccAddressFromBech32(address)
+	if err != nil {
+		return sdk.NewCoins()
+	}
+
+	return suite.App().BankKeeper.GetAllBalances(suite.Ctx(), accAddress)
+}
+
 func (suite *KeeperTestSuite) GetBalanceFromPool(poolId uint64) uint64 {
 	pool, found := suite.App().PoolKeeper.GetPool(suite.Ctx(), poolId)
 	if !found {
@@ -37,6 +46,11 @@ func (suite *KeeperTestSuite) GetBalanceFromPool(poolId uint64) uint64 {
 func (suite *KeeperTestSuite) GetBalanceFromModule(moduleName string) uint64 {
 	moduleAcc := suite.App().AccountKeeper.GetModuleAccount(suite.Ctx(), moduleName).GetAddress()
 	return suite.App().BankKeeper.GetBalance(suite.Ctx(), moduleAcc, globalTypes.Denom).Amount.Uint64()
+}
+
+func (suite *KeeperTestSuite) GetCoinsFromModule(moduleName string) sdk.Coins {
+	moduleAcc := suite.App().AccountKeeper.GetModuleAccount(suite.Ctx(), moduleName).GetAddress()
+	return suite.App().BankKeeper.GetAllBalances(suite.Ctx(), moduleAcc)
 }
 
 func (suite *KeeperTestSuite) GetNextUploader() (nextStaker string, nextValaddress string) {

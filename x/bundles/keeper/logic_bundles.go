@@ -31,6 +31,13 @@ func (k Keeper) AssertPoolCanRun(ctx sdk.Context, poolId uint64) error {
 		return types.ErrPoolDisabled
 	}
 
+	// Error if the end key is reached. The pool will simply halt if this is the case,
+	// it is the responsibility of the protocol nodes to reach final consensus and that
+	// a bundle does not exceed the end_key
+	if pool.EndKey != "" && pool.CurrentKey == pool.EndKey {
+		return types.ErrEndKeyReached
+	}
+
 	// Get the total and the highest delegation of a single validator in the pool
 	totalDelegation, highestDelegation := k.delegationKeeper.GetTotalAndHighestDelegationOfPool(ctx, poolId)
 
@@ -514,7 +521,7 @@ func (k Keeper) GetVoteDistribution(ctx sdk.Context, poolId uint64) (voteDistrib
 }
 
 // tallyBundleProposal evaluates the votes of a bundle proposal and determines the outcome
-func (k msgServer) tallyBundleProposal(ctx sdk.Context, bundleProposal types.BundleProposal, poolId uint64) (types.TallyResult, error) {
+func (k Keeper) tallyBundleProposal(ctx sdk.Context, bundleProposal types.BundleProposal, poolId uint64) (types.TallyResult, error) {
 	// Increase points of stakers who did not vote at all + slash + remove if necessary.
 	// The protocol requires everybody to stay always active.
 	k.handleNonVoters(ctx, poolId)
@@ -556,7 +563,8 @@ func (k msgServer) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bun
 		}
 
 		// payout rewards to delegators through delegation rewards
-		if err := k.delegationKeeper.PayoutRewards(ctx, bundleProposal.Uploader, bundleReward.Delegation, poolTypes.ModuleName); err != nil {
+		bundleRewardCoins := sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(bundleReward.Delegation)))
+		if err := k.delegationKeeper.PayoutRewards(ctx, bundleProposal.Uploader, bundleRewardCoins, poolTypes.ModuleName); err != nil {
 			return types.TallyResult{}, err
 		}
 

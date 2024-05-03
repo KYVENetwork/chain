@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package kyve.delegation.v1beta1;
 
+import "amino/amino.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "kyve/delegation/v1beta1/delegation.proto";
 import "kyve/delegation/v1beta1/params.proto";
@@ -78,7 +80,11 @@ message EventWithdrawRewards {
   // staker is the account address of the protocol node the users withdraws from.
   string staker = 2;
   // amount ...
-  uint64 amount = 3;
+  repeated cosmos.base.v1beta1.Coin amount = 3 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }
 
 // EventSlash is an event emitted when a protocol node is slashed.

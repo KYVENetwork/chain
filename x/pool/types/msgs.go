@@ -69,6 +69,7 @@ type PoolUpdate struct {
 	MaxBundleSize        *uint64
 	StorageProviderId    *uint32
 	CompressionId        *uint32
+	EndKey               *string
 }
 
 // ValidateBasic does a sanity check on the provided data.

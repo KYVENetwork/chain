@@ -267,8 +267,22 @@ paths:
                 format: uint64
                 description: protocol_delegation_unbonding ...
               protocol_rewards:
-                type: string
-                format: uint64
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a token with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
                 description: protocol_rewards ...
               protocol_funding:
                 type: array
@@ -709,6 +723,7 @@ paths:
                                       - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                       - POOL_STATUS_UPGRADING
                                       - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                      - POOL_STATUS_END_KEY_REACHED
                                     default: POOL_STATUS_UNSPECIFIED
                               points:
                                 type: string
@@ -1137,6 +1152,7 @@ paths:
                             - POOL_STATUS_NOT_ENOUGH_DELEGATION
                             - POOL_STATUS_UPGRADING
                             - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                            - POOL_STATUS_END_KEY_REACHED
                           default: POOL_STATUS_UNSPECIFIED
                       title: >-
                         BasicPool contains the necessary properties need for a
@@ -3243,10 +3259,24 @@ paths:
                   delegator:
                     type: string
                     description: delegator ...
-                  current_reward:
-                    type: string
-                    format: uint64
-                    description: current_reward ...
+                  current_rewards:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a token with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                    description: current_rewards ...
                   delegation_amount:
                     type: string
                     format: uint64
@@ -3483,10 +3513,25 @@ paths:
                     delegator:
                       type: string
                       description: delegator ...
-                    current_reward:
-                      type: string
-                      format: uint64
-                      description: current_reward ...
+                    current_rewards:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      description: current_rewards ...
                     delegation_amount:
                       type: string
                       format: uint64
@@ -3997,6 +4042,7 @@ paths:
                                       - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                       - POOL_STATUS_UPGRADING
                                       - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                      - POOL_STATUS_END_KEY_REACHED
                                     default: POOL_STATUS_UNSPECIFIED
                               points:
                                 type: string
@@ -4051,10 +4097,25 @@ paths:
 
                         It contains almost all needed information for a
                         convenient usage
-                    current_reward:
-                      type: string
-                      format: uint64
-                      description: current_reward ...
+                    current_rewards:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      description: current_rewards ...
                     delegation_amount:
                       type: string
                       format: uint64
@@ -5034,6 +5095,13 @@ paths:
                         type: integer
                         format: int64
                         description: compression_id ...
+                      end_key:
+                        type: string
+                        title: >-
+                          end_key is the last key before the pool should stop
+                          indexing, it is
+
+                          inclusive
                   bundle_proposal:
                     description: bundle_proposal ...
                     type: object
@@ -5151,6 +5219,7 @@ paths:
                       - POOL_STATUS_NOT_ENOUGH_DELEGATION
                       - POOL_STATUS_UPGRADING
                       - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                      - POOL_STATUS_END_KEY_REACHED
                     default: POOL_STATUS_UNSPECIFIED
                   account:
                     type: string
@@ -5614,6 +5683,13 @@ paths:
                           type: integer
                           format: int64
                           description: compression_id ...
+                        end_key:
+                          type: string
+                          title: >-
+                            end_key is the last key before the pool should stop
+                            indexing, it is
+
+                            inclusive
                     bundle_proposal:
                       description: bundle_proposal ...
                       type: object
@@ -5731,6 +5807,7 @@ paths:
                         - POOL_STATUS_NOT_ENOUGH_DELEGATION
                         - POOL_STATUS_UPGRADING
                         - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                        - POOL_STATUS_END_KEY_REACHED
                       default: POOL_STATUS_UNSPECIFIED
                     account:
                       type: string
@@ -6311,6 +6388,7 @@ paths:
                                 - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                 - POOL_STATUS_UPGRADING
                                 - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                - POOL_STATUS_END_KEY_REACHED
                               default: POOL_STATUS_UNSPECIFIED
                         points:
                           type: string
@@ -6753,6 +6831,7 @@ paths:
                                   - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                   - POOL_STATUS_UPGRADING
                                   - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                  - POOL_STATUS_END_KEY_REACHED
                                 default: POOL_STATUS_UNSPECIFIED
                           points:
                             type: string
@@ -7308,6 +7387,7 @@ paths:
                                       - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                       - POOL_STATUS_UPGRADING
                                       - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                      - POOL_STATUS_END_KEY_REACHED
                                     default: POOL_STATUS_UNSPECIFIED
                               points:
                                 type: string
@@ -7792,6 +7872,7 @@ paths:
                                   - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                   - POOL_STATUS_UPGRADING
                                   - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                  - POOL_STATUS_END_KEY_REACHED
                                 default: POOL_STATUS_UNSPECIFIED
                           points:
                             type: string

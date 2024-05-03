@@ -196,6 +196,27 @@ func (suite *KeeperTestSuite) Mint(address string, amount uint64) error {
 	return nil
 }
 
+func (suite *KeeperTestSuite) MintDenomToModule(moduleAddress string, amount uint64, denom string) error {
+	coins := sdk.NewCoins(sdk.NewInt64Coin(denom, int64(amount)))
+	err := suite.app.BankKeeper.MintCoins(suite.ctx, mintTypes.ModuleName, coins)
+	if err != nil {
+		return err
+	}
+
+	suite.Commit()
+
+	err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, mintTypes.ModuleName, moduleAddress, coins)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (suite *KeeperTestSuite) Mint(address string, amount uint64) error {
+	return suite.MintDenom(address, amount, KYVE_DENOM)
+}
+
 type KeeperTestSuite struct {
 	suite.Suite
 

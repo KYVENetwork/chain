@@ -57,7 +57,11 @@ message QueryAccountAssetsResponse {
   // protocol_delegation_unbonding ...
   uint64 protocol_delegation_unbonding = 5;
   // protocol_rewards ...
-  uint64 protocol_rewards = 6;
+  repeated cosmos.base.v1beta1.Coin protocol_rewards = 6 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
   // protocol_funding ...
   repeated cosmos.base.v1beta1.Coin protocol_funding = 7 [
     (gogoproto.nullable) = false,

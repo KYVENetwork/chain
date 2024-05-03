@@ -2,7 +2,9 @@ syntax = "proto3";
 
 package kyve.query.v1beta1;
 
+import "amino/amino.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "kyve/query/v1beta1/query.proto";
@@ -51,8 +53,12 @@ message QueryDelegatorResponse {
 message StakerDelegatorResponse {
   // delegator ...
   string delegator = 1;
-  // current_reward ...
-  uint64 current_reward = 2;
+  // current_rewards ...
+  repeated cosmos.base.v1beta1.Coin current_rewards = 6 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
   // delegation_amount ...
   uint64 delegation_amount = 3;
   // staker ...
@@ -109,8 +115,12 @@ message QueryStakersByDelegatorResponse {
 message DelegationForStakerResponse {
   // staker ...
   FullStaker staker = 1;
-  // current_reward ...
-  uint64 current_reward = 2;
+  // current_rewards ...
+  repeated cosmos.base.v1beta1.Coin current_rewards = 6 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
   // delegation_amount ...
   uint64 delegation_amount = 3;
 }

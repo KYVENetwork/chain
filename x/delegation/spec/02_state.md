@@ -20,15 +20,15 @@ of the f1-index. It exists as long as the staker has at least `1ukyve` delegatio
 
 ```go
 type DelegationData struct {
-	Staker string 
-	// F1
-	CurrentRewards uint64 
-	TotalDelegation uint64 
-	LatestIndexK uint64 
-	// delegator_count the amount of different addresses delegating to the staker
-	DelegatorCount uint64 
-	// latest_index_was_undelegation helps indicates when an entry can be deleted
-	LatestIndexWasUndelegation bool 
+    // Every staker has one DelegationData
+    Staker string
+    CurrentRewards github_com_cosmos_cosmos_sdk_types.Coins
+    TotalDelegation uint64
+    LatestIndexK uint64
+    // delegator_count the amount of different addresses delegating to the staker
+    DelegatorCount uint64
+    // latest_index_was_undelegation helps indicates when an entry can be deleted
+    LatestIndexWasUndelegation bool
 }
 ```
 
