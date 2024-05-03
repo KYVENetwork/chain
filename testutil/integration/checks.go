@@ -260,7 +260,7 @@ func (suite *KeeperTestSuite) VerifyStakersGenesisImportExport() {
 // bundles module checks
 // =====================
 
-func checkFinalizedBundle(queryBundle querytypes.FinalizedBundle, rawBundle bundlesTypes.FinalizedBundle) {
+func checkFinalizedBundle(queryBundle querytypes.QueryFinalizedBundleResponse, rawBundle bundlesTypes.FinalizedBundle) {
 	Expect(queryBundle.Id).To(Equal(rawBundle.Id))
 	Expect(queryBundle.PoolId).To(Equal(rawBundle.PoolId))
 	Expect(queryBundle.StorageId).To(Equal(rawBundle.StorageId))
