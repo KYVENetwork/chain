@@ -204,7 +204,7 @@ func (k Keeper) f1WithdrawRewards(ctx sdk.Context, stakerAddress string, delegat
 			// entry difference
 			difference := k.f1GetEntryDifference(ctx, stakerAddress, startIndex, endIndex)
 
-			periodReward := difference.MulDec(delegation)
+			periodReward := safeMulDec(difference, delegation)
 
 			reward = reward.Add(periodReward...)
 		})
@@ -296,7 +296,7 @@ func (k Keeper) f1GetOutstandingRewards(ctx sdk.Context, stakerAddress string, d
 		func(startIndex uint64, endIndex uint64, delegation math.LegacyDec) {
 			difference := k.f1GetEntryDifference(ctx, stakerAddress, startIndex, endIndex)
 			// Multiply with delegation for period
-			periodReward := difference.MulDec(delegation)
+			periodReward := safeMulDec(difference, delegation)
 			// Add to total rewards
 			reward = reward.Add(periodReward...)
 
@@ -320,7 +320,7 @@ func (k Keeper) f1GetOutstandingRewards(ctx sdk.Context, stakerAddress string, d
 		currentPeriodValue = decCurrentRewards.QuoDec(decTotalDelegation)
 	}
 
-	ongoingPeriodReward := currentPeriodValue.MulDec(latestBalance)
+	ongoingPeriodReward := safeMulDec(currentPeriodValue, latestBalance)
 
 	reward = reward.Add(ongoingPeriodReward...)
 	return truncateDecCoins(reward)
@@ -343,14 +343,16 @@ func (k Keeper) f1GetEntryDifference(ctx sdk.Context, stakerAddress string, lowI
 
 // truncateDecCoins converts sdm.DecCoins to sdk.Coins by truncating all values to integers.
 func truncateDecCoins(decCoins sdk.DecCoins) sdk.Coins {
-	if len(decCoins) == 0 {
-		return sdk.NewCoins()
-	}
-
-	coins := make([]sdk.Coin, 0, len(decCoins))
+	coins := sdk.NewCoins()
 	for _, coin := range decCoins {
-		coins = append(coins, sdk.NewCoin(coin.Denom, coin.Amount.TruncateInt()))
+		coins = coins.Add(sdk.NewCoin(coin.Denom, coin.Amount.TruncateInt()))
 	}
+	return coins
+}
 
-	return sdk.NewCoins(coins...)
+func safeMulDec(coins sdk.DecCoins, scalar math.LegacyDec) sdk.DecCoins {
+	if scalar.IsZero() {
+		return sdk.NewDecCoins()
+	}
+	return coins.MulDec(scalar)
 }

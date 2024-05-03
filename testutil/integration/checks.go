@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"cosmossdk.io/store"
 	storeTypes "cosmossdk.io/store/types"
 
@@ -373,22 +375,28 @@ func (suite *KeeperTestSuite) VerifyDelegationQueries() {
 }
 
 func (suite *KeeperTestSuite) VerifyDelegationModuleIntegrity() {
-	expectedBalance := uint64(0)
+	expectedBalance := sdk.NewCoins()
 
 	for _, delegator := range suite.App().DelegationKeeper.GetAllDelegators(suite.Ctx()) {
-		expectedBalance += suite.App().DelegationKeeper.GetDelegationAmountOfDelegator(suite.Ctx(), delegator.Staker, delegator.Delegator)
-		expectedBalance += suite.App().DelegationKeeper.GetOutstandingRewards(suite.Ctx(), delegator.Staker, delegator.Delegator).AmountOf(globalTypes.Denom).Uint64()
+		expectedBalance = expectedBalance.Add(
+			sdk.NewInt64Coin(globalTypes.Denom,
+				int64(suite.App().DelegationKeeper.GetDelegationAmountOfDelegator(suite.Ctx(), delegator.Staker, delegator.Delegator)),
+			)).Add(
+			suite.App().DelegationKeeper.GetOutstandingRewards(suite.Ctx(), delegator.Staker, delegator.Delegator)...,
+		)
 	}
 
 	// Due to rounding errors the delegation module will get a very few nKYVE over the time.
 	// As long as it is guaranteed that it's always the user who gets paid out less in case of
 	// rounding, everything is fine.
-	difference := suite.GetBalanceFromModule(delegationtypes.ModuleName) - expectedBalance
+	difference := suite.GetCoinsFromModule(delegationtypes.ModuleName).Sub(expectedBalance...)
 	//nolint:all
-	Expect(difference >= 0).To(BeTrue())
+	Expect(difference.IsAnyNegative()).To(BeFalse())
 
-	// 10 should be enough for testing
-	Expect(difference <= 10).To(BeTrue())
+	// 10 should be enough for testing, these are left-over tokens due to rounding issues
+	for _, coin := range difference {
+		Expect(coin.Amount.Uint64() < 10).To(BeTrue())
+	}
 }
 
 func (suite *KeeperTestSuite) VerifyDelegationGenesisImportExport() {
