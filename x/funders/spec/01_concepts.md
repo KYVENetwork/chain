@@ -15,7 +15,7 @@ a steady pool economy.
 
 ## Funding Slots
 
-Currently, the KYVE protocol allows at maximum 50 funders per pool to limit 
+Currently, the KYVE protocol allows at most 50 funders per pool to limit 
 gas consumption. If the slots are full and a funder wants to join anyway he 
 has to fund more than the current lowest funder. By doing so the funds of the
 lowest funder will be automatically returned to the lowest funder's wallet
@@ -31,7 +31,7 @@ $KYVE as rewards but also the other coins with which the pool was funded with.
 
 ## Price per Bundle
 
-Funders can choose for themselves which total amount they want to contribute and
+Funders can choose for themselves that total amount they want to contribute and
 how much funds they want to distribute per validated and archived bundle of data.
 This gives funders huge flexibility and promotes competition between pools in order
 to attract validators who typically choose the pool with the highest provided funds.

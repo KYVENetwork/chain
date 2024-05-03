@@ -190,8 +190,8 @@ func (k Keeper) ensureFreeSlot(ctx sdk.Context, newFunding *types.Funding, fundi
 		return err
 	}
 
-	lowestFunding.Amounts = lowestFunding.Amounts.Sub(lowestFunding.Amounts...)
-	lowestFunding.CleanAmountsPerBundle()
+	lowestFunding.Amounts = sdk.NewCoins()
+	lowestFunding.AmountsPerBundle = sdk.NewCoins()
 	fundingState.SetInactive(lowestFunding)
 	k.SetFunding(ctx, lowestFunding)
 
