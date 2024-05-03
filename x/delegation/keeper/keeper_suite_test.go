@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	globalTypes "github.com/KYVENetwork/chain/x/global/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
-	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	"github.com/KYVENetwork/chain/x/delegation/types"
@@ -23,25 +22,16 @@ func TestDelegationKeeper(t *testing.T) {
 }
 
 func PayoutRewards(s *i.KeeperTestSuite, staker string, coins sdk.Coins) {
-	fundingState, found := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
-	Expect(found).To(BeTrue())
-
-	// TODO support all denominations once the funding module supports it
-	// divide amount by number of active fundings so that total payout is equal to amount
-	activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
-	for _, funding := range activeFundings {
-		funding.AmountPerBundle = coins.AmountOf(globalTypes.Denom).Uint64() / uint64(len(activeFundings))
-		s.App().FundersKeeper.SetFunding(s.Ctx(), &funding)
-	}
-
-	payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
-	Expect(err).To(BeNil())
-	err = s.App().DelegationKeeper.PayoutRewards(s.Ctx(), staker, coins, pooltypes.ModuleName)
+	err := s.App().BankKeeper.MintCoins(s.Ctx(), mintTypes.ModuleName, coins)
 	Expect(err).NotTo(HaveOccurred())
-	Expect(coins.AmountOf(globalTypes.Denom).Uint64()).To(Equal(payout))
+
+	s.Commit()
+
+	err = s.App().DelegationKeeper.PayoutRewards(s.Ctx(), staker, coins, mintTypes.ModuleName)
+	Expect(err).NotTo(HaveOccurred())
 }
 
-func CreateFundedPool(s *i.KeeperTestSuite) {
+func CreatePool(s *i.KeeperTestSuite) {
 	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 	msg := &pooltypes.MsgCreatePool{
 		Authority:            gov,
@@ -60,26 +50,6 @@ func CreateFundedPool(s *i.KeeperTestSuite) {
 		CompressionId:        1,
 	}
 	s.RunTxPoolSuccess(msg)
-
-	s.CommitAfterSeconds(7)
-
-	s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
-		Creator: i.ALICE,
-		Moniker: "Alice",
-	})
-
-	s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
-		Creator:         i.ALICE,
-		PoolId:          0,
-		Amount:          100 * i.KYVE,
-		AmountPerBundle: 1 * i.KYVE,
-	})
-
-	s.CommitAfterSeconds(7)
-
-	fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
-
-	Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100 * i.KYVE))
 }
 
 func CheckAndContinueChainForOneMonth(s *i.KeeperTestSuite) {

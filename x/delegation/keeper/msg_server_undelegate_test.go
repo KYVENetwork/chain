@@ -39,7 +39,7 @@ var _ = Describe("msg_server_undelegate.go", Ordered, func() {
 	BeforeEach(func() {
 		s = i.NewCleanChain()
 
-		CreateFundedPool(s)
+		CreatePool(s)
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
 			Creator: i.ALICE,

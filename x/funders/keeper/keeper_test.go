@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestTeamKeeper(t *testing.T) {
+func TestFundersKeeper(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, fmt.Sprintf("x/%s Keeper Test Suite", types.ModuleName))
 }

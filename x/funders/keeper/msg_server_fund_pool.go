@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"cosmossdk.io/errors"
-	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/funders/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
@@ -34,28 +33,34 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrFundingStateDoesNotExist.Error(), msg.PoolId)
 	}
 
+	amountsPerBundle := msg.AmountsPerBundle
+
 	// Check if funding already exists
 	funding, found := k.GetFunding(ctx, msg.Creator, msg.PoolId)
 	if found {
-		// If so, update funding amount
-		funding.AddAmount(msg.Amount)
-		// If the amount per bundle is set, update it
-		if msg.AmountPerBundle > 0 {
-			funding.AmountPerBundle = msg.AmountPerBundle
+		// If so, update funding amounts
+		funding.Amounts = funding.Amounts.Add(msg.Amounts...)
+
+		// Replace all coins in funding.AmountsPerBundle with the values of msg.AmountsPerBundle
+		for _, coin := range funding.AmountsPerBundle {
+			if f, _ := amountsPerBundle.Find(coin.Denom); !f {
+				amountsPerBundle = amountsPerBundle.Add(coin)
+			}
 		}
+		funding.AmountsPerBundle = amountsPerBundle
 	} else {
 		// If not, create new funding
 		funding = types.Funding{
-			FunderAddress:   msg.Creator,
-			PoolId:          msg.PoolId,
-			Amount:          msg.Amount,
-			AmountPerBundle: msg.AmountPerBundle,
-			TotalFunded:     0,
+			FunderAddress:    msg.Creator,
+			PoolId:           msg.PoolId,
+			Amounts:          msg.Amounts,
+			AmountsPerBundle: amountsPerBundle,
+			TotalFunded:      sdk.NewCoins(),
 		}
 	}
 
 	// Check if updated (or new) funding is compatible with module params
-	if err := k.ensureParamsCompatibility(ctx, funding); err != nil {
+	if err := k.ensureParamsCompatibility(ctx, &funding); err != nil {
 		return nil, err
 	}
 
@@ -67,7 +72,8 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 	}
 
 	// All checks passed, transfer funds from funder to module
-	if err := util.TransferFromAddressToModule(k.bankKeeper, ctx, msg.Creator, types.ModuleName, msg.Amount); err != nil {
+	sender := sdk.MustAccAddressFromBech32(msg.Creator)
+	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, msg.Amounts); err != nil {
 		return nil, err
 	}
 
@@ -80,10 +86,10 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 
 	// Emit a fund event.
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventFundPool{
-		PoolId:          msg.PoolId,
-		Address:         msg.Creator,
-		Amount:          msg.Amount,
-		AmountPerBundle: msg.AmountPerBundle,
+		PoolId:           msg.PoolId,
+		Address:          msg.Creator,
+		Amounts:          msg.Amounts,
+		AmountsPerBundle: msg.AmountsPerBundle,
 	})
 
 	return &types.MsgFundPoolResponse{}, nil

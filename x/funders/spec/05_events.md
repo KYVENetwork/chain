@@ -1,27 +1,18 @@
+<!--
+order: 5
+-->
+
+# Events
+
+The funders module contains the following events:
+
+## EventCreateFunder
+
+EventCreateFunder indicates that a new funder has been created.
+
+```protobuf
 syntax = "proto3";
 
-package kyve.funders.v1beta1;
-
-import "amino/amino.proto";
-import "cosmos/base/v1beta1/coin.proto";
-import "gogoproto/gogo.proto";
-import "kyve/funders/v1beta1/params.proto";
-
-option go_package = "github.com/KYVENetwork/chain/x/funders/types";
-
-// EventUpdateParams is an event emitted when the module parameters are updated.
-// emitted_by: MsgUpdateParams
-message EventUpdateParams {
-  // old_params is the module's old parameters.
-  Params old_params = 1 [(gogoproto.nullable) = false];
-  // new_params is the module's new parameters.
-  Params new_params = 2 [(gogoproto.nullable) = false];
-  // payload is the parameter updates that were performed.
-  string payload = 3;
-}
-
-// EventCreateFunder is an event emitted when a funder is created.
-// emitted_by: MsgCreateFunder
 message EventCreateFunder {
   // address is the account address of the funder.
   string address = 1;
@@ -36,9 +27,19 @@ message EventCreateFunder {
   // description are some additional notes the funder finds important
   string description = 6;
 }
+```
 
-// EventUpdateFunder is an event emitted when a funder is created.
-// emitted_by: MsgCreateFunder
+It gets emitted by the following actions:
+
+- `MsgCreateFunder`
+
+## EventUpdateFunder
+
+EventUpdateFunder indicates that a funder has been updated.
+
+```protobuf
+syntax = "proto3";
+
 message EventUpdateFunder {
   // address is the account address of the funder.
   string address = 1;
@@ -53,9 +54,19 @@ message EventUpdateFunder {
   // description are some additional notes the funder finds important
   string description = 6;
 }
+```
 
-// EventFundPool is an event emitted when a pool is funded.
-// emitted_by: MsgFundPool
+It gets emitted by the following actions:
+
+- `MsgUpdateFunder`
+
+## EventFundPool
+
+EventFundPool indicates that a funder has provided funds to a pool.
+
+```protobuf
+syntax = "proto3";
+
 message EventFundPool {
   // pool_id is the unique ID of the pool.
   uint64 pool_id = 1;
@@ -63,20 +74,30 @@ message EventFundPool {
   string address = 2;
   // amounts is a list of coins the funder has funded
   repeated cosmos.base.v1beta1.Coin amounts = 3 [
-    (gogoproto.nullable) = false,
-    (amino.dont_omitempty) = true,
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
   // amounts_per_bundle is a list of coins the funder wants to distribute per finalized bundle
   repeated cosmos.base.v1beta1.Coin amounts_per_bundle = 4 [
-    (gogoproto.nullable) = false,
-    (amino.dont_omitempty) = true,
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
 }
+```
 
-// EventDefundPool is an event emitted when a pool is defunded.
-// emitted_by: MsgDefundPool
+It gets emitted by the following actions:
+
+- `MsgFundPool`
+
+## EventDefundPool
+
+EventDefundPool indicates that a funder has withdrawn funds from a pool.
+
+```protobuf
+syntax = "proto3";
+
 message EventDefundPool {
   // pool_id is the unique ID of the pool.
   uint64 pool_id = 1;
@@ -84,15 +105,26 @@ message EventDefundPool {
   string address = 2;
   // amounts is a list of coins that the funder wants to defund
   repeated cosmos.base.v1beta1.Coin amounts = 3 [
-    (gogoproto.nullable) = false,
-    (amino.dont_omitempty) = true,
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
 }
+```
 
-// EventPoolOutOfFunds is an event emitted when a pool has run out of funds
-// emitted_by: MsgSubmitBundleProposal
+It gets emitted by the following actions:
+
+- `MsgDefundPool`
+
+## EventPoolOutOfFunds
+
+EventPoolOutOfFunds get emitted when a pool runs out of funds.
+
+```protobuf
+syntax = "proto3";
+
 message EventPoolOutOfFunds {
   // pool_id is the unique ID of the pool.
   uint64 pool_id = 1;
 }
+```

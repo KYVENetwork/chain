@@ -77,7 +77,7 @@ func (k Keeper) AccountAssets(goCtx context.Context, req *types.QueryAccountAsse
 
 	// Iterate all fundings of the user to get total funding amount
 	for _, funding := range k.fundersKeeper.GetFundingsOfFunder(ctx, req.Address) {
-		response.ProtocolFunding += funding.Amount
+		response.ProtocolFunding = response.ProtocolFunding.Add(funding.Amounts...)
 	}
 
 	return &response, nil

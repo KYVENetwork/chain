@@ -48,7 +48,7 @@ type DelegationKeeper interface {
 }
 
 type FundersKeeper interface {
-	ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint64, err error)
+	ChargeFundersOfPool(ctx sdk.Context, poolId uint64, recipient string) (payout sdk.Coins, err error)
 }
 
 type TeamKeeper interface {

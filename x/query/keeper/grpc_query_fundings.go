@@ -21,7 +21,8 @@ func (k Keeper) FundingsByFunder(c context.Context, req *types.QueryFundingsByFu
 		return nil, err
 	}
 
-	data := k.parseFundings(fundings)
+	params := k.fundersKeeper.GetParams(ctx)
+	data := k.parseFundings(fundings, params.CoinWhitelist)
 
 	return &types.QueryFundingsByFunderResponse{Fundings: data, Pagination: pageRes}, nil
 }
@@ -37,20 +38,22 @@ func (k Keeper) FundingsByPool(c context.Context, req *types.QueryFundingsByPool
 		return nil, err
 	}
 
-	data := k.parseFundings(fundings)
+	params := k.fundersKeeper.GetParams(ctx)
+	data := k.parseFundings(fundings, params.CoinWhitelist)
 
 	return &types.QueryFundingsByPoolResponse{Fundings: data, Pagination: pageRes}, nil
 }
 
-func (k Keeper) parseFundings(fundings []fundersTypes.Funding) []types.Funding {
+func (k Keeper) parseFundings(fundings []fundersTypes.Funding, whitelist []*fundersTypes.WhitelistCoinEntry) []types.Funding {
 	fundingsData := make([]types.Funding, 0)
 	for _, funding := range fundings {
 		fundingsData = append(fundingsData, types.Funding{
-			FunderAddress:   funding.FunderAddress,
-			PoolId:          funding.PoolId,
-			Amount:          funding.Amount,
-			AmountPerBundle: funding.AmountPerBundle,
-			TotalFunded:     funding.TotalFunded,
+			FunderAddress:    funding.FunderAddress,
+			PoolId:           funding.PoolId,
+			Amounts:          funding.Amounts,
+			AmountsPerBundle: funding.AmountsPerBundle,
+			TotalFunded:      funding.TotalFunded,
+			Score:            funding.GetScore(whitelist),
 		})
 	}
 	return fundingsData

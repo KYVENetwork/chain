@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
@@ -36,7 +35,7 @@ var _ = Describe("msg_server_delegate.go", Ordered, func() {
 	BeforeEach(func() {
 		s = i.NewCleanChain()
 
-		CreateFundedPool(s)
+		CreatePool(s)
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
 			Creator: i.ALICE,
@@ -158,9 +157,6 @@ var _ = Describe("msg_server_delegate.go", Ordered, func() {
 			Amount:  209 * i.KYVE,
 		})
 
-		fundersModuleBalance := s.GetBalanceFromModule(funderstypes.ModuleName)
-
-		Expect(fundersModuleBalance).To(Equal(100 * i.KYVE))
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(BeEmpty())
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1])).To(BeEmpty())
 
@@ -189,7 +185,6 @@ var _ = Describe("msg_server_delegate.go", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1]).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(5_110_024_449)))
 
 		Expect(s.GetBalanceFromAddress(i.DUMMY[0])).To(Equal(900*i.KYVE + 2_444_987_775))
-		Expect(s.GetBalanceFromModule(funderstypes.ModuleName)).To(Equal(90 * i.KYVE))
 		Expect(s.GetBalanceFromModule(types.ModuleName)).To(Equal((200+409)*i.KYVE + uint64(2_444_987_775+5_110_024_449+1)))
 	})
 
@@ -206,10 +201,6 @@ var _ = Describe("msg_server_delegate.go", Ordered, func() {
 			Staker:  i.ALICE,
 			Amount:  200 * i.KYVE,
 		})
-
-		fundersModuleBalance := s.GetBalanceFromModule(funderstypes.ModuleName)
-
-		Expect(fundersModuleBalance).To(Equal(100 * i.KYVE))
 
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(BeEmpty())
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1])).To(BeEmpty())
@@ -241,7 +232,6 @@ var _ = Describe("msg_server_delegate.go", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1]).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(5_000_000_000)))
 
 		Expect(s.GetBalanceFromAddress(i.DUMMY[0])).To(Equal(900*i.KYVE + 2_500_000_000))
-		Expect(s.GetBalanceFromModule(funderstypes.ModuleName)).To(Equal(90 * i.KYVE))
 		Expect(s.GetBalanceFromModule(types.ModuleName)).To(Equal(600*i.KYVE + 7_500_000_000))
 	})
 

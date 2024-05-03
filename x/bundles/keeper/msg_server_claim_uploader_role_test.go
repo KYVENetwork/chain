@@ -102,10 +102,10 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 	It("Try to claim uploader role without being a staker", func() {
 		// ARRANGE
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 1 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 
 		// ACT
@@ -123,10 +123,10 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 	It("Try to claim uploader role if the next uploader is not set yet", func() {
 		// ARRANGE
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 1 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 
 		// ACT
@@ -159,10 +159,10 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 	It("Try to claim uploader role with non existing valaccount", func() {
 		// ARRANGE
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 1 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 
 		// ACT
@@ -180,10 +180,10 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 	It("Try to claim uploader role with valaccount that belongs to another pool", func() {
 		// ARRANGE
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 1 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 
 		msg := &pooltypes.MsgCreatePool{
@@ -225,10 +225,10 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 	It("Try to claim uploader role if someone else is already next uploader", func() {
 		// ARRANGE
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 1 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{

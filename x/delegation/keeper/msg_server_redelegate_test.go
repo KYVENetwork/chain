@@ -32,7 +32,7 @@ var _ = Describe("Delegation - Redelegation", Ordered, func() {
 	BeforeEach(func() {
 		s = i.NewCleanChain()
 
-		CreateFundedPool(s)
+		CreatePool(s)
 
 		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 		msg := &pooltypes.MsgCreatePool{

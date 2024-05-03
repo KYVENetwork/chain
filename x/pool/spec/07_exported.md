@@ -29,6 +29,6 @@ type PoolKeeper interface {
     // the appropriate amount from each funder.
     // All funders who can't afford the amount, are kicked out.
     // The method returns the payout amount the pool was able to charge from the funders.
-    ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint64) (payout uint64, err error)
+    ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint64, recipient string) (payout uint64, err error)
 }
 ```

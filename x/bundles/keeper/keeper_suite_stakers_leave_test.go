@@ -61,15 +61,15 @@ var _ = Describe("stakers leave", Ordered, func() {
 			Moniker: "Alice",
 		})
 
-		params := s.App().FundersKeeper.GetParams(s.Ctx())
-		params.MinFundingAmountPerBundle = 10_000
+		params := funderstypes.DefaultParams()
+		params.CoinWhitelist[0].MinFundingAmountPerBundle = 10_000
 		s.App().FundersKeeper.SetParams(s.Ctx(), params)
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 10_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(10_000),
 		})
 
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{

@@ -106,10 +106,10 @@ var _ = Describe("funding bundles", Ordered, func() {
 	It("Produce a valid bundle with only one funder", func() {
 		// ARRANGE
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 10 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(10 * i.T_KYVE),
 		})
 
 		s.CommitAfterSeconds(60)
@@ -163,14 +163,14 @@ var _ = Describe("funding bundles", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(90 * i.KYVE))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(90 * i.KYVE))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 
 		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
 
 		// assert individual funds
-		Expect(funding.Amount).To(Equal(90 * i.KYVE))
-		Expect(funding.TotalFunded).To(Equal(10 * i.KYVE))
+		Expect(funding.Amounts[0].Amount.Uint64()).To(Equal(90 * i.KYVE))
+		Expect(funding.TotalFunded[0].Amount.Uint64()).To(Equal(10 * i.KYVE))
 
 		// assert individual balances
 		balanceAlice := s.GetBalanceFromAddress(i.ALICE)
@@ -180,17 +180,17 @@ var _ = Describe("funding bundles", Ordered, func() {
 	It("Produce a valid bundle with multiple funders and same funding amounts", func() {
 		// ARRANGE
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 10 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(10 * i.T_KYVE),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 10 * i.KYVE,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(10 * i.T_KYVE),
 		})
 
 		s.CommitAfterSeconds(60)
@@ -244,17 +244,17 @@ var _ = Describe("funding bundles", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(180 * i.KYVE))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(180 * i.KYVE))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
 
 		fundingAlice, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
 		fundingBob, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.BOB, 0)
 
 		// assert individual funds
-		Expect(fundingAlice.Amount).To(Equal(90 * i.KYVE))
-		Expect(fundingAlice.TotalFunded).To(Equal(10 * i.KYVE))
-		Expect(fundingBob.Amount).To(Equal(90 * i.KYVE))
-		Expect(fundingBob.TotalFunded).To(Equal(10 * i.KYVE))
+		Expect(fundingAlice.Amounts[0].Amount.Uint64()).To(Equal(90 * i.KYVE))
+		Expect(fundingAlice.TotalFunded[0].Amount.Uint64()).To(Equal(10 * i.KYVE))
+		Expect(fundingBob.Amounts[0].Amount.Uint64()).To(Equal(90 * i.KYVE))
+		Expect(fundingBob.TotalFunded[0].Amount.Uint64()).To(Equal(10 * i.KYVE))
 
 		// assert individual balances
 		balanceAlice := s.GetBalanceFromAddress(i.ALICE)
@@ -267,17 +267,17 @@ var _ = Describe("funding bundles", Ordered, func() {
 	It("Produce a valid bundle with multiple funders and different funding amounts", func() {
 		// ARRANGE
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          150 * i.KYVE,
-			AmountPerBundle: 15 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(150 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(15 * i.T_KYVE),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          50 * i.KYVE,
-			AmountPerBundle: 5 * i.KYVE,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(50 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5 * i.T_KYVE),
 		})
 
 		s.CommitAfterSeconds(60)
@@ -331,17 +331,17 @@ var _ = Describe("funding bundles", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(180 * i.KYVE))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(180 * i.KYVE))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
 
 		fundingAlice, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
 		fundingBob, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.BOB, 0)
 
 		// assert individual funds
-		Expect(fundingAlice.Amount).To(Equal(135 * i.KYVE))
-		Expect(fundingAlice.TotalFunded).To(Equal(15 * i.KYVE))
-		Expect(fundingBob.Amount).To(Equal(45 * i.KYVE))
-		Expect(fundingBob.TotalFunded).To(Equal(5 * i.KYVE))
+		Expect(fundingAlice.Amounts[0].Amount.Uint64()).To(Equal(135 * i.KYVE))
+		Expect(fundingAlice.TotalFunded[0].Amount.Uint64()).To(Equal(15 * i.KYVE))
+		Expect(fundingBob.Amounts[0].Amount.Uint64()).To(Equal(45 * i.KYVE))
+		Expect(fundingBob.TotalFunded[0].Amount.Uint64()).To(Equal(5 * i.KYVE))
 
 		// assert individual balances
 		balanceAlice := s.GetBalanceFromAddress(i.ALICE)
@@ -354,17 +354,17 @@ var _ = Describe("funding bundles", Ordered, func() {
 	It("Produce a valid bundle with multiple funders and different funding amounts where not everyone can afford the full funds", func() {
 		// ARRANGE
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          10 * i.KYVE,
-			AmountPerBundle: 50 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(10 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(50 * i.T_KYVE),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 50 * i.KYVE,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(50 * i.T_KYVE),
 		})
 
 		s.CommitAfterSeconds(60)
@@ -418,7 +418,7 @@ var _ = Describe("funding bundles", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(50 * i.KYVE))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(50 * i.KYVE))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.BOB))
 
@@ -426,10 +426,10 @@ var _ = Describe("funding bundles", Ordered, func() {
 		fundingBob, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.BOB, 0)
 
 		// assert individual funds
-		Expect(fundingAlice.Amount).To(Equal(0 * i.KYVE))
-		Expect(fundingAlice.TotalFunded).To(Equal(10 * i.KYVE))
-		Expect(fundingBob.Amount).To(Equal(50 * i.KYVE))
-		Expect(fundingBob.TotalFunded).To(Equal(50 * i.KYVE))
+		Expect(fundingAlice.Amounts.IsZero()).To(BeTrue())
+		Expect(fundingAlice.TotalFunded[0].Amount.Uint64()).To(Equal(10 * i.KYVE))
+		Expect(fundingBob.Amounts[0].Amount.Uint64()).To(Equal(50 * i.KYVE))
+		Expect(fundingBob.TotalFunded[0].Amount.Uint64()).To(Equal(50 * i.KYVE))
 
 		// assert individual balances
 		balanceAlice := s.GetBalanceFromAddress(i.ALICE)
@@ -442,10 +442,10 @@ var _ = Describe("funding bundles", Ordered, func() {
 	It("Produce a valid bundle although the only funder can not pay for the full bundle reward", func() {
 		// ARRANGE
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          10 * i.KYVE,
-			AmountPerBundle: 20 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(10 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(20 * i.T_KYVE),
 		})
 
 		s.CommitAfterSeconds(60)
@@ -499,14 +499,14 @@ var _ = Describe("funding bundles", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(0 * i.KYVE))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).IsZero()).To(BeTrue())
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(0))
 
 		fundingAlice, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
 
 		// assert individual funds
-		Expect(fundingAlice.Amount).To(Equal(0 * i.KYVE))
-		Expect(fundingAlice.TotalFunded).To(Equal(10 * i.KYVE))
+		Expect(fundingAlice.Amounts.IsZero()).To(BeTrue())
+		Expect(fundingAlice.TotalFunded[0].Amount.Uint64()).To(Equal(10 * i.KYVE))
 
 		// assert individual balances
 		balanceAlice := s.GetBalanceFromAddress(i.ALICE)
@@ -516,17 +516,17 @@ var _ = Describe("funding bundles", Ordered, func() {
 	It("Produce a valid bundle although multiple funders with same amount can not pay for the bundle reward", func() {
 		// ARRANGE
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          10 * i.KYVE,
-			AmountPerBundle: 20 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(10 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(20 * i.T_KYVE),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          10 * i.KYVE,
-			AmountPerBundle: 20 * i.KYVE,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(10 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(20 * i.T_KYVE),
 		})
 
 		s.CommitAfterSeconds(60)
@@ -581,7 +581,7 @@ var _ = Describe("funding bundles", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(uint64(0)))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).IsZero()).To(BeTrue())
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(0))
 
 		// assert individual balances
@@ -595,17 +595,17 @@ var _ = Describe("funding bundles", Ordered, func() {
 	It("Produce a dropped bundle because multiple funders with different amount can not pay for the bundle reward", func() {
 		// ARRANGE
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          10 * i.KYVE,
-			AmountPerBundle: 10 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(10 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(10 * i.T_KYVE),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          20 * i.KYVE,
-			AmountPerBundle: 20 * i.KYVE,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(20 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(20 * i.T_KYVE),
 		})
 
 		s.CommitAfterSeconds(60)
@@ -659,14 +659,14 @@ var _ = Describe("funding bundles", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(0 * i.KYVE))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).IsZero()).To(BeTrue())
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(0))
 
 		fundingAlice, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
 
 		// assert individual funds
-		Expect(fundingAlice.Amount).To(Equal(0 * i.KYVE))
-		Expect(fundingAlice.TotalFunded).To(Equal(10 * i.KYVE))
+		Expect(fundingAlice.Amounts.IsZero()).To(BeTrue())
+		Expect(fundingAlice.TotalFunded[0].Amount.Uint64()).To(Equal(10 * i.KYVE))
 
 		// assert individual balances
 		balanceAlice := s.GetBalanceFromAddress(i.ALICE)
@@ -702,7 +702,7 @@ var _ = Describe("funding bundles", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(0 * i.KYVE))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).IsZero()).To(BeTrue())
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(0))
 
 		s.CommitAfterSeconds(60)
@@ -732,7 +732,7 @@ var _ = Describe("funding bundles", Ordered, func() {
 		fundingState, _ = s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(0 * i.KYVE))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).IsZero()).To(BeTrue())
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(0))
 	})
 })

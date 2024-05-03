@@ -533,9 +533,15 @@ func (k Keeper) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bundle
 	switch voteDistribution.Status {
 	case types.BUNDLE_STATUS_VALID:
 		// charge the funders of the pool
-		fundersPayout, err := k.fundersKeeper.ChargeFundersOfPool(ctx, poolId)
+		fundersPayouts, err := k.fundersKeeper.ChargeFundersOfPool(ctx, poolId, poolTypes.ModuleName)
 		if err != nil {
 			return types.TallyResult{}, err
+		}
+
+		// TODO: support all coins in separate PR
+		fundersPayout := uint64(0)
+		if found, payout := fundersPayouts.Find(globalTypes.Denom); found {
+			fundersPayout = payout.Amount.Uint64()
 		}
 
 		// charge the inflation pool

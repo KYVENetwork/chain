@@ -24,29 +24,32 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrFundingDoesNotExist.Error(), msg.PoolId, msg.Creator)
 	}
 
-	if funding.Amount == 0 {
-		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrFundingIsUsedUp.Error(), msg.PoolId, msg.Creator)
-	}
-
 	// FundingState has to exist
 	fundingState, found := k.GetFundingState(ctx, msg.PoolId)
 	if !found {
 		util.PanicHalt(k.upgradeKeeper, ctx, fmt.Sprintf("FundingState for pool %d does not exist", msg.PoolId))
 	}
 
+	// If funder defunds more than he has we defund the entire amount of that coin
+	defundAmounts := funding.Amounts.Min(msg.Amounts)
+	if defundAmounts.IsZero() {
+		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrFundsTooLow.Error())
+	}
+
 	// Subtract amount from funding
-	amount := funding.SubtractAmount(msg.Amount)
-	if funding.Amount == 0 {
+	funding.Amounts = funding.Amounts.Sub(defundAmounts...)
+
+	if err := k.ensureParamsCompatibility(ctx, &funding); err != nil {
+		return nil, err
+	}
+
+	if funding.Amounts.IsZero() {
 		fundingState.SetInactive(&funding)
-	} else {
-		// If funding is not fully revoked, check if updated funding is still compatible with params.
-		if err := k.ensureParamsCompatibility(ctx, funding); err != nil {
-			return nil, err
-		}
 	}
 
 	// Transfer tokens from this module to sender.
-	if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, types.ModuleName, msg.Creator, amount); err != nil {
+	recipient := sdk.MustAccAddressFromBech32(msg.Creator)
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, defundAmounts); err != nil {
 		return nil, err
 	}
 
@@ -58,7 +61,7 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventDefundPool{
 		PoolId:  msg.PoolId,
 		Address: msg.Creator,
-		Amount:  amount,
+		Amounts: defundAmounts,
 	})
 
 	return &types.MsgDefundPoolResponse{}, nil

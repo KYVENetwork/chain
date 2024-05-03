@@ -23,10 +23,12 @@ func (k Keeper) Funders(c context.Context, req *types.QueryFundersRequest) (*typ
 		return nil, err
 	}
 
+	params := k.fundersKeeper.GetParams(ctx)
+
 	data := make([]types.Funder, 0)
 	for _, funder := range funders {
 		fundings := k.fundersKeeper.GetFundingsOfFunder(ctx, funder.Address)
-		data = append(data, k.parseFunder(&funder, fundings))
+		data = append(data, k.parseFunder(&funder, fundings, params.CoinWhitelist))
 	}
 
 	return &types.QueryFundersResponse{Funders: data, Pagination: pageRes}, nil
@@ -46,8 +48,9 @@ func (k Keeper) Funder(c context.Context, req *types.QueryFunderRequest) (*types
 	allFundings := k.fundersKeeper.GetFundingsOfFunder(ctx, funder.Address)
 	fundings := k.filterFundingsOnStatus(allFundings, req.Status)
 
-	funderData := k.parseFunder(&funder, allFundings)
-	fundingsData := k.parseFundings(fundings)
+	params := k.fundersKeeper.GetParams(ctx)
+	funderData := k.parseFunder(&funder, allFundings, params.CoinWhitelist)
+	fundingsData := k.parseFundings(fundings, params.CoinWhitelist)
 
 	return &types.QueryFunderResponse{
 		Funder:   &funderData,
@@ -62,32 +65,36 @@ func (k Keeper) filterFundingsOnStatus(fundings []fundersTypes.Funding, fundingS
 
 	filtered := make([]fundersTypes.Funding, 0)
 	for _, funding := range fundings {
-		if fundingStatus == types.FUNDING_STATUS_ACTIVE && funding.Amount > 0 {
+		if fundingStatus == types.FUNDING_STATUS_ACTIVE && funding.Amounts.IsAllPositive() {
 			filtered = append(filtered, funding)
 		}
-		if fundingStatus == types.FUNDING_STATUS_INACTIVE && funding.Amount == 0 {
+		if fundingStatus == types.FUNDING_STATUS_INACTIVE && funding.Amounts.IsZero() {
 			filtered = append(filtered, funding)
 		}
 	}
 	return filtered
 }
 
-func (k Keeper) parseFunder(funder *fundersTypes.Funder, fundings []fundersTypes.Funding) types.Funder {
-	totalUsedFunds := uint64(0)
-	totalAllocatedFunds := uint64(0)
-	totalAmountPerBundle := uint64(0)
-	poolsFunded := make([]uint64, 0)
+func (k Keeper) parseFunder(funder *fundersTypes.Funder, fundings []fundersTypes.Funding, whitelist []*fundersTypes.WhitelistCoinEntry) types.Funder {
+	stats := types.FundingStats{
+		TotalUsedFunds:       sdk.NewCoins(),
+		TotalAllocatedFunds:  sdk.NewCoins(),
+		TotalAmountPerBundle: sdk.NewCoins(),
+		PoolsFunded:          make([]uint64, 0),
+		Score:                uint64(0),
+	}
 
 	for _, funding := range fundings {
 		// Only count active fundings for totalAmountPerBundle
 		if funding.IsActive() {
-			totalAmountPerBundle += funding.AmountPerBundle
+			stats.TotalAmountPerBundle = stats.TotalAmountPerBundle.Add(funding.AmountsPerBundle...)
 		}
 
-		totalUsedFunds += funding.TotalFunded
-		totalAllocatedFunds += funding.Amount
+		stats.TotalUsedFunds = stats.TotalUsedFunds.Add(funding.TotalFunded...)
+		stats.TotalAllocatedFunds = stats.TotalAllocatedFunds.Add(funding.Amounts...)
+		stats.Score += funding.GetScore(whitelist)
 
-		poolsFunded = append(poolsFunded, funding.PoolId)
+		stats.PoolsFunded = append(stats.PoolsFunded, funding.PoolId)
 	}
 
 	return types.Funder{
@@ -97,11 +104,6 @@ func (k Keeper) parseFunder(funder *fundersTypes.Funder, fundings []fundersTypes
 		Website:     funder.Website,
 		Contact:     funder.Contact,
 		Description: funder.Description,
-		Stats: &types.FundingStats{
-			TotalUsedFunds:       totalUsedFunds,
-			TotalAllocatedFunds:  totalAllocatedFunds,
-			TotalAmountPerBundle: totalAmountPerBundle,
-			PoolsFunded:          poolsFunded,
-		},
+		Stats:       &stats,
 	}
 }
