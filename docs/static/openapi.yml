@@ -22,9 +22,20 @@ paths:
                     type: string
                     format: uint64
                     description: upload_timeout ...
-                  storage_cost:
-                    type: string
-                    description: storage_cost ...
+                  storage_costs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        storage_provider_id:
+                          type: integer
+                          format: int64
+                          description: storage_provider_id ...
+                        cost:
+                          type: string
+                          description: cost ...
+                      title: StorageCost defines the cost for storage providers
+                    description: storage_costs ...
                   network_fee:
                     type: string
                     description: network_fee ...
@@ -4327,9 +4338,20 @@ paths:
                     type: string
                     format: uint64
                     description: upload_timeout ...
-                  storage_cost:
-                    type: string
-                    description: storage_cost ...
+                  storage_costs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        storage_provider_id:
+                          type: integer
+                          format: int64
+                          description: storage_provider_id ...
+                        cost:
+                          type: string
+                          description: cost ...
+                      title: StorageCost defines the cost for storage providers
+                    description: storage_costs ...
                   network_fee:
                     type: string
                     description: network_fee ...

@@ -3,12 +3,12 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/collections"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/log"
 
-	"github.com/KYVENetwork/chain/util"
-
 	storetypes "cosmossdk.io/store/types"
+	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/bundles/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -30,6 +30,9 @@ type (
 		stakerKeeper     types.StakerKeeper
 		delegationKeeper types.DelegationKeeper
 		fundersKeeper    types.FundersKeeper
+
+		Schema        collections.Schema
+		BundlesParams collections.Item[types.Params]
 	}
 )
 
@@ -49,6 +52,7 @@ func NewKeeper(
 	delegationKeeper types.DelegationKeeper,
 	fundersKeeper types.FundersKeeper,
 ) Keeper {
+	sb := collections.NewSchemaBuilder(storeService)
 	return Keeper{
 		cdc:          cdc,
 		storeService: storeService,
@@ -64,6 +68,8 @@ func NewKeeper(
 		stakerKeeper:     stakerKeeper,
 		delegationKeeper: delegationKeeper,
 		fundersKeeper:    fundersKeeper,
+
+		BundlesParams: collections.NewItem(sb, types.ParamsPrefix, "params", codec.CollValue[types.Params](cdc)),
 	}
 }
 

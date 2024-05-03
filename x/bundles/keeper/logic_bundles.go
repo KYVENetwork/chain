@@ -244,7 +244,7 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout uin
 	bundleReward.Treasury = uint64(math.LegacyNewDec(int64(totalPayout)).Mul(k.GetNetworkFee(ctx)).TruncateInt64())
 
 	// calculate wanted storage reward the uploader should receive
-	storageReward := uint64(k.GetStorageCost(ctx).MulInt64(int64(bundleProposal.DataSize)).TruncateInt64())
+	storageReward := uint64(k.GetStorageCost(ctx, bundleProposal.StorageProviderId).MulInt64(int64(bundleProposal.DataSize)).TruncateInt64())
 
 	// if not even the full storage reward can not be paid out we pay out the remains.
 	// in this case the uploader will not earn the commission rewards and delegators not
