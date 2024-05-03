@@ -3,9 +3,9 @@ package keeper
 import (
 	"fmt"
 
-	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
+	"cosmossdk.io/errors"
 	"github.com/KYVENetwork/chain/x/funders/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
@@ -140,14 +140,12 @@ func (k Keeper) ensureParamsCompatibility(ctx sdk.Context, funding *types.Fundin
 		return types.ErrMinAmountPerBundle
 	}
 
-	// if MinFundingMultiple is zero we can already return
-	if params.MinFundingMultiple == 0 {
-		return nil
-	}
-
-	// throw error if a coin can not fulfill the funding multiple threshold
-	if funding.AmountsPerBundle.MulInt(math.NewInt(int64(params.MinFundingMultiple))).IsAnyGT(funding.Amounts) {
-		return types.ErrMinFundingMultiple
+	// we have to perform a zero check here or else the coin multiplication panics
+	if params.MinFundingMultiple > 0 {
+		// throw error if a coin can not fulfill the funding multiple threshold
+		if funding.AmountsPerBundle.MulInt(math.NewInt(int64(params.MinFundingMultiple))).IsAnyGT(funding.Amounts) {
+			return types.ErrMinFundingMultiple
+		}
 	}
 
 	return nil

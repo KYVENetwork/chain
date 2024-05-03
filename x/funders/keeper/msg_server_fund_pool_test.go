@@ -32,7 +32,6 @@ TEST CASES - msg_server_fund_pool.go
 * Try funding multiple coins but with not enough amounts per bundle
 * Try funding 100 coins but amount per bundle is a different coin
 * Try changing the amount per bundle of a coin which is not funded
-* Try changing the amount per bundle of a coin which is not funded and whitelisted
 * Try to fund with a non-existent funder
 * Try to fund less coins than the lowest funder with full funding slots
 * Fund more coins than the lowest funder with full funding slots

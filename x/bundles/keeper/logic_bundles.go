@@ -538,6 +538,7 @@ func (k Keeper) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bundle
 			return types.TallyResult{}, err
 		}
 
+		// TODO: support all coins in separate PR
 		fundersPayout := uint64(0)
 		if found, payout := fundersPayouts.Find(globalTypes.Denom); found {
 			fundersPayout = payout.Amount.Uint64()
