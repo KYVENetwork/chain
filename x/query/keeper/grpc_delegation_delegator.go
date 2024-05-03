@@ -22,7 +22,7 @@ func (k Keeper) Delegator(goCtx context.Context, req *types.QueryDelegatorReques
 	response := types.QueryDelegatorResponse{}
 	response.Delegator = &types.StakerDelegatorResponse{
 		Delegator:        req.Delegator,
-		CurrentReward:    k.delegationKeeper.GetOutstandingRewards(ctx, req.Staker, req.Delegator),
+		CurrentRewards:   k.delegationKeeper.GetOutstandingRewards(ctx, req.Staker, req.Delegator),
 		DelegationAmount: k.delegationKeeper.GetDelegationAmountOfDelegator(ctx, req.Staker, req.Delegator),
 		Staker:           req.Staker,
 	}

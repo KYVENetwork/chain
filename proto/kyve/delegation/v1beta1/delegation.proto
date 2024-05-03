@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package kyve.delegation.v1beta1;
 
+import "amino/amino.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/delegation/types";
@@ -31,9 +33,10 @@ message DelegationEntry {
   uint64 k_index = 2;
 
   // value is the quotient of collected rewards and total stake according to F1-distribution
-  string value = 3 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
+  repeated cosmos.base.v1beta1.DecCoin value = 3 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins"
   ];
 }
 
@@ -47,7 +50,11 @@ message DelegationData {
   // F1Distribution
 
   // current_rewards ...
-  uint64 current_rewards = 2;
+  repeated cosmos.base.v1beta1.Coin current_rewards = 2 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
   // total_delegation ...
   uint64 total_delegation = 3;
   // latest_index_k ...
