@@ -7,7 +7,6 @@ import (
 	"cosmossdk.io/math"
 
 	"github.com/KYVENetwork/chain/x/funders/types"
-	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -35,9 +34,9 @@ func (k Keeper) GetTotalActiveFunding(ctx sdk.Context, poolId uint64) (amounts s
 // ChargeFundersOfPool charges all funders of a pool with their amount_per_bundle
 // If the amount is lower than the amount_per_bundle,
 // the max amount is charged and the funder is removed from the active funders list.
-// The amount is transferred from the funders to the pool module account where it can be paid out.
+// The amount is transferred from the funders to the recipient module account.
 // If there are no more active funders, an event is emitted.
-func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payouts sdk.Coins, err error) {
+func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64, recipient string) (payouts sdk.Coins, err error) {
 	// Get funding state for pool
 	fundingState, found := k.GetFundingState(ctx, poolId)
 	if !found {
@@ -71,7 +70,7 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payouts sdk
 
 	// Move funds to pool module account
 	if !payouts.IsZero() {
-		if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, pooltypes.ModuleName, payouts); err != nil {
+		if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, recipient, payouts); err != nil {
 			return sdk.NewCoins(), err
 		}
 	}

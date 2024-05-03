@@ -533,7 +533,7 @@ func (k Keeper) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bundle
 	switch voteDistribution.Status {
 	case types.BUNDLE_STATUS_VALID:
 		// charge the funders of the pool
-		fundersPayouts, err := k.fundersKeeper.ChargeFundersOfPool(ctx, poolId)
+		fundersPayouts, err := k.fundersKeeper.ChargeFundersOfPool(ctx, poolId, poolTypes.ModuleName)
 		if err != nil {
 			return types.TallyResult{}, err
 		}

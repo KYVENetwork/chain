@@ -33,7 +33,7 @@ func PayoutRewards(s *i.KeeperTestSuite, staker string, coins sdk.Coins) {
 		s.App().FundersKeeper.SetFunding(s.Ctx(), &funding)
 	}
 
-	payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+	payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0, pooltypes.ModuleName)
 	Expect(err).To(BeNil())
 	err = s.App().DelegationKeeper.PayoutRewards(s.Ctx(), staker, coins, pooltypes.ModuleName)
 	Expect(err).NotTo(HaveOccurred())

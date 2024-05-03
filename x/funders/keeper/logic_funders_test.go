@@ -126,7 +126,7 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 
 	It("Charge funders once with one coin", func() {
 		// ACT
-		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0, pooltypes.ModuleName)
 		Expect(err).NotTo(HaveOccurred())
 
 		// ASSERT
@@ -169,7 +169,7 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		})
 
 		// ACT
-		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0, pooltypes.ModuleName)
 		Expect(err).NotTo(HaveOccurred())
 
 		// ASSERT
@@ -199,7 +199,7 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 	It("Charge funders until one funder runs out of funds", func() {
 		// ACT
 		for range [5]struct{}{} {
-			payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+			payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0, pooltypes.ModuleName)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(payout.String()).To(Equal(i.ACoins(11 * i.T_KYVE).String()))
 		}
@@ -241,13 +241,13 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		})
 
 		for range [5]struct{}{} {
-			payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+			payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0, pooltypes.ModuleName)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(payout.String()).To(Equal(sdk.NewCoins(i.ACoin(11*i.T_KYVE), i.BCoin(20*i.T_KYVE), i.CCoin(10*i.T_KYVE)).String()))
 		}
 
 		for range [5]struct{}{} {
-			payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+			payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0, pooltypes.ModuleName)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(payout.String()).To(Equal(sdk.NewCoins(i.ACoin(1*i.T_KYVE), i.BCoin(20*i.T_KYVE), i.CCoin(10*i.T_KYVE)).String()))
 		}
@@ -284,7 +284,7 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 			fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 			Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
 
-			payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+			payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0, pooltypes.ModuleName)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(payout.String()).To(Equal(i.ACoins(20 * i.T_KYVE).String()))
 		}
@@ -306,7 +306,7 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 			fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 			Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 
-			payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+			payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0, pooltypes.ModuleName)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(payout.String()).To(Equal(i.ACoins(10 * i.T_KYVE).String()))
 		}
@@ -323,7 +323,7 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		Expect(fundingBob.Amounts.IsZero()).To(BeTrue())
 		Expect(fundingBob.TotalFunded.String()).To(Equal(i.ACoins(50 * i.T_KYVE).String()))
 
-		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0, pooltypes.ModuleName)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(payout.IsZero()).To(BeTrue())
 
@@ -343,7 +343,7 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		s.App().FundersKeeper.SetFunding(s.Ctx(), &funding)
 
 		// ACT
-		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0, pooltypes.ModuleName)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(payout.String()).To(Equal(i.ACoins(110 * i.T_KYVE).String()))
 
@@ -393,7 +393,7 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		s.App().FundersKeeper.SetParams(s.Ctx(), funderstypes.NewParams(whitelist, 20))
 
 		// ACT
-		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0, pooltypes.ModuleName)
 		Expect(err).NotTo(HaveOccurred())
 
 		// ASSERT
@@ -434,7 +434,7 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		})
 
 		// ACT
-		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
+		payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0, pooltypes.ModuleName)
 
 		// ASSERT
 		Expect(err).NotTo(HaveOccurred())
