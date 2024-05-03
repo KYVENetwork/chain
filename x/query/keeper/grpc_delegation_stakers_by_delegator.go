@@ -32,7 +32,7 @@ func (k Keeper) StakersByDelegator(goCtx context.Context, req *types.QueryStaker
 
 			stakers = append(stakers, types.DelegationForStakerResponse{
 				Staker:           k.GetFullStaker(ctx, staker),
-				CurrentReward:    k.delegationKeeper.GetOutstandingRewards(ctx, staker, req.Delegator),
+				CurrentRewards:   k.delegationKeeper.GetOutstandingRewards(ctx, staker, req.Delegator),
 				DelegationAmount: k.delegationKeeper.GetDelegationAmountOfDelegator(ctx, staker, req.Delegator),
 			})
 		}

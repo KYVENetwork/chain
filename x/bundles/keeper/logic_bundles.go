@@ -3,6 +3,7 @@ package keeper
 import (
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
@@ -550,7 +551,8 @@ func (k Keeper) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bundle
 		}
 
 		// payout rewards to delegators through delegation rewards
-		if err := k.delegationKeeper.PayoutRewards(ctx, bundleProposal.Uploader, bundleReward.Delegation, poolTypes.ModuleName); err != nil {
+		bundleRewardCoins := sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(bundleReward.Delegation)))
+		if err := k.delegationKeeper.PayoutRewards(ctx, bundleProposal.Uploader, bundleRewardCoins, poolTypes.ModuleName); err != nil {
 			return types.TallyResult{}, err
 		}
 

@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"testing"
 
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 
 	i "github.com/KYVENetwork/chain/testutil/integration"
@@ -19,22 +22,23 @@ func TestDelegationKeeper(t *testing.T) {
 	RunSpecs(t, fmt.Sprintf("x/%s Keeper Test Suite", types.ModuleName))
 }
 
-func PayoutRewards(s *i.KeeperTestSuite, staker string, amount uint64) {
+func PayoutRewards(s *i.KeeperTestSuite, staker string, coins sdk.Coins) {
 	fundingState, found := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 	Expect(found).To(BeTrue())
 
+	// TODO support all denominations once the funding module supports it
 	// divide amount by number of active fundings so that total payout is equal to amount
 	activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
 	for _, funding := range activeFundings {
-		funding.AmountPerBundle = amount / uint64(len(activeFundings))
+		funding.AmountPerBundle = coins.AmountOf(globalTypes.Denom).Uint64() / uint64(len(activeFundings))
 		s.App().FundersKeeper.SetFunding(s.Ctx(), &funding)
 	}
 
 	payout, err := s.App().FundersKeeper.ChargeFundersOfPool(s.Ctx(), 0)
 	Expect(err).To(BeNil())
-	err = s.App().DelegationKeeper.PayoutRewards(s.Ctx(), staker, amount, pooltypes.ModuleName)
+	err = s.App().DelegationKeeper.PayoutRewards(s.Ctx(), staker, coins, pooltypes.ModuleName)
 	Expect(err).NotTo(HaveOccurred())
-	Expect(amount).To(Equal(payout))
+	Expect(coins.AmountOf(globalTypes.Denom).Uint64()).To(Equal(payout))
 }
 
 func CreateFundedPool(s *i.KeeperTestSuite) {
