@@ -31,8 +31,6 @@ TEST CASES - logic_funders.go
 
 var _ = Describe("logic_funders.go", Ordered, func() {
 	s := i.NewCleanChain()
-	fundersModuleAcc := s.App().AccountKeeper.GetModuleAccount(s.Ctx(), funderstypes.ModuleName).GetAddress()
-	poolModuleAcc := s.App().AccountKeeper.GetModuleAccount(s.Ctx(), pooltypes.ModuleName).GetAddress()
 
 	var whitelist []*funderstypes.WhitelistCoinEntry
 
@@ -116,7 +114,7 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 			AmountsPerBundle: i.ACoins(10 * i.T_KYVE),
 		})
 
-		fundersBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), fundersModuleAcc)
+		fundersBalance := s.GetCoinsFromModule(funderstypes.ModuleName)
 		Expect(fundersBalance.String()).To(Equal(i.ACoins(150 * i.T_KYVE).String()))
 	})
 
@@ -147,8 +145,8 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
 		Expect(fundingState.ActiveFunderAddresses[1]).To(Equal(i.BOB))
 
-		fundersBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), fundersModuleAcc)
-		poolBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), poolModuleAcc)
+		fundersBalance := s.GetCoinsFromModule(funderstypes.ModuleName)
+		poolBalance := s.GetCoinsFromModule(pooltypes.ModuleName)
 		Expect(fundersBalance.String()).To(Equal(i.ACoins(139 * i.T_KYVE).String()))
 		Expect(poolBalance.String()).To(Equal(i.ACoins(11 * i.T_KYVE).String()))
 	})
@@ -190,8 +188,8 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
 		Expect(fundingState.ActiveFunderAddresses[1]).To(Equal(i.BOB))
 
-		fundersBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), fundersModuleAcc)
-		poolBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), poolModuleAcc)
+		fundersBalance := s.GetCoinsFromModule(funderstypes.ModuleName)
+		poolBalance := s.GetCoinsFromModule(pooltypes.ModuleName)
 		Expect(fundersBalance.String()).To(Equal(sdk.NewCoins(i.ACoin(139*i.T_KYVE), i.BCoin(980*i.T_KYVE), i.CCoin(98*i.T_KYVE)).String()))
 		Expect(poolBalance.String()).To(Equal(sdk.NewCoins(i.ACoin(11*i.T_KYVE), i.BCoin(20*i.T_KYVE), i.CCoin(2*i.T_KYVE)).String()))
 	})
@@ -219,8 +217,8 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		Expect(fundingBob.Amounts.IsZero()).To(BeTrue())
 		Expect(fundingBob.TotalFunded.String()).To(Equal(i.ACoins(50 * i.T_KYVE).String()))
 
-		fundersBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), fundersModuleAcc)
-		poolBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), poolModuleAcc)
+		fundersBalance := s.GetCoinsFromModule(funderstypes.ModuleName)
+		poolBalance := s.GetCoinsFromModule(pooltypes.ModuleName)
 		Expect(fundersBalance.String()).To(Equal(i.ACoins(95 * i.T_KYVE).String()))
 		Expect(poolBalance.String()).To(Equal(i.ACoins(55 * i.T_KYVE).String()))
 	})
@@ -267,8 +265,8 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		Expect(fundingBob.Amounts.IsZero()).To(BeTrue())
 		Expect(fundingBob.TotalFunded.String()).To(Equal(sdk.NewCoins(i.ACoin(50*i.T_KYVE), i.CCoin(100*i.T_KYVE)).String()))
 
-		fundersBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), fundersModuleAcc)
-		poolBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), poolModuleAcc)
+		fundersBalance := s.GetCoinsFromModule(funderstypes.ModuleName)
+		poolBalance := s.GetCoinsFromModule(pooltypes.ModuleName)
 		Expect(fundersBalance.String()).To(Equal(sdk.NewCoins(i.ACoin(90*i.T_KYVE), i.BCoin(800*i.T_KYVE)).String()))
 		Expect(poolBalance.String()).To(Equal(sdk.NewCoins(i.ACoin(60*i.T_KYVE), i.BCoin(200*i.T_KYVE), i.CCoin(100*i.T_KYVE)).String()))
 	})
@@ -330,8 +328,8 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		fundingState, _ = s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(0))
 
-		fundersBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), fundersModuleAcc)
-		poolBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), poolModuleAcc)
+		fundersBalance := s.GetCoinsFromModule(funderstypes.ModuleName)
+		poolBalance := s.GetCoinsFromModule(pooltypes.ModuleName)
 		Expect(fundersBalance.IsZero()).To(BeTrue())
 		Expect(poolBalance.String()).To(Equal(i.ACoins(150 * i.T_KYVE).String()))
 	})
@@ -362,8 +360,8 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		Expect(fundingBob.Amounts.String()).To(Equal(i.ACoins(40 * i.T_KYVE).String()))
 		Expect(fundingBob.TotalFunded.String()).To(Equal(i.ACoins(10 * i.T_KYVE).String()))
 
-		fundersBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), fundersModuleAcc)
-		poolBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), poolModuleAcc)
+		fundersBalance := s.GetCoinsFromModule(funderstypes.ModuleName)
+		poolBalance := s.GetCoinsFromModule(pooltypes.ModuleName)
 		Expect(fundersBalance.String()).To(Equal(i.ACoins(40 * i.T_KYVE).String()))
 		Expect(poolBalance.String()).To(Equal(i.ACoins(110 * i.T_KYVE).String()))
 	})
@@ -414,8 +412,8 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
 		Expect(fundingState.ActiveFunderAddresses[1]).To(Equal(i.BOB))
 
-		fundersBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), fundersModuleAcc)
-		poolBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), poolModuleAcc)
+		fundersBalance := s.GetCoinsFromModule(funderstypes.ModuleName)
+		poolBalance := s.GetCoinsFromModule(pooltypes.ModuleName)
 		Expect(fundersBalance.String()).To(Equal(i.ACoins(139 * i.T_KYVE).String()))
 		Expect(poolBalance.String()).To(Equal(i.ACoins(11 * i.T_KYVE).String()))
 	})
@@ -453,8 +451,8 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		Expect(fundingBob.Amounts.IsZero()).To(BeTrue())
 		Expect(fundingBob.TotalFunded.IsZero()).To(BeTrue())
 
-		fundersBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), fundersModuleAcc)
-		poolBalance := s.App().BankKeeper.GetAllBalances(s.Ctx(), poolModuleAcc)
+		fundersBalance := s.GetCoinsFromModule(funderstypes.ModuleName)
+		poolBalance := s.GetCoinsFromModule(pooltypes.ModuleName)
 		Expect(fundersBalance.IsZero()).To(BeTrue())
 		Expect(poolBalance.IsZero()).To(BeTrue())
 	})

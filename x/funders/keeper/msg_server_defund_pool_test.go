@@ -40,7 +40,7 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 		// init new clean chain
 		s = i.NewCleanChain()
 
-		initialBalance = s.GetBalancesFromAddress(i.ALICE)
+		initialBalance = s.GetCoinsFromAddress(i.ALICE)
 
 		// create clean pool for every test case
 		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
@@ -119,7 +119,7 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 		})
 
 		// ASSERT
-		balanceAfter := s.GetBalancesFromAddress(i.ALICE)
+		balanceAfter := s.GetCoinsFromAddress(i.ALICE)
 
 		Expect(initialBalance.Sub(balanceAfter...).String()).To(Equal(i.ACoins(50 * i.T_KYVE).String()))
 
@@ -150,7 +150,7 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 		})
 
 		// ASSERT
-		balanceAfter := s.GetBalancesFromAddress(i.ALICE)
+		balanceAfter := s.GetCoinsFromAddress(i.ALICE)
 		Expect(initialBalance.Sub(balanceAfter...).IsZero()).To(BeTrue())
 
 		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
@@ -179,7 +179,7 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 		})
 
 		// ASSERT
-		balanceAfter := s.GetBalancesFromAddress(i.ALICE)
+		balanceAfter := s.GetCoinsFromAddress(i.ALICE)
 		Expect(initialBalance.Sub(balanceAfter...).IsZero()).To(BeTrue())
 
 		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
@@ -370,7 +370,7 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 		})
 
 		// ASSERT
-		balanceAfter := s.GetBalancesFromAddress(i.ALICE)
+		balanceAfter := s.GetCoinsFromAddress(i.ALICE)
 		Expect(initialBalance.Sub(balanceAfter...).IsZero()).To(BeTrue())
 
 		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)

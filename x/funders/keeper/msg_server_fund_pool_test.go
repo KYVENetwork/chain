@@ -50,7 +50,7 @@ TEST CASES - msg_server_fund_pool.go
 var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 	s := i.NewCleanChain()
 
-	initialBalance := s.GetBalancesFromAddress(i.ALICE)
+	initialBalance := s.GetCoinsFromAddress(i.ALICE)
 	var whitelist []*funderstypes.WhitelistCoinEntry
 
 	BeforeEach(func() {
@@ -131,7 +131,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		})
 
 		// ASSERT
-		balanceAfter := s.GetBalancesFromAddress(i.ALICE)
+		balanceAfter := s.GetCoinsFromAddress(i.ALICE)
 
 		Expect(initialBalance.Sub(balanceAfter...).String()).To(Equal(i.ACoins(100 * i.T_KYVE).String()))
 
@@ -166,7 +166,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		})
 
 		// ASSERT
-		balanceAfter := s.GetBalancesFromAddress(i.ALICE)
+		balanceAfter := s.GetCoinsFromAddress(i.ALICE)
 
 		Expect(initialBalance.Sub(balanceAfter...).String()).To(Equal(i.ACoins(150 * i.T_KYVE).String()))
 
@@ -206,7 +206,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		})
 
 		// ASSERT
-		balanceAfter := s.GetBalancesFromAddress(i.ALICE)
+		balanceAfter := s.GetCoinsFromAddress(i.ALICE)
 
 		Expect(initialBalance.Sub(balanceAfter...).String()).To(Equal(sdk.NewCoins(i.ACoin(100*i.T_KYVE), i.BCoin(50*i.T_KYVE)).String()))
 
@@ -246,7 +246,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		})
 
 		// ASSERT
-		balanceAfter := s.GetBalancesFromAddress(i.ALICE)
+		balanceAfter := s.GetCoinsFromAddress(i.ALICE)
 
 		Expect(initialBalance.Sub(balanceAfter...).String()).To(Equal(i.ACoins(100 * i.T_KYVE).String()))
 
@@ -286,7 +286,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		})
 
 		// ASSERT
-		balanceAfter := s.GetBalancesFromAddress(i.ALICE)
+		balanceAfter := s.GetCoinsFromAddress(i.ALICE)
 
 		Expect(initialBalance.Sub(balanceAfter...).String()).To(Equal(sdk.NewCoins(i.ACoin(100*i.T_KYVE), i.BCoin(50*i.T_KYVE)).String()))
 
@@ -310,7 +310,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 
 	It("Try to fund more coins than available in balance", func() {
 		// ACT
-		_, currentBalance := s.GetBalancesFromAddress(i.ALICE).Find(i.A_DENOM)
+		_, currentBalance := s.GetCoinsFromAddress(i.ALICE).Find(i.A_DENOM)
 
 		s.RunTxFundersError(&funderstypes.MsgFundPool{
 			Creator:          i.ALICE,
@@ -320,7 +320,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		})
 
 		// ASSERT
-		balanceAfter := s.GetBalancesFromAddress(i.ALICE)
+		balanceAfter := s.GetCoinsFromAddress(i.ALICE)
 		Expect(initialBalance.Sub(balanceAfter...).IsZero()).To(BeTrue())
 
 		_, found := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
@@ -333,7 +333,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 
 	It("Try to fund multiple coins where one coin exceeds balance", func() {
 		// ACT
-		currentBalance := s.GetBalancesFromAddress(i.ALICE)
+		currentBalance := s.GetCoinsFromAddress(i.ALICE)
 
 		s.RunTxFundersError(&funderstypes.MsgFundPool{
 			Creator:          i.ALICE,
@@ -343,7 +343,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		})
 
 		// ASSERT
-		balanceAfter := s.GetBalancesFromAddress(i.ALICE)
+		balanceAfter := s.GetCoinsFromAddress(i.ALICE)
 		Expect(initialBalance.Sub(balanceAfter...).IsZero()).To(BeTrue())
 
 		_, found := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
@@ -372,7 +372,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		})
 
 		// ASSERT
-		balanceAfter := s.GetBalancesFromAddress(i.BOB)
+		balanceAfter := s.GetCoinsFromAddress(i.BOB)
 		Expect(initialBalance.Sub(balanceAfter...).String()).To(Equal(i.ACoins(50 * i.T_KYVE).String()))
 
 		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.BOB, 0)
@@ -408,7 +408,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		})
 
 		// ASSERT
-		balanceAfter := s.GetBalancesFromAddress(i.BOB)
+		balanceAfter := s.GetCoinsFromAddress(i.BOB)
 		Expect(initialBalance.Sub(balanceAfter...).String()).To(Equal(i.ACoins(200 * i.T_KYVE).String()))
 
 		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.BOB, 0)
@@ -656,7 +656,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(funderstypes.MaxFunders))
 
-		balanceAfter := s.GetBalancesFromAddress(i.ALICE)
+		balanceAfter := s.GetCoinsFromAddress(i.ALICE)
 		Expect(initialBalance.Sub(balanceAfter...)).To(Equal(i.ACoins(100 * i.T_KYVE)))
 
 		// ACT
@@ -680,7 +680,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 
 	It("Fund more coins than the lowest funder with full funding slots", func() {
 		// ARRANGE
-		initialBalanceBob := s.GetBalancesFromAddress(i.BOB)
+		initialBalanceBob := s.GetCoinsFromAddress(i.BOB)
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
 			Creator:          i.ALICE,
 			PoolId:           0,
@@ -701,7 +701,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 				AmountsPerBundle: i.ACoins(1 * i.T_KYVE),
 			})
 		}
-		balanceAfter := s.GetBalancesFromAddress(i.ALICE)
+		balanceAfter := s.GetCoinsFromAddress(i.ALICE)
 		Expect(initialBalance.Sub(balanceAfter...).String()).To(Equal(i.ACoins(100 * i.T_KYVE).String()))
 
 		// ACT
@@ -711,7 +711,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 			Amounts:          i.ACoins(200 * i.T_KYVE),
 			AmountsPerBundle: i.ACoins(1 * i.T_KYVE),
 		})
-		x := s.GetBalancesFromAddress(i.BOB)
+		x := s.GetCoinsFromAddress(i.BOB)
 		Expect(initialBalanceBob.Sub(x...).String()).To(Equal(i.ACoins(200 * i.T_KYVE).String()))
 		// ASSERT
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
@@ -723,10 +723,10 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		Expect(err).To(BeNil())
 		Expect(lowestFunding.FunderAddress).To(Equal(i.BOB))
 
-		balanceEnd := s.GetBalancesFromAddress(i.ALICE)
+		balanceEnd := s.GetCoinsFromAddress(i.ALICE)
 		Expect(initialBalance.Sub(balanceEnd...).IsZero()).To(BeTrue())
 
-		balanceAfterBob := s.GetBalancesFromAddress(i.BOB)
+		balanceAfterBob := s.GetCoinsFromAddress(i.BOB)
 		Expect(initialBalanceBob.Sub(balanceAfterBob...).String()).To(Equal(i.ACoins(200 * i.T_KYVE).String()))
 	})
 
@@ -772,7 +772,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		fundingState, _ = s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(funderstypes.MaxFunders))
 
-		balanceEnd := s.GetBalancesFromAddress(i.ALICE)
+		balanceEnd := s.GetCoinsFromAddress(i.ALICE)
 		Expect(initialBalance.Sub(balanceEnd...).String()).To(Equal(i.ACoins(150 * i.T_KYVE).String()))
 	})
 
