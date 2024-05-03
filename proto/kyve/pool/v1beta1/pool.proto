@@ -32,6 +32,9 @@ enum PoolStatus {
   // POOL_STATUS_VOTING_POWER_TOO_HIGH indicates, that one validator
   // has more than 50% voting power and that the pool is halted
   POOL_STATUS_VOTING_POWER_TOO_HIGH = 6;
+  // POOL_STATUS_END_KEY_REACHED indicates, that the end key has been
+  // reached and that the pool is halted
+  POOL_STATUS_END_KEY_REACHED = 7;
 }
 
 // Protocol holds all info about the current pool version and the
@@ -109,4 +112,8 @@ message Pool {
   uint32 current_storage_provider_id = 18;
   // compression_id ...
   uint32 current_compression_id = 19;
+
+  // end_key is the last key before the pool should stop indexing, it is
+  // inclusive
+  string end_key = 20;
 }

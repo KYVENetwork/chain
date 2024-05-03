@@ -694,6 +694,7 @@ paths:
                                       - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                       - POOL_STATUS_UPGRADING
                                       - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                      - POOL_STATUS_END_KEY_REACHED
                                     default: POOL_STATUS_UNSPECIFIED
                               points:
                                 type: string
@@ -1092,6 +1093,7 @@ paths:
                             - POOL_STATUS_NOT_ENOUGH_DELEGATION
                             - POOL_STATUS_UPGRADING
                             - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                            - POOL_STATUS_END_KEY_REACHED
                           default: POOL_STATUS_UNSPECIFIED
                       title: >-
                         BasicPool contains the necessary properties need for a
@@ -3966,6 +3968,7 @@ paths:
                                       - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                       - POOL_STATUS_UPGRADING
                                       - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                      - POOL_STATUS_END_KEY_REACHED
                                     default: POOL_STATUS_UNSPECIFIED
                               points:
                                 type: string
@@ -4985,6 +4988,13 @@ paths:
                         type: integer
                         format: int64
                         description: compression_id ...
+                      end_key:
+                        type: string
+                        title: >-
+                          end_key is the last key before the pool should stop
+                          indexing, it is
+
+                          inclusive
                   bundle_proposal:
                     description: bundle_proposal ...
                     type: object
@@ -5102,6 +5112,7 @@ paths:
                       - POOL_STATUS_NOT_ENOUGH_DELEGATION
                       - POOL_STATUS_UPGRADING
                       - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                      - POOL_STATUS_END_KEY_REACHED
                     default: POOL_STATUS_UNSPECIFIED
                   account:
                     type: string
@@ -5518,6 +5529,13 @@ paths:
                           type: integer
                           format: int64
                           description: compression_id ...
+                        end_key:
+                          type: string
+                          title: >-
+                            end_key is the last key before the pool should stop
+                            indexing, it is
+
+                            inclusive
                     bundle_proposal:
                       description: bundle_proposal ...
                       type: object
@@ -5635,6 +5653,7 @@ paths:
                         - POOL_STATUS_NOT_ENOUGH_DELEGATION
                         - POOL_STATUS_UPGRADING
                         - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                        - POOL_STATUS_END_KEY_REACHED
                       default: POOL_STATUS_UNSPECIFIED
                     account:
                       type: string
@@ -6153,6 +6172,7 @@ paths:
                                 - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                 - POOL_STATUS_UPGRADING
                                 - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                - POOL_STATUS_END_KEY_REACHED
                               default: POOL_STATUS_UNSPECIFIED
                         points:
                           type: string
@@ -6580,6 +6600,7 @@ paths:
                                   - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                   - POOL_STATUS_UPGRADING
                                   - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                  - POOL_STATUS_END_KEY_REACHED
                                 default: POOL_STATUS_UNSPECIFIED
                           points:
                             type: string
@@ -7120,6 +7141,7 @@ paths:
                                       - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                       - POOL_STATUS_UPGRADING
                                       - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                      - POOL_STATUS_END_KEY_REACHED
                                     default: POOL_STATUS_UNSPECIFIED
                               points:
                                 type: string
@@ -7589,6 +7611,7 @@ paths:
                                   - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                   - POOL_STATUS_UPGRADING
                                   - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                  - POOL_STATUS_END_KEY_REACHED
                                 default: POOL_STATUS_UNSPECIFIED
                           points:
                             type: string
