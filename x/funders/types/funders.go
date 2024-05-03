@@ -18,10 +18,25 @@ func (f *Funding) GetScore(whitelist []*WhitelistCoinEntry) (score uint64) {
 	return
 }
 
+// CleanAmountsPerBundle removes every coin in amounts per bundle
+// which is not present in the amounts coins list
+func (f *Funding) CleanAmountsPerBundle() {
+	amountsPerBundle := sdk.NewCoins()
+
+	for _, coin := range f.AmountsPerBundle {
+		if found, _ := f.Amounts.Find(coin.Denom); found {
+			amountsPerBundle = amountsPerBundle.Add(coin)
+		}
+	}
+
+	f.AmountsPerBundle = amountsPerBundle
+}
+
 func (f *Funding) ChargeOneBundle() (payouts sdk.Coins) {
 	payouts = f.Amounts.Min(f.AmountsPerBundle)
-	f.Amounts = f.Amounts.Sub(payouts...)
 	f.TotalFunded = f.TotalFunded.Add(payouts...)
+	f.Amounts = f.Amounts.Sub(payouts...)
+	f.CleanAmountsPerBundle()
 	return
 }
 

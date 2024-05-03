@@ -18,10 +18,13 @@ TEST CASES - funders.go
 * Funding.ChargeOneBundle - charge more than available
 * Funding.ChargeOneBundle - charge with multiple coins
 * Funding.ChargeOneBundle - charge with no coins
-* FundintState.SetActive
-* FundintState.SetActive - add same funder twice
-* FundintState.SetInactive
-* FundintState.SetInactive - with multiple funders
+* Funding.CleanAmountsPerBundle - same coins are present in amounts and in amounts per bundle
+* Funding.CleanAmountsPerBundle - more coins are present in amounts per bundle than in amounts
+* Funding.CleanAmountsPerBundle - coins are present in amounts per bundle but not in amounts
+* FundingState.SetActive
+* FundingState.SetActive - add same funder twice
+* FundingState.SetInactive
+* FundingState.SetInactive - with multiple funders
 
 */
 
@@ -126,7 +129,46 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		Expect(funding.TotalFunded.IsZero()).To(BeTrue())
 	})
 
-	It("FundintState.SetActive", func() {
+	It("Funding.CleanAmountsPerBundle - same coins are present in amounts and in amounts per bundle", func() {
+		// ARRANGE
+		funding.Amounts = sdk.NewCoins(i.ACoin(100*i.T_KYVE), i.BCoin(80*i.T_KYVE))
+		funding.AmountsPerBundle = sdk.NewCoins(i.ACoin(1*i.T_KYVE), i.BCoin(1*i.T_KYVE))
+
+		// ACT
+		funding.CleanAmountsPerBundle()
+
+		// ASSERT
+		Expect(funding.Amounts.String()).To(Equal(sdk.NewCoins(i.ACoin(100*i.T_KYVE), i.BCoin(80*i.T_KYVE)).String()))
+		Expect(funding.AmountsPerBundle.String()).To(Equal(sdk.NewCoins(i.ACoin(1*i.T_KYVE), i.BCoin(1*i.T_KYVE)).String()))
+	})
+
+	It("Funding.CleanAmountsPerBundle - more coins are present in amounts per bundle than in amounts", func() {
+		// ARRANGE
+		funding.Amounts = sdk.NewCoins(i.ACoin(100 * i.T_KYVE))
+		funding.AmountsPerBundle = sdk.NewCoins(i.ACoin(1*i.T_KYVE), i.BCoin(1*i.T_KYVE))
+
+		// ACT
+		funding.CleanAmountsPerBundle()
+
+		// ASSERT
+		Expect(funding.Amounts.String()).To(Equal(sdk.NewCoins(i.ACoin(100 * i.T_KYVE)).String()))
+		Expect(funding.AmountsPerBundle.String()).To(Equal(sdk.NewCoins(i.ACoin(1 * i.T_KYVE)).String()))
+	})
+
+	It("Funding.CleanAmountsPerBundle - coins are present in amounts per bundle but not in amounts", func() {
+		// ARRANGE
+		funding.Amounts = sdk.NewCoins()
+		funding.AmountsPerBundle = sdk.NewCoins(i.ACoin(1*i.T_KYVE), i.BCoin(1*i.T_KYVE))
+
+		// ACT
+		funding.CleanAmountsPerBundle()
+
+		// ASSERT
+		Expect(funding.Amounts).To(BeEmpty())
+		Expect(funding.AmountsPerBundle).To(BeEmpty())
+	})
+
+	It("FundingState.SetActive", func() {
 		// ARRANGE
 		fundingState.ActiveFunderAddresses = []string{}
 
@@ -138,7 +180,7 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
 	})
 
-	It("FundintState.SetActive - add same funder twice", func() {
+	It("FundingState.SetActive - add same funder twice", func() {
 		// ACT
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
@@ -150,7 +192,7 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
 	})
 
-	It("FundintState.SetInactive", func() {
+	It("FundingState.SetInactive", func() {
 		// ACT
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
 		fundingState.SetInactive(&funding)
@@ -159,7 +201,7 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 
-	It("FundintState.SetInactive - with multiple funders", func() {
+	It("FundingState.SetInactive - with multiple funders", func() {
 		// ARRANGE
 		fundingState.ActiveFunderAddresses = []string{i.ALICE, i.BOB, i.CHARLIE}
 

@@ -39,13 +39,12 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 	// Subtract amount from funding
 	funding.Amounts = funding.Amounts.Sub(defundAmounts...)
 
+	if err := k.ensureParamsCompatibility(ctx, &funding); err != nil {
+		return nil, err
+	}
+
 	if funding.Amounts.IsZero() {
 		fundingState.SetInactive(&funding)
-	} else {
-		// If funding is not fully revoked, check if updated funding is still compatible with params.
-		if err := k.ensureParamsCompatibility(ctx, funding); err != nil {
-			return nil, err
-		}
 	}
 
 	// Transfer tokens from this module to sender.

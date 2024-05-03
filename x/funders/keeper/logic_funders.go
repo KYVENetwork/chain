@@ -102,7 +102,7 @@ func (k Keeper) GetLowestFunding(fundings []types.Funding, whitelist []*types.Wh
 // - minimum funding per bundle
 // - minimum funding amount
 // - minimum funding multiple
-func (k Keeper) ensureParamsCompatibility(ctx sdk.Context, funding types.Funding) error {
+func (k Keeper) ensureParamsCompatibility(ctx sdk.Context, funding *types.Funding) error {
 	params := k.GetParams(ctx)
 
 	minFundingAmounts := sdk.NewCoins()
@@ -112,6 +112,9 @@ func (k Keeper) ensureParamsCompatibility(ctx sdk.Context, funding types.Funding
 		minFundingAmounts = minFundingAmounts.Add(sdk.NewInt64Coin(entry.CoinDenom, int64(entry.MinFundingAmount)))
 		minFundingAmountsPerBundle = minFundingAmountsPerBundle.Add(sdk.NewInt64Coin(entry.CoinDenom, int64(entry.MinFundingAmountPerBundle)))
 	}
+
+	// before we perform compatibility checks we clean the funding state
+	funding.CleanAmountsPerBundle()
 
 	// throw error if there is a coin in amounts with no corresponding coin in amounts per bundle
 	if !funding.Amounts.DenomsSubsetOf(funding.AmountsPerBundle) {
@@ -191,6 +194,7 @@ func (k Keeper) ensureFreeSlot(ctx sdk.Context, newFunding *types.Funding, fundi
 	}
 
 	lowestFunding.Amounts = lowestFunding.Amounts.Sub(lowestFunding.Amounts...)
+	lowestFunding.CleanAmountsPerBundle()
 	fundingState.SetInactive(lowestFunding)
 	k.SetFunding(ctx, lowestFunding)
 

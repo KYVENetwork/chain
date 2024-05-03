@@ -129,6 +129,14 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(1))
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
+
+		// assert if the funder can still fund afterwards
+		s.RunTxFundersSuccess(&types.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.ACoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.ACoins(1 * i.T_KYVE),
+		})
 	})
 
 	It("Defund more than actually funded", func() {
@@ -144,12 +152,20 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 		Expect(initialBalance.Sub(balanceAfter...).IsZero()).To(BeTrue())
 
 		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
-		Expect(funding.Amounts.IsZero()).To(BeTrue())
-		Expect(funding.AmountsPerBundle.String()).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
+		Expect(funding.Amounts).To(BeEmpty())
+		Expect(funding.AmountsPerBundle).To(BeEmpty())
 		Expect(funding.TotalFunded.IsZero()).To(BeTrue())
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(0))
+
+		// assert if the funder can still fund afterwards
+		s.RunTxFundersSuccess(&types.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.ACoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.ACoins(1 * i.T_KYVE),
+		})
 	})
 
 	It("Defund full funding amount from a funder who has previously funded 100 coins", func() {
@@ -165,12 +181,20 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 		Expect(initialBalance.Sub(balanceAfter...).IsZero()).To(BeTrue())
 
 		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
-		Expect(funding.Amounts.IsZero()).To(BeTrue())
-		Expect(funding.AmountsPerBundle.String()).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
+		Expect(funding.Amounts).To(BeEmpty())
+		Expect(funding.AmountsPerBundle).To(BeEmpty())
 		Expect(funding.TotalFunded.IsZero()).To(BeTrue())
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(0))
+
+		// assert if the funder can still fund afterwards
+		s.RunTxFundersSuccess(&types.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.ACoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.ACoins(1 * i.T_KYVE),
+		})
 	})
 
 	It("Defund as highest funder 75 coins in order to be the lowest funder afterwards", func() {
@@ -205,6 +229,14 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 		lowestFunding, err = s.App().FundersKeeper.GetLowestFunding(activeFundings, whitelist)
 		Expect(err).To(BeNil())
 		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
+
+		// assert if the funder can still fund afterwards
+		s.RunTxFundersSuccess(&types.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.ACoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.ACoins(1 * i.T_KYVE),
+		})
 	})
 
 	It("Try to defund zero amounts", func() {
@@ -236,28 +268,36 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 	})
 
 	It("Try to defund a funding twice", func() {
-		// ACT
+		// ARRANGE
 		s.RunTxFundersSuccess(&types.MsgDefundPool{
 			Creator: i.ALICE,
 			PoolId:  0,
 			Amounts: i.ACoins(100 * i.T_KYVE),
 		})
 
-		// ASSERT
-		s.RunTxFundersError(&types.MsgDefundPool{
+		// ACT
+		_, err := s.RunTx(&types.MsgDefundPool{
 			Creator: i.ALICE,
 			PoolId:  0,
 			Amounts: i.ACoins(100 * i.T_KYVE),
 		})
+
+		// ASSERT
+		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(Equal(errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrFundsTooLow.Error()).Error()))
 	})
 
 	It("Try to defund below minimum funding params (but not full defund)", func() {
-		// ASSERT
-		s.RunTxFundersError(&types.MsgDefundPool{
+		// ACT
+		_, err := s.RunTx(&types.MsgDefundPool{
 			Creator: i.ALICE,
 			PoolId:  0,
 			Amounts: i.ACoins(95 * i.T_KYVE),
 		})
+
+		// ASSERT
+		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(Equal(types.ErrMinFundingAmount.Error()))
 	})
 
 	It("Try to partially defund after a coin has been removed from the whitelist", func() {
@@ -332,11 +372,19 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 		Expect(initialBalance.Sub(balanceAfter...).IsZero()).To(BeTrue())
 
 		funding, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
-		Expect(funding.Amounts.IsZero()).To(BeTrue())
-		Expect(funding.AmountsPerBundle.String()).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
+		Expect(funding.Amounts).To(BeEmpty())
+		Expect(funding.AmountsPerBundle).To(BeEmpty())
 		Expect(funding.TotalFunded.IsZero()).To(BeTrue())
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(0))
+
+		// assert if the funder can still fund afterwards
+		s.RunTxFundersSuccess(&types.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.BCoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.BCoins(1 * i.T_KYVE),
+		})
 	})
 })

@@ -60,7 +60,7 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 	}
 
 	// Check if updated (or new) funding is compatible with module params
-	if err := k.ensureParamsCompatibility(ctx, funding); err != nil {
+	if err := k.ensureParamsCompatibility(ctx, &funding); err != nil {
 		return nil, err
 	}
 

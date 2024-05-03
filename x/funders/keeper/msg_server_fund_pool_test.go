@@ -620,43 +620,6 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		Expect(err).ToNot(HaveOccurred())
 	})
 
-	It("Try changing the amount per bundle of a coin which is not funded and whitelisted", func() {
-		// ARRANGE
-		whitelist = []*funderstypes.WhitelistCoinEntry{
-			{
-				CoinDenom:                 globaltypes.Denom,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: 1 * i.KYVE,
-				CoinWeight:                math.LegacyNewDec(1),
-			},
-			{
-				CoinDenom:                 i.A_DENOM,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: 1 * i.KYVE,
-				CoinWeight:                math.LegacyNewDec(1),
-			},
-			{
-				CoinDenom:                 i.B_DENOM,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: 1 * i.KYVE,
-				CoinWeight:                math.LegacyNewDec(2),
-			},
-		}
-		s.App().FundersKeeper.SetParams(s.Ctx(), funderstypes.NewParams(whitelist, 20))
-
-		// ASSERT
-		_, err := s.RunTx(&funderstypes.MsgFundPool{
-			Creator:          i.ALICE,
-			PoolId:           0,
-			Amounts:          sdk.NewCoins(),
-			AmountsPerBundle: i.CCoins(1 * i.T_KYVE),
-		})
-
-		// ASSERT
-		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(Equal(funderstypes.ErrAmountPerBundleCoinNotWhitelisted.Error()))
-	})
-
 	It("Try to fund with a non-existent funder", func() {
 		// ASSERT
 		s.RunTxFundersError(&funderstypes.MsgFundPool{
