@@ -117,30 +117,30 @@ func NewCleanChainAtTime(startTime int64) *KeeperTestSuite {
 }
 
 func (suite *KeeperTestSuite) initDummyAccounts() {
-	_ = suite.Mint(ALICE, 1000*KYVE)
-	_ = suite.Mint(BOB, 1000*KYVE)
-	_ = suite.Mint(CHARLIE, 1000*KYVE)
-	_ = suite.Mint(DAVID, 1000*KYVE)
+	_ = suite.MintCoins(ALICE, 1000*KYVE)
+	_ = suite.MintCoins(BOB, 1000*KYVE)
+	_ = suite.MintCoins(CHARLIE, 1000*KYVE)
+	_ = suite.MintCoins(DAVID, 1000*KYVE)
 
-	_ = suite.Mint(STAKER_0, 1000*KYVE)
-	_ = suite.Mint(VALADDRESS_0_A, 1000*KYVE)
-	_ = suite.Mint(VALADDRESS_0_B, 1000*KYVE)
-	_ = suite.Mint(VALADDRESS_0_C, 1000*KYVE)
+	_ = suite.MintCoins(STAKER_0, 1000*KYVE)
+	_ = suite.MintCoins(VALADDRESS_0_A, 1000*KYVE)
+	_ = suite.MintCoins(VALADDRESS_0_B, 1000*KYVE)
+	_ = suite.MintCoins(VALADDRESS_0_C, 1000*KYVE)
 
-	_ = suite.Mint(STAKER_1, 1000*KYVE)
-	_ = suite.Mint(VALADDRESS_1_A, 1000*KYVE)
-	_ = suite.Mint(VALADDRESS_1_B, 1000*KYVE)
-	_ = suite.Mint(VALADDRESS_1_C, 1000*KYVE)
+	_ = suite.MintCoins(STAKER_1, 1000*KYVE)
+	_ = suite.MintCoins(VALADDRESS_1_A, 1000*KYVE)
+	_ = suite.MintCoins(VALADDRESS_1_B, 1000*KYVE)
+	_ = suite.MintCoins(VALADDRESS_1_C, 1000*KYVE)
 
-	_ = suite.Mint(STAKER_2, 1000*KYVE)
-	_ = suite.Mint(VALADDRESS_2_A, 1000*KYVE)
-	_ = suite.Mint(VALADDRESS_2_B, 1000*KYVE)
-	_ = suite.Mint(VALADDRESS_2_C, 1000*KYVE)
+	_ = suite.MintCoins(STAKER_2, 1000*KYVE)
+	_ = suite.MintCoins(VALADDRESS_2_A, 1000*KYVE)
+	_ = suite.MintCoins(VALADDRESS_2_B, 1000*KYVE)
+	_ = suite.MintCoins(VALADDRESS_2_C, 1000*KYVE)
 
-	_ = suite.Mint(STAKER_3, 1000*KYVE)
-	_ = suite.Mint(VALADDRESS_3_A, 1000*KYVE)
-	_ = suite.Mint(VALADDRESS_3_B, 1000*KYVE)
-	_ = suite.Mint(VALADDRESS_3_C, 1000*KYVE)
+	_ = suite.MintCoins(STAKER_3, 1000*KYVE)
+	_ = suite.MintCoins(VALADDRESS_3_A, 1000*KYVE)
+	_ = suite.MintCoins(VALADDRESS_3_B, 1000*KYVE)
+	_ = suite.MintCoins(VALADDRESS_3_C, 1000*KYVE)
 
 	DUMMY = make([]string, 50)
 
@@ -152,7 +152,7 @@ func (suite *KeeperTestSuite) initDummyAccounts() {
 		}
 		dummy, _ := sdk.Bech32ifyAddressBytes("kyve", byteAddr)
 		DUMMY[i] = dummy
-		_ = suite.Mint(dummy, 1000*KYVE)
+		_ = suite.MintCoins(dummy, 1000*KYVE)
 	}
 
 	VALDUMMY = make([]string, 50)
@@ -164,11 +164,11 @@ func (suite *KeeperTestSuite) initDummyAccounts() {
 		}
 		dummy, _ := sdk.Bech32ifyAddressBytes("kyve", byteAddr)
 		VALDUMMY[i] = dummy
-		_ = suite.Mint(dummy, 1000*KYVE)
+		_ = suite.MintCoins(dummy, 1000*KYVE)
 	}
 }
 
-func (suite *KeeperTestSuite) Mint(address string, amount uint64) error {
+func (suite *KeeperTestSuite) MintCoins(address string, amount uint64) error {
 	// mint coins ukyve, A, B, C
 	coins := sdk.NewCoins(
 		sdk.NewInt64Coin(KYVE_DENOM, int64(amount)),
@@ -211,10 +211,6 @@ func (suite *KeeperTestSuite) MintDenomToModule(moduleAddress string, amount uin
 	}
 
 	return nil
-}
-
-func (suite *KeeperTestSuite) Mint(address string, amount uint64) error {
-	return suite.MintDenom(address, amount, KYVE_DENOM)
 }
 
 type KeeperTestSuite struct {

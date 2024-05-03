@@ -3,13 +3,10 @@ package keeper_test
 import (
 	"cosmossdk.io/math"
 	"fmt"
+	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	globalTypes "github.com/KYVENetwork/chain/x/global/types"
-
-	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	"github.com/KYVENetwork/chain/x/delegation/types"
@@ -40,7 +37,7 @@ func PayoutRewards(s *i.KeeperTestSuite, staker string, coins sdk.Coins) {
 	Expect(err).To(BeNil())
 	err = s.App().DelegationKeeper.PayoutRewards(s.Ctx(), staker, coins, pooltypes.ModuleName)
 	Expect(err).NotTo(HaveOccurred())
-	Expect(coins.AmountOf(globalTypes.Denom).Uint64()).To(Equal(payout))
+	Expect(coins.String()).To(Equal(payout.String()))
 }
 
 func CreateFundedPool(s *i.KeeperTestSuite) {

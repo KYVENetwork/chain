@@ -5235,7 +5235,7 @@ paths:
                       properties:
                         funder_address:
                           type: string
-                          title: funder_id is the id of the funder
+                          title: funder_address is the address of the funder
                         pool_id:
                           type: string
                           format: uint64
@@ -5823,7 +5823,7 @@ paths:
                         properties:
                           funder_address:
                             type: string
-                            title: funder_id is the id of the funder
+                            title: funder_address is the address of the funder
                           pool_id:
                             type: string
                             format: uint64

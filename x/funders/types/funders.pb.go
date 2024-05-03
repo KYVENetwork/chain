@@ -122,7 +122,7 @@ func (m *Funder) GetDescription() string {
 // a funder can only fund each pool once and a pool can only be funded
 // by each funder once. However, a funder can update the amount of funds.
 type Funding struct {
-	// funder_id is the id of the funder
+	// funder_address is the address of the funder
 	FunderAddress string `protobuf:"bytes,1,opt,name=funder_address,json=funderAddress,proto3" json:"funder_address,omitempty"`
 	// pool_id is the id of the pool this funding is for
 	PoolId uint64 `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
