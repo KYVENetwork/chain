@@ -31,7 +31,7 @@ func (k Keeper) AssertPoolCanRun(ctx sdk.Context, poolId uint64) error {
 		return types.ErrPoolDisabled
 	}
 
-	// Error if the end key is reached. The chain will simply halt if this is the case,
+	// Error if the end key is reached. The pool will simply halt if this is the case,
 	// it is the responsibility of the protocol nodes to reach final consensus and that
 	// a bundle does not exceed the end_key
 	if pool.EndKey != "" && pool.CurrentKey == pool.EndKey {
