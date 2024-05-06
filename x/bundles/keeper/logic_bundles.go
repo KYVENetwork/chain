@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"cosmossdk.io/errors"
-	"cosmossdk.io/math"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 
@@ -232,7 +231,7 @@ func (k Keeper) handleNonVoters(ctx sdk.Context, poolId uint64) {
 
 // calculatePayouts calculates the different payouts to treasury, uploader and delegators from the total payout
 // the pool module provides for this bundle round
-func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout uint64) (bundleReward types.BundleReward) {
+func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk.Coins) (bundleReward types.BundleReward) {
 	// This method first subtracts the network fee from it
 	// After that the uploader receives the storage rewards. If the total payout does not cover the
 	// storage rewards we pay out the remains, the commission and delegation rewards will be empty
@@ -248,34 +247,37 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout uin
 	bundleReward.Total = totalPayout
 
 	// calculate share of treasury from total payout
-	bundleReward.Treasury = uint64(math.LegacyNewDec(int64(totalPayout)).Mul(k.GetNetworkFee(ctx)).TruncateInt64())
+	treasuryPayout, _ := sdk.NewDecCoinsFromCoins(totalPayout...).MulDec(k.GetNetworkFee(ctx)).TruncateDecimal()
+	bundleReward.Treasury = treasuryPayout
 
-	// calculate wanted storage reward the uploader should receive
-	storageReward := uint64(k.GetStorageCost(ctx, bundleProposal.StorageProviderId).MulInt64(int64(bundleProposal.DataSize)).TruncateInt64())
+	// TODO: get the storage cost of all coins over the whitelist weight
+	storageReward := sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, k.GetStorageCost(ctx, bundleProposal.StorageProviderId).MulInt64(int64(bundleProposal.DataSize)).TruncateInt64()))
+
+	storageReward := sdk.NewCoins()
 
 	// if not even the full storage reward can not be paid out we pay out the remains.
 	// in this case the uploader will not earn the commission rewards and delegators not
 	// their delegation rewards because total payout is not high enough
-	if totalPayout-bundleReward.Treasury < storageReward {
-		bundleReward.Uploader = totalPayout - bundleReward.Treasury
+	if totalPayout.Sub(bundleReward.Treasury...).IsAllLT(storageReward) {
+		bundleReward.Uploader = totalPayout.Sub(bundleReward.Treasury...)
 		return
 	} else {
 		bundleReward.Uploader = storageReward
 	}
 
 	// remaining rewards to be split between uploader and its delegators
-	totalNodeReward := totalPayout - bundleReward.Treasury - bundleReward.Uploader
+	totalNodeReward := totalPayout.Sub(bundleReward.Treasury...).Sub(bundleReward.Uploader...)
 
 	// payout delegators
 	if k.delegationKeeper.GetDelegationAmount(ctx, bundleProposal.Uploader) > 0 {
 		commission := k.stakerKeeper.GetCommission(ctx, bundleProposal.Uploader)
-		commissionRewards := uint64(math.LegacyNewDec(int64(totalNodeReward)).Mul(commission).TruncateInt64())
+		commissionRewards, _ := sdk.NewDecCoinsFromCoins(totalNodeReward...).MulDec(commission).TruncateDecimal()
 
-		bundleReward.Uploader += commissionRewards
-		bundleReward.Delegation = totalNodeReward - commissionRewards
+		bundleReward.Uploader = bundleReward.Uploader.Add(commissionRewards...)
+		bundleReward.Delegation = totalNodeReward.Sub(commissionRewards...)
 	} else {
-		bundleReward.Uploader += totalNodeReward
-		bundleReward.Delegation = 0
+		bundleReward.Uploader = bundleReward.Uploader.Add(totalNodeReward...)
+		bundleReward.Delegation = sdk.NewCoins()
 	}
 
 	return
@@ -533,15 +535,9 @@ func (k Keeper) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bundle
 	switch voteDistribution.Status {
 	case types.BUNDLE_STATUS_VALID:
 		// charge the funders of the pool
-		fundersPayouts, err := k.fundersKeeper.ChargeFundersOfPool(ctx, poolId, poolTypes.ModuleName)
+		fundersPayout, err := k.fundersKeeper.ChargeFundersOfPool(ctx, poolId, poolTypes.ModuleName)
 		if err != nil {
 			return types.TallyResult{}, err
-		}
-
-		// TODO: support all coins in separate PR
-		fundersPayout := uint64(0)
-		if found, payout := fundersPayouts.Find(globalTypes.Denom); found {
-			fundersPayout = payout.Amount.Uint64()
 		}
 
 		// charge the inflation pool
@@ -551,7 +547,7 @@ func (k Keeper) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bundle
 		}
 
 		// calculate payouts to the different stakeholders like treasury, uploader and delegators
-		bundleReward := k.calculatePayouts(ctx, poolId, fundersPayout+inflationPayout)
+		bundleReward := k.calculatePayouts(ctx, poolId, fundersPayout.Add(sdk.NewInt64Coin(globalTypes.Denom, int64(inflationPayout))))
 
 		// payout rewards to treasury
 		if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrkeeper, ctx, poolTypes.ModuleName, bundleReward.Treasury); err != nil {
