@@ -1,5 +1,7 @@
 package types
 
+import sdk "github.com/cosmos/cosmos-sdk/types"
+
 type VoteDistribution struct {
 	// valid ...
 	Valid uint64
@@ -15,13 +17,13 @@ type VoteDistribution struct {
 
 type BundleReward struct {
 	// treasury ...
-	Treasury uint64
+	Treasury sdk.Coins
 	// uploader ...
-	Uploader uint64
+	Uploader sdk.Coins
 	// delegation ...
-	Delegation uint64
+	Delegation sdk.Coins
 	// total ...
-	Total uint64
+	Total sdk.Coins
 }
 
 // GetMap converts to array to a go map which return the upgrade-height for each version.
