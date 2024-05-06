@@ -1,11 +1,7 @@
 package keeper
 
 import (
-	"fmt"
-
 	"cosmossdk.io/errors"
-	"cosmossdk.io/math"
-
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 
@@ -270,10 +266,10 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 	// can be the case that the storageRewards are less than what we actually wanted to pay out.
 	whitelist := k.fundersKeeper.GetCoinWhitelistMap(ctx)
 	wantedStorageRewards := sdk.NewCoins()
-	storageCostPerCoin := k.GetStorageCost(ctx, bundleProposal.StorageProviderId).QuoInt64(int64(totalPayout.Len()))
+	storageCostPerCoin := k.GetStorageCost(ctx, bundleProposal.StorageProviderId).MulInt64(int64(bundleProposal.DataSize)).QuoInt64(int64(totalPayout.Len()))
 
 	for _, coin := range totalPayout {
-		amount := math.LegacyNewDec(coin.Amount.Int64()).Mul(storageCostPerCoin).Mul(whitelist[coin.Denom].CoinWeight)
+		amount := storageCostPerCoin.Mul(whitelist[coin.Denom].CoinWeight)
 		wantedStorageRewards = wantedStorageRewards.Add(sdk.NewCoin(coin.Denom, amount.TruncateInt()))
 	}
 
@@ -295,7 +291,7 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 		return
 	}
 
-	// if he has no delegators he receives the entire remaining amount
+	// if the uploader has no delegators he receives the entire remaining amount
 	if k.delegationKeeper.GetDelegationAmount(ctx, bundleProposal.Uploader) > 0 {
 		bundleReward.Delegation = totalPayout
 	} else {
@@ -575,13 +571,13 @@ func (k Keeper) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bundle
 		}
 
 		// payout rewards to uploader through commission rewards
-		found, uploaderReward := bundleReward.UploaderCommission.Add(bundleReward.UploaderStorageCost...).Find(globalTypes.Denom)
-		if !found {
-			return types.TallyResult{}, fmt.Errorf("could not find coin denom %s in uploader reward", globalTypes.Denom)
+		uploaderReward := uint64(0)
+		if found, uploaderRewardCoin := bundleReward.UploaderCommission.Add(bundleReward.UploaderStorageCost...).Find(globalTypes.Denom); found {
+			uploaderReward = uploaderRewardCoin.Amount.Uint64()
 		}
 
 		// TODO: payout all rewards to uploader in separate PR
-		if err := k.stakerKeeper.IncreaseStakerCommissionRewards(ctx, bundleProposal.Uploader, uploaderReward.Amount.Uint64()); err != nil {
+		if err := k.stakerKeeper.IncreaseStakerCommissionRewards(ctx, bundleProposal.Uploader, uploaderReward); err != nil {
 			return types.TallyResult{}, err
 		}
 
