@@ -33,7 +33,7 @@ ldflags += -X github.com/cosmos/cosmos-sdk/version.Name=kyve \
 		  -X github.com/KYVENetwork/chain/x/team/types.TGE_STRING=$(TEAM_TGE)
 ldflags := $(strip $(ldflags))
 
-BUILD_FLAGS := -ldflags '$(ldflags)' -tags 'ledger' -trimpath
+BUILD_FLAGS := -ldflags '$(ldflags)' -tags 'ledger' -trimpath -buildvcs=false
 
 .PHONY: proto-setup proto-format proto-lint proto-gen \
 	format lint vet test build release dev interchaintest
@@ -62,15 +62,15 @@ release: ensure_environment ensure_version
 		os=$$(echo $$b | cut -d':' -f1); \
 		arch=$$(echo $$b | cut -d':' -f2); \
 		echo "➡️ "$$os" "$$arch""; \
-		GOOS=$$os GOARCH=$$arch go build $(BUILD_FLAGS) ./cmd/kyved; \
-		touch -a -m -t $(BUILD_TIME) kyved; \
-		tar -cf release/kyved_$(ENV)_"$$os"_"$$arch".tar kyved; \
+		CGO_ENABLED=0 GOOS=$$os GOARCH=$$arch go build $(BUILD_FLAGS) -o release/kyved_$(ENV)_"$$os"_"$$arch" ./cmd/kyved; \
+		touch -a -m -t $(BUILD_TIME) release/kyved_$(ENV)_"$$os"_"$$arch"; \
+		sha256sum release/kyved_$(ENV)_"$$os"_"$$arch" >> release/release_$(ENV)_checksum; \
+		tar -cf release/kyved_$(ENV)_"$$os"_"$$arch".tar release/kyved_$(ENV)_"$$os"_"$$arch"; \
 		touch -a -m -t $(BUILD_TIME) release/kyved_$(ENV)_"$$os"_"$$arch".tar; \
 		gzip release/kyved_$(ENV)_"$$os"_"$$arch".tar; \
 		sha256sum release/kyved_$(ENV)_"$$os"_"$$arch".tar.gz >> release/release_$(ENV)_checksum; \
 	done
 
-	@rm kyved
 	@echo "✅  Completed release creation!"
 
 ###############################################################################
