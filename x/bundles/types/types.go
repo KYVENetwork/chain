@@ -18,8 +18,10 @@ type VoteDistribution struct {
 type BundleReward struct {
 	// treasury ...
 	Treasury sdk.Coins
-	// uploader ...
-	Uploader sdk.Coins
+	// uploader storage cost ...
+	UploaderStorageCost sdk.Coins
+	// uploader commission...
+	UploaderCommission sdk.Coins
 	// delegation ...
 	Delegation sdk.Coins
 	// total ...
@@ -49,7 +51,7 @@ const (
 type TallyResult struct {
 	Status           TallyResultStatus
 	VoteDistribution VoteDistribution
-	FundersPayout    uint64
+	FundersPayout    sdk.Coins
 	InflationPayout  uint64
 	BundleReward     BundleReward
 }
