@@ -26,7 +26,9 @@ TEST CASES - msg_server_claim_commission_rewards.go
 * Claim partial rewards twice
 * Claim all rewards
 * Claim multiple coins
-* Claim on coin of multiple coins
+* Claim one coin of multiple coins
+* Claim more rewards than available with multiple coins
+* Claim coin which does not exist
 
 */
 
@@ -357,5 +359,309 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 
 		Expect(uploader.CommissionRewards).To(BeEmpty())
 		Expect(s.GetCoinsFromAddress(i.STAKER_0).String()).To(Equal(initialBalanceStaker0.Add(commissionRewardsBefore...).String()))
+	})
+
+	It("Claim multiple coins", func() {
+		// ARRANGE
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          sdk.NewCoins(i.ACoin(100*i.T_KYVE), i.BCoin(100*i.T_KYVE)),
+			AmountsPerBundle: sdk.NewCoins(i.ACoin(amountPerBundle), i.BCoin(amountPerBundle)),
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_0_A,
+			Staker:    i.STAKER_0,
+			PoolId:    0,
+			StorageId: "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
+			Vote:      1,
+		})
+
+		s.CommitAfterSeconds(60)
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_0_A,
+			Staker:        i.STAKER_0,
+			PoolId:        0,
+			StorageId:     "SsdTPx9adtpwAGIjiHilqVPEfoTiq7eRw6khbVxKetQ",
+			DataSize:      100,
+			DataHash:      "test_hash3",
+			FromIndex:     200,
+			BundleSize:    100,
+			FromKey:       "200",
+			ToKey:         "299",
+			BundleSummary: "test_value3",
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "SsdTPx9adtpwAGIjiHilqVPEfoTiq7eRw6khbVxKetQ",
+			Vote:      1,
+		})
+
+		s.CommitAfterSeconds(60)
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_1_A,
+			Staker:        i.STAKER_1,
+			PoolId:        0,
+			StorageId:     "iW1jN99yH_gdQtRhf5J_lVwOIu8p_i7FyxEgoQAkWxU",
+			DataSize:      100,
+			DataHash:      "test_hash4",
+			FromIndex:     300,
+			BundleSize:    100,
+			FromKey:       "300",
+			ToKey:         "399",
+			BundleSummary: "test_value4",
+		})
+
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+		commissionRewardsBefore := uploader.CommissionRewards
+
+		// ACT
+		s.RunTxSuccess(&stakertypes.MsgClaimCommissionRewards{
+			Creator: i.STAKER_0,
+			Amount:  sdk.NewCoins(i.KYVECoin(100), i.ACoin(200), i.BCoin(300)),
+		})
+
+		// ASSERT
+		uploader, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+
+		Expect(uploader.CommissionRewards.String()).To(Equal(commissionRewardsBefore.Sub(i.KYVECoin(100), i.ACoin(200), i.BCoin(300)).String()))
+		Expect(s.GetCoinsFromAddress(i.STAKER_0).String()).To(Equal(initialBalanceStaker0.Add(i.KYVECoin(100), i.ACoin(200), i.BCoin(300)).String()))
+	})
+
+	It("Claim one coin of multiple coins", func() {
+		// ARRANGE
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          sdk.NewCoins(i.ACoin(100*i.T_KYVE), i.BCoin(100*i.T_KYVE)),
+			AmountsPerBundle: sdk.NewCoins(i.ACoin(amountPerBundle), i.BCoin(amountPerBundle)),
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_0_A,
+			Staker:    i.STAKER_0,
+			PoolId:    0,
+			StorageId: "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
+			Vote:      1,
+		})
+
+		s.CommitAfterSeconds(60)
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_0_A,
+			Staker:        i.STAKER_0,
+			PoolId:        0,
+			StorageId:     "SsdTPx9adtpwAGIjiHilqVPEfoTiq7eRw6khbVxKetQ",
+			DataSize:      100,
+			DataHash:      "test_hash3",
+			FromIndex:     200,
+			BundleSize:    100,
+			FromKey:       "200",
+			ToKey:         "299",
+			BundleSummary: "test_value3",
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "SsdTPx9adtpwAGIjiHilqVPEfoTiq7eRw6khbVxKetQ",
+			Vote:      1,
+		})
+
+		s.CommitAfterSeconds(60)
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_1_A,
+			Staker:        i.STAKER_1,
+			PoolId:        0,
+			StorageId:     "iW1jN99yH_gdQtRhf5J_lVwOIu8p_i7FyxEgoQAkWxU",
+			DataSize:      100,
+			DataHash:      "test_hash4",
+			FromIndex:     300,
+			BundleSize:    100,
+			FromKey:       "300",
+			ToKey:         "399",
+			BundleSummary: "test_value4",
+		})
+
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+		commissionRewardsBefore := uploader.CommissionRewards
+
+		// defund one coin fully
+		_, rewardsBCoin := commissionRewardsBefore.Find(i.B_DENOM)
+
+		// ACT
+		s.RunTxSuccess(&stakertypes.MsgClaimCommissionRewards{
+			Creator: i.STAKER_0,
+			Amount:  sdk.NewCoins(rewardsBCoin),
+		})
+
+		// ASSERT
+		uploader, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+
+		Expect(uploader.CommissionRewards.String()).To(Equal(commissionRewardsBefore.Sub(rewardsBCoin).String()))
+		Expect(s.GetCoinsFromAddress(i.STAKER_0).String()).To(Equal(initialBalanceStaker0.Add(rewardsBCoin).String()))
+	})
+
+	It("Claim more rewards than available with multiple coins", func() {
+		// ARRANGE
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          sdk.NewCoins(i.ACoin(100*i.T_KYVE), i.BCoin(100*i.T_KYVE)),
+			AmountsPerBundle: sdk.NewCoins(i.ACoin(amountPerBundle), i.BCoin(amountPerBundle)),
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_0_A,
+			Staker:    i.STAKER_0,
+			PoolId:    0,
+			StorageId: "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
+			Vote:      1,
+		})
+
+		s.CommitAfterSeconds(60)
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_0_A,
+			Staker:        i.STAKER_0,
+			PoolId:        0,
+			StorageId:     "SsdTPx9adtpwAGIjiHilqVPEfoTiq7eRw6khbVxKetQ",
+			DataSize:      100,
+			DataHash:      "test_hash3",
+			FromIndex:     200,
+			BundleSize:    100,
+			FromKey:       "200",
+			ToKey:         "299",
+			BundleSummary: "test_value3",
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "SsdTPx9adtpwAGIjiHilqVPEfoTiq7eRw6khbVxKetQ",
+			Vote:      1,
+		})
+
+		s.CommitAfterSeconds(60)
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_1_A,
+			Staker:        i.STAKER_1,
+			PoolId:        0,
+			StorageId:     "iW1jN99yH_gdQtRhf5J_lVwOIu8p_i7FyxEgoQAkWxU",
+			DataSize:      100,
+			DataHash:      "test_hash4",
+			FromIndex:     300,
+			BundleSize:    100,
+			FromKey:       "300",
+			ToKey:         "399",
+			BundleSummary: "test_value4",
+		})
+
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+		commissionRewardsBefore := uploader.CommissionRewards
+
+		// get current balance of one coin
+		_, rewardsBCoin := commissionRewardsBefore.Find(i.B_DENOM)
+
+		// ACT
+		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
+			Creator: i.STAKER_0,
+			Amount:  sdk.NewCoins(i.KYVECoin(100), i.ACoin(200), rewardsBCoin.Add(i.BCoin(1))),
+		})
+
+		// ASSERT
+		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(Equal(stakertypes.ErrNotEnoughRewards.Error()))
+
+		uploader, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+
+		Expect(uploader.CommissionRewards.String()).To(Equal(commissionRewardsBefore.String()))
+		Expect(s.GetCoinsFromAddress(i.STAKER_0).String()).To(Equal(initialBalanceStaker0.String()))
+	})
+
+	It("Claim coin which does not exist", func() {
+		// ARRANGE
+		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          sdk.NewCoins(i.ACoin(100*i.T_KYVE), i.BCoin(100*i.T_KYVE)),
+			AmountsPerBundle: sdk.NewCoins(i.ACoin(amountPerBundle), i.BCoin(amountPerBundle)),
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_0_A,
+			Staker:    i.STAKER_0,
+			PoolId:    0,
+			StorageId: "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
+			Vote:      1,
+		})
+
+		s.CommitAfterSeconds(60)
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_0_A,
+			Staker:        i.STAKER_0,
+			PoolId:        0,
+			StorageId:     "SsdTPx9adtpwAGIjiHilqVPEfoTiq7eRw6khbVxKetQ",
+			DataSize:      100,
+			DataHash:      "test_hash3",
+			FromIndex:     200,
+			BundleSize:    100,
+			FromKey:       "200",
+			ToKey:         "299",
+			BundleSummary: "test_value3",
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "SsdTPx9adtpwAGIjiHilqVPEfoTiq7eRw6khbVxKetQ",
+			Vote:      1,
+		})
+
+		s.CommitAfterSeconds(60)
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_1_A,
+			Staker:        i.STAKER_1,
+			PoolId:        0,
+			StorageId:     "iW1jN99yH_gdQtRhf5J_lVwOIu8p_i7FyxEgoQAkWxU",
+			DataSize:      100,
+			DataHash:      "test_hash4",
+			FromIndex:     300,
+			BundleSize:    100,
+			FromKey:       "300",
+			ToKey:         "399",
+			BundleSummary: "test_value4",
+		})
+
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+		commissionRewardsBefore := uploader.CommissionRewards
+
+		// ACT
+		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
+			Creator: i.STAKER_0,
+			Amount:  sdk.NewCoins(i.KYVECoin(100), i.ACoin(200), i.CCoin(300)),
+		})
+
+		// ASSERT
+		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(Equal(stakertypes.ErrNotEnoughRewards.Error()))
+
+		uploader, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+
+		Expect(uploader.CommissionRewards.String()).To(Equal(commissionRewardsBefore.String()))
+		Expect(s.GetCoinsFromAddress(i.STAKER_0).String()).To(Equal(initialBalanceStaker0.String()))
 	})
 })
