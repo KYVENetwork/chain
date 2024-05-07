@@ -1,14 +1,15 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
-
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
-	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -24,17 +25,25 @@ TEST CASES - msg_server_claim_commission_rewards.go
 * Claim partial rewards
 * Claim partial rewards twice
 * Claim all rewards
+* Claim multiple coins
+* Claim on coin of multiple coins
 
 */
 
 var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 	s := i.NewCleanChain()
 
-	initialBalanceStaker0 := s.GetBalanceFromAddress(i.STAKER_0)
+	initialBalanceStaker0 := s.GetCoinsFromAddress(i.STAKER_0)
+	amountPerBundle := int64(10_000)
 
 	BeforeEach(func() {
 		// init new clean chain
 		s = i.NewCleanChain()
+
+		// set storage cost to 0.5
+		bundleParams := s.App().BundlesKeeper.GetParams(s.Ctx())
+		bundleParams.StorageCosts = append(bundleParams.StorageCosts, bundletypes.StorageCost{StorageProviderId: 1, Cost: math.LegacyMustNewDecFromStr("0.5")})
+		s.App().BundlesKeeper.SetParams(s.Ctx(), bundleParams)
 
 		// create clean pool for every test case
 		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
@@ -51,7 +60,7 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 			MaxBundleSize:        100,
 			Version:              "0.0.0",
 			Binaries:             "{}",
-			StorageProviderId:    2,
+			StorageProviderId:    1,
 			CompressionId:        1,
 		}
 		s.RunTxPoolSuccess(msg)
@@ -84,7 +93,7 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 			PoolId:  0,
 		})
 
-		initialBalanceStaker0 = s.GetBalanceFromAddress(i.STAKER_0)
+		initialBalanceStaker0 = s.GetCoinsFromAddress(i.STAKER_0)
 
 		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
 			Creator: i.ALICE,
@@ -92,7 +101,8 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		})
 
 		params := funderstypes.DefaultParams()
-		params.CoinWhitelist[0].MinFundingAmountPerBundle = 10_000
+
+		params.CoinWhitelist[0].MinFundingAmountPerBundle = uint64(amountPerBundle)
 		s.App().FundersKeeper.SetParams(s.Ctx(), params)
 
 		// create a valid bundle so that uploader earns commission rewards
@@ -100,7 +110,7 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 			Creator:          i.ALICE,
 			PoolId:           0,
 			Amounts:          i.KYVECoins(100 * i.T_KYVE),
-			AmountsPerBundle: i.KYVECoins(10_000),
+			AmountsPerBundle: i.KYVECoins(amountPerBundle),
 		})
 
 		s.CommitAfterSeconds(60)
@@ -160,163 +170,113 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		Expect(pool.CurrentIndex).To(Equal(uint64(100)))
 		Expect(pool.TotalBundles).To(Equal(uint64(1)))
 
-		// calculate uploader rewards
+		// check uploader rewards
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		balanceUploader := s.GetBalanceFromAddress(i.STAKER_0)
-
-		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.CurrentStorageProviderId).MulInt64(100).TruncateInt64())
-		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
-
-		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
-		totalDelegationReward := totalUploaderReward - uploaderPayoutReward
+		balanceUploader := s.GetCoinsFromAddress(i.STAKER_0)
 
 		// assert payout transfer
-		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
+		Expect(balanceUploader.String()).To(Equal(initialBalanceStaker0.String()))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(totalDelegationReward))
+		// (10_000 - (10_000 * 0.01) - (100 * 0.5)) * (1 - 0.1)
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(8865).String()))
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		// (10_000 - (10_000 * 0.01) - (100 * 0.5)) * 0.1 + (100 * 0.5)
+		Expect(uploader.CommissionRewards.String()).To(Equal(i.KYVECoins(1035).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100*i.KYVE - 10_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(i.KYVECoins(100*i.T_KYVE - amountPerBundle).String()))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 
 	It("Claim with non-staker account", func() {
+		// ARRANGE
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+		commissionRewardsBefore := uploader.CommissionRewards
+
 		// ACT
 		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
-			Creator: i.STAKER_1,
-			Amount:  1,
+			Creator: i.STAKER_2,
+			Amount:  i.KYVECoins(1),
 		})
 
 		// ASSERT
 		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(Equal(errors.Wrapf(errorsTypes.ErrNotFound, stakertypes.ErrNoStaker.Error(), i.STAKER_2).Error()))
 
-		// assert commission rewards
-		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		uploader, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
-		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.CurrentStorageProviderId).MulInt64(100).TruncateInt64())
-		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
-
-		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
-
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
-
-		Expect(s.GetBalanceFromAddress(i.STAKER_0)).To(Equal(initialBalanceStaker0))
+		Expect(uploader.CommissionRewards.String()).To(Equal(commissionRewardsBefore.String()))
+		Expect(s.GetCoinsFromAddress(i.STAKER_0).String()).To(Equal(initialBalanceStaker0.String()))
 	})
 
 	It("Claim more rewards than available", func() {
-		// ACT
+		// ARRANGE
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+		commissionRewardsBefore := uploader.CommissionRewards
 
+		// ACT
 		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
 			Creator: i.STAKER_1,
-			Amount:  uploader.CommissionRewards + 1,
+			Amount:  uploader.CommissionRewards.Add(i.KYVECoin(1)),
 		})
 
 		// ASSERT
 		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(Equal(stakertypes.ErrNotEnoughRewards.Error()))
 
 		// assert commission rewards
 		uploader, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
-		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.CurrentStorageProviderId).MulInt64(100).TruncateInt64())
-		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
-
-		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
-
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.String()).To(Equal(commissionRewardsBefore.String()))
+		Expect(s.GetCoinsFromAddress(i.STAKER_0).String()).To(Equal(initialBalanceStaker0.String()))
 	})
 
 	It("Claim zero rewards", func() {
+		// ARRANGE
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+		commissionRewardsBefore := uploader.CommissionRewards
+
 		// ACT
-		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
+		s.RunTxStakersSuccess(&stakertypes.MsgClaimCommissionRewards{
 			Creator: i.STAKER_0,
-			Amount:  0,
+			Amount:  sdk.NewCoins(),
 		})
 
 		// ASSERT
-		Expect(err).NotTo(HaveOccurred())
+		uploader, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
-		// assert commission rewards
-		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-
-		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.CurrentStorageProviderId).MulInt64(100).TruncateInt64())
-		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
-
-		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
-
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
-
-		Expect(s.GetBalanceFromAddress(i.STAKER_0)).To(Equal(initialBalanceStaker0))
+		Expect(uploader.CommissionRewards.String()).To(Equal(commissionRewardsBefore.String()))
+		Expect(s.GetCoinsFromAddress(i.STAKER_0).String()).To(Equal(initialBalanceStaker0.String()))
 	})
 
 	It("Claim partial rewards", func() {
+		// ARRANGE
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+		commissionRewardsBefore := uploader.CommissionRewards
+
 		// ACT
-		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
+		s.RunTxStakersSuccess(&stakertypes.MsgClaimCommissionRewards{
 			Creator: i.STAKER_0,
-			Amount:  100,
+			Amount:  i.KYVECoins(100),
 		})
 
 		// ASSERT
-		Expect(err).NotTo(HaveOccurred())
+		uploader, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
-		// assert commission rewards
-		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-
-		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.CurrentStorageProviderId).MulInt64(100).TruncateInt64())
-		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
-
-		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
-
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward - 100))
-
-		Expect(s.GetBalanceFromAddress(i.STAKER_0)).To(Equal(initialBalanceStaker0 + 100))
+		Expect(uploader.CommissionRewards.String()).To(Equal(commissionRewardsBefore.Sub(i.KYVECoin(100)).String()))
+		Expect(s.GetCoinsFromAddress(i.STAKER_0).String()).To(Equal(initialBalanceStaker0.Add(i.KYVECoin(100)).String()))
 	})
 
 	It("Claim partial rewards twice", func() {
-		// ACT
-		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
+		// ARRANGE
+		s.RunTxStakersSuccess(&stakertypes.MsgClaimCommissionRewards{
 			Creator: i.STAKER_0,
-			Amount:  100,
+			Amount:  i.KYVECoins(100),
 		})
 
-		// ASSERT
-		Expect(err).NotTo(HaveOccurred())
-
-		// assert commission rewards
-		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-
-		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.CurrentStorageProviderId).MulInt64(100).TruncateInt64())
-		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
-
-		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
-
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward - 100))
-
-		Expect(s.GetBalanceFromAddress(i.STAKER_0)).To(Equal(initialBalanceStaker0 + 100))
-
-		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
 			Creator:   i.VALADDRESS_0_A,
 			Staker:    i.STAKER_0,
@@ -365,48 +325,37 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 			BundleSummary: "test_value4",
 		})
 
-		_, err = s.RunTx(&stakertypes.MsgClaimCommissionRewards{
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+		commissionRewardsBefore := uploader.CommissionRewards
+
+		// ACT
+		s.RunTxSuccess(&stakertypes.MsgClaimCommissionRewards{
 			Creator: i.STAKER_0,
-			Amount:  200,
+			Amount:  i.KYVECoins(200),
 		})
 
 		// ASSERT
-		Expect(err).NotTo(HaveOccurred())
-
-		// assert commission rewards
 		uploader, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
-		networkFee = s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward = uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
-		storageReward = uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.CurrentStorageProviderId).MulInt64(100).TruncateInt64())
-		totalUploaderReward = pool.InflationShareWeight - treasuryReward - storageReward
-
-		uploaderPayoutReward = uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
-
-		Expect(uploader.CommissionRewards).To(Equal(2*(uploaderPayoutReward+storageReward) - 300))
-
-		Expect(s.GetBalanceFromAddress(i.STAKER_0)).To(Equal(initialBalanceStaker0 + 300))
+		Expect(uploader.CommissionRewards.String()).To(Equal(commissionRewardsBefore.Sub(i.KYVECoin(200)).String()))
+		Expect(s.GetCoinsFromAddress(i.STAKER_0).String()).To(Equal(initialBalanceStaker0.Add(i.KYVECoin(300)).String()))
 	})
 
 	It("Claim all rewards", func() {
-		// ACT
+		// ARRANGE
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		rewards := uploader.CommissionRewards
+		commissionRewardsBefore := uploader.CommissionRewards
 
-		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
+		// ACT
+		s.RunTxSuccess(&stakertypes.MsgClaimCommissionRewards{
 			Creator: i.STAKER_0,
-			Amount:  rewards,
+			Amount:  uploader.CommissionRewards,
 		})
 
 		// ASSERT
-		Expect(err).NotTo(HaveOccurred())
-
-		// assert commission rewards
 		uploader, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
-		Expect(uploader.CommissionRewards).To(BeZero())
-
-		Expect(s.GetBalanceFromAddress(i.STAKER_0)).To(Equal(initialBalanceStaker0 + rewards))
+		Expect(uploader.CommissionRewards).To(BeEmpty())
+		Expect(s.GetCoinsFromAddress(i.STAKER_0).String()).To(Equal(initialBalanceStaker0.Add(commissionRewardsBefore...).String()))
 	})
 })

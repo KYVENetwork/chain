@@ -98,8 +98,12 @@ of their commission rewards.
 message EventClaimCommissionRewards {
   // staker is the account address of the protocol node.
   string staker = 1;
-  // amount ...
-  uint64 amount = 2;
+  // amount is the amount of the commission rewards claimed
+  repeated cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }
 ```
 

@@ -166,17 +166,16 @@ func (suite *KeeperTestSuite) VerifyPoolGenesisImportExport() {
 // =====================
 
 func (suite *KeeperTestSuite) VerifyStakersModuleAssetsIntegrity() {
-	expectedBalance := uint64(0)
-	actualBalance := uint64(0)
+	expectedBalance := sdk.NewCoins()
 
 	for _, staker := range suite.App().StakersKeeper.GetAllStakers(suite.Ctx()) {
-		expectedBalance += staker.CommissionRewards
+		expectedBalance = expectedBalance.Add(staker.CommissionRewards...)
 	}
 
 	moduleAcc := suite.App().AccountKeeper.GetModuleAccount(suite.Ctx(), stakerstypes.ModuleName).GetAddress()
-	actualBalance = suite.App().BankKeeper.GetBalance(suite.Ctx(), moduleAcc, globalTypes.Denom).Amount.Uint64()
+	actualBalance := suite.App().BankKeeper.GetAllBalances(suite.Ctx(), moduleAcc)
 
-	Expect(actualBalance).To(Equal(expectedBalance))
+	Expect(actualBalance.String()).To(Equal(expectedBalance.String()))
 }
 
 func (suite *KeeperTestSuite) VerifyPoolTotalStake() {

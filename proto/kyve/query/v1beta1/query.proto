@@ -129,8 +129,12 @@ message StakerMetadata {
   // if they not agree with the new commission.
   CommissionChangeEntry pending_commission_change = 7;
 
-  // commission_rewards are the rewards in $KYVE earned through commission
-  uint64 commission_rewards = 8;
+  // commission_rewards are the rewards through commission and storage cost
+  repeated cosmos.base.v1beta1.Coin commission_rewards = 8 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }
 
 // CommissionChangeEntry shows when the old commission
