@@ -263,7 +263,10 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 
 	// subtract storage cost from remaining total payout. We split the storage cost between all coins and charge
 	// the amount per coin. If there is not enough of that coin available we simply charge what is left, so there
-	// can be the case that the storageRewards are less than what we actually wanted to pay out.
+	// can be the case that the storageRewards are less than what we actually wanted to pay out. This is acceptable
+	// because this case is very rare, usually the minFundingAmount ensures that there are always enough funds left
+	// of each coin, and in the case there are not enough the coins are removed and therefore for the next bundle
+	// we split between the other remaining coins.
 	whitelist := k.fundersKeeper.GetCoinWhitelistMap(ctx)
 	wantedStorageRewards := sdk.NewCoins()
 	storageCostPerCoin := k.GetStorageCost(ctx, bundleProposal.StorageProviderId).MulInt64(int64(bundleProposal.DataSize)).QuoInt64(int64(totalPayout.Len()))
