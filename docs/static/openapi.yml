@@ -603,11 +603,26 @@ paths:
 
                                 of a staker will change to the new commission
                             commission_rewards:
-                              type: string
-                              format: uint64
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  denom:
+                                    type: string
+                                  amount:
+                                    type: string
+                                description: >-
+                                  Coin defines a token with a denomination and
+                                  an amount.
+
+
+                                  NOTE: The amount field is an Int which
+                                  implements the custom method
+
+                                  signatures required by gogoproto.
                               title: >-
-                                commission_rewards are the rewards in $KYVE
-                                earned through commission
+                                commission_rewards are the rewards through
+                                commission and storage cost
                           title: >-
                             StakerMetadata contains static information for a
                             staker
@@ -3922,11 +3937,26 @@ paths:
 
                                 of a staker will change to the new commission
                             commission_rewards:
-                              type: string
-                              format: uint64
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  denom:
+                                    type: string
+                                  amount:
+                                    type: string
+                                description: >-
+                                  Coin defines a token with a denomination and
+                                  an amount.
+
+
+                                  NOTE: The amount field is an Int which
+                                  implements the custom method
+
+                                  signatures required by gogoproto.
                               title: >-
-                                commission_rewards are the rewards in $KYVE
-                                earned through commission
+                                commission_rewards are the rewards through
+                                commission and storage cost
                           title: >-
                             StakerMetadata contains static information for a
                             staker
@@ -6275,11 +6305,26 @@ paths:
                           CommissionChangeEntry shows when the old commission
                           of a staker will change to the new commission
                       commission_rewards:
-                        type: string
-                        format: uint64
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a token with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
                         title: >-
-                          commission_rewards are the rewards in $KYVE earned
-                          through commission
+                          commission_rewards are the rewards through commission
+                          and storage cost
                     title: StakerMetadata contains static information for a staker
                   self_delegation:
                     type: string
@@ -6718,11 +6763,26 @@ paths:
                             CommissionChangeEntry shows when the old commission
                             of a staker will change to the new commission
                         commission_rewards:
-                          type: string
-                          format: uint64
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a token with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
                           title: >-
-                            commission_rewards are the rewards in $KYVE earned
-                            through commission
+                            commission_rewards are the rewards through
+                            commission and storage cost
                       title: StakerMetadata contains static information for a staker
                     self_delegation:
                       type: string
@@ -7267,11 +7327,26 @@ paths:
 
                                 of a staker will change to the new commission
                             commission_rewards:
-                              type: string
-                              format: uint64
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  denom:
+                                    type: string
+                                  amount:
+                                    type: string
+                                description: >-
+                                  Coin defines a token with a denomination and
+                                  an amount.
+
+
+                                  NOTE: The amount field is an Int which
+                                  implements the custom method
+
+                                  signatures required by gogoproto.
                               title: >-
-                                commission_rewards are the rewards in $KYVE
-                                earned through commission
+                                commission_rewards are the rewards through
+                                commission and storage cost
                           title: >-
                             StakerMetadata contains static information for a
                             staker
@@ -7759,11 +7834,26 @@ paths:
                             CommissionChangeEntry shows when the old commission
                             of a staker will change to the new commission
                         commission_rewards:
-                          type: string
-                          format: uint64
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a token with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
                           title: >-
-                            commission_rewards are the rewards in $KYVE earned
-                            through commission
+                            commission_rewards are the rewards through
+                            commission and storage cost
                       title: StakerMetadata contains static information for a staker
                     self_delegation:
                       type: string

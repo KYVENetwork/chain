@@ -181,7 +181,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(BeZero())
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(BeZero())
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
 
@@ -274,7 +274,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
@@ -367,7 +367,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
@@ -473,7 +473,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
@@ -580,7 +580,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
@@ -687,7 +687,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
@@ -792,7 +792,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
@@ -899,7 +899,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
@@ -1006,7 +1006,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
@@ -1111,7 +1111,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
@@ -1218,7 +1218,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
@@ -1325,7 +1325,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 

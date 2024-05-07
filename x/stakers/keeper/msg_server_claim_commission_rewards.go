@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"cosmossdk.io/errors"
-	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
@@ -22,17 +21,18 @@ func (k msgServer) ClaimCommissionRewards(goCtx context.Context, msg *types.MsgC
 	}
 
 	// Check if amount can be claimed
-	if staker.CommissionRewards < msg.Amount {
-		return nil, types.ErrNotEnoughRewards.Wrapf("%d > %d", msg.Amount, staker.CommissionRewards)
+	if !msg.Amount.IsAllLTE(staker.CommissionRewards) {
+		return nil, types.ErrNotEnoughRewards
 	}
 
 	// send commission rewards from stakers module to claimer
-	if err := util.TransferFromModuleToAddress(k.bankKeeper, ctx, types.ModuleName, msg.Creator, msg.Amount); err != nil {
+	recipient := sdk.MustAccAddressFromBech32(msg.Creator)
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, msg.Amount); err != nil {
 		return nil, err
 	}
 
 	// calculate new commission rewards and save
-	staker.CommissionRewards -= msg.Amount
+	staker.CommissionRewards = staker.CommissionRewards.Sub(msg.Amount...)
 	k.setStaker(ctx, staker)
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventClaimCommissionRewards{
