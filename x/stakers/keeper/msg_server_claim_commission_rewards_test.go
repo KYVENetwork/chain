@@ -6,6 +6,7 @@ import (
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
+	globaltypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -46,6 +47,34 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		bundleParams := s.App().BundlesKeeper.GetParams(s.Ctx())
 		bundleParams.StorageCosts = append(bundleParams.StorageCosts, bundletypes.StorageCost{StorageProviderId: 1, Cost: math.LegacyMustNewDecFromStr("0.5")})
 		s.App().BundlesKeeper.SetParams(s.Ctx(), bundleParams)
+
+		// set whitelist
+		s.App().FundersKeeper.SetParams(s.Ctx(), funderstypes.NewParams([]*funderstypes.WhitelistCoinEntry{
+			{
+				CoinDenom:                 globaltypes.Denom,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+			{
+				CoinDenom:                 i.A_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+			{
+				CoinDenom:                 i.B_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				CoinWeight:                math.LegacyNewDec(2),
+			},
+			{
+				CoinDenom:                 i.C_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				CoinWeight:                math.LegacyNewDec(3),
+			},
+		}, 20))
 
 		// create clean pool for every test case
 		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
@@ -101,11 +130,6 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 			Creator: i.ALICE,
 			Moniker: "Alice",
 		})
-
-		params := funderstypes.DefaultParams()
-
-		params.CoinWhitelist[0].MinFundingAmountPerBundle = uint64(amountPerBundle)
-		s.App().FundersKeeper.SetParams(s.Ctx(), params)
 
 		// create a valid bundle so that uploader earns commission rewards
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
@@ -431,7 +455,7 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		uploader, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
 		Expect(uploader.CommissionRewards.String()).To(Equal(commissionRewardsBefore.Sub(i.KYVECoin(100), i.ACoin(200), i.BCoin(300)).String()))
-		Expect(s.GetCoinsFromAddress(i.STAKER_0).String()).To(Equal(initialBalanceStaker0.Add(i.KYVECoin(100), i.ACoin(200), i.BCoin(300)).String()))
+		Expect(s.GetCoinsFromAddress(i.STAKER_0).String()).To(Equal(initialBalanceStaker0.Add(sdk.NewCoins(i.KYVECoin(100), i.ACoin(200), i.BCoin(300))...).String()))
 	})
 
 	It("Claim one coin of multiple coins", func() {
