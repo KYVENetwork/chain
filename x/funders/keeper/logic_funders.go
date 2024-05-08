@@ -61,20 +61,21 @@ func (k Keeper) GetCoinWhitelistMap(ctx sdk.Context) (whitelist map[string]types
 // The amount is transferred from the funders to the recipient module account.
 // If there are no more active funders, an event is emitted. This method only charges
 // coins which are whitelisted.
-func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64, recipient string) (payouts sdk.Coins, err error) {
+func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64, recipient string) (sdk.Coins, error) {
 	// Get funding state for pool
 	fundingState, found := k.GetFundingState(ctx, poolId)
 	if !found {
-		return payouts, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrFundingStateDoesNotExist.Error(), poolId)
+		return sdk.NewCoins(), errors.Wrapf(errorsTypes.ErrNotFound, types.ErrFundingStateDoesNotExist.Error(), poolId)
 	}
 
 	// If there are no active fundings we immediately return
 	activeFundings := k.GetActiveFundings(ctx, fundingState)
 	if len(activeFundings) == 0 {
-		return
+		return sdk.NewCoins(), nil
 	}
 
 	whitelist := k.GetCoinWhitelistMap(ctx)
+	payouts := sdk.NewCoins()
 
 	// Charge every active funder and collect payouts
 	for _, funding := range activeFundings {
@@ -96,12 +97,15 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64, recipient st
 	}
 
 	if payouts.IsZero() {
-		return
+		return payouts, nil
 	}
 
 	// Move funds to recipient module
-	err = k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, recipient, payouts)
-	return
+	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, recipient, payouts); err != nil {
+		return sdk.NewCoins(), err
+	}
+
+	return payouts, nil
 }
 
 // GetLowestFunding returns the funding with the lowest amount
@@ -195,8 +199,6 @@ func (k Keeper) ensureFreeSlot(ctx sdk.Context, newFunding *types.Funding, fundi
 		return nil
 	}
 
-	whitelist := k.GetCoinWhitelistMap(ctx)
-
 	lowestFunding, err := k.GetLowestFunding(ctx, activeFundings)
 	if err != nil {
 		return err
@@ -206,6 +208,8 @@ func (k Keeper) ensureFreeSlot(ctx sdk.Context, newFunding *types.Funding, fundi
 		// Funder already has a funding slot
 		return nil
 	}
+
+	whitelist := k.GetCoinWhitelistMap(ctx)
 
 	// Check if lowest funding is lower than new funding based on amount (amount per bundle is ignored)
 	if newFunding.GetScore(whitelist) < lowestFunding.GetScore(whitelist) {
