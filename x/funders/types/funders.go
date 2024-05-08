@@ -2,15 +2,9 @@ package types
 
 import sdk "github.com/cosmos/cosmos-sdk/types"
 
-func (f *Funding) GetScore(whitelist []*WhitelistCoinEntry) (score uint64) {
-	// create map for easier lookup
-	w := make(map[string]WhitelistCoinEntry)
-	for _, entry := range whitelist {
-		w[entry.CoinDenom] = *entry
-	}
-
+func (f *Funding) GetScore(whitelist map[string]WhitelistCoinEntry) (score uint64) {
 	for _, coin := range f.Amounts {
-		if entry, found := w[coin.Denom]; found {
+		if entry, found := whitelist[coin.Denom]; found {
 			score += uint64(entry.CoinWeight.MulInt64(coin.Amount.Int64()).TruncateInt64())
 		}
 	}
@@ -32,8 +26,16 @@ func (f *Funding) CleanAmountsPerBundle() {
 	f.AmountsPerBundle = amountsPerBundle
 }
 
-func (f *Funding) ChargeOneBundle() (payouts sdk.Coins) {
-	payouts = f.Amounts.Min(f.AmountsPerBundle)
+func (f *Funding) ChargeOneBundle(whitelist map[string]WhitelistCoinEntry) (payouts sdk.Coins) {
+	chargable := f.Amounts.Min(f.AmountsPerBundle)
+
+	// only charge coins which are whitelisted
+	for _, coin := range chargable {
+		if _, found := whitelist[coin.Denom]; found {
+			payouts = payouts.Add(coin)
+		}
+	}
+
 	f.TotalFunded = f.TotalFunded.Add(payouts...)
 	f.Amounts = f.Amounts.Sub(payouts...)
 	f.CleanAmountsPerBundle()

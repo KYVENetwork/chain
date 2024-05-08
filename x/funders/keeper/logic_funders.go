@@ -31,12 +31,37 @@ func (k Keeper) GetTotalActiveFunding(ctx sdk.Context, poolId uint64) (amounts s
 	return
 }
 
+// GetCoinWhitelist gets the coin whitelist from the params of the funding module
+func (k Keeper) GetCoinWhitelist(ctx sdk.Context) (whitelist []types.WhitelistCoinEntry) {
+	params := k.GetParams(ctx)
+
+	for _, entry := range params.CoinWhitelist {
+		whitelist = append(whitelist, *entry)
+	}
+
+	return
+}
+
+// GetCoinWhitelistMap gets the coin whitelist as a map with the denom as key for easier lookup.
+// WARNING: Don't use this for setter functions since go maps are non-deterministic!
+func (k Keeper) GetCoinWhitelistMap(ctx sdk.Context) (whitelist map[string]types.WhitelistCoinEntry) {
+	whitelist = make(map[string]types.WhitelistCoinEntry)
+
+	w := k.GetCoinWhitelist(ctx)
+	for _, entry := range w {
+		whitelist[entry.CoinDenom] = entry
+	}
+
+	return
+}
+
 // ChargeFundersOfPool charges all funders of a pool with their amount_per_bundle
 // If the amount is lower than the amount_per_bundle,
 // the max amount is charged and the funder is removed from the active funders list.
 // The amount is transferred from the funders to the recipient module account.
-// If there are no more active funders, an event is emitted.
-func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64, recipient string) (payouts sdk.Coins, err error) {
+// If there are no more active funders, an event is emitted. This method only charges
+// coins which are whitelisted.
+func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64, recipient string) (sdk.Coins, error) {
 	// Get funding state for pool
 	fundingState, found := k.GetFundingState(ctx, poolId)
 	if !found {
@@ -49,9 +74,12 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64, recipient st
 		return sdk.NewCoins(), nil
 	}
 
-	// This is the amount every funding will be charged
+	whitelist := k.GetCoinWhitelistMap(ctx)
+	payouts := sdk.NewCoins()
+
+	// Charge every active funder and collect payouts
 	for _, funding := range activeFundings {
-		payouts = payouts.Add(funding.ChargeOneBundle()...)
+		payouts = payouts.Add(funding.ChargeOneBundle(whitelist)...)
 		if funding.Amounts.IsZero() {
 			fundingState.SetInactive(&funding)
 		}
@@ -68,24 +96,28 @@ func (k Keeper) ChargeFundersOfPool(ctx sdk.Context, poolId uint64, recipient st
 		})
 	}
 
-	// Move funds to pool module account
-	if !payouts.IsZero() {
-		if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, recipient, payouts); err != nil {
-			return sdk.NewCoins(), err
-		}
+	if payouts.IsZero() {
+		return payouts, nil
 	}
 
-	return
+	// Move funds to recipient module
+	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, recipient, payouts); err != nil {
+		return sdk.NewCoins(), err
+	}
+
+	return payouts, nil
 }
 
 // GetLowestFunding returns the funding with the lowest amount
 // Precondition: len(fundings) > 0
-func (k Keeper) GetLowestFunding(fundings []types.Funding, whitelist []*types.WhitelistCoinEntry) (lowestFunding *types.Funding, err error) {
+func (k Keeper) GetLowestFunding(ctx sdk.Context, fundings []types.Funding) (lowestFunding *types.Funding, err error) {
 	if len(fundings) == 0 {
 		return nil, fmt.Errorf("no active fundings")
 	}
 
+	whitelist := k.GetCoinWhitelistMap(ctx)
 	lowestFundingIndex := 0
+
 	for i := range fundings {
 		if fundings[i].GetScore(whitelist) < fundings[lowestFundingIndex].GetScore(whitelist) {
 			lowestFundingIndex = i
@@ -167,9 +199,7 @@ func (k Keeper) ensureFreeSlot(ctx sdk.Context, newFunding *types.Funding, fundi
 		return nil
 	}
 
-	params := k.GetParams(ctx)
-
-	lowestFunding, err := k.GetLowestFunding(activeFundings, params.CoinWhitelist)
+	lowestFunding, err := k.GetLowestFunding(ctx, activeFundings)
 	if err != nil {
 		return err
 	}
@@ -179,9 +209,11 @@ func (k Keeper) ensureFreeSlot(ctx sdk.Context, newFunding *types.Funding, fundi
 		return nil
 	}
 
+	whitelist := k.GetCoinWhitelistMap(ctx)
+
 	// Check if lowest funding is lower than new funding based on amount (amount per bundle is ignored)
-	if newFunding.GetScore(params.CoinWhitelist) < lowestFunding.GetScore(params.CoinWhitelist) {
-		return errors.Wrapf(errorsTypes.ErrLogic, types.ErrFundsTooLow.Error(), lowestFunding.GetScore(params.CoinWhitelist))
+	if newFunding.GetScore(whitelist) < lowestFunding.GetScore(whitelist) {
+		return errors.Wrapf(errorsTypes.ErrLogic, types.ErrFundsTooLow.Error(), lowestFunding.GetScore(whitelist))
 	}
 
 	// Defund lowest funder

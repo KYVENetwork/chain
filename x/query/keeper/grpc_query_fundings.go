@@ -21,8 +21,8 @@ func (k Keeper) FundingsByFunder(c context.Context, req *types.QueryFundingsByFu
 		return nil, err
 	}
 
-	params := k.fundersKeeper.GetParams(ctx)
-	data := k.parseFundings(fundings, params.CoinWhitelist)
+	whitelist := k.fundersKeeper.GetCoinWhitelistMap(ctx)
+	data := k.parseFundings(fundings, whitelist)
 
 	return &types.QueryFundingsByFunderResponse{Fundings: data, Pagination: pageRes}, nil
 }
@@ -38,13 +38,13 @@ func (k Keeper) FundingsByPool(c context.Context, req *types.QueryFundingsByPool
 		return nil, err
 	}
 
-	params := k.fundersKeeper.GetParams(ctx)
-	data := k.parseFundings(fundings, params.CoinWhitelist)
+	whitelist := k.fundersKeeper.GetCoinWhitelistMap(ctx)
+	data := k.parseFundings(fundings, whitelist)
 
 	return &types.QueryFundingsByPoolResponse{Fundings: data, Pagination: pageRes}, nil
 }
 
-func (k Keeper) parseFundings(fundings []fundersTypes.Funding, whitelist []*fundersTypes.WhitelistCoinEntry) []types.Funding {
+func (k Keeper) parseFundings(fundings []fundersTypes.Funding, whitelist map[string]fundersTypes.WhitelistCoinEntry) []types.Funding {
 	fundingsData := make([]types.Funding, 0)
 	for _, funding := range fundings {
 		fundingsData = append(fundingsData, types.Funding{

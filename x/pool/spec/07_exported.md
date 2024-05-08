@@ -29,6 +29,7 @@ type PoolKeeper interface {
     // the appropriate amount from each funder.
     // All funders who can't afford the amount, are kicked out.
     // The method returns the payout amount the pool was able to charge from the funders.
+    // This method only charges coins which are whitelisted.
     ChargeFundersOfPool(ctx sdk.Context, poolId uint64, amount uint64, recipient string) (payout uint64, err error)
 }
 ```

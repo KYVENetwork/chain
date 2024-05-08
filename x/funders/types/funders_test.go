@@ -18,6 +18,7 @@ TEST CASES - funders.go
 * Funding.ChargeOneBundle - charge more than available
 * Funding.ChargeOneBundle - charge with multiple coins
 * Funding.ChargeOneBundle - charge with no coins
+* Funding.ChargeOneBundle - charge coins which are not in the whitelist
 * Funding.CleanAmountsPerBundle - same coins are present in amounts and in amounts per bundle
 * Funding.CleanAmountsPerBundle - more coins are present in amounts per bundle than in amounts
 * Funding.CleanAmountsPerBundle - coins are present in amounts per bundle but not in amounts
@@ -33,11 +34,10 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 
 	funding := types.Funding{}
 	fundingState := types.FundingState{}
-	var whitelist []*types.WhitelistCoinEntry
 
 	BeforeEach(func() {
 		// set whitelist
-		whitelist = []*types.WhitelistCoinEntry{
+		s.App().FundersKeeper.SetParams(s.Ctx(), types.NewParams([]*types.WhitelistCoinEntry{
 			{
 				CoinDenom:                 globaltypes.Denom,
 				MinFundingAmount:          10 * i.KYVE,
@@ -62,8 +62,7 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 				MinFundingAmountPerBundle: 1 * i.KYVE,
 				CoinWeight:                math.LegacyNewDec(3),
 			},
-		}
-		s.App().FundersKeeper.SetParams(s.Ctx(), types.NewParams(whitelist, 20))
+		}, 20))
 
 		funding = types.Funding{
 			FunderAddress:    i.ALICE,
@@ -79,8 +78,11 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 	})
 
 	It("Funding.ChargeOneBundle", func() {
+		// ARRANGE
+		whitelist := s.App().FundersKeeper.GetCoinWhitelistMap(s.Ctx())
+
 		// ACT
-		payouts := funding.ChargeOneBundle()
+		payouts := funding.ChargeOneBundle(whitelist)
 
 		// ASSERT
 		Expect(payouts.String()).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
@@ -90,10 +92,11 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 
 	It("Funding.ChargeOneBundle - charge more than available", func() {
 		// ARRANGE
+		whitelist := s.App().FundersKeeper.GetCoinWhitelistMap(s.Ctx())
 		funding.Amounts = i.ACoins(1 * i.T_KYVE / 2)
 
 		// ACT
-		payouts := funding.ChargeOneBundle()
+		payouts := funding.ChargeOneBundle(whitelist)
 
 		// ASSERT
 		Expect(payouts.String()).To(Equal(i.ACoins(1 * i.T_KYVE / 2).String()))
@@ -103,11 +106,12 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 
 	It("Funding.ChargeOneBundle - charge with multiple coins", func() {
 		// ARRANGE
+		whitelist := s.App().FundersKeeper.GetCoinWhitelistMap(s.Ctx())
 		funding.Amounts = sdk.NewCoins(i.ACoin(100*i.T_KYVE), i.BCoin(100*i.T_KYVE))
 		funding.AmountsPerBundle = sdk.NewCoins(i.ACoin(1*i.T_KYVE), i.BCoin(2*i.T_KYVE))
 
 		// ACT
-		payouts := funding.ChargeOneBundle()
+		payouts := funding.ChargeOneBundle(whitelist)
 
 		// ASSERT
 		Expect(payouts.String()).To(Equal(sdk.NewCoins(i.ACoin(1*i.T_KYVE), i.BCoin(2*i.T_KYVE)).String()))
@@ -117,16 +121,46 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 
 	It("Funding.ChargeOneBundle - charge with no coins", func() {
 		// ARRANGE
+		whitelist := s.App().FundersKeeper.GetCoinWhitelistMap(s.Ctx())
 		funding.Amounts = sdk.NewCoins()
 		funding.AmountsPerBundle = sdk.NewCoins()
 
 		// ACT
-		payouts := funding.ChargeOneBundle()
+		payouts := funding.ChargeOneBundle(whitelist)
 
 		// ASSERT
 		Expect(payouts.IsZero()).To(BeTrue())
 		Expect(funding.Amounts.IsZero()).To(BeTrue())
 		Expect(funding.TotalFunded.IsZero()).To(BeTrue())
+	})
+
+	It("Funding.ChargeOneBundle - charge with coins which are not in the whitelist", func() {
+		// ARRANGE
+		s.App().FundersKeeper.SetParams(s.Ctx(), types.NewParams([]*types.WhitelistCoinEntry{
+			{
+				CoinDenom:                 globaltypes.Denom,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+			{
+				CoinDenom:                 i.A_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: 1 * i.KYVE,
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+		}, 20))
+		whitelist := s.App().FundersKeeper.GetCoinWhitelistMap(s.Ctx())
+		funding.Amounts = sdk.NewCoins(i.ACoin(100*i.T_KYVE), i.BCoin(100*i.T_KYVE), i.CCoin(100*i.T_KYVE))
+		funding.AmountsPerBundle = sdk.NewCoins(i.ACoin(1*i.T_KYVE), i.BCoin(1*i.T_KYVE), i.CCoin(1*i.T_KYVE))
+
+		// ACT
+		payouts := funding.ChargeOneBundle(whitelist)
+
+		// ASSERT
+		Expect(payouts.String()).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
+		Expect(funding.Amounts.String()).To(Equal(sdk.NewCoins(i.ACoin(99*i.T_KYVE), i.BCoin(100*i.T_KYVE), i.CCoin(100*i.T_KYVE)).String()))
+		Expect(funding.TotalFunded.String()).To(Equal(i.ACoins(1 * i.T_KYVE).String()))
 	})
 
 	It("Funding.CleanAmountsPerBundle - same coins are present in amounts and in amounts per bundle", func() {
