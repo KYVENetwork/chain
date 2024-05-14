@@ -232,11 +232,11 @@ func (k Keeper) handleNonVoters(ctx sdk.Context, poolId uint64) {
 // calculatePayouts calculates the different payouts to treasury, uploader and delegators from the total payout
 // the pool module provides for this bundle round
 func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk.Coins) (bundleReward types.BundleReward) {
-	// This method first subtracts the network fee from it
-	// After that the uploader receives the storage rewards. If the total payout does not cover the
-	// storage rewards we pay out the remains, the commission and delegation rewards will be empty
-	// in this case. After the payout of the storage rewards the remains are divided between uploader
-	// and its delegators based on the commission.
+	// This method first subtracts the network fee from the total payout dedicated for this bundle.
+	// After that the uploader receives the storage rewards which are based on the byte size of the bundle.
+	// If the total payout does not cover the storage rewards we pay out the remains, the commission and
+	// delegation rewards will be empty  in this case. After the payout of the storage rewards the remains
+	// are divided between uploader and its delegators based on the uploader's commission.
 	bundleProposal, _ := k.GetBundleProposal(ctx, poolId)
 
 	// Should not happen, if so make no payouts
@@ -262,20 +262,30 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 	}
 
 	// subtract storage cost from remaining total payout. We split the storage cost between all coins and charge
-	// the amount per coin. If there is not enough of that coin available we simply charge what is left, so there
-	// can be the case that the storageRewards are less than what we actually wanted to pay out. This is acceptable
-	// because this case is very rare, usually the minFundingAmount ensures that there are always enough funds left
-	// of each coin, and in the case there are not enough the coins are removed and therefore for the next bundle
-	// we split between the other remaining coins.
+	// the amount per coin, the idea is that every coin should contribute the same USD value to the total storage
+	// reward. This is done by defining the storage cost as USD / byte and the coin weights as USD / coin denom.
+	//
+	// If there is not enough of a coin available to cover the storage reward per coin we simply charge what is left,
+	// so there can be the case that the storageRewards are less than what we actually wanted to pay out. This is
+	// acceptable because this case is very rare, usually the minFundingAmount ensures that there are always enough
+	// funds left of each coin, and in the case there are not enough the coins are removed and therefore for the
+	// next bundle we split between the other remaining coins.
 	whitelist := k.fundersKeeper.GetCoinWhitelistMap(ctx)
 	wantedStorageRewards := sdk.NewCoins()
 	storageCostPerCoin := k.GetStorageCost(ctx, bundleProposal.StorageProviderId).MulInt64(int64(bundleProposal.DataSize)).QuoInt64(int64(totalPayout.Len()))
 
 	for _, coin := range totalPayout {
-		amount := storageCostPerCoin.Mul(whitelist[coin.Denom].CoinWeight)
+		weight := whitelist[coin.Denom].CoinWeight
+		if weight.IsZero() {
+			continue
+		}
+
+		amount := storageCostPerCoin.Quo(weight)
 		wantedStorageRewards = wantedStorageRewards.Add(sdk.NewCoin(coin.Denom, amount.TruncateInt()))
 	}
 
+	// we take the min here since there can be the case where we want to charge more coins for the storage
+	// reward than we have left in the total payout
 	bundleReward.UploaderStorageCost = totalPayout.Min(wantedStorageRewards)
 
 	// the remaining total payout is split between the uploader and his delegators.
@@ -566,7 +576,8 @@ func (k Keeper) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bundle
 
 		// combine funders payout with inflation payout to calculate the rewards for the different stakeholders
 		// like treasury, uploader and delegators
-		bundleReward := k.calculatePayouts(ctx, poolId, fundersPayout.Add(sdk.NewInt64Coin(globalTypes.Denom, int64(inflationPayout))))
+		totalPayout := fundersPayout.Add(sdk.NewInt64Coin(globalTypes.Denom, int64(inflationPayout)))
+		bundleReward := k.calculatePayouts(ctx, poolId, totalPayout)
 
 		// payout rewards to treasury
 		if err := k.distrkeeper.FundCommunityPool(ctx, bundleReward.Treasury, k.accountKeeper.GetModuleAddress(poolTypes.ModuleName)); err != nil {
