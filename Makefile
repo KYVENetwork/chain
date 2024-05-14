@@ -4,6 +4,8 @@ GO_VERSION := $(shell go version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f1,2)
 # VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 VERSION := v1.5.0
 
+BUILD_TIME := 202405060800.00 # format [[CC]YY]MMDDhhmm[.ss]
+
 TEAM_ALLOCATION := 165000000000000
 ifeq ($(ENV),kaon)
 $(info 📑 Using Kaon environment...)
@@ -31,7 +33,7 @@ ldflags += -X github.com/cosmos/cosmos-sdk/version.Name=kyve \
 		  -X github.com/KYVENetwork/chain/x/team/types.TGE_STRING=$(TEAM_TGE)
 ldflags := $(strip $(ldflags))
 
-BUILD_FLAGS := -ldflags '$(ldflags)' -tags 'ledger' -trimpath
+BUILD_FLAGS := -ldflags '$(ldflags)' -tags 'ledger' -trimpath -buildvcs=false
 
 .PHONY: proto-setup proto-format proto-lint proto-gen \
 	format lint vet test build release dev interchaintest
@@ -52,28 +54,24 @@ install: ensure_environment ensure_version
 	@echo "✅ Completed installation!"
 
 release: ensure_environment ensure_version
-	@echo "🤖 Creating kyved releases..."
+	@echo "🤖 Creating kyved releases (using timestamp $(BUILD_TIME))..."
 	@rm -rf release
 	@mkdir -p release
 
-	@GOOS=darwin GOARCH=amd64 go build $(BUILD_FLAGS) ./cmd/kyved
-	@tar -czf release/kyved_$(ENV)_darwin_amd64.tar.gz kyved
-	@sha256sum release/kyved_$(ENV)_darwin_amd64.tar.gz >> release/release_$(ENV)_checksum
+	@for b in darwin:amd64 darwin:arm64 linux:amd64 linux:arm64; do \
+		os=$$(echo $$b | cut -d':' -f1); \
+		arch=$$(echo $$b | cut -d':' -f2); \
+		echo "➡️ "$$os" "$$arch""; \
+		CGO_ENABLED=0 GOOS=$$os GOARCH=$$arch go build $(BUILD_FLAGS) -o release/kyved_$(ENV)_"$$os"_"$$arch" ./cmd/kyved; \
+		touch -a -m -t $(BUILD_TIME) release/kyved_$(ENV)_"$$os"_"$$arch"; \
+		sha256sum release/kyved_$(ENV)_"$$os"_"$$arch" >> release/release_$(ENV)_checksum; \
+		tar -C release -cf release/kyved_$(ENV)_"$$os"_"$$arch".tar kyved_$(ENV)_"$$os"_"$$arch"; \
+		touch -a -m -t $(BUILD_TIME) release/kyved_$(ENV)_"$$os"_"$$arch".tar; \
+		gzip release/kyved_$(ENV)_"$$os"_"$$arch".tar; \
+		sha256sum release/kyved_$(ENV)_"$$os"_"$$arch".tar.gz >> release/release_$(ENV)_checksum; \
+	done
 
-	@GOOS=darwin GOARCH=arm64 go build $(BUILD_FLAGS) ./cmd/kyved
-	@tar -czf release/kyved_$(ENV)_darwin_arm64.tar.gz kyved
-	@sha256sum release/kyved_$(ENV)_darwin_arm64.tar.gz >> release/release_$(ENV)_checksum
-
-	@GOOS=linux GOARCH=amd64 go build $(BUILD_FLAGS) ./cmd/kyved
-	@tar -czf release/kyved_$(ENV)_linux_amd64.tar.gz kyved
-	@sha256sum release/kyved_$(ENV)_linux_amd64.tar.gz >> release/release_$(ENV)_checksum
-
-	@GOOS=linux GOARCH=arm64 go build $(BUILD_FLAGS) ./cmd/kyved
-	@tar -czf release/kyved_$(ENV)_linux_arm64.tar.gz kyved
-	@sha256sum release/kyved_$(ENV)_linux_arm64.tar.gz >> release/release_$(ENV)_checksum
-
-	@rm kyved
-	@echo "✅ Completed release creation!"
+	@echo "✅  Completed release creation!"
 
 ###############################################################################
 ###                               Docker Build                              ###
