@@ -18,7 +18,9 @@ message WhitelistCoinEntry {
   // min_funding_amount_per_bundle is the minimum required amount of this denom
   // that needs to be funded per bundle
   uint64 min_funding_amount_per_bundle = 3;
-  // coin_weight is a factor used to sort funders after their funding amounts
+  // coin_weight is a factor used to sort funders after their funding amounts.
+  // This should be the market price of that coin in USD/coin and should be
+  // kept up-to-date
   string coin_weight = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false

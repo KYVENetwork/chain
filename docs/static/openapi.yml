@@ -30,10 +30,16 @@ paths:
                         storage_provider_id:
                           type: integer
                           format: int64
-                          description: storage_provider_id ...
+                          description: >-
+                            storage_provider_id is a unique id for each storage
+                            provider like Arweave, Irys, Filecoin etc...
                         cost:
                           type: string
-                          description: cost ...
+                          title: >-
+                            cost is the amount in USD to store one byte on the
+                            storage provider and should be kept up-to-date.
+
+                            The unit of this is USD/byte
                       title: StorageCost defines the cost for storage providers
                     description: storage_costs ...
                   network_fee:
@@ -4423,10 +4429,16 @@ paths:
                         storage_provider_id:
                           type: integer
                           format: int64
-                          description: storage_provider_id ...
+                          description: >-
+                            storage_provider_id is a unique id for each storage
+                            provider like Arweave, Irys, Filecoin etc...
                         cost:
                           type: string
-                          description: cost ...
+                          title: >-
+                            cost is the amount in USD to store one byte on the
+                            storage provider and should be kept up-to-date.
+
+                            The unit of this is USD/byte
                       title: StorageCost defines the cost for storage providers
                     description: storage_costs ...
                   network_fee:
@@ -4725,7 +4737,12 @@ paths:
                           type: string
                           title: >-
                             coin_weight is a factor used to sort funders after
-                            their funding amounts
+                            their funding amounts.
+
+                            This should be the market price of that coin in
+                            USD/coin and should be
+
+                            kept up-to-date
                       title: >-
                         WhitelistCoinEntry is an object containing information
                         around a coin which

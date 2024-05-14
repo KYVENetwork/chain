@@ -26,9 +26,10 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // StorageCost defines the cost for storage providers
 type StorageCost struct {
-	// storage_provider_id ...
+	// storage_provider_id is a unique id for each storage provider like Arweave, Irys, Filecoin etc...
 	StorageProviderId uint32 `protobuf:"varint,1,opt,name=storage_provider_id,json=storageProviderId,proto3" json:"storage_provider_id,omitempty"`
-	// cost ...
+	// cost is the amount in USD to store one byte on the storage provider and should be kept up-to-date.
+	// The unit of this is USD/byte
 	Cost cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=cost,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"cost"`
 }
 
