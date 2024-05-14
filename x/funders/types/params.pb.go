@@ -37,8 +37,7 @@ type WhitelistCoinEntry struct {
 	// that needs to be funded per bundle
 	MinFundingAmountPerBundle uint64 `protobuf:"varint,3,opt,name=min_funding_amount_per_bundle,json=minFundingAmountPerBundle,proto3" json:"min_funding_amount_per_bundle,omitempty"`
 	// coin_weight is a factor used to sort funders after their funding amounts.
-	// This should be the market price of that coin in USD/coin and should be
-	// kept up-to-date
+	// This should be the market price of the coin in USD/coin. This value should be kept up-to-date.
 	CoinWeight cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=coin_weight,json=coinWeight,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"coin_weight"`
 }
 

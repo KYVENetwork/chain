@@ -8,10 +8,9 @@ option go_package = "github.com/KYVENetwork/chain/x/bundles/types";
 
 // StorageCost defines the cost for storage providers
 message StorageCost {
-  // storage_provider_id is a unique id for each storage provider like Arweave, Irys, Filecoin etc...
+  // storage_provider_id is a unique identifier for each storage provider, such as Arweave, Irys, Filecoin, etc.
   uint32 storage_provider_id = 1;
-  // cost is the amount in USD to store one byte on the storage provider and should be kept up-to-date.
-  // The unit of this is USD/byte
+  // cost is the amount in USD to store one byte on the storage provider. This value should be kept up-to-date.
   string cost = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
