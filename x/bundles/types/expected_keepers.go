@@ -49,7 +49,7 @@ type DelegationKeeper interface {
 }
 
 type FundersKeeper interface {
-	GetCoinWhitelist(ctx sdk.Context) (whitelist []types.WhitelistCoinEntry)
+	GetCoinWhitelistMap(ctx sdk.Context) (whitelist map[string]types.WhitelistCoinEntry)
 	ChargeFundersOfPool(ctx sdk.Context, poolId uint64, recipient string) (payout sdk.Coins, err error)
 }
 

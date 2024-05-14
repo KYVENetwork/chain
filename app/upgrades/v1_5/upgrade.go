@@ -38,6 +38,8 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 
 		// TODO: migrate delegation outstanding rewards
 
+		// TODO: migrate network fee and whitelist weights
+
 		return mm.RunMigrations(ctx, configurator, fromVM)
 	}
 }
