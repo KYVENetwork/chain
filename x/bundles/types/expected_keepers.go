@@ -3,6 +3,7 @@ package types
 import (
 	"cosmossdk.io/math"
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
+	"github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -48,6 +49,7 @@ type DelegationKeeper interface {
 }
 
 type FundersKeeper interface {
+	GetCoinWhitelistMap(ctx sdk.Context) (whitelist map[string]types.WhitelistCoinEntry)
 	ChargeFundersOfPool(ctx sdk.Context, poolId uint64, recipient string) (payout sdk.Coins, err error)
 }
 

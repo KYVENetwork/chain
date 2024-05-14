@@ -182,7 +182,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
 
 		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
-		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings, whitelist)
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(s.Ctx(), activeFundings)
 		Expect(err).To(BeNil())
 		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
 	})
@@ -222,7 +222,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
 
 		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
-		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings, whitelist)
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(s.Ctx(), activeFundings)
 		Expect(err).To(BeNil())
 		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
 	})
@@ -262,7 +262,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
 
 		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
-		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings, whitelist)
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(s.Ctx(), activeFundings)
 		Expect(err).To(BeNil())
 		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
 	})
@@ -302,7 +302,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		Expect(fundingState.ActiveFunderAddresses[0]).To(Equal(i.ALICE))
 
 		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
-		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings, whitelist)
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(s.Ctx(), activeFundings)
 		Expect(err).To(BeNil())
 		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
 	})
@@ -384,7 +384,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(2))
 
 		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
-		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings, whitelist)
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(s.Ctx(), activeFundings)
 		Expect(err).To(BeNil())
 		Expect(lowestFunding.FunderAddress).To(Equal(i.BOB))
 	})
@@ -420,7 +420,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		Expect(len(fundingState.ActiveFunderAddresses)).To(Equal(2))
 
 		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
-		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings, whitelist)
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(s.Ctx(), activeFundings)
 		Expect(err).To(BeNil())
 		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
 	})
@@ -672,7 +672,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 
 		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
 		Expect(activeFundings).To(HaveLen(50))
-		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings, whitelist)
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(s.Ctx(), activeFundings)
 		Expect(err).To(BeNil())
 		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
 	})
@@ -718,7 +718,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 
 		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
 		Expect(activeFundings).To(HaveLen(50))
-		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings, whitelist)
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(s.Ctx(), activeFundings)
 		Expect(err).To(BeNil())
 		Expect(lowestFunding.FunderAddress).To(Equal(i.BOB))
 
@@ -755,7 +755,7 @@ var _ = Describe("msg_server_fund_pool.go", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
 		Expect(activeFundings).To(HaveLen(50))
-		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings, whitelist)
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(s.Ctx(), activeFundings)
 		Expect(err).To(BeNil())
 		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
 
