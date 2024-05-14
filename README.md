@@ -1,11 +1,14 @@
 # The KYVE Network
 
-###### v1.4.0
+###### v1.5.0
 
 The KYVE consensus layer is the backbone of the KYVE ecosystem. This layer is a
 sovereign Delegated Proof of Stake network built using the
 [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) and
 [CometBFT (BFT Consensus)](https://github.com/cometbft/cometbft).
+
+The main branch always contains the latest commits during development.
+Check out the `/release/v1.x.x` branches for stable releases.
 
 ## Building from source
 
