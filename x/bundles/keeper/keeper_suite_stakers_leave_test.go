@@ -254,7 +254,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 	})

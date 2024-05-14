@@ -5,6 +5,7 @@ import (
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
+	globaltypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	. "github.com/onsi/ginkgo/v2"
@@ -472,7 +473,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(totalUploaderReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globaltypes.Denom).Uint64()).To(Equal(totalUploaderReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
 

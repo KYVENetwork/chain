@@ -39,5 +39,13 @@ func (msg *MsgClaimCommissionRewards) ValidateBasic() error {
 		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid validator address: %s", err)
 	}
 
+	if msg.Amount.Empty() {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "amount is empty")
+	}
+
+	if err := msg.Amount.Validate(); err != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid amount: %s", err)
+	}
+
 	return nil
 }
