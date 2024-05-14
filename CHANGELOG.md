@@ -18,6 +18,7 @@ An '!' indicates a state machine breaking change.
 
 ### Features
 
+- ! (`x/stakers`) [#185](https://github.com/KYVENetwork/chain/pull/185) Support multiple coins in stakers module.
 - ! (`x/bundles`) [#184](https://github.com/KYVENetwork/chain/pull/184) Support multiple coins in bundles module.
 - ! (`x/funders`) [#179](https://github.com/KYVENetwork/chain/pull/179) Support multiple coins for funding.
 - ! (`x/bundles`) [#177](https://github.com/KYVENetwork/chain/pull/177) Add end-key to pool.
