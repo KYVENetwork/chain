@@ -214,7 +214,7 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		activeFundings := s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
-		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(activeFundings, whitelist)
+		lowestFunding, err := s.App().FundersKeeper.GetLowestFunding(s.Ctx(), activeFundings)
 		Expect(err).To(BeNil())
 		Expect(lowestFunding.FunderAddress).To(Equal(i.BOB))
 
@@ -228,7 +228,7 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 		// ASSERT
 		fundingState, _ = s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 		activeFundings = s.App().FundersKeeper.GetActiveFundings(s.Ctx(), fundingState)
-		lowestFunding, err = s.App().FundersKeeper.GetLowestFunding(activeFundings, whitelist)
+		lowestFunding, err = s.App().FundersKeeper.GetLowestFunding(s.Ctx(), activeFundings)
 		Expect(err).To(BeNil())
 		Expect(lowestFunding.FunderAddress).To(Equal(i.ALICE))
 
@@ -304,7 +304,7 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 
 	It("Try to partially defund after a coin has been removed from the whitelist", func() {
 		// ARRANGE
-		whitelist = []*types.WhitelistCoinEntry{
+		s.App().FundersKeeper.SetParams(s.Ctx(), types.NewParams([]*types.WhitelistCoinEntry{
 			{
 				CoinDenom:                 globaltypes.Denom,
 				MinFundingAmount:          10 * i.KYVE,
@@ -323,8 +323,7 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 				MinFundingAmountPerBundle: 1 * i.KYVE,
 				CoinWeight:                math.LegacyNewDec(3),
 			},
-		}
-		s.App().FundersKeeper.SetParams(s.Ctx(), types.NewParams(whitelist, 20))
+		}, 20))
 
 		// ACT
 		_, err := s.RunTx(&types.MsgDefundPool{
@@ -340,7 +339,7 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 
 	It("Try to fully defund after a coin has been removed from the whitelist", func() {
 		// ARRANGE
-		whitelist = []*types.WhitelistCoinEntry{
+		s.App().FundersKeeper.SetParams(s.Ctx(), types.NewParams([]*types.WhitelistCoinEntry{
 			{
 				CoinDenom:                 globaltypes.Denom,
 				MinFundingAmount:          10 * i.KYVE,
@@ -359,8 +358,7 @@ var _ = Describe("msg_server_defund_pool.go", Ordered, func() {
 				MinFundingAmountPerBundle: 1 * i.KYVE,
 				CoinWeight:                math.LegacyNewDec(3),
 			},
-		}
-		s.App().FundersKeeper.SetParams(s.Ctx(), types.NewParams(whitelist, 20))
+		}, 20))
 
 		// ACT
 		s.RunTxFundersSuccess(&types.MsgDefundPool{

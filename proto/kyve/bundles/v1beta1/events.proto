@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package kyve.bundles.v1beta1;
 
+import "amino/amino.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "kyve/bundles/v1beta1/bundles.proto";
 import "kyve/bundles/v1beta1/params.proto";
@@ -87,24 +89,51 @@ message EventBundleFinalized {
   uint64 total = 6;
   // status of the finalized bundle
   BundleStatus status = 7;
-  // amount which funders provided to the total bundle reward (in ukyve)
-  uint64 funders_payout = 8;
+  // amount which funders provided to the total bundle reward
+  repeated cosmos.base.v1beta1.Coin funders_payout = 8 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
   // amount which the inflation pool provided to the total reward (in ukyve)
   uint64 inflation_payout = 9;
-  // rewards transferred to treasury (in ukyve)
-  uint64 reward_treasury = 10;
-  // rewardUploader rewards directly transferred to uploader (in ukyve)
-  uint64 reward_uploader = 11;
-  // rewardDelegation rewards distributed among all delegators (in ukyve)
-  uint64 reward_delegation = 12;
+  // rewards transferred to treasury
+  repeated cosmos.base.v1beta1.Coin reward_treasury = 10 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // reward_uploader_commission are the commission rewards of the uploader.
+  // if the uploader has no delegations the delegation rewards are included here
+  repeated cosmos.base.v1beta1.Coin reward_uploader_commission = 11 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // rewardDelegation rewards distributed among all delegators
+  repeated cosmos.base.v1beta1.Coin reward_delegation = 12 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
   // rewardTotal the total bundle reward
-  uint64 reward_total = 13;
+  repeated cosmos.base.v1beta1.Coin reward_total = 13 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
   // finalized_at the block height where the bundle got finalized
   uint64 finalized_at = 14;
   // uploader the address of the uploader of this bundle
   string uploader = 15;
   // next_uploader the address of the next uploader after this bundle
   string next_uploader = 16;
+  // reward_uploader_storage_cost are the storage cost rewards for the uploader
+  repeated cosmos.base.v1beta1.Coin reward_uploader_storage_cost = 17 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }
 
 // EventClaimedUploaderRole is an event emitted when an uploader claims the uploader role
