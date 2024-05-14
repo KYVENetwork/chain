@@ -266,12 +266,15 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		commissionRewardsBefore := uploader.CommissionRewards
 
 		// ACT
-		s.RunTxStakersSuccess(&stakertypes.MsgClaimCommissionRewards{
+		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
 			Creator: i.STAKER_0,
 			Amount:  sdk.NewCoins(),
 		})
 
 		// ASSERT
+		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(Equal(errors.Wrapf(errorsTypes.ErrInvalidRequest, "amount is empty").Error()))
+
 		uploader, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
 		Expect(uploader.CommissionRewards.String()).To(Equal(commissionRewardsBefore.String()))
