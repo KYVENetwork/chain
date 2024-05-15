@@ -3,7 +3,6 @@ package keeper
 import (
 	"math"
 
-	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 
 	"cosmossdk.io/errors"
@@ -13,8 +12,8 @@ import (
 )
 
 // IncreaseStakerCommissionRewards sets the uploader's commission rewards and transfers the funds from
-// the pool module to the stakers module, so the funds can be later claimed and transferred from here
-func (k Keeper) IncreaseStakerCommissionRewards(ctx sdk.Context, address string, amount sdk.Coins) error {
+// the payer module to the stakers module, so the funds can be later claimed and transferred from here
+func (k Keeper) IncreaseStakerCommissionRewards(ctx sdk.Context, address string, payerModuleName string, amount sdk.Coins) error {
 	// Assert there is an amount
 	if amount.Empty() {
 		return nil
@@ -26,7 +25,7 @@ func (k Keeper) IncreaseStakerCommissionRewards(ctx sdk.Context, address string,
 	}
 
 	// transfer funds from pool to stakers module
-	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, poolTypes.ModuleName, types.ModuleName, amount); err != nil {
+	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, payerModuleName, types.ModuleName, amount); err != nil {
 		return err
 	}
 

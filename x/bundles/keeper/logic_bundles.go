@@ -586,7 +586,7 @@ func (k Keeper) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bundle
 
 		// payout rewards to uploader through commission rewards
 		uploaderReward := bundleReward.UploaderCommission.Add(bundleReward.UploaderStorageCost...)
-		if err := k.stakerKeeper.IncreaseStakerCommissionRewards(ctx, bundleProposal.Uploader, uploaderReward); err != nil {
+		if err := k.stakerKeeper.IncreaseStakerCommissionRewards(ctx, bundleProposal.Uploader, poolTypes.ModuleName, uploaderReward); err != nil {
 			return types.TallyResult{}, err
 		}
 
