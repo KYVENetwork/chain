@@ -183,6 +183,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
 		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
 
+		c1 := s.GetCoinsFromCommunityPool()
+
 		s.CommitAfterSeconds(60)
 
 		// ACT
@@ -278,6 +280,10 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
+		// assert treasury payout
+		c2 := s.GetCoinsFromCommunityPool()
+		Expect(c2.Sub(c1...).AmountOf(i.A_DENOM).Uint64()).To(Equal(uint64(100)))
+
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(i.ACoins(100*i.T_KYVE - amountPerBundle).String()))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
@@ -321,6 +327,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
 		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+
+		c1 := s.GetCoinsFromCommunityPool()
 
 		s.CommitAfterSeconds(60)
 
@@ -423,6 +431,10 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
+		// assert treasury payout
+		c2 := s.GetCoinsFromCommunityPool()
+		Expect(c2.Sub(c1...).AmountOf(i.A_DENOM).Uint64()).To(Equal(uint64(100)))
+
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(i.ACoins(100*i.T_KYVE - amountPerBundle).String()))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
@@ -483,6 +495,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
 		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+
+		c1 := s.GetCoinsFromCommunityPool()
 
 		s.CommitAfterSeconds(60)
 
@@ -585,6 +599,10 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
+		// assert treasury payout
+		c2 := s.GetCoinsFromCommunityPool()
+		Expect(c2.Sub(c1...).AmountOf(i.A_DENOM).Uint64()).To(Equal(uint64(100)))
+
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(i.ACoins(100*i.T_KYVE - amountPerBundle).String()))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
@@ -653,6 +671,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
 		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+
+		c1 := s.GetCoinsFromCommunityPool()
 
 		s.CommitAfterSeconds(60)
 
@@ -755,6 +775,10 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
+		// assert treasury payout
+		c2 := s.GetCoinsFromCommunityPool()
+		Expect(c2.Sub(c1...).AmountOf(i.A_DENOM).Uint64()).To(Equal(uint64(100)))
+
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(i.ACoins(100*i.T_KYVE - amountPerBundle).String()))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
@@ -823,6 +847,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		initialBalanceStaker2 = s.GetCoinsFromAddress(i.STAKER_2)
 		initialBalanceValaddress2 = s.GetCoinsFromAddress(i.VALADDRESS_2_A)
+
+		c1 := s.GetCoinsFromCommunityPool()
 
 		s.CommitAfterSeconds(60)
 
@@ -935,6 +961,10 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
+		// assert treasury payout
+		c2 := s.GetCoinsFromCommunityPool()
+		Expect(c2.Sub(c1...).AmountOf(i.A_DENOM).Uint64()).To(Equal(uint64(100)))
+
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(i.ACoins(100*i.T_KYVE - amountPerBundle).String()))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
@@ -976,6 +1006,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
 		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+
+		c1 := s.GetCoinsFromCommunityPool()
 
 		s.CommitAfterSeconds(60)
 
@@ -1072,6 +1104,10 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
+		// assert treasury payout
+		c2 := s.GetCoinsFromCommunityPool()
+		Expect(c2.Sub(c1...).AmountOf(i.A_DENOM).Uint64()).To(Equal(uint64(100)))
+
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(i.ACoins(100*i.T_KYVE - amountPerBundle).String()))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
@@ -1110,6 +1146,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
 		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+
+		c1 := s.GetCoinsFromCommunityPool()
 
 		s.CommitAfterSeconds(60)
 
@@ -1206,12 +1244,18 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
+		// assert treasury payout
+		c2 := s.GetCoinsFromCommunityPool()
+		Expect(c2.Sub(c1...).AmountOf(i.A_DENOM).Uint64()).To(Equal(uint64(100)))
+		Expect(c2.Sub(c1...).AmountOf(i.B_DENOM).Uint64()).To(Equal(uint64(200)))
+		Expect(c2.Sub(c1...).AmountOf(i.C_DENOM).Uint64()).To(Equal(uint64(300)))
+
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(sdk.NewCoins(i.ACoin(100*i.T_KYVE-amountPerBundle), i.BCoin(200*i.T_KYVE-2*amountPerBundle), i.CCoin(300*i.T_KYVE-3*amountPerBundle)).String()))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 
-	It("amountPerBundle", func() {
+	It("Produce a valid bundle with multiple validators, multiple coins which are not enough for the storage reward and no foreign delegations", func() {
 		// ARRANGE
 		// set coin weight of ccoin to a very low value so amount_per_bundle of ccoin can not cover the storage reward
 		s.App().FundersKeeper.SetParams(s.Ctx(), fundersTypes.NewParams([]*fundersTypes.WhitelistCoinEntry{
@@ -1272,6 +1316,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
 		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+
+		c1 := s.GetCoinsFromCommunityPool()
 
 		s.CommitAfterSeconds(60)
 
@@ -1368,6 +1414,12 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
+		// assert treasury payout
+		c2 := s.GetCoinsFromCommunityPool()
+		Expect(c2.Sub(c1...).AmountOf(i.A_DENOM).Uint64()).To(Equal(uint64(100)))
+		Expect(c2.Sub(c1...).AmountOf(i.B_DENOM).Uint64()).To(Equal(uint64(100)))
+		Expect(c2.Sub(c1...).AmountOf(i.C_DENOM).Uint64()).To(Equal(uint64(100)))
+
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(sdk.NewCoins(i.ACoin(100*i.T_KYVE-amountPerBundle), i.BCoin(100*i.T_KYVE-amountPerBundle), i.CCoin(100*i.T_KYVE-amountPerBundle)).String()))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
@@ -1428,6 +1480,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
 		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+
+		c1 := s.GetCoinsFromCommunityPool()
 
 		s.CommitAfterSeconds(60)
 
@@ -1523,6 +1577,12 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.ACoin(8888), i.BCoin(8900)).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
+		// assert treasury payout
+		c2 := s.GetCoinsFromCommunityPool()
+		Expect(c2.Sub(c1...).AmountOf(i.A_DENOM).Uint64()).To(Equal(uint64(100)))
+		Expect(c2.Sub(c1...).AmountOf(i.B_DENOM).Uint64()).To(Equal(uint64(100)))
+		Expect(c2.Sub(c1...).AmountOf(i.C_DENOM).Uint64()).To(BeZero())
 
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(sdk.NewCoins(i.ACoin(100*i.T_KYVE-amountPerBundle), i.BCoin(100*i.T_KYVE-amountPerBundle), i.CCoin(100*i.T_KYVE)).String()))

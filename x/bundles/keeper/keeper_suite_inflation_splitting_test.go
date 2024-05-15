@@ -35,7 +35,7 @@ TEST CASES - inflation splitting
 
 * Produce a valid bundle with multiple coins funded and 0% inflation splitting
 * Produce a valid bundle with multiple coins funded and 10% inflation splitting
-* TODO: Produce a valid bundle with multiple coins funded and 100% inflation splitting
+* Produce a valid bundle with multiple coins funded and 100% inflation splitting
 
 */
 
@@ -183,6 +183,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		b1 := s.GetBalanceFromPool(0)
+		c1 := s.GetCoinsFromCommunityPool()
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -220,6 +221,10 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
+		// assert treasury payout since inflation is zero here
+		c2 := s.GetCoinsFromCommunityPool()
+		Expect(c2.Sub(c1...)).To(BeEmpty())
 
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
@@ -447,6 +452,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		b1 := s.GetBalanceFromPool(0)
+		c1 := s.GetCoinsFromCommunityPool()
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -487,6 +493,13 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(8865).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
+		// assert treasury payout since inflation is zero here
+		c2 := s.GetCoinsFromCommunityPool()
+		Expect(c2.Sub(c1...).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(100)))
+		Expect(c2.Sub(c1...).AmountOf(i.A_DENOM).Uint64()).To(BeZero())
+		Expect(c2.Sub(c1...).AmountOf(i.B_DENOM).Uint64()).To(BeZero())
+		Expect(c2.Sub(c1...).AmountOf(i.C_DENOM).Uint64()).To(BeZero())
 
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(200*i.KYVE - 10_000))
@@ -742,6 +755,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		b1 := s.GetBalanceFromPool(0)
+		c1 := s.GetCoinsFromCommunityPool()
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -781,6 +795,13 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(223).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
+		// assert treasury payout since inflation is zero here
+		c2 := s.GetCoinsFromCommunityPool()
+		Expect(c2.Sub(c1...).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(3)))
+		Expect(c2.Sub(c1...).AmountOf(i.A_DENOM).Uint64()).To(BeZero())
+		Expect(c2.Sub(c1...).AmountOf(i.B_DENOM).Uint64()).To(BeZero())
+		Expect(c2.Sub(c1...).AmountOf(i.C_DENOM).Uint64()).To(BeZero())
 
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).IsZero()).To(BeTrue())
@@ -1036,6 +1057,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		b1 := s.GetBalanceFromPool(0)
+		c1 := s.GetCoinsFromCommunityPool()
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -1075,6 +1097,13 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(4_589).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
+		// assert treasury payout since inflation is zero here
+		c2 := s.GetCoinsFromCommunityPool()
+		Expect(c2.Sub(c1...).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(52)))
+		Expect(c2.Sub(c1...).AmountOf(i.A_DENOM).Uint64()).To(BeZero())
+		Expect(c2.Sub(c1...).AmountOf(i.B_DENOM).Uint64()).To(BeZero())
+		Expect(c2.Sub(c1...).AmountOf(i.C_DENOM).Uint64()).To(BeZero())
 
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100*i.KYVE - 5_000))
@@ -1330,6 +1359,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		b1 := s.GetBalanceFromPool(0)
+		c1 := s.GetCoinsFromCommunityPool()
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -1370,6 +1400,12 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.ACoin(8888), i.BCoin(17810)).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
+		// assert treasury payout
+		c2 := s.GetCoinsFromCommunityPool()
+		Expect(c2.Sub(c1...).AmountOf(i.A_DENOM).Uint64()).To(Equal(uint64(100)))
+		Expect(c2.Sub(c1...).AmountOf(i.B_DENOM).Uint64()).To(Equal(uint64(200)))
+		Expect(c2.Sub(c1...).AmountOf(i.C_DENOM).Uint64()).To(BeZero())
 
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(sdk.NewCoins(i.ACoin(200*i.T_KYVE-2*amountPerBundle), i.BCoin(200*i.T_KYVE-4*amountPerBundle)).String()))
@@ -1427,6 +1463,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		b1 := s.GetBalanceFromPool(0)
+		c1 := s.GetCoinsFromCommunityPool()
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -1469,10 +1506,16 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// for kyve coin (7_415_009 - (7_415_009 * 0.01) - _((100 * 0.5) / (3 * 1)))_ * (1 - 0.1)
 		// for acoin (10_000 - (10_000 * 0.01) - _((100 * 0.5) / (3 * 1)))_ * (1 - 0.1)
-		// for bcoin (10_000 - (10_000 * 0.01) - _((100 * 0.5) / (3 * 2)))_ * (1 - 0.1)
+		// for bcoin (20_000 - (20_000 * 0.01) - _((100 * 0.5) / (3 * 2)))_ * (1 - 0.1)
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(6_606_759), i.ACoin(8896), i.BCoin(17813)).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
+		// assert treasury payout
+		c2 := s.GetCoinsFromCommunityPool()
+		Expect(c2.Sub(c1...).AmountOf(i.A_DENOM).Uint64()).To(Equal(uint64(100)))
+		Expect(c2.Sub(c1...).AmountOf(i.B_DENOM).Uint64()).To(Equal(uint64(200)))
+		Expect(c2.Sub(c1...).AmountOf(i.C_DENOM).Uint64()).To(BeZero())
 
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(200*i.KYVE - 10_000))
@@ -1530,6 +1573,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		b1 := s.GetBalanceFromPool(0)
+		c1 := s.GetCoinsFromCommunityPool()
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -1572,10 +1616,16 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// for kyve coin (24_716_741 - (24_716_741 * 0.01) - _((100 * 0.5) / (3 * 1)))_ * (1 - 0.1)
 		// for acoin (10_000 - (10_000 * 0.01) - _((100 * 0.5) / (3 * 1)))_ * (1 - 0.1)
-		// for bcoin (10_000 - (10_000 * 0.01) - _((100 * 0.5) / (3 * 2)))_ * (1 - 0.1)
+		// for bcoin (20_000 - (20_000 * 0.01) - _((100 * 0.5) / (3 * 2)))_ * (1 - 0.1)
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(22_022_603), i.ACoin(8896), i.BCoin(17813)).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
+		// assert treasury payout
+		c2 := s.GetCoinsFromCommunityPool()
+		Expect(c2.Sub(c1...).AmountOf(i.A_DENOM).Uint64()).To(Equal(uint64(100)))
+		Expect(c2.Sub(c1...).AmountOf(i.B_DENOM).Uint64()).To(Equal(uint64(200)))
+		Expect(c2.Sub(c1...).AmountOf(i.C_DENOM).Uint64()).To(BeZero())
 
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(200*i.KYVE - 10_000))
