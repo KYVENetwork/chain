@@ -417,6 +417,7 @@ func New(
 			app.GetStoreKeys(),
 			app.BundlesKeeper,
 			app.PoolKeeper,
+			app.FundersKeeper,
 		),
 	)
 
