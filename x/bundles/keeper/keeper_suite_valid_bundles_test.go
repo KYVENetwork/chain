@@ -27,6 +27,7 @@ TEST CASES - valid bundles
 * Produce a valid bundle with multiple validators and no foreign delegations and another storage provider
 * Produce a valid bundle with multiple validators, multiple coins and no foreign delegations
 * Produce a valid bundle with multiple validators, multiple coins which are not enough for the storage reward and no foreign delegations
+* Produce a valid bundle with multiple validator, multiple coins and no foreign delegations where one coin is removed from the whitelist
 
 */
 
@@ -1369,6 +1370,162 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(sdk.NewCoins(i.ACoin(100*i.T_KYVE-amountPerBundle), i.BCoin(100*i.T_KYVE-amountPerBundle), i.CCoin(100*i.T_KYVE-amountPerBundle)).String()))
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
+	})
+
+	It("Produce a valid bundle with multiple validator, multiple coins and no foreign delegations where one coin is removed from the whitelist", func() {
+		// ARRANGE
+		// fund additionally to the already funded 100acoins
+		s.RunTxPoolSuccess(&fundersTypes.MsgFundPool{
+			Creator:          i.ALICE,
+			Amounts:          sdk.NewCoins(i.BCoin(100*i.T_KYVE), i.CCoin(100*i.T_KYVE)),
+			AmountsPerBundle: sdk.NewCoins(i.BCoin(amountPerBundle), i.CCoin(amountPerBundle)),
+		})
+
+		// remove ccoin from whitelist
+		s.App().FundersKeeper.SetParams(s.Ctx(), fundersTypes.NewParams([]*fundersTypes.WhitelistCoinEntry{
+			{
+				CoinDenom:                 globalTypes.Denom,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+			{
+				CoinDenom:                 i.A_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+			{
+				CoinDenom:                 i.B_DENOM,
+				MinFundingAmount:          10 * i.KYVE,
+				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				CoinWeight:                math.LegacyNewDec(2),
+			},
+		}, 0))
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_0_A,
+			Staker:        i.STAKER_0,
+			PoolId:        0,
+			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			DataSize:      100,
+			DataHash:      "test_hash",
+			FromIndex:     0,
+			BundleSize:    100,
+			FromKey:       "0",
+			ToKey:         "99",
+			BundleSummary: "test_value",
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_VALID,
+		})
+
+		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
+		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+
+		s.CommitAfterSeconds(60)
+
+		// ACT
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_1_A,
+			Staker:        i.STAKER_1,
+			PoolId:        0,
+			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
+			DataSize:      100,
+			DataHash:      "test_hash2",
+			FromIndex:     100,
+			BundleSize:    100,
+			FromKey:       "100",
+			ToKey:         "199",
+			BundleSummary: "test_value2",
+		})
+
+		// ASSERT
+		// check if bundle got finalized on pool
+		pool, poolFound := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		Expect(poolFound).To(BeTrue())
+
+		Expect(pool.CurrentKey).To(Equal("99"))
+		Expect(pool.CurrentSummary).To(Equal("test_value"))
+		Expect(pool.CurrentIndex).To(Equal(uint64(100)))
+		Expect(pool.TotalBundles).To(Equal(uint64(1)))
+
+		// check if finalized bundle got saved
+		finalizedBundle, finalizedBundleFound := s.App().BundlesKeeper.GetFinalizedBundle(s.Ctx(), 0, 0)
+		Expect(finalizedBundleFound).To(BeTrue())
+
+		Expect(finalizedBundle.PoolId).To(Equal(uint64(0)))
+		Expect(finalizedBundle.StorageId).To(Equal("y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI"))
+		Expect(finalizedBundle.Uploader).To(Equal(i.STAKER_0))
+		Expect(finalizedBundle.FromIndex).To(Equal(uint64(0)))
+		Expect(finalizedBundle.ToIndex).To(Equal(uint64(100)))
+		Expect(finalizedBundle.FromKey).To(Equal("0"))
+		Expect(finalizedBundle.ToKey).To(Equal("99"))
+		Expect(finalizedBundle.BundleSummary).To(Equal("test_value"))
+		Expect(finalizedBundle.DataHash).To(Equal("test_hash"))
+		Expect(finalizedBundle.FinalizedAt).NotTo(BeZero())
+		Expect(finalizedBundle.StakeSecurity.ValidVotePower).To(Equal(200 * i.KYVE))
+		Expect(finalizedBundle.StakeSecurity.TotalVotePower).To(Equal(200 * i.KYVE))
+
+		// check if next bundle proposal got registered
+		bundleProposal, bundleProposalFound := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
+		Expect(bundleProposalFound).To(BeTrue())
+
+		Expect(bundleProposal.PoolId).To(Equal(uint64(0)))
+		Expect(bundleProposal.StorageId).To(Equal("P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg"))
+		Expect(bundleProposal.Uploader).To(Equal(i.STAKER_1))
+		Expect(bundleProposal.NextUploader).NotTo(BeEmpty())
+		Expect(bundleProposal.DataSize).To(Equal(uint64(100)))
+		Expect(bundleProposal.DataHash).To(Equal("test_hash2"))
+		Expect(bundleProposal.BundleSize).To(Equal(uint64(100)))
+		Expect(bundleProposal.FromKey).To(Equal("100"))
+		Expect(bundleProposal.ToKey).To(Equal("199"))
+		Expect(bundleProposal.BundleSummary).To(Equal("test_value2"))
+		Expect(bundleProposal.UpdatedAt).NotTo(BeZero())
+		Expect(bundleProposal.VotersValid).To(ContainElement(i.STAKER_1))
+		Expect(bundleProposal.VotersInvalid).To(BeEmpty())
+		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
+
+		// check uploader status
+		valaccountUploader, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		Expect(valaccountUploader.Points).To(BeZero())
+
+		balanceUploaderValaddress := s.GetCoinsFromAddress(valaccountUploader.Valaddress)
+		Expect(balanceUploaderValaddress).To(Equal(initialBalanceValaddress0))
+
+		// check voter status
+		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		Expect(valaccountVoter.Points).To(BeZero())
+
+		balanceVoterValaddress := s.GetCoinsFromAddress(valaccountVoter.Valaddress)
+		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
+
+		balanceVoter := s.GetCoinsFromAddress(valaccountVoter.Staker)
+		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
+
+		// check uploader rewards
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), valaccountUploader.Staker)
+		balanceUploader := s.GetCoinsFromAddress(valaccountUploader.Staker)
+
+		// assert payout transfer
+		Expect(balanceUploader.String()).To(Equal(initialBalanceStaker0.String()))
+		// assert commission rewards (here we round down since the result of commission rewards gets truncated)
+		// (10_000 - (10_000 * 0.01) - _((100 * 0.5) / (2 * coin_weight)))_ * 0.1 + _((100 * 0.5) / (2 * coin_weight))_
+		Expect(uploader.CommissionRewards.String()).To(Equal(sdk.NewCoins(i.ACoin(1012), i.BCoin(1000)).String()))
+		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
+		// (10_000 - (10_000 * 0.01) - _((100 * 0.5) / (2 * coin_weight)))_ * (1 - 0.1)
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.ACoin(8888), i.BCoin(8900)).String()))
+
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
+		// assert total pool funds
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(sdk.NewCoins(i.ACoin(100*i.T_KYVE-amountPerBundle), i.BCoin(100*i.T_KYVE-amountPerBundle), i.CCoin(100*i.T_KYVE)).String()))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 })
