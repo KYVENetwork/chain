@@ -8,7 +8,7 @@ import (
 )
 
 // GetParams get all parameters as types.Params
-func GetParams(ctx sdk.Context, storeKey storeTypes.StoreKey, cdc codec.Codec) (params Params) {
+func GetParams(ctx sdk.Context, cdc codec.Codec, storeKey storeTypes.StoreKey) (params Params) {
 	store := ctx.KVStore(storeKey)
 
 	bz := store.Get(types.ParamsKey)

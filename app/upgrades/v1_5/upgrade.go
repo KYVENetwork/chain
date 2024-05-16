@@ -4,7 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/bundles"
+	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/delegation"
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/funders"
+	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
+	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
 	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
 	"github.com/KYVENetwork/chain/x/funders/types"
 	fundersTypes "github.com/KYVENetwork/chain/x/funders/types"
@@ -17,7 +20,6 @@ import (
 
 	"github.com/KYVENetwork/chain/x/bundles/keeper"
 	bundlestypes "github.com/KYVENetwork/chain/x/bundles/types"
-	poolkeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -27,7 +29,7 @@ const (
 	UpgradeName = "v1.5.0"
 )
 
-func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, cdc codec.Codec, storeKeys []storetypes.StoreKey, bundlesKeeper keeper.Keeper, poolKeeper *poolkeeper.Keeper, fundersKeeper fundersKeeper.Keeper) upgradetypes.UpgradeHandler {
+func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, cdc codec.Codec, storeKeys []storetypes.StoreKey, bundlesKeeper keeper.Keeper, delegationKeeper delegationKeeper.Keeper, fundersKeeper fundersKeeper.Keeper) upgradetypes.UpgradeHandler {
 	return func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 		sdkCtx := sdk.UnwrapSDKContext(ctx)
 		logger := sdkCtx.Logger().With("upgrade", UpgradeName)
@@ -46,7 +48,12 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 			return nil, err
 		}
 
-		// TODO: migrate delegation outstanding rewards
+		// migrate delegations
+		if storeKey, err := getStoreKey(storeKeys, delegationTypes.StoreKey); err == nil {
+			migrateDelegationModule(sdkCtx, cdc, storeKey, delegationKeeper)
+		} else {
+			return nil, err
+		}
 
 		// TODO: migrate network fee and whitelist weights
 
@@ -67,7 +74,7 @@ func getStoreKey(storeKeys []storetypes.StoreKey, storeName string) (storetypes.
 func migrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, storeKey storetypes.StoreKey, fundersKeeper fundersKeeper.Keeper) {
 	// migrate params
 	// TODO: define final prices and initial whitelisted coins
-	oldParams := funders.GetParams(sdkCtx, storeKey, cdc)
+	oldParams := funders.GetParams(sdkCtx, cdc, storeKey)
 	fundersKeeper.SetParams(sdkCtx, fundersTypes.Params{
 		CoinWhitelist: []*fundersTypes.WhitelistCoinEntry{
 			{
@@ -81,14 +88,39 @@ func migrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, storeKey storetyp
 	})
 
 	// migrate fundings
-	oldFundings := funders.GetAllFundings(sdkCtx, storeKey, cdc)
-	for _, funding := range oldFundings {
+	oldFundings := funders.GetAllFundings(sdkCtx, cdc, storeKey)
+	for _, f := range oldFundings {
 		fundersKeeper.SetFunding(sdkCtx, &types.Funding{
-			FunderAddress:    funding.FunderAddress,
-			PoolId:           funding.PoolId,
-			Amounts:          sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(funding.Amount))),
-			AmountsPerBundle: sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(funding.AmountPerBundle))),
-			TotalFunded:      sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(funding.TotalFunded))),
+			FunderAddress:    f.FunderAddress,
+			PoolId:           f.PoolId,
+			Amounts:          sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(f.Amount))),
+			AmountsPerBundle: sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(f.AmountPerBundle))),
+			TotalFunded:      sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(f.TotalFunded))),
+		})
+	}
+}
+
+func migrateDelegationModule(sdkCtx sdk.Context, cdc codec.Codec, storeKey storetypes.StoreKey, delegationKeeper delegationKeeper.Keeper) {
+	// migrate delegation entries
+	oldDelegationEntries := delegation.GetAllDelegationEntries(sdkCtx, cdc, storeKey)
+	for _, d := range oldDelegationEntries {
+		delegationKeeper.SetDelegationEntry(sdkCtx, delegationTypes.DelegationEntry{
+			Staker: d.Staker,
+			KIndex: d.KIndex,
+			Value:  sdk.NewDecCoins(sdk.NewDecCoinFromDec(globalTypes.Denom, d.Value)),
+		})
+	}
+
+	// migrate delegation data
+	oldDelegationData := delegation.GetAllDelegationData(sdkCtx, cdc, storeKey)
+	for _, d := range oldDelegationData {
+		delegationKeeper.SetDelegationData(sdkCtx, delegationTypes.DelegationData{
+			Staker:                     d.Staker,
+			CurrentRewards:             sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(d.CurrentRewards))),
+			TotalDelegation:            d.TotalDelegation,
+			LatestIndexK:               d.LatestIndexK,
+			DelegatorCount:             d.DelegatorCount,
+			LatestIndexWasUndelegation: d.LatestIndexWasUndelegation,
 		})
 	}
 }

@@ -7,7 +7,7 @@ import (
 )
 
 // GetAllFundings returns all fundings
-func GetAllFundings(ctx sdk.Context, storeKey storeTypes.StoreKey, cdc codec.Codec) (fundings []Funding) {
+func GetAllFundings(ctx sdk.Context, cdc codec.Codec, storeKey storeTypes.StoreKey) (fundings []Funding) {
 	store := ctx.KVStore(storeKey)
 	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
