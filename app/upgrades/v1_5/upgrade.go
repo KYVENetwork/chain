@@ -42,7 +42,7 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 		// TODO: migrate gov params
 
 		// migrate fundings
-		migrateFundersModule(sdkCtx, cdc, fundersKeeper)
+		MigrateFundersModule(sdkCtx, cdc, storeKeys, fundersKeeper)
 
 		// migrate delegations
 		migrateDelegationModule(sdkCtx, cdc, delegationKeeper)
@@ -57,7 +57,7 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 	}
 }
 
-func getStoreKey(storeKeys []storetypes.StoreKey, storeName string) (storetypes.StoreKey, error) {
+func GetStoreKey(storeKeys []storetypes.StoreKey, storeName string) (storetypes.StoreKey, error) {
 	for _, k := range storeKeys {
 		if k.Name() == storeName {
 			return k, nil
@@ -67,10 +67,15 @@ func getStoreKey(storeKeys []storetypes.StoreKey, storeName string) (storetypes.
 	return nil, fmt.Errorf("store key not found: %s", storeName)
 }
 
-func migrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, fundersKeeper fundersKeeper.Keeper) {
+func MigrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, storeKeys []storetypes.StoreKey, fundersKeeper fundersKeeper.Keeper) {
+	storeKey, err := GetStoreKey(storeKeys, fundersTypes.StoreKey)
+	if err != nil {
+		panic(fmt.Sprintf("failed to find store key: %s", fundersTypes.StoreKey))
+	}
+
 	// migrate params
 	// TODO: define final prices and initial whitelisted coins
-	oldParams := funders.GetParams(sdkCtx, cdc)
+	oldParams := funders.GetParams(sdkCtx, cdc, storeKey)
 	fundersKeeper.SetParams(sdkCtx, fundersTypes.Params{
 		CoinWhitelist: []*fundersTypes.WhitelistCoinEntry{
 			{
@@ -84,7 +89,7 @@ func migrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, fundersKeeper fun
 	})
 
 	// migrate fundings
-	oldFundings := funders.GetAllFundings(sdkCtx, cdc)
+	oldFundings := funders.GetAllFundings(sdkCtx, cdc, storeKey)
 	for _, f := range oldFundings {
 		fundersKeeper.SetFunding(sdkCtx, &types.Funding{
 			FunderAddress:    f.FunderAddress,

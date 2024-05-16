@@ -3,16 +3,13 @@ package funders
 import (
 	storeTypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/x/funders/types"
-	fundersTypes "github.com/KYVENetwork/chain/x/funders/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // GetParams get all parameters as types.Params
-func GetParams(ctx sdk.Context, cdc codec.Codec) (params Params) {
-	storeService := runtime.NewKVStoreService(storeTypes.NewKVStoreKey(fundersTypes.StoreKey))
-	store := runtime.KVStoreAdapter(storeService.OpenKVStore(ctx))
+func GetParams(ctx sdk.Context, cdc codec.Codec, storeKey storeTypes.StoreKey) (params Params) {
+	store := ctx.KVStore(storeKey)
 
 	bz := store.Get(types.ParamsKey)
 	if bz == nil {
@@ -21,4 +18,11 @@ func GetParams(ctx sdk.Context, cdc codec.Codec) (params Params) {
 
 	cdc.MustUnmarshal(bz, &params)
 	return params
+}
+
+// SetParams set the params
+func SetParams(ctx sdk.Context, cdc codec.Codec, storeKey storeTypes.StoreKey, params Params) {
+	store := ctx.KVStore(storeKey)
+	bz := cdc.MustMarshal(&params)
+	store.Set(types.ParamsKey, bz)
 }
