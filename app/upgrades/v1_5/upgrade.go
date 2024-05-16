@@ -39,10 +39,6 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 		logger := sdkCtx.Logger().With("upgrade", UpgradeName)
 		logger.Info(fmt.Sprintf("performing upgrade %v", UpgradeName))
 
-		if err := migrateStorageCosts(sdkCtx, cdc, storeKeys, bundlesKeeper); err != nil {
-			return nil, err
-		}
-
 		// TODO: migrate gov params
 
 		// migrate fundings
@@ -66,7 +62,12 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 			return nil, err
 		}
 
-		// TODO: migrate network fee and whitelist weights
+		// migrate bundles
+		if storeKey, err := getStoreKey(storeKeys, bundlestypes.StoreKey); err == nil {
+			migrateBundlesModule(sdkCtx, cdc, storeKey, bundlesKeeper)
+		} else {
+			return nil, err
+		}
 
 		return mm.RunMigrations(ctx, configurator, fromVM)
 	}
@@ -153,32 +154,21 @@ func migrateStakersModule(sdkCtx sdk.Context, cdc codec.Codec, storeKey storetyp
 	}
 }
 
-func migrateStorageCosts(sdkCtx sdk.Context, cdc codec.Codec, storeKeys []storetypes.StoreKey, bundlesKeeper keeper.Keeper) error {
-	var bundlesStoreKey storetypes.StoreKey
-	for _, k := range storeKeys {
-		if k.Name() == "bundles" {
-			bundlesStoreKey = k
-			break
-		}
-	}
-	if bundlesStoreKey == nil {
-		return fmt.Errorf("store key not found: bundles")
-	}
+func migrateBundlesModule(sdkCtx sdk.Context, cdc codec.Codec, storeKey storetypes.StoreKey, bundlesKeeper keeper.Keeper) {
+	oldParams := bundles.GetParams(sdkCtx, storeKey, cdc)
 
-	// Copy storage cost from old params to new params
-	// The storage cost of all storage providers will be the same after this migration
-	oldParams := bundles.GetParams(sdkCtx, bundlesStoreKey, cdc)
-	newParams := bundlestypes.Params{
+	// TODO: define final storage cost prices
+	bundlesKeeper.SetParams(sdkCtx, bundlestypes.Params{
 		UploadTimeout: oldParams.UploadTimeout,
 		StorageCosts: []bundlestypes.StorageCost{
-			// TODO: define value for storage provider id 1 and 2
-			{StorageProviderId: 1, Cost: math.LegacyMustNewDecFromStr("0.00")},
-			{StorageProviderId: 2, Cost: math.LegacyMustNewDecFromStr("0.00")},
+			// Arweave: https://arweave.net/price/1048576 -> 699 winston/byte * 40 USD/AR * 1.5 / 10**12
+			{StorageProviderId: 1, Cost: math.LegacyMustNewDecFromStr("0.000000004194")},
+			// Irys: https://node1.bundlr.network/price/1048576 -> 1048 winston/byte * 40 USD/AR * 1.5 / 10**12
+			{StorageProviderId: 2, Cost: math.LegacyMustNewDecFromStr("0.000000006288")},
+			// KYVE Storage Provider: zero since it is free to use for testnet participants
+			{StorageProviderId: 3, Cost: math.LegacyMustNewDecFromStr("0.00")},
 		},
 		NetworkFee: oldParams.NetworkFee,
 		MaxPoints:  oldParams.MaxPoints,
-	}
-
-	bundlesKeeper.SetParams(sdkCtx, newParams)
-	return nil
+	})
 }
