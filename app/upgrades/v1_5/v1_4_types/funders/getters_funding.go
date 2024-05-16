@@ -1,14 +1,20 @@
 package funders
 
 import (
+	"cosmossdk.io/store/prefix"
 	storeTypes "cosmossdk.io/store/types"
+	fundersTypes "github.com/KYVENetwork/chain/x/funders/types"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // GetAllFundings returns all fundings
-func GetAllFundings(ctx sdk.Context, cdc codec.Codec, storeKey storeTypes.StoreKey) (fundings []Funding) {
-	store := ctx.KVStore(storeKey)
+func GetAllFundings(ctx sdk.Context, cdc codec.Codec) (fundings []Funding) {
+	storeService := runtime.NewKVStoreService(storeTypes.NewKVStoreKey(fundersTypes.StoreKey))
+	storeAdapter := runtime.KVStoreAdapter(storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, fundersTypes.FundingKeyPrefixByFunder)
+
 	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
 	//goland:noinspection GoUnhandledErrorResult

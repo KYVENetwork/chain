@@ -42,32 +42,16 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 		// TODO: migrate gov params
 
 		// migrate fundings
-		if storeKey, err := getStoreKey(storeKeys, fundersTypes.StoreKey); err == nil {
-			migrateFundersModule(sdkCtx, cdc, storeKey, fundersKeeper)
-		} else {
-			return nil, err
-		}
+		migrateFundersModule(sdkCtx, cdc, fundersKeeper)
 
 		// migrate delegations
-		if storeKey, err := getStoreKey(storeKeys, delegationTypes.StoreKey); err == nil {
-			migrateDelegationModule(sdkCtx, cdc, storeKey, delegationKeeper)
-		} else {
-			return nil, err
-		}
+		migrateDelegationModule(sdkCtx, cdc, delegationKeeper)
 
 		// migrate stakers
-		if storeKey, err := getStoreKey(storeKeys, stakersTypes.StoreKey); err == nil {
-			migrateStakersModule(sdkCtx, cdc, storeKey, stakersKeeper)
-		} else {
-			return nil, err
-		}
+		migrateStakersModule(sdkCtx, cdc, stakersKeeper)
 
 		// migrate bundles
-		if storeKey, err := getStoreKey(storeKeys, bundlestypes.StoreKey); err == nil {
-			migrateBundlesModule(sdkCtx, cdc, storeKey, bundlesKeeper)
-		} else {
-			return nil, err
-		}
+		migrateBundlesModule(sdkCtx, cdc, bundlesKeeper)
 
 		return mm.RunMigrations(ctx, configurator, fromVM)
 	}
@@ -83,10 +67,10 @@ func getStoreKey(storeKeys []storetypes.StoreKey, storeName string) (storetypes.
 	return nil, fmt.Errorf("store key not found: %s", storeName)
 }
 
-func migrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, storeKey storetypes.StoreKey, fundersKeeper fundersKeeper.Keeper) {
+func migrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, fundersKeeper fundersKeeper.Keeper) {
 	// migrate params
 	// TODO: define final prices and initial whitelisted coins
-	oldParams := funders.GetParams(sdkCtx, cdc, storeKey)
+	oldParams := funders.GetParams(sdkCtx, cdc)
 	fundersKeeper.SetParams(sdkCtx, fundersTypes.Params{
 		CoinWhitelist: []*fundersTypes.WhitelistCoinEntry{
 			{
@@ -100,7 +84,7 @@ func migrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, storeKey storetyp
 	})
 
 	// migrate fundings
-	oldFundings := funders.GetAllFundings(sdkCtx, cdc, storeKey)
+	oldFundings := funders.GetAllFundings(sdkCtx, cdc)
 	for _, f := range oldFundings {
 		fundersKeeper.SetFunding(sdkCtx, &types.Funding{
 			FunderAddress:    f.FunderAddress,
@@ -112,9 +96,9 @@ func migrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, storeKey storetyp
 	}
 }
 
-func migrateDelegationModule(sdkCtx sdk.Context, cdc codec.Codec, storeKey storetypes.StoreKey, delegationKeeper delegationKeeper.Keeper) {
+func migrateDelegationModule(sdkCtx sdk.Context, cdc codec.Codec, delegationKeeper delegationKeeper.Keeper) {
 	// migrate delegation entries
-	oldDelegationEntries := delegation.GetAllDelegationEntries(sdkCtx, cdc, storeKey)
+	oldDelegationEntries := delegation.GetAllDelegationEntries(sdkCtx, cdc)
 	for _, d := range oldDelegationEntries {
 		delegationKeeper.SetDelegationEntry(sdkCtx, delegationTypes.DelegationEntry{
 			Staker: d.Staker,
@@ -124,7 +108,7 @@ func migrateDelegationModule(sdkCtx sdk.Context, cdc codec.Codec, storeKey store
 	}
 
 	// migrate delegation data
-	oldDelegationData := delegation.GetAllDelegationData(sdkCtx, cdc, storeKey)
+	oldDelegationData := delegation.GetAllDelegationData(sdkCtx, cdc)
 	for _, d := range oldDelegationData {
 		delegationKeeper.SetDelegationData(sdkCtx, delegationTypes.DelegationData{
 			Staker:                     d.Staker,
@@ -137,9 +121,9 @@ func migrateDelegationModule(sdkCtx sdk.Context, cdc codec.Codec, storeKey store
 	}
 }
 
-func migrateStakersModule(sdkCtx sdk.Context, cdc codec.Codec, storeKey storetypes.StoreKey, stakersKeeper *stakersKeeper.Keeper) {
+func migrateStakersModule(sdkCtx sdk.Context, cdc codec.Codec, stakersKeeper *stakersKeeper.Keeper) {
 	// migrate stakers
-	oldStakers := stakers.GetAllStakers(sdkCtx, cdc, storeKey)
+	oldStakers := stakers.GetAllStakers(sdkCtx, cdc)
 	for _, s := range oldStakers {
 		stakersKeeper.SetStaker(sdkCtx, stakersTypes.Staker{
 			Address:           s.Address,
@@ -154,8 +138,8 @@ func migrateStakersModule(sdkCtx sdk.Context, cdc codec.Codec, storeKey storetyp
 	}
 }
 
-func migrateBundlesModule(sdkCtx sdk.Context, cdc codec.Codec, storeKey storetypes.StoreKey, bundlesKeeper keeper.Keeper) {
-	oldParams := bundles.GetParams(sdkCtx, storeKey, cdc)
+func migrateBundlesModule(sdkCtx sdk.Context, cdc codec.Codec, bundlesKeeper keeper.Keeper) {
+	oldParams := bundles.GetParams(sdkCtx, cdc)
 
 	// TODO: define final storage cost prices
 	bundlesKeeper.SetParams(sdkCtx, bundlestypes.Params{
