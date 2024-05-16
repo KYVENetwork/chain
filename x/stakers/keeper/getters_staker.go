@@ -34,7 +34,7 @@ func (k Keeper) UpdateStakerMetadata(
 		staker.Identity = identity
 		staker.SecurityContact = securityContact
 		staker.Details = details
-		k.setStaker(ctx, staker)
+		k.SetStaker(ctx, staker)
 	}
 }
 
@@ -43,7 +43,7 @@ func (k Keeper) updateStakerCommissionRewards(ctx sdk.Context, address string, a
 	staker, found := k.GetStaker(ctx, address)
 	if found {
 		staker.CommissionRewards = staker.CommissionRewards.Add(amount...)
-		k.setStaker(ctx, staker)
+		k.SetStaker(ctx, staker)
 	}
 }
 
@@ -52,7 +52,7 @@ func (k Keeper) UpdateStakerCommission(ctx sdk.Context, address string, commissi
 	staker, found := k.GetStaker(ctx, address)
 	if found {
 		staker.Commission = commission
-		k.setStaker(ctx, staker)
+		k.SetStaker(ctx, staker)
 	}
 }
 
@@ -88,7 +88,7 @@ func (k Keeper) RemoveValaccountFromPool(ctx sdk.Context, poolId uint64, stakerA
 }
 
 func (k Keeper) AppendStaker(ctx sdk.Context, staker types.Staker) {
-	k.setStaker(ctx, staker)
+	k.SetStaker(ctx, staker)
 }
 
 // #############################
@@ -108,8 +108,8 @@ func (k Keeper) getAllStakersOfPool(ctx sdk.Context, poolId uint64) []types.Stak
 	return stakers
 }
 
-// setStaker set a specific staker in the store from its index
-func (k Keeper) setStaker(ctx sdk.Context, staker types.Staker) {
+// SetStaker set a specific staker in the store from its index
+func (k Keeper) SetStaker(ctx sdk.Context, staker types.Staker) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	store := prefix.NewStore(storeAdapter, types.StakerKeyPrefix)
 	b := k.cdc.MustMarshal(&staker)

@@ -33,7 +33,7 @@ func (k msgServer) ClaimCommissionRewards(goCtx context.Context, msg *types.MsgC
 
 	// calculate new commission rewards and save
 	staker.CommissionRewards = staker.CommissionRewards.Sub(msg.Amount...)
-	k.setStaker(ctx, staker)
+	k.SetStaker(ctx, staker)
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventClaimCommissionRewards{
 		Staker: msg.Creator,

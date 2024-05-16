@@ -418,6 +418,7 @@ func New(
 			app.BundlesKeeper,
 			app.DelegationKeeper,
 			app.FundersKeeper,
+			app.StakersKeeper,
 		),
 	)
 

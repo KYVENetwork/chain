@@ -3,15 +3,19 @@ package v1_5
 import (
 	"context"
 	"fmt"
+
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/bundles"
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/delegation"
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/funders"
+	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/stakers"
 	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
 	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
 	"github.com/KYVENetwork/chain/x/funders/types"
 	fundersTypes "github.com/KYVENetwork/chain/x/funders/types"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
+	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
+	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
 
 	"cosmossdk.io/math"
 
@@ -29,7 +33,7 @@ const (
 	UpgradeName = "v1.5.0"
 )
 
-func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, cdc codec.Codec, storeKeys []storetypes.StoreKey, bundlesKeeper keeper.Keeper, delegationKeeper delegationKeeper.Keeper, fundersKeeper fundersKeeper.Keeper) upgradetypes.UpgradeHandler {
+func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, cdc codec.Codec, storeKeys []storetypes.StoreKey, bundlesKeeper keeper.Keeper, delegationKeeper delegationKeeper.Keeper, fundersKeeper fundersKeeper.Keeper, stakersKeeper *stakersKeeper.Keeper) upgradetypes.UpgradeHandler {
 	return func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 		sdkCtx := sdk.UnwrapSDKContext(ctx)
 		logger := sdkCtx.Logger().With("upgrade", UpgradeName)
@@ -51,6 +55,13 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 		// migrate delegations
 		if storeKey, err := getStoreKey(storeKeys, delegationTypes.StoreKey); err == nil {
 			migrateDelegationModule(sdkCtx, cdc, storeKey, delegationKeeper)
+		} else {
+			return nil, err
+		}
+
+		// migrate stakers
+		if storeKey, err := getStoreKey(storeKeys, stakersTypes.StoreKey); err == nil {
+			migrateStakersModule(sdkCtx, cdc, storeKey, stakersKeeper)
 		} else {
 			return nil, err
 		}
@@ -121,6 +132,23 @@ func migrateDelegationModule(sdkCtx sdk.Context, cdc codec.Codec, storeKey store
 			LatestIndexK:               d.LatestIndexK,
 			DelegatorCount:             d.DelegatorCount,
 			LatestIndexWasUndelegation: d.LatestIndexWasUndelegation,
+		})
+	}
+}
+
+func migrateStakersModule(sdkCtx sdk.Context, cdc codec.Codec, storeKey storetypes.StoreKey, stakersKeeper *stakersKeeper.Keeper) {
+	// migrate stakers
+	oldStakers := stakers.GetAllStakers(sdkCtx, cdc, storeKey)
+	for _, s := range oldStakers {
+		stakersKeeper.SetStaker(sdkCtx, stakersTypes.Staker{
+			Address:           s.Address,
+			Commission:        s.Commission,
+			Moniker:           s.Moniker,
+			Website:           s.Website,
+			Identity:          s.Identity,
+			SecurityContact:   s.SecurityContact,
+			Details:           s.Details,
+			CommissionRewards: sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(s.CommissionRewards))),
 		})
 	}
 }
