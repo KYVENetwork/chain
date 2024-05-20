@@ -196,9 +196,6 @@ genesis:
       params:
         bond_denom: tkyve
     funders:
-      params:
-        min_funding_amount: 1000000000
-        min_funding_amount_per_bundle: 10000000
       funder_list:
         - address: "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd"
           contact: "https://twitter.com/kyvenetwork"
@@ -215,19 +212,37 @@ genesis:
       funding_list:
         - pool_id: 0
           funder_address: "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd"
-          amount: 5000000000000
-          amount_per_bundle: 230000000
-          total_funded: 2200400000000
+          amounts:
+            - denom: tkyve
+              amount: "5000000000000"
+          amounts_per_bundle:
+            - denom: tkyve
+              amount: "230000000"
+          total_funded:
+            - denom: tkyve
+              amount: "2200400000000"
         - pool_id: 0
           funder_address: "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat"
-          amount: 200000000000
-          amount_per_bundle: 20000000
-          total_funded: 64500000000
+          amounts:
+            - denom: tkyve
+              amount: "200000000000"
+          amounts_per_bundle:
+            - denom: tkyve
+              amount: "20000000"
+          total_funded:
+            - denom: tkyve
+              amount: "64500000000"
         - pool_id: 1
           funder_address: "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat"
-          amount: 100000000000
-          amount_per_bundle: 10000000
-          total_funded: 23000000000
+          amounts:
+            - denom: tkyve
+              amount: "100000000000"
+          amounts_per_bundle:
+            - denom: tkyve
+              amount: "10000000"
+          total_funded:
+            - denom: tkyve
+              amount: "23000000000"
       funding_state_list:
         - pool_id: 0
           active_funder_addresses: [ "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd", "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat" ]
