@@ -65,10 +65,10 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 1 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
@@ -223,7 +223,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(uploaderFound).To(BeTrue())
 
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
 
 		// calculate uploader slashes
 		fraction := s.App().DelegationKeeper.GetUploadSlash(s.Ctx())
@@ -242,7 +242,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		balanceVoter := s.GetBalanceFromAddress(valaccountVoter.Staker)
 
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
 
 		// check voter 2 status
 		valaccountVoter, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
@@ -254,13 +254,13 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		balanceVoter = s.GetBalanceFromAddress(valaccountVoter.Staker)
 
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.STAKER_2)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.STAKER_2)).To(BeEmpty())
 
 		// check pool funds
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100 * i.KYVE))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100 * i.KYVE))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 
@@ -391,7 +391,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
 
 		// calculate uploader slashes
 		fraction := s.App().DelegationKeeper.GetUploadSlash(s.Ctx())
@@ -412,8 +412,8 @@ var _ = Describe("invalid bundles", Ordered, func() {
 
 		balanceVoter := s.GetBalanceFromAddress(valaccountVoter.Staker)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeZero())
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeEmpty())
 
 		// check voter 2 status
 		valaccountVoter, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
@@ -424,14 +424,14 @@ var _ = Describe("invalid bundles", Ordered, func() {
 
 		balanceVoter = s.GetBalanceFromAddress(valaccountVoter.Staker)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeZero())
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeEmpty())
 
 		// check pool funds
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100 * i.KYVE))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100 * i.KYVE))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 
@@ -589,7 +589,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
 
 		// calculate uploader slashes
 		fraction := s.App().DelegationKeeper.GetUploadSlash(s.Ctx())
@@ -618,8 +618,8 @@ var _ = Describe("invalid bundles", Ordered, func() {
 
 		balanceVoter := s.GetBalanceFromAddress(i.STAKER_1)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker2))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeZero())
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeEmpty())
 
 		// check voter2 status
 		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
@@ -630,8 +630,8 @@ var _ = Describe("invalid bundles", Ordered, func() {
 
 		balanceVoter = s.GetBalanceFromAddress(valaccountVoter.Staker)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.STAKER_2)).To(BeZero())
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.CHARLIE)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.STAKER_2)).To(BeEmpty())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.CHARLIE)).To(BeEmpty())
 
 		// check voter3 status
 		valaccountVoter, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_3)
@@ -642,14 +642,14 @@ var _ = Describe("invalid bundles", Ordered, func() {
 
 		balanceVoter = s.GetBalanceFromAddress(valaccountVoter.Staker)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_3, i.STAKER_3)).To(BeZero())
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_3, i.DAVID)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_3, i.STAKER_3)).To(BeEmpty())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_3, i.DAVID)).To(BeEmpty())
 
 		// check pool funds
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100 * i.KYVE))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100 * i.KYVE))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 })

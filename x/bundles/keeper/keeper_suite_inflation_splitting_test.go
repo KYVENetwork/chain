@@ -5,6 +5,7 @@ import (
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	. "github.com/onsi/ginkgo/v2"
@@ -60,9 +61,9 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 		s.RunTxPoolSuccess(msg)
 
-		params := s.App().FundersKeeper.GetParams(s.Ctx())
-		params.MinFundingAmountPerBundle = 1_000
-		params.MinFundingAmount = 100
+		params := funderstypes.DefaultParams()
+		params.CoinWhitelist[0].MinFundingAmount = 100
+		params.CoinWhitelist[0].MinFundingAmountPerBundle = 1_000
 		params.MinFundingMultiple = 0
 		s.App().FundersKeeper.SetParams(s.Ctx(), params)
 
@@ -180,9 +181,9 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(BeZero())
+		Expect(uploader.CommissionRewards).To(BeEmpty())
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -266,16 +267,16 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -359,16 +360,16 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -390,17 +391,17 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 5_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 5_000,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -465,21 +466,21 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(200*i.KYVE - 10_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(200*i.KYVE - 10_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
 	})
 
@@ -496,17 +497,17 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 5_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 5_000,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -572,21 +573,21 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(200*i.KYVE - 10_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(200*i.KYVE - 10_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
 	})
 
@@ -603,17 +604,17 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 5_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 5_000,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -679,21 +680,21 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(200*i.KYVE - 10_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(200*i.KYVE - 10_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
 	})
 
@@ -710,17 +711,17 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100,
-			AmountPerBundle: 5_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          200,
-			AmountPerBundle: 5_000,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(200),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -784,21 +785,21 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).IsZero()).To(BeTrue())
 		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
@@ -815,17 +816,17 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100,
-			AmountPerBundle: 5_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          200,
-			AmountPerBundle: 5_000,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(200),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -891,21 +892,21 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).IsZero()).To(BeTrue())
 		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
@@ -922,17 +923,17 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100,
-			AmountPerBundle: 5_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          200,
-			AmountPerBundle: 5_000,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(200),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -998,21 +999,21 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).IsZero()).To(BeTrue())
 		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
@@ -1029,17 +1030,17 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 5_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          200,
-			AmountPerBundle: 5_000,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(200),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -1103,21 +1104,21 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100*i.KYVE - 5_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100*i.KYVE - 5_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 
@@ -1134,17 +1135,17 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 5_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          200,
-			AmountPerBundle: 5_000,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(200),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -1210,21 +1211,21 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100*i.KYVE - 5_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100*i.KYVE - 5_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 
@@ -1241,17 +1242,17 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 5_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.BOB,
-			PoolId:          0,
-			Amount:          200,
-			AmountPerBundle: 5_000,
+			Creator:          i.BOB,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(200),
+			AmountsPerBundle: i.KYVECoins(5_000),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -1317,21 +1318,21 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
 		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
 		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100*i.KYVE - 5_000))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100*i.KYVE - 5_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 })

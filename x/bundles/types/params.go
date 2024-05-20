@@ -2,14 +2,15 @@ package types
 
 import (
 	"cosmossdk.io/math"
+
 	"github.com/KYVENetwork/chain/util"
 )
 
 // DefaultUploadTimeout ...
 var DefaultUploadTimeout = uint64(600)
 
-// DefaultStorageCost ...
-var DefaultStorageCost = math.LegacyMustNewDecFromStr("0.025")
+// DefaultStorageCosts ...
+var DefaultStorageCosts []StorageCost
 
 // DefaultNetworkFee ...
 var DefaultNetworkFee = math.LegacyMustNewDecFromStr("0.01")
@@ -20,13 +21,13 @@ var DefaultMaxPoints = uint64(24)
 // NewParams creates a new Params instance
 func NewParams(
 	uploadTimeout uint64,
-	storageCost math.LegacyDec,
+	storageCosts []StorageCost,
 	networkFee math.LegacyDec,
 	maxPoints uint64,
 ) Params {
 	return Params{
 		UploadTimeout: uploadTimeout,
-		StorageCost:   storageCost,
+		StorageCosts:  storageCosts,
 		NetworkFee:    networkFee,
 		MaxPoints:     maxPoints,
 	}
@@ -36,7 +37,7 @@ func NewParams(
 func DefaultParams() Params {
 	return NewParams(
 		DefaultUploadTimeout,
-		DefaultStorageCost,
+		DefaultStorageCosts,
 		DefaultNetworkFee,
 		DefaultMaxPoints,
 	)
@@ -48,8 +49,10 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := util.ValidateDecimal(p.StorageCost); err != nil {
-		return err
+	for _, v := range p.StorageCosts {
+		if err := util.ValidateDecimal(v.Cost); err != nil {
+			return err
+		}
 	}
 
 	if err := util.ValidatePercentage(p.NetworkFee); err != nil {

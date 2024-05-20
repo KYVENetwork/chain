@@ -20,13 +20,13 @@ func (k Keeper) AccountFundedList(goCtx context.Context, req *types.QueryAccount
 	fundings := k.fundersKeeper.GetFundingsOfFunder(ctx, req.Address)
 
 	for _, funding := range fundings {
-		if funding.Amount > 0 {
+		if !funding.Amounts.IsZero() {
 			pool, found := k.poolKeeper.GetPool(ctx, funding.PoolId)
 			if !found {
 				return nil, status.Error(codes.Internal, "pool not found")
 			}
 			funded = append(funded, types.Funded{
-				Amount: funding.Amount,
+				Amounts: funding.Amounts,
 				Pool: &types.BasicPool{
 					Id:                   funding.PoolId,
 					Name:                 pool.Name,

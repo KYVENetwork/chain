@@ -20,6 +20,7 @@ TEST CASES - logic_bundles.go
 * Assert pool can run while min delegation is not reached
 * Assert pool can run
 * Assert pool can run while pool has no funds
+* Assert pool can run when endKey is reached
 
 * Assert can vote if sender is no staker
 * Assert can vote if bundle is dropped
@@ -70,10 +71,10 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		})
 
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 1 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 	})
 
@@ -84,7 +85,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 	// ASSERT POOL CAN RUN
 
 	It("Assert pool can run while pool is upgrading", func() {
-		// ASSERT
+		// ARRANGE
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 		pool.UpgradePlan = &pooltypes.UpgradePlan{
 			Version:     "1.0.0",
@@ -126,7 +127,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 	})
 
 	It("Assert pool can run while pool is disabled", func() {
-		// ASSERT
+		// ARRANGE
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -164,7 +165,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 	})
 
 	It("Assert pool can run while min delegation is not reached", func() {
-		// ASSERT
+		// ARRANGE
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  20 * i.KYVE,
@@ -197,7 +198,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 	})
 
 	It("Assert pool can run while voting power of one node is too high", func() {
-		// ASSERT
+		// ARRANGE
 		msg := &pooltypes.MsgCreatePool{
 			Authority:            gov,
 			Name:                 "PoolTest",
@@ -248,7 +249,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 	})
 
 	It("Assert pool can run", func() {
-		// ASSERT
+		// ARRANGE
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  50 * i.KYVE,
@@ -281,7 +282,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 	})
 
 	It("Assert pool can run while pool has no funds", func() {
-		// ASSERT
+		// ARRANGE
 		msg := &pooltypes.MsgCreatePool{
 			Authority:            gov,
 			Name:                 "PoolTest",
@@ -331,10 +332,24 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		Expect(err).NotTo(HaveOccurred())
 	})
 
+	It("Assert pool can run when endKey is reached", func() {
+		// ARRANGE
+		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		pool.EndKey = "0"
+		pool.CurrentKey = "0"
+		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
+
+		// ACT
+		err := s.App().BundlesKeeper.AssertPoolCanRun(s.Ctx(), 0)
+
+		// ASSERT
+		Expect(err).To(Equal(bundlesTypes.ErrEndKeyReached))
+	})
+
 	// ASSERT CAN VOTE
 
 	It("Assert can vote if sender is no staker", func() {
-		// ASSERT
+		// ARRANGE
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -396,7 +411,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 	})
 
 	It("Assert can vote if bundle is dropped", func() {
-		// ASSERT
+		// ARRANGE
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -455,7 +470,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 	})
 
 	It("Assert can vote if storage id does not match", func() {
-		// ASSERT
+		// ARRANGE
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -513,7 +528,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 	})
 
 	It("Assert can vote if sender has already voted valid", func() {
-		// ASSERT
+		// ARRANGE
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -580,7 +595,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 	})
 
 	It("Assert can vote if sender has already voted invalid", func() {
-		// ASSERT
+		// ARRANGE
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -647,7 +662,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 	})
 
 	It("Assert can vote", func() {
-		// ASSERT
+		// ARRANGE
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -708,7 +723,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 	// ASSERT CAN PROPOSE
 
 	It("Assert can propose if sender is no staker", func() {
-		// ASSERT
+		// ARRANGE
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -750,7 +765,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 	})
 
 	It("Assert can propose if sender is not next uploader", func() {
-		// ASSERT
+		// ARRANGE
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -792,7 +807,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 	})
 
 	It("Assert can propose if upload interval has not passed", func() {
-		// ASSERT
+		// ARRANGE
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -837,7 +852,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 	})
 
 	It("Assert can propose if index does not match", func() {
-		// ASSERT
+		// ARRANGE
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,
@@ -879,7 +894,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 	})
 
 	It("Assert can propose", func() {
-		// ASSERT
+		// ARRANGE
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
 			Creator: i.STAKER_0,
 			Amount:  100 * i.KYVE,

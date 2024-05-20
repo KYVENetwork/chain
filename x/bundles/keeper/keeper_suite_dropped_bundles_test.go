@@ -58,10 +58,10 @@ var _ = Describe("dropped bundles", Ordered, func() {
 		})
 
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 1 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
@@ -182,7 +182,7 @@ var _ = Describe("dropped bundles", Ordered, func() {
 		balanceUploader := s.GetBalanceFromAddress(valaccountUploader.Staker)
 
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
 
 		// check voter status
 		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
@@ -195,7 +195,7 @@ var _ = Describe("dropped bundles", Ordered, func() {
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
 
 		// check pool funds
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
@@ -203,7 +203,7 @@ var _ = Describe("dropped bundles", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100 * i.KYVE))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100 * i.KYVE))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 })

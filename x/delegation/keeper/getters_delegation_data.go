@@ -15,10 +15,10 @@ import (
 
 // AddAmountToDelegationRewards adds the specified amount to the current delegationData object.
 // This is needed by the F1-algorithm to calculate to outstanding rewards
-func (k Keeper) AddAmountToDelegationRewards(ctx sdk.Context, stakerAddress string, amount uint64) {
+func (k Keeper) AddAmountToDelegationRewards(ctx sdk.Context, stakerAddress string, amount sdk.Coins) {
 	delegationData, found := k.GetDelegationData(ctx, stakerAddress)
 	if found {
-		delegationData.CurrentRewards += amount
+		delegationData.CurrentRewards = delegationData.CurrentRewards.Add(amount...)
 		k.SetDelegationData(ctx, delegationData)
 	}
 }

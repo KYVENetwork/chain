@@ -5,6 +5,7 @@ import (
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	. "github.com/onsi/ginkgo/v2"
@@ -60,15 +61,15 @@ var _ = Describe("stakers leave", Ordered, func() {
 			Moniker: "Alice",
 		})
 
-		params := s.App().FundersKeeper.GetParams(s.Ctx())
-		params.MinFundingAmountPerBundle = 10_000
+		params := funderstypes.DefaultParams()
+		params.CoinWhitelist[0].MinFundingAmountPerBundle = 10_000
 		s.App().FundersKeeper.SetParams(s.Ctx(), params)
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 10_000,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(10_000),
 		})
 
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
@@ -244,7 +245,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		// calculate uploader rewards
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx()).MulInt64(100).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.CurrentStorageProviderId).MulInt64(100).TruncateInt64())
 		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
 
 		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
@@ -253,9 +254,9 @@ var _ = Describe("stakers leave", Ordered, func() {
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
 		// assert commission rewards
-		Expect(uploader.CommissionRewards).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 	})
 
 	It("Staker leaves, although he was the uploader of the previous round and should get slashed", func() {
@@ -354,7 +355,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
 	})
 
 	It("Staker leaves, although he was a voter in the previous round and should get slashed", func() {
@@ -455,7 +456,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		// assert payout transfer
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
 	})
 
 	It("Staker leaves, although he was a voter in the previous round and should get a point", func() {
@@ -548,7 +549,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		// assert payout transfer
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
 	})
 
 	It("Staker leaves, although he was a voter who did not vote max points in a row should not get slashed", func() {
@@ -644,6 +645,6 @@ var _ = Describe("stakers leave", Ordered, func() {
 		// assert payout transfer
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
 	})
 })

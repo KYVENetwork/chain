@@ -1,7 +1,8 @@
 package keeper_test
 
 import (
-	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -34,7 +35,7 @@ var _ = Describe("msg_server_delegate.go", Ordered, func() {
 	BeforeEach(func() {
 		s = i.NewCleanChain()
 
-		CreateFundedPool(s)
+		CreatePool(s)
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
 			Creator: i.ALICE,
@@ -156,16 +157,13 @@ var _ = Describe("msg_server_delegate.go", Ordered, func() {
 			Amount:  209 * i.KYVE,
 		})
 
-		fundersModuleBalance := s.GetBalanceFromModule(funderstypes.ModuleName)
-
-		Expect(fundersModuleBalance).To(Equal(100 * i.KYVE))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(BeZero())
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1])).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(BeEmpty())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1])).To(BeEmpty())
 
 		s.PerformValidityChecks()
 
 		// ACT
-		PayoutRewards(s, i.ALICE, 10*i.KYVE)
+		PayoutRewards(s, i.ALICE, sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(10*i.KYVE))))
 
 		// ASSERT
 
@@ -173,21 +171,20 @@ var _ = Describe("msg_server_delegate.go", Ordered, func() {
 		// Alice:   100		100/(409) * 10 * 1e9 = 2.444.987.775
 		// Dummy0:  100		100/(409) * 10 * 1e9 = 2.444.987.775
 		// Dummy1:  209		209/(409) * 10 * 1e9 = 5.110.024.449
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.ALICE)).To(Equal(uint64(2_444_987_775)))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(Equal(uint64(2_444_987_775)))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1])).To(Equal(uint64(5_110_024_449)))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.ALICE).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(2_444_987_775)))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0]).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(2_444_987_775)))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1]).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(5_110_024_449)))
 
 		s.RunTxDelegatorSuccess(&types.MsgWithdrawRewards{
 			Creator: i.DUMMY[0],
 			Staker:  i.ALICE,
 		})
 
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.ALICE)).To(Equal(uint64(2_444_987_775)))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(Equal(uint64(0)))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1])).To(Equal(uint64(5_110_024_449)))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.ALICE).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(2_444_987_775)))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0]).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(0)))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1]).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(5_110_024_449)))
 
 		Expect(s.GetBalanceFromAddress(i.DUMMY[0])).To(Equal(900*i.KYVE + 2_444_987_775))
-		Expect(s.GetBalanceFromModule(funderstypes.ModuleName)).To(Equal(90 * i.KYVE))
 		Expect(s.GetBalanceFromModule(types.ModuleName)).To(Equal((200+409)*i.KYVE + uint64(2_444_987_775+5_110_024_449+1)))
 	})
 
@@ -205,23 +202,19 @@ var _ = Describe("msg_server_delegate.go", Ordered, func() {
 			Amount:  200 * i.KYVE,
 		})
 
-		fundersModuleBalance := s.GetBalanceFromModule(funderstypes.ModuleName)
-
-		Expect(fundersModuleBalance).To(Equal(100 * i.KYVE))
-
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(BeZero())
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1])).To(BeZero())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(BeEmpty())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1])).To(BeEmpty())
 
 		// ACT
-		PayoutRewards(s, i.ALICE, 10*i.KYVE)
+		PayoutRewards(s, i.ALICE, sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(10*i.KYVE))))
 
 		// ASSERT
 
 		// Alice: 100
 		// Dummy0: 100
 		// Dummy1: 200
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(Equal(uint64(2_500_000_000)))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1])).To(Equal(uint64(5_000_000_000)))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0]).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(2_500_000_000)))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1]).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(5_000_000_000)))
 
 		s.PerformValidityChecks()
 
@@ -235,11 +228,10 @@ var _ = Describe("msg_server_delegate.go", Ordered, func() {
 			Staker:  i.ALICE,
 		})
 
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(Equal(uint64(0)))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1])).To(Equal(uint64(5_000_000_000)))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0])).To(BeEmpty())
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1]).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(5_000_000_000)))
 
 		Expect(s.GetBalanceFromAddress(i.DUMMY[0])).To(Equal(900*i.KYVE + 2_500_000_000))
-		Expect(s.GetBalanceFromModule(funderstypes.ModuleName)).To(Equal(90 * i.KYVE))
 		Expect(s.GetBalanceFromModule(types.ModuleName)).To(Equal(600*i.KYVE + 7_500_000_000))
 	})
 

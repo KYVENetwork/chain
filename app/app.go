@@ -417,6 +417,10 @@ func New(
 		v1_5.CreateUpgradeHandler(
 			app.ModuleManager,
 			app.Configurator(),
+			app.appCodec,
+			app.GetStoreKeys(),
+			app.BundlesKeeper,
+			app.PoolKeeper,
 		),
 	)
 

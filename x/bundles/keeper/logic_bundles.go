@@ -2,7 +2,7 @@ package keeper
 
 import (
 	"cosmossdk.io/errors"
-	"cosmossdk.io/math"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
@@ -28,6 +28,13 @@ func (k Keeper) AssertPoolCanRun(ctx sdk.Context, poolId uint64) error {
 	// Error if the pool is disabled.
 	if pool.Disabled {
 		return types.ErrPoolDisabled
+	}
+
+	// Error if the end key is reached. The pool will simply halt if this is the case,
+	// it is the responsibility of the protocol nodes to reach final consensus and that
+	// a bundle does not exceed the end_key
+	if pool.EndKey != "" && pool.CurrentKey == pool.EndKey {
+		return types.ErrEndKeyReached
 	}
 
 	// Get the total and the highest delegation of a single validator in the pool
@@ -224,12 +231,12 @@ func (k Keeper) handleNonVoters(ctx sdk.Context, poolId uint64) {
 
 // calculatePayouts calculates the different payouts to treasury, uploader and delegators from the total payout
 // the pool module provides for this bundle round
-func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout uint64) (bundleReward types.BundleReward) {
-	// This method first subtracts the network fee from it
-	// After that the uploader receives the storage rewards. If the total payout does not cover the
-	// storage rewards we pay out the remains, the commission and delegation rewards will be empty
-	// in this case. After the payout of the storage rewards the remains are divided between uploader
-	// and its delegators based on the commission.
+func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk.Coins) (bundleReward types.BundleReward) {
+	// This method first subtracts the network fee from the total payout dedicated for this bundle.
+	// After that the uploader receives the storage rewards which are based on the byte size of the bundle.
+	// If the total payout does not cover the storage rewards we pay out the remains, the commission and
+	// delegation rewards will be empty  in this case. After the payout of the storage rewards the remains
+	// are divided between uploader and its delegators based on the uploader's commission.
 	bundleProposal, _ := k.GetBundleProposal(ctx, poolId)
 
 	// Should not happen, if so make no payouts
@@ -237,37 +244,71 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout uin
 		return
 	}
 
+	// Already return if there are no payouts
+	if totalPayout.IsZero() {
+		return
+	}
+
 	bundleReward.Total = totalPayout
 
 	// calculate share of treasury from total payout
-	bundleReward.Treasury = uint64(math.LegacyNewDec(int64(totalPayout)).Mul(k.GetNetworkFee(ctx)).TruncateInt64())
+	treasuryPayout, _ := sdk.NewDecCoinsFromCoins(totalPayout...).MulDec(k.GetNetworkFee(ctx)).TruncateDecimal()
+	bundleReward.Treasury = treasuryPayout
 
-	// calculate wanted storage reward the uploader should receive
-	storageReward := uint64(k.GetStorageCost(ctx).MulInt64(int64(bundleProposal.DataSize)).TruncateInt64())
-
-	// if not even the full storage reward can not be paid out we pay out the remains.
-	// in this case the uploader will not earn the commission rewards and delegators not
-	// their delegation rewards because total payout is not high enough
-	if totalPayout-bundleReward.Treasury < storageReward {
-		bundleReward.Uploader = totalPayout - bundleReward.Treasury
+	// subtract treasury payout from total payout, so we can continue splitting up the rewards from here
+	totalPayout = totalPayout.Sub(bundleReward.Treasury...)
+	if totalPayout.IsZero() {
 		return
-	} else {
-		bundleReward.Uploader = storageReward
 	}
 
-	// remaining rewards to be split between uploader and its delegators
-	totalNodeReward := totalPayout - bundleReward.Treasury - bundleReward.Uploader
+	// subtract storage cost from remaining total payout. We split the storage cost between all coins and charge
+	// the amount per coin, the idea is that every coin should contribute the same USD value to the total storage
+	// reward. This is done by defining the storage cost as USD / byte and the coin weights as USD / coin denom.
+	//
+	// If there is not enough of a coin available to cover the storage reward per coin we simply charge what is left,
+	// so there can be the case that the storageRewards are less than what we actually wanted to pay out. This is
+	// acceptable because this case is very rare, usually the minFundingAmount ensures that there are always enough
+	// funds left of each coin, and in the case there are not enough the coins are removed and therefore for the
+	// next bundle we split between the other remaining coins.
+	whitelist := k.fundersKeeper.GetCoinWhitelistMap(ctx)
+	wantedStorageRewards := sdk.NewCoins()
+	storageCostPerCoin := k.GetStorageCost(ctx, bundleProposal.StorageProviderId).MulInt64(int64(bundleProposal.DataSize)).QuoInt64(int64(totalPayout.Len()))
 
-	// payout delegators
+	for _, coin := range totalPayout {
+		weight := whitelist[coin.Denom].CoinWeight
+		if weight.IsZero() {
+			continue
+		}
+
+		amount := storageCostPerCoin.Quo(weight)
+		wantedStorageRewards = wantedStorageRewards.Add(sdk.NewCoin(coin.Denom, amount.TruncateInt()))
+	}
+
+	// we take the min here since there can be the case where we want to charge more coins for the storage
+	// reward than we have left in the total payout
+	bundleReward.UploaderStorageCost = totalPayout.Min(wantedStorageRewards)
+
+	// the remaining total payout is split between the uploader and his delegators.
+	totalPayout = totalPayout.Sub(bundleReward.UploaderStorageCost...)
+	if totalPayout.IsZero() {
+		return
+	}
+
+	commission := k.stakerKeeper.GetCommission(ctx, bundleProposal.Uploader)
+	commissionRewards, _ := sdk.NewDecCoinsFromCoins(totalPayout...).MulDec(commission).TruncateDecimal()
+	bundleReward.UploaderCommission = commissionRewards
+
+	// the remaining total payout belongs to the delegators
+	totalPayout = totalPayout.Sub(bundleReward.UploaderCommission...)
+	if totalPayout.IsZero() {
+		return
+	}
+
+	// if the uploader has no delegators he receives the entire remaining amount
 	if k.delegationKeeper.GetDelegationAmount(ctx, bundleProposal.Uploader) > 0 {
-		commission := k.stakerKeeper.GetCommission(ctx, bundleProposal.Uploader)
-		commissionRewards := uint64(math.LegacyNewDec(int64(totalNodeReward)).Mul(commission).TruncateInt64())
-
-		bundleReward.Uploader += commissionRewards
-		bundleReward.Delegation = totalNodeReward - commissionRewards
+		bundleReward.Delegation = totalPayout
 	} else {
-		bundleReward.Uploader += totalNodeReward
-		bundleReward.Delegation = 0
+		bundleReward.UploaderCommission = bundleReward.UploaderCommission.Add(totalPayout...)
 	}
 
 	return
@@ -327,7 +368,7 @@ func (k Keeper) registerBundleProposalFromUploader(ctx sdk.Context, msg *types.M
 // finalizeCurrentBundleProposal takes the data of the current evaluated proposal
 // and stores it as a finalized proposal. This only happens if the network
 // reached quorum on the proposal's validity.
-func (k Keeper) finalizeCurrentBundleProposal(ctx sdk.Context, poolId uint64, voteDistribution types.VoteDistribution, fundersPayout uint64, inflationPayout uint64, bundleReward types.BundleReward, nextUploader string) {
+func (k Keeper) finalizeCurrentBundleProposal(ctx sdk.Context, poolId uint64, voteDistribution types.VoteDistribution, fundersPayout sdk.Coins, inflationPayout uint64, bundleReward types.BundleReward, nextUploader string) {
 	pool, _ := k.poolKeeper.GetPool(ctx, poolId)
 	bundleProposal, _ := k.GetBundleProposal(ctx, poolId)
 
@@ -359,22 +400,23 @@ func (k Keeper) finalizeCurrentBundleProposal(ctx sdk.Context, poolId uint64, vo
 	k.SetFinalizedBundle(ctx, finalizedBundle)
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventBundleFinalized{
-		PoolId:           finalizedBundle.PoolId,
-		Id:               finalizedBundle.Id,
-		Valid:            voteDistribution.Valid,
-		Invalid:          voteDistribution.Invalid,
-		Abstain:          voteDistribution.Abstain,
-		Total:            voteDistribution.Total,
-		Status:           voteDistribution.Status,
-		FundersPayout:    fundersPayout,
-		InflationPayout:  inflationPayout,
-		RewardTreasury:   bundleReward.Treasury,
-		RewardUploader:   bundleReward.Uploader,
-		RewardDelegation: bundleReward.Delegation,
-		RewardTotal:      bundleReward.Total,
-		FinalizedAt:      uint64(ctx.BlockTime().Unix()),
-		Uploader:         bundleProposal.Uploader,
-		NextUploader:     nextUploader,
+		PoolId:                    finalizedBundle.PoolId,
+		Id:                        finalizedBundle.Id,
+		Valid:                     voteDistribution.Valid,
+		Invalid:                   voteDistribution.Invalid,
+		Abstain:                   voteDistribution.Abstain,
+		Total:                     voteDistribution.Total,
+		Status:                    voteDistribution.Status,
+		FundersPayout:             fundersPayout,
+		InflationPayout:           inflationPayout,
+		RewardTreasury:            bundleReward.Treasury,
+		RewardUploaderCommission:  bundleReward.UploaderCommission,
+		RewardUploaderStorageCost: bundleReward.UploaderStorageCost,
+		RewardDelegation:          bundleReward.Delegation,
+		RewardTotal:               bundleReward.Total,
+		FinalizedAt:               uint64(ctx.BlockTime().Unix()),
+		Uploader:                  bundleProposal.Uploader,
+		NextUploader:              nextUploader,
 	})
 
 	// Finalize the proposal, saving useful information.
@@ -390,19 +432,15 @@ func (k Keeper) dropCurrentBundleProposal(ctx sdk.Context, poolId uint64, voteDi
 	bundleProposal, _ := k.GetBundleProposal(ctx, poolId)
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventBundleFinalized{
-		PoolId:           pool.Id,
-		Id:               pool.TotalBundles,
-		Valid:            voteDistribution.Valid,
-		Invalid:          voteDistribution.Invalid,
-		Abstain:          voteDistribution.Abstain,
-		Total:            voteDistribution.Total,
-		Status:           voteDistribution.Status,
-		RewardTreasury:   0,
-		RewardUploader:   0,
-		RewardDelegation: 0,
-		RewardTotal:      0,
-		FinalizedAt:      uint64(ctx.BlockTime().Unix()),
-		Uploader:         bundleProposal.Uploader,
+		PoolId:      pool.Id,
+		Id:          pool.TotalBundles,
+		Valid:       voteDistribution.Valid,
+		Invalid:     voteDistribution.Invalid,
+		Abstain:     voteDistribution.Abstain,
+		Total:       voteDistribution.Total,
+		Status:      voteDistribution.Status,
+		FinalizedAt: uint64(ctx.BlockTime().Unix()),
+		Uploader:    bundleProposal.Uploader,
 	})
 
 	// drop bundle
@@ -513,7 +551,7 @@ func (k Keeper) GetVoteDistribution(ctx sdk.Context, poolId uint64) (voteDistrib
 }
 
 // tallyBundleProposal evaluates the votes of a bundle proposal and determines the outcome
-func (k msgServer) tallyBundleProposal(ctx sdk.Context, bundleProposal types.BundleProposal, poolId uint64) (types.TallyResult, error) {
+func (k Keeper) tallyBundleProposal(ctx sdk.Context, bundleProposal types.BundleProposal, poolId uint64) (types.TallyResult, error) {
 	// Increase points of stakers who did not vote at all + slash + remove if necessary.
 	// The protocol requires everybody to stay always active.
 	k.handleNonVoters(ctx, poolId)
@@ -525,7 +563,7 @@ func (k msgServer) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bun
 	switch voteDistribution.Status {
 	case types.BUNDLE_STATUS_VALID:
 		// charge the funders of the pool
-		fundersPayout, err := k.fundersKeeper.ChargeFundersOfPool(ctx, poolId)
+		fundersPayout, err := k.fundersKeeper.ChargeFundersOfPool(ctx, poolId, poolTypes.ModuleName)
 		if err != nil {
 			return types.TallyResult{}, err
 		}
@@ -536,16 +574,19 @@ func (k msgServer) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bun
 			return types.TallyResult{}, err
 		}
 
-		// calculate payouts to the different stakeholders like treasury, uploader and delegators
-		bundleReward := k.calculatePayouts(ctx, poolId, fundersPayout+inflationPayout)
+		// combine funders payout with inflation payout to calculate the rewards for the different stakeholders
+		// like treasury, uploader and delegators
+		totalPayout := fundersPayout.Add(sdk.NewInt64Coin(globalTypes.Denom, int64(inflationPayout)))
+		bundleReward := k.calculatePayouts(ctx, poolId, totalPayout)
 
 		// payout rewards to treasury
-		if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrkeeper, ctx, poolTypes.ModuleName, bundleReward.Treasury); err != nil {
+		if err := k.distrkeeper.FundCommunityPool(ctx, bundleReward.Treasury, k.accountKeeper.GetModuleAddress(poolTypes.ModuleName)); err != nil {
 			return types.TallyResult{}, err
 		}
 
 		// payout rewards to uploader through commission rewards
-		if err := k.stakerKeeper.IncreaseStakerCommissionRewards(ctx, bundleProposal.Uploader, bundleReward.Uploader); err != nil {
+		uploaderReward := bundleReward.UploaderCommission.Add(bundleReward.UploaderStorageCost...)
+		if err := k.stakerKeeper.IncreaseStakerCommissionRewards(ctx, bundleProposal.Uploader, poolTypes.ModuleName, uploaderReward); err != nil {
 			return types.TallyResult{}, err
 		}
 
@@ -584,7 +625,7 @@ func (k msgServer) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bun
 		return types.TallyResult{
 			Status:           types.TallyResultInvalid,
 			VoteDistribution: voteDistribution,
-			FundersPayout:    0,
+			FundersPayout:    sdk.NewCoins(),
 			InflationPayout:  0,
 			BundleReward:     types.BundleReward{},
 		}, nil
@@ -593,7 +634,7 @@ func (k msgServer) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bun
 		return types.TallyResult{
 			Status:           types.TallyResultNoQuorum,
 			VoteDistribution: voteDistribution,
-			FundersPayout:    0,
+			FundersPayout:    sdk.NewCoins(),
 			InflationPayout:  0,
 			BundleReward:     types.BundleReward{},
 		}, nil

@@ -40,12 +40,16 @@ func (msg *MsgFundPool) ValidateBasic() error {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid pool id")
 	}
 
-	if util.ValidateNumber(msg.Amount) != nil {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid amount")
+	if msg.Amounts.Empty() && msg.AmountsPerBundle.Empty() {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "empty request")
 	}
 
-	if util.ValidateNumber(msg.AmountPerBundle) != nil {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid amount per bundle")
+	if err := msg.Amounts.Validate(); !msg.Amounts.Empty() && err != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid amount: %s", err)
+	}
+
+	if err := msg.AmountsPerBundle.Validate(); !msg.AmountsPerBundle.Empty() && err != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid amount per bundle: %s", err)
 	}
 
 	return nil

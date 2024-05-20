@@ -57,6 +57,9 @@ message EventCreatePool {
   // compression_id is the unique id of the compression type the bundles
   // get compressed with
   uint32 compression_id = 14;
+  // end_key is the last key before the pool should stop indexing, it is
+  // inclusive
+  string end_key = 15;
 }
 
 // EventPoolEnabled ...

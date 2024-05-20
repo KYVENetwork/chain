@@ -56,7 +56,7 @@ func (k Keeper) AccountAssets(goCtx context.Context, req *types.QueryAccountAsse
 		staker := string(delegatorIterator.Key()[0:43])
 
 		response.ProtocolDelegation += k.delegationKeeper.GetDelegationAmountOfDelegator(ctx, staker, req.Address)
-		response.ProtocolRewards += k.delegationKeeper.GetOutstandingRewards(ctx, staker, req.Address)
+		response.ProtocolRewards.Add(k.delegationKeeper.GetOutstandingRewards(ctx, staker, req.Address)...)
 	}
 
 	// ======================================================
@@ -77,7 +77,7 @@ func (k Keeper) AccountAssets(goCtx context.Context, req *types.QueryAccountAsse
 
 	// Iterate all fundings of the user to get total funding amount
 	for _, funding := range k.fundersKeeper.GetFundingsOfFunder(ctx, req.Address) {
-		response.ProtocolFunding += funding.Amount
+		response.ProtocolFunding = response.ProtocolFunding.Add(funding.Amounts...)
 	}
 
 	return &response, nil

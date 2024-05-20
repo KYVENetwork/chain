@@ -5,7 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/spf13/cast"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +20,7 @@ func CmdClaimCommissionRewards() *cobra.Command {
 				return err
 			}
 
-			argAmount, err := cast.ToUint64E(args[0])
+			argAmount, err := sdk.ParseCoinsNormalized(args[0])
 			if err != nil {
 				return err
 			}

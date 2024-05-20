@@ -2,7 +2,9 @@ syntax = "proto3";
 
 package kyve.query.v1beta1;
 
+import "amino/amino.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "kyve/query/v1beta1/query.proto";
@@ -48,16 +50,24 @@ message QueryAccountAssetsResponse {
   uint64 balance = 1;
   // protocol_staking ...
   uint64 protocol_self_delegation = 2;
-  // protocol_staking_unbonding
+  // protocol_staking_unbonding ...
   uint64 protocol_self_delegation_unbonding = 3;
   // protocol_delegation ...
   uint64 protocol_delegation = 4;
-  // protocol_delegation_unbonding
+  // protocol_delegation_unbonding ...
   uint64 protocol_delegation_unbonding = 5;
   // protocol_rewards ...
-  uint64 protocol_rewards = 6;
+  repeated cosmos.base.v1beta1.Coin protocol_rewards = 6 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
   // protocol_funding ...
-  uint64 protocol_funding = 7;
+  repeated cosmos.base.v1beta1.Coin protocol_funding = 7 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }
 
 // =======================================
@@ -112,8 +122,12 @@ message QueryAccountFundedListResponse {
 
 // Funded ...
 message Funded {
-  // amount ...
-  uint64 amount = 1;
+  // amounts ...
+  repeated cosmos.base.v1beta1.Coin amounts = 3 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
   // pool ...
   BasicPool pool = 2;
 }

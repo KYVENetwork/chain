@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package kyve.query.v1beta1;
 
+import "amino/amino.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "kyve/pool/v1beta1/pool.proto";
 
@@ -46,7 +48,11 @@ message BasicPool {
 
   // total_funds of the pool. If the pool runs
   // out of funds no more bundles will be produced
-  uint64 total_funds = 7;
+  repeated cosmos.base.v1beta1.Coin total_funds = 7 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 
   // total_delegation of the pool
   uint64 total_delegation = 8;
@@ -123,8 +129,12 @@ message StakerMetadata {
   // if they not agree with the new commission.
   CommissionChangeEntry pending_commission_change = 7;
 
-  // commission_rewards are the rewards in $KYVE earned through commission
-  uint64 commission_rewards = 8;
+  // commission_rewards are the rewards through commission and storage cost
+  repeated cosmos.base.v1beta1.Coin commission_rewards = 8 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }
 
 // CommissionChangeEntry shows when the old commission

@@ -22,9 +22,26 @@ paths:
                     type: string
                     format: uint64
                     description: upload_timeout ...
-                  storage_cost:
-                    type: string
-                    description: storage_cost ...
+                  storage_costs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        storage_provider_id:
+                          type: integer
+                          format: int64
+                          description: >-
+                            storage_provider_id is a unique identifier for each
+                            storage provider, such as Arweave, Irys, Filecoin,
+                            etc.
+                        cost:
+                          type: string
+                          description: >-
+                            cost is the amount in USD to store one byte on the
+                            storage provider. This value should be kept
+                            up-to-date.
+                      title: StorageCost defines the cost for storage providers
+                    description: storage_costs ...
                   network_fee:
                     type: string
                     description: network_fee ...
@@ -246,7 +263,7 @@ paths:
               protocol_self_delegation_unbonding:
                 type: string
                 format: uint64
-                title: protocol_staking_unbonding
+                description: protocol_staking_unbonding ...
               protocol_delegation:
                 type: string
                 format: uint64
@@ -254,14 +271,42 @@ paths:
               protocol_delegation_unbonding:
                 type: string
                 format: uint64
-                title: protocol_delegation_unbonding
+                description: protocol_delegation_unbonding ...
               protocol_rewards:
-                type: string
-                format: uint64
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a token with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
                 description: protocol_rewards ...
               protocol_funding:
-                type: string
-                format: uint64
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a token with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
                 description: protocol_funding ...
             description: >-
               QueryAccountAssetsResponse is the response type for the
@@ -564,11 +609,26 @@ paths:
 
                                 of a staker will change to the new commission
                             commission_rewards:
-                              type: string
-                              format: uint64
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  denom:
+                                    type: string
+                                  amount:
+                                    type: string
+                                description: >-
+                                  Coin defines a token with a denomination and
+                                  an amount.
+
+
+                                  NOTE: The amount field is an Int which
+                                  implements the custom method
+
+                                  signatures required by gogoproto.
                               title: >-
-                                commission_rewards are the rewards in $KYVE
-                                earned through commission
+                                commission_rewards are the rewards through
+                                commission and storage cost
                           title: >-
                             StakerMetadata contains static information for a
                             staker
@@ -645,8 +705,23 @@ paths:
                                       upload_interval is the interval bundles
                                       get created
                                   total_funds:
-                                    type: string
-                                    format: uint64
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        denom:
+                                          type: string
+                                        amount:
+                                          type: string
+                                      description: >-
+                                        Coin defines a token with a denomination
+                                        and an amount.
+
+
+                                        NOTE: The amount field is an Int which
+                                        implements the custom method
+
+                                        signatures required by gogoproto.
                                     title: >-
                                       total_funds of the pool. If the pool runs
 
@@ -669,6 +744,7 @@ paths:
                                       - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                       - POOL_STATUS_UPGRADING
                                       - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                      - POOL_STATUS_END_KEY_REACHED
                                     default: POOL_STATUS_UNSPECIFIED
                               points:
                                 type: string
@@ -1011,10 +1087,25 @@ paths:
                 items:
                   type: object
                   properties:
-                    amount:
-                      type: string
-                      format: uint64
-                      description: amount ...
+                    amounts:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      description: amounts ...
                     pool:
                       description: pool ...
                       type: object
@@ -1045,8 +1136,23 @@ paths:
                           format: uint64
                           title: upload_interval is the interval bundles get created
                         total_funds:
-                          type: string
-                          format: uint64
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a token with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
                           title: |-
                             total_funds of the pool. If the pool runs
                             out of funds no more bundles will be produced
@@ -1067,6 +1173,7 @@ paths:
                             - POOL_STATUS_NOT_ENOUGH_DELEGATION
                             - POOL_STATUS_UPGRADING
                             - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                            - POOL_STATUS_END_KEY_REACHED
                           default: POOL_STATUS_UNSPECIFIED
                       title: >-
                         BasicPool contains the necessary properties need for a
@@ -3173,10 +3280,24 @@ paths:
                   delegator:
                     type: string
                     description: delegator ...
-                  current_reward:
-                    type: string
-                    format: uint64
-                    description: current_reward ...
+                  current_rewards:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a token with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                    description: current_rewards ...
                   delegation_amount:
                     type: string
                     format: uint64
@@ -3413,10 +3534,25 @@ paths:
                     delegator:
                       type: string
                       description: delegator ...
-                    current_reward:
-                      type: string
-                      format: uint64
-                      description: current_reward ...
+                    current_rewards:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      description: current_rewards ...
                     delegation_amount:
                       type: string
                       format: uint64
@@ -3807,11 +3943,26 @@ paths:
 
                                 of a staker will change to the new commission
                             commission_rewards:
-                              type: string
-                              format: uint64
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  denom:
+                                    type: string
+                                  amount:
+                                    type: string
+                                description: >-
+                                  Coin defines a token with a denomination and
+                                  an amount.
+
+
+                                  NOTE: The amount field is an Int which
+                                  implements the custom method
+
+                                  signatures required by gogoproto.
                               title: >-
-                                commission_rewards are the rewards in $KYVE
-                                earned through commission
+                                commission_rewards are the rewards through
+                                commission and storage cost
                           title: >-
                             StakerMetadata contains static information for a
                             staker
@@ -3888,8 +4039,23 @@ paths:
                                       upload_interval is the interval bundles
                                       get created
                                   total_funds:
-                                    type: string
-                                    format: uint64
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        denom:
+                                          type: string
+                                        amount:
+                                          type: string
+                                      description: >-
+                                        Coin defines a token with a denomination
+                                        and an amount.
+
+
+                                        NOTE: The amount field is an Int which
+                                        implements the custom method
+
+                                        signatures required by gogoproto.
                                     title: >-
                                       total_funds of the pool. If the pool runs
 
@@ -3912,6 +4078,7 @@ paths:
                                       - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                       - POOL_STATUS_UPGRADING
                                       - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                      - POOL_STATUS_END_KEY_REACHED
                                     default: POOL_STATUS_UNSPECIFIED
                               points:
                                 type: string
@@ -3966,10 +4133,25 @@ paths:
 
                         It contains almost all needed information for a
                         convenient usage
-                    current_reward:
-                      type: string
-                      format: uint64
-                      description: current_reward ...
+                    current_rewards:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      description: current_rewards ...
                     delegation_amount:
                       type: string
                       format: uint64
@@ -4269,9 +4451,26 @@ paths:
                     type: string
                     format: uint64
                     description: upload_timeout ...
-                  storage_cost:
-                    type: string
-                    description: storage_cost ...
+                  storage_costs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        storage_provider_id:
+                          type: integer
+                          format: int64
+                          description: >-
+                            storage_provider_id is a unique identifier for each
+                            storage provider, such as Arweave, Irys, Filecoin,
+                            etc.
+                        cost:
+                          type: string
+                          description: >-
+                            cost is the amount in USD to store one byte on the
+                            storage provider. This value should be kept
+                            up-to-date.
+                      title: StorageCost defines the cost for storage providers
+                    description: storage_costs ...
                   network_fee:
                     type: string
                     description: network_fee ...
@@ -4536,14 +4735,50 @@ paths:
                 description: funders_params ...
                 type: object
                 properties:
-                  min_funding_amount:
-                    type: string
-                    format: uint64
-                    description: Minimum amount of tokens that can be funded.
-                  min_funding_amount_per_bundle:
-                    type: string
-                    format: uint64
-                    description: Minimum amount of tokens that can be funded per bundle.
+                  coin_whitelist:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        coin_denom:
+                          type: string
+                          title: >-
+                            coin_denom is the denom of a coin which is allowed
+                            to be funded, this value
+
+                            needs to be unique
+                        min_funding_amount:
+                          type: string
+                          format: uint64
+                          title: >-
+                            min_funding_amount is the minimum required amount of
+                            this denom that needs
+
+                            to be funded
+                        min_funding_amount_per_bundle:
+                          type: string
+                          format: uint64
+                          title: >-
+                            min_funding_amount_per_bundle is the minimum
+                            required amount of this denom
+
+                            that needs to be funded per bundle
+                        coin_weight:
+                          type: string
+                          description: >-
+                            coin_weight is a factor used to sort funders after
+                            their funding amounts.
+
+                            This should be the market price of the coin in
+                            USD/coin. This value should be kept up-to-date.
+                      title: >-
+                        WhitelistCoinEntry is an object containing information
+                        around a coin which
+
+                        is allowed to be funded in pools
+                    title: >-
+                      coin_whitelist is a list of coins that are allowed to fund
+                      a pool
                   min_funding_multiple:
                     type: string
                     format: uint64
@@ -4552,9 +4787,9 @@ paths:
                       amount_per_bundle.
 
                       In other words this param ensures, that a funder provides
-                      at least funding for
+                      at least
 
-                      `min_funding_multiple` bundles.
+                      funding for `min_funding_multiple` bundles.
             description: QueryParamsResponse ...
         default:
           description: An unexpected error response.
@@ -4905,6 +5140,13 @@ paths:
                         type: integer
                         format: int64
                         description: compression_id ...
+                      end_key:
+                        type: string
+                        title: >-
+                          end_key is the last key before the pool should stop
+                          indexing, it is
+
+                          inclusive
                   bundle_proposal:
                     description: bundle_proposal ...
                     type: object
@@ -5022,6 +5264,7 @@ paths:
                       - POOL_STATUS_NOT_ENOUGH_DELEGATION
                       - POOL_STATUS_UPGRADING
                       - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                      - POOL_STATUS_END_KEY_REACHED
                     default: POOL_STATUS_UNSPECIFIED
                   account:
                     type: string
@@ -5037,29 +5280,76 @@ paths:
                       properties:
                         funder_address:
                           type: string
-                          title: funder_id is the id of the funder
+                          title: funder_address is the address of the funder
                         pool_id:
                           type: string
                           format: uint64
                           title: pool_id is the id of the pool this funding is for
-                        amount:
-                          type: string
-                          format: uint64
+                        amounts:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a token with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
                           title: >-
-                            amount is the amount of funds in ukyve the funder
-                            has left
-                        amount_per_bundle:
-                          type: string
-                          format: uint64
+                            amounts is a list of coins the funder wants to fund
+                            the pool with
+                        amounts_per_bundle:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a token with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
                           title: >-
-                            amount_per_bundle is the amount of funds in ukyve
-                            the funder pays per bundle
+                            amounts_per_bundle defines the amount of each coin
+                            that are distributed
+
+                            per finalized bundle
                         total_funded:
-                          type: string
-                          format: uint64
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a token with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
                           title: >-
-                            total_funded is the total amount of funds in ukyve
-                            the funder has funded
+                            total_funded is the total amount of coins that the
+                            funder has funded
                       description: >-
                         Funding is the object which holds info about the current
                         funding
@@ -5438,6 +5728,13 @@ paths:
                           type: integer
                           format: int64
                           description: compression_id ...
+                        end_key:
+                          type: string
+                          title: >-
+                            end_key is the last key before the pool should stop
+                            indexing, it is
+
+                            inclusive
                     bundle_proposal:
                       description: bundle_proposal ...
                       type: object
@@ -5555,6 +5852,7 @@ paths:
                         - POOL_STATUS_NOT_ENOUGH_DELEGATION
                         - POOL_STATUS_UPGRADING
                         - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                        - POOL_STATUS_END_KEY_REACHED
                       default: POOL_STATUS_UNSPECIFIED
                     account:
                       type: string
@@ -5570,29 +5868,76 @@ paths:
                         properties:
                           funder_address:
                             type: string
-                            title: funder_id is the id of the funder
+                            title: funder_address is the address of the funder
                           pool_id:
                             type: string
                             format: uint64
                             title: pool_id is the id of the pool this funding is for
-                          amount:
-                            type: string
-                            format: uint64
+                          amounts:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                denom:
+                                  type: string
+                                amount:
+                                  type: string
+                              description: >-
+                                Coin defines a token with a denomination and an
+                                amount.
+
+
+                                NOTE: The amount field is an Int which
+                                implements the custom method
+
+                                signatures required by gogoproto.
                             title: >-
-                              amount is the amount of funds in ukyve the funder
-                              has left
-                          amount_per_bundle:
-                            type: string
-                            format: uint64
+                              amounts is a list of coins the funder wants to
+                              fund the pool with
+                          amounts_per_bundle:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                denom:
+                                  type: string
+                                amount:
+                                  type: string
+                              description: >-
+                                Coin defines a token with a denomination and an
+                                amount.
+
+
+                                NOTE: The amount field is an Int which
+                                implements the custom method
+
+                                signatures required by gogoproto.
                             title: >-
-                              amount_per_bundle is the amount of funds in ukyve
-                              the funder pays per bundle
+                              amounts_per_bundle defines the amount of each coin
+                              that are distributed
+
+                              per finalized bundle
                           total_funded:
-                            type: string
-                            format: uint64
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                denom:
+                                  type: string
+                                amount:
+                                  type: string
+                              description: >-
+                                Coin defines a token with a denomination and an
+                                amount.
+
+
+                                NOTE: The amount field is an Int which
+                                implements the custom method
+
+                                signatures required by gogoproto.
                             title: >-
-                              total_funded is the total amount of funds in ukyve
-                              the funder has funded
+                              total_funded is the total amount of coins that the
+                              funder has funded
                         description: >-
                           Funding is the object which holds info about the
                           current funding
@@ -5975,11 +6320,26 @@ paths:
                           CommissionChangeEntry shows when the old commission
                           of a staker will change to the new commission
                       commission_rewards:
-                        type: string
-                        format: uint64
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a token with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
                         title: >-
-                          commission_rewards are the rewards in $KYVE earned
-                          through commission
+                          commission_rewards are the rewards through commission
+                          and storage cost
                     title: StakerMetadata contains static information for a staker
                   self_delegation:
                     type: string
@@ -6051,8 +6411,23 @@ paths:
                                 upload_interval is the interval bundles get
                                 created
                             total_funds:
-                              type: string
-                              format: uint64
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  denom:
+                                    type: string
+                                  amount:
+                                    type: string
+                                description: >-
+                                  Coin defines a token with a denomination and
+                                  an amount.
+
+
+                                  NOTE: The amount field is an Int which
+                                  implements the custom method
+
+                                  signatures required by gogoproto.
                               title: |-
                                 total_funds of the pool. If the pool runs
                                 out of funds no more bundles will be produced
@@ -6073,6 +6448,7 @@ paths:
                                 - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                 - POOL_STATUS_UPGRADING
                                 - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                - POOL_STATUS_END_KEY_REACHED
                               default: POOL_STATUS_UNSPECIFIED
                         points:
                           type: string
@@ -6402,11 +6778,26 @@ paths:
                             CommissionChangeEntry shows when the old commission
                             of a staker will change to the new commission
                         commission_rewards:
-                          type: string
-                          format: uint64
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a token with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
                           title: >-
-                            commission_rewards are the rewards in $KYVE earned
-                            through commission
+                            commission_rewards are the rewards through
+                            commission and storage cost
                       title: StakerMetadata contains static information for a staker
                     self_delegation:
                       type: string
@@ -6478,8 +6869,23 @@ paths:
                                   upload_interval is the interval bundles get
                                   created
                               total_funds:
-                                type: string
-                                format: uint64
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    denom:
+                                      type: string
+                                    amount:
+                                      type: string
+                                  description: >-
+                                    Coin defines a token with a denomination and
+                                    an amount.
+
+
+                                    NOTE: The amount field is an Int which
+                                    implements the custom method
+
+                                    signatures required by gogoproto.
                                 title: |-
                                   total_funds of the pool. If the pool runs
                                   out of funds no more bundles will be produced
@@ -6500,6 +6906,7 @@ paths:
                                   - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                   - POOL_STATUS_UPGRADING
                                   - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                  - POOL_STATUS_END_KEY_REACHED
                                 default: POOL_STATUS_UNSPECIFIED
                           points:
                             type: string
@@ -6935,11 +7342,26 @@ paths:
 
                                 of a staker will change to the new commission
                             commission_rewards:
-                              type: string
-                              format: uint64
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  denom:
+                                    type: string
+                                  amount:
+                                    type: string
+                                description: >-
+                                  Coin defines a token with a denomination and
+                                  an amount.
+
+
+                                  NOTE: The amount field is an Int which
+                                  implements the custom method
+
+                                  signatures required by gogoproto.
                               title: >-
-                                commission_rewards are the rewards in $KYVE
-                                earned through commission
+                                commission_rewards are the rewards through
+                                commission and storage cost
                           title: >-
                             StakerMetadata contains static information for a
                             staker
@@ -7016,8 +7438,23 @@ paths:
                                       upload_interval is the interval bundles
                                       get created
                                   total_funds:
-                                    type: string
-                                    format: uint64
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        denom:
+                                          type: string
+                                        amount:
+                                          type: string
+                                      description: >-
+                                        Coin defines a token with a denomination
+                                        and an amount.
+
+
+                                        NOTE: The amount field is an Int which
+                                        implements the custom method
+
+                                        signatures required by gogoproto.
                                     title: >-
                                       total_funds of the pool. If the pool runs
 
@@ -7040,6 +7477,7 @@ paths:
                                       - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                       - POOL_STATUS_UPGRADING
                                       - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                      - POOL_STATUS_END_KEY_REACHED
                                     default: POOL_STATUS_UNSPECIFIED
                               points:
                                 type: string
@@ -7411,11 +7849,26 @@ paths:
                             CommissionChangeEntry shows when the old commission
                             of a staker will change to the new commission
                         commission_rewards:
-                          type: string
-                          format: uint64
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a token with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
                           title: >-
-                            commission_rewards are the rewards in $KYVE earned
-                            through commission
+                            commission_rewards are the rewards through
+                            commission and storage cost
                       title: StakerMetadata contains static information for a staker
                     self_delegation:
                       type: string
@@ -7487,8 +7940,23 @@ paths:
                                   upload_interval is the interval bundles get
                                   created
                               total_funds:
-                                type: string
-                                format: uint64
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    denom:
+                                      type: string
+                                    amount:
+                                      type: string
+                                  description: >-
+                                    Coin defines a token with a denomination and
+                                    an amount.
+
+
+                                    NOTE: The amount field is an Int which
+                                    implements the custom method
+
+                                    signatures required by gogoproto.
                                 title: |-
                                   total_funds of the pool. If the pool runs
                                   out of funds no more bundles will be produced
@@ -7509,6 +7977,7 @@ paths:
                                   - POOL_STATUS_NOT_ENOUGH_DELEGATION
                                   - POOL_STATUS_UPGRADING
                                   - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                  - POOL_STATUS_END_KEY_REACHED
                                 default: POOL_STATUS_UNSPECIFIED
                           points:
                             type: string
@@ -7866,21 +8335,67 @@ paths:
                     type: object
                     properties:
                       total_used_funds:
-                        type: string
-                        format: uint64
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a token with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
                         description: >-
                           total_used_funds are the total funds that have been
                           distributed by the funder.
                       total_allocated_funds:
-                        type: string
-                        format: uint64
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a token with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
                         description: >-
                           total_allocated_funds are the total funds that have
-                          been allocated by the funder. They can either get
-                          distributed or refunded.
+                          been allocated by the funder.
+
+                          They can either get distributed or refunded.
                       total_amount_per_bundle:
-                        type: string
-                        format: uint64
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a token with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
                         description: >-
                           total_amount_per_bundle is the total amount per bundle
                           of all fundings of the funder.
@@ -7892,6 +8407,14 @@ paths:
                         description: >-
                           pools_funded are the ids of the pools that have been
                           funded by the funder.
+                      score:
+                        type: string
+                        format: uint64
+                        title: >-
+                          score is the result of all coins of the funder
+                          currently allocated times the coin weight
+
+                          specified in the params
               fundings:
                 type: array
                 items:
@@ -7899,23 +8422,84 @@ paths:
                   properties:
                     funder_address:
                       type: string
-                      title: funder_address
+                      title: funder_id is the id of the funder
                     pool_id:
                       type: string
                       format: uint64
-                      description: pool_id ...
-                    amount:
-                      type: string
-                      format: uint64
-                      description: amount ...
-                    amount_per_bundle:
-                      type: string
-                      format: uint64
-                      description: amount_per_bundle ...
+                      title: pool_id is the id of the pool this funding is for
+                    amounts:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: >-
+                        amounts is a list of coins the funder wants to fund the
+                        pool with
+                    amounts_per_bundle:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: >-
+                        amounts_per_bundle defines the amount of each coin that
+                        are distributed
+
+                        per finalized bundle
                     total_funded:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: >-
+                        total_funded is the total amount of coins that the
+                        funder has funded
+                    score:
                       type: string
                       format: uint64
-                      description: total_funded ...
+                      title: >-
+                        score is the result of all coins allocated to this pool
+                        times the coin weight specified
+
+                        by the params
                   description: Funding ...
                 description: fundings ...
             description: >-
@@ -8192,21 +8776,67 @@ paths:
                       type: object
                       properties:
                         total_used_funds:
-                          type: string
-                          format: uint64
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a token with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
                           description: >-
                             total_used_funds are the total funds that have been
                             distributed by the funder.
                         total_allocated_funds:
-                          type: string
-                          format: uint64
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a token with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
                           description: >-
                             total_allocated_funds are the total funds that have
-                            been allocated by the funder. They can either get
-                            distributed or refunded.
+                            been allocated by the funder.
+
+                            They can either get distributed or refunded.
                         total_amount_per_bundle:
-                          type: string
-                          format: uint64
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a token with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
                           description: >-
                             total_amount_per_bundle is the total amount per
                             bundle of all fundings of the funder.
@@ -8218,6 +8848,14 @@ paths:
                           description: >-
                             pools_funded are the ids of the pools that have been
                             funded by the funder.
+                        score:
+                          type: string
+                          format: uint64
+                          title: >-
+                            score is the result of all coins of the funder
+                            currently allocated times the coin weight
+
+                            specified in the params
                   description: Funder ...
                 description: funders ...
             description: >-
@@ -8514,23 +9152,84 @@ paths:
                   properties:
                     funder_address:
                       type: string
-                      title: funder_address
+                      title: funder_id is the id of the funder
                     pool_id:
                       type: string
                       format: uint64
-                      description: pool_id ...
-                    amount:
-                      type: string
-                      format: uint64
-                      description: amount ...
-                    amount_per_bundle:
-                      type: string
-                      format: uint64
-                      description: amount_per_bundle ...
+                      title: pool_id is the id of the pool this funding is for
+                    amounts:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: >-
+                        amounts is a list of coins the funder wants to fund the
+                        pool with
+                    amounts_per_bundle:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: >-
+                        amounts_per_bundle defines the amount of each coin that
+                        are distributed
+
+                        per finalized bundle
                     total_funded:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: >-
+                        total_funded is the total amount of coins that the
+                        funder has funded
+                    score:
                       type: string
                       format: uint64
-                      description: total_funded ...
+                      title: >-
+                        score is the result of all coins allocated to this pool
+                        times the coin weight specified
+
+                        by the params
                   description: Funding ...
                 description: fundings ...
             description: >-
@@ -8842,23 +9541,84 @@ paths:
                   properties:
                     funder_address:
                       type: string
-                      title: funder_address
+                      title: funder_id is the id of the funder
                     pool_id:
                       type: string
                       format: uint64
-                      description: pool_id ...
-                    amount:
-                      type: string
-                      format: uint64
-                      description: amount ...
-                    amount_per_bundle:
-                      type: string
-                      format: uint64
-                      description: amount_per_bundle ...
+                      title: pool_id is the id of the pool this funding is for
+                    amounts:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: >-
+                        amounts is a list of coins the funder wants to fund the
+                        pool with
+                    amounts_per_bundle:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: >-
+                        amounts_per_bundle defines the amount of each coin that
+                        are distributed
+
+                        per finalized bundle
                     total_funded:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: >-
+                        total_funded is the total amount of coins that the
+                        funder has funded
+                    score:
                       type: string
                       format: uint64
-                      description: total_funded ...
+                      title: >-
+                        score is the result of all coins allocated to this pool
+                        times the coin weight specified
+
+                        by the params
                   description: Funding ...
                 description: fundings ...
             description: >-

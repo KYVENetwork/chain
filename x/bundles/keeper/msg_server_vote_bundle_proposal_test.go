@@ -60,9 +60,9 @@ var _ = Describe("msg_server_vote_bundle_proposal.go", Ordered, func() {
 		})
 
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 1 * i.KYVE,
+			Creator:          i.ALICE,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
