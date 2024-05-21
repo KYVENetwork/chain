@@ -30,6 +30,7 @@ import (
 TEST CASES - proposal_handler.go
 
 * Execute multiple transactions and check their order
+* TODO: test governance transactions
 
 */
 
