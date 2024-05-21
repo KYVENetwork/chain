@@ -24,14 +24,23 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+/*
+
+TEST CASES - upgrade.go
+
+* Upgrade Kaon from 1.4.0 to v1.5.0
+* Upgrade Kyve from 1.4.0 to v1.5.0
+
+*/
+
 var UpgradeContainerVersion = "local"
 
 func TestV1P2Upgrade(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, fmt.Sprintf("%s Upgrade Test Suite", v1_5.UpgradeName))
+	RunSpecs(t, fmt.Sprintf("interchaintest/%s Upgrade Test Suite", v1_5.UpgradeName))
 }
 
-var _ = Describe(fmt.Sprintf("%s Upgrade Tests", v1_5.UpgradeName), Ordered, func() {
+var _ = Describe("upgrade.go", Ordered, func() {
 	var kaon *cosmos.CosmosChain
 	var kyve *cosmos.CosmosChain
 
@@ -92,11 +101,11 @@ var _ = Describe(fmt.Sprintf("%s Upgrade Tests", v1_5.UpgradeName), Ordered, fun
 		_ = interchain.Close()
 	})
 
-	It("Kaon upgrade test", func() {
+	It(fmt.Sprintf("Upgrade Kaon from %v to %v", previousVersion, v1_5.UpgradeName), func() {
 		PerformUpgrade(ctx, client, kaon, kaonWallet, 10, "kaon")
 	})
 
-	It("Kyve upgrade test", func() {
+	It(fmt.Sprintf("Upgrade Kyve from %v to %v", previousVersion, v1_5.UpgradeName), func() {
 		PerformUpgrade(ctx, client, kyve, kyveWallet, 10, "kyve")
 	})
 })

@@ -35,7 +35,7 @@ TEST CASES - proposal_handler.go
 
 func TestV1P2Upgrade(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Proposal Handler Test Suite")
+	RunSpecs(t, "interchaintest/ProposalHandler Test Suite")
 }
 
 var _ = Describe("proposal_handler.go", Ordered, func() {
