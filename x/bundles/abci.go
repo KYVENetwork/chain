@@ -41,17 +41,17 @@ func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk util.BankKeeper,
 	distributed := uint64(0)
 
 	// calculate total inflation share weight of pools to get each pool's reward share
-	totalInflationShareWeight := uint64(0)
+	totalInflationShareWeight := math.LegacyZeroDec()
 
 	for _, pool := range pk.GetAllPools(ctx) {
 		// only include active pools
 		if err := k.AssertPoolCanRun(ctx, pool.Id); err == nil {
-			totalInflationShareWeight += pool.InflationShareWeight
+			totalInflationShareWeight.Add(pool.InflationShareWeight)
 		}
 	}
 
 	// if the total inflation share weight is zero all rewards go the chain
-	if totalInflationShareWeight == 0 {
+	if totalInflationShareWeight.IsZero() {
 		return
 	}
 
@@ -59,8 +59,8 @@ func SplitInflation(ctx sdk.Context, k bundlesKeeper.Keeper, bk util.BankKeeper,
 		// only include active pools
 		if err := k.AssertPoolCanRun(ctx, pool.Id); err == nil {
 			// calculate pool share based of inflation share weight
-			amount := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).
-				Quo(math.LegacyNewDec(int64(totalInflationShareWeight))).
+			amount := uint64(pool.InflationShareWeight.
+				Quo(totalInflationShareWeight).
 				Mul(math.LegacyNewDec(protocolBlockProvision)).
 				TruncateInt64())
 

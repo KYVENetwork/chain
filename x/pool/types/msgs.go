@@ -1,6 +1,7 @@
 package types
 
 import (
+	"cosmossdk.io/math"
 	"encoding/json"
 
 	"cosmossdk.io/errors"
@@ -36,7 +37,7 @@ func (msg *MsgCreatePool) ValidateBasic() error {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid upload interval")
 	}
 
-	if err := util.ValidateNumber(msg.InflationShareWeight); err != nil {
+	if err := util.ValidateDecimal(msg.InflationShareWeight); err != nil {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid inflation share weight")
 	}
 
@@ -64,7 +65,7 @@ type PoolUpdate struct {
 	Logo                 *string
 	Config               *string
 	UploadInterval       *uint64
-	InflationShareWeight *uint64
+	InflationShareWeight *math.LegacyDec
 	MinDelegation        *uint64
 	MaxBundleSize        *uint64
 	StorageProviderId    *uint32
@@ -90,7 +91,7 @@ func (msg *MsgUpdatePool) ValidateBasic() error {
 	}
 
 	if payload.InflationShareWeight != nil {
-		if err := util.ValidateNumber(*payload.InflationShareWeight); err != nil {
+		if err := util.ValidateDecimal(*payload.InflationShareWeight); err != nil {
 			return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid inflation share weight")
 		}
 	}

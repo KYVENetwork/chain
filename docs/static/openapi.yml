@@ -694,7 +694,6 @@ paths:
                                     title: logo of the pool
                                   inflation_share_weight:
                                     type: string
-                                    format: uint64
                                     title: >-
                                       inflation_share_weight is the base payout
                                       for each bundle reward
@@ -1127,7 +1126,6 @@ paths:
                           title: logo of the pool
                         inflation_share_weight:
                           type: string
-                          format: uint64
                           title: >-
                             inflation_share_weight is the base payout for each
                             bundle reward
@@ -4028,7 +4026,6 @@ paths:
                                     title: logo of the pool
                                   inflation_share_weight:
                                     type: string
-                                    format: uint64
                                     title: >-
                                       inflation_share_weight is the base payout
                                       for each bundle reward
@@ -5051,7 +5048,6 @@ paths:
                         description: upload_interval ...
                       inflation_share_weight:
                         type: string
-                        format: uint64
                         description: inflation_share_weight ...
                       min_delegation:
                         type: string
@@ -5639,7 +5635,6 @@ paths:
                           description: upload_interval ...
                         inflation_share_weight:
                           type: string
-                          format: uint64
                           description: inflation_share_weight ...
                         min_delegation:
                           type: string
@@ -6400,7 +6395,6 @@ paths:
                               title: logo of the pool
                             inflation_share_weight:
                               type: string
-                              format: uint64
                               title: >-
                                 inflation_share_weight is the base payout for
                                 each bundle reward
@@ -6858,7 +6852,6 @@ paths:
                                 title: logo of the pool
                               inflation_share_weight:
                                 type: string
-                                format: uint64
                                 title: >-
                                   inflation_share_weight is the base payout for
                                   each bundle reward
@@ -7427,7 +7420,6 @@ paths:
                                     title: logo of the pool
                                   inflation_share_weight:
                                     type: string
-                                    format: uint64
                                     title: >-
                                       inflation_share_weight is the base payout
                                       for each bundle reward
@@ -7929,7 +7921,6 @@ paths:
                                 title: logo of the pool
                               inflation_share_weight:
                                 type: string
-                                format: uint64
                                 title: >-
                                   inflation_share_weight is the base payout for
                                   each bundle reward
