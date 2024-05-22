@@ -300,7 +300,7 @@ var _ = Describe("msg_server_update_pool.go", Ordered, func() {
 		msg := &types.MsgUpdatePool{
 			Authority: gov,
 			Id:        1,
-			Payload:   "{\"InflationShareWeight\": -1}",
+			Payload:   "{\"InflationShareWeight\": \"-1\"}",
 		}
 
 		p, _ := BuildGovernanceTxs(s, []sdk.Msg{msg})
