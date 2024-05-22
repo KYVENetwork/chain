@@ -45,7 +45,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
 			StartKey:             "0",
 			UploadInterval:       60,
-			InflationShareWeight: 10_000,
+			InflationShareWeight: math.LegacyNewDec(10_000),
 			MinDelegation:        0 * i.KYVE,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",
@@ -244,17 +244,17 @@ var _ = Describe("stakers leave", Ordered, func() {
 
 		// calculate uploader rewards
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := uint64(math.LegacyNewDec(int64(pool.InflationShareWeight)).Mul(networkFee).TruncateInt64())
-		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.CurrentStorageProviderId).MulInt64(100).TruncateInt64())
-		totalUploaderReward := pool.InflationShareWeight - treasuryReward - storageReward
+		treasuryReward := pool.InflationShareWeight.Mul(networkFee)
+		storageReward := s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.CurrentStorageProviderId).MulInt64(100)
+		totalUploaderReward := pool.InflationShareWeight.Sub(treasuryReward).Sub(storageReward)
 
-		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
-		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
+		uploaderPayoutReward := totalUploaderReward.Mul(uploader.Commission)
+		uploaderDelegationReward := totalUploaderReward.Sub(uploaderPayoutReward)
 
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
 		// assert commission rewards
-		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(uploaderPayoutReward.Add(storageReward).TruncateInt64())))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 	})

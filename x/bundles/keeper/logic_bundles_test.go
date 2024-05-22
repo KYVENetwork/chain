@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
@@ -55,7 +56,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
 			StartKey:             "0",
 			UploadInterval:       60,
-			InflationShareWeight: 2 * i.KYVE,
+			InflationShareWeight: math.LegacyNewDec(int64(2 * i.KYVE)),
 			MinDelegation:        100 * i.KYVE,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",
@@ -207,7 +208,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
 			StartKey:             "0",
 			UploadInterval:       60,
-			InflationShareWeight: 10_000,
+			InflationShareWeight: math.LegacyNewDec(10_000),
 			MinDelegation:        100 * i.KYVE,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",
@@ -291,7 +292,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
 			StartKey:             "0",
 			UploadInterval:       60,
-			InflationShareWeight: 2 * i.KYVE,
+			InflationShareWeight: math.LegacyNewDec(int64(2 * i.KYVE)),
 			MinDelegation:        100,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",

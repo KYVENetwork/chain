@@ -44,7 +44,7 @@ var _ = Describe("abci.go", Ordered, func() {
 			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
 			StartKey:             "0",
 			UploadInterval:       60,
-			InflationShareWeight: 1_000_000,
+			InflationShareWeight: math.LegacyNewDec(1_000_000),
 			MinDelegation:        100 * i.KYVE,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",
@@ -124,7 +124,7 @@ var _ = Describe("abci.go", Ordered, func() {
 			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
 			StartKey:             "0",
 			UploadInterval:       60,
-			InflationShareWeight: 2_000_000,
+			InflationShareWeight: math.LegacyNewDec(2_000_000),
 			MinDelegation:        100 * i.KYVE,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",
@@ -191,7 +191,7 @@ var _ = Describe("abci.go", Ordered, func() {
 			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
 			StartKey:             "0",
 			UploadInterval:       60,
-			InflationShareWeight: 0,
+			InflationShareWeight: math.LegacyZeroDec(),
 			MinDelegation:        100 * i.KYVE,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",
@@ -240,7 +240,7 @@ var _ = Describe("abci.go", Ordered, func() {
 	It("every pool has zero inflation share weight", func() {
 		// ARRANGE
 		pool1, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
-		pool1.InflationShareWeight = 0
+		pool1.InflationShareWeight = math.LegacyZeroDec()
 		s.App().PoolKeeper.SetPool(s.Ctx(), pool1)
 
 		msg := &pooltypes.MsgCreatePool{
@@ -251,7 +251,7 @@ var _ = Describe("abci.go", Ordered, func() {
 			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
 			StartKey:             "0",
 			UploadInterval:       60,
-			InflationShareWeight: 0,
+			InflationShareWeight: math.LegacyZeroDec(),
 			MinDelegation:        100 * i.KYVE,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",
