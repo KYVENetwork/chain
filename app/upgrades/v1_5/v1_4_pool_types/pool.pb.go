@@ -446,15 +446,6 @@ func (m *Pool) GetEndKey() string {
 	return ""
 }
 
-func init() {
-	proto.RegisterEnum("kyve.pool.v1beta1.PoolStatus", PoolStatus_name, PoolStatus_value)
-	proto.RegisterType((*Protocol)(nil), "kyve.pool.v1beta1.Protocol")
-	proto.RegisterType((*UpgradePlan)(nil), "kyve.pool.v1beta1.UpgradePlan")
-	proto.RegisterType((*Pool)(nil), "kyve.pool.v1beta1.Pool")
-}
-
-func init() { proto.RegisterFile("kyve/pool/v1beta1/pool.proto", fileDescriptor_40c1730f47ff2ef8) }
-
 var fileDescriptor_40c1730f47ff2ef8 = []byte{
 	// 820 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x94, 0x41, 0x6f, 0xdb, 0x36,

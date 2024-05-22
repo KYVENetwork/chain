@@ -83,12 +83,6 @@ func (m *Params) GetMaxPoints() uint64 {
 	return 0
 }
 
-func init() {
-	proto.RegisterType((*Params)(nil), "kyve.bundles.v1beta1.Params")
-}
-
-func init() { proto.RegisterFile("kyve/bundles/v1beta1/params.proto", fileDescriptor_cfd3a74b72a01aaa) }
-
 var fileDescriptor_cfd3a74b72a01aaa = []byte{
 	// 300 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x90, 0xc1, 0x4a, 0xf3, 0x40,
