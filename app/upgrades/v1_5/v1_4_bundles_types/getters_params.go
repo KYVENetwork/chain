@@ -1,4 +1,4 @@
-package v1_4_types
+package v1_4_bundles_types
 
 import (
 	storeTypes "cosmossdk.io/store/types"

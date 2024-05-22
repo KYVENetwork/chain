@@ -3,6 +3,7 @@ package v1_5
 import (
 	"context"
 	"fmt"
+	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_bundles_types"
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_pool_types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 
@@ -11,7 +12,6 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
-	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types"
 	"github.com/KYVENetwork/chain/x/bundles/keeper"
 	bundlestypes "github.com/KYVENetwork/chain/x/bundles/types"
 	poolkeeper "github.com/KYVENetwork/chain/x/pool/keeper"
@@ -64,7 +64,7 @@ func migrateStorageCosts(sdkCtx sdk.Context, bundlesKeeper keeper.Keeper, poolKe
 
 	// Copy storage cost from old params to new params
 	// The storage cost of all storage providers will be the same after this migration
-	oldParams := v1_4_types.GetParams(sdkCtx, bundlesStoreKey, cdc)
+	oldParams := v1_4_bundles_types.GetParams(sdkCtx, bundlesStoreKey, cdc)
 	newParams := bundlestypes.Params{
 		UploadTimeout: oldParams.UploadTimeout,
 		StorageCosts: []bundlestypes.StorageCost{
