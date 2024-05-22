@@ -1,21 +1,24 @@
 package proposal_handler_test
 
 import (
+	"context"
+	"cosmossdk.io/math"
 	"encoding/json"
 	"github.com/KYVENetwork/chain/app"
-	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	"github.com/cosmos/cosmos-sdk/x/auth/tx"
-	"github.com/strangelove-ventures/interchaintest/v8"
-	"github.com/strangelove-ventures/interchaintest/v8/testutil"
-	"strconv"
-	"time"
-
-	"cosmossdk.io/math"
-
+	clienttx "github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/icza/dyno"
+	. "github.com/onsi/gomega"
+	"github.com/strangelove-ventures/interchaintest/v8"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
+	"github.com/strangelove-ventures/interchaintest/v8/testutil"
+	"strconv"
+	"strings"
+	"time"
 )
 
 const (
@@ -28,7 +31,7 @@ func encodingConfig() *sdktestutil.TestEncodingConfig {
 	a := app.Setup()
 
 	cfg.Codec = a.AppCodec()
-	cfg.TxConfig = tx.NewTxConfig(a.AppCodec(), tx.DefaultSignModes)
+	cfg.TxConfig = authtx.NewTxConfig(a.AppCodec(), authtx.DefaultSignModes)
 	cfg.InterfaceRegistry = a.InterfaceRegistry()
 	cfg.Amino = a.LegacyAmino()
 
@@ -99,7 +102,7 @@ func ModifyGenesis(config ibc.ChainConfig, genbz []byte) ([]byte, error) {
 		"app_state", "global", "params", "min_initial_deposit_ratio",
 	)
 
-	_ = dyno.Set(genesis, "10s",
+	_ = dyno.Set(genesis, "20s",
 		"app_state", "gov", "params", "voting_period",
 	)
 	_ = dyno.Set(genesis, "0",
@@ -118,4 +121,49 @@ func ModifyGenesis(config ibc.ChainConfig, genbz []byte) ([]byte, error) {
 
 	newGenesis, _ := json.Marshal(genesis)
 	return newGenesis, nil
+}
+
+type TxData struct {
+	Body struct {
+		Messages []struct {
+			Type    string `json:"@type"`
+			Creator string `json:"creator"`
+		} `json:"messages"`
+	} `json:"body"`
+}
+
+func broadcastMsg(ctx context.Context, broadcaster *cosmos.Broadcaster, broadcastingUser cosmos.User, msg sdk.Msg) {
+	err := broadcastTx(ctx, broadcaster, broadcastingUser, msg)
+	Expect(err).To(BeNil())
+}
+
+func broadcastTx(ctx context.Context, broadcaster *cosmos.Broadcaster, broadcastingUser cosmos.User, msgs ...sdk.Msg) error {
+	f, err := broadcaster.GetFactory(ctx, broadcastingUser)
+	if err != nil {
+		return err
+	}
+
+	cc, err := broadcaster.GetClientContext(ctx, broadcastingUser)
+	if err != nil {
+		return err
+	}
+
+	return clienttx.BroadcastTx(cc, f, msgs...)
+}
+
+func checkTxnOrder(ctx context.Context, chain *cosmos.CosmosChain, height int64, expectedOrder []string) {
+	txs, err := chain.FindTxs(ctx, height)
+	Expect(err).To(BeNil())
+
+	var order []string
+	for _, tx := range txs {
+		var result TxData
+		err := json.Unmarshal(tx.Data, &result)
+		Expect(err).To(BeNil())
+
+		for _, msg := range result.Body.Messages {
+			order = append(order, msg.Type[strings.LastIndex(msg.Type, ".")+1:])
+		}
+	}
+	Expect(order).To(Equal(expectedOrder))
 }

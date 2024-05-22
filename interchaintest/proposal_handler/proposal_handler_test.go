@@ -3,20 +3,16 @@ package proposal_handler_test
 import (
 	"context"
 	"cosmossdk.io/math"
-	"encoding/json"
 	bundlestypes "github.com/KYVENetwork/chain/x/bundles/types"
 	stakerstypes "github.com/KYVENetwork/chain/x/stakers/types"
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/strangelove-ventures/interchaintest/v8"
 	"github.com/strangelove-ventures/interchaintest/v8/testutil"
 	"reflect"
-	"strings"
 	"testing"
-
-	"github.com/strangelove-ventures/interchaintest/v8"
 
 	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"go.uber.org/zap/zaptest"
@@ -30,11 +26,10 @@ import (
 TEST CASES - proposal_handler.go
 
 * Execute multiple transactions and check their order
-* TODO: test governance transactions
 
 */
 
-func TestV1P2Upgrade(t *testing.T) {
+func TestProposalHandler(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "interchaintest/ProposalHandler Test Suite")
 }
@@ -97,11 +92,14 @@ var _ = Describe("proposal_handler.go", Ordered, func() {
 	})
 
 	It("Execute multiple transactions and check their order", func() {
+		// ARRANGE
 		err := testutil.WaitForBlocks(ctx, 1, chain)
 		Expect(err).To(BeNil())
 
 		height, err := chain.Height(ctx)
 		Expect(err).To(BeNil())
+
+		// ACT
 
 		// Execute different transactions
 		// We don't care about the results, they only have to be included in a block
@@ -115,10 +113,12 @@ var _ = Describe("proposal_handler.go", Ordered, func() {
 		broadcastMsg(ctx, broadcaster, wallets[7], &bundlestypes.MsgSubmitBundleProposal{Creator: wallets[7].FormattedAddress()}) // priority msg
 
 		expectedOrder := []string{
+			// priority msgs
 			reflect.TypeOf(bundlestypes.MsgClaimUploaderRole{}).Name(),
 			reflect.TypeOf(bundlestypes.MsgVoteBundleProposal{}).Name(),
 			reflect.TypeOf(bundlestypes.MsgSkipUploaderRole{}).Name(),
 			reflect.TypeOf(bundlestypes.MsgSubmitBundleProposal{}).Name(),
+			// default msgs
 			reflect.TypeOf(banktypes.MsgSend{}).Name(),
 			reflect.TypeOf(stakerstypes.MsgCreateStaker{}).Name(),
 			reflect.TypeOf(stakerstypes.MsgJoinPool{}).Name(),
@@ -133,49 +133,9 @@ var _ = Describe("proposal_handler.go", Ordered, func() {
 		err = testutil.WaitForBlocks(ctx, 2, chain)
 		Expect(err).To(BeNil())
 
-		// Get the transactions
-		txs, err := chain.FindTxs(ctx, height+1)
-		Expect(err).To(BeNil())
+		// ASSERT
 
 		// Check the order of the transactions
-		var order []string
-		for _, tx := range txs {
-			var result TxData
-			err = json.Unmarshal(tx.Data, &result)
-			Expect(err).To(BeNil())
-
-			for _, msg := range result.Body.Messages {
-				order = append(order, msg.Type[strings.LastIndex(msg.Type, ".")+1:])
-			}
-		}
-		Expect(order).To(Equal(expectedOrder))
+		checkTxnOrder(ctx, chain, height+1, expectedOrder)
 	})
 })
-
-type TxData struct {
-	Body struct {
-		Messages []struct {
-			Type    string `json:"@type"`
-			Creator string `json:"creator"`
-		} `json:"messages"`
-	} `json:"body"`
-}
-
-func broadcastMsg(ctx context.Context, broadcaster *cosmos.Broadcaster, broadcastingUser cosmos.User, msg sdk.Msg) {
-	err := broadcastTx(ctx, broadcaster, broadcastingUser, msg)
-	Expect(err).To(BeNil())
-}
-
-func broadcastTx(ctx context.Context, broadcaster *cosmos.Broadcaster, broadcastingUser cosmos.User, msgs ...sdk.Msg) error {
-	f, err := broadcaster.GetFactory(ctx, broadcastingUser)
-	if err != nil {
-		return err
-	}
-
-	cc, err := broadcaster.GetClientContext(ctx, broadcastingUser)
-	if err != nil {
-		return err
-	}
-
-	return tx.BroadcastTx(cc, f, msgs...)
-}
