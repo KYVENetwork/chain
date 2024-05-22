@@ -397,10 +397,11 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		})
 
 		msg := &pooltypes.MsgCreatePool{
-			Authority:      gov,
-			UploadInterval: 60,
-			MaxBundleSize:  100,
-			Binaries:       "{}",
+			Authority:            gov,
+			UploadInterval:       60,
+			MaxBundleSize:        100,
+			InflationShareWeight: math.LegacyZeroDec(),
+			Binaries:             "{}",
 		}
 		s.RunTxPoolSuccess(msg)
 
@@ -420,10 +421,11 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 	It("Try to join pool with a valaddress that is already used by another staker", func() {
 		// ARRANGE
 		msg := &pooltypes.MsgCreatePool{
-			Authority:      gov,
-			UploadInterval: 60,
-			MaxBundleSize:  100,
-			Binaries:       "{}",
+			Authority:            gov,
+			UploadInterval:       60,
+			MaxBundleSize:        100,
+			InflationShareWeight: math.LegacyZeroDec(),
+			Binaries:             "{}",
 		}
 		s.RunTxPoolSuccess(msg)
 
@@ -489,10 +491,11 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		})
 
 		msg := &pooltypes.MsgCreatePool{
-			Authority:      gov,
-			UploadInterval: 60,
-			MaxBundleSize:  100,
-			Binaries:       "{}",
+			Authority:            gov,
+			UploadInterval:       60,
+			MaxBundleSize:        100,
+			InflationShareWeight: math.LegacyZeroDec(),
+			Binaries:             "{}",
 		}
 		s.RunTxPoolSuccess(msg)
 

@@ -256,7 +256,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		// assert commission rewards
 		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(uploaderPayoutReward.Add(storageReward).TruncateInt64())))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(uploaderDelegationReward.TruncateInt64())))
 	})
 
 	It("Staker leaves, although he was the uploader of the previous round and should get slashed", func() {

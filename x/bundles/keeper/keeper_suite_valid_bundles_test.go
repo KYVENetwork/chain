@@ -247,7 +247,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// assert commission rewards
 		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(uploaderPayoutReward.Add(storageReward).TruncateInt64())))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(uploaderDelegationReward.TruncateInt64())))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -396,9 +396,9 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// assert commission rewards
 		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(uploaderPayoutReward.Add(storageReward).TruncateInt64())))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(uploaderDelegationReward.TruncateInt64())))
 		// assert delegator delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.ALICE).AmountOf(globalTypes.Denom).Uint64()).To(Equal(delegatorDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.ALICE).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(delegatorDelegationReward.TruncateInt64())))
 
 		// check voter rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeEmpty())
@@ -408,7 +408,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// assert commission rewards
 		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(uploaderPayoutReward.Add(storageReward).TruncateInt64())))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(uploaderDelegationReward.TruncateInt64())))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
