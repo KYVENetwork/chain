@@ -3,6 +3,8 @@ package v1_5
 import (
 	"context"
 	"fmt"
+	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_pool_types"
+	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 
 	"cosmossdk.io/math"
 
@@ -29,6 +31,10 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 		logger.Info(fmt.Sprintf("performing upgrade %v", UpgradeName))
 
 		if err := migrateStorageCosts(sdkCtx, bundlesKeeper, poolKeeper, storeKeys, cdc); err != nil {
+			return nil, err
+		}
+
+		if err := migrateInflationShareWeight(sdkCtx, poolKeeper, storeKeys, cdc); err != nil {
 			return nil, err
 		}
 
@@ -71,5 +77,67 @@ func migrateStorageCosts(sdkCtx sdk.Context, bundlesKeeper keeper.Keeper, poolKe
 	}
 
 	bundlesKeeper.SetParams(sdkCtx, newParams)
+	return nil
+}
+
+func migrateInflationShareWeight(sdkCtx sdk.Context, poolKeeper *poolkeeper.Keeper, storeKeys []storetypes.StoreKey, cdc codec.Codec) error {
+	var poolStoreKey storetypes.StoreKey
+	for _, k := range storeKeys {
+		if k.Name() == "pool" {
+			poolStoreKey = k
+			break
+		}
+	}
+	if poolStoreKey == nil {
+		return fmt.Errorf("store key not found: pool")
+	}
+
+	pools := v1_4_pool_types.GetAllPools(sdkCtx, poolStoreKey, cdc)
+	for _, pool := range pools {
+		var newPool pooltypes.Pool
+
+		var protocol *pooltypes.Protocol
+		if pool.Protocol != nil {
+			protocol = &pooltypes.Protocol{
+				Version:     pool.Protocol.Version,
+				Binaries:    pool.Protocol.Binaries,
+				LastUpgrade: pool.Protocol.LastUpgrade,
+			}
+		}
+		var upgradePlan *pooltypes.UpgradePlan
+		if pool.UpgradePlan != nil {
+			upgradePlan = &pooltypes.UpgradePlan{
+				Version:     pool.UpgradePlan.Version,
+				Binaries:    pool.UpgradePlan.Binaries,
+				ScheduledAt: pool.UpgradePlan.ScheduledAt,
+				Duration:    pool.UpgradePlan.Duration,
+			}
+		}
+
+		newPool = pooltypes.Pool{
+			Id:             pool.Id,
+			Name:           pool.Name,
+			Runtime:        pool.Runtime,
+			Logo:           pool.Logo,
+			Config:         pool.Config,
+			StartKey:       pool.StartKey,
+			CurrentKey:     pool.CurrentKey,
+			CurrentSummary: pool.CurrentSummary,
+			CurrentIndex:   pool.CurrentIndex,
+			TotalBundles:   pool.TotalBundles,
+			UploadInterval: pool.UploadInterval,
+			// Convert inflation share weight to new decimal type
+			InflationShareWeight:     math.LegacyNewDec(int64(pool.InflationShareWeight)),
+			MinDelegation:            pool.MinDelegation,
+			MaxBundleSize:            pool.MaxBundleSize,
+			Disabled:                 pool.Disabled,
+			Protocol:                 protocol,
+			UpgradePlan:              upgradePlan,
+			CurrentStorageProviderId: pool.CurrentStorageProviderId,
+			CurrentCompressionId:     pool.CurrentCompressionId,
+			EndKey:                   pool.EndKey,
+		}
+		poolKeeper.SetPool(sdkCtx, newPool)
+	}
 	return nil
 }
