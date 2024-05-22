@@ -462,18 +462,18 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// the total payout is the inflation share weight because the funding is sufficient
 		// and there is no additional inflation
-		totalPayout := pool.InflationShareWeight
+		totalPayout := uint64(pool.InflationShareWeight.TruncateInt64())
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := totalPayout.Mul(networkFee)
-		storageReward := s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100)
-		totalUploaderReward := totalPayout.Sub(treasuryReward).Sub(storageReward)
+		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
+		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
-		uploaderPayoutReward := totalUploaderReward.Mul(uploader.Commission)
-		uploaderDelegationReward := totalUploaderReward.Sub(uploaderPayoutReward)
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(uploaderPayoutReward.TruncateInt64() + storageReward.TruncateInt64())))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
@@ -562,25 +562,25 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		b2 := s.GetBalanceFromPool(0)
 		Expect(b1).To(BeNumerically(">", b2))
 
-		payout := math.LegacyNewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx()))
+		payout := uint64(math.LegacyNewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateInt64())
 		Expect(b1 - b2).To(Equal(payout))
 
 		// assert bundle reward
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
 		// the total payout is the inflation share weight plus the inflation payout
-		totalPayout := pool.InflationShareWeight.Add(payout)
+		totalPayout := uint64(pool.InflationShareWeight.TruncateInt64()) + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := totalPayout.Mul(networkFee)
-		storageReward := s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100)
-		totalUploaderReward := totalPayout.Sub(treasuryReward).Sub(storageReward)
+		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
+		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
-		uploaderPayoutReward := totalUploaderReward.Mul(uploader.Commission)
-		uploaderDelegationReward := totalUploaderReward.Sub(uploaderPayoutReward)
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(uploaderPayoutReward.Add(storageReward).TruncateInt64())))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
@@ -669,25 +669,25 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		b2 := s.GetBalanceFromPool(0)
 		Expect(b1).To(BeNumerically(">", b2))
 
-		payout := math.LegacyNewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx()))
+		payout := uint64(math.LegacyNewDec(int64(b1)).Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateInt64())
 		Expect(b1 - b2).To(Equal(payout))
 
 		// assert bundle reward
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
 		// the total payout is the inflation share weight plus the inflation payout
-		totalPayout := pool.InflationShareWeight.Add(payout)
+		totalPayout := uint64(pool.InflationShareWeight.TruncateInt64()) + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := totalPayout.Mul(networkFee)
-		storageReward := s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100)
-		totalUploaderReward := totalPayout.Sub(treasuryReward).Sub(storageReward)
+		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
+		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
-		uploaderPayoutReward := totalUploaderReward.Mul(uploader.Commission)
-		uploaderDelegationReward := totalUploaderReward.Sub(uploaderPayoutReward)
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(uploaderPayoutReward.Add(storageReward).TruncateInt64())))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
@@ -1100,18 +1100,18 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
 		// the total payout is the total funds
-		totalPayout := pool.InflationShareWeight.QuoInt64(2).Add(math.LegacyNewDec(200))
+		totalPayout := (uint64(pool.InflationShareWeight.TruncateInt64()) / 2) + 200
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := totalPayout.Mul(networkFee)
-		storageReward := s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100)
-		totalUploaderReward := totalPayout.Sub(treasuryReward).Sub(storageReward)
+		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
+		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
-		uploaderPayoutReward := totalUploaderReward.Mul(uploader.Commission)
-		uploaderDelegationReward := totalUploaderReward.Sub(uploaderPayoutReward)
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(uploaderPayoutReward.Add(storageReward).TruncateInt64())))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
@@ -1207,18 +1207,18 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
 		// the total payout is the inflation share weight plus the inflation payout
-		totalPayout := pool.InflationShareWeight.QuoInt64(2).Add(math.LegacyNewDec(200))
+		totalPayout := (uint64(pool.InflationShareWeight.TruncateInt64()) / 2) + 200 + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := totalPayout.Mul(networkFee)
-		storageReward := s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100)
-		totalUploaderReward := totalPayout.Sub(treasuryReward).Sub(storageReward)
+		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
+		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
-		uploaderPayoutReward := totalUploaderReward.Mul(uploader.Commission)
-		uploaderDelegationReward := totalUploaderReward.Sub(uploaderPayoutReward)
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(uploaderPayoutReward.Add(storageReward).TruncateInt64())))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
@@ -1314,18 +1314,18 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
 		// the total payout is the inflation share weight plus the inflation payout
-		totalPayout := pool.InflationShareWeight.QuoInt64(2).Add(math.LegacyNewDec(200))
+		totalPayout := (uint64(pool.InflationShareWeight.TruncateInt64()) / 2) + 200 + payout
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
-		treasuryReward := totalPayout.Mul(networkFee)
-		storageReward := s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100)
-		totalUploaderReward := totalPayout.Sub(treasuryReward).Sub(storageReward)
+		treasuryReward := uint64(math.LegacyNewDec(int64(totalPayout)).Mul(networkFee).TruncateInt64())
+		storageReward := uint64(s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateInt64())
+		totalUploaderReward := totalPayout - treasuryReward - storageReward
 
-		uploaderPayoutReward := totalUploaderReward.Mul(uploader.Commission)
-		uploaderDelegationReward := totalUploaderReward.Sub(uploaderPayoutReward)
+		uploaderPayoutReward := uint64(math.LegacyNewDec(int64(totalUploaderReward)).Mul(uploader.Commission).TruncateInt64())
+		uploaderDelegationReward := totalUploaderReward - uploaderPayoutReward
 
 		// assert commission rewards
-		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(uploaderPayoutReward.Add(storageReward).TruncateInt64())))
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderPayoutReward + storageReward))
 		// assert uploader self delegation rewards
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uploaderDelegationReward))
 
