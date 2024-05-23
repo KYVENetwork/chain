@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
@@ -18,6 +19,8 @@ TEST CASES - logic_bundles.go
 * Assert pool can run while pool is upgrading
 * Assert pool can run while pool is disabled
 * Assert pool can run while min delegation is not reached
+* Assert pool can run while voting power of one node is too high
+* Assert pool can run while voting power of one node is 40%
 * Assert pool can run
 * Assert pool can run while pool has no funds
 * Assert pool can run when endKey is reached
@@ -245,6 +248,76 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		err := s.App().BundlesKeeper.AssertPoolCanRun(s.Ctx(), 0)
 
 		// ASSERT
+		Expect(err).To(Equal(bundlesTypes.ErrVotingPowerTooHigh))
+	})
+
+	It("Assert pool can run while voting power of one node is 40%", func() {
+		// ARRANGE
+		msg := &pooltypes.MsgCreatePool{
+			Authority:            gov,
+			Name:                 "PoolTest",
+			Runtime:              "@kyve/test",
+			Logo:                 "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
+			StartKey:             "0",
+			UploadInterval:       60,
+			InflationShareWeight: 10_000,
+			MinDelegation:        100 * i.KYVE,
+			MaxBundleSize:        100,
+			Version:              "0.0.0",
+			Binaries:             "{}",
+			StorageProviderId:    2,
+			CompressionId:        1,
+		}
+		s.RunTxPoolSuccess(msg)
+
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_0,
+			Amount:  300 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_0,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_0_A,
+			Amount:     0,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_1,
+			Amount:  300 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_1,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_1_A,
+			Amount:     0,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
+			Creator: i.STAKER_2,
+			Amount:  400 * i.KYVE,
+		})
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_2,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_2_A,
+			Amount:     0,
+		})
+
+		// ACT
+		errBeforeParamChange := s.App().BundlesKeeper.AssertPoolCanRun(s.Ctx(), 0)
+
+		params := s.App().PoolKeeper.GetParams(s.Ctx())
+		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("0.4")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+
+		err := s.App().BundlesKeeper.AssertPoolCanRun(s.Ctx(), 0)
+
+		// ASSERT
+		Expect(errBeforeParamChange).NotTo(HaveOccurred())
 		Expect(err).To(Equal(bundlesTypes.ErrVotingPowerTooHigh))
 	})
 
