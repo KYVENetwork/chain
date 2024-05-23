@@ -49,7 +49,7 @@ func (k Keeper) AssertPoolCanRun(ctx sdk.Context, poolId uint64) error {
 	maxDelegation := uint64(maxVotingPower.MulInt64(int64(totalDelegation)).TruncateInt64())
 
 	// Error if highest delegation exceeds max voting power
-	if highestDelegation >= maxDelegation {
+	if highestDelegation > maxDelegation {
 		return types.ErrVotingPowerTooHigh
 	}
 
