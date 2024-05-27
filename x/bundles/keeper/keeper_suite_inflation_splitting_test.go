@@ -1342,10 +1342,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 	It("Produce a valid bundle with no funders, 0% inflation splitting and 0 inflation-share-weight", func() {
 		// ARRANGE
-		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0"),
-			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
-		})
+		params := pooltypes.DefaultParams()
+		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("0")
+		params.PoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.1")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 		pool.InflationShareWeight = math.LegacyNewDec(0)
 		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
@@ -1425,10 +1426,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 	It("Produce a valid bundle with no funders, 10% inflation splitting and 0.1 inflation-share-weight", func() {
 		// ARRANGE
-		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0.1"),
-			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
-		})
+		params := pooltypes.DefaultParams()
+		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("0.1")
+		params.PoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.1")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 		pool.InflationShareWeight = math.LegacyMustNewDecFromStr("0.1")
 		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
@@ -1521,10 +1523,11 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 	It("Produce a valid bundle with no funders, 100% inflation splitting and 1 inflation-share-weight", func() {
 		// ARRANGE
-		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("1"),
-			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.2"),
-		})
+		params := pooltypes.DefaultParams()
+		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("0.1")
+		params.PoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.2")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 		pool.InflationShareWeight = math.LegacyMustNewDecFromStr("1")
 		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
