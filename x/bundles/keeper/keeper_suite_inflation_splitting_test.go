@@ -32,6 +32,10 @@ TEST CASES - inflation splitting
 * Produce a valid bundle with some insufficient funders and 10% inflation splitting
 * Produce a valid bundle with some insufficient funders and 100% inflation splitting
 
+* Produce a valid bundle with no funders, 0% inflation splitting and 0 inflation-share-weight
+* Produce a valid bundle with no funders, 10% inflation splitting and 0.1 inflation-share-weight
+* Produce a valid bundle with no funders, 100% inflation splitting and 1 inflation-share-weight
+
 */
 
 var _ = Describe("inflation splitting", Ordered, func() {
@@ -1334,5 +1338,280 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100*i.KYVE - 5_000))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
+	})
+
+	It("Produce a valid bundle with no funders, 0% inflation splitting and 0 inflation-share-weight", func() {
+		// ARRANGE
+		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
+			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0"),
+			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
+		})
+		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		pool.InflationShareWeight = math.LegacyNewDec(0)
+		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
+
+		// mine some blocks
+		for i := 1; i < 100; i++ {
+			s.Commit()
+		}
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_0_A,
+			Staker:        i.STAKER_0,
+			PoolId:        0,
+			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			DataSize:      100,
+			DataHash:      "test_hash",
+			FromIndex:     0,
+			BundleSize:    100,
+			FromKey:       "0",
+			ToKey:         "99",
+			BundleSummary: "test_value",
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      1,
+		})
+
+		s.CommitAfterSeconds(60)
+
+		b1 := s.GetBalanceFromPool(0)
+
+		// ACT
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_1_A,
+			Staker:        i.STAKER_1,
+			PoolId:        0,
+			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
+			DataSize:      100,
+			DataHash:      "test_hash2",
+			FromIndex:     100,
+			BundleSize:    100,
+			FromKey:       "100",
+			ToKey:         "199",
+			BundleSummary: "test_value2",
+		})
+
+		// ASSERT
+		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+
+		// assert if bundle go finalized
+		Expect(pool.TotalBundles).To(Equal(uint64(1)))
+		Expect(pool.CurrentKey).To(Equal("99"))
+
+		// assert pool balance
+		b2 := s.GetBalanceFromPool(0)
+		Expect(b1).To(BeZero())
+		Expect(b2).To(BeZero())
+
+		// assert bundle reward
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+
+		// assert commission rewards
+		Expect(uploader.CommissionRewards).To(BeEmpty())
+		// assert uploader self delegation rewards
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
+
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
+		// assert total pool funds
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
+		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
+	})
+
+	It("Produce a valid bundle with no funders, 10% inflation splitting and 0.1 inflation-share-weight", func() {
+		// ARRANGE
+		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
+			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0.1"),
+			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
+		})
+		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		pool.InflationShareWeight = math.LegacyMustNewDecFromStr("0.1")
+		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
+
+		// mine some blocks
+		for i := 1; i < 100; i++ {
+			s.Commit()
+		}
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_0_A,
+			Staker:        i.STAKER_0,
+			PoolId:        0,
+			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			DataSize:      100,
+			DataHash:      "test_hash",
+			FromIndex:     0,
+			BundleSize:    100,
+			FromKey:       "0",
+			ToKey:         "99",
+			BundleSummary: "test_value",
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      1,
+		})
+
+		s.CommitAfterSeconds(60)
+
+		b1 := math.LegacyNewDec(int64(s.GetBalanceFromPool(0)))
+
+		// ACT
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_1_A,
+			Staker:        i.STAKER_1,
+			PoolId:        0,
+			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
+			DataSize:      100,
+			DataHash:      "test_hash2",
+			FromIndex:     100,
+			BundleSize:    100,
+			FromKey:       "100",
+			ToKey:         "199",
+			BundleSummary: "test_value2",
+		})
+
+		// ASSERT
+		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+
+		// assert if bundle go finalized
+		Expect(pool.TotalBundles).To(Equal(uint64(1)))
+		Expect(pool.CurrentKey).To(Equal("99"))
+
+		// assert pool balance
+		b2 := math.LegacyNewDec(int64(s.GetBalanceFromPool(0)))
+		Expect(b1.TruncateInt64()).To(BeNumerically(">", b2.TruncateInt64()))
+
+		payout := b1.Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateDec()
+		Expect(b1.Sub(b2)).To(Equal(payout))
+
+		// assert bundle reward
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+
+		// the total payout is here just the inflation payout
+		totalPayout := payout
+
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
+		treasuryReward := totalPayout.Mul(networkFee).TruncateDec()
+		storageReward := s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateDec()
+		totalUploaderReward := totalPayout.Sub(treasuryReward).Sub(storageReward)
+
+		uploaderPayoutReward := totalUploaderReward.Mul(uploader.Commission).TruncateDec()
+		uploaderDelegationReward := totalUploaderReward.Sub(uploaderPayoutReward)
+
+		// assert commission rewards
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).ToLegacyDec()).To(Equal(uploaderPayoutReward.Add(storageReward)))
+		// assert uploader self delegation rewards
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).ToLegacyDec()).To(Equal(uploaderDelegationReward))
+
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
+		// assert total pool funds
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
+		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
+	})
+
+	It("Produce a valid bundle with no funders, 100% inflation splitting and 1 inflation-share-weight", func() {
+		// ARRANGE
+		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
+			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("1"),
+			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.2"),
+		})
+		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		pool.InflationShareWeight = math.LegacyMustNewDecFromStr("1")
+		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
+
+		// mine some blocks
+		for i := 1; i < 100; i++ {
+			s.Commit()
+		}
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_0_A,
+			Staker:        i.STAKER_0,
+			PoolId:        0,
+			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			DataSize:      100,
+			DataHash:      "test_hash",
+			FromIndex:     0,
+			BundleSize:    100,
+			FromKey:       "0",
+			ToKey:         "99",
+			BundleSummary: "test_value",
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      1,
+		})
+
+		s.CommitAfterSeconds(60)
+
+		b1 := math.LegacyNewDec(int64(s.GetBalanceFromPool(0)))
+
+		// ACT
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_1_A,
+			Staker:        i.STAKER_1,
+			PoolId:        0,
+			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
+			DataSize:      100,
+			DataHash:      "test_hash2",
+			FromIndex:     100,
+			BundleSize:    100,
+			FromKey:       "100",
+			ToKey:         "199",
+			BundleSummary: "test_value2",
+		})
+
+		// ASSERT
+		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+
+		// assert if bundle go finalized
+		Expect(pool.TotalBundles).To(Equal(uint64(1)))
+		Expect(pool.CurrentKey).To(Equal("99"))
+
+		// assert pool balance
+		b2 := math.LegacyNewDec(int64(s.GetBalanceFromPool(0)))
+		Expect(b1.TruncateInt64()).To(BeNumerically(">", b2.TruncateInt64()))
+
+		payout := b1.Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateDec()
+		Expect(b1.Sub(b2)).To(Equal(payout))
+
+		// assert bundle reward
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+
+		// the total payout is here just the inflation payout
+		totalPayout := payout
+
+		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
+		treasuryReward := totalPayout.Mul(networkFee).TruncateDec()
+		storageReward := s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateDec()
+		totalUploaderReward := totalPayout.Sub(treasuryReward).Sub(storageReward)
+
+		uploaderPayoutReward := totalUploaderReward.Mul(uploader.Commission).TruncateDec()
+		uploaderDelegationReward := totalUploaderReward.Sub(uploaderPayoutReward)
+
+		// assert commission rewards
+		Expect(uploader.CommissionRewards.AmountOf(globalTypes.Denom).ToLegacyDec()).To(Equal(uploaderPayoutReward.Add(storageReward)))
+		// assert uploader self delegation rewards
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).ToLegacyDec()).To(Equal(uploaderDelegationReward))
+
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
+		// assert total pool funds
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
+		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 })
