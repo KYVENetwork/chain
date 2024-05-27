@@ -26,6 +26,7 @@ import (
 TEST CASES - proposal_handler.go
 
 * Execute multiple transactions and check their order
+* Execute transactions that exceed max tx bytes
 
 */
 
@@ -136,6 +137,57 @@ var _ = Describe("proposal_handler.go", Ordered, func() {
 		// ASSERT
 
 		// Check the order of the transactions
-		checkTxnOrder(ctx, chain, height+1, expectedOrder)
+		checkTxsOrder(ctx, chain, height+1, expectedOrder)
+	})
+
+	It("Execute transactions that exceed max tx bytes", func() {
+		// ARRANGE
+		err := testutil.WaitForBlocks(ctx, 1, chain)
+		Expect(err).To(BeNil())
+
+		height, err := chain.Height(ctx)
+		Expect(err).To(BeNil())
+
+		// ACT
+		const duplications = 40
+		broadcastMsg(ctx, broadcaster, wallets[0], &stakerstypes.MsgCreateStaker{Creator: wallets[0].FormattedAddress()})
+		broadcastMsgs(ctx, broadcaster, wallets[1], duplicateMsg(&banktypes.MsgSend{FromAddress: wallets[1].FormattedAddress()}, duplications)...)
+		broadcastMsg(ctx, broadcaster, wallets[2], &bundlestypes.MsgSkipUploaderRole{Creator: wallets[2].FormattedAddress()}) // priority msg
+
+		// this will not make it into the actual block, so it goes into the next one with all following msgs
+		broadcastMsgs(ctx, broadcaster, wallets[3], duplicateMsg(&banktypes.MsgSend{FromAddress: wallets[4].FormattedAddress()}, duplications)...)
+		broadcastMsg(ctx, broadcaster, wallets[4], &stakerstypes.MsgJoinPool{Creator: wallets[5].FormattedAddress(), Valaddress: wallets[0].FormattedAddress(), PoolId: 0})
+		broadcastMsg(ctx, broadcaster, wallets[5], &bundlestypes.MsgVoteBundleProposal{Creator: wallets[6].FormattedAddress()}) // priority msg
+
+		afterHeight, err := chain.Height(ctx)
+		Expect(err).To(BeNil())
+		Expect(afterHeight).To(Equal(height))
+
+		// Wait for the transactions to be included in a block
+		err = testutil.WaitForBlocks(ctx, 2, chain)
+		Expect(err).To(BeNil())
+
+		// ASSERT
+		var msgTypes []string
+		for i := 0; i < duplications; i++ {
+			msgTypes = append(msgTypes, reflect.TypeOf(banktypes.MsgSend{}).Name())
+		}
+
+		// Check that only the first block contains the first transactions
+		checkTxsOrder(ctx, chain, height+1, append(
+			[]string{
+				reflect.TypeOf(bundlestypes.MsgSkipUploaderRole{}).Name(), // priority msg
+				reflect.TypeOf(stakerstypes.MsgCreateStaker{}).Name(),
+			},
+			msgTypes...,
+		))
+		// The second block should contain the rest of the transactions
+		checkTxsOrder(ctx, chain, height+2, append(
+			msgTypes,
+			[]string{
+				reflect.TypeOf(bundlestypes.MsgVoteBundleProposal{}).Name(), // priority msg
+				reflect.TypeOf(stakerstypes.MsgJoinPool{}).Name(),
+			}...,
+		))
 	})
 })

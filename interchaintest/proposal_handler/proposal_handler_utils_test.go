@@ -24,6 +24,7 @@ import (
 const (
 	uidGid         = "1025:1025"
 	consensusSpeed = 2 * time.Second
+	maxTxBytes     = 5_000
 )
 
 func encodingConfig() *sdktestutil.TestEncodingConfig {
@@ -119,6 +120,14 @@ func ModifyGenesis(config ibc.ChainConfig, genbz []byte) ([]byte, error) {
 		"app_state", "pool", "params", "pool_inflation_payout_rate",
 	)
 
+	// set the max tx bytes
+	_ = dyno.Set(genesis, strconv.Itoa(maxTxBytes),
+		"consensus", "params", "block", "max_bytes",
+	)
+	_ = dyno.Set(genesis, strconv.Itoa(maxTxBytes),
+		"consensus", "params", "evidence", "max_bytes",
+	)
+
 	newGenesis, _ := json.Marshal(genesis)
 	return newGenesis, nil
 }
@@ -133,25 +142,29 @@ type TxData struct {
 }
 
 func broadcastMsg(ctx context.Context, broadcaster *cosmos.Broadcaster, broadcastingUser cosmos.User, msg sdk.Msg) {
-	err := broadcastTx(ctx, broadcaster, broadcastingUser, msg)
+	broadcastMsgs(ctx, broadcaster, broadcastingUser, msg)
+}
+
+func broadcastMsgs(ctx context.Context, broadcaster *cosmos.Broadcaster, broadcastingUser cosmos.User, msgs ...sdk.Msg) {
+	f, err := broadcaster.GetFactory(ctx, broadcastingUser)
+	Expect(err).To(BeNil())
+
+	cc, err := broadcaster.GetClientContext(ctx, broadcastingUser)
+	Expect(err).To(BeNil())
+
+	err = clienttx.BroadcastTx(cc, f, msgs...)
 	Expect(err).To(BeNil())
 }
 
-func broadcastTx(ctx context.Context, broadcaster *cosmos.Broadcaster, broadcastingUser cosmos.User, msgs ...sdk.Msg) error {
-	f, err := broadcaster.GetFactory(ctx, broadcastingUser)
-	if err != nil {
-		return err
+func duplicateMsg(msg sdk.Msg, size int) []sdk.Msg {
+	var msgs []sdk.Msg
+	for i := 0; i < size; i++ {
+		msgs = append(msgs, msg)
 	}
-
-	cc, err := broadcaster.GetClientContext(ctx, broadcastingUser)
-	if err != nil {
-		return err
-	}
-
-	return clienttx.BroadcastTx(cc, f, msgs...)
+	return msgs
 }
 
-func checkTxnOrder(ctx context.Context, chain *cosmos.CosmosChain, height int64, expectedOrder []string) {
+func checkTxsOrder(ctx context.Context, chain *cosmos.CosmosChain, height int64, expectedOrder []string) {
 	txs, err := chain.FindTxs(ctx, height)
 	Expect(err).To(BeNil())
 
