@@ -45,8 +45,11 @@ func (k Keeper) AssertPoolCanRun(ctx sdk.Context, poolId uint64) error {
 		return types.ErrMinDelegationNotReached
 	}
 
-	// Error if the top staker has more than 50%
-	if highestDelegation*2 > totalDelegation {
+	maxVotingPower := k.poolKeeper.GetMaxVotingPowerPerPool(ctx)
+	maxDelegation := uint64(maxVotingPower.MulInt64(int64(totalDelegation)).TruncateInt64())
+
+	// Error if highest delegation exceeds max voting power
+	if highestDelegation > maxDelegation {
 		return types.ErrVotingPowerTooHigh
 	}
 
