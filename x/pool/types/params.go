@@ -11,14 +11,19 @@ var DefaultProtocolInflationShare = math.LegacyZeroDec()
 // DefaultPoolInflationPayoutRate ...
 var DefaultPoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.05")
 
+// DefaultMaxVotingPowerPerPool ...
+var DefaultMaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("0.5")
+
 // NewParams creates a new Params instance
 func NewParams(
 	protocolInflationShare math.LegacyDec,
 	poolInflationPayoutRate math.LegacyDec,
+	maxVotingPowerPerPool math.LegacyDec,
 ) Params {
 	return Params{
 		ProtocolInflationShare:  protocolInflationShare,
 		PoolInflationPayoutRate: poolInflationPayoutRate,
+		MaxVotingPowerPerPool:   maxVotingPowerPerPool,
 	}
 }
 
@@ -27,6 +32,7 @@ func DefaultParams() Params {
 	return NewParams(
 		DefaultProtocolInflationShare,
 		DefaultPoolInflationPayoutRate,
+		DefaultMaxVotingPowerPerPool,
 	)
 }
 
@@ -37,6 +43,10 @@ func (p Params) Validate() error {
 	}
 
 	if err := util.ValidatePercentage(p.PoolInflationPayoutRate); err != nil {
+		return err
+	}
+
+	if err := util.ValidatePercentage(p.MaxVotingPowerPerPool); err != nil {
 		return err
 	}
 

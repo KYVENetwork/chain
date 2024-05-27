@@ -40,6 +40,8 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 
 		// TODO: migrate network fee and whitelist weights
 
+		// TODO: migrate MaxVotingPowerPerPool in pool params
+
 		return mm.RunMigrations(ctx, configurator, fromVM)
 	}
 }

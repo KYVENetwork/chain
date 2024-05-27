@@ -31,6 +31,9 @@ TEST CASES - msg_server_update_params.go
 * Update pool inflation payout rate
 * Update pool inflation payout rate with invalid value
 
+* Update max voting power per pool
+* Update max voting power per pool with invalid value
+
 */
 
 var _ = Describe("msg_server_update_params.go", Ordered, func() {
@@ -62,6 +65,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 		Expect(params.ProtocolInflationShare).To(Equal(types.DefaultProtocolInflationShare))
 		Expect(params.PoolInflationPayoutRate).To(Equal(types.DefaultPoolInflationPayoutRate))
+		Expect(params.MaxVotingPowerPerPool).To(Equal(types.DefaultMaxVotingPowerPerPool))
 	})
 
 	It("Invalid authority (transaction)", func() {
@@ -131,6 +135,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 		Expect(updatedParams.ProtocolInflationShare).To(Equal(math.LegacyMustNewDecFromStr("0.2")))
 		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(math.LegacyMustNewDecFromStr("0.05")))
+		Expect(updatedParams.MaxVotingPowerPerPool).To(Equal(types.DefaultMaxVotingPowerPerPool))
 	})
 
 	It("Update no params", func() {
@@ -165,6 +170,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 		Expect(updatedParams.ProtocolInflationShare).To(Equal(types.DefaultProtocolInflationShare))
 		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(types.DefaultPoolInflationPayoutRate))
+		Expect(updatedParams.MaxVotingPowerPerPool).To(Equal(types.DefaultMaxVotingPowerPerPool))
 	})
 
 	It("Update with invalid formatted payload", func() {
@@ -195,6 +201,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 		Expect(updatedParams.ProtocolInflationShare).To(Equal(types.DefaultProtocolInflationShare))
 		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(types.DefaultPoolInflationPayoutRate))
+		Expect(updatedParams.MaxVotingPowerPerPool).To(Equal(types.DefaultMaxVotingPowerPerPool))
 	})
 
 	It("Update protocol inflation share", func() {
@@ -231,6 +238,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 		Expect(updatedParams.ProtocolInflationShare).To(Equal(math.LegacyMustNewDecFromStr("0.07")))
 		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(types.DefaultPoolInflationPayoutRate))
+		Expect(updatedParams.MaxVotingPowerPerPool).To(Equal(types.DefaultMaxVotingPowerPerPool))
 	})
 
 	It("Update protocol inflation share with invalid value", func() {
@@ -261,6 +269,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 		Expect(updatedParams.ProtocolInflationShare).To(Equal(types.DefaultProtocolInflationShare))
 		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(types.DefaultPoolInflationPayoutRate))
+		Expect(updatedParams.MaxVotingPowerPerPool).To(Equal(types.DefaultMaxVotingPowerPerPool))
 	})
 
 	It("Update pool inflation payout rate", func() {
@@ -297,6 +306,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 		Expect(updatedParams.ProtocolInflationShare).To(Equal(types.DefaultProtocolInflationShare))
 		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(math.LegacyMustNewDecFromStr("0.2")))
+		Expect(updatedParams.MaxVotingPowerPerPool).To(Equal(types.DefaultMaxVotingPowerPerPool))
 	})
 
 	It("Update pool inflation payout rate with invalid value", func() {
@@ -327,5 +337,74 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 		Expect(updatedParams.ProtocolInflationShare).To(Equal(types.DefaultProtocolInflationShare))
 		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(types.DefaultPoolInflationPayoutRate))
+		Expect(updatedParams.MaxVotingPowerPerPool).To(Equal(types.DefaultMaxVotingPowerPerPool))
+	})
+
+	It("Update max voting power per pool", func() {
+		// ARRANGE
+		payload := `{
+			"max_voting_power_per_pool": "0.2"
+		}`
+
+		msg := &types.MsgUpdateParams{
+			Authority: gov,
+			Payload:   payload,
+		}
+
+		proposal, _ := govV1Types.NewMsgSubmitProposal(
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
+		)
+
+		vote := govV1Types.NewMsgVote(
+			voter, 1, govV1Types.VoteOption_VOTE_OPTION_YES, "",
+		)
+
+		// ACT
+		_, submitErr := s.RunTx(proposal)
+		_, voteErr := s.RunTx(vote)
+
+		s.CommitAfter(*votingPeriod)
+		s.Commit()
+
+		// ASSERT
+		updatedParams := s.App().PoolKeeper.GetParams(s.Ctx())
+
+		Expect(submitErr).NotTo(HaveOccurred())
+		Expect(voteErr).NotTo(HaveOccurred())
+
+		Expect(updatedParams.ProtocolInflationShare).To(Equal(types.DefaultProtocolInflationShare))
+		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(types.DefaultPoolInflationPayoutRate))
+		Expect(updatedParams.MaxVotingPowerPerPool).To(Equal(math.LegacyMustNewDecFromStr("0.2")))
+	})
+
+	It("Update max voting power per pool with invalid value", func() {
+		// ARRANGE
+		payload := `{
+			"max_voting_power_per_pool": "1.2"
+		}`
+
+		msg := &types.MsgUpdateParams{
+			Authority: gov,
+			Payload:   payload,
+		}
+
+		proposal, _ := govV1Types.NewMsgSubmitProposal(
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
+		)
+
+		// ACT
+		_, submitErr := s.RunTx(proposal)
+
+		s.CommitAfter(*votingPeriod)
+		s.Commit()
+
+		// ASSERT
+		updatedParams := s.App().PoolKeeper.GetParams(s.Ctx())
+
+		Expect(submitErr).To(HaveOccurred())
+
+		Expect(updatedParams.ProtocolInflationShare).To(Equal(types.DefaultProtocolInflationShare))
+		Expect(updatedParams.PoolInflationPayoutRate).To(Equal(types.DefaultPoolInflationPayoutRate))
+		Expect(updatedParams.MaxVotingPowerPerPool).To(Equal(types.DefaultMaxVotingPowerPerPool))
 	})
 })

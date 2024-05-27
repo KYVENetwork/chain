@@ -114,10 +114,10 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 	It("Produce a valid bundle with no funders and 0% inflation splitting", func() {
 		// ARRANGE
-		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0"),
-			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
-		})
+		params := pooltypes.DefaultParams()
+		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("0")
+		params.PoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.1")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
 
 		// mine some blocks
 		for i := 1; i < 100; i++ {
@@ -194,10 +194,10 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 	It("Produce a valid bundle with no funders and 10% inflation splitting", func() {
 		// ARRANGE
-		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0.1"),
-			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
-		})
+		params := pooltypes.DefaultParams()
+		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("0.1")
+		params.PoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.1")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
 
 		// mine some blocks
 		for i := 1; i < 100; i++ {
@@ -287,10 +287,10 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 	It("Produce a valid bundle with no funders and 100% inflation splitting", func() {
 		// ARRANGE
-		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("1"),
-			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.2"),
-		})
+		params := pooltypes.DefaultParams()
+		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("0.1")
+		params.PoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.2")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
 
 		// mine some blocks
 		for i := 1; i < 100; i++ {
@@ -380,10 +380,10 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 	It("Produce a valid bundle with sufficient funders and 0% inflation splitting", func() {
 		// ARRANGE
-		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0"),
-			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
-		})
+		params := pooltypes.DefaultParams()
+		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("0")
+		params.PoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.1")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
 
 		// mine some blocks
 		for i := 1; i < 100; i++ {
@@ -486,10 +486,10 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 	It("Produce a valid bundle with sufficient funders and 10% inflation splitting", func() {
 		// ARRANGE
-		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0.1"),
-			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.3"),
-		})
+		params := pooltypes.DefaultParams()
+		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("0.1")
+		params.PoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.3")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
 
 		// mine some blocks
 		for i := 1; i < 100; i++ {
@@ -593,10 +593,10 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 	It("Produce a valid bundle with sufficient funders and 100% inflation splitting", func() {
 		// ARRANGE
-		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("1"),
-			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
-		})
+		params := pooltypes.DefaultParams()
+		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("1")
+		params.PoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.1")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
 
 		// mine some blocks
 		for i := 1; i < 100; i++ {
@@ -700,10 +700,10 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 	It("Produce a valid bundle with insufficient funders and 0% inflation splitting", func() {
 		// ARRANGE
-		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0"),
-			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
-		})
+		params := pooltypes.DefaultParams()
+		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("0")
+		params.PoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.1")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
 
 		// mine some blocks
 		for i := 1; i < 100; i++ {
@@ -805,10 +805,10 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 	It("Produce a valid bundle with insufficient funders and 30% inflation splitting", func() {
 		// ARRANGE
-		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0.1"),
-			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.3"),
-		})
+		params := pooltypes.DefaultParams()
+		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("0.1")
+		params.PoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.3")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
 
 		// mine some blocks
 		for i := 1; i < 100; i++ {
@@ -912,10 +912,10 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 	It("Produce a valid bundle with insufficient funders and 10% inflation splitting", func() {
 		// ARRANGE
-		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("1"),
-			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
-		})
+		params := pooltypes.DefaultParams()
+		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("1")
+		params.PoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.1")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
 
 		// mine some blocks
 		for i := 1; i < 100; i++ {
@@ -1019,10 +1019,10 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 	It("Produce a valid bundle with some insufficient funders and 0% inflation splitting", func() {
 		// ARRANGE
-		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0"),
-			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
-		})
+		params := pooltypes.DefaultParams()
+		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("0")
+		params.PoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.1")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
 
 		// mine some blocks
 		for i := 1; i < 100; i++ {
@@ -1124,10 +1124,10 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 	It("Produce a valid bundle with some insufficient funders and 30% inflation splitting", func() {
 		// ARRANGE
-		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0.1"),
-			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.3"),
-		})
+		params := pooltypes.DefaultParams()
+		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("0.1")
+		params.PoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.3")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
 
 		// mine some blocks
 		for i := 1; i < 100; i++ {
@@ -1231,10 +1231,10 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 	It("Produce a valid bundle with some insufficient funders and 10% inflation splitting", func() {
 		// ARRANGE
-		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("1"),
-			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
-		})
+		params := pooltypes.DefaultParams()
+		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("1")
+		params.PoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.1")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
 
 		// mine some blocks
 		for i := 1; i < 100; i++ {
