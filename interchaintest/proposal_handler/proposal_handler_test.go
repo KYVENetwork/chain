@@ -42,7 +42,6 @@ var _ = Describe("proposal_handler.go", Ordered, func() {
 	var interchain *interchaintest.Interchain
 
 	var broadcaster *cosmos.Broadcaster
-	var wallets []*cosmos.CosmosWallet
 
 	BeforeAll(func() {
 		numFullNodes := 0
@@ -79,12 +78,6 @@ var _ = Describe("proposal_handler.go", Ordered, func() {
 			SkipPathCreation: true,
 		})
 		Expect(err).To(BeNil())
-
-		for i := 0; i < 10; i++ {
-			wallets = append(wallets, interchaintest.GetAndFundTestUsers(
-				GinkgoT(), ctx, GinkgoT().Name(), math.NewInt(10_000_000_000), chain,
-			)[0].(*cosmos.CosmosWallet))
-		}
 	})
 
 	AfterAll(func() {
@@ -94,6 +87,13 @@ var _ = Describe("proposal_handler.go", Ordered, func() {
 
 	It("Execute multiple transactions and check their order", func() {
 		// ARRANGE
+		var wallets []*cosmos.CosmosWallet
+		for i := 0; i < 8; i++ {
+			wallets = append(wallets, interchaintest.GetAndFundTestUsers(
+				GinkgoT(), ctx, GinkgoT().Name(), math.NewInt(10_000_000_000), chain,
+			)[0].(*cosmos.CosmosWallet))
+		}
+
 		err := testutil.WaitForBlocks(ctx, 1, chain)
 		Expect(err).To(BeNil())
 
@@ -104,14 +104,14 @@ var _ = Describe("proposal_handler.go", Ordered, func() {
 
 		// Execute different transactions
 		// We don't care about the results, they only have to be included in a block
-		broadcastMsg(ctx, broadcaster, wallets[0], &banktypes.MsgSend{FromAddress: wallets[0].FormattedAddress()})
-		broadcastMsg(ctx, broadcaster, wallets[1], &stakerstypes.MsgCreateStaker{Creator: wallets[1].FormattedAddress()})
-		broadcastMsg(ctx, broadcaster, wallets[2], &bundlestypes.MsgClaimUploaderRole{Creator: wallets[2].FormattedAddress()}) // priority msg
-		broadcastMsg(ctx, broadcaster, wallets[3], &stakerstypes.MsgJoinPool{Creator: wallets[3].FormattedAddress(), Valaddress: wallets[0].FormattedAddress(), PoolId: 0})
-		broadcastMsg(ctx, broadcaster, wallets[4], &banktypes.MsgSend{FromAddress: wallets[4].FormattedAddress()})
-		broadcastMsg(ctx, broadcaster, wallets[5], &bundlestypes.MsgVoteBundleProposal{Creator: wallets[5].FormattedAddress()})   // priority msg
-		broadcastMsg(ctx, broadcaster, wallets[6], &bundlestypes.MsgSkipUploaderRole{Creator: wallets[6].FormattedAddress()})     // priority msg
-		broadcastMsg(ctx, broadcaster, wallets[7], &bundlestypes.MsgSubmitBundleProposal{Creator: wallets[7].FormattedAddress()}) // priority msg
+		broadcastMsgs(ctx, broadcaster, wallets[0], &banktypes.MsgSend{FromAddress: wallets[0].FormattedAddress()})
+		broadcastMsgs(ctx, broadcaster, wallets[1], &stakerstypes.MsgCreateStaker{Creator: wallets[1].FormattedAddress()})
+		broadcastMsgs(ctx, broadcaster, wallets[2], &bundlestypes.MsgClaimUploaderRole{Creator: wallets[2].FormattedAddress()}) // priority msg
+		broadcastMsgs(ctx, broadcaster, wallets[3], &stakerstypes.MsgJoinPool{Creator: wallets[3].FormattedAddress(), Valaddress: wallets[0].FormattedAddress(), PoolId: 0})
+		broadcastMsgs(ctx, broadcaster, wallets[4], &banktypes.MsgSend{FromAddress: wallets[4].FormattedAddress()})
+		broadcastMsgs(ctx, broadcaster, wallets[5], &bundlestypes.MsgVoteBundleProposal{Creator: wallets[5].FormattedAddress()})   // priority msg
+		broadcastMsgs(ctx, broadcaster, wallets[6], &bundlestypes.MsgSkipUploaderRole{Creator: wallets[6].FormattedAddress()})     // priority msg
+		broadcastMsgs(ctx, broadcaster, wallets[7], &bundlestypes.MsgSubmitBundleProposal{Creator: wallets[7].FormattedAddress()}) // priority msg
 
 		expectedOrder := []string{
 			// priority msgs
@@ -142,6 +142,12 @@ var _ = Describe("proposal_handler.go", Ordered, func() {
 
 	It("Execute transactions that exceed max tx bytes", func() {
 		// ARRANGE
+		var wallets []*cosmos.CosmosWallet
+		for i := 0; i < 6; i++ {
+			wallets = append(wallets, interchaintest.GetAndFundTestUsers(
+				GinkgoT(), ctx, GinkgoT().Name(), math.NewInt(10_000_000_000), chain,
+			)[0].(*cosmos.CosmosWallet))
+		}
 		err := testutil.WaitForBlocks(ctx, 1, chain)
 		Expect(err).To(BeNil())
 
@@ -150,14 +156,14 @@ var _ = Describe("proposal_handler.go", Ordered, func() {
 
 		// ACT
 		const duplications = 40
-		broadcastMsg(ctx, broadcaster, wallets[0], &stakerstypes.MsgCreateStaker{Creator: wallets[0].FormattedAddress()})
+		broadcastMsgs(ctx, broadcaster, wallets[0], &stakerstypes.MsgCreateStaker{Creator: wallets[0].FormattedAddress()})
 		broadcastMsgs(ctx, broadcaster, wallets[1], duplicateMsg(&banktypes.MsgSend{FromAddress: wallets[1].FormattedAddress()}, duplications)...)
-		broadcastMsg(ctx, broadcaster, wallets[2], &bundlestypes.MsgSkipUploaderRole{Creator: wallets[2].FormattedAddress()}) // priority msg
+		broadcastMsgs(ctx, broadcaster, wallets[2], &bundlestypes.MsgSkipUploaderRole{Creator: wallets[2].FormattedAddress()}) // priority msg
 
 		// this will not make it into the actual block, so it goes into the next one with all following msgs
-		broadcastMsgs(ctx, broadcaster, wallets[3], duplicateMsg(&banktypes.MsgSend{FromAddress: wallets[4].FormattedAddress()}, duplications)...)
-		broadcastMsg(ctx, broadcaster, wallets[4], &stakerstypes.MsgJoinPool{Creator: wallets[5].FormattedAddress(), Valaddress: wallets[0].FormattedAddress(), PoolId: 0})
-		broadcastMsg(ctx, broadcaster, wallets[5], &bundlestypes.MsgVoteBundleProposal{Creator: wallets[6].FormattedAddress()}) // priority msg
+		broadcastMsgs(ctx, broadcaster, wallets[3], duplicateMsg(&banktypes.MsgSend{FromAddress: wallets[3].FormattedAddress()}, duplications)...)
+		broadcastMsgs(ctx, broadcaster, wallets[4], &stakerstypes.MsgJoinPool{Creator: wallets[4].FormattedAddress(), Valaddress: wallets[0].FormattedAddress(), PoolId: 0})
+		broadcastMsgs(ctx, broadcaster, wallets[5], &bundlestypes.MsgVoteBundleProposal{Creator: wallets[5].FormattedAddress()}) // priority msg
 
 		afterHeight, err := chain.Height(ctx)
 		Expect(err).To(BeNil())
@@ -173,21 +179,26 @@ var _ = Describe("proposal_handler.go", Ordered, func() {
 			msgTypes = append(msgTypes, reflect.TypeOf(banktypes.MsgSend{}).Name())
 		}
 
-		// Check that only the first block contains the first transactions
-		checkTxsOrder(ctx, chain, height+1, append(
+		expectedOrder1 := append(
 			[]string{
 				reflect.TypeOf(bundlestypes.MsgSkipUploaderRole{}).Name(), // priority msg
 				reflect.TypeOf(stakerstypes.MsgCreateStaker{}).Name(),
 			},
 			msgTypes...,
-		))
-		// The second block should contain the rest of the transactions
-		checkTxsOrder(ctx, chain, height+2, append(
-			msgTypes,
+		)
+		expectedOrder2 := append(
 			[]string{
 				reflect.TypeOf(bundlestypes.MsgVoteBundleProposal{}).Name(), // priority msg
-				reflect.TypeOf(stakerstypes.MsgJoinPool{}).Name(),
-			}...,
-		))
+			},
+			msgTypes...,
+		)
+		expectedOrder2 = append(expectedOrder2,
+			reflect.TypeOf(stakerstypes.MsgJoinPool{}).Name(),
+		)
+
+		// Check that only the first block contains the first transactions
+		checkTxsOrder(ctx, chain, height+1, expectedOrder1)
+		// The second block should contain the rest of the transactions
+		checkTxsOrder(ctx, chain, height+2, expectedOrder2)
 	})
 })

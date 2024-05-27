@@ -141,19 +141,15 @@ type TxData struct {
 	} `json:"body"`
 }
 
-func broadcastMsg(ctx context.Context, broadcaster *cosmos.Broadcaster, broadcastingUser cosmos.User, msg sdk.Msg) {
-	broadcastMsgs(ctx, broadcaster, broadcastingUser, msg)
-}
-
 func broadcastMsgs(ctx context.Context, broadcaster *cosmos.Broadcaster, broadcastingUser cosmos.User, msgs ...sdk.Msg) {
 	f, err := broadcaster.GetFactory(ctx, broadcastingUser)
-	Expect(err).To(BeNil())
+	ExpectWithOffset(1, err).To(BeNil())
 
 	cc, err := broadcaster.GetClientContext(ctx, broadcastingUser)
-	Expect(err).To(BeNil())
+	ExpectWithOffset(1, err).To(BeNil())
 
 	err = clienttx.BroadcastTx(cc, f, msgs...)
-	Expect(err).To(BeNil())
+	ExpectWithOffset(1, err).To(BeNil())
 }
 
 func duplicateMsg(msg sdk.Msg, size int) []sdk.Msg {
@@ -166,17 +162,17 @@ func duplicateMsg(msg sdk.Msg, size int) []sdk.Msg {
 
 func checkTxsOrder(ctx context.Context, chain *cosmos.CosmosChain, height int64, expectedOrder []string) {
 	txs, err := chain.FindTxs(ctx, height)
-	Expect(err).To(BeNil())
+	ExpectWithOffset(1, err).To(BeNil())
 
 	var order []string
 	for _, tx := range txs {
 		var result TxData
 		err := json.Unmarshal(tx.Data, &result)
-		Expect(err).To(BeNil())
+		ExpectWithOffset(1, err).To(BeNil())
 
 		for _, msg := range result.Body.Messages {
 			order = append(order, msg.Type[strings.LastIndex(msg.Type, ".")+1:])
 		}
 	}
-	Expect(order).To(Equal(expectedOrder))
+	ExpectWithOffset(1, order).To(Equal(expectedOrder))
 }
