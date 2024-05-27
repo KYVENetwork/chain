@@ -23,6 +23,7 @@ type PoolKeeper interface {
 	GetAllPools(ctx sdk.Context) (list []pooltypes.Pool)
 	ChargeInflationPool(ctx sdk.Context, poolId uint64) (payout uint64, err error)
 	GetProtocolInflationShare(ctx sdk.Context) (res math.LegacyDec)
+	GetMaxVotingPowerPerPool(ctx sdk.Context) (res math.LegacyDec)
 }
 
 type StakerKeeper interface {

@@ -30,10 +30,10 @@ var _ = Describe("abci.go", Ordered, func() {
 		s = i.NewCleanChain()
 		gov = s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 
-		s.App().PoolKeeper.SetParams(s.Ctx(), pooltypes.Params{
-			ProtocolInflationShare:  math.LegacyMustNewDecFromStr("0.1"),
-			PoolInflationPayoutRate: math.LegacyMustNewDecFromStr("0.1"),
-		})
+		params := pooltypes.DefaultParams()
+		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("0.1")
+		params.PoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.1")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
 
 		// create clean pool for every test case
 		msg := &pooltypes.MsgCreatePool{

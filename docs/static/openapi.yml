@@ -4728,6 +4728,9 @@ paths:
                   pool_inflation_payout_rate:
                     type: string
                     description: pool_inflation_payout_rate ...
+                  max_voting_power_per_pool:
+                    type: string
+                    description: max_voting_power_per_pool ...
               funders_params:
                 description: funders_params ...
                 type: object
