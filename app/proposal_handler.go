@@ -35,7 +35,6 @@ func (h *PriorityProposalHandler) PrepareProposal() sdk.PrepareProposalHandler {
 		// Separate the transactions into different queues
 		// priorityQueue: transactions that should be executed before the default transactions
 		// defaultQueue: transactions that should be executed last
-		// The order is priorityQueue -> defaultQueue
 
 		var priorityQueue [][]byte
 		var defaultQueue [][]byte
