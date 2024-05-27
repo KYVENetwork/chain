@@ -68,11 +68,21 @@ func (h *PriorityProposalHandler) PrepareProposal() sdk.PrepareProposalHandler {
 			defaultQueue = append(defaultQueue, rawTx)
 		}
 
-		// Append the default queue to the priority queue
-		priorityQueue = append(priorityQueue, defaultQueue...)
+		// Append the transactions in the correct order
+		// If we have reached the max tx bytes, we stop adding more transactions
+		var orderedTxs [][]byte
+		var countTxBytes int64
+		for _, rawTx := range append(priorityQueue, defaultQueue...) {
+			countTxBytes += int64(len(rawTx))
+			if countTxBytes > req.MaxTxBytes {
+				h.logger.Info("max tx bytes reached", "max_tx_bytes", req.MaxTxBytes)
+				break
+			}
+			orderedTxs = append(orderedTxs, rawTx)
+		}
 
 		return &abci.ResponsePrepareProposal{
-			Txs: priorityQueue,
+			Txs: orderedTxs,
 		}, nil
 	}
 }
