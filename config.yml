@@ -178,11 +178,11 @@ genesis:
     staking:
       params:
         bond_denom: tkyve
-#    bundles:
-#      params:
-#        storage_costs:
-#          - storage_provider_id: "3"
-#            cost: "0.000000006288"
+    bundles:
+      params:
+        storage_costs:
+          - storage_provider_id: "3"
+            cost: "0.000000006288"
     funders:
       params:
         min_funding_multiple: 10
