@@ -7,42 +7,49 @@ build:
       - third_party/proto
       - proto_vendor
 accounts:
-  - name: dummy
+  - name: dummy # kyve137v27tfyegc083w5kj9zhhrfk34n8vhjma73gq
+    coins:
+      - 1000000tkyve # 1 tkyve -> 6 decimals
     mnemonic: expect crisp umbrella hospital firm exhibit future size slot update blood
       deliver fat happy ghost visa recall usual path purity junior ring ordinary stove
-  - name: alice
+  - name: alice # kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd
     coins:
-      - 2000000000000000tkyve
+      - 1000000000acoin # 1000 acoins -> 6 decimals
+      - 1000000000000bcoin # 1000 bcoins -> 9 decimals
+      - 1000000000ccoin # 1000 ccoins -> 6 decimals
+      - 2000000000000tkyve # 2M tkyve -> 6 decimals
     mnemonic: worry grief loyal smoke pencil arrow trap focus high pioneer tomato hedgehog
       essence purchase dove pond knee custom phone gentle sunset addict mother fabric
-  - name: bob
+  - name: bob # kyve1hvg7zsnrj6h29q9ss577mhrxa04rn94h7zjugq
     coins:
-      - 1000000000000000tkyve
+      - 1000000000acoin # 1000 acoins -> 6 decimals
+      - 1000000000000bcoin # 1000 bcoins -> 9 decimals
+      - 1000000000ccoin # 1000 ccoins -> 6 decimals
+      - 1000000000000tkyve # 1M tkyve -> 6 decimals
     mnemonic: crash sick toilet stumble join cash erode glory door weird diagram away
       lizard solid segment apple urge joy annual able tank define candy demise
-  - name: charlie
+  - name: charlie #kyve1ay22rr3kz659fupu0tcswlagq4ql6rwm4nuv0s
     coins:
-      - 1000000000000000tkyve
+      - 1000000000acoin # 1000 acoins -> 6 decimals
+      - 1000000000000bcoin # 1000 bcoins -> 9 decimals
+      - 1000000000ccoin # 1000 ccoins -> 6 decimals
+      - 1000000000000tkyve # 1M tkyve -> 6 decimals
     mnemonic: shoot inject fragile width trend satisfy army enact volcano crowd message
       strike true divorce search rich office shoulder sport relax rhythm symbol gadget
       size
-  - name: faucet
+  - name: faucet # kyve1kahmjds2rxj2qzamdvy5m8ljnkqrf5xhetes7q
     coins:
-      - 1000000000000000tkyve
+      - 1000000000000tkyve # 1M tkyve -> 6 decimals
     mnemonic: open home share route party lake room solution quantum pact model avocado
       humor dilemma review desert turtle total humor produce rate keen eagle fee
-  - name: foundation
+  - name: foundation # kyve1fd4qu868n7arav8vteghcppxxa0p2vna5f5ep8
     coins:
-      # for fees
-      - 1000000tkyve
-    #    address: kyve1fd4qu868n7arav8vteghcppxxa0p2vna5f5ep8
+      - 1000000tkyve # 1 tkyve -> 6 decimals
     mnemonic: evidence taxi material cabin annual phrase practice unhappy safe jealous
       section drink illness panther bread aim mouse dolphin deliver ready doll finger search cheap
-  - name: foundation_inflation
+  - name: foundation_inflation # kyve1tuxsc7ez79aydyee86qxm05zyx0l7d78c2zzsn
     coins:
-      # for fees
-      - 1000000tkyve
-    #    address: kyve1tuxsc7ez79aydyee86qxm05zyx0l7d78c2zzsn
+      - 1000000tkyve # 1 tkyve -> 6 decimals
     mnemonic: hold urge sustain chef furnace foam oven fall harsh core anchor during crew secret
       craft rhythm choose gold soft aisle sort phrase enter orphan
 faucet:
@@ -61,13 +68,15 @@ genesis:
           coins:
             - denom: "tkyve"
               amount: "165000000000000000"
-        - address: "kyve1vg5325u5mat0y44g73n8t8z2le26fsa4n947f5"  # funders module
-          coins:
-            - denom: "tkyve"
-              amount: "5300000000000000"
       supply:
+#        - denom: "acoin"
+#          amount: "6000000000"
+#        - denom: "bcoin"
+#          amount: "6000000000000"
+#        - denom: "ccoin"
+#          amount: "6000000000"
         - denom: "tkyve"
-          amount: "170300000000000000"  # all balances together
+          amount: "165000000000000000"
     delegation:
       params:
         unbonding_delegation_time: 10
@@ -134,55 +143,29 @@ genesis:
           commencement: "1647212400"
     pool:
       params:
-        protocol_inflation_share: "0.04"
-      pool_count: "2"
+        protocol_inflation_share: "0.1"
+      pool_count: "1"
       pool_list:
-        - config: "{\"network\":\"kyve-1\",\"rpc\":\"https://rpc-eu-1.kyve.network\"}"
+        - config: "{\"network\":\"kyve-1\",\"rpc\":\"https://rpc.kyve.network\"}"
           current_compression_id: "1"
           current_index: "0"
           current_key: ""
-          current_storage_provider_id: "1"
+          current_storage_provider_id: "3"
           current_summary: ""
           id: "0"
-          logo: ""
+          logo: "ar://WOiYR7qF7G_dp6eO0bFC7AorS7601qgek3X_IeAZook"
           max_bundle_size: "100"
-          min_delegation: "100000000000"
-          name: "KYVE // Mainnet"
-          inflation_share_weight: "2500000000"
+          min_delegation: "100000000"
+          name: "KYVE"
+          inflation_share_weight: "1"
           disabled: false
-          runtime: '@kyvejs/tendermint-bsync'
+          runtime: '@kyvejs/tendermint'
           start_key: "1"
           total_bundles: "0"
           upload_interval: "60"
           protocol:
-            version: "1.0.0"
-            binaries: "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.0.0/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.0.0/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.0.0/kyve-macos-x64.zip\"}"
-            last_upgrade: "0"
-          upgrade_plan:
-            version: ""
-            binaries: ""
-            scheduled_at: "0"
-            duration: "0"
-        - config: "{\"network\":\"kyve-1\",\"rpc\":\"https://rpc-eu-1.kyve.network\"}"
-          current_compression_id: "1"
-          current_index: "0"
-          current_key: ""
-          current_storage_provider_id: "1"
-          current_summary: ""
-          id: "1"
-          logo: ""
-          max_bundle_size: "100"
-          min_delegation: "100000000000"
-          name: "KYVE // Blub"
-          inflation_share_weight: "2500000000"
-          disabled: false
-          runtime: '@kyvejs/tendermint-bsync'
-          start_key: "1"
-          total_bundles: "0"
-          upload_interval: "60"
-          protocol:
-            version: "1.0.0"
-            binaries: "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.0.0/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.0.0/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.0.0/kyve-macos-x64.zip\"}"
+            version: "1.1.6"
+            binaries: "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.1.6/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.1.6/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.1.6/kyve-macos-x64.zip\"}"
             last_upgrade: "0"
           upgrade_plan:
             version: ""
@@ -195,7 +178,31 @@ genesis:
     staking:
       params:
         bond_denom: tkyve
+#    bundles:
+#      params:
+#        storage_costs:
+#          - storage_provider_id: "3"
+#            cost: "0.000000006288"
     funders:
+      params:
+        min_funding_multiple: 10
+        coin_whitelist:
+          - coin_denom: "tkyve"
+            min_funding_amount: "100000000"
+            min_funding_amount_per_bundle: "1000000"
+            coin_weight: "0.06"
+          - coin_denom: "acoin"
+            min_funding_amount: "100000000"
+            min_funding_amount_per_bundle: "1000000"
+            coin_weight: "9"
+          - coin_denom: "bcoin"
+            min_funding_amount: "100000000000"
+            min_funding_amount_per_bundle: "1000000000"
+            coin_weight: "0.06"
+          - coin_denom: "ccoin"
+            min_funding_amount: "100000000"
+            min_funding_amount_per_bundle: "1000000"
+            coin_weight: "0.01"
       funder_list:
         - address: "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd"
           contact: "https://twitter.com/kyvenetwork"
@@ -203,51 +210,16 @@ genesis:
           description: "Alice is the first funder of the KYVE network."
           website: "https://kyve.network"
           identity: "0657A086E5201562"
-        - address: "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat"
+        - address: "kyve1hvg7zsnrj6h29q9ss577mhrxa04rn94h7zjugq"
           contact: "https://twitter.com/kyvenetwork"
-          moniker: "Otto"
-          description: "Another funder of the KYVE network."
-          website: "https://ot.to"
+          moniker: "Bob"
+          description: "Bob is the second funder of the KYVE network."
+          website: "https://kyve.network"
           identity: "0657A086E5201562"
-      funding_list:
-        - pool_id: 0
-          funder_address: "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd"
-          amounts:
-            - denom: tkyve
-              amount: "5000000000000"
-          amounts_per_bundle:
-            - denom: tkyve
-              amount: "230000000"
-          total_funded:
-            - denom: tkyve
-              amount: "2200400000000"
-        - pool_id: 0
-          funder_address: "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat"
-          amounts:
-            - denom: tkyve
-              amount: "200000000000"
-          amounts_per_bundle:
-            - denom: tkyve
-              amount: "20000000"
-          total_funded:
-            - denom: tkyve
-              amount: "64500000000"
-        - pool_id: 1
-          funder_address: "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat"
-          amounts:
-            - denom: tkyve
-              amount: "100000000000"
-          amounts_per_bundle:
-            - denom: tkyve
-              amount: "10000000"
-          total_funded:
-            - denom: tkyve
-              amount: "23000000000"
+      funding_list: []
       funding_state_list:
         - pool_id: 0
-          active_funder_addresses: [ "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd", "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat" ]
-        - pool_id: 1
-          active_funder_addresses: [ "kyve1ze3ncmkvat3t2mcj9e3uy8uktat4fq2vltcnat" ]
+          active_funder_addresses: []
   chain_id: kyve-local
 validators:
   - name: alice

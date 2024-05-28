@@ -84,7 +84,7 @@ func (m *Params) GetMaxPoints() uint64 {
 }
 
 func init() {
-	proto.RegisterType((*Params)(nil), "kyve.bundles.v1beta1.Params")
+	proto.RegisterType((*Params)(nil), "kyve.bundles.legacy.Params")
 }
 
 func init() { proto.RegisterFile("kyve/bundles/v1beta1/params.proto", fileDescriptor_cfd3a74b72a01aaa) }
