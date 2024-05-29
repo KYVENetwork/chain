@@ -1,7 +1,6 @@
 package app
 
 import (
-	"cosmossdk.io/log"
 	bundlestypes "github.com/KYVENetwork/chain/x/bundles/types"
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,14 +9,14 @@ import (
 )
 
 type PriorityProposalHandler struct {
-	logger    log.Logger
-	txDecoder sdk.TxDecoder
+	defaultHandler sdk.PrepareProposalHandler
+	txDecoder      sdk.TxDecoder
 }
 
-func NewPriorityProposalHandler(logger log.Logger, decoder sdk.TxDecoder) *PriorityProposalHandler {
+func NewPriorityProposalHandler(defaultHandler sdk.PrepareProposalHandler, decoder sdk.TxDecoder) *PriorityProposalHandler {
 	return &PriorityProposalHandler{
-		logger:    logger,
-		txDecoder: decoder,
+		defaultHandler: defaultHandler,
+		txDecoder:      decoder,
 	}
 }
 
@@ -43,13 +42,11 @@ func (h *PriorityProposalHandler) PrepareProposal() sdk.PrepareProposalHandler {
 		for _, rawTx := range req.Txs {
 			tx, err := h.txDecoder(rawTx)
 			if err != nil {
-				h.logger.Error("failed to decode transaction", "error", err)
-				continue
+				return nil, err
 			}
 			msgs, err := tx.GetMsgsV2()
 			if err != nil {
-				h.logger.Error("failed to get messages from transaction", "error", err)
-				continue
+				return nil, err
 			}
 
 			// We only care about transactions with a single message
@@ -68,20 +65,8 @@ func (h *PriorityProposalHandler) PrepareProposal() sdk.PrepareProposalHandler {
 		}
 
 		// Append the transactions in the correct order
-		// If we have reached the max tx bytes, we stop adding more transactions
-		var orderedTxs [][]byte
-		var countTxBytes int64
-		for _, rawTx := range append(priorityQueue, defaultQueue...) {
-			countTxBytes += int64(len(rawTx))
-			if countTxBytes > req.MaxTxBytes {
-				h.logger.Info("max tx bytes reached", "max_tx_bytes", req.MaxTxBytes)
-				break
-			}
-			orderedTxs = append(orderedTxs, rawTx)
-		}
+		req.Txs = append(priorityQueue, defaultQueue...)
 
-		return &abci.ResponsePrepareProposal{
-			Txs: orderedTxs,
-		}, nil
+		return h.defaultHandler(ctx, req)
 	}
 }

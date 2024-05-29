@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/cosmos/cosmos-sdk/types/mempool"
 	"io"
 	"os"
 	"path/filepath"
@@ -344,7 +345,11 @@ func New(
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 
 	// Set the priority proposal handler
-	proposalHandler := NewPriorityProposalHandler(app.Logger(), app.txConfig.TxDecoder())
+	// We use a no-op mempool which means we rely on the CometBFT default transaction ordering (FIFO)
+	noOpMempool := mempool.NoOpMempool{}
+	app.App.BaseApp.SetMempool(noOpMempool)
+	defaultProposalHandler := baseapp.NewDefaultProposalHandler(noOpMempool, app.App.BaseApp)
+	proposalHandler := NewPriorityProposalHandler(defaultProposalHandler.PrepareProposalHandler(), app.txConfig.TxDecoder())
 	app.App.BaseApp.SetPrepareProposal(proposalHandler.PrepareProposal())
 
 	// Register legacy modules
