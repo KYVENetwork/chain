@@ -157,7 +157,10 @@ proto-format:
 
 proto-gen:
 	@echo "🤖 Generating code from protobuf..."
-	@docker run --rm --volume "$(PWD)":/workspace --workdir /workspace \
+	@docker run --rm \
+		--volume "$(PWD)":/workspace \
+		--volume "$$(go list -m -f '{{.Dir}}' github.com/cosmos/cosmos-sdk)":/cosmos-sdk:ro `# Mount cosmos-sdk from installed go modules` \
+		--workdir /workspace \
 		kyve-proto sh ./proto/generate.sh
 	@echo "✅ Completed code generation!"
 
