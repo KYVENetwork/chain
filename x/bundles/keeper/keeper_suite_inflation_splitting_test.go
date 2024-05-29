@@ -1435,6 +1435,37 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		pool.InflationShareWeight = math.LegacyMustNewDecFromStr("0.1")
 		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
 
+		// Add a second pool
+		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
+		msg := &pooltypes.MsgCreatePool{
+			Authority:            gov,
+			Name:                 "PoolTest 2",
+			Runtime:              "@kyve/test",
+			Logo:                 "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
+			StartKey:             "0",
+			UploadInterval:       60,
+			InflationShareWeight: math.LegacyMustNewDecFromStr("1"),
+			MinDelegation:        100 * i.KYVE,
+			MaxBundleSize:        100,
+			Version:              "0.0.0",
+			Binaries:             "{}",
+			StorageProviderId:    2,
+			CompressionId:        1,
+		}
+		s.RunTxPoolSuccess(msg)
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_0,
+			PoolId:     1,
+			Valaddress: i.VALADDRESS_0_B,
+		})
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_1,
+			PoolId:     1,
+			Valaddress: i.VALADDRESS_1_B,
+		})
+
 		// mine some blocks
 		for i := 1; i < 100; i++ {
 			s.Commit()
@@ -1531,6 +1562,37 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 		pool.InflationShareWeight = math.LegacyMustNewDecFromStr("1")
 		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
+
+		// Add a second pool
+		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
+		msg := &pooltypes.MsgCreatePool{
+			Authority:            gov,
+			Name:                 "PoolTest 2",
+			Runtime:              "@kyve/test",
+			Logo:                 "ar://Tewyv2P5VEG8EJ6AUQORdqNTectY9hlOrWPK8wwo-aU",
+			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
+			StartKey:             "0",
+			UploadInterval:       60,
+			InflationShareWeight: math.LegacyMustNewDecFromStr("1"),
+			MinDelegation:        100 * i.KYVE,
+			MaxBundleSize:        100,
+			Version:              "0.0.0",
+			Binaries:             "{}",
+			StorageProviderId:    2,
+			CompressionId:        1,
+		}
+		s.RunTxPoolSuccess(msg)
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_0,
+			PoolId:     1,
+			Valaddress: i.VALADDRESS_0_B,
+		})
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:    i.STAKER_1,
+			PoolId:     1,
+			Valaddress: i.VALADDRESS_1_B,
+		})
 
 		// mine some blocks
 		for i := 1; i < 100; i++ {
