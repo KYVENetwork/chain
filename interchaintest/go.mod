@@ -8,6 +8,7 @@ require (
 	cosmossdk.io/math v1.3.0
 	github.com/KYVENetwork/chain v0.0.0-00010101000000-000000000000
 	github.com/cosmos/cosmos-sdk v0.50.5
+	github.com/cosmos/ibc-go/v8 v8.2.0
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/icza/dyno v0.0.0-20220812133438-f0b6f8a18845
 	github.com/onsi/ginkgo/v2 v2.17.1
@@ -29,6 +30,7 @@ require (
 	cosmossdk.io/errors v1.0.1 // indirect
 	cosmossdk.io/log v1.3.1 // indirect
 	cosmossdk.io/store v1.1.0 // indirect
+	cosmossdk.io/x/evidence v0.1.0 // indirect
 	cosmossdk.io/x/feegrant v0.1.0 // indirect
 	cosmossdk.io/x/tx v0.13.1 // indirect
 	cosmossdk.io/x/upgrade v0.1.1 // indirect
@@ -56,6 +58,7 @@ require (
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect
+	github.com/cockroachdb/apd/v2 v2.0.2 // indirect
 	github.com/cockroachdb/errors v1.11.1 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/pebble v1.1.0 // indirect
@@ -71,7 +74,6 @@ require (
 	github.com/cosmos/gogoproto v1.4.12 // indirect
 	github.com/cosmos/iavl v1.1.1 // indirect
 	github.com/cosmos/ibc-go/modules/capability v1.0.0 // indirect
-	github.com/cosmos/ibc-go/v8 v8.1.1 // indirect
 	github.com/cosmos/ics23/go v0.10.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.13.3 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
@@ -242,6 +244,7 @@ require (
 	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.1 // indirect
 	lukechampine.com/blake3 v1.2.1 // indirect
@@ -275,7 +278,7 @@ replace (
 	// needed for strangelove's interchaintest
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	// use kyve flavored strangelove-ventures/interchaintest
-	github.com/strangelove-ventures/interchaintest/v8 => github.com/KYVENetwork/interchaintest/v8 v8.0.0-20240422073541-22e23c056376
+	github.com/strangelove-ventures/interchaintest/v8 => github.com/KYVENetwork/interchaintest/v8 v8.0.0-20240520124515-fd4cc797e6fd
 	// replace broken goleveldb
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
