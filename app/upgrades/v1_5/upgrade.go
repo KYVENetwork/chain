@@ -3,6 +3,7 @@ package v1_5
 import (
 	"context"
 	"fmt"
+
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_bundles_types"
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_pool_types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"

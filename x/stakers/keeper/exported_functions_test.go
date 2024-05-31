@@ -1,8 +1,9 @@
 package keeper_test
 
 import (
-	"cosmossdk.io/math"
 	"strconv"
+
+	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/x/gov/keeper"
 

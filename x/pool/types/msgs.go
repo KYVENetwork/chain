@@ -1,8 +1,9 @@
 package types
 
 import (
-	"cosmossdk.io/math"
 	"encoding/json"
+
+	"cosmossdk.io/math"
 
 	"cosmossdk.io/errors"
 

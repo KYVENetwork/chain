@@ -1,8 +1,9 @@
 package keeper_test
 
 import (
-	"cosmossdk.io/math"
 	"sort"
+
+	"cosmossdk.io/math"
 
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"

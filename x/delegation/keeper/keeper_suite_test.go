@@ -1,9 +1,10 @@
 package keeper_test
 
 import (
-	"cosmossdk.io/math"
 	"fmt"
 	"testing"
+
+	"cosmossdk.io/math"
 
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
