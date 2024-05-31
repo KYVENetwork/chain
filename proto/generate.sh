@@ -2,6 +2,7 @@
 
 workspace_dir="/workspace"
 cosmos_proto_dir="/cosmos-sdk/proto"
+ibc_proto_dir="/ibc"
 
 # Find all proto files in the kyve directory (except for module.proto's) and make a comma separated list
 proto_list=$(cd proto && find kyve -name '*.proto' -not -name 'module.proto' -print0 | xargs -0 -n1 | tr '\n' ',' | sed 's/,$//')
@@ -50,11 +51,23 @@ generate_docs() {
     fi
   done
 
+  ibc_proto_dirs=$(cd $ibc_proto_dir && find ./ -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
+  for dir in $ibc_proto_dirs; do
+    # generate swagger files (filter query files)
+    query_file=$(cd $ibc_proto_dir && find "${dir}" -maxdepth 1 \( -name 'query.proto' -o -name 'service.proto' \))
+    if [[ ! -z "$query_file" ]]; then
+       # Don't generate swagger files for certain problematic files
+       if [ "$query_file" != "./proto/ibc/core/client/v1/query.proto" ]; then
+         (cd $ibc_proto_dir && buf generate --template $workspace_dir/proto/buf.gen.swagger.yaml "$query_file" --output $workspace_dir/tmp-swagger-gen) || cleanup_and_error
+       fi
+    fi
+  done
+
   # Generate Kyve swagger files
   (cd proto && buf generate --template buf.gen.swagger.yaml --path "$proto_list") || cleanup_and_error
 
   # Combine the swagger files
-  swagger-combine ./docs/config.json -o ./docs/static/openapi.yml
+  swagger-combine ./docs/config.json -o ./docs/static/openapi.yml || cleanup_and_error
 }
 
 generate_gogo_proto
