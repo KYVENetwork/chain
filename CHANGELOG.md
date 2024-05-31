@@ -29,6 +29,7 @@ An '!' indicates a state machine breaking change.
 
 ### Improvements
 
+- ! (`x/pool`) [#190](https://github.com/KYVENetwork/chain/pull/190) Make inflation-share-weight a decimal.
 - [#182](https://github.com/KYVENetwork/chain/pull/182) Make release builds reproducible.
 - ! [#183](https://github.com/KYVENetwork/chain/pull/183) Only charge coins which are whitelisted.
 - ! (deps) [#174](https://github.com/KYVENetwork/chain/pull/174) Add mainnet KYVE image to interchain tests.
