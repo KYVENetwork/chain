@@ -129,8 +129,9 @@ func migrateInflationShareWeight(sdkCtx sdk.Context, poolKeeper *poolkeeper.Keep
 			CurrentIndex:   pool.CurrentIndex,
 			TotalBundles:   pool.TotalBundles,
 			UploadInterval: pool.UploadInterval,
-			// Convert inflation share weight to new decimal type
-			InflationShareWeight:     math.LegacyNewDec(int64(pool.InflationShareWeight)),
+			// Currently all pools have int64(1_000_000) as inflation_share weight.
+			// Set this to 1 as we now support decimals
+			InflationShareWeight:     math.LegacyMustNewDecFromStr("1"),
 			MinDelegation:            pool.MinDelegation,
 			MaxBundleSize:            pool.MaxBundleSize,
 			Disabled:                 pool.Disabled,
@@ -141,6 +142,21 @@ func migrateInflationShareWeight(sdkCtx sdk.Context, poolKeeper *poolkeeper.Keep
 			EndKey:                   pool.EndKey,
 		}
 		poolKeeper.SetPool(sdkCtx, newPool)
+
+		_ = sdkCtx.EventManager().EmitTypedEvent(&pooltypes.EventPoolUpdated{
+			Id:                   pool.Id,
+			RawUpdateString:      "{\"inflation_share_weight\":\"1.0\"}",
+			Name:                 pool.Name,
+			Runtime:              pool.Runtime,
+			Logo:                 pool.Logo,
+			Config:               pool.Config,
+			UploadInterval:       pool.UploadInterval,
+			InflationShareWeight: math.LegacyMustNewDecFromStr("1"),
+			MinDelegation:        pool.MinDelegation,
+			MaxBundleSize:        pool.MaxBundleSize,
+			StorageProviderId:    pool.CurrentStorageProviderId,
+			CompressionId:        pool.CurrentCompressionId,
+		})
 	}
 	return nil
 }
