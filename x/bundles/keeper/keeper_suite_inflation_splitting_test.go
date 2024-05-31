@@ -8,6 +8,8 @@ import (
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
+	teamTypes "github.com/KYVENetwork/chain/x/team/types"
+	"github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -33,8 +35,8 @@ TEST CASES - inflation splitting
 * Produce a valid bundle with some insufficient funders and 100% inflation splitting
 
 * Produce a valid bundle with no funders, 0% inflation splitting and 0 inflation-share-weight
-* Produce a valid bundle with no funders, 10% inflation splitting and 0.1 inflation-share-weight
-* Produce a valid bundle with no funders, 100% inflation splitting and 1 inflation-share-weight
+* Produce a valid bundle with no funders, 10% inflation splitting and pool-0 = 0.1 weight and pool-1 = 1.0 weight
+* Produce a valid bundle with no funders, 10% inflation splitting and pool-0 = 1.0 weight and pool-1 = 1.0 weight
 
 */
 
@@ -1424,12 +1426,18 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
 	})
 
-	It("Produce a valid bundle with no funders, 10% inflation splitting and 0.1 inflation-share-weight", func() {
+	It("Produce a valid bundle with no funders, 10% inflation splitting and pool-0 = 0.1 weight and pool-1 = 1.0 weight", func() {
 		// ARRANGE
+
+		// Enable inflation share for pools
 		params := pooltypes.DefaultParams()
 		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("0.1")
 		params.PoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.1")
 		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+
+		// set team-share to zero to not interfere with inflation splitting
+		teamTypes.TEAM_ALLOCATION = 0
+		_ = s.App().BankKeeper.SendCoinsFromModuleToAccount(s.Ctx(), "team", types.MustAccAddressFromBech32(i.CHARLIE), s.GetCoinsFromModule("team"))
 
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 		pool.InflationShareWeight = math.LegacyMustNewDecFromStr("0.1")
@@ -1466,6 +1474,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 			Valaddress: i.VALADDRESS_1_B,
 		})
 
+		preMineBalance := s.App().BankKeeper.GetSupply(s.Ctx(), globalTypes.Denom)
 		// mine some blocks
 		for i := 1; i < 100; i++ {
 			s.Commit()
@@ -1495,7 +1504,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		s.CommitAfterSeconds(60)
 
-		b1 := math.LegacyNewDec(int64(s.GetBalanceFromPool(0)))
+		postMineBalance := s.App().BankKeeper.GetSupply(s.Ctx(), globalTypes.Denom)
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -1513,24 +1522,42 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		// ASSERT
-		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+
+		inflationAmount := postMineBalance.Sub(preMineBalance)
+		// Reward calculation:
+		// (inflationAmount - teamRewards) * protocolInflationShare -> Both pools equally
+		// (340112344399tkyve - 847940tkyve) * 0.1 -> rewards for both pools, but it is split according to the different weights
+		// teamAuthority rewards are hard to set to zero from this test-suite without using reflection.
+		// therefore we ignore the small amount.
+		Expect(inflationAmount.String()).To(Equal("340112344399tkyve"))
 
 		// assert if bundle go finalized
+		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 		Expect(pool.TotalBundles).To(Equal(uint64(1)))
 		Expect(pool.CurrentKey).To(Equal("99"))
 
 		// assert pool balance
-		b2 := math.LegacyNewDec(int64(s.GetBalanceFromPool(0)))
-		Expect(b1.TruncateInt64()).To(BeNumerically(">", b2.TruncateInt64()))
-
-		payout := b1.Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateDec()
-		Expect(b1.Sub(b2)).To(Equal(payout))
+		finalBalancePool0 := s.GetBalanceFromPool(0)
+		finalBalancePool1 := s.GetBalanceFromPool(1)
+		// First pool has weight: 0.1, second pool has weight 1
+		// additionally, pool-0 produced a bundle -> subtract PoolInflationPayoutRate (1 - 0.1 = 0.9)
+		// formula: (inflation - teamRewards) * inflationShare * inflationShareWeighOfPool * (1-PoolInflationPayoutRate)
+		// (340112344399 - 847940) * 0.1 * 1 / 11 * 0.9
+		// Evaluates to 2782730425, however due to multiple roundings to actual amount is 2782730381
+		// second pool
+		// (340112344399 - 847940) * 0.1 * 10 / 11
+		// Evaluates to 30919226950
+		Expect(finalBalancePool0).To(Equal(uint64(2782730381)))
+		Expect(finalBalancePool1).To(Equal(uint64(30919226950)))
 
 		// assert bundle reward
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
 		// the total payout is here just the inflation payout
-		totalPayout := payout
+		// (inflation - teamRewards)*inflationShare - balancePool0 - balancePool1
+		// (340112344399 - 847940) * 0.1 * 1 / 11 * 0.1
+		// evaluates to 309192269, due to multiple rounding: 309192264
+		totalPayout := math.LegacyNewDec(309192264)
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := totalPayout.Mul(networkFee).TruncateDec()
@@ -1550,14 +1577,23 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
 		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
+
+		// Important: Reset changes of global variables as they will not be reverted by the s.NewCleanChain()
+		teamTypes.TEAM_ALLOCATION = 165000000000000000
 	})
 
-	It("Produce a valid bundle with no funders, 100% inflation splitting and 1 inflation-share-weight", func() {
+	It("Produce a valid bundle with no funders, 10% inflation splitting and pool-0 = 1.0 weight and pool-1 = 1.0 weight", func() {
 		// ARRANGE
+
+		// Enable inflation share for pools
 		params := pooltypes.DefaultParams()
 		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("0.1")
 		params.PoolInflationPayoutRate = math.LegacyMustNewDecFromStr("0.2")
 		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+
+		// set team-share to zero to not interfere with inflation splitting
+		teamTypes.TEAM_ALLOCATION = 0
+		_ = s.App().BankKeeper.SendCoinsFromModuleToAccount(s.Ctx(), "team", types.MustAccAddressFromBech32(i.CHARLIE), s.GetCoinsFromModule("team"))
 
 		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 		pool.InflationShareWeight = math.LegacyMustNewDecFromStr("1")
@@ -1594,11 +1630,15 @@ var _ = Describe("inflation splitting", Ordered, func() {
 			Valaddress: i.VALADDRESS_1_B,
 		})
 
+		// Both pools now have inflation_share=1 and zero balance
+
+		preMineBalance := s.App().BankKeeper.GetSupply(s.Ctx(), globalTypes.Denom)
 		// mine some blocks
 		for i := 1; i < 100; i++ {
 			s.Commit()
 		}
 
+		// Prepare bundle proposal
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_0_A,
 			Staker:        i.STAKER_0,
@@ -1623,7 +1663,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		s.CommitAfterSeconds(60)
 
-		b1 := math.LegacyNewDec(int64(s.GetBalanceFromPool(0)))
+		postMineBalance := s.App().BankKeeper.GetSupply(s.Ctx(), globalTypes.Denom)
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -1641,24 +1681,34 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		// ASSERT
-		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+
+		inflationAmount := postMineBalance.Sub(preMineBalance)
+		// Reward calculation:
+		// (inflationAmount - teamRewards) * protocolInflationShare -> Both pools equally
+		// (340112344399tkyve - 847940tkyve) * 0.1  -> (//2) -> 17005574822 for both pools
+		// teamAuthority rewards are hard to set to zero from this test-suite without using reflection.
+		// therefore we ignore the small amount.
+		Expect(inflationAmount.String()).To(Equal("340112344399tkyve"))
 
 		// assert if bundle go finalized
+		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 		Expect(pool.TotalBundles).To(Equal(uint64(1)))
 		Expect(pool.CurrentKey).To(Equal("99"))
 
 		// assert pool balance
-		b2 := math.LegacyNewDec(int64(s.GetBalanceFromPool(0)))
-		Expect(b1.TruncateInt64()).To(BeNumerically(">", b2.TruncateInt64()))
-
-		payout := b1.Mul(s.App().PoolKeeper.GetPoolInflationPayoutRate(s.Ctx())).TruncateDec()
-		Expect(b1.Sub(b2)).To(Equal(payout))
+		finalBalancePool0 := s.GetBalanceFromPool(0)
+		finalBalancePool1 := s.GetBalanceFromPool(1)
+		// Both pools have inflation-weight 1
+		// however, pool-0 produced a bundle -> subtract PoolInflationPayoutRate (1 - 0.2 = 0.8)
+		// 17005574822 * 0.8
+		Expect(finalBalancePool0).To(Equal(uint64(13604459858)))
+		Expect(finalBalancePool1).To(Equal(uint64(17005574822)))
 
 		// assert bundle reward
 		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
 
 		// the total payout is here just the inflation payout
-		totalPayout := payout
+		totalPayout := math.LegacyNewDec(17005574822 - 13604459858)
 
 		networkFee := s.App().BundlesKeeper.GetNetworkFee(s.Ctx())
 		treasuryReward := totalPayout.Mul(networkFee).TruncateDec()
@@ -1678,5 +1728,8 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
 		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
+
+		// Important: Reset changes of global variables as they will not be reverted by the s.NewCleanChain()
+		teamTypes.TEAM_ALLOCATION = 165000000000000000
 	})
 })
