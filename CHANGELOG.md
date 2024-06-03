@@ -38,6 +38,7 @@ An '!' indicates a state machine breaking change.
 
 ### Bug Fixes
 
+- [#192](https://github.com/KYVENetwork/chain/pull/192) fix: Cosmos-SDK & IBC swagger-code generation.
 - (`x/query`) [#159](https://github.com/KYVENetwork/chain/pull/159) Add pool params back to kyve params query.
 - (`x/query`) [#160](https://github.com/KYVENetwork/chain/pull/160) Add funders back to pool query.
 - [#163](https://github.com/KYVENetwork/chain/pull/163) Add back swagger UI for KYVE and Cosmos REST queries.
