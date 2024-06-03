@@ -53,6 +53,8 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 		// migrate bundles
 		migrateBundlesModule(sdkCtx, cdc, bundlesKeeper)
 
+		// TODO: migrate MaxVotingPowerPerPool in pool params
+
 		return mm.RunMigrations(ctx, configurator, fromVM)
 	}
 }
