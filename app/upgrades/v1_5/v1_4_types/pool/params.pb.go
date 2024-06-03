@@ -64,10 +64,10 @@ func (m *Params) XXX_DiscardUnknown() {
 var xxx_messageInfo_Params proto.InternalMessageInfo
 
 func init() {
-	proto.RegisterType((*Params)(nil), "kyve.pool.v1beta1.Params")
+	proto.RegisterType((*Params)(nil), "kyve.pool.legacy.Params")
 }
 
-func init() { proto.RegisterFile("kyve/pool/v1beta1/params.proto", fileDescriptor_7d8646dfa6da3b4d) }
+func init() { proto.RegisterFile("kyve/pool/legacy/params.proto", fileDescriptor_7d8646dfa6da3b4d) }
 
 var fileDescriptor_7d8646dfa6da3b4d = []byte{
 	// 268 bytes of a gzipped FileDescriptorProto
