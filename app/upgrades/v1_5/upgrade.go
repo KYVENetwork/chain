@@ -132,7 +132,7 @@ func migrateStakersModule(sdkCtx sdk.Context, cdc codec.Codec, stakersKeeper *st
 	// migrate stakers
 	oldStakers := stakers.GetAllStakers(sdkCtx, cdc)
 	for _, s := range oldStakers {
-		stakersKeeper.SetStaker(sdkCtx, stakersTypes.Staker{
+		stakersKeeper.Migration_SetStaker(sdkCtx, stakersTypes.Staker{
 			Address:           s.Address,
 			Commission:        s.Commission,
 			Moniker:           s.Moniker,
