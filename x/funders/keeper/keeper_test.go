@@ -34,7 +34,7 @@ var _ = Describe("funders migrations", Ordered, func() {
 		// fmt.Println(store.Get([]byte("test")))
 
 		// ARRANGE
-		storeKey, _ := v1_5.GetStoreKey(s.App().GetStoreKeys(), types.ModuleName)
+		storeKey := v1_5.MustGetStoreKey(s.App().GetStoreKeys(), types.ModuleName)
 		fundersOld.SetParams(s.Ctx(), s.App().AppCodec(), storeKey, fundersOld.Params{
 			MinFundingAmount:          1,
 			MinFundingAmountPerBundle: 2,
@@ -42,7 +42,7 @@ var _ = Describe("funders migrations", Ordered, func() {
 		})
 
 		// ACT
-		v1_5.MigrateFundersModule(s.Ctx(), s.App().AppCodec(), s.App().GetStoreKeys(), s.App().FundersKeeper)
+		v1_5.MigrateFundersModule(s.Ctx(), s.App().AppCodec(), storeKey, s.App().FundersKeeper)
 
 		// ASSERT
 		params := s.App().FundersKeeper.GetParams(s.Ctx())

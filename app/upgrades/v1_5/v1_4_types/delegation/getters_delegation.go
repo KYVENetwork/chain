@@ -5,14 +5,11 @@ import (
 	storeTypes "cosmossdk.io/store/types"
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func GetAllDelegationEntries(ctx sdk.Context, cdc codec.Codec) (list []DelegationEntry) {
-	storeService := runtime.NewKVStoreService(storeTypes.NewKVStoreKey(delegationTypes.StoreKey))
-	storeAdapter := runtime.KVStoreAdapter(storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, delegationTypes.DelegationEntriesKeyPrefix)
+func GetAllDelegationEntries(ctx sdk.Context, cdc codec.Codec, storeKey storeTypes.StoreKey) (list []DelegationEntry) {
+	store := prefix.NewStore(ctx.KVStore(storeKey), delegationTypes.DelegationEntriesKeyPrefix)
 
 	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 
@@ -28,10 +25,8 @@ func GetAllDelegationEntries(ctx sdk.Context, cdc codec.Codec) (list []Delegatio
 }
 
 // GetAllDelegationData returns all delegationData entries
-func GetAllDelegationData(ctx sdk.Context, cdc codec.Codec) (list []DelegationData) {
-	storeService := runtime.NewKVStoreService(storeTypes.NewKVStoreKey(delegationTypes.StoreKey))
-	storeAdapter := runtime.KVStoreAdapter(storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, delegationTypes.DelegationDataKeyPrefix)
+func GetAllDelegationData(ctx sdk.Context, cdc codec.Codec, storeKey storeTypes.StoreKey) (list []DelegationData) {
+	store := prefix.NewStore(ctx.KVStore(storeKey), delegationTypes.DelegationDataKeyPrefix)
 
 	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 	defer iterator.Close()
