@@ -112,6 +112,12 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.CommitAfterSeconds(60)
+
+		// Important: Reset changes of global variables as they will not be reverted by the s.NewCleanChain()
+		originalTeamAllocation := teamTypes.TEAM_ALLOCATION
+		DeferCleanup(func() {
+			teamTypes.TEAM_ALLOCATION = originalTeamAllocation
+		})
 	})
 
 	AfterEach(func() {
@@ -1577,9 +1583,6 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
 		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
-
-		// Important: Reset changes of global variables as they will not be reverted by the s.NewCleanChain()
-		teamTypes.TEAM_ALLOCATION = 165000000000000000
 	})
 
 	It("Produce a valid bundle with no funders, 10% inflation splitting and pool-0 = 1.0 weight and pool-1 = 1.0 weight", func() {
@@ -1728,8 +1731,5 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
 		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
-
-		// Important: Reset changes of global variables as they will not be reverted by the s.NewCleanChain()
-		teamTypes.TEAM_ALLOCATION = 165000000000000000
 	})
 })
