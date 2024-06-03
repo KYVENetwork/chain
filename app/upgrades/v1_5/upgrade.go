@@ -10,6 +10,7 @@ import (
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/bundles"
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/delegation"
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/funders"
+	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/pool"
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/stakers"
 	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
@@ -57,7 +58,8 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 		// migrate bundles
 		migrateBundlesModule(sdkCtx, cdc, MustGetStoreKey(storeKeys, bundlesTypes.StoreKey), bundlesKeeper)
 
-		// TODO: migrate MaxVotingPowerPerPool in pool params
+		// migrate pool
+		migrateMaxVotingPowerInPool(sdkCtx, cdc, MustGetStoreKey(storeKeys, poolTypes.StoreKey), *poolKeeper)
 
 		return mm.RunMigrations(ctx, configurator, fromVM)
 	}
@@ -144,8 +146,6 @@ func migrateStakersModule(sdkCtx sdk.Context, cdc codec.Codec, stakersStoreKey s
 	}
 }
 
-func migrateBundlesModule(sdkCtx sdk.Context, cdc codec.Codec, bundlesKeeper keeper.Keeper) {
-	oldParams := bundles.GetParams(sdkCtx, cdc)
 func migrateBundlesModule(sdkCtx sdk.Context, cdc codec.Codec, bundlesStoreKey storetypes.StoreKey, bundlesKeeper bundlesKeeper.Keeper) {
 	oldParams := bundles.GetParams(sdkCtx, cdc, bundlesStoreKey)
 
@@ -162,5 +162,15 @@ func migrateBundlesModule(sdkCtx sdk.Context, cdc codec.Codec, bundlesStoreKey s
 		},
 		NetworkFee: oldParams.NetworkFee,
 		MaxPoints:  oldParams.MaxPoints,
+	})
+}
+
+func migrateMaxVotingPowerInPool(sdkCtx sdk.Context, cdc codec.Codec, poolStoreKey storetypes.StoreKey, poolKeeper poolKeeper.Keeper) {
+	oldParams := pool.GetParams(sdkCtx, cdc, poolStoreKey)
+
+	poolKeeper.SetParams(sdkCtx, poolTypes.Params{
+		ProtocolInflationShare:  oldParams.ProtocolInflationShare,
+		PoolInflationPayoutRate: oldParams.PoolInflationPayoutRate,
+		MaxVotingPowerPerPool:   math.LegacyMustNewDecFromStr("0.5"),
 	})
 }
