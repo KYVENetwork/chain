@@ -2,11 +2,12 @@ package keeper_test
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5"
-	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/funders"
+	fundersOld "github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/funders"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
-	"testing"
 
 	"github.com/KYVENetwork/chain/x/funders/types"
 
@@ -28,13 +29,13 @@ var _ = Describe("funders migrations", Ordered, func() {
 
 	It("v1.5", func() {
 		// this panics
-		//storeService := runtime.NewKVStoreService(storeTypes.NewKVStoreKey(types.StoreKey))
-		//store := runtime.KVStoreAdapter(storeService.OpenKVStore(s.Ctx()))
-		//fmt.Println(store.Get([]byte("test")))
+		// storeService := runtime.NewKVStoreService(storeTypes.NewKVStoreKey(types.StoreKey))
+		// store := runtime.KVStoreAdapter(storeService.OpenKVStore(s.Ctx()))
+		// fmt.Println(store.Get([]byte("test")))
 
 		// ARRANGE
 		storeKey, _ := v1_5.GetStoreKey(s.App().GetStoreKeys(), types.ModuleName)
-		funders.SetParams(s.Ctx(), s.App().AppCodec(), storeKey, funders.Params{
+		fundersOld.SetParams(s.Ctx(), s.App().AppCodec(), storeKey, fundersOld.Params{
 			MinFundingAmount:          1,
 			MinFundingAmountPerBundle: 2,
 			MinFundingMultiple:        3,
