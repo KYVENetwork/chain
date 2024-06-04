@@ -314,10 +314,12 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// assert commission rewards (here we round down since the result of commission rewards gets truncated)
 		// (total_bundle_payout - treasury_reward - storage_cost) * (1 - commission)
+		// storage_cost = byte_size * usd_per_byte / len(coins) * coin_weight
 		// (2471669 - (2471669 * 0.01) - _((100 * 0.5) / (1 * 1))_) * 0.1 + _((100 * 0.5) / (1 * 1))_
 		Expect(uploader.CommissionRewards.String()).To(Equal(i.KYVECoins(244_740).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (total_bundle_payout - treasury_reward - storage_cost) * commission + storage_cost
+		// storage_cost = byte_size * usd_per_byte / len(coins) * coin_weight
 		// (2471669 - (2471669 * 0.01) - _((100 * 0.5) / (1 * 1))_) * (1 - 0.1)
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(2_202_213).String()))
 
