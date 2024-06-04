@@ -8,7 +8,12 @@ import (
 
 func CreateStoreLoader(upgradeHeight int64) baseapp.StoreLoader {
 	storeUpgrades := storetypes.StoreUpgrades{
-		//	TODO: packet forward middleware -> Delete
+		Deleted: []string{
+			"packetfowardmiddleware", // yes there is supposed to be a spelling error in "forward"
+			"icahost",
+			"icacontroller",
+			//"feeibc",
+		},
 	}
 
 	return upgradetypes.UpgradeStoreLoader(upgradeHeight, &storeUpgrades)
