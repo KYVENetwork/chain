@@ -10,7 +10,7 @@ import (
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/bundles"
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/delegation"
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/funders"
-	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/pool"
+	v1_4_pool "github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/pool"
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/stakers"
 	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
@@ -60,6 +60,7 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 
 		// migrate pool
 		migrateMaxVotingPowerInPool(sdkCtx, cdc, MustGetStoreKey(storeKeys, poolTypes.StoreKey), *poolKeeper)
+		migrateInflationShareWeight(sdkCtx, cdc, MustGetStoreKey(storeKeys, poolTypes.StoreKey), poolKeeper)
 
 		return mm.RunMigrations(ctx, configurator, fromVM)
 	}
@@ -166,11 +167,77 @@ func migrateBundlesModule(sdkCtx sdk.Context, cdc codec.Codec, bundlesStoreKey s
 }
 
 func migrateMaxVotingPowerInPool(sdkCtx sdk.Context, cdc codec.Codec, poolStoreKey storetypes.StoreKey, poolKeeper poolKeeper.Keeper) {
-	oldParams := pool.GetParams(sdkCtx, cdc, poolStoreKey)
+	oldParams := v1_4_pool.GetParams(sdkCtx, cdc, poolStoreKey)
 
 	poolKeeper.SetParams(sdkCtx, poolTypes.Params{
 		ProtocolInflationShare:  oldParams.ProtocolInflationShare,
 		PoolInflationPayoutRate: oldParams.PoolInflationPayoutRate,
 		MaxVotingPowerPerPool:   math.LegacyMustNewDecFromStr("0.5"),
 	})
+}
+
+func migrateInflationShareWeight(sdkCtx sdk.Context, cdc codec.Codec, poolStoreKey storetypes.StoreKey, poolKeeper *poolKeeper.Keeper) {
+	pools := v1_4_pool.GetAllPools(sdkCtx, poolStoreKey, cdc)
+	for _, pool := range pools {
+		var newPool poolTypes.Pool
+
+		var protocol *poolTypes.Protocol
+		if pool.Protocol != nil {
+			protocol = &poolTypes.Protocol{
+				Version:     pool.Protocol.Version,
+				Binaries:    pool.Protocol.Binaries,
+				LastUpgrade: pool.Protocol.LastUpgrade,
+			}
+		}
+		var upgradePlan *poolTypes.UpgradePlan
+		if pool.UpgradePlan != nil {
+			upgradePlan = &poolTypes.UpgradePlan{
+				Version:     pool.UpgradePlan.Version,
+				Binaries:    pool.UpgradePlan.Binaries,
+				ScheduledAt: pool.UpgradePlan.ScheduledAt,
+				Duration:    pool.UpgradePlan.Duration,
+			}
+		}
+
+		newPool = poolTypes.Pool{
+			Id:             pool.Id,
+			Name:           pool.Name,
+			Runtime:        pool.Runtime,
+			Logo:           pool.Logo,
+			Config:         pool.Config,
+			StartKey:       pool.StartKey,
+			CurrentKey:     pool.CurrentKey,
+			CurrentSummary: pool.CurrentSummary,
+			CurrentIndex:   pool.CurrentIndex,
+			TotalBundles:   pool.TotalBundles,
+			UploadInterval: pool.UploadInterval,
+			// Currently all pools have int64(1_000_000) as inflation_share weight.
+			// Set this to 1 as we now support decimals
+			InflationShareWeight:     math.LegacyMustNewDecFromStr("1"),
+			MinDelegation:            pool.MinDelegation,
+			MaxBundleSize:            pool.MaxBundleSize,
+			Disabled:                 pool.Disabled,
+			Protocol:                 protocol,
+			UpgradePlan:              upgradePlan,
+			CurrentStorageProviderId: pool.CurrentStorageProviderId,
+			CurrentCompressionId:     pool.CurrentCompressionId,
+			EndKey:                   pool.EndKey,
+		}
+		poolKeeper.SetPool(sdkCtx, newPool)
+
+		_ = sdkCtx.EventManager().EmitTypedEvent(&poolTypes.EventPoolUpdated{
+			Id:                   pool.Id,
+			RawUpdateString:      "{\"inflation_share_weight\":\"1.0\"}",
+			Name:                 pool.Name,
+			Runtime:              pool.Runtime,
+			Logo:                 pool.Logo,
+			Config:               pool.Config,
+			UploadInterval:       pool.UploadInterval,
+			InflationShareWeight: math.LegacyMustNewDecFromStr("1"),
+			MinDelegation:        pool.MinDelegation,
+			MaxBundleSize:        pool.MaxBundleSize,
+			StorageProviderId:    pool.CurrentStorageProviderId,
+			CompressionId:        pool.CurrentCompressionId,
+		})
+	}
 }

@@ -41,7 +41,10 @@ message BasicPool {
   string logo = 4;
 
   // inflation_share_weight is the base payout for each bundle reward
-  uint64 inflation_share_weight = 5;
+  string inflation_share_weight = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 
   // upload_interval is the interval bundles get created
   uint64 upload_interval = 6;
