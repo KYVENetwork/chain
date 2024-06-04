@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/KYVENetwork/chain/x/team/types"
+	"github.com/KYVENetwork/chain/x/funders/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

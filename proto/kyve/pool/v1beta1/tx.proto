@@ -4,6 +4,7 @@ package kyve.pool.v1beta1;
 
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/pool/types";
 
@@ -51,7 +52,10 @@ message MsgCreatePool {
   // upload_interval ...
   uint64 upload_interval = 7;
   // inflation_share_weight ...
-  uint64 inflation_share_weight = 8;
+  string inflation_share_weight = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
   // min_delegation ...
   uint64 min_delegation = 9;
   // max_bundle_size ...

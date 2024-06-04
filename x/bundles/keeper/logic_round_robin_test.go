@@ -3,6 +3,8 @@ package keeper_test
 import (
 	"sort"
 
+	"cosmossdk.io/math"
+
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
@@ -73,7 +75,7 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
 			StartKey:             "0",
 			UploadInterval:       60,
-			InflationShareWeight: 2 * i.KYVE,
+			InflationShareWeight: math.LegacyNewDec(int64(2 * i.KYVE)),
 			MinDelegation:        1_000_000 * i.KYVE,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",

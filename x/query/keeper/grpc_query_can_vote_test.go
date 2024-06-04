@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
@@ -41,11 +42,12 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 
 		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 		msg := &pooltypes.MsgCreatePool{
-			Authority:      gov,
-			MinDelegation:  200 * i.KYVE,
-			UploadInterval: 60,
-			MaxBundleSize:  100,
-			Binaries:       "{}",
+			Authority:            gov,
+			MinDelegation:        200 * i.KYVE,
+			UploadInterval:       60,
+			MaxBundleSize:        100,
+			InflationShareWeight: math.LegacyZeroDec(),
+			Binaries:             "{}",
 		}
 		s.RunTxPoolSuccess(msg)
 

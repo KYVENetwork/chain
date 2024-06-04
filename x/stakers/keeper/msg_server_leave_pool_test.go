@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -31,10 +32,11 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		// create pool
 		msg := &pooltypes.MsgCreatePool{
-			Authority:      gov,
-			UploadInterval: 60,
-			MaxBundleSize:  100,
-			Binaries:       "{}",
+			Authority:            gov,
+			UploadInterval:       60,
+			MaxBundleSize:        100,
+			InflationShareWeight: math.LegacyZeroDec(),
+			Binaries:             "{}",
 		}
 		s.RunTxPoolSuccess(msg)
 
@@ -208,10 +210,11 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 	It("Leave one of multiple pools a staker has previously joined", func() {
 		// ARRANGE
 		msg := &pooltypes.MsgCreatePool{
-			Authority:      gov,
-			UploadInterval: 60,
-			MaxBundleSize:  100,
-			Binaries:       "{}",
+			Authority:            gov,
+			UploadInterval:       60,
+			MaxBundleSize:        100,
+			InflationShareWeight: math.LegacyZeroDec(),
+			Binaries:             "{}",
 		}
 		s.RunTxPoolSuccess(msg)
 
