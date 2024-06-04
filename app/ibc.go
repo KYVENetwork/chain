@@ -12,6 +12,9 @@ import (
 	"github.com/cosmos/ibc-go/modules/capability"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	ibcfee "github.com/cosmos/ibc-go/v8/modules/apps/29-fee"
+	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
+	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
 	ibctransfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
@@ -33,6 +36,7 @@ func (app *App) registerIBCModules() {
 		storetypes.NewKVStoreKey(capabilitytypes.StoreKey),
 		storetypes.NewKVStoreKey(ibcexported.StoreKey),
 		storetypes.NewKVStoreKey(ibctransfertypes.StoreKey),
+		storetypes.NewKVStoreKey(ibcfeetypes.StoreKey),
 		storetypes.NewMemoryStoreKey(capabilitytypes.MemStoreKey),
 		storetypes.NewTransientStoreKey(paramstypes.TStoreKey),
 	); err != nil {
@@ -74,12 +78,19 @@ func (app *App) registerIBCModules() {
 	govRouter := govv1beta1.NewRouter()
 	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler)
 
+	app.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
+		app.appCodec, app.GetKey(ibcfeetypes.StoreKey),
+		app.IBCKeeper.ChannelKeeper, // may be replaced with IBC middleware
+		app.IBCKeeper.ChannelKeeper,
+		app.IBCKeeper.PortKeeper, app.AccountKeeper, app.BankKeeper,
+	)
+
 	// Create IBC transfer keeper
 	app.IBCTransferKeeper = ibctransferkeeper.NewKeeper(
 		app.appCodec,
 		app.GetKey(ibctransfertypes.StoreKey),
 		app.GetSubspace(ibctransfertypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper, // may be replaced with IBC middleware
+		app.IBCFeeKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.PortKeeper,
 		app.AccountKeeper,
@@ -90,8 +101,12 @@ func (app *App) registerIBCModules() {
 
 	app.GovKeeper.SetLegacyRouter(govRouter)
 
+	// Create IBC modules with ibcfee middleware
+	transferIBCModule := ibcfee.NewIBCMiddleware(ibctransfer.NewIBCModule(app.IBCTransferKeeper), app.IBCFeeKeeper)
+
 	// Create static IBC router, add transfer route, then set and seal it
-	ibcRouter := porttypes.NewRouter()
+	ibcRouter := porttypes.NewRouter().
+		AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
 
 	// this line is used by starport scaffolding # ibc/app/module
 
@@ -104,6 +119,7 @@ func (app *App) registerIBCModules() {
 	if err := app.RegisterModules(
 		ibc.NewAppModule(app.IBCKeeper),
 		ibctransfer.NewAppModule(app.IBCTransferKeeper),
+		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		capability.NewAppModule(app.appCodec, *app.CapabilityKeeper, false),
 		ibctm.AppModule{},
 		solomachine.AppModule{},
@@ -119,6 +135,7 @@ func RegisterIBC(registry cdctypes.InterfaceRegistry) map[string]appmodule.AppMo
 	modules := map[string]appmodule.AppModule{
 		ibcexported.ModuleName:      ibc.AppModule{},
 		ibctransfertypes.ModuleName: ibctransfer.AppModule{},
+		ibcfeetypes.ModuleName:      ibcfee.AppModule{},
 		capabilitytypes.ModuleName:  capability.AppModule{},
 		ibctm.ModuleName:            ibctm.AppModule{},
 		solomachine.ModuleName:      solomachine.AppModule{},

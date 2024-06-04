@@ -69,6 +69,7 @@ import (
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	_ "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts" // import for side-effects
 	_ "github.com/cosmos/ibc-go/v8/modules/apps/29-fee"                 // import for side-effects
+	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 
@@ -136,6 +137,7 @@ type App struct {
 	// IBC
 	IBCKeeper         *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	CapabilityKeeper  *capabilitykeeper.Keeper
+	IBCFeeKeeper      ibcfeekeeper.Keeper
 	IBCTransferKeeper ibctransferkeeper.Keeper
 
 	// Scoped IBC

@@ -51,6 +51,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -89,6 +90,7 @@ var (
 		evidencetypes.ModuleName,
 		authz.ModuleName,
 		ibctransfertypes.ModuleName,
+		ibcfeetypes.ModuleName,
 		feegrant.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
@@ -131,6 +133,7 @@ var (
 		capabilitytypes.ModuleName,
 		ibcexported.ModuleName,
 		ibctransfertypes.ModuleName,
+		ibcfeetypes.ModuleName,
 
 		// KYVE modules
 		delegationtypes.ModuleName,
@@ -150,6 +153,7 @@ var (
 		ibcexported.ModuleName,
 		ibctransfertypes.ModuleName,
 		capabilitytypes.ModuleName,
+		ibcfeetypes.ModuleName,
 
 		// KYVE modules
 		pooltypes.ModuleName,
@@ -176,6 +180,7 @@ var (
 
 		// IBC
 		{Account: ibctransfertypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
+		{Account: ibcfeetypes.ModuleName},
 
 		// KYVE
 		{Account: bundlestypes.ModuleName},
@@ -197,6 +202,7 @@ var (
 
 		// IBC
 		ibctransfertypes.ModuleName,
+		ibcfeetypes.ModuleName,
 
 		// KYVE
 		bundlestypes.ModuleName,
