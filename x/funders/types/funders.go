@@ -1,11 +1,14 @@
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import (
+	"cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
 
 func (f *Funding) GetScore(whitelist map[string]WhitelistCoinEntry) (score uint64) {
 	for _, coin := range f.Amounts {
 		if entry, found := whitelist[coin.Denom]; found {
-			score += uint64(entry.CoinWeight.MulInt64(coin.Amount.Int64()).TruncateInt64())
+			score += uint64(entry.CoinWeight.MulInt(coin.Amount).Quo(math.LegacyNewDec(10).Power(uint64(entry.CoinDecimals))).TruncateInt64())
 		}
 	}
 

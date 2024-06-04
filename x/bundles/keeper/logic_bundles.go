@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 
@@ -283,7 +284,7 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 			continue
 		}
 
-		amount := storageCostPerCoin.Quo(weight)
+		amount := storageCostPerCoin.Mul(math.LegacyNewDec(10).Power(uint64(whitelist[coin.Denom].CoinDecimals))).Quo(weight)
 		wantedStorageRewards = wantedStorageRewards.Add(sdk.NewCoin(coin.Denom, amount.TruncateInt()))
 	}
 

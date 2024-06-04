@@ -31,6 +31,7 @@ func DefaultParams() Params {
 		[]*WhitelistCoinEntry{
 			{
 				CoinDenom:                 globalTypes.Denom,
+				CoinDecimals:              uint32(6),
 				MinFundingAmount:          uint64(1_000_000_000), // 1,000 $KYVE
 				MinFundingAmountPerBundle: uint64(100_000),       // 0.1 $KYVE
 				CoinWeight:                math.LegacyNewDec(1),
