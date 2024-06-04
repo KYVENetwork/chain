@@ -425,6 +425,9 @@ func New(
 			app.appCodec,
 			app.GetStoreKeys(),
 			app.BundlesKeeper,
+			app.DelegationKeeper,
+			app.FundersKeeper,
+			app.StakersKeeper,
 			app.PoolKeeper,
 		),
 	)

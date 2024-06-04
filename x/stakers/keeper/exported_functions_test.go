@@ -3,6 +3,8 @@ package keeper_test
 import (
 	"strconv"
 
+	"cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
@@ -59,10 +61,11 @@ var _ = Describe("Protocol Governance Voting", Ordered, func() {
 		// Create and join a pool.
 		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 		msg := &pooltypes.MsgCreatePool{
-			Authority:      gov,
-			UploadInterval: 60,
-			MaxBundleSize:  100,
-			Binaries:       "{}",
+			Authority:            gov,
+			UploadInterval:       60,
+			MaxBundleSize:        100,
+			InflationShareWeight: math.LegacyZeroDec(),
+			Binaries:             "{}",
 		}
 		s.RunTxPoolSuccess(msg)
 
