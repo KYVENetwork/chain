@@ -21,7 +21,7 @@ import (
 
 TEST CASES - IBC
 
-* Transfer Kyve tokens to Osmosis
+* Transfer 1_000_000_000 Kyve tokens to Osmosis and back
 
 */
 
@@ -45,13 +45,10 @@ var _ = Describe("ibc", Ordered, func() {
 		ctx = context.Background()
 		ibcPath = "kyve-osmosis"
 
-		fw, err := interchaintest.CreateLogFile(GinkgoT().Name() + ".log")
-		Expect(err).To(BeNil())
-
-		rep := testreporter.NewReporter(fw)
+		rep := testreporter.NewNopReporter()
 		eRep = rep.RelayerExecReporter(GinkgoT())
 
-		numFullNodes := 1
+		numFullNodes := 0
 		numValidators := 2
 		logger := zaptest.NewLogger(GinkgoT())
 		factory := interchaintest.NewBuiltinChainFactory(
@@ -68,13 +65,7 @@ var _ = Describe("ibc", Ordered, func() {
 
 		client, network := interchaintest.DockerSetup(GinkgoT())
 
-		rel = interchaintest.NewBuiltinRelayerFactory(
-			// TODO: make the relayer work
-			ibc.Hermes,
-			logger,
-			//relayer.CustomDockerImage("ghcr.io/informalsystems/hermes", "v1.8.0", rly.RlyDefaultUidGid),
-			//relayer.CustomDockerImage("ghcr.io/cosmos/relayer", "v2.4.2", rly.RlyDefaultUidGid),
-		).Build(GinkgoT(), client, network)
+		rel = interchaintest.NewBuiltinRelayerFactory(ibc.CosmosRly, logger).Build(GinkgoT(), client, network)
 
 		interchain = interchaintest.NewInterchain().
 			AddChain(kyve).
@@ -88,11 +79,10 @@ var _ = Describe("ibc", Ordered, func() {
 			})
 
 		err = interchain.Build(ctx, eRep, interchaintest.InterchainBuildOptions{
-			TestName:          GinkgoT().Name(),
-			Client:            client,
-			NetworkID:         network,
-			SkipPathCreation:  true,
-			BlockDatabaseFile: interchaintest.DefaultBlockDatabaseFilepath(),
+			TestName:         GinkgoT().Name(),
+			Client:           client,
+			NetworkID:        network,
+			SkipPathCreation: false,
 		})
 		Expect(err).To(BeNil())
 	})
@@ -104,33 +94,33 @@ var _ = Describe("ibc", Ordered, func() {
 		_ = interchain.Close()
 	})
 
-	It("Transfer Kyve tokens to Osmosis", func() {
+	It("Transfer 1_000_000_000 Kyve tokens to Osmosis and back", func() {
 		// ARRANGE
-		var wallet = interchaintest.GetAndFundTestUsers(
-			GinkgoT(), ctx, GinkgoT().Name(), math.NewInt(10_000_000_000), kyve,
-		)[0].(*cosmos.CosmosWallet)
-
-		osmosisReceiver := wallet.FormattedAddressWithPrefix(osmosis.Config().Bech32Prefix)
-
-		// Wait a few blocks
-		err := testutil.WaitForBlocks(ctx, 3, kyve, osmosis)
-		Expect(err).To(BeNil())
-
-		err = rel.StartRelayer(ctx, eRep)
-		Expect(err).To(BeNil())
+		startBalance := math.NewInt(10_000_000_000)
+		var kyveWallet = interchaintest.GetAndFundTestUsers(GinkgoT(), ctx, GinkgoT().Name(), startBalance, kyve)[0].(*cosmos.CosmosWallet)
+		var osmosisWallet = interchaintest.GetAndFundTestUsers(GinkgoT(), ctx, GinkgoT().Name(), startBalance, osmosis)[0].(*cosmos.CosmosWallet)
 
 		kyveChans, err := rel.GetChannels(ctx, eRep, kyve.Config().ChainID)
 		Expect(err).To(BeNil())
 		Expect(kyveChans).To(HaveLen(1))
 		kyveChan := kyveChans[0]
 
-		// ACT
+		prefixedDenom := transfertypes.GetPrefixedDenom(kyveChan.Counterparty.PortID, kyveChan.Counterparty.ChannelID, kyve.Config().Denom)
+		denomTrace := transfertypes.ParseDenomTrace(prefixedDenom)
+		ibcDenom := denomTrace.IBCDenom()
+
+		err = rel.StartRelayer(ctx, eRep)
+		Expect(err).To(BeNil())
+
+		// ACT 1
+		// Transfer 1_000_000_000 $KYVE to Osmosis
+		transferAmount := math.NewInt(1_000_000_000)
 		transfer := ibc.WalletAmount{
-			Address: osmosisReceiver,
+			Address: osmosisWallet.FormattedAddress(),
 			Denom:   kyve.Config().Denom,
-			Amount:  math.NewInt(1_000_000_000),
+			Amount:  transferAmount,
 		}
-		tx, err := kyve.SendIBCTransfer(ctx, ibcPath, wallet.KeyName(), transfer, ibc.TransferOptions{})
+		tx, err := kyve.SendIBCTransfer(ctx, kyveChan.ChannelID, kyveWallet.KeyName(), transfer, ibc.TransferOptions{})
 		Expect(err).To(BeNil())
 
 		height, err := kyve.Height(ctx)
@@ -139,17 +129,40 @@ var _ = Describe("ibc", Ordered, func() {
 		_, err = testutil.PollForAck(ctx, kyve, height, height+10, tx.Packet)
 		Expect(err).To(BeNil())
 
-		// ASSERT
-		userBalance, err := kyve.GetBalance(ctx, wallet.FormattedAddress(), kyve.Config().Denom)
+		// ASSERT 1
+		// New balance must be startBalance - transferAmount - fees -> so in total a bit less than 9_000_000_000
+		kyveBal1, err := kyve.GetBalance(ctx, kyveWallet.FormattedAddress(), kyve.Config().Denom)
 		Expect(err).To(BeNil())
-		Expect(userBalance).To(Equal(math.NewInt(9_000_000_000)))
+		newBalance := startBalance.Sub(transferAmount)
+		Expect(kyveBal1.Int64()).To(BeBetween(newBalance.Sub(math.NewInt(100_000)).Int64(), newBalance.Int64()))
 
-		prefixedDenom := transfertypes.GetPrefixedDenom(kyveChan.Counterparty.PortID, kyveChan.Counterparty.ChannelID, kyve.Config().Denom)
-		denomTrace := transfertypes.ParseDenomTrace(prefixedDenom)
-		ibcDenom := denomTrace.IBCDenom()
-
-		receiverBalance, err := osmosis.GetBalance(ctx, osmosisReceiver, ibcDenom)
+		osmosisBal1, err := osmosis.GetBalance(ctx, osmosisWallet.FormattedAddress(), ibcDenom)
 		Expect(err).To(BeNil())
-		Expect(receiverBalance).To(Equal(math.NewInt(1_000_000_000)))
+		Expect(osmosisBal1).To(Equal(math.NewInt(1_000_000_000)))
+
+		// ACT 2
+		// Transfer 1_000_000_000 $KYVE back to Kyve
+		transfer = ibc.WalletAmount{
+			Address: kyveWallet.FormattedAddress(),
+			Denom:   ibcDenom,
+			Amount:  transferAmount,
+		}
+		tx, err = osmosis.SendIBCTransfer(ctx, kyveChan.Counterparty.ChannelID, osmosisWallet.KeyName(), transfer, ibc.TransferOptions{})
+		Expect(err).To(BeNil())
+
+		height, err = osmosis.Height(ctx)
+		Expect(err).To(BeNil())
+
+		_, err = testutil.PollForAck(ctx, osmosis, height, height+10, tx.Packet)
+		Expect(err).To(BeNil())
+
+		// ASSERT 2
+		osmosisBal2, err := osmosis.GetBalance(ctx, osmosisWallet.FormattedAddress(), ibcDenom)
+		Expect(err).To(BeNil())
+		Expect(osmosisBal2).To(Equal(math.NewInt(0)))
+
+		kyveBal2, err := kyve.GetBalance(ctx, kyveWallet.FormattedAddress(), kyve.Config().Denom)
+		Expect(err).To(BeNil())
+		Expect(kyveBal2).To(Equal(kyveBal1.Add(transferAmount)))
 	})
 })

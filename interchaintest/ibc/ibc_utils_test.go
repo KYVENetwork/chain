@@ -9,6 +9,8 @@ import (
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/icza/dyno"
+	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/types"
 	"github.com/strangelove-ventures/interchaintest/v8"
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 	"strconv"
@@ -78,4 +80,10 @@ func ModifyGenesis(config ibc.ChainConfig, genbz []byte) ([]byte, error) {
 
 	newGenesis, _ := json.Marshal(genesis)
 	return newGenesis, nil
+}
+
+func BeBetween(min, max interface{}) types.GomegaMatcher {
+	return SatisfyAll(
+		BeNumerically(">", min),
+		BeNumerically("<", max))
 }
