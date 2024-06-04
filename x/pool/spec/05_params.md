@@ -10,3 +10,4 @@ The pool module contains the following parameters:
 |-------------------------|--------------------|---------|
 | ProtocolInflationShare  | math.LegacyDec (%) | 0.05    |
 | PoolInflationPayoutRate | math.LegacyDec (%) | 0.1     |
+| MaxVotingPowerPerPool   | math.LegacyDec (%) | 0.5     |

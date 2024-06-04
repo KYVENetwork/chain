@@ -28,6 +28,11 @@ func (k Keeper) GetPoolInflationPayoutRate(ctx sdk.Context) (res math.LegacyDec)
 	return k.GetParams(ctx).PoolInflationPayoutRate
 }
 
+// GetMaxVotingPowerPerPool returns the MaxVotingPowerPerPool param
+func (k Keeper) GetMaxVotingPowerPerPool(ctx sdk.Context) (res math.LegacyDec) {
+	return k.GetParams(ctx).MaxVotingPowerPerPool
+}
+
 // SetParams stores the x/pool params in state.
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))

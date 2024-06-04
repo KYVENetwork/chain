@@ -40,7 +40,10 @@ message EventCreatePool {
   uint64 upload_interval = 7;
   // inflation_share_weight is the fixed cost which gets paid out
   // to every successful uploader
-  uint64 inflation_share_weight = 8;
+  string inflation_share_weight = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
   // min_delegation is the minimum amount of $KYVE the pool has
   // to have in order to produce bundles
   uint64 min_delegation = 9;
@@ -126,7 +129,10 @@ message EventPoolUpdated {
   uint64 upload_interval = 7;
   // inflation_share_weight is the fixed cost which gets paid out
   // to every successful uploader
-  uint64 inflation_share_weight = 8;
+  string inflation_share_weight = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
   // min_delegation is the minimum amount of $KYVE the pool has
   // to have in order to produce bundles
   uint64 min_delegation = 9;
