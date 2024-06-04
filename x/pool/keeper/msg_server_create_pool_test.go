@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -49,7 +50,7 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
 			StartKey:             "0",
 			UploadInterval:       60,
-			InflationShareWeight: 10000,
+			InflationShareWeight: math.LegacyNewDec(10_000),
 			MinDelegation:        100 * i.KYVE,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",
@@ -75,7 +76,7 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
 			StartKey:             "0",
 			UploadInterval:       60,
-			InflationShareWeight: 10000,
+			InflationShareWeight: math.LegacyNewDec(10_000),
 			MinDelegation:        100 * i.KYVE,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",
@@ -104,7 +105,7 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 			StartKey:             "0",
 			EndKey:               "100",
 			UploadInterval:       60,
-			InflationShareWeight: 10000,
+			InflationShareWeight: math.LegacyNewDec(10_000),
 			MinDelegation:        100 * i.KYVE,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",
@@ -144,7 +145,7 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 			CurrentIndex:         0,
 			TotalBundles:         0,
 			UploadInterval:       60,
-			InflationShareWeight: 10000,
+			InflationShareWeight: math.LegacyNewDec(10_000),
 			MinDelegation:        100 * i.KYVE,
 			MaxBundleSize:        100,
 			Disabled:             false,
@@ -180,7 +181,7 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
 			StartKey:             "0",
 			UploadInterval:       60,
-			InflationShareWeight: 10000,
+			InflationShareWeight: math.LegacyNewDec(10_000),
 			MinDelegation:        100 * i.KYVE,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",
@@ -213,7 +214,7 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
 			StartKey:             "0",
 			UploadInterval:       60,
-			InflationShareWeight: 10000,
+			InflationShareWeight: math.LegacyNewDec(10_000),
 			MinDelegation:        100 * i.KYVE,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",
@@ -252,7 +253,7 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 			CurrentIndex:         0,
 			TotalBundles:         0,
 			UploadInterval:       60,
-			InflationShareWeight: 10000,
+			InflationShareWeight: math.LegacyNewDec(10_000),
 			MinDelegation:        100 * i.KYVE,
 			MaxBundleSize:        100,
 			Disabled:             false,
@@ -288,7 +289,7 @@ var _ = Describe("msg_server_create_pool.go", Ordered, func() {
 			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
 			StartKey:             "0",
 			UploadInterval:       60,
-			InflationShareWeight: 10000,
+			InflationShareWeight: math.LegacyNewDec(10_000),
 			MinDelegation:        100 * i.KYVE,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",
