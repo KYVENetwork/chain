@@ -12,7 +12,7 @@ func CreateStoreLoader(upgradeHeight int64) baseapp.StoreLoader {
 			"packetfowardmiddleware", // yes there is supposed to be a spelling error in "forward"
 			"icahost",
 			"icacontroller",
-			//"feeibc",
+			"feeibc",
 		},
 	}
 
