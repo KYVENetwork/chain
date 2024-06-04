@@ -3,6 +3,7 @@ package relayer_test
 import (
 	"context"
 	"cosmossdk.io/math"
+	"github.com/KYVENetwork/chain/testutil/integration"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	"github.com/strangelove-ventures/interchaintest/v8"
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
@@ -21,7 +22,7 @@ import (
 
 TEST CASES - IBC
 
-* Transfer 1_000_000_000 Kyve tokens to Osmosis and back
+* Transfer 1 $KYVE to Osmosis and back
 
 */
 
@@ -94,9 +95,9 @@ var _ = Describe("ibc", Ordered, func() {
 		_ = interchain.Close()
 	})
 
-	It("Transfer 1_000_000_000 Kyve tokens to Osmosis and back", func() {
+	It("Transfer 1 $KYVE to Osmosis and back", func() {
 		// ARRANGE
-		startBalance := math.NewInt(10_000_000_000)
+		startBalance := math.NewInt(10 * integration.T_KYVE)
 		var kyveWallet = interchaintest.GetAndFundTestUsers(GinkgoT(), ctx, GinkgoT().Name(), startBalance, kyve)[0].(*cosmos.CosmosWallet)
 		var osmosisWallet = interchaintest.GetAndFundTestUsers(GinkgoT(), ctx, GinkgoT().Name(), startBalance, osmosis)[0].(*cosmos.CosmosWallet)
 
@@ -113,8 +114,8 @@ var _ = Describe("ibc", Ordered, func() {
 		Expect(err).To(BeNil())
 
 		// ACT 1
-		// Transfer 1_000_000_000 $KYVE to Osmosis
-		transferAmount := math.NewInt(1_000_000_000)
+		// Transfer 1 $KYVE to Osmosis
+		transferAmount := math.NewInt(integration.T_KYVE)
 		transfer := ibc.WalletAmount{
 			Address: osmosisWallet.FormattedAddress(),
 			Denom:   kyve.Config().Denom,
@@ -130,7 +131,7 @@ var _ = Describe("ibc", Ordered, func() {
 		Expect(err).To(BeNil())
 
 		// ASSERT 1
-		// New balance must be startBalance - transferAmount - fees -> so in total a bit less than 9_000_000_000
+		// New balance must be startBalance - transferAmount - fees -> so a bit less than 9 $KYVE
 		kyveBal1, err := kyve.GetBalance(ctx, kyveWallet.FormattedAddress(), kyve.Config().Denom)
 		Expect(err).To(BeNil())
 		newBalance := startBalance.Sub(transferAmount)
@@ -138,10 +139,10 @@ var _ = Describe("ibc", Ordered, func() {
 
 		osmosisBal1, err := osmosis.GetBalance(ctx, osmosisWallet.FormattedAddress(), ibcDenom)
 		Expect(err).To(BeNil())
-		Expect(osmosisBal1).To(Equal(math.NewInt(1_000_000_000)))
+		Expect(osmosisBal1).To(Equal(math.NewInt(integration.T_KYVE)))
 
 		// ACT 2
-		// Transfer 1_000_000_000 $KYVE back to Kyve
+		// Transfer 1 $KYVE back to Kyve
 		transfer = ibc.WalletAmount{
 			Address: kyveWallet.FormattedAddress(),
 			Denom:   ibcDenom,
