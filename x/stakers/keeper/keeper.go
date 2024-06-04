@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"cosmossdk.io/core/store"
 
 	"github.com/KYVENetwork/chain/util"
@@ -67,4 +69,9 @@ func SetDelegationKeeper(k *Keeper, delegationKeeper delegationKeeper.Keeper) {
 
 func (k Keeper) Logger() log.Logger {
 	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
+}
+
+// TODO: remove after migration
+func (k Keeper) Migration_SetStaker(ctx sdk.Context, staker types.Staker) {
+	k.setStaker(ctx, staker)
 }
