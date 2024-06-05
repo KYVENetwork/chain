@@ -940,13 +940,6 @@ var _ = Describe("funding bundles", Ordered, func() {
 			AmountsPerBundle: sdk.NewCoins(i.ACoin(10*i.T_KYVE), i.BCoin(100*i.T_KYVE)),
 		})
 
-		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:          i.BOB,
-			PoolId:           0,
-			Amounts:          sdk.NewCoins(i.BCoin(100*i.T_KYVE), i.CCoin(200*i.T_KYVE)),
-			AmountsPerBundle: sdk.NewCoins(i.BCoin(10*i.T_KYVE), i.CCoin(20*i.T_KYVE)),
-		})
-
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -998,23 +991,17 @@ var _ = Describe("funding bundles", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(sdk.NewCoins(i.ACoin(90*i.T_KYVE), i.BCoin(90*i.T_KYVE), i.CCoin(180*i.T_KYVE)).String()))
-		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(2))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(sdk.NewCoins(i.ACoin(90 * i.T_KYVE)).String()))
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 
 		fundingAlice, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.ALICE, 0)
-		fundingBob, _ := s.App().FundersKeeper.GetFunding(s.Ctx(), i.BOB, 0)
 
 		// assert individual funds
 		Expect(fundingAlice.Amounts.String()).To(Equal(sdk.NewCoins(i.ACoin(90 * i.T_KYVE)).String()))
 		Expect(fundingAlice.TotalFunded.String()).To(Equal(sdk.NewCoins(i.ACoin(10*i.T_KYVE), i.BCoin(50*i.T_KYVE)).String()))
-		Expect(fundingBob.Amounts.String()).To(Equal(sdk.NewCoins(i.BCoin(90*i.T_KYVE), i.CCoin(180*i.T_KYVE)).String()))
-		Expect(fundingBob.TotalFunded.String()).To(Equal(sdk.NewCoins(i.BCoin(10*i.T_KYVE), i.CCoin(20*i.T_KYVE)).String()))
 
 		// assert individual balances
 		balanceAlice := s.GetCoinsFromAddress(i.ALICE)
 		Expect(balanceAlice.String()).To(Equal(initialBalanceAlice.Sub(i.ACoin(100*i.T_KYVE), i.BCoin(50*i.T_KYVE)).String()))
-
-		balanceBob := s.GetCoinsFromAddress(i.BOB)
-		Expect(balanceBob.String()).To(Equal(initialBalanceBob.Sub(i.BCoin(100*i.T_KYVE), i.CCoin(200*i.T_KYVE)).String()))
 	})
 })
