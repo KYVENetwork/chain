@@ -1,4 +1,4 @@
-package proposal_handler_test
+package global_test
 
 import (
 	"context"
