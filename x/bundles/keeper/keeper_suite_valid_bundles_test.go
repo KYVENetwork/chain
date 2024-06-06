@@ -1639,7 +1639,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		}, 0))
 
 		// mint another 1,000 $ARCH to Alice
-		s.MintCoin(i.ALICE, sdk.NewCoin(i.B_DENOM, s.MustNewIntFromStr("1000000000000000000000")))
+		err := s.MintCoin(i.ALICE, sdk.NewCoin(i.B_DENOM, s.MustNewIntFromStr("1000000000000000000000")))
+		_ = err
 
 		// defund everything so we have a clean state
 		s.RunTxPoolSuccess(&fundersTypes.MsgDefundPool{

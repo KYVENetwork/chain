@@ -4757,14 +4757,21 @@ paths:
                             min_funding_amount is the minimum required amount of
                             this denom that needs
 
-                            to be funded
+                            to be funded. this has to be an Int because else a
+                            coin with 18 decimals could
+
+                            only have a max value of 18
                         min_funding_amount_per_bundle:
                           type: string
                           title: >-
                             min_funding_amount_per_bundle is the minimum
                             required amount of this denom
 
-                            that needs to be funded per bundle
+                            that needs to be funded per bundle. this has to be
+                            an Int because else a
+
+                            coin with 18 decimals could only have a max value of
+                            18
                         coin_weight:
                           type: string
                           description: >-
