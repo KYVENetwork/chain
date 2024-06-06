@@ -33,7 +33,7 @@ can be multiple coins.
 
 ## `MsgJoinPool`
 
-This message allows a staker to join a pool. For joining a pool the staker must
+This message allows a staker to join a pool. For joining a pool, the staker must
 provide the poolId and an address which is operated by the protocol node. This
 address is allowed to vote in favor of the staker. If this address misbehaves,
 the staker will get slashed. The message also takes an amount as an argument
