@@ -5,6 +5,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+func (suite *KeeperTestSuite) GetCoinsFromCommunityPool() sdk.Coins {
+	pool, err := suite.App().DistributionKeeper.FeePool.Get(suite.Ctx())
+	if err != nil {
+		return sdk.NewCoins()
+	}
+
+	coins, _ := pool.CommunityPool.TruncateDecimal()
+	return coins
+}
+
 func (suite *KeeperTestSuite) GetBalanceFromAddress(address string) uint64 {
 	accAddress, err := sdk.AccAddressFromBech32(address)
 	if err != nil {
