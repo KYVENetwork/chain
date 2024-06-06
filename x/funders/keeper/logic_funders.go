@@ -140,8 +140,8 @@ func (k Keeper) ensureParamsCompatibility(ctx sdk.Context, funding *types.Fundin
 	minFundingAmountsPerBundle := sdk.NewCoins()
 
 	for _, entry := range params.CoinWhitelist {
-		minFundingAmounts = minFundingAmounts.Add(sdk.NewInt64Coin(entry.CoinDenom, int64(entry.MinFundingAmount)))
-		minFundingAmountsPerBundle = minFundingAmountsPerBundle.Add(sdk.NewInt64Coin(entry.CoinDenom, int64(entry.MinFundingAmountPerBundle)))
+		minFundingAmounts = minFundingAmounts.Add(sdk.NewCoin(entry.CoinDenom, entry.MinFundingAmount))
+		minFundingAmountsPerBundle = minFundingAmountsPerBundle.Add(sdk.NewCoin(entry.CoinDenom, entry.MinFundingAmountPerBundle))
 	}
 
 	// before we perform compatibility checks we clean the funding state

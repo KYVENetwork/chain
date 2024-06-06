@@ -4753,7 +4753,6 @@ paths:
                           title: coin_decimals are the decimals of the coin
                         min_funding_amount:
                           type: string
-                          format: uint64
                           title: >-
                             min_funding_amount is the minimum required amount of
                             this denom that needs
@@ -4761,7 +4760,6 @@ paths:
                             to be funded
                         min_funding_amount_per_bundle:
                           type: string
-                          format: uint64
                           title: >-
                             min_funding_amount_per_bundle is the minimum
                             required amount of this denom

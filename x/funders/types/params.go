@@ -32,8 +32,8 @@ func DefaultParams() Params {
 			{
 				CoinDenom:                 globalTypes.Denom,
 				CoinDecimals:              uint32(6),
-				MinFundingAmount:          uint64(1_000_000_000), // 1,000 $KYVE
-				MinFundingAmountPerBundle: uint64(100_000),       // 0.1 $KYVE
+				MinFundingAmount:          math.NewInt(1_000_000_000), // 1,000 $KYVE
+				MinFundingAmountPerBundle: math.NewInt(100_000),       // 0.1 $KYVE
 				CoinWeight:                math.LegacyNewDec(1),
 			},
 		},
@@ -55,11 +55,11 @@ func (p *Params) Validate() error {
 			return errors.New("coin denom is empty")
 		}
 
-		if err := util.ValidateNumber(entry.MinFundingAmount); err != nil {
+		if err := util.ValidateInt(entry.MinFundingAmount); err != nil {
 			return err
 		}
 
-		if err := util.ValidateNumber(entry.MinFundingAmountPerBundle); err != nil {
+		if err := util.ValidateInt(entry.MinFundingAmountPerBundle); err != nil {
 			return err
 		}
 

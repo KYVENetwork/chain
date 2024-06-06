@@ -82,26 +82,26 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		s.App().FundersKeeper.SetParams(s.Ctx(), funderstypes.NewParams([]*funderstypes.WhitelistCoinEntry{
 			{
 				CoinDenom:                 globalTypes.Denom,
-				MinFundingAmount:          100,
-				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				MinFundingAmount:          math.NewInt(100),
+				MinFundingAmountPerBundle: math.NewInt(amountPerBundle),
 				CoinWeight:                math.LegacyNewDec(1),
 			},
 			{
 				CoinDenom:                 i.A_DENOM,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewInt(amountPerBundle),
 				CoinWeight:                math.LegacyNewDec(1),
 			},
 			{
 				CoinDenom:                 i.B_DENOM,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewInt(amountPerBundle),
 				CoinWeight:                math.LegacyNewDec(2),
 			},
 			{
 				CoinDenom:                 i.C_DENOM,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewInt(amountPerBundle),
 				CoinWeight:                math.LegacyNewDec(3),
 			},
 		}, 0))

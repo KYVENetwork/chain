@@ -277,7 +277,6 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 	whitelist := k.fundersKeeper.GetCoinWhitelistMap(ctx)
 	wantedStorageRewards := sdk.NewCoins()
 	storageCostPerCoin := k.GetStorageCost(ctx, bundleProposal.StorageProviderId).MulInt64(int64(bundleProposal.DataSize)).QuoInt64(int64(totalPayout.Len()))
-
 	for _, coin := range totalPayout {
 		weight := whitelist[coin.Denom].CoinWeight
 		if weight.IsZero() {
