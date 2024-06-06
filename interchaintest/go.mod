@@ -275,7 +275,7 @@ replace (
 	// needed for strangelove's interchaintest
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	// use kyve flavored strangelove-ventures/interchaintest
-	github.com/strangelove-ventures/interchaintest/v8 => github.com/KYVENetwork/interchaintest/v8 v8.0.0-20240422073541-22e23c056376
+	github.com/strangelove-ventures/interchaintest/v8 => github.com/KYVENetwork/interchaintest/v8 v8.0.0-20240520124515-fd4cc797e6fd
 	// replace broken goleveldb
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
