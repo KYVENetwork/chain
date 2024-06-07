@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 
@@ -274,17 +275,25 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 	// funds left of each coin, and in the case there are not enough the coins are removed and therefore for the
 	// next bundle we split between the other remaining coins.
 	whitelist := k.fundersKeeper.GetCoinWhitelistMap(ctx)
+	// wantedStorageRewards are the amounts based on the current storage cost we want to pay out, this can be more
+	// than we have available in totalPayout
 	wantedStorageRewards := sdk.NewCoins()
+	// storageCostPerCoin is the storage cost in $USD for each coin. This implies that each coin contributes the same
+	// amount of value to the storage rewards
 	storageCostPerCoin := k.GetStorageCost(ctx, bundleProposal.StorageProviderId).MulInt64(int64(bundleProposal.DataSize)).QuoInt64(int64(totalPayout.Len()))
-
 	for _, coin := range totalPayout {
 		weight := whitelist[coin.Denom].CoinWeight
 		if weight.IsZero() {
 			continue
 		}
 
-		amount := storageCostPerCoin.Quo(weight)
-		wantedStorageRewards = wantedStorageRewards.Add(sdk.NewCoin(coin.Denom, amount.TruncateInt()))
+		// currencyUnit is the amount of base denoms of the currency
+		currencyUnit := math.LegacyNewDec(10).Power(uint64(whitelist[coin.Denom].CoinDecimals))
+		// amount is the value of storageCostPerCoin in the base denomination of the currency. We calculate this
+		// by multiplying first with the amount of base denoms of the currency and then divide this by the $USD
+		// value per currency unit which is the weight.
+		amount := storageCostPerCoin.Mul(currencyUnit).Quo(weight).TruncateInt()
+		wantedStorageRewards = wantedStorageRewards.Add(sdk.NewCoin(coin.Denom, amount))
 	}
 
 	// we take the min here since there can be the case where we want to charge more coins for the storage

@@ -124,6 +124,9 @@ endif
 dev:
 	@ignite chain serve --reset-once --skip-proto --verbose
 
+dev-continue:
+	@ignite chain serve --skip-proto --verbose
+
 ###############################################################################
 ###                          Formatting & Linting                           ###
 ###############################################################################
