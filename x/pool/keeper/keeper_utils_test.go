@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	"github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -29,10 +30,11 @@ func BuildGovernanceTxs(s *i.KeeperTestSuite, msgs []sdk.Msg) (govV1Types.MsgSub
 func createPoolWithEmptyValues(s *i.KeeperTestSuite) {
 	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 	msg := &types.MsgCreatePool{
-		Authority:      gov,
-		UploadInterval: 60,
-		MaxBundleSize:  100,
-		Binaries:       "{}",
+		Authority:            gov,
+		UploadInterval:       60,
+		MaxBundleSize:        100,
+		InflationShareWeight: math.LegacyZeroDec(),
+		Binaries:             "{}",
 	}
 	s.RunTxPoolSuccess(msg)
 

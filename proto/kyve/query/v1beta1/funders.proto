@@ -2,7 +2,9 @@ syntax = "proto3";
 
 package kyve.query.v1beta1;
 
+import "amino/amino.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 
@@ -53,27 +55,59 @@ message Funder {
 // FundingStats ...
 message FundingStats {
   // total_used_funds are the total funds that have been distributed by the funder.
-  uint64 total_used_funds = 1;
-  // total_allocated_funds are the total funds that have been allocated by the funder. They can either get distributed or refunded.
-  uint64 total_allocated_funds = 2;
+  repeated cosmos.base.v1beta1.Coin total_used_funds = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // total_allocated_funds are the total funds that have been allocated by the funder.
+  // They can either get distributed or refunded.
+  repeated cosmos.base.v1beta1.Coin total_allocated_funds = 2 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
   // total_amount_per_bundle is the total amount per bundle of all fundings of the funder.
-  uint64 total_amount_per_bundle = 3;
+  repeated cosmos.base.v1beta1.Coin total_amount_per_bundle = 3 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
   // pools_funded are the ids of the pools that have been funded by the funder.
   repeated uint64 pools_funded = 4;
+  // score is the result of all coins of the funder currently allocated times the coin weight
+  // specified in the params
+  uint64 score = 5;
 }
 
 // Funding ...
 message Funding {
-  // funder_address
+  // funder_id is the id of the funder
   string funder_address = 1;
-  // pool_id ...
+  // pool_id is the id of the pool this funding is for
   uint64 pool_id = 2;
-  // amount ...
-  uint64 amount = 3;
-  // amount_per_bundle ...
-  uint64 amount_per_bundle = 4;
-  // total_funded ...
-  uint64 total_funded = 5;
+  // amounts is a list of coins the funder wants to fund the pool with
+  repeated cosmos.base.v1beta1.Coin amounts = 3 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // amounts_per_bundle defines the amount of each coin that are distributed
+  // per finalized bundle
+  repeated cosmos.base.v1beta1.Coin amounts_per_bundle = 4 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // total_funded is the total amount of coins that the funder has funded
+  repeated cosmos.base.v1beta1.Coin total_funded = 5 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // score is the result of all coins allocated to this pool times the coin weight specified
+  // by the params
+  uint64 score = 6;
 }
 
 // FundingStatus ...

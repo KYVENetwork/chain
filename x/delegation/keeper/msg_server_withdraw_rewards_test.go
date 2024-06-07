@@ -4,7 +4,6 @@ import (
 	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	"github.com/KYVENetwork/chain/x/delegation/types"
-	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakerstypes "github.com/KYVENetwork/chain/x/stakers/types"
@@ -33,10 +32,17 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 	const aliceSelfDelegation = 0 * i.KYVE
 	const bobSelfDelegation = 0 * i.KYVE
 
+	var (
+		initialBalanceAlice   = sdk.NewCoins()
+		initialBalanceBob     = sdk.NewCoins()
+		initialBalanceCharlie = sdk.NewCoins()
+		initialBalanceDummy   []sdk.Coins
+	)
+
 	BeforeEach(func() {
 		s = i.NewCleanChain()
 
-		CreateFundedPool(s)
+		CreatePool(s)
 
 		// Stake
 		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
@@ -54,6 +60,17 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 
 		_, stakerFound = s.App().StakersKeeper.GetStaker(s.Ctx(), i.BOB)
 		Expect(stakerFound).To(BeTrue())
+
+		initialBalanceAlice = s.GetCoinsFromAddress(i.ALICE)
+		initialBalanceBob = s.GetCoinsFromAddress(i.BOB)
+		initialBalanceCharlie = s.GetCoinsFromAddress(i.CHARLIE)
+		initialBalanceDummy = make([]sdk.Coins, len(i.DUMMY))
+		for k := range len(i.DUMMY) {
+			initialBalanceDummy[k] = s.GetCoinsFromAddress(i.DUMMY[k])
+		}
+		_ = initialBalanceAlice
+		_ = initialBalanceBob
+		_ = initialBalanceCharlie
 	})
 
 	AfterEach(func() {
@@ -87,7 +104,6 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.ALICE)).To(Equal(aliceSelfDelegation + 30*i.KYVE))
 
 		delegationModuleBalanceBefore := s.GetBalanceFromModule(types.ModuleName)
-		fundersModuleBalanceBefore := s.GetBalanceFromModule(funderstypes.ModuleName)
 		s.PerformValidityChecks()
 
 		// ACT
@@ -99,10 +115,8 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 
 		// ASSERT
 		delegationModuleBalanceAfter := s.GetBalanceFromModule(types.ModuleName)
-		fundersModuleBalanceAfter := s.GetBalanceFromModule(funderstypes.ModuleName)
 
 		Expect(delegationModuleBalanceAfter).To(Equal(delegationModuleBalanceBefore + 20*i.KYVE))
-		Expect(fundersModuleBalanceAfter).To(Equal(fundersModuleBalanceBefore - 20*i.KYVE))
 
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0]).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(6666666666)))
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1]).AmountOf(globalTypes.Denom).Uint64()).To(Equal(uint64(6666666666)))
@@ -121,9 +135,9 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 			Staker:  i.ALICE,
 		})
 
-		Expect(s.GetBalanceFromAddress(i.DUMMY[0])).To(Equal(uint64(996666666666)))
-		Expect(s.GetBalanceFromAddress(i.DUMMY[1])).To(Equal(uint64(996666666666)))
-		Expect(s.GetBalanceFromAddress(i.DUMMY[2])).To(Equal(uint64(996666666666)))
+		Expect(initialBalanceDummy[0].Sub(s.GetCoinsFromAddress(i.DUMMY[0])...).String()).To(Equal("3333333334tkyve"))
+		Expect(initialBalanceDummy[1].Sub(s.GetCoinsFromAddress(i.DUMMY[1])...).String()).To(Equal("3333333334tkyve"))
+		Expect(initialBalanceDummy[2].Sub(s.GetCoinsFromAddress(i.DUMMY[2])...).String()).To(Equal("3333333334tkyve"))
 
 		Expect(s.GetBalanceFromModule(types.ModuleName)).To(Equal(uint64(30000000002)))
 	})
@@ -156,16 +170,6 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 	})
 
 	It("Test invalid payouts to delegators", func() {
-		// ARRANGE
-
-		// fund pool module
-		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 1 * i.KYVE,
-		})
-
 		// ACT
 		// not enough balance in pool module
 		err1 := s.App().DelegationKeeper.PayoutRewards(s.Ctx(), i.ALICE, sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(20000*i.KYVE))), pooltypes.ModuleName)
@@ -267,7 +271,6 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.ALICE)).To(Equal(aliceSelfDelegation + 30*i.KYVE))
 
 		delegationModuleBalanceBefore := s.GetCoinsFromModule(types.ModuleName)
-		poolsModuleBalanceBefore := s.GetCoinsFromModule(pooltypes.ModuleName)
 		s.PerformValidityChecks()
 
 		// ACT
@@ -279,10 +282,8 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 
 		// ASSERT
 		delegationModuleBalanceAfter := s.GetCoinsFromModule(types.ModuleName)
-		poolsModuleBalanceAfter := s.GetCoinsFromModule(pooltypes.ModuleName)
 
 		Expect(delegationModuleBalanceAfter).To(Equal(delegationModuleBalanceBefore.Add(payoutCoins...)))
-		Expect(poolsModuleBalanceAfter).To(Equal(poolsModuleBalanceBefore.Sub(payoutCoins...)))
 
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0]).String()).To(Equal("3333333acoin,1666666bcoin"))
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1]).String()).To(Equal("3333333acoin,1666666bcoin"))
@@ -301,9 +302,9 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 			Staker:  i.ALICE,
 		})
 
-		Expect(s.GetCoinsFromAddress(i.DUMMY[0]).String()).To(Equal("3333333acoin,1666666bcoin,990000000000tkyve"))
-		Expect(s.GetCoinsFromAddress(i.DUMMY[1]).String()).To(Equal("3333333acoin,1666666bcoin,990000000000tkyve"))
-		Expect(s.GetCoinsFromAddress(i.DUMMY[2]).String()).To(Equal("3333333acoin,1666666bcoin,990000000000tkyve"))
+		Expect(s.GetCoinsFromAddress(i.DUMMY[0]).String()).To(Equal("1000003333333acoin,1000001666666bcoin,1000000000000ccoin,990000000000tkyve"))
+		Expect(s.GetCoinsFromAddress(i.DUMMY[1]).String()).To(Equal("1000003333333acoin,1000001666666bcoin,1000000000000ccoin,990000000000tkyve"))
+		Expect(s.GetCoinsFromAddress(i.DUMMY[2]).String()).To(Equal("1000003333333acoin,1000001666666bcoin,1000000000000ccoin,990000000000tkyve"))
 		Expect(s.GetCoinsFromModule(types.ModuleName).String()).To(Equal("1acoin,2bcoin,30000000000tkyve"))
 	})
 
@@ -337,7 +338,6 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.ALICE)).To(Equal(aliceSelfDelegation + 25*i.KYVE))
 
 		delegationModuleBalanceBefore := s.GetCoinsFromModule(types.ModuleName)
-		poolsModuleBalanceBefore := s.GetCoinsFromModule(pooltypes.ModuleName)
 		s.PerformValidityChecks()
 
 		// ACT
@@ -361,12 +361,10 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 
 		// ASSERT
 		delegationModuleBalanceAfter := s.GetCoinsFromModule(types.ModuleName)
-		poolsModuleBalanceAfter := s.GetCoinsFromModule(pooltypes.ModuleName)
 
 		Expect(delegationModuleBalanceAfter).To(Equal(
 			delegationModuleBalanceBefore.Add(payoutCoins1.Add(payoutCoins2...).Add(sdk.NewInt64Coin(globalTypes.Denom, int64(3*i.KYVE)))...)),
 		)
-		Expect(poolsModuleBalanceAfter).To(Equal(poolsModuleBalanceBefore.Sub(payoutCoins1.Add(payoutCoins2...)...)))
 
 		// Calculate outstanding rewards
 		// phase1:
@@ -400,9 +398,12 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 			Staker:  i.ALICE,
 		})
 
-		Expect(s.GetCoinsFromAddress(i.DUMMY[0]).String()).To(Equal("8000000acoin,9714285bcoin,5000000ccoin,980000000000tkyve"))
-		Expect(s.GetCoinsFromAddress(i.DUMMY[1]).String()).To(Equal("2000000acoin,2428571bcoin,1250000ccoin,995000000000tkyve"))
-		Expect(s.GetCoinsFromAddress(i.DUMMY[2]).String()).To(Equal("857142bcoin,750000ccoin,997000000000tkyve"))
+		differenceDummy0, _ := s.GetCoinsFromAddress(i.DUMMY[0]).SafeSub(initialBalanceDummy[0]...)
+		Expect(differenceDummy0.String()).To(Equal("8000000acoin,9714285bcoin,5000000ccoin,-20000000000tkyve"))
+		differenceDummy1, _ := s.GetCoinsFromAddress(i.DUMMY[1]).SafeSub(initialBalanceDummy[1]...)
+		Expect(differenceDummy1.String()).To(Equal("2000000acoin,2428571bcoin,1250000ccoin,-5000000000tkyve"))
+		differenceDummy2, _ := s.GetCoinsFromAddress(i.DUMMY[2]).SafeSub(initialBalanceDummy[2]...)
+		Expect(differenceDummy2.String()).To(Equal("857142bcoin,750000ccoin,-3000000000tkyve"))
 		Expect(s.GetCoinsFromModule(types.ModuleName).String()).To(Equal("2bcoin,28000000000tkyve"))
 	})
 
@@ -433,7 +434,6 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.ALICE)).To(Equal(aliceSelfDelegation + 25*i.KYVE))
 
 		delegationModuleBalanceBefore := s.GetCoinsFromModule(types.ModuleName)
-		poolsModuleBalanceBefore := s.GetCoinsFromModule(pooltypes.ModuleName)
 		s.PerformValidityChecks()
 
 		// ACT
@@ -465,7 +465,6 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 
 		// ASSERT
 		delegationModuleBalanceAfter := s.GetCoinsFromModule(types.ModuleName)
-		poolsModuleBalanceAfter := s.GetCoinsFromModule(pooltypes.ModuleName)
 
 		compare := delegationModuleBalanceBefore.Add(payoutCoins1...)
 		compare = compare.Add(payoutCoins2...)
@@ -473,7 +472,6 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 		compare = compare.Sub(sdk.NewInt64Coin("acoin", 8_000_000))
 		compare = compare.Sub(sdk.NewInt64Coin("bcoin", 2_285_714))
 		Expect(delegationModuleBalanceAfter).To(Equal(compare))
-		Expect(poolsModuleBalanceAfter).To(Equal(poolsModuleBalanceBefore.Sub(payoutCoins1.Add(payoutCoins2...)...)))
 
 		// Calculate outstanding rewards
 		// phase1:
@@ -496,9 +494,12 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1]).String()).To(Equal("2000000acoin,1142857bcoin"))
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[2]).String()).To(Equal(""))
 
-		Expect(s.GetCoinsFromAddress(i.DUMMY[0]).String()).To(Equal("8000000acoin,980000000000tkyve"))
-		Expect(s.GetCoinsFromAddress(i.DUMMY[1]).String()).To(Equal("995000000000tkyve"))
-		Expect(s.GetCoinsFromAddress(i.DUMMY[2]).String()).To(Equal("2285714bcoin,990000000000tkyve"))
+		differenceDummy0, _ := s.GetCoinsFromAddress(i.DUMMY[0]).SafeSub(initialBalanceDummy[0]...)
+		Expect(differenceDummy0.String()).To(Equal("8000000acoin,-20000000000tkyve"))
+		differenceDummy1, _ := s.GetCoinsFromAddress(i.DUMMY[1]).SafeSub(initialBalanceDummy[1]...)
+		Expect(differenceDummy1.String()).To(Equal("-5000000000tkyve"))
+		differenceDummy2, _ := s.GetCoinsFromAddress(i.DUMMY[2]).SafeSub(initialBalanceDummy[2]...)
+		Expect(differenceDummy2.String()).To(Equal("2285714bcoin,-10000000000tkyve"))
 		Expect(s.GetCoinsFromModule(types.ModuleName).String()).To(Equal("2000000acoin,5714286bcoin,35000000000tkyve"))
 	})
 })

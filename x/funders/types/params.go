@@ -1,48 +1,79 @@
 package types
 
 import (
+	"errors"
+	"fmt"
+
+	"cosmossdk.io/math"
+
 	"github.com/KYVENetwork/chain/util"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 )
 
 const (
-	// DefaultMinFundingAmount 1000 Kyve
-	DefaultMinFundingAmount = uint64(1_000_000_000)
-	// DefaultMinFundingAmountPerBundle 0.1 Kyve
-	DefaultMinFundingAmountPerBundle = uint64(100_000)
+
 	// DefaultMinFundingMultiple 20
 	DefaultMinFundingMultiple = uint64(20)
 )
 
 // NewParams creates a new Params instance
-func NewParams(minFundingAmount uint64, minFundingAmountPerBundle uint64, minFundingMultiple uint64) Params {
+// TODO: consider changing to value instead of pointer
+func NewParams(coinWhitelist []*WhitelistCoinEntry, minFundingMultiple uint64) Params {
 	return Params{
-		MinFundingAmount:          minFundingAmount,
-		MinFundingAmountPerBundle: minFundingAmountPerBundle,
-		MinFundingMultiple:        minFundingMultiple,
+		CoinWhitelist:      coinWhitelist,
+		MinFundingMultiple: minFundingMultiple,
 	}
 }
 
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
 	return NewParams(
-		DefaultMinFundingAmount,
-		DefaultMinFundingAmountPerBundle,
+		[]*WhitelistCoinEntry{
+			{
+				CoinDenom:                 globalTypes.Denom,
+				CoinDecimals:              uint32(6),
+				MinFundingAmount:          math.NewInt(1_000_000_000), // 1,000 $KYVE
+				MinFundingAmountPerBundle: math.NewInt(100_000),       // 0.1 $KYVE
+				CoinWeight:                math.LegacyNewDec(1),
+			},
+		},
 		DefaultMinFundingMultiple,
 	)
 }
 
 // Validate validates the set of params
 func (p *Params) Validate() error {
-	if err := util.ValidateNumber(p.MinFundingAmount); err != nil {
+	if err := util.ValidateNumber(p.MinFundingMultiple); err != nil {
 		return err
 	}
 
-	if err := util.ValidateNumber(p.MinFundingAmountPerBundle); err != nil {
-		return err
+	// the native $KYVE coin has to always be whitelisted
+	kyveWhitelisted := false
+
+	for _, entry := range p.CoinWhitelist {
+		if entry.CoinDenom == "" {
+			return errors.New("coin denom is empty")
+		}
+
+		if err := util.ValidateInt(entry.MinFundingAmount); err != nil {
+			return err
+		}
+
+		if err := util.ValidateInt(entry.MinFundingAmountPerBundle); err != nil {
+			return err
+		}
+
+		if err := util.ValidateDecimal(entry.CoinWeight); err != nil {
+			return err
+		}
+
+		if entry.CoinDenom == globalTypes.Denom {
+			kyveWhitelisted = true
+		}
 	}
 
-	if err := util.ValidateNumber(p.MinFundingAmountPerBundle); err != nil {
-		return err
+	if !kyveWhitelisted {
+		return fmt.Errorf("native KYVE coin \"%s\" not whitelisted", globalTypes.Denom)
 	}
 
 	return nil

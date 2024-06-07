@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -42,7 +43,7 @@ var _ = Describe("dropped bundles", Ordered, func() {
 			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
 			StartKey:             "0",
 			UploadInterval:       60,
-			InflationShareWeight: 10_000,
+			InflationShareWeight: math.LegacyNewDec(10_000),
 			MinDelegation:        100 * i.KYVE,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",
@@ -58,10 +59,10 @@ var _ = Describe("dropped bundles", Ordered, func() {
 		})
 
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          100 * i.KYVE,
-			AmountPerBundle: 1 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(100 * i.T_KYVE),
+			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 
 		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
@@ -203,7 +204,7 @@ var _ = Describe("dropped bundles", Ordered, func() {
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(Equal(100 * i.KYVE))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)[0].Amount.Uint64()).To(Equal(100 * i.KYVE))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 })

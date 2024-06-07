@@ -9,7 +9,7 @@ import (
 func ValidateDecimal(i interface{}) error {
 	v, ok := i.(math.LegacyDec)
 	if !ok {
-		return fmt.Errorf("invalid type: %T", i)
+		return fmt.Errorf("invalid math.LegacyDec type: %T", i)
 	}
 
 	if v.IsNil() || v.IsNegative() {
@@ -19,10 +19,23 @@ func ValidateDecimal(i interface{}) error {
 	return nil
 }
 
+func ValidateInt(i interface{}) error {
+	v, ok := i.(math.Int)
+	if !ok {
+		return fmt.Errorf("invalid math.Int type: %T", i)
+	}
+
+	if v.IsNil() || v.IsNegative() {
+		return fmt.Errorf("invalid int: %s", v)
+	}
+
+	return nil
+}
+
 func ValidateNumber(i interface{}) error {
 	v, ok := i.(uint64)
 	if !ok {
-		return fmt.Errorf("invalid type: %T", i)
+		return fmt.Errorf("invalid uint64 type: %T", i)
 	}
 
 	if math.NewIntFromUint64(v).IsNil() || math.NewIntFromUint64(v).IsNegative() {
@@ -35,7 +48,7 @@ func ValidateNumber(i interface{}) error {
 func ValidatePositiveNumber(i interface{}) error {
 	v, ok := i.(uint64)
 	if !ok {
-		return fmt.Errorf("invalid type: %T", i)
+		return fmt.Errorf("invalid uint64 type: %T", i)
 	}
 
 	if math.NewIntFromUint64(v).IsNil() ||
@@ -50,7 +63,7 @@ func ValidatePositiveNumber(i interface{}) error {
 func ValidatePercentage(i interface{}) error {
 	v, ok := i.(math.LegacyDec)
 	if !ok {
-		return fmt.Errorf("invalid type: %T", i)
+		return fmt.Errorf("invalid math.LegacyDec type: %T", i)
 	}
 
 	if v.IsNil() || v.IsNegative() || v.GT(math.LegacyOneDec()) {

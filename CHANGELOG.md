@@ -16,12 +16,31 @@ An '!' indicates a state machine breaking change.
 
 ## [Unreleased]
 
+### Features
+
+- ! (`x/stakers`) [#185](https://github.com/KYVENetwork/chain/pull/185) Support multiple coins in stakers module.
+- ! (`x/bundles`) [#184](https://github.com/KYVENetwork/chain/pull/184) Support multiple coins in bundles module.
+- ! (`x/funders`) [#179](https://github.com/KYVENetwork/chain/pull/179) Support multiple coins for funding.
+- ! (`x/bundles`) [#177](https://github.com/KYVENetwork/chain/pull/177) Add end-key to pool.
+- ! (`x/bundles`) [#178](https://github.com/KYVENetwork/chain/pull/178) Tally bundle proposal on timeout.
+- ! (`x/delegation`) [#176](https://github.com/KYVENetwork/chain/pull/176) Support multiple denoms for delegation rewards.
+- ! (`x/bundles`) [#172](https://github.com/KYVENetwork/chain/pull/172) Storage-cost per storage-provider.
+- ! (`x/bundles`) [#175](https://github.com/KYVENetwork/chain/pull/175) Tally bundle proposal on skip-uploader-role.
+
 ### Improvements
 
+- (deps) [#197](https://github.com/KYVENetwork/chain/pull/197) Bump to CosmosSDK v0.50.7
+- ! (`x/pool`) [#190](https://github.com/KYVENetwork/chain/pull/190) Make inflation-share-weight a decimal.
+- [#182](https://github.com/KYVENetwork/chain/pull/182) Make release builds reproducible.
+- ! [#183](https://github.com/KYVENetwork/chain/pull/183) Only charge coins which are whitelisted.
+- ! (deps) [#174](https://github.com/KYVENetwork/chain/pull/174) Add mainnet KYVE image to interchain tests.
+- ! (deps) [#171](https://github.com/KYVENetwork/chain/pull/171) Bump ibc version to v8.2.0 and remove unnecessary dev-dependency.
+- ! (deps) [#169](https://github.com/KYVENetwork/chain/pull/169) Migrate to Cosmos-SDK v0.50
 - (deps) [#161](https://github.com/KYVENetwork/chain/pull/161) Bump ibc packet forward middleware.
 
 ### Bug Fixes
 
+- [#192](https://github.com/KYVENetwork/chain/pull/192) fix: Cosmos-SDK & IBC swagger-code generation.
 - (`x/query`) [#159](https://github.com/KYVENetwork/chain/pull/159) Add pool params back to kyve params query.
 - (`x/query`) [#160](https://github.com/KYVENetwork/chain/pull/160) Add funders back to pool query.
 - [#163](https://github.com/KYVENetwork/chain/pull/163) Add back swagger UI for KYVE and Cosmos REST queries.

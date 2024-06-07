@@ -2,7 +2,9 @@ syntax = "proto3";
 
 package kyve.funders.v1beta1;
 
-//import "gogoproto/gogo.proto";
+import "amino/amino.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/funders/types";
 
@@ -27,16 +29,29 @@ message Funder {
 // a funder can only fund each pool once and a pool can only be funded
 // by each funder once. However, a funder can update the amount of funds.
 message Funding {
-  // funder_id is the id of the funder
+  // funder_address is the address of the funder
   string funder_address = 1;
   // pool_id is the id of the pool this funding is for
   uint64 pool_id = 2;
-  // amount is the amount of funds in ukyve the funder has left
-  uint64 amount = 3;
-  // amount_per_bundle is the amount of funds in ukyve the funder pays per bundle
-  uint64 amount_per_bundle = 4;
-  // total_funded is the total amount of funds in ukyve the funder has funded
-  uint64 total_funded = 5;
+  // amounts is a list of coins the funder wants to fund the pool with
+  repeated cosmos.base.v1beta1.Coin amounts = 3 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // amounts_per_bundle defines the amount of each coin that are distributed
+  // per finalized bundle
+  repeated cosmos.base.v1beta1.Coin amounts_per_bundle = 4 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // total_funded is the total amount of coins that the funder has funded
+  repeated cosmos.base.v1beta1.Coin total_funded = 5 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }
 
 // FundingState is the object which holds info about the funding state of a pool

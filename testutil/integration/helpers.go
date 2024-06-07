@@ -1,9 +1,31 @@
 package integration
 
 import (
+	"fmt"
+
+	"cosmossdk.io/math"
+
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
+
+func (suite *KeeperTestSuite) MustNewIntFromStr(amount string) math.Int {
+	result, ok := math.NewIntFromString(amount)
+	if !ok {
+		panic(fmt.Sprintf("error parsing \"%s\" to math.Int", amount))
+	}
+	return result
+}
+
+func (suite *KeeperTestSuite) GetCoinsFromCommunityPool() sdk.Coins {
+	pool, err := suite.App().DistributionKeeper.FeePool.Get(suite.Ctx())
+	if err != nil {
+		return sdk.NewCoins()
+	}
+
+	coins, _ := pool.CommunityPool.TruncateDecimal()
+	return coins
+}
 
 func (suite *KeeperTestSuite) GetBalanceFromAddress(address string) uint64 {
 	accAddress, err := sdk.AccAddressFromBech32(address)

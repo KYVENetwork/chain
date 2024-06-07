@@ -5,6 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 )
@@ -19,7 +20,8 @@ func CmdDefundPool() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			argAmount, err := cast.ToUint64E(args[1])
+
+			argAmounts, err := sdk.ParseCoinsNormalized(args[1])
 			if err != nil {
 				return err
 			}
@@ -32,7 +34,7 @@ func CmdDefundPool() *cobra.Command {
 			msg := &types.MsgDefundPool{
 				Creator: clientCtx.GetFromAddress().String(),
 				PoolId:  argId,
-				Amount:  argAmount,
+				Amounts: argAmounts,
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err

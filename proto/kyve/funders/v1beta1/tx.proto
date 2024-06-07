@@ -2,8 +2,11 @@ syntax = "proto3";
 
 package kyve.funders.v1beta1;
 
+import "amino/amino.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/funders/types";
 
@@ -67,14 +70,23 @@ message MsgUpdateFunderResponse {}
 // MsgFundPool defines a SDK message for funding a pool.
 message MsgFundPool {
   option (cosmos.msg.v1.signer) = "creator";
-  // creator ...
+  // creator is the funder of the pool
   string creator = 1;
-  // id ...
+  // pool_id is the identifier of the pool
   uint64 pool_id = 2;
-  // amount is the total amount available for distribution
-  uint64 amount = 3;
-  // amount_per_bundle defines the amount of tokens that are distributed per submitted bundle
-  uint64 amount_per_bundle = 4;
+  // amounts is a list of coins the creator wants to fund
+  repeated cosmos.base.v1beta1.Coin amounts = 3 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // amounts_per_bundle is a list of coins the creator wants to distribute
+  // per finalized bundle
+  repeated cosmos.base.v1beta1.Coin amounts_per_bundle = 4 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }
 
 // MsgFundPoolResponse defines the Msg/DefundPool response type.
@@ -83,12 +95,16 @@ message MsgFundPoolResponse {}
 // MsgDefundPool defines a SDK message for defunding a pool.
 message MsgDefundPool {
   option (cosmos.msg.v1.signer) = "creator";
-  // creator ...
+  // creator is the funder of the pool who wants to defund now
   string creator = 1;
-  // id ...
+  // pool_id is the identifier of the pool
   uint64 pool_id = 2;
-  // amount ...
-  uint64 amount = 3;
+  // amounts is a list of coins the creator wants to defund from the pool
+  repeated cosmos.base.v1beta1.Coin amounts = 3 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }
 
 // MsgDefundPoolResponse defines the Msg/DefundPool response type.

@@ -54,7 +54,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
 			StartKey:             "0",
 			UploadInterval:       60,
-			InflationShareWeight: 10_000,
+			InflationShareWeight: math.LegacyNewDec(10_000),
 			MinDelegation:        100 * i.KYVE,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",
@@ -70,10 +70,10 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		})
 
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          0,
-			Amount:          fundingAmount,
-			AmountPerBundle: 1 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           0,
+			Amounts:          i.KYVECoins(int64(fundingAmount)),
+			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 
 		msg = &types.MsgCreatePool{
@@ -84,7 +84,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
 			StartKey:             "0",
 			UploadInterval:       60,
-			InflationShareWeight: 10_000,
+			InflationShareWeight: math.LegacyNewDec(10_000),
 			MinDelegation:        100 * i.KYVE,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",
@@ -95,10 +95,10 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		s.RunTxPoolSuccess(msg)
 
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
-			Creator:         i.ALICE,
-			PoolId:          1,
-			Amount:          fundingAmount,
-			AmountPerBundle: 1 * i.KYVE,
+			Creator:          i.ALICE,
+			PoolId:           1,
+			Amounts:          i.KYVECoins(int64(fundingAmount)),
+			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 	})
 

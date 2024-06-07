@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/KYVENetwork/chain/x/team/types"
+	"github.com/KYVENetwork/chain/x/funders/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-func TestTeamKeeper(t *testing.T) {
+func TestFundersKeeper(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, fmt.Sprintf("x/%s Keeper Test Suite", types.ModuleName))
 }

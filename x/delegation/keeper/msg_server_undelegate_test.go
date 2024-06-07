@@ -39,7 +39,7 @@ var _ = Describe("msg_server_undelegate.go", Ordered, func() {
 	BeforeEach(func() {
 		s = i.NewCleanChain()
 
-		CreateFundedPool(s)
+		CreatePool(s)
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
 			Creator: i.ALICE,
@@ -60,7 +60,7 @@ var _ = Describe("msg_server_undelegate.go", Ordered, func() {
 			Config:               "ar://DgdB-2hLrxjhyEEbCML__dgZN5_uS7T6Z5XDkaFh3P0",
 			StartKey:             "0",
 			UploadInterval:       60,
-			InflationShareWeight: 10_000,
+			InflationShareWeight: math.LegacyNewDec(10_000),
 			MinDelegation:        100 * i.KYVE,
 			MaxBundleSize:        100,
 			Version:              "0.0.0",

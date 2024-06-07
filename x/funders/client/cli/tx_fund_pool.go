@@ -5,6 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 )
@@ -19,11 +20,11 @@ func CmdFundPool() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			argAmount, err := cast.ToUint64E(args[1])
+			argAmounts, err := sdk.ParseCoinsNormalized(args[1])
 			if err != nil {
 				return err
 			}
-			argAmountPerBundle, err := cast.ToUint64E(args[2])
+			argAmountsPerBundle, err := sdk.ParseCoinsNormalized(args[2])
 			if err != nil {
 				return err
 			}
@@ -34,10 +35,10 @@ func CmdFundPool() *cobra.Command {
 			}
 
 			msg := &types.MsgFundPool{
-				Creator:         clientCtx.GetFromAddress().String(),
-				PoolId:          argId,
-				Amount:          argAmount,
-				AmountPerBundle: argAmountPerBundle,
+				Creator:          clientCtx.GetFromAddress().String(),
+				PoolId:           argId,
+				Amounts:          argAmounts,
+				AmountsPerBundle: argAmountsPerBundle,
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err

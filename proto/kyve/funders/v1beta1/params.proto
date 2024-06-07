@@ -2,16 +2,46 @@ syntax = "proto3";
 
 package kyve.funders.v1beta1;
 
+import "gogoproto/gogo.proto";
+
 option go_package = "github.com/KYVENetwork/chain/x/funders/types";
+
+// WhitelistCoinEntry is an object containing information around a coin which
+// is allowed to be funded in pools
+message WhitelistCoinEntry {
+  // coin_denom is the denom of a coin which is allowed to be funded, this value
+  // needs to be unique
+  string coin_denom = 1;
+  // coin_decimals are the decimals of the coin
+  uint32 coin_decimals = 2;
+  // min_funding_amount is the minimum required amount of this denom that needs
+  // to be funded. It is of type math.Int since a uint64 is not sufficient for a
+  // coin with 18 decimals
+  string min_funding_amount = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  // min_funding_amount_per_bundle is the minimum required amount of this denom
+  // that needs to be funded per bundle. It is of type math.Int since a uint64
+  // is not sufficient for a coin with 18 decimals
+  string min_funding_amount_per_bundle = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  // coin_weight is a factor used to sort funders after their funding amounts.
+  // This should be the market price of the coin in USD/coin. This value should be kept up-to-date.
+  string coin_weight = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
 
 // Params defines the funders module parameters.
 message Params {
-  // Minimum amount of tokens that can be funded.
-  uint64 min_funding_amount = 1;
-  // Minimum amount of tokens that can be funded per bundle.
-  uint64 min_funding_amount_per_bundle = 2;
+  // coin_whitelist is a list of coins that are allowed to fund a pool
+  repeated WhitelistCoinEntry coin_whitelist = 1;
   // Minimum ratio between the funded amount and the amount_per_bundle.
-  // In other words this param ensures, that a funder provides at least funding for
-  // `min_funding_multiple` bundles.
-  uint64 min_funding_multiple = 3;
+  // In other words this param ensures, that a funder provides at least
+  // funding for `min_funding_multiple` bundles.
+  uint64 min_funding_multiple = 2;
 }

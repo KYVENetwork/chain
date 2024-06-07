@@ -3,6 +3,7 @@ package types
 import (
 	"cosmossdk.io/math"
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
+	"github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -22,12 +23,13 @@ type PoolKeeper interface {
 	GetAllPools(ctx sdk.Context) (list []pooltypes.Pool)
 	ChargeInflationPool(ctx sdk.Context, poolId uint64) (payout uint64, err error)
 	GetProtocolInflationShare(ctx sdk.Context) (res math.LegacyDec)
+	GetMaxVotingPowerPerPool(ctx sdk.Context) (res math.LegacyDec)
 }
 
 type StakerKeeper interface {
 	GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (stakers []string)
 	GetCommission(ctx sdk.Context, stakerAddress string) math.LegacyDec
-	IncreaseStakerCommissionRewards(ctx sdk.Context, address string, amount uint64) error
+	IncreaseStakerCommissionRewards(ctx sdk.Context, address string, payerModuleName string, amount sdk.Coins) error
 	AssertValaccountAuthorized(ctx sdk.Context, poolId uint64, stakerAddress string, valaddress string) error
 
 	DoesStakerExist(ctx sdk.Context, staker string) bool
@@ -48,7 +50,8 @@ type DelegationKeeper interface {
 }
 
 type FundersKeeper interface {
-	ChargeFundersOfPool(ctx sdk.Context, poolId uint64) (payout uint64, err error)
+	GetCoinWhitelistMap(ctx sdk.Context) (whitelist map[string]types.WhitelistCoinEntry)
+	ChargeFundersOfPool(ctx sdk.Context, poolId uint64, recipient string) (payout sdk.Coins, err error)
 }
 
 type TeamKeeper interface {
