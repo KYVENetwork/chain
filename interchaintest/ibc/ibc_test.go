@@ -2,6 +2,8 @@ package relayer_test
 
 import (
 	"context"
+	"testing"
+
 	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/testutil/integration"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
@@ -9,7 +11,6 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 	"github.com/strangelove-ventures/interchaintest/v8/testreporter"
 	"github.com/strangelove-ventures/interchaintest/v8/testutil"
-	"testing"
 
 	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"go.uber.org/zap/zaptest"
@@ -98,8 +99,8 @@ var _ = Describe("ibc", Ordered, func() {
 	It("Transfer 1 $KYVE to Osmosis and back", func() {
 		// ARRANGE
 		startBalance := math.NewInt(10 * integration.T_KYVE)
-		var kyveWallet = interchaintest.GetAndFundTestUsers(GinkgoT(), ctx, GinkgoT().Name(), startBalance, kyve)[0].(*cosmos.CosmosWallet)
-		var osmosisWallet = interchaintest.GetAndFundTestUsers(GinkgoT(), ctx, GinkgoT().Name(), startBalance, osmosis)[0].(*cosmos.CosmosWallet)
+		kyveWallet := interchaintest.GetAndFundTestUsers(GinkgoT(), ctx, GinkgoT().Name(), startBalance, kyve)[0].(*cosmos.CosmosWallet)
+		osmosisWallet := interchaintest.GetAndFundTestUsers(GinkgoT(), ctx, GinkgoT().Name(), startBalance, osmosis)[0].(*cosmos.CosmosWallet)
 
 		kyveChans, err := rel.GetChannels(ctx, eRep, kyve.Config().ChainID)
 		Expect(err).To(BeNil())

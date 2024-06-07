@@ -1,8 +1,11 @@
 package relayer_test
 
 import (
-	"cosmossdk.io/math"
 	"encoding/json"
+	"strconv"
+
+	"cosmossdk.io/math"
+
 	"github.com/KYVENetwork/chain/app"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
@@ -13,7 +16,6 @@ import (
 	"github.com/onsi/gomega/types"
 	"github.com/strangelove-ventures/interchaintest/v8"
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
-	"strconv"
 )
 
 const (
