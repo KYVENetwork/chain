@@ -36,7 +36,7 @@ func (k Keeper) FinalizedBundlesQuery(c context.Context, req *types.QueryFinaliz
 	}
 }
 
-func (k Keeper) FinalizedBundleQuery(c context.Context, req *types.QueryFinalizedBundleRequest) (*types.FinalizedBundle, error) {
+func (k Keeper) FinalizedBundleQuery(c context.Context, req *types.QueryFinalizedBundleRequest) (*types.QueryFinalizedBundleResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
@@ -48,6 +48,6 @@ func (k Keeper) FinalizedBundleQuery(c context.Context, req *types.QueryFinalize
 	}
 
 	versionMap := k.bundleKeeper.GetBundleVersionMap(ctx).GetMap()
-	response := bundlesKeeper.RawBundleToQueryBundle(finalizedBundle, versionMap)
+	response := bundlesKeeper.RawBundleToQueryBundleResponse(finalizedBundle, versionMap)
 	return &response, nil
 }

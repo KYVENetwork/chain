@@ -147,7 +147,8 @@ func PerformUpgrade(
 
 	upgrade, proposalErr := chain.SubmitProposal(ctx, wallet.KeyName(), generateUpgradeProposal(chain, haltHeight))
 	Expect(proposalErr).To(BeNil())
-	voteErr := chain.VoteOnProposalAllValidators(ctx, upgrade.ProposalID, cosmos.ProposalVoteYes)
+	proposalId, _ := strconv.ParseUint(upgrade.ProposalID, 10, 64)
+	voteErr := chain.VoteOnProposalAllValidators(ctx, proposalId, cosmos.ProposalVoteYes)
 	Expect(voteErr).To(BeNil())
 
 	proposalId, err := strconv.ParseUint(upgrade.ProposalID, 10, 64)
