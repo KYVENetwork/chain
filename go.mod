@@ -371,6 +371,8 @@ require (
 replace (
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
+	// use patched cometbft version
+	github.com/cometbft/cometbft => github.com/KYVENetwork/cometbft v0.38.7-kyve-rpc-fix-rc0
 	// use kyve flavored cosmos/cosmos-sdk
 	github.com/cosmos/cosmos-sdk => github.com/KYVENetwork/cosmos-sdk v0.50.7-kyve-rc0
 	// Fix upstream GHSA-h395-qcrw-5vmq and GHSA-3vp4-m3rf-835h vulnerabilities.
