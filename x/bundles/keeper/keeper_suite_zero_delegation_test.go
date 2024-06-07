@@ -62,7 +62,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 		s.RunTxPoolSuccess(msg)
 
 		params := funderstypes.DefaultParams()
-		params.CoinWhitelist[0].MinFundingAmountPerBundle = amountPerBundle
+		params.CoinWhitelist[0].MinFundingAmountPerBundle = math.NewIntFromUint64(amountPerBundle)
 		s.App().FundersKeeper.SetParams(s.Ctx(), params)
 
 		// create funders

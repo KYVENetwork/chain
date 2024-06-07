@@ -28,6 +28,7 @@ TEST CASES - valid bundles
 * Produce a valid bundle with multiple validators, multiple coins and no foreign delegations
 * Produce a valid bundle with multiple validators, multiple coins which are not enough for the storage reward and no foreign delegations
 * Produce a valid bundle with multiple validator, multiple coins and no foreign delegations where one coin is removed from the whitelist
+* Produce a valid bundle with multiple validators, multiple coins and real world values
 
 */
 
@@ -36,7 +37,6 @@ var _ = Describe("valid bundles", Ordered, func() {
 	var initialBalanceStaker0, initialBalanceValaddress0, initialBalanceStaker1, initialBalanceValaddress1, initialBalanceStaker2, initialBalanceValaddress2 sdk.Coins
 
 	amountPerBundle := int64(10_000)
-
 	BeforeEach(func() {
 		// init new clean chain
 		s = i.NewCleanChain()
@@ -85,26 +85,26 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s.App().FundersKeeper.SetParams(s.Ctx(), fundersTypes.NewParams([]*fundersTypes.WhitelistCoinEntry{
 			{
 				CoinDenom:                 globalTypes.Denom,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewInt(amountPerBundle),
 				CoinWeight:                math.LegacyNewDec(1),
 			},
 			{
 				CoinDenom:                 i.A_DENOM,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewInt(amountPerBundle),
 				CoinWeight:                math.LegacyNewDec(1),
 			},
 			{
 				CoinDenom:                 i.B_DENOM,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewInt(amountPerBundle),
 				CoinWeight:                math.LegacyNewDec(2),
 			},
 			{
 				CoinDenom:                 i.C_DENOM,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewInt(amountPerBundle),
 				CoinWeight:                math.LegacyNewDec(3),
 			},
 		}, 0))
@@ -1115,7 +1115,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 
-	It("Produce a valid bundle with multiple validators, multiple coins which are not enough for the storage reward and no foreign delegations", func() {
+	It("Produce a valid bundle with multiple validators, multiple coins and no foreign delegations", func() {
 		// ARRANGE
 		// fund additionally to the already funded 100acoins
 		s.RunTxPoolSuccess(&fundersTypes.MsgFundPool{
@@ -1263,26 +1263,26 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s.App().FundersKeeper.SetParams(s.Ctx(), fundersTypes.NewParams([]*fundersTypes.WhitelistCoinEntry{
 			{
 				CoinDenom:                 globalTypes.Denom,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewInt(amountPerBundle),
 				CoinWeight:                math.LegacyNewDec(1),
 			},
 			{
 				CoinDenom:                 i.A_DENOM,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewInt(amountPerBundle),
 				CoinWeight:                math.LegacyNewDec(1),
 			},
 			{
 				CoinDenom:                 i.B_DENOM,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewInt(amountPerBundle),
 				CoinWeight:                math.LegacyNewDec(2),
 			},
 			{
 				CoinDenom:                 i.C_DENOM,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewInt(amountPerBundle),
 				CoinWeight:                math.LegacyMustNewDecFromStr("0.0000001"),
 			},
 		}, 0))
@@ -1440,20 +1440,20 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s.App().FundersKeeper.SetParams(s.Ctx(), fundersTypes.NewParams([]*fundersTypes.WhitelistCoinEntry{
 			{
 				CoinDenom:                 globalTypes.Denom,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewInt(amountPerBundle),
 				CoinWeight:                math.LegacyNewDec(1),
 			},
 			{
 				CoinDenom:                 i.A_DENOM,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewInt(amountPerBundle),
 				CoinWeight:                math.LegacyNewDec(1),
 			},
 			{
 				CoinDenom:                 i.B_DENOM,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: uint64(amountPerBundle),
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewInt(amountPerBundle),
 				CoinWeight:                math.LegacyNewDec(2),
 			},
 		}, 0))
@@ -1588,6 +1588,204 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(sdk.NewCoins(i.ACoin(100*i.T_KYVE-amountPerBundle), i.BCoin(100*i.T_KYVE-amountPerBundle), i.CCoin(100*i.T_KYVE)).String()))
+		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
+	})
+
+	It("Produce a valid bundle with multiple validators, multiple coins and real world values", func() {
+		// ARRANGE
+		// prices are from the 06/06/24
+
+		// Irys: https://node1.bundlr.network/price/1048576 -> 1048 winston/byte * 40 USD/AR * 1.5 / 10**12
+		bundleParams := s.App().BundlesKeeper.GetParams(s.Ctx())
+		bundleParams.StorageCosts = []bundletypes.StorageCost{
+			{StorageProviderId: 1, Cost: math.LegacyMustNewDecFromStr("0.000000006288")},
+		}
+		s.App().BundlesKeeper.SetParams(s.Ctx(), bundleParams)
+
+		// tkyve -> $KYVE
+		// acoin -> $TIA
+		// bcoin -> $ARCH
+		// ccoin -> $OSMO
+		s.App().FundersKeeper.SetParams(s.Ctx(), fundersTypes.NewParams([]*fundersTypes.WhitelistCoinEntry{
+			{
+				CoinDenom:                 globalTypes.Denom,
+				CoinDecimals:              9,
+				MinFundingAmount:          math.NewIntFromUint64(100_000_000_000), // 100 $KYVE
+				MinFundingAmountPerBundle: math.NewInt(100_000_000),               // 0.1 $KYVE
+				CoinWeight:                math.LegacyMustNewDecFromStr("0.055"),  // 0.055 $USD
+			},
+			{
+				CoinDenom:                 i.A_DENOM,
+				CoinDecimals:              6,
+				MinFundingAmount:          math.NewIntFromUint64(100_000_000),    // 100 $TIA
+				MinFundingAmountPerBundle: math.NewInt(100_000),                  // 0.1 $TIA
+				CoinWeight:                math.LegacyMustNewDecFromStr("10.33"), // 10.33 $USD
+			},
+			{
+				CoinDenom:                 i.B_DENOM,
+				CoinDecimals:              18,
+				MinFundingAmount:          s.MustNewIntFromStr("100000000000000000000"), // 100 $ARCH
+				MinFundingAmountPerBundle: s.MustNewIntFromStr("100000000000000000"),    // 0.1 $ARCH
+				CoinWeight:                math.LegacyMustNewDecFromStr("0.084"),        // 0.084 $USD
+			},
+			{
+				CoinDenom:                 i.C_DENOM,
+				CoinDecimals:              6,
+				MinFundingAmount:          math.NewIntFromUint64(100_000_000),   // 100 $OSMO
+				MinFundingAmountPerBundle: math.NewInt(100_000),                 // 0.1 $OSMO
+				CoinWeight:                math.LegacyMustNewDecFromStr("0.84"), // 0.84 $USD
+			},
+		}, 0))
+
+		// mint another 1,000 $ARCH to Alice
+		err := s.MintCoin(i.ALICE, sdk.NewCoin(i.B_DENOM, s.MustNewIntFromStr("1000000000000000000000")))
+		_ = err
+
+		// defund everything so we have a clean state
+		s.RunTxPoolSuccess(&fundersTypes.MsgDefundPool{
+			Creator: i.ALICE,
+			Amounts: i.ACoins(100 * i.T_KYVE),
+		})
+
+		// fund with every coin 100 units for amount and 1 for amount per bundle
+		s.RunTxPoolSuccess(&fundersTypes.MsgFundPool{
+			Creator:          i.ALICE,
+			Amounts:          sdk.NewCoins(i.KYVECoin(100_000_000_000), i.ACoin(100_000_000), sdk.NewCoin(i.B_DENOM, s.MustNewIntFromStr("100000000000000000000")), i.CCoin(100_000_000)),
+			AmountsPerBundle: sdk.NewCoins(i.KYVECoin(1_000_000_000), i.ACoin(1_000_000), sdk.NewCoin(i.B_DENOM, s.MustNewIntFromStr("1000000000000000000")), i.CCoin(1_000_000)),
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_0_A,
+			Staker:        i.STAKER_0,
+			PoolId:        0,
+			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			DataSize:      1048576, // 1MB
+			DataHash:      "test_hash",
+			FromIndex:     0,
+			BundleSize:    100,
+			FromKey:       "0",
+			ToKey:         "99",
+			BundleSummary: "test_value",
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_VALID,
+		})
+
+		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
+		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+
+		c1 := s.GetCoinsFromCommunityPool()
+
+		s.CommitAfterSeconds(60)
+
+		// ACT
+		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
+			Creator:       i.VALADDRESS_1_A,
+			Staker:        i.STAKER_1,
+			PoolId:        0,
+			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
+			DataSize:      100,
+			DataHash:      "test_hash2",
+			FromIndex:     100,
+			BundleSize:    100,
+			FromKey:       "100",
+			ToKey:         "199",
+			BundleSummary: "test_value2",
+		})
+
+		// ASSERT
+		// check if bundle got finalized on pool
+		pool, poolFound := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		Expect(poolFound).To(BeTrue())
+
+		Expect(pool.CurrentKey).To(Equal("99"))
+		Expect(pool.CurrentSummary).To(Equal("test_value"))
+		Expect(pool.CurrentIndex).To(Equal(uint64(100)))
+		Expect(pool.TotalBundles).To(Equal(uint64(1)))
+
+		// check if finalized bundle got saved
+		finalizedBundle, finalizedBundleFound := s.App().BundlesKeeper.GetFinalizedBundle(s.Ctx(), 0, 0)
+		Expect(finalizedBundleFound).To(BeTrue())
+
+		Expect(finalizedBundle.PoolId).To(Equal(uint64(0)))
+		Expect(finalizedBundle.StorageId).To(Equal("y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI"))
+		Expect(finalizedBundle.Uploader).To(Equal(i.STAKER_0))
+		Expect(finalizedBundle.FromIndex).To(Equal(uint64(0)))
+		Expect(finalizedBundle.ToIndex).To(Equal(uint64(100)))
+		Expect(finalizedBundle.FromKey).To(Equal("0"))
+		Expect(finalizedBundle.ToKey).To(Equal("99"))
+		Expect(finalizedBundle.BundleSummary).To(Equal("test_value"))
+		Expect(finalizedBundle.DataHash).To(Equal("test_hash"))
+		Expect(finalizedBundle.FinalizedAt).NotTo(BeZero())
+		Expect(finalizedBundle.StakeSecurity.ValidVotePower).To(Equal(200 * i.KYVE))
+		Expect(finalizedBundle.StakeSecurity.TotalVotePower).To(Equal(200 * i.KYVE))
+
+		// check if next bundle proposal got registered
+		bundleProposal, bundleProposalFound := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
+		Expect(bundleProposalFound).To(BeTrue())
+
+		Expect(bundleProposal.PoolId).To(Equal(uint64(0)))
+		Expect(bundleProposal.StorageId).To(Equal("P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg"))
+		Expect(bundleProposal.Uploader).To(Equal(i.STAKER_1))
+		Expect(bundleProposal.NextUploader).NotTo(BeEmpty())
+		Expect(bundleProposal.DataSize).To(Equal(uint64(100)))
+		Expect(bundleProposal.DataHash).To(Equal("test_hash2"))
+		Expect(bundleProposal.BundleSize).To(Equal(uint64(100)))
+		Expect(bundleProposal.FromKey).To(Equal("100"))
+		Expect(bundleProposal.ToKey).To(Equal("199"))
+		Expect(bundleProposal.BundleSummary).To(Equal("test_value2"))
+		Expect(bundleProposal.UpdatedAt).NotTo(BeZero())
+		Expect(bundleProposal.VotersValid).To(ContainElement(i.STAKER_1))
+		Expect(bundleProposal.VotersInvalid).To(BeEmpty())
+		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
+
+		// check uploader status
+		valaccountUploader, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		Expect(valaccountUploader.Points).To(BeZero())
+
+		balanceUploaderValaddress := s.GetCoinsFromAddress(valaccountUploader.Valaddress)
+		Expect(balanceUploaderValaddress).To(Equal(initialBalanceValaddress0))
+
+		// check voter status
+		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		Expect(valaccountVoter.Points).To(BeZero())
+
+		balanceVoterValaddress := s.GetCoinsFromAddress(valaccountVoter.Valaddress)
+		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
+
+		balanceVoter := s.GetCoinsFromAddress(valaccountVoter.Staker)
+		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
+
+		// check uploader rewards
+		uploader, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), valaccountUploader.Staker)
+		balanceUploader := s.GetCoinsFromAddress(valaccountUploader.Staker)
+
+		// assert payout transfer
+		Expect(balanceUploader.String()).To(Equal(initialBalanceStaker0.String()))
+		// assert commission rewards (here we round down since the result of commission rewards gets truncated)
+		// (amount_per_bundle - treasury_reward - storage_cost) * uploader_commission + storage_cost
+		// storage_cost = 1MB * storage_price / coin_length * coin_price
+		// (amount_per_bundle - (amount_per_bundle * 0.01) - _((1048576 * 0.000000006288 * 10**coin_decimals) / (4 * coin_weight))_) * 0.1 + _((1048576 * 0.000000006288) / (4 * coin_weight))_
+		Expect(uploader.CommissionRewards.String()).To(Equal(sdk.NewCoins(i.KYVECoin(125_973_187), i.ACoin(99_143), i.BCoin(116_661_015_771_428_571), i.CCoin(100_765)).String()))
+		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
+		// (amount_per_bundle - (amount_per_bundle * 0.01) - _((29970208 * 0.000000006288 * 1**coin_decimals) / (4 * coin_weight))_) * (1 - 0.1)
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(864_026_813), i.ACoin(890_857), i.BCoin(873_338_984_228_571_429), i.CCoin(889_235)).String()))
+
+		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
+
+		// assert treasury payout
+		c2 := s.GetCoinsFromCommunityPool()
+		Expect(c2.Sub(c1...).AmountOf(i.A_DENOM)).To(Equal(math.NewInt(10000)))
+		Expect(c2.Sub(c1...).AmountOf(i.B_DENOM)).To(Equal(math.NewInt(10000000000000000)))
+		Expect(c2.Sub(c1...).AmountOf(i.C_DENOM)).To(Equal(math.NewInt(10000)))
+
+		// assert total pool funds
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(sdk.NewCoins(i.KYVECoin(99_000_000_000), i.ACoin(99_000_000), sdk.NewCoin(i.B_DENOM, s.MustNewIntFromStr("99000000000000000000")), i.CCoin(99_000_000)).String()))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 })
