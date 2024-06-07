@@ -31,7 +31,6 @@ func TestProposalHandler(t *testing.T) {
 }
 
 var _ = Describe("x/global/abci.go - Endblocker", func() {
-
 	It("BurnRatio = 0.0", func() {
 		// ARRANGE
 		ctx := context.Background()
