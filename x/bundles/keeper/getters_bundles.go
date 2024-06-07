@@ -166,6 +166,43 @@ func RawBundleToQueryBundle(rawFinalizedBundle types.FinalizedBundle, versionMap
 	return finalizedBundle
 }
 
+func RawBundleToQueryBundleResponse(rawFinalizedBundle types.FinalizedBundle, versionMap map[int32]uint64) (queryBundle queryTypes.QueryFinalizedBundleResponse) {
+	finalizedHeight := cosmossdk_io_math.NewInt(int64(rawFinalizedBundle.FinalizedAt.Height))
+
+	finalizedBundle := queryTypes.QueryFinalizedBundleResponse{
+		PoolId:        rawFinalizedBundle.PoolId,
+		Id:            rawFinalizedBundle.Id,
+		StorageId:     rawFinalizedBundle.StorageId,
+		Uploader:      rawFinalizedBundle.Uploader,
+		FromIndex:     rawFinalizedBundle.FromIndex,
+		ToIndex:       rawFinalizedBundle.ToIndex,
+		ToKey:         rawFinalizedBundle.ToKey,
+		BundleSummary: rawFinalizedBundle.BundleSummary,
+		DataHash:      rawFinalizedBundle.DataHash,
+		FinalizedAt: &queryTypes.FinalizedAt{
+			Height:    &finalizedHeight,
+			Timestamp: time.Unix(int64(rawFinalizedBundle.FinalizedAt.Timestamp), 0).Format(time.RFC3339),
+		},
+		FromKey:           rawFinalizedBundle.FromKey,
+		StorageProviderId: uint64(rawFinalizedBundle.StorageProviderId),
+		CompressionId:     uint64(rawFinalizedBundle.CompressionId),
+		StakeSecurity: &queryTypes.StakeSecurity{
+			ValidVotePower: nil,
+			TotalVotePower: nil,
+		},
+	}
+
+	// Check for version 2
+	if rawFinalizedBundle.FinalizedAt.Height >= versionMap[2] {
+		validPower := cosmossdk_io_math.NewInt(int64(rawFinalizedBundle.StakeSecurity.ValidVotePower))
+		totalPower := cosmossdk_io_math.NewInt(int64(rawFinalizedBundle.StakeSecurity.TotalVotePower))
+		finalizedBundle.StakeSecurity.ValidVotePower = &validPower
+		finalizedBundle.StakeSecurity.TotalVotePower = &totalPower
+	}
+
+	return finalizedBundle
+}
+
 // GetPaginatedFinalizedBundleQuery parses a paginated request and builds a valid response out of the
 // raw finalized bundles. It uses the fact that the ID of a bundle increases incrementally (starting with 0)
 // and allows therefore for efficient queries using `offset`.

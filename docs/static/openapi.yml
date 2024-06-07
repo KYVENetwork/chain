@@ -3050,9 +3050,9 @@ paths:
                 title: >-
                   StakeSecurity represents the relative security of a finalized
                   bundle
-            title: >-
-              FinalizedBundle represents the latest version of a valid bundle of
-              a pool
+            description: >-
+              QueryFinalizedBundleResponse is the response type for the
+              Query/Staker RPC method.
         default:
           description: An unexpected error response.
           schema:

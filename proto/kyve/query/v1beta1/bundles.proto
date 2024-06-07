@@ -16,7 +16,7 @@ service QueryBundles {
   }
 
   // FinalizedBundle ...
-  rpc FinalizedBundleQuery(QueryFinalizedBundleRequest) returns (FinalizedBundle) {
+  rpc FinalizedBundleQuery(QueryFinalizedBundleRequest) returns (QueryFinalizedBundleResponse) {
     option (google.api.http).get = "/kyve/v1/bundles/{pool_id}/{id}";
   }
 
@@ -128,8 +128,35 @@ message QueryFinalizedBundleRequest {
 
 // QueryFinalizedBundleResponse is the response type for the Query/Staker RPC method.
 message QueryFinalizedBundleResponse {
-  // finalized_bundles ...
-  FinalizedBundle finalized_bundles = 1 [(gogoproto.nullable) = false];
+  // pool_id in which the bundle was created
+  uint64 pool_id = 1;
+  // id is is integrated with each valid bundle produced.
+  uint64 id = 2;
+  // storage_id is the id with which the data can be retrieved from the configured data provider
+  string storage_id = 3;
+  // uploader is the address of the staker who submitted this bundle
+  string uploader = 4;
+  // from_index is the index from where the bundle starts (inclusive)
+  uint64 from_index = 5;
+  // to_index is the index to which the bundle goes (exclusive)
+  uint64 to_index = 6;
+  // from_key is the key of the first data item in the bundle proposal
+  string from_key = 11;
+  // to_key the key of the last data item in the bundle
+  string to_key = 7;
+  // bundle_summary is a summary of the bundle.
+  string bundle_summary = 8;
+  // data_hash is a sha256 hash of the uploaded data.
+  string data_hash = 9;
+  // finalized_at contains details of the block that finalized this bundle.
+  FinalizedAt finalized_at = 10;
+  // storage_provider_id the id of the storage provider where the bundle is stored
+  uint64 storage_provider_id = 12;
+  // compression_id the id of the compression type with which the data was compressed
+  uint64 compression_id = 13;
+  // stake_security defines the amount of stake which was present in the pool during the finalization of the bundle.
+  // This field was added in schema version 2. Bundles finalized before that return `null`.
+  StakeSecurity stake_security = 14;
 }
 
 // ===============================
