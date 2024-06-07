@@ -4757,21 +4757,20 @@ paths:
                             min_funding_amount is the minimum required amount of
                             this denom that needs
 
-                            to be funded. this has to be an Int because else a
-                            coin with 18 decimals could
+                            to be funded. It is of type math.Int since a uint64
+                            is not sufficient for a
 
-                            only have a max value of 18
+                            coin with 18 decimals
                         min_funding_amount_per_bundle:
                           type: string
                           title: >-
                             min_funding_amount_per_bundle is the minimum
                             required amount of this denom
 
-                            that needs to be funded per bundle. this has to be
-                            an Int because else a
+                            that needs to be funded per bundle. It is of type
+                            math.Int since a uint64
 
-                            coin with 18 decimals could only have a max value of
-                            18
+                            is not sufficient for a coin with 18 decimals
                         coin_weight:
                           type: string
                           description: >-

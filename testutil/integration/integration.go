@@ -65,7 +65,7 @@ const (
 
 var (
 	KYVE_DENOM = globalTypes.Denom
-	A_DENOM    = "acoin"
+	A_DENOM    = "zcoin"
 	B_DENOM    = "bcoin"
 	C_DENOM    = "ccoin"
 )

@@ -37,7 +37,6 @@ var _ = Describe("valid bundles", Ordered, func() {
 	var initialBalanceStaker0, initialBalanceValaddress0, initialBalanceStaker1, initialBalanceValaddress1, initialBalanceStaker2, initialBalanceValaddress2 sdk.Coins
 
 	amountPerBundle := int64(10_000)
-
 	BeforeEach(func() {
 		// init new clean chain
 		s = i.NewCleanChain()

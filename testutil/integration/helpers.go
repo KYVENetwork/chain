@@ -2,12 +2,16 @@ package integration
 
 import (
 	"cosmossdk.io/math"
+	"fmt"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (suite *KeeperTestSuite) MustNewIntFromStr(amount string) math.Int {
-	result, _ := math.NewIntFromString(amount)
+	result, ok := math.NewIntFromString(amount)
+	if !ok {
+		panic(fmt.Sprintf("error parsing \"%s\" to math.Int", amount))
+	}
 	return result
 }
 

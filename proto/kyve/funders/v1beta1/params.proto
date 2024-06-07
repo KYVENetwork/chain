@@ -15,15 +15,15 @@ message WhitelistCoinEntry {
   // coin_decimals are the decimals of the coin
   uint32 coin_decimals = 2;
   // min_funding_amount is the minimum required amount of this denom that needs
-  // to be funded. this has to be an Int because else a coin with 18 decimals could
-  // only have a max value of 18
+  // to be funded. It is of type math.Int since a uint64 is not sufficient for a
+  // coin with 18 decimals
   string min_funding_amount = 3 [
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
   // min_funding_amount_per_bundle is the minimum required amount of this denom
-  // that needs to be funded per bundle. this has to be an Int because else a
-  // coin with 18 decimals could only have a max value of 18
+  // that needs to be funded per bundle. It is of type math.Int since a uint64
+  // is not sufficient for a coin with 18 decimals
   string min_funding_amount_per_bundle = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false

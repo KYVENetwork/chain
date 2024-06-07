@@ -33,12 +33,12 @@ type WhitelistCoinEntry struct {
 	// coin_decimals are the decimals of the coin
 	CoinDecimals uint32 `protobuf:"varint,2,opt,name=coin_decimals,json=coinDecimals,proto3" json:"coin_decimals,omitempty"`
 	// min_funding_amount is the minimum required amount of this denom that needs
-	// to be funded. this has to be an Int because else a coin with 18 decimals could
-	// only have a max value of 18
+	// to be funded. It is of type math.Int since a uint64 is not sufficient for a
+	// coin with 18 decimals
 	MinFundingAmount cosmossdk_io_math.Int `protobuf:"bytes,3,opt,name=min_funding_amount,json=minFundingAmount,proto3,customtype=cosmossdk.io/math.Int" json:"min_funding_amount"`
 	// min_funding_amount_per_bundle is the minimum required amount of this denom
-	// that needs to be funded per bundle. this has to be an Int because else a
-	// coin with 18 decimals could only have a max value of 18
+	// that needs to be funded per bundle. It is of type math.Int since a uint64
+	// is not sufficient for a coin with 18 decimals
 	MinFundingAmountPerBundle cosmossdk_io_math.Int `protobuf:"bytes,4,opt,name=min_funding_amount_per_bundle,json=minFundingAmountPerBundle,proto3,customtype=cosmossdk.io/math.Int" json:"min_funding_amount_per_bundle"`
 	// coin_weight is a factor used to sort funders after their funding amounts.
 	// This should be the market price of the coin in USD/coin. This value should be kept up-to-date.
