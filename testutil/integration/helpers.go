@@ -1,8 +1,10 @@
 package integration
 
 import (
-	"cosmossdk.io/math"
 	"fmt"
+
+	"cosmossdk.io/math"
+
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
