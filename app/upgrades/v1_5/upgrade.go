@@ -84,8 +84,8 @@ func MigrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, fundersStoreKey s
 		CoinWhitelist: []*fundersTypes.WhitelistCoinEntry{
 			{
 				CoinDenom:                 globalTypes.Denom,
-				MinFundingAmount:          oldParams.MinFundingAmount,
-				MinFundingAmountPerBundle: oldParams.MinFundingAmountPerBundle,
+				MinFundingAmount:          math.NewIntFromUint64(oldParams.MinFundingAmount),
+				MinFundingAmountPerBundle: math.NewIntFromUint64(oldParams.MinFundingAmountPerBundle),
 				CoinWeight:                math.LegacyMustNewDecFromStr("0.06"),
 			},
 		},

@@ -239,10 +239,10 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 	})
 
 	It("Payout rewards with multiple denoms", func() {
-		mintErr1 := s.MintDenomToModule(pooltypes.ModuleName, 1000*1_000_000, "acoin")
+		mintErr1 := s.MintDenomToModule(pooltypes.ModuleName, 1000*1_000_000, "zcoin")
 		Expect(mintErr1).To(BeNil())
 
-		mintErr2 := s.MintDenomToModule(pooltypes.ModuleName, 1000*1_000_000, "bcoin")
+		mintErr2 := s.MintDenomToModule(pooltypes.ModuleName, 1000*1_000_000, "ycoin")
 		Expect(mintErr2).To(BeNil())
 
 		// ARRANGE
@@ -275,8 +275,8 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 
 		// ACT
 		payoutCoins := sdk.NewCoins(
-			sdk.NewCoin("acoin", math.NewInt(10*1_000_000)),
-			sdk.NewCoin("bcoin", math.NewInt(5*1_000_000)),
+			sdk.NewCoin("zcoin", math.NewInt(10*1_000_000)),
+			sdk.NewCoin("ycoin", math.NewInt(5*1_000_000)),
 		)
 		PayoutRewards(s, i.ALICE, payoutCoins)
 
@@ -285,9 +285,9 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 
 		Expect(delegationModuleBalanceAfter).To(Equal(delegationModuleBalanceBefore.Add(payoutCoins...)))
 
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0]).String()).To(Equal("3333333acoin,1666666bcoin"))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1]).String()).To(Equal("3333333acoin,1666666bcoin"))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[2]).String()).To(Equal("3333333acoin,1666666bcoin"))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0]).String()).To(Equal("3333333zcoin,1666666ycoin"))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1]).String()).To(Equal("3333333zcoin,1666666ycoin"))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[2]).String()).To(Equal("3333333zcoin,1666666ycoin"))
 
 		s.RunTxDelegatorSuccess(&types.MsgWithdrawRewards{
 			Creator: i.DUMMY[0],
@@ -302,17 +302,17 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 			Staker:  i.ALICE,
 		})
 
-		Expect(s.GetCoinsFromAddress(i.DUMMY[0]).String()).To(Equal("1000003333333acoin,1000001666666bcoin,1000000000000ccoin,990000000000tkyve"))
-		Expect(s.GetCoinsFromAddress(i.DUMMY[1]).String()).To(Equal("1000003333333acoin,1000001666666bcoin,1000000000000ccoin,990000000000tkyve"))
-		Expect(s.GetCoinsFromAddress(i.DUMMY[2]).String()).To(Equal("1000003333333acoin,1000001666666bcoin,1000000000000ccoin,990000000000tkyve"))
-		Expect(s.GetCoinsFromModule(types.ModuleName).String()).To(Equal("1acoin,2bcoin,30000000000tkyve"))
+		Expect(s.GetCoinsFromAddress(i.DUMMY[0]).String()).To(Equal("1000003333333zcoin,1000001666666ycoin,1000000000000ccoin,990000000000tkyve"))
+		Expect(s.GetCoinsFromAddress(i.DUMMY[1]).String()).To(Equal("1000003333333zcoin,1000001666666ycoin,1000000000000ccoin,990000000000tkyve"))
+		Expect(s.GetCoinsFromAddress(i.DUMMY[2]).String()).To(Equal("1000003333333zcoin,1000001666666ycoin,1000000000000ccoin,990000000000tkyve"))
+		Expect(s.GetCoinsFromModule(types.ModuleName).String()).To(Equal("1zcoin,2ycoin,30000000000tkyve"))
 	})
 
 	It("Payout mixed rewards multiple times and multiple delegation steps", func() {
-		mintErr1 := s.MintDenomToModule(pooltypes.ModuleName, 1000*1_000_000, "acoin")
+		mintErr1 := s.MintDenomToModule(pooltypes.ModuleName, 1000*1_000_000, "zcoin")
 		Expect(mintErr1).To(BeNil())
 
-		mintErr2 := s.MintDenomToModule(pooltypes.ModuleName, 1000*1_000_000, "bcoin")
+		mintErr2 := s.MintDenomToModule(pooltypes.ModuleName, 1000*1_000_000, "ycoin")
 		Expect(mintErr2).To(BeNil())
 
 		mintErr3 := s.MintDenomToModule(pooltypes.ModuleName, 1000*1_000_000, "ccoin")
@@ -342,8 +342,8 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 
 		// ACT
 		payoutCoins1 := sdk.NewCoins(
-			sdk.NewCoin("acoin", math.NewInt(10*1_000_000)),
-			sdk.NewCoin("bcoin", math.NewInt(5*1_000_000)),
+			sdk.NewCoin("zcoin", math.NewInt(10*1_000_000)),
+			sdk.NewCoin("ycoin", math.NewInt(5*1_000_000)),
 		)
 		PayoutRewards(s, i.ALICE, payoutCoins1)
 
@@ -354,7 +354,7 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 		})
 
 		payoutCoins2 := sdk.NewCoins(
-			sdk.NewCoin("bcoin", math.NewInt(8*1_000_000)),
+			sdk.NewCoin("ycoin", math.NewInt(8*1_000_000)),
 			sdk.NewCoin("ccoin", math.NewInt(7*1_000_000)),
 		)
 		PayoutRewards(s, i.ALICE, payoutCoins2)
@@ -368,22 +368,22 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 
 		// Calculate outstanding rewards
 		// phase1:
-		//   reward: 10_000_000 acoin, 5_000_000 bcoin
+		//   reward: 10_000_000 zcoin, 5_000_000 ycoin
 		//   delegation_shares: d0: 20, d1: 5
-		//   => d0: 20/25 * 10_000_000 = 8_000_000 acoin; 20/25 * 5_000_000 = 4_000_000 bcoin
-		//   => d1: 5/25 * 10_000_000 = 2_000_000 acoin; 5/25 * 5_000_000 = 1_000_000 bcoin
+		//   => d0: 20/25 * 10_000_000 = 8_000_000 zcoin; 20/25 * 5_000_000 = 4_000_000 ycoin
+		//   => d1: 5/25 * 10_000_000 = 2_000_000 zcoin; 5/25 * 5_000_000 = 1_000_000 ycoin
 		// phase2:
-		//   reward: 8_000_000 bcoin, 7_000_000 ccoin
+		//   reward: 8_000_000 ycoin, 7_000_000 ccoin
 		//   delegation_shares: d0: 20, d1: 5 d2: 3
-		//   => d0: 20/28 * 8_000_000 = 5_714_285 bcoin; 20/28 * 7_000_000 = 5_000_000 ccoin
-		//   => d1: 5/28 * 8_000_000 = 1_428_571 bcoin; 5/28 * 7_000_000 = 1_250_000 ccoin
-		//   => d2: 3/28 * 8_000_000 = 857_142 bcoin; 3/28 * 7_000_000 = 750_000 ccoin
-		// SUM: d0: 8_000_000 acoin, 9_714_285 bcoin, 5_000_000 ccoin,
-		// SUM: d1: 2_000_000 acoin, 2_428_571 bcoin, 1_250_000 ccoin
-		// SUM: d2: 0 acoin, 857_142 bcoin, 750_000 ccoin
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0]).String()).To(Equal("8000000acoin,9714285bcoin,5000000ccoin"))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1]).String()).To(Equal("2000000acoin,2428571bcoin,1250000ccoin"))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[2]).String()).To(Equal("857142bcoin,750000ccoin"))
+		//   => d0: 20/28 * 8_000_000 = 5_714_285 ycoin; 20/28 * 7_000_000 = 5_000_000 ccoin
+		//   => d1: 5/28 * 8_000_000 = 1_428_571 ycoin; 5/28 * 7_000_000 = 1_250_000 ccoin
+		//   => d2: 3/28 * 8_000_000 = 857_142 ycoin; 3/28 * 7_000_000 = 750_000 ccoin
+		// SUM: d0: 8_000_000 zcoin, 9_714_285 ycoin, 5_000_000 ccoin,
+		// SUM: d1: 2_000_000 zcoin, 2_428_571 ycoin, 1_250_000 ccoin
+		// SUM: d2: 0 zcoin, 857_142 ycoin, 750_000 ccoin
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0]).String()).To(Equal("8000000zcoin,9714285ycoin,5000000ccoin"))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1]).String()).To(Equal("2000000zcoin,2428571ycoin,1250000ccoin"))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[2]).String()).To(Equal("857142ycoin,750000ccoin"))
 
 		s.RunTxDelegatorSuccess(&types.MsgWithdrawRewards{
 			Creator: i.DUMMY[0],
@@ -399,19 +399,19 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 		})
 
 		differenceDummy0, _ := s.GetCoinsFromAddress(i.DUMMY[0]).SafeSub(initialBalanceDummy[0]...)
-		Expect(differenceDummy0.String()).To(Equal("8000000acoin,9714285bcoin,5000000ccoin,-20000000000tkyve"))
+		Expect(differenceDummy0.String()).To(Equal("8000000zcoin,9714285ycoin,5000000ccoin,-20000000000tkyve"))
 		differenceDummy1, _ := s.GetCoinsFromAddress(i.DUMMY[1]).SafeSub(initialBalanceDummy[1]...)
-		Expect(differenceDummy1.String()).To(Equal("2000000acoin,2428571bcoin,1250000ccoin,-5000000000tkyve"))
+		Expect(differenceDummy1.String()).To(Equal("2000000zcoin,2428571ycoin,1250000ccoin,-5000000000tkyve"))
 		differenceDummy2, _ := s.GetCoinsFromAddress(i.DUMMY[2]).SafeSub(initialBalanceDummy[2]...)
-		Expect(differenceDummy2.String()).To(Equal("857142bcoin,750000ccoin,-3000000000tkyve"))
-		Expect(s.GetCoinsFromModule(types.ModuleName).String()).To(Equal("2bcoin,28000000000tkyve"))
+		Expect(differenceDummy2.String()).To(Equal("857142ycoin,750000ccoin,-3000000000tkyve"))
+		Expect(s.GetCoinsFromModule(types.ModuleName).String()).To(Equal("2ycoin,28000000000tkyve"))
 	})
 
 	It("Withdraw multiple denoms, one after the other", func() {
-		mintErr1 := s.MintDenomToModule(pooltypes.ModuleName, 1000*1_000_000, "acoin")
+		mintErr1 := s.MintDenomToModule(pooltypes.ModuleName, 1000*1_000_000, "zcoin")
 		Expect(mintErr1).To(BeNil())
 
-		mintErr2 := s.MintDenomToModule(pooltypes.ModuleName, 1000*1_000_000, "bcoin")
+		mintErr2 := s.MintDenomToModule(pooltypes.ModuleName, 1000*1_000_000, "ycoin")
 		Expect(mintErr2).To(BeNil())
 
 		// ARRANGE
@@ -438,7 +438,7 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 
 		// ACT
 		payoutCoins1 := sdk.NewCoins(
-			sdk.NewCoin("acoin", math.NewInt(10*1_000_000)),
+			sdk.NewCoin("zcoin", math.NewInt(10*1_000_000)),
 		)
 		PayoutRewards(s, i.ALICE, payoutCoins1)
 
@@ -454,7 +454,7 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 		})
 
 		payoutCoins2 := sdk.NewCoins(
-			sdk.NewCoin("bcoin", math.NewInt(8*1_000_000)),
+			sdk.NewCoin("ycoin", math.NewInt(8*1_000_000)),
 		)
 		PayoutRewards(s, i.ALICE, payoutCoins2)
 
@@ -469,37 +469,37 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 		compare := delegationModuleBalanceBefore.Add(payoutCoins1...)
 		compare = compare.Add(payoutCoins2...)
 		compare = compare.Add(sdk.NewInt64Coin(globalTypes.Denom, int64(10*i.KYVE)))
-		compare = compare.Sub(sdk.NewInt64Coin("acoin", 8_000_000))
-		compare = compare.Sub(sdk.NewInt64Coin("bcoin", 2_285_714))
+		compare = compare.Sub(sdk.NewInt64Coin("zcoin", 8_000_000))
+		compare = compare.Sub(sdk.NewInt64Coin("ycoin", 2_285_714))
 		Expect(delegationModuleBalanceAfter).To(Equal(compare))
 
 		// Calculate outstanding rewards
 		// phase1:
-		//   reward: 10_000_000 acoin
+		//   reward: 10_000_000 zcoin
 		//   delegation_shares: d0: 20, d1: 5
-		//   => d0: 20/25 * 10_000_000 = 8_000_000 acoin
-		//   => d1: 5/25 * 10_000_000 = 2_000_000 acoin
-		// d0: withdraw rewards (-8_000_000 acoin)
+		//   => d0: 20/25 * 10_000_000 = 8_000_000 zcoin
+		//   => d1: 5/25 * 10_000_000 = 2_000_000 zcoin
+		// d0: withdraw rewards (-8_000_000 zcoin)
 		// phase2:
-		//   reward: 8_000_000 bcoin
+		//   reward: 8_000_000 ycoin
 		//   delegation_shares: d0: 20, d1: 5 d2: 10
-		//   => d0: 20/35 * 8_000_000 = 4_571_428 bcoin
-		//   => d1: 5/35 * 8_000_000 = 1_142_857 bcoin
-		//   => d2: 10/35 * 8_000_000 = 2_285_714 bcoin
-		// d2: withdraw rewards (-2_285_714 bcoin)
-		// SUM: d0: 4_571_428 bcoin
-		// SUM: d1: 2_000_000 acoin, 1_142_857 bcoin
+		//   => d0: 20/35 * 8_000_000 = 4_571_428 ycoin
+		//   => d1: 5/35 * 8_000_000 = 1_142_857 ycoin
+		//   => d2: 10/35 * 8_000_000 = 2_285_714 ycoin
+		// d2: withdraw rewards (-2_285_714 ycoin)
+		// SUM: d0: 4_571_428 ycoin
+		// SUM: d1: 2_000_000 zcoin, 1_142_857 ycoin
 		// SUM: d2: 0
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0]).String()).To(Equal("4571428bcoin"))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1]).String()).To(Equal("2000000acoin,1142857bcoin"))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[0]).String()).To(Equal("4571428ycoin"))
+		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[1]).String()).To(Equal("2000000zcoin,1142857ycoin"))
 		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.ALICE, i.DUMMY[2]).String()).To(Equal(""))
 
 		differenceDummy0, _ := s.GetCoinsFromAddress(i.DUMMY[0]).SafeSub(initialBalanceDummy[0]...)
-		Expect(differenceDummy0.String()).To(Equal("8000000acoin,-20000000000tkyve"))
+		Expect(differenceDummy0.String()).To(Equal("8000000zcoin,-20000000000tkyve"))
 		differenceDummy1, _ := s.GetCoinsFromAddress(i.DUMMY[1]).SafeSub(initialBalanceDummy[1]...)
 		Expect(differenceDummy1.String()).To(Equal("-5000000000tkyve"))
 		differenceDummy2, _ := s.GetCoinsFromAddress(i.DUMMY[2]).SafeSub(initialBalanceDummy[2]...)
-		Expect(differenceDummy2.String()).To(Equal("2285714bcoin,-10000000000tkyve"))
-		Expect(s.GetCoinsFromModule(types.ModuleName).String()).To(Equal("2000000acoin,5714286bcoin,35000000000tkyve"))
+		Expect(differenceDummy2.String()).To(Equal("2285714ycoin,-10000000000tkyve"))
+		Expect(s.GetCoinsFromModule(types.ModuleName).String()).To(Equal("2000000zcoin,5714286ycoin,35000000000tkyve"))
 	})
 })

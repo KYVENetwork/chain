@@ -40,26 +40,26 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		s.App().FundersKeeper.SetParams(s.Ctx(), types.NewParams([]*types.WhitelistCoinEntry{
 			{
 				CoinDenom:                 globaltypes.Denom,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: 1 * i.KYVE,
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewIntFromUint64(1 * i.KYVE),
 				CoinWeight:                math.LegacyNewDec(1),
 			},
 			{
 				CoinDenom:                 i.A_DENOM,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: 1 * i.KYVE,
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewIntFromUint64(1 * i.KYVE),
 				CoinWeight:                math.LegacyNewDec(1),
 			},
 			{
 				CoinDenom:                 i.B_DENOM,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: 1 * i.KYVE,
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewIntFromUint64(1 * i.KYVE),
 				CoinWeight:                math.LegacyNewDec(2),
 			},
 			{
 				CoinDenom:                 i.C_DENOM,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: 1 * i.KYVE,
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewIntFromUint64(1 * i.KYVE),
 				CoinWeight:                math.LegacyNewDec(3),
 			},
 		}, 20))
@@ -139,14 +139,14 @@ var _ = Describe("logic_funders.go", Ordered, func() {
 		s.App().FundersKeeper.SetParams(s.Ctx(), types.NewParams([]*types.WhitelistCoinEntry{
 			{
 				CoinDenom:                 globaltypes.Denom,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: 1 * i.KYVE,
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewIntFromUint64(1 * i.KYVE),
 				CoinWeight:                math.LegacyNewDec(1),
 			},
 			{
 				CoinDenom:                 i.A_DENOM,
-				MinFundingAmount:          10 * i.KYVE,
-				MinFundingAmountPerBundle: 1 * i.KYVE,
+				MinFundingAmount:          math.NewIntFromUint64(10 * i.KYVE),
+				MinFundingAmountPerBundle: math.NewIntFromUint64(1 * i.KYVE),
 				CoinWeight:                math.LegacyNewDec(1),
 			},
 		}, 20))

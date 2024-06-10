@@ -62,7 +62,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		})
 
 		params := funderstypes.DefaultParams()
-		params.CoinWhitelist[0].MinFundingAmountPerBundle = 10_000
+		params.CoinWhitelist[0].MinFundingAmountPerBundle = math.NewInt(10_000)
 		s.App().FundersKeeper.SetParams(s.Ctx(), params)
 
 		s.RunTxFundersSuccess(&funderstypes.MsgFundPool{
