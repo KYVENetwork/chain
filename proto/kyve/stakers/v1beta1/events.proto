@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package kyve.stakers.v1beta1;
 
-import "amino/amino.proto";
-import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "kyve/stakers/v1beta1/params.proto";
 
@@ -68,12 +66,8 @@ message EventUpdateCommission {
 message EventClaimCommissionRewards {
   // staker is the account address of the protocol node.
   string staker = 1;
-  // amount is the amount of the commission rewards claimed
-  repeated cosmos.base.v1beta1.Coin amount = 2 [
-    (gogoproto.nullable) = false,
-    (amino.dont_omitempty) = true,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
+  // amounts is the amount of the commission rewards claimed
+  string amounts = 2;
 }
 
 // EventJoinPool ...

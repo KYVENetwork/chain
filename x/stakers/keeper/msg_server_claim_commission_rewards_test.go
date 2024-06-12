@@ -225,7 +225,7 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		// ACT
 		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
 			Creator: i.STAKER_2,
-			Amount:  i.KYVECoins(1),
+			Amounts: i.KYVECoins(1),
 		})
 
 		// ASSERT
@@ -246,7 +246,7 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		// ACT
 		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
 			Creator: i.STAKER_1,
-			Amount:  uploader.CommissionRewards.Add(i.KYVECoin(1)),
+			Amounts: uploader.CommissionRewards.Add(i.KYVECoin(1)),
 		})
 
 		// ASSERT
@@ -268,7 +268,7 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		// ACT
 		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
 			Creator: i.STAKER_0,
-			Amount:  sdk.NewCoins(),
+			Amounts: sdk.NewCoins(),
 		})
 
 		// ASSERT
@@ -289,7 +289,7 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakertypes.MsgClaimCommissionRewards{
 			Creator: i.STAKER_0,
-			Amount:  i.KYVECoins(100),
+			Amounts: i.KYVECoins(100),
 		})
 
 		// ASSERT
@@ -303,7 +303,7 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		// ARRANGE
 		s.RunTxStakersSuccess(&stakertypes.MsgClaimCommissionRewards{
 			Creator: i.STAKER_0,
-			Amount:  i.KYVECoins(100),
+			Amounts: i.KYVECoins(100),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
@@ -360,7 +360,7 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		// ACT
 		s.RunTxSuccess(&stakertypes.MsgClaimCommissionRewards{
 			Creator: i.STAKER_0,
-			Amount:  i.KYVECoins(200),
+			Amounts: i.KYVECoins(200),
 		})
 
 		// ASSERT
@@ -378,7 +378,7 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		// ACT
 		s.RunTxSuccess(&stakertypes.MsgClaimCommissionRewards{
 			Creator: i.STAKER_0,
-			Amount:  uploader.CommissionRewards,
+			Amounts: uploader.CommissionRewards,
 		})
 
 		// ASSERT
@@ -451,7 +451,7 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		// ACT
 		s.RunTxSuccess(&stakertypes.MsgClaimCommissionRewards{
 			Creator: i.STAKER_0,
-			Amount:  sdk.NewCoins(i.KYVECoin(100), i.ACoin(200), i.BCoin(300)),
+			Amounts: sdk.NewCoins(i.KYVECoin(100), i.ACoin(200), i.BCoin(300)),
 		})
 
 		// ASSERT
@@ -527,7 +527,7 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		// ACT
 		s.RunTxSuccess(&stakertypes.MsgClaimCommissionRewards{
 			Creator: i.STAKER_0,
-			Amount:  sdk.NewCoins(rewardsBCoin),
+			Amounts: sdk.NewCoins(rewardsBCoin),
 		})
 
 		// ASSERT
@@ -603,7 +603,7 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		// ACT
 		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
 			Creator: i.STAKER_0,
-			Amount:  sdk.NewCoins(i.KYVECoin(100), i.ACoin(200), rewardsBCoin.Add(i.BCoin(1))),
+			Amounts: sdk.NewCoins(i.KYVECoin(100), i.ACoin(200), rewardsBCoin.Add(i.BCoin(1))),
 		})
 
 		// ASSERT
@@ -679,7 +679,7 @@ var _ = Describe("msg_server_claim_commission_rewards.go", Ordered, func() {
 		// ACT
 		_, err := s.RunTx(&stakertypes.MsgClaimCommissionRewards{
 			Creator: i.STAKER_0,
-			Amount:  sdk.NewCoins(i.KYVECoin(100), i.ACoin(200), i.CCoin(300)),
+			Amounts: sdk.NewCoins(i.KYVECoin(100), i.ACoin(200), i.CCoin(300)),
 		})
 
 		// ASSERT

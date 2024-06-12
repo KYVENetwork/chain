@@ -21,23 +21,23 @@ func (k msgServer) ClaimCommissionRewards(goCtx context.Context, msg *types.MsgC
 	}
 
 	// Check if amount can be claimed
-	if !msg.Amount.IsAllLTE(staker.CommissionRewards) {
+	if !msg.Amounts.IsAllLTE(staker.CommissionRewards) {
 		return nil, types.ErrNotEnoughRewards
 	}
 
 	// send commission rewards from stakers module to claimer
 	recipient := sdk.MustAccAddressFromBech32(msg.Creator)
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, msg.Amount); err != nil {
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, msg.Amounts); err != nil {
 		return nil, err
 	}
 
 	// calculate new commission rewards and save
-	staker.CommissionRewards = staker.CommissionRewards.Sub(msg.Amount...)
+	staker.CommissionRewards = staker.CommissionRewards.Sub(msg.Amounts...)
 	k.setStaker(ctx, staker)
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventClaimCommissionRewards{
-		Staker: msg.Creator,
-		Amount: msg.Amount,
+		Staker:  msg.Creator,
+		Amounts: msg.Amounts.String(),
 	})
 
 	return &types.MsgClaimCommissionRewardsResponse{}, nil

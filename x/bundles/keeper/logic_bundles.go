@@ -419,16 +419,17 @@ func (k Keeper) finalizeCurrentBundleProposal(ctx sdk.Context, poolId uint64, vo
 		Abstain:                   voteDistribution.Abstain,
 		Total:                     voteDistribution.Total,
 		Status:                    voteDistribution.Status,
-		FundersPayout:             fundersPayout,
+		FundersPayout:             fundersPayout.String(),
 		InflationPayout:           inflationPayout,
-		RewardTreasury:            bundleReward.Treasury,
-		RewardUploaderCommission:  bundleReward.UploaderCommission,
-		RewardUploaderStorageCost: bundleReward.UploaderStorageCost,
-		RewardDelegation:          bundleReward.Delegation,
-		RewardTotal:               bundleReward.Total,
+		RewardTreasury:            bundleReward.Treasury.String(),
+		RewardUploader:            bundleReward.UploaderCommission.Add(bundleReward.UploaderStorageCost...).String(),
+		RewardDelegation:          bundleReward.Delegation.String(),
+		RewardTotal:               bundleReward.Total.String(),
 		FinalizedAt:               uint64(ctx.BlockTime().Unix()),
 		Uploader:                  bundleProposal.Uploader,
 		NextUploader:              nextUploader,
+		RewardUploaderCommission:  bundleReward.UploaderCommission.String(),
+		RewardUploaderStorageCost: bundleReward.UploaderStorageCost.String(),
 	})
 
 	// Finalize the proposal, saving useful information.

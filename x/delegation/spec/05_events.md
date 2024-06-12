@@ -72,4 +72,4 @@ message EventStartUndelegation {
 |------------------------|---------------|--------------------|
 | `EventWithdrawRewards` | address       | {delegatorAddress} |
 | `EventWithdrawRewards` | staker        | {stakerAddress}    |
-| `EventWithdrawRewards` | amount        | {amount}           |
+| `EventWithdrawRewards` | amounts       | {amounts}          |

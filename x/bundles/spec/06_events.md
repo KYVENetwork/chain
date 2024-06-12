@@ -94,24 +94,30 @@ message EventBundleFinalized {
   uint64 total = 6;
   // status of the finalized bundle
   BundleStatus status = 7;
-  // amount which funders provided to the total bundle reward (in ukyve)
-  uint64 funders_payout = 8;
+  // amount which funders provided to the total bundle reward
+  string funders_payout = 8;
   // amount which the inflation pool provided to the total reward (in ukyve)
   uint64 inflation_payout = 9;
-  // rewards transferred to treasury (in ukyve)
-  uint64 reward_treasury = 10;
-  // rewardUploader rewards directly transferred to uploader (in ukyve)
-  uint64 reward_uploader = 11;
-  // rewardDelegation rewards distributed among all delegators (in ukyve)
-  uint64 reward_delegation = 12;
+  // rewards transferred to treasury
+  string reward_treasury = 10;
+  // reward_uploader are the total rewards (commission + storage cost)
+  // the uploader received
+  string reward_uploader = 11;
+  // rewardDelegation rewards distributed among all delegators
+  string reward_delegation = 12;
   // rewardTotal the total bundle reward
-  uint64 reward_total = 13;
+  string reward_total = 13;
   // finalized_at the block height where the bundle got finalized
   uint64 finalized_at = 14;
   // uploader the address of the uploader of this bundle
   string uploader = 15;
   // next_uploader the address of the next uploader after this bundle
   string next_uploader = 16;
+  // reward_uploader_storage_cost are the storage cost rewards for the uploader
+  string reward_uploader_storage_cost = 17;
+  // reward_uploader_commission are the commission rewards of the uploader.
+  // if the uploader has no delegations the delegation rewards are included here
+  string reward_uploader_commission = 18;
 }
 ```
 

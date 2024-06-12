@@ -231,7 +231,7 @@ func (k Keeper) ensureFreeSlot(ctx sdk.Context, newFunding *types.Funding, fundi
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventDefundPool{
 		PoolId:  fundingState.PoolId,
 		Address: lowestFunding.FunderAddress,
-		Amounts: lowestFunding.Amounts,
+		Amounts: lowestFunding.Amounts.String(),
 	})
 
 	return nil
