@@ -29,6 +29,7 @@ An '!' indicates a state machine breaking change.
 
 ### Improvements
 
+- ! (deps) [#198](https://github.com/KYVENetwork/chain/pull/198) Bump ibc version to v8.3.1.
 - (deps) [#197](https://github.com/KYVENetwork/chain/pull/197) Bump to CosmosSDK v0.50.7
 - ! (`x/pool`) [#190](https://github.com/KYVENetwork/chain/pull/190) Make inflation-share-weight a decimal.
 - [#182](https://github.com/KYVENetwork/chain/pull/182) Make release builds reproducible.
