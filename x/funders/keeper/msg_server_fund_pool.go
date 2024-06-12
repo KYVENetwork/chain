@@ -88,8 +88,8 @@ func (k msgServer) FundPool(goCtx context.Context, msg *types.MsgFundPool) (*typ
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventFundPool{
 		PoolId:           msg.PoolId,
 		Address:          msg.Creator,
-		Amounts:          msg.Amounts,
-		AmountsPerBundle: msg.AmountsPerBundle,
+		Amounts:          msg.Amounts.String(),
+		AmountsPerBundle: msg.AmountsPerBundle.String(),
 	})
 
 	return &types.MsgFundPoolResponse{}, nil

@@ -36,8 +36,8 @@ func (k msgServer) ClaimCommissionRewards(goCtx context.Context, msg *types.MsgC
 	k.setStaker(ctx, staker)
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventClaimCommissionRewards{
-		Staker: msg.Creator,
-		Amount: msg.Amount,
+		Staker:  msg.Creator,
+		Amounts: msg.Amount.String(),
 	})
 
 	return &types.MsgClaimCommissionRewardsResponse{}, nil

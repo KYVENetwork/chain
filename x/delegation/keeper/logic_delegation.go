@@ -73,7 +73,7 @@ func (k Keeper) performWithdrawal(ctx sdk.Context, stakerAddress, delegatorAddre
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventWithdrawRewards{
 		Address: delegatorAddress,
 		Staker:  stakerAddress,
-		Amount:  reward,
+		Amounts: reward.String(),
 	})
 
 	return reward, nil
