@@ -89,8 +89,8 @@ message MsgClaimCommissionRewards {
   option (cosmos.msg.v1.signer) = "creator";
   // creator ...
   string creator = 1;
-  // amount ...
-  repeated cosmos.base.v1beta1.Coin amount = 2 [
+  // amounts ...
+  repeated cosmos.base.v1beta1.Coin amounts = 2 [
     (gogoproto.nullable) = false,
     (amino.dont_omitempty) = true,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"

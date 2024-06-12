@@ -27,7 +27,7 @@ func CmdClaimCommissionRewards() *cobra.Command {
 
 			msg := types.MsgClaimCommissionRewards{
 				Creator: clientCtx.GetFromAddress().String(),
-				Amount:  argAmount,
+				Amounts: argAmount,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {
