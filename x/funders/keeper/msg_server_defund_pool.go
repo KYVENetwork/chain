@@ -61,7 +61,7 @@ func (k msgServer) DefundPool(goCtx context.Context, msg *types.MsgDefundPool) (
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventDefundPool{
 		PoolId:  msg.PoolId,
 		Address: msg.Creator,
-		Amounts: defundAmounts,
+		Amounts: defundAmounts.String(),
 	})
 
 	return &types.MsgDefundPoolResponse{}, nil

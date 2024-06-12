@@ -73,17 +73,9 @@ message EventFundPool {
   // address is the account address of the pool funder.
   string address = 2;
   // amounts is a list of coins the funder has funded
-  repeated cosmos.base.v1beta1.Coin amounts = 3 [
-    (gogoproto.nullable)     = false,
-    (amino.dont_omitempty)   = true,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
+  string amounts = 3;
   // amounts_per_bundle is a list of coins the funder wants to distribute per finalized bundle
-  repeated cosmos.base.v1beta1.Coin amounts_per_bundle = 4 [
-    (gogoproto.nullable)     = false,
-    (amino.dont_omitempty)   = true,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
+  string amounts_per_bundle = 4;
 }
 ```
 
@@ -104,11 +96,7 @@ message EventDefundPool {
   // address is the account address of the pool funder.
   string address = 2;
   // amounts is a list of coins that the funder wants to defund
-  repeated cosmos.base.v1beta1.Coin amounts = 3 [
-    (gogoproto.nullable)     = false,
-    (amino.dont_omitempty)   = true,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
+  string amounts = 3;
 }
 ```
 
