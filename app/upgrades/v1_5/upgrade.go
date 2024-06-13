@@ -2,10 +2,15 @@ package v1_5
 
 import (
 	"context"
+	"cosmossdk.io/log"
+	"cosmossdk.io/store/prefix"
+	"encoding/hex"
 	"fmt"
-
+	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/gov"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
+	govKeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	govTypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/bundles"
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/delegation"
@@ -37,14 +42,41 @@ const (
 	UpgradeName = "v1.5.0"
 )
 
-func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, cdc codec.Codec, storeKeys []storetypes.StoreKey, bundlesKeeper bundlesKeeper.Keeper, delegationKeeper delegationKeeper.Keeper, fundersKeeper fundersKeeper.Keeper, stakersKeeper *stakersKeeper.Keeper, poolKeeper *poolKeeper.Keeper) upgradetypes.UpgradeHandler {
+var logger log.Logger
+
+// MustGetStoreKey is a helper to directly access the KV-Store
+func MustGetStoreKey(storeKeys []storetypes.StoreKey, storeName string) storetypes.StoreKey {
+	for _, k := range storeKeys {
+		if k.Name() == storeName {
+			return k
+		}
+	}
+
+	panic(fmt.Sprintf("failed to find store key: %s", fundersTypes.StoreKey))
+}
+
+func CreateUpgradeHandler(
+	mm *module.Manager,
+	configurator module.Configurator,
+	cdc codec.Codec,
+	storeKeys []storetypes.StoreKey,
+	bundlesKeeper bundlesKeeper.Keeper,
+	delegationKeeper delegationKeeper.Keeper,
+	fundersKeeper fundersKeeper.Keeper,
+	stakersKeeper *stakersKeeper.Keeper,
+	poolKeeper *poolKeeper.Keeper,
+	govKeeper *govKeeper.Keeper,
+) upgradetypes.UpgradeHandler {
 	return func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 		sdkCtx := sdk.UnwrapSDKContext(ctx)
-		logger := sdkCtx.Logger().With("upgrade", UpgradeName)
+		logger = sdkCtx.Logger().With("upgrade", UpgradeName)
 		logger.Info(fmt.Sprintf("performing upgrade %v", UpgradeName))
 
 		// TODO: migrate gov params
 		// TODO emit events if necessary
+
+		// migrate old MsgCreatePool gov proposals
+		migrateOldGovProposals(sdkCtx, cdc, MustGetStoreKey(storeKeys, govTypes.StoreKey), *govKeeper)
 
 		// migrate fundings
 		MigrateFundersModule(sdkCtx, cdc, MustGetStoreKey(storeKeys, fundersTypes.StoreKey), fundersKeeper)
@@ -66,14 +98,74 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 	}
 }
 
-func MustGetStoreKey(storeKeys []storetypes.StoreKey, storeName string) storetypes.StoreKey {
-	for _, k := range storeKeys {
-		if k.Name() == storeName {
-			return k
+// migrateOldGovProposals migrated the MsgCreatePool in all proposals to the new schema.
+// i.e. changing inflation_share_weight from uint64 to Dec
+func migrateOldGovProposals(sdkCtx sdk.Context, cdc codec.Codec, govStoreKey storetypes.StoreKey, govKeeper govKeeper.Keeper) {
+
+	proposalStore := prefix.NewStore(sdkCtx.KVStore(govStoreKey), govTypes.ProposalsKeyPrefix)
+
+	proposalIterator := storetypes.KVStorePrefixIterator(proposalStore, []byte{})
+	defer proposalIterator.Close()
+
+	// Iterate all existing gov proposals
+	migratedMessagesCounter := 0
+	for ; proposalIterator.Valid(); proposalIterator.Next() {
+		var proposal gov.Proposal
+
+		if err := cdc.Unmarshal(proposalIterator.Value(), &proposal); err != nil {
+			logger.Error("could not unmarshal gov proposal %s", hex.EncodeToString(proposalIterator.Key()))
+			continue
+		}
+
+		// Iterate the messages of each proposal
+		for idx, _ := range proposal.Messages {
+			// Check if message needs to be migrated
+			if proposal.Messages[idx].TypeUrl == "/kyve.pool.v1beta1.MsgCreatePool" {
+				var oldMsgCreatePool v1_4_pool.MsgCreatePool
+				if err := cdc.Unmarshal(proposal.Messages[idx].Value, &oldMsgCreatePool); err != nil {
+					logger.Error("could not unmarshal gov message (proposal=%d, message_idx=%d)", proposal.Id, idx)
+					continue
+				}
+
+				newMsgCreatePool := poolTypes.MsgCreatePool{
+					Authority:            oldMsgCreatePool.Authority,
+					Name:                 oldMsgCreatePool.Name,
+					Runtime:              oldMsgCreatePool.Runtime,
+					Logo:                 oldMsgCreatePool.Logo,
+					Config:               oldMsgCreatePool.Config,
+					StartKey:             oldMsgCreatePool.StartKey,
+					UploadInterval:       oldMsgCreatePool.UploadInterval,
+					InflationShareWeight: math.LegacyNewDec(int64(oldMsgCreatePool.InflationShareWeight)),
+					MinDelegation:        oldMsgCreatePool.MinDelegation,
+					MaxBundleSize:        oldMsgCreatePool.MaxBundleSize,
+					Version:              oldMsgCreatePool.Version,
+					Binaries:             oldMsgCreatePool.Binaries,
+					StorageProviderId:    oldMsgCreatePool.StorageProviderId,
+					CompressionId:        oldMsgCreatePool.CompressionId,
+					EndKey:               "",
+				}
+
+				newMsgCreatePoolBytes, err := newMsgCreatePool.Marshal()
+				if err != nil {
+					logger.Error("could not marshal migrated gov message (proposal=%d, message_idx=%d)", proposal.Id, idx)
+					continue
+				}
+
+				proposal.Messages[idx].Value = newMsgCreatePoolBytes
+			}
+
+			newProposalBytes, err := proposal.Marshal()
+			if err != nil {
+				logger.Error("could not marshal migrated gov proposal (proposal=%d)", proposal.Id)
+				continue
+			}
+
+			proposalStore.Set(proposalIterator.Key(), newProposalBytes)
+			migratedMessagesCounter += 1
 		}
 	}
 
-	panic(fmt.Sprintf("failed to find store key: %s", fundersTypes.StoreKey))
+	logger.Info("migrated MsgCreatePool messages in all gov proposals (message_count=%d)", migratedMessagesCounter)
 }
 
 func MigrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, fundersStoreKey storetypes.StoreKey, fundersKeeper fundersKeeper.Keeper) {

@@ -412,6 +412,7 @@ func New(
 			app.FundersKeeper,
 			app.StakersKeeper,
 			app.PoolKeeper,
+			app.GovKeeper,
 		),
 	)
 
