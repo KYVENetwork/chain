@@ -9,7 +9,6 @@ import (
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/gov"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
-	govKeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govTypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/bundles"
@@ -65,7 +64,6 @@ func CreateUpgradeHandler(
 	fundersKeeper fundersKeeper.Keeper,
 	stakersKeeper *stakersKeeper.Keeper,
 	poolKeeper *poolKeeper.Keeper,
-	govKeeper *govKeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 		sdkCtx := sdk.UnwrapSDKContext(ctx)
@@ -76,10 +74,10 @@ func CreateUpgradeHandler(
 		// TODO emit events if necessary
 
 		// migrate old MsgCreatePool gov proposals
-		migrateOldGovProposals(sdkCtx, cdc, MustGetStoreKey(storeKeys, govTypes.StoreKey), *govKeeper)
+		migrateOldGovProposals(sdkCtx, cdc, MustGetStoreKey(storeKeys, govTypes.StoreKey))
 
 		// migrate fundings
-		MigrateFundersModule(sdkCtx, cdc, MustGetStoreKey(storeKeys, fundersTypes.StoreKey), fundersKeeper)
+		migrateFundersModule(sdkCtx, cdc, MustGetStoreKey(storeKeys, fundersTypes.StoreKey), fundersKeeper)
 
 		// migrate delegations
 		migrateDelegationModule(sdkCtx, cdc, MustGetStoreKey(storeKeys, delegationTypes.StoreKey), delegationKeeper)
@@ -91,8 +89,7 @@ func CreateUpgradeHandler(
 		migrateBundlesModule(sdkCtx, cdc, MustGetStoreKey(storeKeys, bundlesTypes.StoreKey), bundlesKeeper)
 
 		// migrate pool
-		migrateMaxVotingPowerInPool(sdkCtx, cdc, MustGetStoreKey(storeKeys, poolTypes.StoreKey), *poolKeeper)
-		migrateInflationShareWeight(sdkCtx, cdc, MustGetStoreKey(storeKeys, poolTypes.StoreKey), poolKeeper)
+		migratePoolModule(sdkCtx, cdc, MustGetStoreKey(storeKeys, poolTypes.StoreKey), poolKeeper)
 
 		return mm.RunMigrations(ctx, configurator, fromVM)
 	}
@@ -100,7 +97,7 @@ func CreateUpgradeHandler(
 
 // migrateOldGovProposals migrated the MsgCreatePool in all proposals to the new schema.
 // i.e. changing inflation_share_weight from uint64 to Dec
-func migrateOldGovProposals(sdkCtx sdk.Context, cdc codec.Codec, govStoreKey storetypes.StoreKey, govKeeper govKeeper.Keeper) {
+func migrateOldGovProposals(sdkCtx sdk.Context, cdc codec.Codec, govStoreKey storetypes.StoreKey) {
 
 	proposalStore := prefix.NewStore(sdkCtx.KVStore(govStoreKey), govTypes.ProposalsKeyPrefix)
 
@@ -168,7 +165,7 @@ func migrateOldGovProposals(sdkCtx sdk.Context, cdc codec.Codec, govStoreKey sto
 	logger.Info("migrated MsgCreatePool messages in all gov proposals (message_count=%d)", migratedMessagesCounter)
 }
 
-func MigrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, fundersStoreKey storetypes.StoreKey, fundersKeeper fundersKeeper.Keeper) {
+func migrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, fundersStoreKey storetypes.StoreKey, fundersKeeper fundersKeeper.Keeper) {
 	// migrate params
 	// TODO: define final prices and initial whitelisted coins
 	oldParams := funders.GetParams(sdkCtx, cdc, fundersStoreKey)
@@ -196,6 +193,8 @@ func MigrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, fundersStoreKey s
 			TotalFunded:      sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(f.TotalFunded))),
 		})
 	}
+
+	logger.Info("migrated Funders module")
 }
 
 func migrateDelegationModule(sdkCtx sdk.Context, cdc codec.Codec, delegationStoreKey storetypes.StoreKey, delegationKeeper delegationKeeper.Keeper) {
@@ -221,6 +220,8 @@ func migrateDelegationModule(sdkCtx sdk.Context, cdc codec.Codec, delegationStor
 			LatestIndexWasUndelegation: d.LatestIndexWasUndelegation,
 		})
 	}
+
+	logger.Info("migrated Delegation module")
 }
 
 func migrateStakersModule(sdkCtx sdk.Context, cdc codec.Codec, stakersStoreKey storetypes.StoreKey, stakersKeeper *stakersKeeper.Keeper) {
@@ -238,6 +239,8 @@ func migrateStakersModule(sdkCtx sdk.Context, cdc codec.Codec, stakersStoreKey s
 			CommissionRewards: sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(s.CommissionRewards))),
 		})
 	}
+
+	logger.Info("migrated Stakers module")
 }
 
 func migrateBundlesModule(sdkCtx sdk.Context, cdc codec.Codec, bundlesStoreKey storetypes.StoreKey, bundlesKeeper bundlesKeeper.Keeper) {
@@ -257,9 +260,12 @@ func migrateBundlesModule(sdkCtx sdk.Context, cdc codec.Codec, bundlesStoreKey s
 		NetworkFee: oldParams.NetworkFee,
 		MaxPoints:  oldParams.MaxPoints,
 	})
+
+	logger.Info("migrated Bundles module")
 }
 
-func migrateMaxVotingPowerInPool(sdkCtx sdk.Context, cdc codec.Codec, poolStoreKey storetypes.StoreKey, poolKeeper poolKeeper.Keeper) {
+func migratePoolModule(sdkCtx sdk.Context, cdc codec.Codec, poolStoreKey storetypes.StoreKey, poolKeeper *poolKeeper.Keeper) {
+
 	oldParams := v1_4_pool.GetParams(sdkCtx, cdc, poolStoreKey)
 
 	poolKeeper.SetParams(sdkCtx, poolTypes.Params{
@@ -267,9 +273,7 @@ func migrateMaxVotingPowerInPool(sdkCtx sdk.Context, cdc codec.Codec, poolStoreK
 		PoolInflationPayoutRate: oldParams.PoolInflationPayoutRate,
 		MaxVotingPowerPerPool:   math.LegacyMustNewDecFromStr("0.5"),
 	})
-}
 
-func migrateInflationShareWeight(sdkCtx sdk.Context, cdc codec.Codec, poolStoreKey storetypes.StoreKey, poolKeeper *poolKeeper.Keeper) {
 	pools := v1_4_pool.GetAllPools(sdkCtx, poolStoreKey, cdc)
 	for _, pool := range pools {
 		var newPool poolTypes.Pool
@@ -333,4 +337,6 @@ func migrateInflationShareWeight(sdkCtx sdk.Context, cdc codec.Codec, poolStoreK
 			CompressionId:        pool.CurrentCompressionId,
 		})
 	}
+
+	logger.Info("migrated Pool module")
 }
