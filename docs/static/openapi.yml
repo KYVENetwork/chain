@@ -210,6 +210,8 @@ paths:
                   min_initial_deposit_ratio:
                     type: string
                     description: >-
+                      Deprecated: TODO Remove in v1.6 upgrade
+
                       min_initial_deposit_ratio sets a minimum fraction of
                       initial deposit for a
 
@@ -4570,6 +4572,8 @@ paths:
                   min_initial_deposit_ratio:
                     type: string
                     description: >-
+                      Deprecated: TODO Remove in v1.6 upgrade
+
                       min_initial_deposit_ratio sets a minimum fraction of
                       initial deposit for a
 

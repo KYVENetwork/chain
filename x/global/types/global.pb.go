@@ -39,6 +39,7 @@ type Params struct {
 	// This could be used to make transactions which support to network cheaper.
 	// Gas refunds only work if the transaction only included one message.
 	GasRefunds []GasRefund `protobuf:"bytes,4,rep,name=gas_refunds,json=gasRefunds,proto3" json:"gas_refunds"`
+	// Deprecated: TODO Remove in v1.6 upgrade
 	// min_initial_deposit_ratio sets a minimum fraction of initial deposit for a
 	// governance proposal. This is used to avoid spamming of proposals and
 	// polluting the proposals page.
