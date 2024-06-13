@@ -169,7 +169,8 @@ func migrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, fundersStoreKey s
 	// migrate params
 	// TODO: define final prices and initial whitelisted coins
 	oldParams := funders.GetParams(sdkCtx, cdc, fundersStoreKey)
-	fundersKeeper.SetParams(sdkCtx, fundersTypes.Params{
+
+	newParams := fundersTypes.Params{
 		CoinWhitelist: []*fundersTypes.WhitelistCoinEntry{
 			{
 				CoinDenom:                 globalTypes.Denom,
@@ -180,6 +181,14 @@ func migrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, fundersStoreKey s
 			},
 		},
 		MinFundingMultiple: oldParams.MinFundingMultiple,
+	}
+
+	fundersKeeper.SetParams(sdkCtx, newParams)
+
+	_ = sdkCtx.EventManager().EmitTypedEvent(&fundersTypes.EventUpdateParams{
+		OldParams: fundersTypes.Params{},
+		NewParams: newParams,
+		Payload:   "{}",
 	})
 
 	// migrate fundings
@@ -247,7 +256,7 @@ func migrateBundlesModule(sdkCtx sdk.Context, cdc codec.Codec, bundlesStoreKey s
 	oldParams := bundles.GetParams(sdkCtx, cdc, bundlesStoreKey)
 
 	// TODO: define final storage cost prices
-	bundlesKeeper.SetParams(sdkCtx, bundlesTypes.Params{
+	newParams := bundlesTypes.Params{
 		UploadTimeout: oldParams.UploadTimeout,
 		StorageCosts: []bundlesTypes.StorageCost{
 			// Arweave: https://arweave.net/price/1048576 -> 699 winston/byte * 40 USD/AR * 1.5 / 10**12
@@ -259,6 +268,14 @@ func migrateBundlesModule(sdkCtx sdk.Context, cdc codec.Codec, bundlesStoreKey s
 		},
 		NetworkFee: oldParams.NetworkFee,
 		MaxPoints:  oldParams.MaxPoints,
+	}
+
+	bundlesKeeper.SetParams(sdkCtx, newParams)
+
+	_ = sdkCtx.EventManager().EmitTypedEvent(&bundlesTypes.EventUpdateParams{
+		OldParams: bundlesTypes.Params{},
+		NewParams: newParams,
+		Payload:   "{}",
 	})
 
 	logger.Info("migrated Bundles module")
