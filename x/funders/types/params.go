@@ -17,7 +17,6 @@ const (
 )
 
 // NewParams creates a new Params instance
-// TODO: consider changing to value instead of pointer
 func NewParams(coinWhitelist []*WhitelistCoinEntry, minFundingMultiple uint64) Params {
 	return Params{
 		CoinWhitelist:      coinWhitelist,
