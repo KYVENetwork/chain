@@ -542,5 +542,4 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.GasAdjustments).To(BeNil())
 		Expect(updatedParams.GasRefunds).To(BeNil())
 	})
-
 })

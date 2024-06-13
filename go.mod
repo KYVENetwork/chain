@@ -375,9 +375,6 @@ replace (
 	github.com/cometbft/cometbft => github.com/KYVENetwork/cometbft v0.38.7-kyve-rpc-fix-rc0
 	// use kyve flavored cosmos/cosmos-sdk
 	github.com/cosmos/cosmos-sdk => github.com/KYVENetwork/cosmos-sdk v0.50.7-kyve-rc0
-	// Fix upstream GHSA-h395-qcrw-5vmq and GHSA-3vp4-m3rf-835h vulnerabilities.
-	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
-	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.1
 	// needed for strangelove's interchaintest
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	// replace broken goleveldb

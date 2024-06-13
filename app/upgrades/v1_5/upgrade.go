@@ -9,21 +9,21 @@ import (
 	"cosmossdk.io/log"
 	"cosmossdk.io/store/prefix"
 
-	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/gov"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 	govKeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govTypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/bundles"
-	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/delegation"
-	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/funders"
+	v1_4_bundles "github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/bundles"
+	v1_4_delegation "github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/delegation"
+	v1_4_funders "github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/funders"
+	v1_4_gov "github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/gov"
 	v1_4_pool "github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/pool"
-	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/stakers"
+	v1_4_stakers "github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/stakers"
+
 	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
 	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
-	funderTypes "github.com/KYVENetwork/chain/x/funders/types"
 	fundersTypes "github.com/KYVENetwork/chain/x/funders/types"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
@@ -128,7 +128,7 @@ func migrateOldGovProposals(sdkCtx sdk.Context, cdc codec.Codec, govStoreKey sto
 	// Iterate all existing gov proposals
 	migratedMessagesCounter := 0
 	for ; proposalIterator.Valid(); proposalIterator.Next() {
-		var proposal gov.Proposal
+		var proposal v1_4_gov.Proposal
 
 		if err := cdc.Unmarshal(proposalIterator.Value(), &proposal); err != nil {
 			logger.Error("could not unmarshal gov proposal %s", hex.EncodeToString(proposalIterator.Key()))
@@ -189,7 +189,7 @@ func migrateOldGovProposals(sdkCtx sdk.Context, cdc codec.Codec, govStoreKey sto
 func migrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, fundersStoreKey storetypes.StoreKey, fundersKeeper fundersKeeper.Keeper) {
 	// migrate params
 	// TODO: define final prices and initial whitelisted coins
-	oldParams := funders.GetParams(sdkCtx, cdc, fundersStoreKey)
+	oldParams := v1_4_funders.GetParams(sdkCtx, cdc, fundersStoreKey)
 
 	newParams := fundersTypes.Params{
 		CoinWhitelist: []*fundersTypes.WhitelistCoinEntry{
@@ -213,9 +213,9 @@ func migrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, fundersStoreKey s
 	})
 
 	// migrate fundings
-	oldFundings := funders.GetAllFundings(sdkCtx, cdc, fundersStoreKey)
+	oldFundings := v1_4_funders.GetAllFundings(sdkCtx, cdc, fundersStoreKey)
 	for _, f := range oldFundings {
-		fundersKeeper.SetFunding(sdkCtx, &funderTypes.Funding{
+		fundersKeeper.SetFunding(sdkCtx, &fundersTypes.Funding{
 			FunderAddress:    f.FunderAddress,
 			PoolId:           f.PoolId,
 			Amounts:          sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, int64(f.Amount))),
@@ -229,7 +229,7 @@ func migrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, fundersStoreKey s
 
 func migrateDelegationModule(sdkCtx sdk.Context, cdc codec.Codec, delegationStoreKey storetypes.StoreKey, delegationKeeper delegationKeeper.Keeper) {
 	// migrate delegation entries
-	oldDelegationEntries := delegation.GetAllDelegationEntries(sdkCtx, cdc, delegationStoreKey)
+	oldDelegationEntries := v1_4_delegation.GetAllDelegationEntries(sdkCtx, cdc, delegationStoreKey)
 	for _, d := range oldDelegationEntries {
 		delegationKeeper.SetDelegationEntry(sdkCtx, delegationTypes.DelegationEntry{
 			Staker: d.Staker,
@@ -239,7 +239,7 @@ func migrateDelegationModule(sdkCtx sdk.Context, cdc codec.Codec, delegationStor
 	}
 
 	// migrate delegation data
-	oldDelegationData := delegation.GetAllDelegationData(sdkCtx, cdc, delegationStoreKey)
+	oldDelegationData := v1_4_delegation.GetAllDelegationData(sdkCtx, cdc, delegationStoreKey)
 	for _, d := range oldDelegationData {
 		delegationKeeper.SetDelegationData(sdkCtx, delegationTypes.DelegationData{
 			Staker:                     d.Staker,
@@ -256,7 +256,7 @@ func migrateDelegationModule(sdkCtx sdk.Context, cdc codec.Codec, delegationStor
 
 func migrateStakersModule(sdkCtx sdk.Context, cdc codec.Codec, stakersStoreKey storetypes.StoreKey, stakersKeeper *stakersKeeper.Keeper) {
 	// migrate stakers
-	oldStakers := stakers.GetAllStakers(sdkCtx, cdc, stakersStoreKey)
+	oldStakers := v1_4_stakers.GetAllStakers(sdkCtx, cdc, stakersStoreKey)
 	for _, s := range oldStakers {
 		stakersKeeper.Migration_SetStaker(sdkCtx, stakersTypes.Staker{
 			Address:           s.Address,
@@ -274,7 +274,7 @@ func migrateStakersModule(sdkCtx sdk.Context, cdc codec.Codec, stakersStoreKey s
 }
 
 func migrateBundlesModule(sdkCtx sdk.Context, cdc codec.Codec, bundlesStoreKey storetypes.StoreKey, bundlesKeeper bundlesKeeper.Keeper) {
-	oldParams := bundles.GetParams(sdkCtx, cdc, bundlesStoreKey)
+	oldParams := v1_4_bundles.GetParams(sdkCtx, cdc, bundlesStoreKey)
 
 	// TODO: define final storage cost prices
 	newParams := bundlesTypes.Params{
