@@ -172,15 +172,23 @@ func migrateOldGovProposals(sdkCtx sdk.Context, cdc codec.Codec, govStoreKey sto
 				proposal.Messages[idx].Value = newMsgCreatePoolBytes
 			}
 
-			newProposalBytes, err := proposal.Marshal()
-			if err != nil {
-				logger.Error("could not marshal migrated gov proposal (proposal=%d)", proposal.Id)
-				continue
-			}
-
-			proposalStore.Set(proposalIterator.Key(), newProposalBytes)
 			migratedMessagesCounter += 1
 		}
+
+		// Update Proposal Metadata
+		if proposalData, ok := govProposalsData[proposal.Id]; ok {
+			proposal.Title = proposalData.title
+			proposal.Summary = proposalData.summary
+			proposal.Proposer = proposalData.proposer
+		}
+
+		newProposalBytes, err := proposal.Marshal()
+		if err != nil {
+			logger.Error("could not marshal migrated gov proposal (proposal=%d)", proposal.Id)
+			continue
+		}
+
+		proposalStore.Set(proposalIterator.Key(), newProposalBytes)
 	}
 
 	logger.Info("migrated MsgCreatePool messages in all gov proposals (message_count=%d)", migratedMessagesCounter)
