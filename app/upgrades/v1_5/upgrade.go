@@ -2,13 +2,17 @@ package v1_5
 
 import (
 	"context"
-	"cosmossdk.io/log"
-	"cosmossdk.io/store/prefix"
 	"encoding/hex"
 	"fmt"
+	"time"
+
+	"cosmossdk.io/log"
+	"cosmossdk.io/store/prefix"
+
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/gov"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
+	govKeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govTypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/KYVENetwork/chain/app/upgrades/v1_5/v1_4_types/bundles"
@@ -64,14 +68,15 @@ func CreateUpgradeHandler(
 	fundersKeeper fundersKeeper.Keeper,
 	stakersKeeper *stakersKeeper.Keeper,
 	poolKeeper *poolKeeper.Keeper,
+	govKeeper *govKeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 		sdkCtx := sdk.UnwrapSDKContext(ctx)
 		logger = sdkCtx.Logger().With("upgrade", UpgradeName)
 		logger.Info(fmt.Sprintf("performing upgrade %v", UpgradeName))
 
-		// TODO: migrate gov params
-		// TODO emit events if necessary
+		// migrate gov params
+		migrateGovParams(sdkCtx, govKeeper)
 
 		// migrate old MsgCreatePool gov proposals
 		migrateOldGovProposals(sdkCtx, cdc, MustGetStoreKey(storeKeys, govTypes.StoreKey))
@@ -95,10 +100,26 @@ func CreateUpgradeHandler(
 	}
 }
 
+func migrateGovParams(sdkCtx sdk.Context, govKeeper *govKeeper.Keeper) {
+	params, err := govKeeper.Params.Get(sdkCtx)
+	if err != nil {
+		logger.Error("failed to get gov params (err=%s)", err)
+	}
+	params.ExpeditedMinDeposit = sdk.NewCoins(sdk.NewInt64Coin(globalTypes.Denom, 50_000_000_000))
+	expeditedVotingPeriod := 30 * time.Minute
+	params.ExpeditedVotingPeriod = &expeditedVotingPeriod
+
+	err = govKeeper.Params.Set(sdkCtx, params)
+	if err != nil {
+		logger.Error("failed to update gov params (err=%s)", err)
+	}
+
+	logger.Info("migrated Gov params")
+}
+
 // migrateOldGovProposals migrated the MsgCreatePool in all proposals to the new schema.
 // i.e. changing inflation_share_weight from uint64 to Dec
 func migrateOldGovProposals(sdkCtx sdk.Context, cdc codec.Codec, govStoreKey storetypes.StoreKey) {
-
 	proposalStore := prefix.NewStore(sdkCtx.KVStore(govStoreKey), govTypes.ProposalsKeyPrefix)
 
 	proposalIterator := storetypes.KVStorePrefixIterator(proposalStore, []byte{})
@@ -115,7 +136,7 @@ func migrateOldGovProposals(sdkCtx sdk.Context, cdc codec.Codec, govStoreKey sto
 		}
 
 		// Iterate the messages of each proposal
-		for idx, _ := range proposal.Messages {
+		for idx := range proposal.Messages {
 			// Check if message needs to be migrated
 			if proposal.Messages[idx].TypeUrl == "/kyve.pool.v1beta1.MsgCreatePool" {
 				var oldMsgCreatePool v1_4_pool.MsgCreatePool
@@ -282,7 +303,6 @@ func migrateBundlesModule(sdkCtx sdk.Context, cdc codec.Codec, bundlesStoreKey s
 }
 
 func migratePoolModule(sdkCtx sdk.Context, cdc codec.Codec, poolStoreKey storetypes.StoreKey, poolKeeper *poolKeeper.Keeper) {
-
 	oldParams := v1_4_pool.GetParams(sdkCtx, cdc, poolStoreKey)
 
 	poolKeeper.SetParams(sdkCtx, poolTypes.Params{
