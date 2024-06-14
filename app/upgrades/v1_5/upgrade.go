@@ -136,7 +136,7 @@ func migrateOldGovProposals(sdkCtx sdk.Context, cdc codec.Codec, govStoreKey sto
 		var proposal v1_4_gov.Proposal
 
 		if err := cdc.Unmarshal(proposalIterator.Value(), &proposal); err != nil {
-			logger.Error("could not unmarshal gov proposal %s", hex.EncodeToString(proposalIterator.Key()))
+			logger.Error(fmt.Sprintf("could not unmarshal gov proposal %s", hex.EncodeToString(proposalIterator.Key())))
 			continue
 		}
 
@@ -146,7 +146,7 @@ func migrateOldGovProposals(sdkCtx sdk.Context, cdc codec.Codec, govStoreKey sto
 			if proposal.Messages[idx].TypeUrl == "/kyve.pool.v1beta1.MsgCreatePool" {
 				var oldMsgCreatePool v1_4_pool.MsgCreatePool
 				if err := cdc.Unmarshal(proposal.Messages[idx].Value, &oldMsgCreatePool); err != nil {
-					logger.Error("could not unmarshal gov message (proposal=%d, message_idx=%d)", proposal.Id, idx)
+					logger.Error(fmt.Sprintf("could not unmarshal gov message (proposal=%d, message_idx=%d)", proposal.Id, idx))
 					continue
 				}
 
@@ -170,7 +170,7 @@ func migrateOldGovProposals(sdkCtx sdk.Context, cdc codec.Codec, govStoreKey sto
 
 				newMsgCreatePoolBytes, err := newMsgCreatePool.Marshal()
 				if err != nil {
-					logger.Error("could not marshal migrated gov message (proposal=%d, message_idx=%d)", proposal.Id, idx)
+					logger.Error(fmt.Sprintf("could not marshal migrated gov message (proposal=%d, message_idx=%d)", proposal.Id, idx))
 					continue
 				}
 
@@ -189,14 +189,14 @@ func migrateOldGovProposals(sdkCtx sdk.Context, cdc codec.Codec, govStoreKey sto
 
 		newProposalBytes, err := proposal.Marshal()
 		if err != nil {
-			logger.Error("could not marshal migrated gov proposal (proposal=%d)", proposal.Id)
+			logger.Error(fmt.Sprintf("could not marshal migrated gov proposal (proposal=%d)", proposal.Id))
 			continue
 		}
 
 		proposalStore.Set(proposalIterator.Key(), newProposalBytes)
 	}
 
-	logger.Info("migrated MsgCreatePool messages in all gov proposals (message_count=%d)", migratedMessagesCounter)
+	logger.Info(fmt.Sprintf("migrated MsgCreatePool messages in all gov proposals (message_count=%d)", migratedMessagesCounter))
 }
 
 func migrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, fundersStoreKey storetypes.StoreKey, fundersKeeper fundersKeeper.Keeper) {
