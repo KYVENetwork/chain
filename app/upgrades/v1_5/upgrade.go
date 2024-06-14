@@ -75,11 +75,7 @@ func CreateUpgradeHandler(
 		logger = sdkCtx.Logger().With("upgrade", UpgradeName)
 		logger.Info(fmt.Sprintf("performing upgrade %v", UpgradeName))
 
-		// migrate gov params
-		migrateGovParams(sdkCtx, govKeeper)
-
-		// migrate old MsgCreatePool gov proposals
-		migrateOldGovProposals(sdkCtx, cdc, MustGetStoreKey(storeKeys, govTypes.StoreKey))
+		// Run KYVE migrations
 
 		// migrate fundings
 		migrateFundersModule(sdkCtx, cdc, MustGetStoreKey(storeKeys, fundersTypes.StoreKey), fundersKeeper)
@@ -96,7 +92,16 @@ func CreateUpgradeHandler(
 		// migrate pool
 		migratePoolModule(sdkCtx, cdc, MustGetStoreKey(storeKeys, poolTypes.StoreKey), poolKeeper)
 
-		return mm.RunMigrations(ctx, configurator, fromVM)
+		// Rum cosmos migrations
+		migratedVersionMap, err := mm.RunMigrations(ctx, configurator, fromVM)
+
+		// migrate gov params
+		migrateGovParams(sdkCtx, govKeeper)
+
+		// migrate old MsgCreatePool gov proposals
+		migrateOldGovProposals(sdkCtx, cdc, MustGetStoreKey(storeKeys, govTypes.StoreKey))
+
+		return migratedVersionMap, err
 	}
 }
 
