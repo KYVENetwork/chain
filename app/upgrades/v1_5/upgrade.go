@@ -92,7 +92,7 @@ func CreateUpgradeHandler(
 		// migrate pool
 		migratePoolModule(sdkCtx, cdc, MustGetStoreKey(storeKeys, poolTypes.StoreKey), poolKeeper)
 
-		// Rum cosmos migrations
+		// Run cosmos migrations
 		migratedVersionMap, err := mm.RunMigrations(ctx, configurator, fromVM)
 
 		// migrate gov params
