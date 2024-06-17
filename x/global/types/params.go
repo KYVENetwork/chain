@@ -12,23 +12,19 @@ var DefaultMinGasPrice = math.LegacyNewDec(0)
 // DefaultBurnRatio is 0% (i.e. disabled)
 var DefaultBurnRatio = math.LegacyNewDec(0)
 
-// DefaultMinInitialDepositRatio is 0% (i.e. disabled)
-var DefaultMinInitialDepositRatio = math.LegacyNewDec(0)
-
 // NewParams creates a new Params instance
-func NewParams(minGasPrice math.LegacyDec, burnRatio math.LegacyDec, gasAdjustments []GasAdjustment, gasRefunds []GasRefund, minInitialDepositRatio math.LegacyDec) Params {
+func NewParams(minGasPrice math.LegacyDec, burnRatio math.LegacyDec, gasAdjustments []GasAdjustment, gasRefunds []GasRefund) Params {
 	return Params{
-		MinGasPrice:            minGasPrice,
-		BurnRatio:              burnRatio,
-		GasAdjustments:         gasAdjustments,
-		GasRefunds:             gasRefunds,
-		MinInitialDepositRatio: minInitialDepositRatio,
+		MinGasPrice:    minGasPrice,
+		BurnRatio:      burnRatio,
+		GasAdjustments: gasAdjustments,
+		GasRefunds:     gasRefunds,
 	}
 }
 
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
-	return NewParams(DefaultMinGasPrice, DefaultBurnRatio, []GasAdjustment{}, []GasRefund{}, DefaultMinInitialDepositRatio)
+	return NewParams(DefaultMinGasPrice, DefaultBurnRatio, []GasAdjustment{}, []GasRefund{})
 }
 
 // Validate validates the set of params
@@ -51,10 +47,6 @@ func (p Params) Validate() error {
 		if err := validateGasRefund(gasRefund); err != nil {
 			return err
 		}
-	}
-
-	if err := validateMinInitialDepositRatio(p.MinInitialDepositRatio); err != nil {
-		return err
 	}
 
 	return nil
@@ -141,29 +133,6 @@ func validateGasRefund(i interface{}) error {
 
 	if v.Fraction.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("value cannot be greater than 1: %s", v.Fraction)
-	}
-
-	return nil
-}
-
-// validateMinInitialDepositRatio ...
-func validateMinInitialDepositRatio(i interface{}) error {
-	v, ok := i.(math.LegacyDec)
-
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v.IsNil() {
-		return fmt.Errorf("invalid parameter: nil")
-	}
-
-	if v.IsNegative() {
-		return fmt.Errorf("value cannot be negative: %s", i)
-	}
-
-	if v.GT(math.LegacyOneDec()) {
-		return fmt.Errorf("value cannot be greater than 1: %s", v)
 	}
 
 	return nil

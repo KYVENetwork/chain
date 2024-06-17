@@ -134,6 +134,7 @@ var (
 
 		// KYVE modules
 		delegationtypes.ModuleName,
+		stakerstypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	}
 
@@ -153,8 +154,6 @@ var (
 
 		// KYVE modules
 		pooltypes.ModuleName,
-		stakerstypes.ModuleName,
-		delegationtypes.ModuleName,
 		bundlestypes.ModuleName,
 		globaltypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers

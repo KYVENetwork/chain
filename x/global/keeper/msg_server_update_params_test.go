@@ -40,9 +40,6 @@ TEST CASES - msg_server_update_params.go
 * Update gas refunds
 * Update gas refunds with invalid value
 
-* Update min initial deposit ratio
-* Update min initial deposit ratio with invalid value
-
 */
 
 var _ = Describe("msg_server_update_params.go", Ordered, func() {
@@ -76,7 +73,6 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(params.BurnRatio).To(Equal(types.DefaultBurnRatio))
 		Expect(params.GasAdjustments).To(BeNil())
 		Expect(params.GasRefunds).To(BeNil())
-		Expect(params.MinInitialDepositRatio).To(Equal(types.DefaultMinInitialDepositRatio))
 	})
 
 	It("Invalid authority (transaction)", func() {
@@ -175,7 +171,6 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 				Fraction: math.LegacyMustNewDecFromStr("0.75"),
 			},
 		}))
-		Expect(updatedParams.MinInitialDepositRatio).To(Equal(math.LegacyMustNewDecFromStr("0.2")))
 	})
 
 	It("Update no params", func() {
@@ -212,7 +207,6 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.BurnRatio).To(Equal(types.DefaultBurnRatio))
 		Expect(updatedParams.GasAdjustments).To(BeNil())
 		Expect(updatedParams.GasRefunds).To(BeNil())
-		Expect(updatedParams.MinInitialDepositRatio).To(Equal(types.DefaultMinInitialDepositRatio))
 	})
 
 	It("Update with invalid formatted payload", func() {
@@ -245,7 +239,6 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.BurnRatio).To(Equal(types.DefaultBurnRatio))
 		Expect(updatedParams.GasAdjustments).To(BeNil())
 		Expect(updatedParams.GasRefunds).To(BeNil())
-		Expect(updatedParams.MinInitialDepositRatio).To(Equal(types.DefaultMinInitialDepositRatio))
 	})
 
 	It("Update min gas price", func() {
@@ -284,7 +277,6 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.BurnRatio).To(Equal(types.DefaultBurnRatio))
 		Expect(updatedParams.GasAdjustments).To(BeNil())
 		Expect(updatedParams.GasRefunds).To(BeNil())
-		Expect(updatedParams.MinInitialDepositRatio).To(Equal(types.DefaultMinInitialDepositRatio))
 	})
 
 	It("Update min gas price with invalid value", func() {
@@ -317,7 +309,6 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.BurnRatio).To(Equal(types.DefaultBurnRatio))
 		Expect(updatedParams.GasAdjustments).To(BeNil())
 		Expect(updatedParams.GasRefunds).To(BeNil())
-		Expect(updatedParams.MinInitialDepositRatio).To(Equal(types.DefaultMinInitialDepositRatio))
 	})
 
 	It("Update burn ratio", func() {
@@ -356,7 +347,6 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.BurnRatio).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 		Expect(updatedParams.GasAdjustments).To(BeNil())
 		Expect(updatedParams.GasRefunds).To(BeNil())
-		Expect(updatedParams.MinInitialDepositRatio).To(Equal(types.DefaultMinInitialDepositRatio))
 	})
 
 	It("Update burn ratio with invalid value", func() {
@@ -389,7 +379,6 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.BurnRatio).To(Equal(types.DefaultBurnRatio))
 		Expect(updatedParams.GasAdjustments).To(BeNil())
 		Expect(updatedParams.GasRefunds).To(BeNil())
-		Expect(updatedParams.MinInitialDepositRatio).To(Equal(types.DefaultMinInitialDepositRatio))
 	})
 
 	It("Update gas adjustments", func() {
@@ -436,7 +425,6 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 			},
 		}))
 		Expect(updatedParams.GasRefunds).To(BeNil())
-		Expect(updatedParams.MinInitialDepositRatio).To(Equal(types.DefaultMinInitialDepositRatio))
 	})
 
 	It("Update gas adjustments with invalid value", func() {
@@ -472,7 +460,6 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.BurnRatio).To(Equal(types.DefaultBurnRatio))
 		Expect(updatedParams.GasAdjustments).To(BeNil())
 		Expect(updatedParams.GasRefunds).To(BeNil())
-		Expect(updatedParams.MinInitialDepositRatio).To(Equal(types.DefaultMinInitialDepositRatio))
 	})
 
 	It("Update gas refunds", func() {
@@ -519,7 +506,6 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 				Fraction: math.LegacyMustNewDecFromStr("0.5"),
 			},
 		}))
-		Expect(updatedParams.MinInitialDepositRatio).To(Equal(types.DefaultMinInitialDepositRatio))
 	})
 
 	It("Update gas refunds with invalid value", func() {
@@ -555,78 +541,5 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 		Expect(updatedParams.BurnRatio).To(Equal(types.DefaultBurnRatio))
 		Expect(updatedParams.GasAdjustments).To(BeNil())
 		Expect(updatedParams.GasRefunds).To(BeNil())
-		Expect(updatedParams.MinInitialDepositRatio).To(Equal(types.DefaultMinInitialDepositRatio))
-	})
-
-	It("Update min gas price", func() {
-		// ARRANGE
-		payload := `{
-			"min_initial_deposit_ratio": "0.5"
-		}`
-
-		msg := &types.MsgUpdateParams{
-			Authority: gov,
-			Payload:   payload,
-		}
-
-		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
-		)
-
-		vote := govV1Types.NewMsgVote(
-			voter, 1, govV1Types.VoteOption_VOTE_OPTION_YES, "",
-		)
-
-		// ACT
-		_, submitErr := s.RunTx(proposal)
-		_, voteErr := s.RunTx(vote)
-
-		s.CommitAfter(*votingPeriod)
-		s.Commit()
-
-		// ASSERT
-		updatedParams := s.App().GlobalKeeper.GetParams(s.Ctx())
-
-		Expect(submitErr).NotTo(HaveOccurred())
-		Expect(voteErr).NotTo(HaveOccurred())
-
-		Expect(updatedParams.MinGasPrice).To(Equal(types.DefaultMinGasPrice))
-		Expect(updatedParams.BurnRatio).To(Equal(types.DefaultBurnRatio))
-		Expect(updatedParams.GasAdjustments).To(BeNil())
-		Expect(updatedParams.GasRefunds).To(BeNil())
-		Expect(updatedParams.MinInitialDepositRatio).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
-	})
-
-	It("Update min gas price with invalid value", func() {
-		// ARRANGE
-		payload := `{
-			"min_initial_deposit_ratio": "1.5"
-		}`
-
-		msg := &types.MsgUpdateParams{
-			Authority: gov,
-			Payload:   payload,
-		}
-
-		proposal, _ := govV1Types.NewMsgSubmitProposal(
-			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
-		)
-
-		// ACT
-		_, submitErr := s.RunTx(proposal)
-
-		s.CommitAfter(*votingPeriod)
-		s.Commit()
-
-		// ASSERT
-		updatedParams := s.App().GlobalKeeper.GetParams(s.Ctx())
-
-		Expect(submitErr).To(HaveOccurred())
-
-		Expect(updatedParams.MinGasPrice).To(Equal(types.DefaultMinGasPrice))
-		Expect(updatedParams.BurnRatio).To(Equal(types.DefaultBurnRatio))
-		Expect(updatedParams.GasAdjustments).To(BeNil())
-		Expect(updatedParams.GasRefunds).To(BeNil())
-		Expect(updatedParams.MinInitialDepositRatio).To(Equal(types.DefaultMinInitialDepositRatio))
 	})
 })

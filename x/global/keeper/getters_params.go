@@ -40,11 +40,6 @@ func (k Keeper) GetGasRefunds(ctx sdk.Context) (res []types.GasRefund) {
 	return k.GetParams(ctx).GasRefunds
 }
 
-// GetMinInitialDepositRatio returns the MinInitialDepositRatio param.
-func (k Keeper) GetMinInitialDepositRatio(ctx sdk.Context) (res math.LegacyDec) {
-	return k.GetParams(ctx).MinInitialDepositRatio
-}
-
 // SetParams sets the x/global module parameters.
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
