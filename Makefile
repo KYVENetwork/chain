@@ -65,7 +65,9 @@ release: ensure_environment ensure_version
 		CGO_ENABLED=0 GOOS=$$os GOARCH=$$arch go build $(BUILD_FLAGS) -o release/kyved_$(ENV)_"$$os"_"$$arch" ./cmd/kyved; \
 		touch -a -m -t $(BUILD_TIME) release/kyved_$(ENV)_"$$os"_"$$arch"; \
 		sha256sum release/kyved_$(ENV)_"$$os"_"$$arch" >> release/release_$(ENV)_checksum; \
-		tar -C release -cf release/kyved_$(ENV)_"$$os"_"$$arch".tar kyved_$(ENV)_"$$os"_"$$arch"; \
+		mv release/kyved_$(ENV)_"$$os"_"$$arch" release/kyved; \
+		tar -C release -cf release/kyved_$(ENV)_"$$os"_"$$arch".tar kyved; \
+		mv release/kyved  release/kyved_$(ENV)_"$$os"_"$$arch"; \
 		touch -a -m -t $(BUILD_TIME) release/kyved_$(ENV)_"$$os"_"$$arch".tar; \
 		gzip release/kyved_$(ENV)_"$$os"_"$$arch".tar; \
 		sha256sum release/kyved_$(ENV)_"$$os"_"$$arch".tar.gz >> release/release_$(ENV)_checksum; \
