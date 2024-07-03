@@ -201,17 +201,33 @@ func migrateOldGovProposals(sdkCtx sdk.Context, cdc codec.Codec, govStoreKey sto
 
 func migrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, fundersStoreKey storetypes.StoreKey, fundersKeeper fundersKeeper.Keeper) {
 	// migrate params
-	// TODO: define final prices and initial whitelisted coins
 	oldParams := v1_4_funders.GetParams(sdkCtx, cdc, fundersStoreKey)
 
 	newParams := fundersTypes.Params{
 		CoinWhitelist: []*fundersTypes.WhitelistCoinEntry{
+			// KYVE
 			{
 				CoinDenom:                 globalTypes.Denom,
 				CoinDecimals:              uint32(6),
 				MinFundingAmount:          math.NewIntFromUint64(oldParams.MinFundingAmount),
 				MinFundingAmountPerBundle: math.NewIntFromUint64(oldParams.MinFundingAmountPerBundle),
 				CoinWeight:                math.LegacyMustNewDecFromStr("0.06"),
+			},
+			// Andromeda
+			{
+				CoinDenom:                 "ibc/58EDC95E791161D711F4CF012ACF30A5DA8DDEB40A484F293A52B1968903F643",
+				CoinDecimals:              uint32(6),
+				MinFundingAmount:          math.NewInt(1000_000_000),
+				MinFundingAmountPerBundle: math.NewInt(100_000),
+				CoinWeight:                math.LegacyMustNewDecFromStr("0.1"),
+			},
+			// Source Protocol
+			{
+				CoinDenom:                 "", // TODO: obtain Source denom
+				CoinDecimals:              uint32(6),
+				MinFundingAmount:          math.NewInt(1000_000_000),
+				MinFundingAmountPerBundle: math.NewInt(100_000),
+				CoinWeight:                math.LegacyMustNewDecFromStr("0.21"),
 			},
 		},
 		MinFundingMultiple: oldParams.MinFundingMultiple,
