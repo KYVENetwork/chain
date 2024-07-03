@@ -395,28 +395,28 @@ func migratePoolModule(sdkCtx sdk.Context, cdc codec.Codec, poolStoreKey storety
 }
 
 func upgradeRuntimes(sdkCtx sdk.Context, poolKeeper *poolKeeper.Keeper) {
-	// TODO: define upgrade duration and submit download links for binaries
+	// Upgrade duration set to 10mins
 	upgrades := []poolTypes.MsgScheduleRuntimeUpgrade{
 		{
 			Runtime:     "@kyvejs/tendermint",
 			Version:     "1.2.0",
 			ScheduledAt: uint64(sdkCtx.BlockTime().Unix()),
-			Duration:    3600,
-			Binaries:    "{}",
+			Duration:    600,
+			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.2.0/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.2.0/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.2.0/kyve-macos-x64.zip\"}",
 		},
 		{
 			Runtime:     "@kyvejs/tendermint-bsync",
 			Version:     "1.2.0",
 			ScheduledAt: uint64(sdkCtx.BlockTime().Unix()),
-			Duration:    3600,
-			Binaries:    "{}",
+			Duration:    600,
+			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.0/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.0/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.0/kyve-macos-x64.zip\"}",
 		},
 		{
 			Runtime:     "@kyvejs/tendermint-ssync",
 			Version:     "1.2.0",
 			ScheduledAt: uint64(sdkCtx.BlockTime().Unix()),
-			Duration:    3600,
-			Binaries:    "{}",
+			Duration:    600,
+			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.2.0/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.2.0/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.2.0/kyve-macos-x64.zip\"}",
 		},
 	}
 
