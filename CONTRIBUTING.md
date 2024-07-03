@@ -37,7 +37,17 @@ architectures.
     One should immediately understand the flow by just reading the function names
     which are called while handling the message.
 
+## Chain Upgrade
+
+If a major chain upgrade is planned, the additional checks must be done:
+- Check if the AnteHandler (app/ante.go:L45) is still up-to-date.
+- Check ABCI++ Proposal Handler extensions
+- Carefully read the upgrade guides for CosmosSDK and IBC as well as CometBFT
+- Get in contact with block explorer maintainers and notify them about upcoming changes.
+- Test if Ledger is still working
+- Update the [docs](https://docs.kyve.network).
+
 ## Legal
 
 You agree that your contribution is licenced under the MIT Licence and all
-ownership is handed over the authors named in `LICENSE`.
+ownership is handed over the authors named in [LICENSE](https://github.com/KYVENetwork/chain/blob/main/LICENSE).
