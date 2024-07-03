@@ -29,6 +29,7 @@ An '!' indicates a state machine breaking change.
 
 ### Improvements
 
+- [#199](https://github.com/KYVENetwork/chain/pull/199) Align events naming.
 - ! (deps) [#198](https://github.com/KYVENetwork/chain/pull/198) Bump ibc version to v8.3.1.
 - (deps) [#197](https://github.com/KYVENetwork/chain/pull/197) Bump to CosmosSDK v0.50.7
 - ! (`x/pool`) [#190](https://github.com/KYVENetwork/chain/pull/190) Make inflation-share-weight a decimal.
@@ -41,8 +42,9 @@ An '!' indicates a state machine breaking change.
 
 ### Bug Fixes
 
-- [#194](https://github.com/KYVENetwork/chain/pull/194) fix: return correct result for legacy rpc block_results request
-- [#192](https://github.com/KYVENetwork/chain/pull/192) fix: Cosmos-SDK & IBC swagger-code generation.
+- ! (deps) [#203](https://github.com/KYVENetwork/chain/pull/203) Use newest IAVL version to prevent pruning error.
+- [#194](https://github.com/KYVENetwork/chain/pull/194) Return correct result for legacy rpc block_results request.
+- [#192](https://github.com/KYVENetwork/chain/pull/192) Cosmos-SDK & IBC swagger-code generation.
 - (`x/query`) [#159](https://github.com/KYVENetwork/chain/pull/159) Add pool params back to kyve params query.
 - (`x/query`) [#160](https://github.com/KYVENetwork/chain/pull/160) Add funders back to pool query.
 - [#163](https://github.com/KYVENetwork/chain/pull/163) Add back swagger UI for KYVE and Cosmos REST queries.
