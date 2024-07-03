@@ -375,6 +375,8 @@ replace (
 	github.com/cometbft/cometbft => github.com/KYVENetwork/cometbft v0.38.7-kyve-rpc-fix-rc0
 	// use kyve flavored cosmos/cosmos-sdk
 	github.com/cosmos/cosmos-sdk => github.com/KYVENetwork/cosmos-sdk v0.50.7-kyve-rc0
+	// replace to prevent "failed to prune store, version does not exist error"
+	github.com/cosmos/iavl v1.1.2 => github.com/cosmos/iavl v1.2.0
 	// Fix upstream GHSA-h395-qcrw-5vmq and GHSA-3vp4-m3rf-835h vulnerabilities.
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.1
