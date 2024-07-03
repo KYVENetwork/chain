@@ -50,4 +50,4 @@ If a major chain upgrade is planned, the additional checks must be done:
 ## Legal
 
 You agree that your contribution is licenced under the MIT Licence and all
-ownership is handed over the authors named in [LICENSE](https://github.com/KYVENetwork/chain/blob/main/LICENSE).
+ownership is handed over to the authors named in [LICENSE](https://github.com/KYVENetwork/chain/blob/main/LICENSE).
