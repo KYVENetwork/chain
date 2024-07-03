@@ -307,7 +307,6 @@ func migrateStakersModule(sdkCtx sdk.Context, cdc codec.Codec, stakersStoreKey s
 func migrateBundlesModule(sdkCtx sdk.Context, cdc codec.Codec, bundlesStoreKey storetypes.StoreKey, bundlesKeeper bundlesKeeper.Keeper) {
 	oldParams := v1_4_bundles.GetParams(sdkCtx, cdc, bundlesStoreKey)
 
-	// TODO: define final storage cost prices
 	newParams := bundlesTypes.Params{
 		UploadTimeout: oldParams.UploadTimeout,
 		StorageCosts: []bundlesTypes.StorageCost{
