@@ -101,6 +101,9 @@ func CreateUpgradeHandler(
 		// migrate old MsgCreatePool gov proposals
 		migrateOldGovProposals(sdkCtx, cdc, MustGetStoreKey(storeKeys, govTypes.StoreKey))
 
+		// upgrade protocol runtimes at last
+		upgradeRuntimes(sdkCtx, poolKeeper)
+
 		return migratedVersionMap, err
 	}
 }
@@ -406,4 +409,66 @@ func migratePoolModule(sdkCtx sdk.Context, cdc codec.Codec, poolStoreKey storety
 	}
 
 	logger.Info("migrated Pool module")
+}
+
+func upgradeRuntimes(sdkCtx sdk.Context, poolKeeper *poolKeeper.Keeper) {
+	// Upgrade duration set to 10mins
+	upgrades := []poolTypes.MsgScheduleRuntimeUpgrade{
+		{
+			Runtime:     "@kyvejs/tendermint",
+			Version:     "1.2.0",
+			ScheduledAt: uint64(sdkCtx.BlockTime().Unix()),
+			Duration:    600,
+			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.2.0/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.2.0/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.2.0/kyve-macos-x64.zip\"}",
+		},
+		{
+			Runtime:     "@kyvejs/tendermint-bsync",
+			Version:     "1.2.0",
+			ScheduledAt: uint64(sdkCtx.BlockTime().Unix()),
+			Duration:    600,
+			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.0/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.0/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.0/kyve-macos-x64.zip\"}",
+		},
+		{
+			Runtime:     "@kyvejs/tendermint-ssync",
+			Version:     "1.2.0",
+			ScheduledAt: uint64(sdkCtx.BlockTime().Unix()),
+			Duration:    600,
+			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.2.0/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.2.0/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.2.0/kyve-macos-x64.zip\"}",
+		},
+	}
+
+	for _, upgrade := range upgrades {
+		affectedPools := make([]uint64, 0)
+		for _, pool := range poolKeeper.GetAllPools(sdkCtx) {
+			// only schedule upgrade if the runtime matches
+			if pool.Runtime != upgrade.Runtime {
+				continue
+			}
+
+			// only schedule upgrade if there is no upgrade already
+			if pool.UpgradePlan.ScheduledAt != 0 {
+				continue
+			}
+
+			pool.UpgradePlan = &poolTypes.UpgradePlan{
+				Version:     upgrade.Version,
+				Binaries:    upgrade.Binaries,
+				ScheduledAt: upgrade.ScheduledAt,
+				Duration:    upgrade.Duration,
+			}
+
+			affectedPools = append(affectedPools, pool.Id)
+
+			poolKeeper.SetPool(sdkCtx, pool)
+		}
+
+		_ = sdkCtx.EventManager().EmitTypedEvent(&poolTypes.EventRuntimeUpgradeScheduled{
+			Runtime:       upgrade.Runtime,
+			Version:       upgrade.Version,
+			ScheduledAt:   upgrade.ScheduledAt,
+			Duration:      upgrade.Duration,
+			Binaries:      upgrade.Binaries,
+			AffectedPools: affectedPools,
+		})
+	}
 }
