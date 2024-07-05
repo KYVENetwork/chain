@@ -204,17 +204,35 @@ func migrateOldGovProposals(sdkCtx sdk.Context, cdc codec.Codec, govStoreKey sto
 
 func migrateFundersModule(sdkCtx sdk.Context, cdc codec.Codec, fundersStoreKey storetypes.StoreKey, fundersKeeper fundersKeeper.Keeper) {
 	// migrate params
-	// TODO: define final prices and initial whitelisted coins
 	oldParams := v1_4_funders.GetParams(sdkCtx, cdc, fundersStoreKey)
 
 	newParams := fundersTypes.Params{
 		CoinWhitelist: []*fundersTypes.WhitelistCoinEntry{
+			// Prices were obtained on 03.07.2024
+
+			// KYVE
 			{
 				CoinDenom:                 globalTypes.Denom,
 				CoinDecimals:              uint32(6),
 				MinFundingAmount:          math.NewIntFromUint64(oldParams.MinFundingAmount),
 				MinFundingAmountPerBundle: math.NewIntFromUint64(oldParams.MinFundingAmountPerBundle),
-				CoinWeight:                math.LegacyMustNewDecFromStr("0.06"),
+				CoinWeight:                math.LegacyMustNewDecFromStr("0.0358"),
+			},
+			// Andromeda
+			{
+				CoinDenom:                 "ibc/58EDC95E791161D711F4CF012ACF30A5DA8DDEB40A484F293A52B1968903F643",
+				CoinDecimals:              uint32(6),
+				MinFundingAmount:          math.NewInt(1000_000_000),
+				MinFundingAmountPerBundle: math.NewInt(100_000),
+				CoinWeight:                math.LegacyMustNewDecFromStr("0.1007"),
+			},
+			// Source Protocol
+			{
+				CoinDenom:                 "ibc/0D2ABDF58A5DBA3D2A90398F8737D16ECAC0DDE58F9792B2918495D499400672",
+				CoinDecimals:              uint32(6),
+				MinFundingAmount:          math.NewInt(1000_000_000),
+				MinFundingAmountPerBundle: math.NewInt(100_000),
+				CoinWeight:                math.LegacyMustNewDecFromStr("0.0207"),
 			},
 		},
 		MinFundingMultiple: oldParams.MinFundingMultiple,
@@ -292,7 +310,6 @@ func migrateStakersModule(sdkCtx sdk.Context, cdc codec.Codec, stakersStoreKey s
 func migrateBundlesModule(sdkCtx sdk.Context, cdc codec.Codec, bundlesStoreKey storetypes.StoreKey, bundlesKeeper bundlesKeeper.Keeper) {
 	oldParams := v1_4_bundles.GetParams(sdkCtx, cdc, bundlesStoreKey)
 
-	// TODO: define final storage cost prices
 	newParams := bundlesTypes.Params{
 		UploadTimeout: oldParams.UploadTimeout,
 		StorageCosts: []bundlesTypes.StorageCost{
