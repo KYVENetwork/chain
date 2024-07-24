@@ -252,6 +252,13 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		// check that the bundle is not finalized
 		_, found = s.App().BundlesKeeper.GetFinalizedBundle(s.Ctx(), 0, 0)
 		Expect(found).To(BeFalse())
+
+		// check if no validator got a point
+		// TODO: make this work
+		valaccounts := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
+		for _, valaccount := range valaccounts {
+			Expect(valaccount.Points).To(BeZero())
+		}
 	})
 
 	It("Skip uploader role on data bundle with current round containing a valid bundle", func() {
