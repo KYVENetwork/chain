@@ -9,6 +9,7 @@ import (
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"slices"
 )
 
 /*
@@ -203,12 +204,22 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		Expect(bundleProposal.VotersInvalid).To(BeEmpty())
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
-		// here the next uploader should be always be different after skipping
+		// here the next uploader should always be different after skipping
 		Expect(bundleProposal.NextUploader).NotTo(Equal(i.STAKER_0))
 
 		// check that the bundle is not finalized
 		_, found = s.App().BundlesKeeper.GetFinalizedBundle(s.Ctx(), 0, 0)
 		Expect(found).To(BeFalse())
+
+		// check if no validator got a point for the second round
+		valaccounts := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
+		for _, valaccount := range valaccounts {
+			if valaccount.Staker == i.STAKER_0 {
+				Expect(valaccount.Points).To(BeZero())
+			} else {
+				Expect(valaccount.Points).To(Equal(uint64(2))) // from the first and second round
+			}
+		}
 	})
 
 	It("Skip uploader role on dropped bundle", func() {
@@ -253,11 +264,14 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		_, found = s.App().BundlesKeeper.GetFinalizedBundle(s.Ctx(), 0, 0)
 		Expect(found).To(BeFalse())
 
-		// check if no validator got a point
-		// TODO: make this work
+		// check if no validator got a point for the second round
 		valaccounts := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
 		for _, valaccount := range valaccounts {
-			Expect(valaccount.Points).To(BeZero())
+			if valaccount.Staker == i.STAKER_0 {
+				Expect(valaccount.Points).To(BeZero())
+			} else {
+				Expect(valaccount.Points).To(Equal(uint64(1))) // from the first round
+			}
 		}
 	})
 
@@ -307,6 +321,16 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 
 		Expect(finalizedBundle.PoolId).To(Equal(uint64(0)))
 		Expect(finalizedBundle.Uploader).To(Equal(i.STAKER_0))
+
+		// check if no validator got a point for the second round
+		valaccounts := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
+		for _, valaccount := range valaccounts {
+			if slices.Contains([]string{i.STAKER_0, i.STAKER_1}, valaccount.Staker) {
+				Expect(valaccount.Points).To(BeZero())
+			} else {
+				Expect(valaccount.Points).To(Equal(uint64(1))) // from the first round
+			}
+		}
 	})
 
 	It("Skip uploader role on data bundle with current round containing an invalid bundle", func() {
@@ -359,5 +383,11 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		// check that the bundle is not finalized
 		_, found = s.App().BundlesKeeper.GetFinalizedBundle(s.Ctx(), 0, 0)
 		Expect(found).To(BeFalse())
+
+		// check that no validator got a point
+		valaccounts := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
+		for _, valaccount := range valaccounts {
+			Expect(valaccount.Points).To(BeZero())
+		}
 	})
 })
