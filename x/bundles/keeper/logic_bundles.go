@@ -565,11 +565,9 @@ func (k Keeper) GetVoteDistribution(ctx sdk.Context, poolId uint64) (voteDistrib
 
 // tallyBundleProposal evaluates the votes of a bundle proposal and determines the outcome
 func (k Keeper) tallyBundleProposal(ctx sdk.Context, bundleProposal types.BundleProposal, poolId uint64) (types.TallyResult, error) {
-	// Increase points of stakers who did not vote at all + slash + remove if there is a bundle proposal.
+	// Increase points of stakers who did not vote at all + slash + remove if necessary.
 	// The protocol requires everybody to stay always active.
-	if bundleProposal.StorageId != "" {
-		k.handleNonVoters(ctx, poolId)
-	}
+	k.handleNonVoters(ctx, poolId)
 
 	// evaluate all votes and determine status based on the votes weighted with stake + delegation
 	voteDistribution := k.GetVoteDistribution(ctx, poolId)
