@@ -141,25 +141,25 @@ genesis:
         max_voting_power_per_pool: "1"
       pool_count: "1"
       pool_list:
-        - config: "{\"network\":\"archway-1\",\"rpc\":\"http://ovh-protocol-4:21002\"}"
+        - config: "{\"network\":\"kyve-1\",\"rpc\":\"https://rpc.kyve.network\"}"
           current_compression_id: "1"
           current_index: "0"
           current_key: ""
           current_storage_provider_id: "3"
           current_summary: ""
           id: "0"
-          logo: "ar://hKb8dVx4E1NCUJ_BlhNOcyfQEta5r38SBXqsfPnAsWE"
+          logo: "ar://WOiYR7qF7G_dp6eO0bFC7AorS7601qgek3X_IeAZook"
           max_bundle_size: "100"
           min_delegation: "100000000"
-          name: "Archway"
+          name: "KYVE"
           inflation_share_weight: "1"
           disabled: false
           runtime: '@kyvejs/tendermint'
-          start_key: "5626500"
+          start_key: "1"
           total_bundles: "0"
           upload_interval: "60"
           protocol:
-            version: "1.2.0"
+            version: "1.1.6"
             binaries: "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.1.6/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.1.6/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.1.6/kyve-macos-x64.zip\"}"
             last_upgrade: "0"
           upgrade_plan:

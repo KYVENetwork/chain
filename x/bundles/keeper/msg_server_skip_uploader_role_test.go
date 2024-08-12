@@ -9,7 +9,6 @@ import (
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"slices"
 )
 
 /*
@@ -51,7 +50,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		}
 		s.RunTxPoolSuccess(msg)
 
-		//// create funders
+		// create funders
 		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
 			Creator: i.ALICE,
 			Moniker: "Alice",
@@ -126,6 +125,22 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 
 	It("Skip uploader role on data bundle if staker is next uploader", func() {
 		// ARRANGE
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_ABSTAIN,
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_2_A,
+			Staker:    i.STAKER_2,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_ABSTAIN,
+		})
+
 		s.Commit()
 		s.WaitSeconds(60)
 
@@ -153,7 +168,8 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		Expect(bundleProposal.UpdatedAt).NotTo(BeZero())
 		Expect(bundleProposal.VotersValid).To(ContainElement(i.STAKER_0))
 		Expect(bundleProposal.VotersInvalid).To(BeEmpty())
-		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
+		Expect(bundleProposal.VotersAbstain).To(ContainElement(i.STAKER_1))
+		Expect(bundleProposal.VotersAbstain).To(ContainElement(i.STAKER_2))
 
 		// here the next uploader should be always be different after skipping
 		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_0))
@@ -165,16 +181,28 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		// check that no validator got a point for the second round
 		valaccounts := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
 		for _, valaccount := range valaccounts {
-			if valaccount.Staker == i.STAKER_0 {
-				Expect(valaccount.Points).To(BeZero())
-			} else {
-				Expect(valaccount.Points).To(Equal(uint64(1))) // from the first round
-			}
+			Expect(valaccount.Points).To(BeZero())
 		}
 	})
 
 	It("Skip uploader on data bundle after uploader role has already been skipped", func() {
 		// ARRANGE
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_ABSTAIN,
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_2_A,
+			Staker:    i.STAKER_2,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_ABSTAIN,
+		})
+
 		s.Commit()
 		s.WaitSeconds(60)
 
@@ -212,7 +240,8 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		Expect(bundleProposal.UpdatedAt).NotTo(BeZero())
 		Expect(bundleProposal.VotersValid).To(ContainElement(i.STAKER_0))
 		Expect(bundleProposal.VotersInvalid).To(BeEmpty())
-		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
+		Expect(bundleProposal.VotersAbstain).To(ContainElement(i.STAKER_1))
+		Expect(bundleProposal.VotersAbstain).To(ContainElement(i.STAKER_2))
 
 		// here the next uploader should always be different after skipping
 		Expect(bundleProposal.NextUploader).NotTo(Equal(i.STAKER_0))
@@ -224,11 +253,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		// check that no validator got a point for the second round
 		valaccounts := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
 		for _, valaccount := range valaccounts {
-			if valaccount.Staker == i.STAKER_0 {
-				Expect(valaccount.Points).To(BeZero())
-			} else {
-				Expect(valaccount.Points).To(Equal(uint64(2))) // from the first and second round
-			}
+			Expect(valaccount.Points).To(BeZero())
 		}
 	})
 
@@ -280,7 +305,8 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 			if valaccount.Staker == i.STAKER_0 {
 				Expect(valaccount.Points).To(BeZero())
 			} else {
-				Expect(valaccount.Points).To(Equal(uint64(1))) // from the first round
+				// All others have one point because they did not vote at all
+				Expect(valaccount.Points).To(Equal(uint64(1)))
 			}
 		}
 	})
@@ -290,6 +316,14 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
 			Creator:   i.VALADDRESS_1_A,
 			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_VALID,
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.VALADDRESS_2_A,
+			Staker:    i.STAKER_2,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
 			Vote:      bundletypes.VOTE_TYPE_VALID,
@@ -335,11 +369,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		// check if no validator got a point for the second round
 		valaccounts := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
 		for _, valaccount := range valaccounts {
-			if slices.Contains([]string{i.STAKER_0, i.STAKER_1}, valaccount.Staker) {
-				Expect(valaccount.Points).To(BeZero())
-			} else {
-				Expect(valaccount.Points).To(Equal(uint64(1))) // from the first round
-			}
+			Expect(valaccount.Points).To(BeZero())
 		}
 	})
 
@@ -352,6 +382,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
 			Vote:      bundletypes.VOTE_TYPE_INVALID,
 		})
+
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
 			Creator:   i.VALADDRESS_2_A,
 			Staker:    i.STAKER_2,
