@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/KYVENetwork/chain/x/bundles/migration"
 
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/core/store"
@@ -175,6 +176,10 @@ func (am AppModule) BeginBlock(ctx context.Context) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	am.keeper.InitMemStore(sdkCtx)
 	SplitInflation(sdkCtx, am.keeper, am.bankKeeper, am.mintKeeper, am.poolKeeper, am.teamKeeper, am.upgradeKeeper)
+
+	upgradeHeight := am.keeper.GetBundlesMigrationUpgradeHeight(sdkCtx)
+	migration.MigrateBundlesModule(sdkCtx, am.keeper, int64(upgradeHeight))
+
 	return nil
 }
 
