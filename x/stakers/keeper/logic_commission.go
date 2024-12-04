@@ -6,11 +6,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// orderNewCommissionChange inserts a new change entry into the queue.
+// OrderNewCommissionChange inserts a new change entry into the queue.
 // The queue is checked in every endBlock and when the commissionChangeTime
 // is over the new commission will be applied to the user.
 // If another entry is currently in the queue it will be removed.
-func (k Keeper) orderNewCommissionChange(ctx sdk.Context, staker string, commission math.LegacyDec) {
+func (k Keeper) OrderNewCommissionChange(ctx sdk.Context, staker string, commission math.LegacyDec) {
 	// Remove existing queue entry
 	queueEntry, found := k.GetCommissionChangeEntryByIndex2(ctx, staker)
 	if found {
@@ -44,7 +44,7 @@ func (k Keeper) ProcessCommissionChangeQueue(ctx sdk.Context) {
 
 			k.RemoveCommissionChangeEntry(ctx, &queueEntry)
 
-			k.UpdateStakerCommission(ctx, queueEntry.Staker, queueEntry.Commission)
+			// TODO no-op
 
 			_ = ctx.EventManager().EmitTypedEvent(&types.EventUpdateCommission{
 				Staker:     queueEntry.Staker,

@@ -31,25 +31,30 @@ func (k msgServer) JoinPool(goCtx context.Context, msg *types.MsgJoinPool) (*typ
 		return nil, errors.Wrapf(errorsTypes.ErrLogic, types.ErrCanNotJoinDisabledPool.Error())
 	}
 
-	// throw error if staker was not found
-	staker, stakerFound := k.GetStaker(ctx, msg.Creator)
-	if !stakerFound {
+	// Validator must exist.
+	validator, validatorFound := k.GetValidator(ctx, msg.Creator)
+	if !validatorFound {
 		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrNoStaker.Error())
 	}
 
-	// Stakers are not allowed to use their own address, to prevent
-	// users from putting their staker private key on the protocol node server.
+	// Validator must be in the active set.
+	if !validator.IsBonded() {
+		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrValidatorJailed.Error())
+	}
+
+	// Validators are not allowed to use their own address, to prevent
+	// users from putting their validator private key on the protocol node server.
 	if msg.Creator == msg.Valaddress {
 		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrValaddressSameAsStaker.Error())
 	}
 
-	// Stakers are not allowed to join a pool twice.
+	// Validators are not allowed to join a pool twice.
 	if _, valaccountFound := k.GetValaccount(ctx, msg.PoolId, msg.Creator); valaccountFound {
 		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrAlreadyJoinedPool.Error())
 	}
 
 	// Only join if it is possible
-	if errFreeSlot := k.ensureFreeSlot(ctx, msg.PoolId, staker.Address); errFreeSlot != nil {
+	if errFreeSlot := k.ensureFreeSlot(ctx, msg.PoolId, msg.Creator); errFreeSlot != nil {
 		return nil, errFreeSlot
 	}
 

@@ -8,7 +8,6 @@ import (
 
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	"github.com/KYVENetwork/chain/x/delegation/types"
-	stakerstypes "github.com/KYVENetwork/chain/x/stakers/types"
 )
 
 /*
@@ -37,17 +36,26 @@ var _ = Describe("msg_server_delegate.go", Ordered, func() {
 
 		CreatePool(s)
 
-		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
+		s.CreateValidator(i.ALICE, "Alice", int64(aliceSelfDelegation))
+		// Shadow delegation inside delegation module (temporary work-around)
+		s.RunTxDelegatorSuccess(&types.MsgDelegate{
 			Creator: i.ALICE,
+			Staker:  i.ALICE,
 			Amount:  aliceSelfDelegation,
 		})
 
-		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
+		s.CreateValidator(i.BOB, "Bob", int64(bobSelfDelegation))
+		// Shadow delegation inside delegation module (temporary work-around)
+		s.RunTxDelegatorSuccess(&types.MsgDelegate{
 			Creator: i.BOB,
+			Staker:  i.BOB,
 			Amount:  bobSelfDelegation,
 		})
 
-		_, stakerFound := s.App().StakersKeeper.GetStaker(s.Ctx(), i.ALICE)
+		_, stakerFound := s.App().StakersKeeper.GetValidator(s.Ctx(), i.ALICE)
+		Expect(stakerFound).To(BeTrue())
+
+		_, stakerFound = s.App().StakersKeeper.GetValidator(s.Ctx(), i.BOB)
 		Expect(stakerFound).To(BeTrue())
 
 		s.CommitAfterSeconds(7)
@@ -233,71 +241,5 @@ var _ = Describe("msg_server_delegate.go", Ordered, func() {
 
 		Expect(s.GetBalanceFromAddress(i.DUMMY[0])).To(Equal(900*i.KYVE + 2_500_000_000))
 		Expect(s.GetBalanceFromModule(types.ModuleName)).To(Equal(600*i.KYVE + 7_500_000_000))
-	})
-
-	It("Delegate to validator with 0 $KYVE", func() {
-		// ARRANGE
-		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
-			Creator: i.CHARLIE,
-			Amount:  0,
-		})
-
-		// ACT
-		s.RunTxDelegatorSuccess(&types.MsgDelegate{
-			Creator: i.DUMMY[1],
-			Staker:  i.CHARLIE,
-			Amount:  200 * i.KYVE,
-		})
-
-		// ASSERT
-		s.PerformValidityChecks()
-
-		poolModuleBalance := s.GetBalanceFromModule(types.ModuleName)
-		Expect(poolModuleBalance).To(Equal(200*i.KYVE + aliceSelfDelegation + bobSelfDelegation))
-		Expect(s.GetBalanceFromAddress(i.DUMMY[1])).To(Equal(800 * i.KYVE))
-
-		charlieDelegation := s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.CHARLIE)
-		Expect(charlieDelegation).To(Equal(200 * i.KYVE))
-	})
-
-	It("Delegate to multiple validators", func() {
-		// ARRANGE
-		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
-			Creator: i.CHARLIE,
-			Amount:  0,
-		})
-
-		// ACT
-		s.RunTxDelegatorSuccess(&types.MsgDelegate{
-			Creator: i.DUMMY[1],
-			Staker:  i.ALICE,
-			Amount:  200 * i.KYVE,
-		})
-		s.RunTxDelegatorSuccess(&types.MsgDelegate{
-			Creator: i.DUMMY[1],
-			Staker:  i.BOB,
-			Amount:  200 * i.KYVE,
-		})
-		s.RunTxDelegatorSuccess(&types.MsgDelegate{
-			Creator: i.DUMMY[1],
-			Staker:  i.CHARLIE,
-			Amount:  200 * i.KYVE,
-		})
-
-		// ASSERT
-		s.PerformValidityChecks()
-
-		poolModuleBalance := s.GetBalanceFromModule(types.ModuleName)
-		Expect(poolModuleBalance).To(Equal(600*i.KYVE + aliceSelfDelegation + bobSelfDelegation))
-		Expect(s.GetBalanceFromAddress(i.DUMMY[1])).To(Equal(400 * i.KYVE))
-
-		aliceDelegation := s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.ALICE)
-		Expect(aliceDelegation).To(Equal(200*i.KYVE + aliceSelfDelegation))
-
-		bobDelegation := s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.BOB)
-		Expect(bobDelegation).To(Equal(200*i.KYVE + bobSelfDelegation))
-
-		charlieDelegation := s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.CHARLIE)
-		Expect(charlieDelegation).To(Equal(200 * i.KYVE))
 	})
 })

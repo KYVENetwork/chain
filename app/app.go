@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	v2_0 "github.com/KYVENetwork/chain/app/upgrades/v2_0"
+	"github.com/KYVENetwork/chain/app/upgrades/v2_0"
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 

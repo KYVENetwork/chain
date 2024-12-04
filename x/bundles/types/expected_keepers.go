@@ -2,10 +2,10 @@ package types
 
 import (
 	"cosmossdk.io/math"
-	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
 	"github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // AccountKeeper defines the expected account keeper used for simulations (noalias)
@@ -28,25 +28,27 @@ type PoolKeeper interface {
 
 type StakerKeeper interface {
 	GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (stakers []string)
-	GetCommission(ctx sdk.Context, stakerAddress string) math.LegacyDec
-	IncreaseStakerCommissionRewards(ctx sdk.Context, address string, payerModuleName string, amount sdk.Coins) error
 	AssertValaccountAuthorized(ctx sdk.Context, poolId uint64, stakerAddress string, valaddress string) error
 
-	DoesStakerExist(ctx sdk.Context, staker string) bool
 	DoesValaccountExist(ctx sdk.Context, poolId uint64, stakerAddress string) bool
 
 	LeavePool(ctx sdk.Context, staker string, poolId uint64)
 
 	IncrementPoints(ctx sdk.Context, poolId uint64, stakerAddress string) (newPoints uint64)
 	ResetPoints(ctx sdk.Context, poolId uint64, stakerAddress string) (previousPoints uint64)
+
+	GetTotalAndHighestDelegationOfPool(ctx sdk.Context, poolId uint64) (totalDelegation, highestDelegation uint64)
+	GetDelegationAmount(ctx sdk.Context, validator string) uint64
+	GetValidator(ctx sdk.Context, staker string) (stakingtypes.Validator, bool)
+	Slash(ctx sdk.Context, poolId uint64, staker string, slashFraction math.LegacyDec)
+	PayoutRewards(ctx sdk.Context, staker string, amount sdk.Coins, payerModuleName string) error
+	PayoutAdditionalCommissionRewards(ctx sdk.Context, validator string, payerModuleName string, amount sdk.Coins) error
 }
 
 type DelegationKeeper interface {
-	GetDelegationAmount(ctx sdk.Context, staker string) uint64
-	GetDelegationOfPool(ctx sdk.Context, poolId uint64) uint64
-	GetTotalAndHighestDelegationOfPool(ctx sdk.Context, poolId uint64) (uint64, uint64)
-	PayoutRewards(ctx sdk.Context, staker string, amount sdk.Coins, payerModuleName string) error
-	SlashDelegators(ctx sdk.Context, poolId uint64, staker string, slashType delegationTypes.SlashType)
+	GetTimeoutSlash(ctx sdk.Context) (res math.LegacyDec)
+	GetUploadSlash(ctx sdk.Context) (res math.LegacyDec)
+	GetVoteSlash(ctx sdk.Context) (res math.LegacyDec)
 }
 
 type FundersKeeper interface {

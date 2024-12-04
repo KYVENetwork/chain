@@ -46,7 +46,7 @@ func NewKeeper(
 
 	accountKeeper types.AccountKeeper,
 	bankKeeper util.BankKeeper,
-	distrkeeper util.DistributionKeeper,
+	distrKeeper util.DistributionKeeper,
 	poolKeeper types.PoolKeeper,
 	stakerKeeper types.StakerKeeper,
 	delegationKeeper types.DelegationKeeper,
@@ -63,7 +63,7 @@ func NewKeeper(
 
 		accountKeeper:    accountKeeper,
 		bankKeeper:       bankKeeper,
-		distrkeeper:      distrkeeper,
+		distrkeeper:      distrKeeper,
 		poolKeeper:       poolKeeper,
 		stakerKeeper:     stakerKeeper,
 		delegationKeeper: delegationKeeper,

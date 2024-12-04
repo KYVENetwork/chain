@@ -54,13 +54,19 @@ var _ = Describe("Delegation - Redelegation", Ordered, func() {
 		}
 		s.RunTxPoolSuccess(msg)
 
-		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
+		s.CreateValidator(i.ALICE, "Alice", int64(aliceSelfDelegation))
+		// Shadow delegation inside delegation module (temporary work-around)
+		s.RunTxSuccess(&types.MsgDelegate{
 			Creator: i.ALICE,
+			Staker:  i.ALICE,
 			Amount:  aliceSelfDelegation,
 		})
 
-		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
+		s.CreateValidator(i.BOB, "Bob", int64(bobSelfDelegation))
+		// Shadow delegation inside delegation module (temporary work-around)
+		s.RunTxSuccess(&types.MsgDelegate{
 			Creator: i.BOB,
+			Staker:  i.BOB,
 			Amount:  bobSelfDelegation,
 		})
 
@@ -71,10 +77,10 @@ var _ = Describe("Delegation - Redelegation", Ordered, func() {
 			Amount:     0,
 		})
 
-		_, stakerFound := s.App().StakersKeeper.GetStaker(s.Ctx(), i.ALICE)
+		_, stakerFound := s.App().StakersKeeper.GetValidator(s.Ctx(), i.ALICE)
 		Expect(stakerFound).To(BeTrue())
 
-		_, stakerFound = s.App().StakersKeeper.GetStaker(s.Ctx(), i.BOB)
+		_, stakerFound = s.App().StakersKeeper.GetValidator(s.Ctx(), i.BOB)
 		Expect(stakerFound).To(BeTrue())
 
 		s.CommitAfterSeconds(7)
@@ -201,8 +207,10 @@ var _ = Describe("Delegation - Redelegation", Ordered, func() {
 
 	It("Try to redelegate to inactive-staker staker", func() {
 		// Arrange
-		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
+		s.CreateValidator(i.CHARLIE, "Charlie", int64(100*i.KYVE))
+		s.RunTxDelegatorSuccess(&types.MsgDelegate{
 			Creator: i.CHARLIE,
+			Staker:  i.CHARLIE,
 			Amount:  100 * i.KYVE,
 		})
 		s.RunTxDelegatorSuccess(&types.MsgDelegate{

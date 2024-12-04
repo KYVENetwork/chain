@@ -6,7 +6,6 @@ import (
 	"github.com/KYVENetwork/chain/x/delegation/types"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
-	stakerstypes "github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -45,20 +44,26 @@ var _ = Describe("msg_server_withdraw_rewards.go", Ordered, func() {
 		CreatePool(s)
 
 		// Stake
-		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
+		// Shadow staker outside of delegation module (temporary work-around)
+		s.CreateValidator(i.ALICE, "Alice", int64(1))
+		s.RunTxDelegatorSuccess(&types.MsgDelegate{
 			Creator: i.ALICE,
+			Staker:  i.ALICE,
 			Amount:  aliceSelfDelegation,
 		})
 
-		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
+		// Shadow staker outside of delegation module (temporary work-around)
+		s.CreateValidator(i.BOB, "Bob", int64(1))
+		s.RunTxDelegatorSuccess(&types.MsgDelegate{
 			Creator: i.BOB,
+			Staker:  i.BOB,
 			Amount:  bobSelfDelegation,
 		})
 
-		_, stakerFound := s.App().StakersKeeper.GetStaker(s.Ctx(), i.ALICE)
+		_, stakerFound := s.App().StakersKeeper.GetValidator(s.Ctx(), i.ALICE)
 		Expect(stakerFound).To(BeTrue())
 
-		_, stakerFound = s.App().StakersKeeper.GetStaker(s.Ctx(), i.BOB)
+		_, stakerFound = s.App().StakersKeeper.GetValidator(s.Ctx(), i.BOB)
 		Expect(stakerFound).To(BeTrue())
 
 		initialBalanceAlice = s.GetCoinsFromAddress(i.ALICE)

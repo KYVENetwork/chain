@@ -4,13 +4,16 @@ import (
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
+	"github.com/KYVENetwork/chain/util"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
-	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
+	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -63,10 +66,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
@@ -75,10 +75,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
@@ -213,15 +210,11 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 
 	It("Call can vote if pool has not reached the minimum stake", func() {
 		// ARRANGE
-		s.RunTxDelegatorSuccess(&delegationtypes.MsgUndelegate{
-			Creator: i.STAKER_0,
-			Staker:  i.STAKER_0,
-			Amount:  50 * i.KYVE,
-		})
-
-		// wait for unbonding
-		s.CommitAfterSeconds(s.App().DelegationKeeper.GetUnbondingDelegationTime(s.Ctx()))
-		s.CommitAfterSeconds(1)
+		s.RunTxSuccess(stakingTypes.NewMsgUndelegate(
+			i.STAKER_0,
+			util.MustValaddressFromOperatorAddress(i.STAKER_0),
+			sdk.NewInt64Coin(globalTypes.Denom, int64(50*i.KYVE)),
+		))
 
 		// ACT
 		canVote, err := s.App().QueryKeeper.CanVote(s.Ctx(), &querytypes.QueryCanVoteRequest{

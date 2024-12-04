@@ -41,14 +41,7 @@ func (k Keeper) Stakers(c context.Context, req *types.QueryStakersRequest) (*typ
 	var pageRes *query.PageResponse
 	var err error
 
-	switch req.Status {
-	case types.STAKER_STATUS_ACTIVE:
-		pageRes, err = k.delegationKeeper.GetPaginatedActiveStakersByDelegation(ctx, req.Pagination, accumulator)
-	case types.STAKER_STATUS_INACTIVE:
-		pageRes, err = k.delegationKeeper.GetPaginatedInactiveStakersByDelegation(ctx, req.Pagination, accumulator)
-	default:
-		pageRes, err = k.delegationKeeper.GetPaginatedStakersByDelegation(ctx, req.Pagination, accumulator)
-	}
+	pageRes, err = k.stakerKeeper.GetPaginatedStakersByDelegation(ctx, req.Pagination, accumulator)
 
 	if err != nil {
 		return nil, err
@@ -64,7 +57,7 @@ func (k Keeper) Staker(c context.Context, req *types.QueryStakerRequest) (*types
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	if !k.stakerKeeper.DoesStakerExist(ctx, req.Address) {
+	if _, exists := k.stakerKeeper.GetValidator(ctx, req.Address); !exists {
 		return nil, sdkerrors.ErrKeyNotFound
 	}
 

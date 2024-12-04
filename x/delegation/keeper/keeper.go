@@ -25,7 +25,7 @@ type (
 
 		accountKeeper types.AccountKeeper
 		bankKeeper    util.BankKeeper
-		distrKeeper   types.DistrKeeper
+		distrKeeper   util.DistributionKeeper
 		poolKeeper    types.PoolKeeper
 		upgradeKeeper util.UpgradeKeeper
 		stakersKeeper types.StakersKeeper
@@ -42,7 +42,7 @@ func NewKeeper(
 
 	accountKeeper types.AccountKeeper,
 	bankKeeper util.BankKeeper,
-	distrkeeper types.DistrKeeper,
+	distrkeeper util.DistributionKeeper,
 	poolKeeper types.PoolKeeper,
 	upgradeKeeper util.UpgradeKeeper,
 	stakersKeeper types.StakersKeeper,

@@ -66,10 +66,7 @@ var _ = Describe("msg_server_vote_bundle_proposal.go", Ordered, func() {
 			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
@@ -77,10 +74,7 @@ var _ = Describe("msg_server_vote_bundle_proposal.go", Ordered, func() {
 			Valaddress: i.VALADDRESS_0_A,
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
@@ -214,10 +208,12 @@ var _ = Describe("msg_server_vote_bundle_proposal.go", Ordered, func() {
 
 	It("Try to vote as not the first voter on bundle proposal", func() {
 		// ARRANGE
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_2,
-			Amount:  100 * i.KYVE,
-		})
+		// Set UploadInterval to > 0, because CreateValidator needs to commit one block in order to be bonded.
+		pool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
+		pool.UploadInterval = 1
+		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
+
+		s.CreateValidator(i.STAKER_2, "Staker-2", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_2,

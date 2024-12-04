@@ -10,16 +10,14 @@ accounts:
   - name: dummy # kyve137v27tfyegc083w5kj9zhhrfk34n8vhjma73gq
     coins:
       - 1000000tkyve # 1 tkyve -> 6 decimals
-    mnemonic: expect crisp umbrella hospital firm exhibit future size slot update blood
-      deliver fat happy ghost visa recall usual path purity junior ring ordinary stove
+    mnemonic: expect crisp umbrella hospital firm exhibit future size slot update blood deliver fat happy ghost visa recall usual path purity junior ring ordinary stove
   - name: alice # kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd
     coins:
       - 1000000000acoin # 1000 acoins -> 6 decimals
       - 1000000000000bcoin # 1000 bcoins -> 9 decimals
       - 1000000000ccoin # 1000 ccoins -> 6 decimals
       - 2000000000000tkyve # 2M tkyve -> 6 decimals
-    mnemonic: worry grief loyal smoke pencil arrow trap focus high pioneer tomato hedgehog
-      essence purchase dove pond knee custom phone gentle sunset addict mother fabric
+    mnemonic: worry grief loyal smoke pencil arrow trap focus high pioneer tomato hedgehog essence purchase dove pond knee custom phone gentle sunset addict mother fabric
   - name: bob # kyve1hvg7zsnrj6h29q9ss577mhrxa04rn94h7zjugq
     coins:
       - 1000000000acoin # 1000 acoins -> 6 decimals
@@ -167,6 +165,10 @@ genesis:
             binaries: ""
             scheduled_at: "0"
             duration: "0"
+    slashing:
+      params:
+        signed_blocks_window: 10
+        min_signed_per_window: "0.5"
     stakers:
       params:
         commission_change_time: 10

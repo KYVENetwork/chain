@@ -41,10 +41,7 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 		s.RunTxPoolSuccess(msg)
 
 		// create staker
-		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		// join pool
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
@@ -85,11 +82,11 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfPool).To(HaveLen(1))
 
-		totalStakeOfPool := s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 0)
+		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
 
 		Expect(totalStakeOfPool).To(Equal(100 * i.KYVE))
-		Expect(s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_0)).To(Equal(totalStakeOfPool))
-		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(totalStakeOfPool))
+		Expect(s.App().StakersKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_0)).To(Equal(totalStakeOfPool))
+		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(totalStakeOfPool))
 
 		s.PerformValidityChecks()
 
@@ -109,16 +106,13 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfPool).To(BeEmpty())
 
-		totalStakeOfPool = s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 0)
+		totalStakeOfPool = s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
 		Expect(totalStakeOfPool).To(BeZero())
 	})
 
 	It("Leave a pool multiple other stakers have joined previously", func() {
 		// ARRANGE
-		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
@@ -153,11 +147,11 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfPool).To(HaveLen(2))
 
-		totalStakeOfPool := s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 0)
+		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
 
 		Expect(totalStakeOfPool).To(Equal(200 * i.KYVE))
-		Expect(s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_0)).To(Equal(100 * i.KYVE))
-		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_0)).To(Equal(100 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100 * i.KYVE))
 
 		s.PerformValidityChecks()
 
@@ -177,7 +171,7 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfPool).To(HaveLen(1))
 
-		totalStakeOfPool = s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 0)
+		totalStakeOfPool = s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
 		Expect(totalStakeOfPool).To(Equal(100 * i.KYVE))
 	})
 
@@ -250,11 +244,11 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfPool).To(HaveLen(1))
 
-		totalStakeOfPool := s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 1)
+		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 1)
 		Expect(totalStakeOfPool).To(Equal(100 * i.KYVE))
 
-		Expect(s.App().DelegationKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_0)).To(Equal(totalStakeOfPool))
-		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(totalStakeOfPool))
+		Expect(s.App().StakersKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_0)).To(Equal(totalStakeOfPool))
+		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(totalStakeOfPool))
 
 		// wait for leave pool
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetLeavePoolTime(s.Ctx()))
@@ -272,16 +266,13 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfPool).To(BeEmpty())
 
-		totalStakeOfPool = s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 1)
+		totalStakeOfPool = s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 1)
 		Expect(totalStakeOfPool).To(BeZero())
 	})
 
 	It("Leave a pool a staker has never joined", func() {
 		// ARRANGE
-		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgLeavePool{
