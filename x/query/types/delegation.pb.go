@@ -727,6 +727,7 @@ func _QueryDelegation_StakersByDelegator_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+var QueryDelegation_serviceDesc = _QueryDelegation_serviceDesc
 var _QueryDelegation_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "kyve.query.v1beta1.QueryDelegation",
 	HandlerType: (*QueryDelegationServer)(nil),

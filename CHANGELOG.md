@@ -14,6 +14,11 @@
 
 An '!' indicates a state machine breaking change.
 
+## Unreleased
+
+### Bug Fixes
+- ! [#207](https://github.com/KYVENetwork/chain/pull/207) Added test case for points.
+
 ## [v1.5.0](https://github.com/KYVENetwork/chain/releases/tag/v1.5.0) - 2024-07-05
 
 ### Features

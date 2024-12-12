@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	v1_5 "github.com/KYVENetwork/chain/app/upgrades/v1_5"
+	v2_0 "github.com/KYVENetwork/chain/app/upgrades/v2_0"
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -401,18 +401,10 @@ func New(
 	})
 
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v1_5.UpgradeName,
-		v1_5.CreateUpgradeHandler(
+		v2_0.UpgradeName,
+		v2_0.CreateUpgradeHandler(
 			app.ModuleManager,
 			app.Configurator(),
-			app.appCodec,
-			app.GetStoreKeys(),
-			app.BundlesKeeper,
-			app.DelegationKeeper,
-			app.FundersKeeper,
-			app.StakersKeeper,
-			app.PoolKeeper,
-			app.GovKeeper,
 		),
 	)
 
@@ -421,9 +413,9 @@ func New(
 		return nil, err
 	}
 
-	if upgradeInfo.Name == v1_5.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+	if upgradeInfo.Name == v2_0.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
-		app.SetStoreLoader(v1_5.CreateStoreLoader(upgradeInfo.Height))
+		app.SetStoreLoader(v2_0.CreateStoreLoader(upgradeInfo.Height))
 	}
 
 	if err := app.Load(loadLatest); err != nil {

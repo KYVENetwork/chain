@@ -913,6 +913,7 @@ func _QueryAccount_AccountRedelegation_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+var QueryAccount_serviceDesc = _QueryAccount_serviceDesc
 var _QueryAccount_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "kyve.query.v1beta1.QueryAccount",
 	HandlerType: (*QueryAccountServer)(nil),

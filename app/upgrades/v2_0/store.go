@@ -1,4 +1,4 @@
-package v1_5
+package v2_0
 
 import (
 	storetypes "cosmossdk.io/store/types"
@@ -8,12 +8,7 @@ import (
 
 func CreateStoreLoader(upgradeHeight int64) baseapp.StoreLoader {
 	storeUpgrades := storetypes.StoreUpgrades{
-		Deleted: []string{
-			"packetfowardmiddleware", // yes there is supposed to be a spelling error in "forward"
-			"icahost",
-			"icacontroller",
-			"feeibc",
-		},
+		Deleted: []string{},
 	}
 
 	return upgradetypes.UpgradeStoreLoader(upgradeHeight, &storeUpgrades)

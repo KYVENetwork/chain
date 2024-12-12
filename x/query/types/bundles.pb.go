@@ -1448,6 +1448,7 @@ func _QueryBundles_CanVote_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+var QueryBundles_serviceDesc = _QueryBundles_serviceDesc
 var _QueryBundles_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "kyve.query.v1beta1.QueryBundles",
 	HandlerType: (*QueryBundlesServer)(nil),
