@@ -33,7 +33,7 @@ func (k Keeper) performDelegation(ctx sdk.Context, stakerAddress string, delegat
 // performUndelegation performs immediately an undelegation of the given amount from the given staker
 // If the amount is greater than the available amount, only the available amount will be undelegated.
 // This method also transfers the rewards back to the given user.
-func (k Keeper) performUndelegation(ctx sdk.Context, stakerAddress string, delegatorAddress string, amount uint64) uint64 {
+func (k Keeper) PerformUndelegation(ctx sdk.Context, stakerAddress string, delegatorAddress string, amount uint64) uint64 {
 	// Update in-memory staker index for efficient queries
 	k.RemoveStakerIndex(ctx, stakerAddress)
 	defer k.SetStakerIndex(ctx, stakerAddress)

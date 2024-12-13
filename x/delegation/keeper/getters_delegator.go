@@ -110,3 +110,17 @@ func (k Keeper) GetStakersByDelegator(ctx sdk.Context, delegator string) (list [
 	}
 	return
 }
+
+func (k Keeper) GetDelegatorsByStaker(ctx sdk.Context, staker string) (list []string) {
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	delegatorStore := prefix.NewStore(storeAdapter, types.DelegatorKeyPrefix)
+	iterator := storeTypes.KVStorePrefixIterator(delegatorStore, util.GetByteKey(staker))
+
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		delegator := string(iterator.Key()[43 : 43+43])
+		list = append(list, delegator)
+	}
+	return
+}
