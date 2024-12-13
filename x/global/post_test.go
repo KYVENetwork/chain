@@ -4,6 +4,7 @@ import (
 	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
+	fundersTypes "github.com/KYVENetwork/chain/x/funders/types"
 	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -61,7 +62,7 @@ var _ = Describe("RefundFeeDecorator", Ordered, func() {
 				Fraction: math.LegacyZeroDec(),
 			},
 			{
-				Type:     "/kyve.stakers.v1beta1.MsgCreateStaker",
+				Type:     "/kyve.funders.v1beta1.MsgCreateFunder",
 				Fraction: math.LegacyNewDec(2).QuoInt64(3),
 			},
 		}
@@ -149,7 +150,7 @@ var _ = Describe("RefundFeeDecorator", Ordered, func() {
 
 	It("Refund 2/3 %", func() {
 		// ARRANGE
-		msg := stakersTypes.MsgCreateStaker{Creator: i.ALICE}
+		msg := fundersTypes.MsgCreateFunder{Creator: i.ALICE}
 		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 		gasLimit := uint64(200_000)
 		txBuilder.SetGasLimit(gasLimit)

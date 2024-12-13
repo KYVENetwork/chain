@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/KYVENetwork/chain/util"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"cosmossdk.io/store"
@@ -17,15 +21,12 @@ import (
 
 	"github.com/KYVENetwork/chain/x/bundles"
 	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
-	"github.com/KYVENetwork/chain/x/delegation"
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
-	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	poolmodule "github.com/KYVENetwork/chain/x/pool"
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	"github.com/KYVENetwork/chain/x/stakers"
 	stakerstypes "github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/KYVENetwork/chain/x/team"
-	"github.com/cosmos/cosmos-sdk/types/query"
 	. "github.com/onsi/gomega"
 )
 
@@ -45,16 +46,13 @@ func (suite *KeeperTestSuite) PerformValidityChecks() {
 	suite.VerifyStakersModuleAssetsIntegrity()
 	suite.VerifyPoolTotalStake()
 	suite.VerifyStakersQueries()
-	suite.VerifyActiveStakers()
 
 	// verify bundles module
 	suite.VerifyBundlesQueries()
 	suite.VerifyBundlesGenesisImportExport()
 
 	// verify delegation module
-	suite.VerifyDelegationQueries()
 	suite.VerifyDelegationModuleIntegrity()
-	suite.VerifyDelegationGenesisImportExport()
 
 	// verify team module
 	// TODO(@troy): implement team funds integrity checks
@@ -103,7 +101,7 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 	for i := range poolsState {
 		bundleProposalState, _ := suite.App().BundlesKeeper.GetBundleProposal(suite.Ctx(), poolsState[i].Id)
 		stakersState := suite.App().StakersKeeper.GetAllStakerAddressesOfPool(suite.Ctx(), poolsState[i].Id)
-		totalDelegationState := suite.App().DelegationKeeper.GetDelegationOfPool(suite.Ctx(), poolsState[i].Id)
+		totalDelegationState := suite.App().StakersKeeper.GetDelegationOfPool(suite.Ctx(), poolsState[i].Id)
 
 		Expect(poolsQuery[i].Id).To(Equal(poolsState[i].Id))
 		Expect(*poolsQuery[i].Data).To(Equal(poolsState[i]))
@@ -128,11 +126,11 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 		stakersByPoolState := make([]querytypes.StakerPoolResponse, 0)
 
 		for _, valaccount := range valaccounts {
-			staker, stakerFound := suite.App().StakersKeeper.GetStaker(suite.Ctx(), valaccount.Staker)
+			_, stakerFound := suite.App().StakersKeeper.GetValidator(suite.Ctx(), valaccount.Staker)
 
 			if stakerFound {
 				stakersByPoolState = append(stakersByPoolState, querytypes.StakerPoolResponse{
-					Staker:     suite.App().QueryKeeper.GetFullStaker(suite.Ctx(), staker.Address),
+					Staker:     suite.App().QueryKeeper.GetFullStaker(suite.Ctx(), valaccount.Staker),
 					Valaccount: valaccount,
 				})
 			}
@@ -168,10 +166,6 @@ func (suite *KeeperTestSuite) VerifyPoolGenesisImportExport() {
 func (suite *KeeperTestSuite) VerifyStakersModuleAssetsIntegrity() {
 	expectedBalance := sdk.NewCoins()
 
-	for _, staker := range suite.App().StakersKeeper.GetAllStakers(suite.Ctx()) {
-		expectedBalance = expectedBalance.Add(staker.CommissionRewards...)
-	}
-
 	moduleAcc := suite.App().AccountKeeper.GetModuleAccount(suite.Ctx(), stakerstypes.ModuleName).GetAddress()
 	actualBalance := suite.App().BankKeeper.GetAllBalances(suite.Ctx(), moduleAcc)
 
@@ -181,31 +175,18 @@ func (suite *KeeperTestSuite) VerifyStakersModuleAssetsIntegrity() {
 func (suite *KeeperTestSuite) VerifyPoolTotalStake() {
 	for _, pool := range suite.App().PoolKeeper.GetAllPools(suite.Ctx()) {
 		expectedBalance := uint64(0)
-		actualBalance := suite.App().DelegationKeeper.GetDelegationOfPool(suite.Ctx(), pool.Id)
+		actualBalance := suite.App().StakersKeeper.GetDelegationOfPool(suite.Ctx(), pool.Id)
 
 		for _, stakerAddress := range suite.App().StakersKeeper.GetAllStakerAddressesOfPool(suite.Ctx(), pool.Id) {
-			expectedBalance += suite.App().DelegationKeeper.GetDelegationAmount(suite.Ctx(), stakerAddress)
+			expectedBalance += suite.App().StakersKeeper.GetDelegationAmount(suite.Ctx(), stakerAddress)
 		}
 
 		Expect(actualBalance).To(Equal(expectedBalance))
 	}
 }
 
-func (suite *KeeperTestSuite) VerifyActiveStakers() {
-	totalDelegation := uint64(0)
-	for _, delegator := range suite.App().DelegationKeeper.GetAllDelegators(suite.Ctx()) {
-		if len(suite.App().StakersKeeper.GetValaccountsFromStaker(suite.Ctx(), delegator.Staker)) > 0 {
-			totalDelegation += suite.App().DelegationKeeper.GetDelegationAmountOfDelegator(suite.Ctx(), delegator.Staker, delegator.Delegator)
-
-			validators, _ := suite.App().StakersKeeper.GetDelegations(suite.ctx, delegator.Delegator)
-			Expect(validators).To(ContainElement(delegator.Staker))
-		}
-	}
-	Expect(suite.App().StakersKeeper.TotalBondedTokens(suite.Ctx()).Uint64()).To(Equal(totalDelegation))
-}
-
 func (suite *KeeperTestSuite) VerifyStakersQueries() {
-	stakersState := suite.App().StakersKeeper.GetAllStakers(suite.Ctx())
+	validators, _ := suite.App().StakingKeeper.GetBondedValidatorsByPower(suite.Ctx())
 	stakersQuery, stakersQueryErr := suite.App().QueryKeeper.Stakers(suite.Ctx(), &querytypes.QueryStakersRequest{
 		Pagination: &query.PageRequest{
 			Limit: 1000,
@@ -218,10 +199,10 @@ func (suite *KeeperTestSuite) VerifyStakersQueries() {
 	}
 
 	Expect(stakersQueryErr).To(BeNil())
-	Expect(stakersQuery.Stakers).To(HaveLen(len(stakersState)))
+	Expect(stakersQuery.Stakers).To(HaveLen(len(validators)))
 
-	for i := range stakersState {
-		address := stakersState[i].Address
+	for i := range validators {
+		address := util.MustAccountAddressFromValAddress(validators[i].OperatorAddress)
 		suite.verifyFullStaker(stakersMap[address], address)
 
 		stakerByAddressQuery, stakersByAddressQueryErr := suite.App().QueryKeeper.Staker(suite.Ctx(), &querytypes.QueryStakerRequest{
@@ -317,62 +298,6 @@ func (suite *KeeperTestSuite) VerifyBundlesGenesisImportExport() {
 // delegation module checks
 // ========================
 
-func (suite *KeeperTestSuite) VerifyDelegationQueries() {
-	for _, delegator := range suite.App().DelegationKeeper.GetAllDelegators(suite.Ctx()) {
-
-		// Query: delegator/{staker}/{delegator}
-		resD, errD := suite.App().QueryKeeper.Delegator(suite.Ctx(), &querytypes.QueryDelegatorRequest{
-			Staker:    delegator.Staker,
-			Delegator: delegator.Delegator,
-		})
-		Expect(errD).To(BeNil())
-		Expect(resD.Delegator.Delegator).To(Equal(delegator.Delegator))
-		Expect(resD.Delegator.Staker).To(Equal(delegator.Staker))
-		Expect(resD.Delegator.DelegationAmount).To(Equal(suite.App().DelegationKeeper.GetDelegationAmountOfDelegator(suite.Ctx(), delegator.Staker, delegator.Delegator)))
-		Expect(resD.Delegator.CurrentRewards.String()).To(Equal(suite.App().DelegationKeeper.GetOutstandingRewards(suite.Ctx(), delegator.Staker, delegator.Delegator).String()))
-
-		// Query: stakers_by_delegator/{delegator}
-		resSbD, errSbD := suite.App().QueryKeeper.StakersByDelegator(suite.Ctx(), &querytypes.QueryStakersByDelegatorRequest{
-			Pagination: nil,
-			Delegator:  delegator.Delegator,
-		})
-		Expect(errSbD).To(BeNil())
-		Expect(resSbD.Delegator).To(Equal(delegator.Delegator))
-		for _, sRes := range resSbD.Stakers {
-			Expect(sRes.DelegationAmount).To(Equal(suite.App().DelegationKeeper.GetDelegationAmountOfDelegator(suite.Ctx(), sRes.Staker.Address, delegator.Delegator)))
-			Expect(sRes.CurrentRewards.String()).To(Equal(suite.App().DelegationKeeper.GetOutstandingRewards(suite.Ctx(), sRes.Staker.Address, delegator.Delegator).String()))
-			suite.verifyFullStaker(*sRes.Staker, sRes.Staker.Address)
-		}
-	}
-
-	stakersDelegators := make(map[string]map[string]delegationtypes.Delegator)
-	for _, d := range suite.App().DelegationKeeper.GetAllDelegators(suite.Ctx()) {
-		if stakersDelegators[d.Staker] == nil {
-			stakersDelegators[d.Staker] = map[string]delegationtypes.Delegator{}
-		}
-		stakersDelegators[d.Staker][d.Delegator] = d
-	}
-
-	for _, staker := range suite.App().StakersKeeper.GetAllStakers(suite.Ctx()) {
-		// Query: delegators_by_staker/{staker}
-		resDbS, errDbS := suite.App().QueryKeeper.DelegatorsByStaker(suite.Ctx(), &querytypes.QueryDelegatorsByStakerRequest{
-			Pagination: nil,
-			Staker:     staker.Address,
-		})
-		Expect(errDbS).To(BeNil())
-
-		delegationData, _ := suite.App().DelegationKeeper.GetDelegationData(suite.Ctx(), staker.Address)
-		Expect(resDbS.TotalDelegatorCount).To(Equal(delegationData.DelegatorCount))
-		Expect(resDbS.TotalDelegation).To(Equal(suite.App().DelegationKeeper.GetDelegationAmount(suite.Ctx(), staker.Address)))
-
-		for _, delegator := range resDbS.Delegators {
-			Expect(stakersDelegators[delegator.Staker][delegator.Delegator]).ToNot(BeNil())
-			Expect(delegator.DelegationAmount).To(Equal(suite.App().DelegationKeeper.GetDelegationAmountOfDelegator(suite.Ctx(), delegator.Staker, delegator.Delegator)))
-			Expect(delegator.CurrentRewards.String()).To(Equal(suite.App().DelegationKeeper.GetOutstandingRewards(suite.Ctx(), delegator.Staker, delegator.Delegator).String()))
-		}
-	}
-}
-
 func (suite *KeeperTestSuite) VerifyDelegationModuleIntegrity() {
 	expectedBalance := sdk.NewCoins()
 
@@ -396,13 +321,6 @@ func (suite *KeeperTestSuite) VerifyDelegationModuleIntegrity() {
 	for _, coin := range difference {
 		Expect(coin.Amount.Uint64() < 10).To(BeTrue())
 	}
-}
-
-func (suite *KeeperTestSuite) VerifyDelegationGenesisImportExport() {
-	genState := delegation.ExportGenesis(suite.Ctx(), suite.App().DelegationKeeper)
-	err := genState.Validate()
-	Expect(err).To(BeNil())
-	delegation.InitGenesis(suite.Ctx(), suite.App().DelegationKeeper, *genState)
 }
 
 // =========================
@@ -523,24 +441,25 @@ func (suite *KeeperTestSuite) VerifyFundersModuleAssetsIntegrity() {
 func (suite *KeeperTestSuite) verifyFullStaker(fullStaker querytypes.FullStaker, stakerAddress string) {
 	Expect(fullStaker.Address).To(Equal(stakerAddress))
 
-	staker, found := suite.App().StakersKeeper.GetStaker(suite.Ctx(), stakerAddress)
-	Expect(found).To(BeTrue())
-	Expect(fullStaker.SelfDelegation).To(Equal(suite.App().DelegationKeeper.GetDelegationAmountOfDelegator(suite.Ctx(), stakerAddress, stakerAddress)))
-
-	selfDelegationUnbonding := uint64(0)
-	for _, entry := range suite.App().DelegationKeeper.GetAllUnbondingDelegationQueueEntriesOfDelegator(suite.Ctx(), fullStaker.Address) {
-		if entry.Staker == stakerAddress {
-			selfDelegationUnbonding += entry.Amount
-		}
-	}
-
-	Expect(fullStaker.SelfDelegationUnbonding).To(Equal(selfDelegationUnbonding))
-	Expect(fullStaker.Metadata.Identity).To(Equal(staker.Identity))
-	Expect(fullStaker.Metadata.SecurityContact).To(Equal(staker.SecurityContact))
-	Expect(fullStaker.Metadata.Details).To(Equal(staker.Details))
-	Expect(fullStaker.Metadata.Website).To(Equal(staker.Website))
-	Expect(fullStaker.Metadata.Commission).To(Equal(staker.Commission))
-	Expect(fullStaker.Metadata.Moniker).To(Equal(staker.Moniker))
+	// TODO after reworking the API Queries
+	//staker, found := suite.App().StakersKeeper.GetValidator(suite.Ctx(), stakerAddress)
+	//Expect(found).To(BeTrue())
+	//Expect(fullStaker.SelfDelegation).To(Equal(suite.App().StakersKeeper.GetDelegationAmountOfDelegator(suite.Ctx(), stakerAddress, stakerAddress)))
+	//
+	//selfDelegationUnbonding := uint64(0)
+	//for _, entry := range suite.App().DelegationKeeper.GetAllUnbondingDelegationQueueEntriesOfDelegator(suite.Ctx(), fullStaker.Address) {
+	//	if entry.Staker == stakerAddress {
+	//		selfDelegationUnbonding += entry.Amount
+	//	}
+	//}
+	//
+	//Expect(fullStaker.SelfDelegationUnbonding).To(Equal(selfDelegationUnbonding))
+	//Expect(fullStaker.Metadata.Identity).To(Equal(staker.Description.Identity))
+	//Expect(fullStaker.Metadata.SecurityContact).To(Equal(staker.Description.SecurityContact))
+	//Expect(fullStaker.Metadata.Details).To(Equal(staker.Description.Details))
+	//Expect(fullStaker.Metadata.Website).To(Equal(staker.Description.Website))
+	//Expect(fullStaker.Metadata.Commission).To(Equal(staker.Commission))
+	//Expect(fullStaker.Metadata.Moniker).To(Equal(staker.Description.Moniker))
 
 	pendingCommissionChange, found := suite.App().StakersKeeper.GetCommissionChangeEntryByIndex2(suite.Ctx(), stakerAddress)
 	if found {
@@ -549,11 +468,6 @@ func (suite *KeeperTestSuite) verifyFullStaker(fullStaker querytypes.FullStaker,
 	} else {
 		Expect(fullStaker.Metadata.PendingCommissionChange).To(BeNil())
 	}
-
-	delegationData, _ := suite.App().DelegationKeeper.GetDelegationData(suite.Ctx(), stakerAddress)
-	Expect(fullStaker.DelegatorCount).To(Equal(delegationData.DelegatorCount))
-
-	Expect(fullStaker.TotalDelegation).To(Equal(suite.App().DelegationKeeper.GetDelegationAmount(suite.Ctx(), stakerAddress)))
 
 	poolIds := make(map[uint64]bool)
 

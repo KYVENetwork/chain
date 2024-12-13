@@ -3,11 +3,14 @@ package keeper
 import (
 	"context"
 
+	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
+	"github.com/KYVENetwork/chain/util"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	// Gov
-	govV1Types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	// Stakers
 	"github.com/KYVENetwork/chain/x/stakers/types"
 )
@@ -39,10 +42,18 @@ func (k Keeper) GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (sta
 	return stakers
 }
 
-// GetCommission returns the commission of a staker as a parsed math.LegacyDec
-func (k Keeper) GetCommission(ctx sdk.Context, stakerAddress string) math.LegacyDec {
-	staker, _ := k.GetStaker(ctx, stakerAddress)
-	return staker.Commission
+func (k Keeper) GetPaginatedStakersByDelegation(ctx sdk.Context, pagination *query.PageRequest, accumulator func(staker string, accumulate bool) bool) (*query.PageResponse, error) {
+	validators, err := k.stakingKeeper.GetBondedValidatorsByPower(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, validator := range validators {
+		accumulator(util.MustAccountAddressFromValAddress(validator.OperatorAddress), true)
+	}
+
+	res := query.PageResponse{}
+	return &res, nil
 }
 
 // AssertValaccountAuthorized checks if the given `valaddress` is allowed to vote in pool
@@ -69,6 +80,133 @@ func (k Keeper) GetActiveStakers(ctx sdk.Context) []string {
 	return k.getAllActiveStakers(ctx)
 }
 
+// GetDelegationOfPool returns the amount of how many ukyve users have delegated
+// to stakers that are participating in the given pool
+func (k Keeper) GetDelegationOfPool(ctx sdk.Context, poolId uint64) uint64 {
+	totalDelegation := uint64(0)
+	for _, address := range k.GetAllStakerAddressesOfPool(ctx, poolId) {
+		totalDelegation += k.GetDelegationAmount(ctx, address)
+	}
+	return totalDelegation
+}
+
+// GetTotalAndHighestDelegationOfPool iterates all validators of a given pool and returns the stake of the validator
+// with the highest stake and the sum of all stakes.
+func (k Keeper) GetTotalAndHighestDelegationOfPool(ctx sdk.Context, poolId uint64) (totalDelegation, highestDelegation uint64) {
+	for _, address := range k.GetAllStakerAddressesOfPool(ctx, poolId) {
+		delegation := k.GetDelegationAmount(ctx, address)
+		totalDelegation += delegation
+
+		if delegation > highestDelegation {
+			highestDelegation = delegation
+		}
+	}
+
+	return totalDelegation, highestDelegation
+}
+
+// GetDelegationAmount returns the stake of a given validator in ukyve
+func (k Keeper) GetDelegationAmount(ctx sdk.Context, validator string) uint64 {
+	validatorAddress, err := sdk.ValAddressFromBech32(util.MustValaddressFromOperatorAddress(validator))
+	if err != nil {
+		return 0
+	}
+	chainValidator, err := k.stakingKeeper.GetValidator(ctx, validatorAddress)
+	if err != nil {
+		return 0
+	}
+
+	return chainValidator.GetBondedTokens().Uint64()
+}
+
+// GetValidator returns the Cosmos-validator for a given kyve-address.
+func (k Keeper) GetValidator(ctx sdk.Context, staker string) (stakingTypes.Validator, bool) {
+	valAddress, err := sdk.ValAddressFromBech32(util.MustValaddressFromOperatorAddress(staker))
+	if err != nil {
+		return stakingTypes.Validator{}, false
+	}
+	validator, err := k.stakingKeeper.GetValidator(ctx, valAddress)
+	if err != nil {
+		return stakingTypes.Validator{}, false
+	}
+
+	return validator, true
+}
+
+// GetOutstandingCommissionRewards returns the outstanding commission rewards for a given validator
+func (k Keeper) GetOutstandingCommissionRewards(ctx sdk.Context, staker string) sdk.Coins {
+	valAddress, err := sdk.ValAddressFromBech32(util.MustValaddressFromOperatorAddress(staker))
+	if err != nil {
+		return sdk.NewCoins()
+	}
+
+	commission, err := k.distKeeper.GetValidatorAccumulatedCommission(ctx, valAddress)
+	if err != nil {
+		return sdk.NewCoins()
+	}
+
+	return util.TruncateDecCoins(sdk.NewDecCoins(commission.Commission...))
+}
+
+// GetOutstandingRewards returns the outstanding delegation rewards for a given delegator
+func (k Keeper) GetOutstandingRewards(orgCtx sdk.Context, staker string, delegator string) sdk.Coins {
+	valAdr, err := sdk.ValAddressFromBech32(util.MustValaddressFromOperatorAddress(staker))
+	if err != nil {
+		return sdk.NewCoins()
+	}
+
+	delAdr, err := sdk.AccAddressFromBech32(delegator)
+	if err != nil {
+		return sdk.NewCoins()
+	}
+
+	ctx, _ := orgCtx.CacheContext()
+
+	del, err := k.stakingKeeper.Delegation(ctx, delAdr, valAdr)
+	if err != nil {
+		return sdk.NewCoins()
+	}
+
+	val, found := k.GetValidator(ctx, staker)
+	if !found {
+		return sdk.NewCoins()
+	}
+
+	endingPeriod, err := k.distKeeper.IncrementValidatorPeriod(ctx, val)
+	if err != nil {
+		return sdk.NewCoins()
+	}
+
+	rewards, err := k.distKeeper.CalculateDelegationRewards(ctx, val, del, endingPeriod)
+	if err != nil {
+		return sdk.NewCoins()
+	}
+
+	return util.TruncateDecCoins(rewards)
+}
+
+// Slash reduces the delegation of all delegators of `staker` by fraction. The slash itself is handled by the cosmos-sdk
+func (k Keeper) Slash(ctx sdk.Context, poolId uint64, staker string, slashFraction math.LegacyDec) {
+	validator, found := k.GetValidator(ctx, staker)
+	if !found {
+		return
+	}
+
+	consAddrBytes, _ := validator.GetConsAddr()
+
+	amount, err := k.stakingKeeper.Slash(ctx, consAddrBytes, ctx.BlockHeight(), validator.GetConsensusPower(math.NewInt(1000000)), slashFraction)
+	if err != nil {
+		return
+	}
+
+	_ = ctx.EventManager().EmitTypedEvent(&types.EventSlash{
+		PoolId: poolId,
+		Staker: staker,
+		Amount: amount.Uint64(),
+		// SlashType: slashType, TODO add slash type, once migrated away from delegation module
+	})
+}
+
 // GOVERNANCE - BONDING
 // The next functions are used in our custom fork of the cosmos-sdk
 // which includes protocol staking into the governance.
@@ -78,16 +216,7 @@ func (k Keeper) GetActiveStakers(ctx sdk.Context) []string {
 // I.e. the sum of all delegation of all stakers that are currently participating
 // in at least one pool
 func (k Keeper) TotalBondedTokens(ctx context.Context) math.Int {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	bondedTokens := math.ZeroInt()
-
-	for _, validator := range k.getAllActiveStakers(sdkCtx) {
-		delegation := int64(k.delegationKeeper.GetDelegationAmount(sdkCtx, validator))
-
-		bondedTokens = bondedTokens.Add(math.NewInt(delegation))
-	}
-
-	return bondedTokens
+	return math.ZeroInt()
 }
 
 // GetActiveValidators returns all protocol-node information which
@@ -95,38 +224,119 @@ func (k Keeper) TotalBondedTokens(ctx context.Context) math.Int {
 // The interface needs to correspond to github.com/cosmos/cosmos-sdk/x/gov/types/v1.ValidatorGovInfo
 // But as there is no direct dependency in the cosmos-sdk-fork this value is passed as an interface{}
 func (k Keeper) GetActiveValidators(ctx context.Context) (validators []interface{}) {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	for _, address := range k.getAllActiveStakers(sdkCtx) {
-		delegation := int64(k.delegationKeeper.GetDelegationAmount(sdkCtx, address))
-
-		validator := govV1Types.NewValidatorGovInfo(
-			sdk.ValAddress(sdk.MustAccAddressFromBech32(address)),
-			math.NewInt(delegation),
-			math.LegacyNewDec(delegation),
-			math.LegacyZeroDec(),
-			govV1Types.WeightedVoteOptions{},
-		)
-
-		validators = append(validators, validator)
-	}
-
 	return
 }
 
 // GetDelegations returns the address and the delegation amount of all active protocol-stakers the
 // delegator as delegated to. This is used to calculate the vote weight each delegator has.
 func (k Keeper) GetDelegations(ctx context.Context, delegator string) (validators []string, amounts []math.LegacyDec) {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	for _, validator := range k.delegationKeeper.GetStakersByDelegator(sdkCtx, delegator) {
-		if k.isActiveStaker(sdkCtx, validator) {
-			validators = append(validators, validator)
+	return
+}
 
-			amounts = append(
-				amounts,
-				math.LegacyNewDec(int64(k.delegationKeeper.GetDelegationAmountOfDelegator(sdkCtx, validator, delegator))),
-			)
-		}
+func (k Keeper) DoesStakerExist(ctx sdk.Context, staker string) bool {
+	// ToDo remove after Delegation module got deleted
+	_, found := k.GetValidator(ctx, staker)
+	return found
+}
+
+// PayoutRewards transfers `amount` from the `payerModuleName`-module to the delegation module.
+// It then awards these tokens internally to all delegators of staker `staker`.
+// Delegators can then receive these rewards if they call the `withdraw`-transaction.
+// If the staker has no delegators or the module to module transfer fails, the method fails and
+// returns an error.
+func (k Keeper) PayoutRewards(ctx sdk.Context, staker string, amount sdk.Coins, payerModuleName string) error {
+	// Assert there is an amount
+	if amount.Empty() {
+		return nil
 	}
 
-	return
+	validator, _ := k.GetValidator(ctx, staker)
+
+	err := k.distKeeper.AllocateTokensToValidator(ctx, validator, sdk.NewDecCoinsFromCoins(amount...))
+	if err != nil {
+		return err
+	}
+
+	// Transfer tokens to the delegation module
+	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, payerModuleName, distrtypes.ModuleName, amount); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// PayoutAdditionalCommissionRewards pays out some additional tokens to the validator.
+func (k Keeper) PayoutAdditionalCommissionRewards(ctx sdk.Context, validator string, payerModuleName string, amount sdk.Coins) error {
+	// Assert there is an amount
+	if amount.Empty() {
+		return nil
+	}
+
+	// Assert the staker exists
+	if _, found := k.GetValidator(ctx, validator); !found {
+		return errors.Wrapf(sdkErrors.ErrNotFound, "staker does not exist")
+	}
+
+	// transfer funds from pool to distribution module
+	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, payerModuleName, distrtypes.ModuleName, amount); err != nil {
+		return err
+	}
+
+	valAcc, err := sdk.ValAddressFromBech32(util.MustValaddressFromOperatorAddress(validator))
+	if err != nil {
+		return err
+	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			distrtypes.EventTypeCommission,
+			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()),
+			sdk.NewAttribute(distrtypes.AttributeKeyValidator, util.MustValaddressFromOperatorAddress(validator)),
+		),
+	)
+
+	currentCommission, err := k.distKeeper.GetValidatorAccumulatedCommission(ctx, valAcc)
+	if err != nil {
+		return err
+	}
+
+	currentCommission.Commission = currentCommission.Commission.Add(sdk.NewDecCoinsFromCoins(amount...)...)
+	err = k.distKeeper.SetValidatorAccumulatedCommission(ctx, valAcc, currentCommission)
+	if err != nil {
+		return err
+	}
+
+	outstanding, err := k.distKeeper.GetValidatorOutstandingRewards(ctx, valAcc)
+	if err != nil {
+		return err
+	}
+
+	outstanding.Rewards = outstanding.Rewards.Add(sdk.NewDecCoinsFromCoins(amount...)...)
+	err = k.distKeeper.SetValidatorOutstandingRewards(ctx, valAcc, outstanding)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (k Keeper) GetDelegationAmountOfDelegator(ctx sdk.Context, validator, delegator string) uint64 {
+	address, err := sdk.AccAddressFromBech32(delegator)
+	if err != nil {
+		panic(err)
+	}
+
+	valAddress, err := sdk.ValAddressFromBech32(util.MustValaddressFromOperatorAddress(validator))
+	if err != nil {
+		panic(err)
+	}
+
+	delegation, err := k.stakingKeeper.Delegation(ctx, address, valAddress)
+	if err != nil {
+		return 0
+	}
+
+	val, _ := k.stakingKeeper.GetValidator(ctx, valAddress)
+
+	return uint64(val.TokensFromSharesTruncated(delegation.GetShares()).RoundInt64())
 }

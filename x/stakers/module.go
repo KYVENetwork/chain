@@ -5,13 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 
+	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 
 	"github.com/KYVENetwork/chain/util"
-	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
@@ -107,22 +108,16 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 type AppModule struct {
 	AppModuleBasic
 
-	keeper        *keeper.Keeper
-	accountKeeper util.AccountKeeper
-	bankKeeper    util.BankKeeper
+	keeper *keeper.Keeper
 }
 
 func NewAppModule(
 	cdc codec.Codec,
 	keeper *keeper.Keeper,
-	accountKeeper util.AccountKeeper,
-	bankKeeper util.BankKeeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: NewAppModuleBasic(cdc),
 		keeper:         keeper,
-		accountKeeper:  accountKeeper,
-		bankKeeper:     bankKeeper,
 	}
 }
 
@@ -178,7 +173,6 @@ func init() {
 	appmodule.Register(
 		&modulev1.Module{},
 		appmodule.Provide(ProvideModule),
-		appmodule.Invoke(InvokeSetDelegationKeeper),
 	)
 }
 
@@ -191,11 +185,10 @@ type ModuleInputs struct {
 	MemService   store.MemoryStoreService
 	Logger       log.Logger
 
-	AccountKeeper      util.AccountKeeper
 	BankKeeper         util.BankKeeper
 	DistributionKeeper distributionKeeper.Keeper
-	UpgradeKeeper      util.UpgradeKeeper
 	PoolKeeper         *poolKeeper.Keeper
+	StakingKeeper      util.StakingKeeper
 }
 
 type ModuleOutputs struct {
@@ -203,6 +196,7 @@ type ModuleOutputs struct {
 
 	StakersKeeper *keeper.Keeper
 	Module        appmodule.AppModule
+	Hooks         stakingTypes.StakingHooksWrapper
 }
 
 func ProvideModule(in ModuleInputs) ModuleOutputs {
@@ -217,29 +211,15 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		in.MemService,
 		in.Logger,
 		authority.String(),
-		in.AccountKeeper,
 		in.BankKeeper,
-		in.DistributionKeeper,
 		in.PoolKeeper,
-		in.UpgradeKeeper,
+		in.StakingKeeper,
+		in.DistributionKeeper,
 	)
 	m := NewAppModule(
 		in.Cdc,
 		k,
-		in.AccountKeeper,
-		in.BankKeeper,
 	)
 
-	return ModuleOutputs{StakersKeeper: k, Module: m}
-}
-
-func InvokeSetDelegationKeeper(
-	k *keeper.Keeper,
-	delegationKeeper delegationKeeper.Keeper,
-) error {
-	if k == nil {
-		return fmt.Errorf("keeper is nil")
-	}
-	keeper.SetDelegationKeeper(k, delegationKeeper)
-	return nil
+	return ModuleOutputs{StakersKeeper: k, Module: m, Hooks: stakingTypes.StakingHooksWrapper{StakingHooks: k}}
 }

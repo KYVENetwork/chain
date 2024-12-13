@@ -4,6 +4,7 @@ package kyve.stakers.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "kyve/stakers/v1beta1/params.proto";
+import "kyve/stakers/v1beta1/stakers.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/stakers/types";
 
@@ -16,37 +17,6 @@ message EventUpdateParams {
   kyve.stakers.v1beta1.Params new_params = 2 [(gogoproto.nullable) = false];
   // payload is the parameter updates that were performed.
   string payload = 3;
-}
-
-// EventCreateStaker is an event emitted when a protocol node stakes in a pool.
-// emitted_by: MsgCreateStaker
-message EventCreateStaker {
-  // staker is the account address of the protocol node.
-  string staker = 1;
-  // amount ...
-  uint64 amount = 2;
-  // commission
-  string commission = 3 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-}
-
-// EventUpdateMetadata is an event emitted when a protocol node updates their metadata.
-// emitted_by: MsgUpdateMetadata
-message EventUpdateMetadata {
-  // staker is the account address of the protocol node.
-  string staker = 1;
-  // moniker ...
-  string moniker = 2;
-  // website ...
-  string website = 3;
-  // identity ...
-  string identity = 4;
-  // security_contact ...
-  string security_contact = 5;
-  // details ...
-  string details = 6;
 }
 
 // EventUpdateCommission ...
@@ -91,4 +61,17 @@ message EventLeavePool {
   uint64 pool_id = 1;
   // staker ...
   string staker = 2;
+}
+
+// EventSlash is an event emitted when a protocol node is slashed.
+// emitted_by: MsgSubmitBundleProposal, EndBlock
+message EventSlash {
+  // pool_id is the unique ID of the pool.
+  uint64 pool_id = 1;
+  // staker is the account address of the protocol node.
+  string staker = 2;
+  // amount ...
+  uint64 amount = 3;
+  // slash_type
+  SlashType slash_type = 4;
 }

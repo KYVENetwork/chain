@@ -65,10 +65,7 @@ var _ = Describe("points", Ordered, func() {
 			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
@@ -76,10 +73,7 @@ var _ = Describe("points", Ordered, func() {
 			Valaddress: i.VALADDRESS_0_A,
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
@@ -87,10 +81,7 @@ var _ = Describe("points", Ordered, func() {
 			Valaddress: i.VALADDRESS_1_A,
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_2,
-			Amount:  50 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_2, "Staker-2", int64(50*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_2,
@@ -98,13 +89,12 @@ var _ = Describe("points", Ordered, func() {
 			Valaddress: i.VALADDRESS_2_A,
 		})
 
-		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
-			Staker:  i.STAKER_0,
-			PoolId:  0,
-		})
-
 		s.CommitAfterSeconds(60)
+
+		// Claim Uploader role for Staker 0
+		pool, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
+		pool.NextUploader = i.STAKER_0
+		s.App().BundlesKeeper.SetBundleProposal(s.Ctx(), pool)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_0_A,
@@ -140,8 +130,8 @@ var _ = Describe("points", Ordered, func() {
 		// do not vote
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
-			Staker:        i.STAKER_1,
+			Creator:       i.VALADDRESS_0_A,
+			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
 			DataSize:      100,
@@ -163,8 +153,8 @@ var _ = Describe("points", Ordered, func() {
 		// do not vote
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
-			Staker:        i.STAKER_1,
+			Creator:       i.VALADDRESS_0_A,
+			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
 			DataSize:      100,
@@ -188,8 +178,8 @@ var _ = Describe("points", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
-			Staker:        i.STAKER_0,
+			Creator:       i.VALADDRESS_1_A,
+			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "18SRvVuCrB8vy_OCLBaNbXONMVGeflGcw4gGTZ1oUt4",
 			DataSize:      100,
@@ -353,7 +343,7 @@ var _ = Describe("points", Ordered, func() {
 		poolStakers := s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)
 		Expect(poolStakers).To(HaveLen(2))
 
-		_, stakerFound := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_2)
+		_, stakerFound := s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_2)
 		Expect(stakerFound).To(BeTrue())
 
 		_, valaccountFound := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
@@ -363,7 +353,7 @@ var _ = Describe("points", Ordered, func() {
 		slashAmountRatio := s.App().DelegationKeeper.GetTimeoutSlash(s.Ctx())
 		expectedBalance := 50*i.KYVE - uint64(math.LegacyNewDec(int64(50*i.KYVE)).Mul(slashAmountRatio).TruncateInt64())
 
-		Expect(expectedBalance).To(Equal(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_2, i.STAKER_2)))
+		Expect(expectedBalance).To(Equal(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_2, i.STAKER_2)))
 	})
 
 	It("One validator does not vote for multiple proposals and submits a bundle proposal", func() {

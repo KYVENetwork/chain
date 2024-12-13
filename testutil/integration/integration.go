@@ -1,9 +1,11 @@
 package integration
 
 import (
-	"encoding/hex"
 	mrand "math/rand"
 	"time"
+
+	"cosmossdk.io/math"
+	"github.com/KYVENetwork/chain/util"
 
 	"github.com/stretchr/testify/suite"
 
@@ -19,7 +21,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -241,11 +242,8 @@ type KeeperTestSuite struct {
 
 	ctx sdk.Context
 
-	app         *app.App
-	address     [20]byte
-	consAddress sdk.ConsAddress
-	validator   stakingtypes.Validator
-	denom       string
+	app   *app.App
+	denom string
 }
 
 func (suite *KeeperTestSuite) App() *app.App {
@@ -269,18 +267,11 @@ func (suite *KeeperTestSuite) SetupApp(startTime int64) {
 
 	suite.denom = globalTypes.Denom
 
-	rawHex, _ := hex.DecodeString("0xBf71F763e4DEd30139C40160AE74Df881D5C7A2d")
-	suite.address = [20]byte(rawHex[:20])
-
-	// consensus key
-	ePriv := ed25519.GenPrivKeyFromSecret([]byte{1})
-	suite.consAddress = sdk.ConsAddress(ePriv.PubKey().Address())
-
 	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, tmproto.Header{
 		Height:          1,
 		ChainID:         "kyve-test",
 		Time:            time.Unix(startTime, 0).UTC(),
-		ProposerAddress: suite.consAddress.Bytes(),
+		ProposerAddress: sdk.ConsAddress(ed25519.GenPrivKeyFromSecret([]byte("Validator-1")).PubKey().Address()).Bytes(),
 
 		Version: tmversion.Consensus{
 			Block: version.BlockProtocol,
@@ -307,20 +298,52 @@ func (suite *KeeperTestSuite) SetupApp(startTime int64) {
 
 	stakingParams, _ := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = suite.denom
+	stakingParams.MaxValidators = 51
 	_ = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 
 	govParams, _ := suite.app.GovKeeper.Params.Get(suite.ctx)
 	govParams.MinDeposit = sdk.NewCoins(sdk.NewInt64Coin(KYVE_DENOM, int64(100_000_000_000))) // set min deposit to 100 KYVE
 	_ = suite.app.GovKeeper.Params.Set(suite.ctx, govParams)
+}
 
-	// Set Validator
-	valAddr := sdk.ValAddress(suite.address[:])
-	validator, _ := stakingtypes.NewValidator(valAddr.String(), ePriv.PubKey(), stakingtypes.Description{})
-	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
-	//_ = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
-	_ = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
-	validators, _ := suite.app.StakingKeeper.GetValidators(suite.ctx, 1)
-	suite.validator = validators[0]
+func (suite *KeeperTestSuite) CreateValidatorWithoutCommit(address, moniker string, kyveStake int64) {
+	valAddress := util.MustValaddressFromOperatorAddress(address)
+
+	msg, _ := stakingtypes.NewMsgCreateValidator(
+		valAddress,
+		ed25519.GenPrivKeyFromSecret([]byte(valAddress)).PubKey(),
+		sdk.NewInt64Coin(globalTypes.Denom, kyveStake),
+		stakingtypes.Description{Moniker: moniker},
+		stakingtypes.NewCommissionRates(math.LegacyMustNewDecFromStr("0.1"), math.LegacyMustNewDecFromStr("1"), math.LegacyMustNewDecFromStr("1")),
+		math.NewInt(1),
+	)
+
+	_, err := suite.RunTx(msg)
+	if err != nil {
+		panic(err)
+	}
+
+	suite.Commit()
+}
+
+func (suite *KeeperTestSuite) CreateValidator(address, moniker string, kyveStake int64) {
+	suite.CreateValidatorWithoutCommit(address, moniker, kyveStake)
+	suite.Commit()
+}
+
+func (suite *KeeperTestSuite) CreateZeroDelegationValidator(address, name string) {
+	// create zero delegation validator by overwriting the min-self-delegation with an invalid value
+	// it is fine for the test
+	suite.CreateValidator(address, name, int64(100*KYVE))
+	val, _ := sdk.ValAddressFromBech32(util.MustValaddressFromOperatorAddress(address))
+	validator, _ := suite.App().StakingKeeper.GetValidator(suite.Ctx(), val)
+	validator.MinSelfDelegation = math.ZeroInt()
+	_ = suite.App().StakingKeeper.SetValidator(suite.Ctx(), validator)
+	suite.RunTxSuccess(stakingtypes.NewMsgUndelegate(
+		address,
+		util.MustValaddressFromOperatorAddress(address),
+		sdk.NewInt64Coin("tkyve", int64(100*KYVE)),
+	))
 }
 
 func (suite *KeeperTestSuite) Commit() {

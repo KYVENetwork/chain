@@ -365,10 +365,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 
 	It("Kick out all stakers from pool", func() {
 		// ARRANGE
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
@@ -377,10 +374,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
@@ -433,10 +427,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 
 	It("Kick out all stakers from pool which are still members of another pool", func() {
 		// ARRANGE
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
@@ -452,10 +443,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
@@ -508,10 +496,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 
 	It("Drop current bundle proposal when pool gets disabled", func() {
 		// ARRANGE
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
@@ -520,10 +505,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,

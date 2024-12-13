@@ -2,7 +2,10 @@ package keeper_test
 
 import (
 	"cosmossdk.io/math"
-	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
+	"github.com/KYVENetwork/chain/util"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -71,10 +74,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
@@ -82,10 +82,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 			Valaddress: i.VALADDRESS_0_A,
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
@@ -131,10 +128,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 			BundleSummary: "test_value",
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_2,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_2, "Staker-2", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_2,
@@ -219,18 +213,18 @@ var _ = Describe("invalid bundles", Ordered, func() {
 
 		balanceUploader := s.GetBalanceFromAddress(i.STAKER_0)
 
-		_, uploaderFound := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+		_, uploaderFound := s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_0)
 		Expect(uploaderFound).To(BeTrue())
 
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
 
 		// calculate uploader slashes
 		fraction := s.App().DelegationKeeper.GetUploadSlash(s.Ctx())
 		slashAmount := uint64(math.LegacyNewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 
-		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100*i.KYVE - slashAmount))
-		Expect(s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100*i.KYVE - slashAmount))
+		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 
 		// check voter status
 		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
@@ -242,7 +236,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		balanceVoter := s.GetBalanceFromAddress(valaccountVoter.Staker)
 
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
 
 		// check voter 2 status
 		valaccountVoter, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
@@ -254,7 +248,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		balanceVoter = s.GetBalanceFromAddress(valaccountVoter.Staker)
 
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.STAKER_2)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.STAKER_2)).To(BeEmpty())
 
 		// check pool funds
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
@@ -266,22 +260,19 @@ var _ = Describe("invalid bundles", Ordered, func() {
 
 	It("Produce an invalid bundle with multiple validators and foreign delegations", func() {
 		// ARRANGE
-		s.RunTxDelegatorSuccess(&delegationtypes.MsgDelegate{
-			Creator: i.ALICE,
-			Staker:  i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
+		s.RunTxSuccess(stakingTypes.NewMsgDelegate(
+			i.ALICE,
+			util.MustValaddressFromOperatorAddress(i.STAKER_0),
+			sdk.NewInt64Coin(globalTypes.Denom, int64(100*i.KYVE)),
+		))
 
-		s.RunTxDelegatorSuccess(&delegationtypes.MsgDelegate{
-			Creator: i.BOB,
-			Staker:  i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.RunTxSuccess(stakingTypes.NewMsgDelegate(
+			i.BOB,
+			util.MustValaddressFromOperatorAddress(i.STAKER_1),
+			sdk.NewInt64Coin(globalTypes.Denom, int64(100*i.KYVE)),
+		))
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_2,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_2, "Staker-2", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_2,
@@ -289,11 +280,11 @@ var _ = Describe("invalid bundles", Ordered, func() {
 			Valaddress: i.VALADDRESS_2_A,
 		})
 
-		s.RunTxDelegatorSuccess(&delegationtypes.MsgDelegate{
-			Creator: i.CHARLIE,
-			Staker:  i.STAKER_2,
-			Amount:  100 * i.KYVE,
-		})
+		s.RunTxSuccess(stakingTypes.NewMsgDelegate(
+			i.CHARLIE,
+			util.MustValaddressFromOperatorAddress(i.STAKER_2),
+			sdk.NewInt64Coin(globalTypes.Denom, int64(100*i.KYVE)),
+		))
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_0_A,
@@ -385,23 +376,23 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(balanceValaddress).To(Equal(initialBalanceValaddress0))
 
 		balanceUploader := s.GetBalanceFromAddress(i.STAKER_0)
-		_, uploaderFound := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+		_, uploaderFound := s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_0)
 		Expect(uploaderFound).To(BeTrue())
 
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
 
 		// calculate uploader slashes
 		fraction := s.App().DelegationKeeper.GetUploadSlash(s.Ctx())
 		slashAmountUploader := uint64(math.LegacyNewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 		slashAmountDelegator := uint64(math.LegacyNewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 
-		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100*i.KYVE - slashAmountUploader))
-		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.ALICE)).To(Equal(100*i.KYVE - slashAmountDelegator))
+		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100*i.KYVE - slashAmountUploader))
+		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.ALICE)).To(Equal(100*i.KYVE - slashAmountDelegator))
 
-		Expect(s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(400 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(400 * i.KYVE))
 
 		// check voter status
 		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
@@ -412,8 +403,8 @@ var _ = Describe("invalid bundles", Ordered, func() {
 
 		balanceVoter := s.GetBalanceFromAddress(valaccountVoter.Staker)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeEmpty())
 
 		// check voter 2 status
 		valaccountVoter, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
@@ -424,8 +415,8 @@ var _ = Describe("invalid bundles", Ordered, func() {
 
 		balanceVoter = s.GetBalanceFromAddress(valaccountVoter.Staker)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeEmpty())
 
 		// check pool funds
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
@@ -437,22 +428,19 @@ var _ = Describe("invalid bundles", Ordered, func() {
 
 	It("Produce an invalid bundle with multiple validators although some voted valid", func() {
 		// ARRANGE
-		s.RunTxDelegatorSuccess(&delegationtypes.MsgDelegate{
-			Creator: i.ALICE,
-			Staker:  i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
+		s.RunTxSuccess(stakingTypes.NewMsgDelegate(
+			i.ALICE,
+			util.MustValaddressFromOperatorAddress(i.STAKER_0),
+			sdk.NewInt64Coin(globalTypes.Denom, int64(100*i.KYVE)),
+		))
 
-		s.RunTxDelegatorSuccess(&delegationtypes.MsgDelegate{
-			Creator: i.BOB,
-			Staker:  i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.RunTxSuccess(stakingTypes.NewMsgDelegate(
+			i.BOB,
+			util.MustValaddressFromOperatorAddress(i.STAKER_1),
+			sdk.NewInt64Coin(globalTypes.Denom, int64(100*i.KYVE)),
+		))
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_2,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_2, "Staker-2", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_2,
@@ -460,16 +448,13 @@ var _ = Describe("invalid bundles", Ordered, func() {
 			Valaddress: i.VALADDRESS_2_A,
 		})
 
-		s.RunTxDelegatorSuccess(&delegationtypes.MsgDelegate{
-			Creator: i.CHARLIE,
-			Staker:  i.STAKER_2,
-			Amount:  100 * i.KYVE,
-		})
+		s.RunTxSuccess(stakingTypes.NewMsgDelegate(
+			i.CHARLIE,
+			util.MustValaddressFromOperatorAddress(i.STAKER_2),
+			sdk.NewInt64Coin(globalTypes.Denom, int64(100*i.KYVE)),
+		))
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_3,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_3, "Staker-3", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_3,
@@ -478,11 +463,11 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		})
 
 		// delegate a bit more so invalid voters have more than 50%
-		s.RunTxDelegatorSuccess(&delegationtypes.MsgDelegate{
-			Creator: i.DAVID,
-			Staker:  i.STAKER_3,
-			Amount:  150 * i.KYVE,
-		})
+		s.RunTxSuccess(stakingTypes.NewMsgDelegate(
+			i.DAVID,
+			util.MustValaddressFromOperatorAddress(i.STAKER_3),
+			sdk.NewInt64Coin(globalTypes.Denom, int64(150*i.KYVE)),
+		))
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_0_A,
@@ -583,31 +568,31 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(balanceValaddress).To(Equal(initialBalanceValaddress0))
 
 		balanceUploader := s.GetBalanceFromAddress(i.STAKER_0)
-		_, uploaderFound := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
+		_, uploaderFound := s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_0)
 		Expect(uploaderFound).To(BeTrue())
 
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
 		// assert uploader self delegation rewards
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
 
 		// calculate uploader slashes
 		fraction := s.App().DelegationKeeper.GetUploadSlash(s.Ctx())
 		slashAmountUploader := uint64(math.LegacyNewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 		slashAmountDelegator1 := uint64(math.LegacyNewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 
-		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100*i.KYVE - slashAmountUploader))
-		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.ALICE)).To(Equal(100*i.KYVE - slashAmountDelegator1))
+		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100*i.KYVE - slashAmountUploader))
+		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.ALICE)).To(Equal(100*i.KYVE - slashAmountDelegator1))
 
 		// calculate voter slashes
 		fraction = s.App().DelegationKeeper.GetVoteSlash(s.Ctx())
 		slashAmountVoter := uint64(math.LegacyNewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 		slashAmountDelegator2 := uint64(math.LegacyNewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 
-		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(Equal(100*i.KYVE - slashAmountVoter))
-		Expect(s.App().DelegationKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.BOB)).To(Equal(100*i.KYVE - slashAmountDelegator2))
+		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(Equal(100*i.KYVE - slashAmountVoter))
+		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.BOB)).To(Equal(100*i.KYVE - slashAmountDelegator2))
 
-		Expect(s.App().DelegationKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(450 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(450 * i.KYVE))
 
 		// check voter status
 		_, valaccountVoterFound := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
@@ -618,8 +603,8 @@ var _ = Describe("invalid bundles", Ordered, func() {
 
 		balanceVoter := s.GetBalanceFromAddress(i.STAKER_1)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker2))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeEmpty())
 
 		// check voter2 status
 		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
@@ -630,8 +615,8 @@ var _ = Describe("invalid bundles", Ordered, func() {
 
 		balanceVoter = s.GetBalanceFromAddress(valaccountVoter.Staker)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.STAKER_2)).To(BeEmpty())
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.CHARLIE)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.STAKER_2)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.CHARLIE)).To(BeEmpty())
 
 		// check voter3 status
 		valaccountVoter, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_3)
@@ -642,8 +627,8 @@ var _ = Describe("invalid bundles", Ordered, func() {
 
 		balanceVoter = s.GetBalanceFromAddress(valaccountVoter.Staker)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_3, i.STAKER_3)).To(BeEmpty())
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_3, i.DAVID)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_3, i.STAKER_3)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_3, i.DAVID)).To(BeEmpty())
 
 		// check pool funds
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)

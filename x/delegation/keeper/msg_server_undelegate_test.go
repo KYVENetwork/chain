@@ -41,13 +41,19 @@ var _ = Describe("msg_server_undelegate.go", Ordered, func() {
 
 		CreatePool(s)
 
-		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
+		s.CreateValidator(i.ALICE, "Alice", int64(aliceSelfDelegation))
+		// Shadow delegation inside delegation module (temporary work-around)
+		s.RunTxDelegatorSuccess(&types.MsgDelegate{
 			Creator: i.ALICE,
+			Staker:  i.ALICE,
 			Amount:  aliceSelfDelegation,
 		})
 
-		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
+		s.CreateValidator(i.BOB, "Bob", int64(bobSelfDelegation))
+		// Shadow delegation inside delegation module (temporary work-around)
+		s.RunTxDelegatorSuccess(&types.MsgDelegate{
 			Creator: i.BOB,
+			Staker:  i.BOB,
 			Amount:  bobSelfDelegation,
 		})
 
@@ -77,10 +83,10 @@ var _ = Describe("msg_server_undelegate.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		_, aliceFound := s.App().StakersKeeper.GetStaker(s.Ctx(), i.ALICE)
+		_, aliceFound := s.App().StakersKeeper.GetValidator(s.Ctx(), i.ALICE)
 		Expect(aliceFound).To(BeTrue())
 
-		_, bobFound := s.App().StakersKeeper.GetStaker(s.Ctx(), i.BOB)
+		_, bobFound := s.App().StakersKeeper.GetValidator(s.Ctx(), i.BOB)
 		Expect(bobFound).To(BeTrue())
 
 		s.CommitAfterSeconds(7)

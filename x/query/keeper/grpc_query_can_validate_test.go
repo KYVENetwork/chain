@@ -42,10 +42,7 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 		s.RunTxPoolSuccess(msg)
 		s.RunTxPoolSuccess(msg)
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
@@ -54,10 +51,7 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 			Amount:     0,
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,

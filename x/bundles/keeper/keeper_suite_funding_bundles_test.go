@@ -104,10 +104,7 @@ var _ = Describe("funding bundles", Ordered, func() {
 			Moniker: "Bob",
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
@@ -115,10 +112,7 @@ var _ = Describe("funding bundles", Ordered, func() {
 			Valaddress: i.VALADDRESS_0_A,
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,

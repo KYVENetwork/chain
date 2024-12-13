@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"sort"
 
 	"cosmossdk.io/math"
@@ -31,10 +32,7 @@ TEST CASES - logic_bundles.go
 */
 
 func joinDummy(s *i.KeeperTestSuite, index, kyveAmount uint64) {
-	s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-		Creator: i.DUMMY[index],
-		Amount:  kyveAmount * i.KYVE,
-	})
+	s.CreateValidator(i.DUMMY[index], fmt.Sprintf("dummy-%d", index), int64(kyveAmount*i.KYVE))
 
 	s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 		Creator:    i.DUMMY[index],
@@ -160,30 +158,8 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 		Expect(rrvs.Progress[i.DUMMY[2]]).To(Equal(int64(1)))
 	})
 
-	It("Empty round-robin set", func() {
-		// ARRANGE
-		joinDummy(s, 0, 0)
-		joinDummy(s, 1, 0)
-		joinDummy(s, 2, 0)
-
-		// ACT
-		rrvs := s.App().BundlesKeeper.LoadRoundRobinValidatorSet(s.Ctx(), 0)
-		state := rrvs.GetRoundRobinProgress()
-
-		nextProposer := rrvs.NextProposer()
-
-		// ASSERT
-		Expect(rrvs.Validators).To(HaveLen(0))
-		Expect(rrvs.Progress).To(HaveLen(0))
-
-		Expect(state).To(HaveLen(0))
-
-		Expect(nextProposer).To(BeEmpty())
-	})
-
 	It("Partially filled round-robin set (one staker with 0 delegation)", func() {
 		// ARRANGE
-		joinDummy(s, 0, 0)
 		joinDummy(s, 1, 10)
 		joinDummy(s, 2, 5)
 

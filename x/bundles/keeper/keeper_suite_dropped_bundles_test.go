@@ -65,10 +65,7 @@ var _ = Describe("dropped bundles", Ordered, func() {
 			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_0,
@@ -76,10 +73,7 @@ var _ = Describe("dropped bundles", Ordered, func() {
 			Valaddress: i.VALADDRESS_0_A,
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_1,
@@ -108,10 +102,7 @@ var _ = Describe("dropped bundles", Ordered, func() {
 
 	It("Produce a dropped bundle because not enough validators voted", func() {
 		// ARRANGE
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_2,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_2, "Staker-2", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:    i.STAKER_2,
@@ -183,7 +174,7 @@ var _ = Describe("dropped bundles", Ordered, func() {
 		balanceUploader := s.GetBalanceFromAddress(valaccountUploader.Staker)
 
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
 
 		// check voter status
 		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
@@ -196,7 +187,7 @@ var _ = Describe("dropped bundles", Ordered, func() {
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
-		Expect(s.App().DelegationKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
 
 		// check pool funds
 		pool, _ = s.App().PoolKeeper.GetPool(s.Ctx(), 0)

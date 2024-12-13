@@ -3,7 +3,8 @@ package keeper
 import (
 	"encoding/binary"
 
-	"cosmossdk.io/math"
+	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
 	storeTypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -17,49 +18,10 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// UpdateStakerMetadata ...
-func (k Keeper) UpdateStakerMetadata(
-	ctx sdk.Context,
-	address string,
-	moniker string,
-	website string,
-	identity string,
-	securityContact string,
-	details string,
-) {
-	staker, found := k.GetStaker(ctx, address)
-	if found {
-		staker.Moniker = moniker
-		staker.Website = website
-		staker.Identity = identity
-		staker.SecurityContact = securityContact
-		staker.Details = details
-		k.setStaker(ctx, staker)
-	}
-}
-
-// updateStakerCommissionRewards ...
-func (k Keeper) updateStakerCommissionRewards(ctx sdk.Context, address string, amount sdk.Coins) {
-	staker, found := k.GetStaker(ctx, address)
-	if found {
-		staker.CommissionRewards = staker.CommissionRewards.Add(amount...)
-		k.setStaker(ctx, staker)
-	}
-}
-
-// UpdateStakerCommission ...
-func (k Keeper) UpdateStakerCommission(ctx sdk.Context, address string, commission math.LegacyDec) {
-	staker, found := k.GetStaker(ctx, address)
-	if found {
-		staker.Commission = commission
-		k.setStaker(ctx, staker)
-	}
-}
-
 // AddValaccountToPool adds a valaccount to a pool.
 // If valaccount already belongs to pool, nothing happens.
 func (k Keeper) AddValaccountToPool(ctx sdk.Context, poolId uint64, stakerAddress string, valaddress string) {
-	if k.DoesStakerExist(ctx, stakerAddress) {
+	if _, validatorExists := k.GetValidator(ctx, stakerAddress); validatorExists {
 		if !k.DoesValaccountExist(ctx, poolId, stakerAddress) {
 			k.SetValaccount(ctx, types.Valaccount{
 				PoolId:     poolId,
@@ -87,46 +49,25 @@ func (k Keeper) RemoveValaccountFromPool(ctx sdk.Context, poolId uint64, stakerA
 	}
 }
 
-func (k Keeper) AppendStaker(ctx sdk.Context, staker types.Staker) {
-	k.setStaker(ctx, staker)
-}
-
 // #############################
 // #  Raw KV-Store operations  #
 // #############################
 
-func (k Keeper) getAllStakersOfPool(ctx sdk.Context, poolId uint64) []types.Staker {
+func (k Keeper) getAllStakersOfPool(ctx sdk.Context, poolId uint64) []stakingTypes.Validator {
 	valaccounts := k.GetAllValaccountsOfPool(ctx, poolId)
 
-	stakers := make([]types.Staker, 0)
+	stakers := make([]stakingTypes.Validator, 0)
 
 	for _, valaccount := range valaccounts {
-		staker, _ := k.GetStaker(ctx, valaccount.Staker)
+		staker, _ := k.GetValidator(ctx, valaccount.Staker)
 		stakers = append(stakers, staker)
 	}
 
 	return stakers
 }
 
-// setStaker set a specific staker in the store from its index
-func (k Keeper) setStaker(ctx sdk.Context, staker types.Staker) {
-	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.StakerKeyPrefix)
-	b := k.cdc.MustMarshal(&staker)
-	store.Set(types.StakerKey(
-		staker.Address,
-	), b)
-}
-
-// DoesStakerExist returns true if the staker exists
-func (k Keeper) DoesStakerExist(ctx sdk.Context, staker string) bool {
-	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.StakerKeyPrefix)
-	return store.Has(types.StakerKey(staker))
-}
-
-// GetStaker returns a staker from its index
-func (k Keeper) GetStaker(
+// GetLegacyStaker returns a staker from its index
+func (k Keeper) GetLegacyStaker(
 	ctx sdk.Context,
 	staker string,
 ) (val types.Staker, found bool) {
@@ -144,7 +85,7 @@ func (k Keeper) GetStaker(
 	return val, true
 }
 
-func (k Keeper) GetPaginatedStakerQuery(
+func (k Keeper) GetPaginatedLegacyStakerQuery(
 	ctx sdk.Context,
 	pagination *query.PageRequest,
 	accumulator func(staker types.Staker),
@@ -175,7 +116,7 @@ func (k Keeper) GetPaginatedStakerQuery(
 }
 
 // GetAllStakers returns all staker
-func (k Keeper) GetAllStakers(ctx sdk.Context) (list []types.Staker) {
+func (k Keeper) GetAllLegacyStakers(ctx sdk.Context) (list []types.Staker) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	store := prefix.NewStore(storeAdapter, types.StakerKeyPrefix)
 	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
@@ -231,12 +172,6 @@ func (k Keeper) setStat(ctx sdk.Context, poolId uint64, statType types.STAKER_ST
 // #      Active Staker        #
 // #############################
 // Active Staker stores all stakers that are at least in one pool
-
-func (k Keeper) isActiveStaker(ctx sdk.Context, staker string) bool {
-	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.ActiveStakerIndex)
-	return store.Has(types.ActiveStakerKeyIndex(staker))
-}
 
 // AddActiveStaker increases the active-staker-count of the given staker by one.
 // The amount tracks the number of pools the staker is in. It also allows

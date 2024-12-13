@@ -3,12 +3,13 @@ package keeper
 import (
 	"fmt"
 
+	delegationkeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
+
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
 	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
 
-	delegationkeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
 	poolkeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	stakerskeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
