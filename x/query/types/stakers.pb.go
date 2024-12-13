@@ -761,6 +761,7 @@ func _QueryStakers_StakersByPoolCount_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+var QueryStakers_serviceDesc = _QueryStakers_serviceDesc
 var _QueryStakers_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "kyve.query.v1beta1.QueryStakers",
 	HandlerType: (*QueryStakersServer)(nil),

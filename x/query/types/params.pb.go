@@ -282,6 +282,7 @@ func _QueryParams_Params_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+var QueryParams_serviceDesc = _QueryParams_serviceDesc
 var _QueryParams_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "kyve.query.v1beta1.QueryParams",
 	HandlerType: (*QueryParamsServer)(nil),
