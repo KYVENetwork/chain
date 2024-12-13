@@ -468,14 +468,6 @@ func (k Keeper) dropCurrentBundleProposal(ctx sdk.Context, poolId uint64, voteDi
 	k.SetBundleProposal(ctx, bundleProposal)
 }
 
-// calculateVotingPower calculates the voting power one staker has in a
-// storage pool based only on the total delegation this staker has
-func (k Keeper) calculateVotingPower(delegation uint64) (votingPower uint64) {
-	// voting power is linear
-	votingPower = delegation
-	return
-}
-
 // chooseNextUploader selects the next uploader based on a fixed set of stakers in a pool.
 // It is guaranteed that someone is chosen deterministically if the round-robin set itself is not empty.
 func (k Keeper) chooseNextUploader(ctx sdk.Context, poolId uint64, excluded ...string) (nextUploader string) {

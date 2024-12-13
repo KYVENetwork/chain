@@ -24,7 +24,7 @@ TEST CASES - logic_end_block_handle_upload_timeout.go
 * Next uploader gets removed due to pool upgrading
 * Next uploader gets removed due to pool being disabled
 * Next uploader gets removed due to pool not reaching min delegation
-* Next uploader gets removed due to pool having one node with more than 50% voting power
+* Next uploader gets not removed although pool having one node with more than 50% voting power
 * Staker is next uploader of genesis bundle and upload interval and timeout does not pass
 * Staker is next uploader of genesis bundle and upload timeout does not pass but upload interval passes
 * Staker is next uploader of genesis bundle and upload timeout does pass together with upload interval
@@ -281,7 +281,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_1, 0)).To(Equal(20 * i.KYVE))
 	})
 
-	It("Next uploader gets removed due to pool having one node with more than 50% voting power", func() {
+	It("Next uploader gets not removed although pool having one node with more than 50% voting power", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
 			Creator: i.VALADDRESS_0_A,
@@ -300,7 +300,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 
 		// ASSERT
 		bundleProposal, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
-		Expect(bundleProposal.NextUploader).To(BeEmpty())
+		Expect(bundleProposal.NextUploader).To(Equal("kyve1htgfatqevuvfzvl0sxp97ywteqhg5leha9emf4"))
 		Expect(bundleProposal.StorageId).To(BeEmpty())
 
 		poolStakers := s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)
