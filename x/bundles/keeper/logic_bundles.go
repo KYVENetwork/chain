@@ -3,12 +3,11 @@ package keeper
 import (
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
+	"github.com/KYVENetwork/chain/util"
+	"github.com/KYVENetwork/chain/x/bundles/types"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
-
-	"github.com/KYVENetwork/chain/util"
-	"github.com/KYVENetwork/chain/x/bundles/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -38,18 +37,19 @@ func (k Keeper) AssertPoolCanRun(ctx sdk.Context, poolId uint64) error {
 	}
 
 	// Get the total and the highest delegation of a single validator in the pool
-	totalDelegation, highestDelegation := k.stakerKeeper.GetTotalAndHighestDelegationOfPool(ctx, poolId)
+	totalDelegation, _ := k.stakerKeeper.GetTotalAndHighestDelegationOfPool(ctx, poolId)
 
 	// Error if min delegation is not reached
 	if totalDelegation < pool.MinDelegation {
 		return types.ErrMinDelegationNotReached
 	}
 
+	stakers := int64(len(k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, poolId)))
 	maxVotingPower := k.poolKeeper.GetMaxVotingPowerPerPool(ctx)
-	maxDelegation := uint64(maxVotingPower.MulInt64(int64(totalDelegation)).TruncateInt64())
 
-	// Error if highest delegation exceeds max voting power
-	if highestDelegation > maxDelegation {
+	// Error if max voting power is not achievable because there are not enough stakers
+	// in the pool
+	if math.LegacyOneDec().Quo(maxVotingPower).GT(math.LegacyNewDec(stakers)) {
 		return types.ErrVotingPowerTooHigh
 	}
 
@@ -511,28 +511,26 @@ func (k Keeper) GetVoteDistribution(ctx sdk.Context, poolId uint64) (voteDistrib
 		return
 	}
 
+	effectiveStakes := k.stakerKeeper.GetEffectiveValidatorStakes(ctx, poolId)
+
 	// get voting power for valid
 	for _, voter := range bundleProposal.VotersValid {
-		delegation := k.stakerKeeper.GetValidatorPoolStake(ctx, voter, poolId)
-		voteDistribution.Valid += k.calculateVotingPower(delegation)
+		voteDistribution.Valid += effectiveStakes[voter]
 	}
 
 	// get voting power for invalid
 	for _, voter := range bundleProposal.VotersInvalid {
-		delegation := k.stakerKeeper.GetValidatorPoolStake(ctx, voter, poolId)
-		voteDistribution.Invalid += k.calculateVotingPower(delegation)
+		voteDistribution.Invalid += effectiveStakes[voter]
 	}
 
 	// get voting power for abstain
 	for _, voter := range bundleProposal.VotersAbstain {
-		delegation := k.stakerKeeper.GetValidatorPoolStake(ctx, voter, poolId)
-		voteDistribution.Abstain += k.calculateVotingPower(delegation)
+		voteDistribution.Abstain += effectiveStakes[voter]
 	}
 
 	// get total voting power
 	for _, staker := range k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, poolId) {
-		delegation := k.stakerKeeper.GetValidatorPoolStake(ctx, staker, poolId)
-		voteDistribution.Total += k.calculateVotingPower(delegation)
+		voteDistribution.Total += effectiveStakes[staker]
 	}
 
 	if voteDistribution.Total == 0 {

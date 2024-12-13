@@ -46,6 +46,7 @@ type StakerKeeper interface {
 	Slash(ctx sdk.Context, poolId uint64, staker string, slashType stakersTypes.SlashType)
 	PayoutRewards(ctx sdk.Context, staker string, amount sdk.Coins, payerModuleName string) error
 	PayoutAdditionalCommissionRewards(ctx sdk.Context, validator string, payerModuleName string, amount sdk.Coins) error
+	GetEffectiveValidatorStakes(ctx sdk.Context, poolId uint64) (effectiveStake map[string]uint64)
 }
 
 type FundersKeeper interface {

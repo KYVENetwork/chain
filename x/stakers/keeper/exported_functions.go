@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/util"
@@ -11,8 +10,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"sort"
+
 	// Stakers
-	"github.com/KYVENetwork/chain/x/stakers/types"
+	stakertypes "github.com/KYVENetwork/chain/x/stakers/types"
 )
 
 // These functions are meant to be called from external modules.
@@ -25,7 +26,7 @@ import (
 func (k Keeper) LeavePool(ctx sdk.Context, staker string, poolId uint64) {
 	k.RemoveValaccountFromPool(ctx, poolId, staker)
 
-	_ = ctx.EventManager().EmitTypedEvent(&types.EventLeavePool{
+	_ = ctx.EventManager().EmitTypedEvent(&stakertypes.EventLeavePool{
 		PoolId: poolId,
 		Staker: staker,
 	})
@@ -63,11 +64,11 @@ func (k Keeper) GetPaginatedStakersByDelegation(ctx sdk.Context, pagination *que
 func (k Keeper) AssertValaccountAuthorized(ctx sdk.Context, poolId uint64, stakerAddress string, valaddress string) error {
 	valaccount, active := k.GetValaccount(ctx, poolId, stakerAddress)
 	if !active {
-		return types.ErrValaccountUnauthorized
+		return stakertypes.ErrValaccountUnauthorized
 	}
 
 	if valaccount.Valaddress != valaddress {
-		return types.ErrValaccountUnauthorized
+		return stakertypes.ErrValaccountUnauthorized
 	}
 
 	return nil
@@ -193,8 +194,68 @@ func (k Keeper) GetOutstandingRewards(orgCtx sdk.Context, staker string, delegat
 	return util.TruncateDecCoins(rewards)
 }
 
+// GetEffectiveValidatorStakes returns a map for all pool stakers their effective stake. Effective stake
+// is the actual stake at risk for a validator, it can be lower than the provided stake because
+// of the max voting power per pool parameter, but it can never be higher. Thus, if the effective
+// stake is lower than the provided one the slash
+// TODO: explain or link to formula
+func (k Keeper) GetEffectiveValidatorStakes(ctx sdk.Context, poolId uint64) (effectiveStakes map[string]uint64) {
+	type ValidatorStake struct {
+		Address string
+		Stake   uint64
+	}
+
+	alpha := k.poolKeeper.GetMaxVotingPowerPerPool(ctx)
+	validators := make([]ValidatorStake, 0)
+
+	for _, address := range k.GetAllStakerAddressesOfPool(ctx, poolId) {
+		stake := k.GetValidatorPoolStake(ctx, address, poolId)
+		effectiveStakes[address] = stake
+		validators = append(validators, ValidatorStake{
+			Address: address,
+			Stake:   stake,
+		})
+	}
+
+	// sort ascending based on stake
+	sort.Slice(validators, func(i, j int) bool {
+		return validators[i].Stake < validators[j].Stake
+	})
+
+	// return if max voting power can not be undercut because there are not enough stakers
+	// in the pool
+	if math.LegacyOneDec().Quo(alpha).GT(math.LegacyNewDec(int64(len(validators)))) {
+		return
+	}
+
+	x := func(i int) uint64 {
+		totalStake := int64(0)
+
+		for _, validator := range validators[i+1:] {
+			totalStake += int64(validator.Stake)
+		}
+
+		return uint64(alpha.MulInt64(totalStake).Quo(math.LegacyOneDec().Sub(alpha.Mul(math.LegacyNewDec(int64(i)).Add(math.LegacyOneDec())))).TruncateInt64())
+	}
+
+	for i := range validators {
+		M := x(i)
+
+		if validators[i].Stake >= M && M >= validators[i+1].Stake {
+			for _, v := range validators {
+				if v.Stake > M {
+					effectiveStakes[v.Address] = M
+				}
+			}
+			return
+		}
+	}
+
+	return
+}
+
 // Slash reduces the delegation of all delegators of `staker` by fraction. The slash itself is handled by the cosmos-sdk
-func (k Keeper) Slash(ctx sdk.Context, poolId uint64, staker string, slashType types.SlashType) {
+func (k Keeper) Slash(ctx sdk.Context, poolId uint64, staker string, slashType stakertypes.SlashType) {
 	validator, found := k.GetValidator(ctx, staker)
 	if !found {
 		return
@@ -202,9 +263,13 @@ func (k Keeper) Slash(ctx sdk.Context, poolId uint64, staker string, slashType t
 
 	consAddrBytes, _ := validator.GetConsAddr()
 
-	// the validator can only be slashed for his stake fraction in a pool, therefore we update the slash fraction
-	// accordingly
-	slashFraction := k.getSlashFraction(ctx, slashType).Mul(k.GetValidatorPoolStakeFraction(ctx, staker, poolId))
+	// get real stake fraction from the effective stake which is truly at risk for getting slashed
+	// by dividing it with the total bonded stake from the validator
+	stakeFraction := math.LegacyNewDec(int64(k.GetEffectiveValidatorStakes(ctx, poolId)[staker])).QuoInt(validator.GetBondedTokens())
+
+	// the validator can only be slashed for his effective stake fraction in a pool, therefore we
+	// update the slash fraction accordingly
+	slashFraction := k.getSlashFraction(ctx, slashType).Mul(stakeFraction)
 
 	amount, err := k.stakingKeeper.Slash(
 		ctx,
@@ -217,11 +282,12 @@ func (k Keeper) Slash(ctx sdk.Context, poolId uint64, staker string, slashType t
 		return
 	}
 
-	_ = ctx.EventManager().EmitTypedEvent(&types.EventSlash{
-		PoolId:    poolId,
-		Staker:    staker,
-		Amount:    amount.Uint64(),
-		SlashType: slashType,
+	_ = ctx.EventManager().EmitTypedEvent(&stakertypes.EventSlash{
+		PoolId:        poolId,
+		Staker:        staker,
+		Amount:        amount.Uint64(),
+		SlashType:     slashType,
+		StakeFraction: stakeFraction,
 	})
 }
 

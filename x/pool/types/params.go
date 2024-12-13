@@ -2,6 +2,7 @@ package types
 
 import (
 	"cosmossdk.io/math"
+	"errors"
 	"github.com/KYVENetwork/chain/util"
 )
 
@@ -48,6 +49,10 @@ func (p Params) Validate() error {
 
 	if err := util.ValidatePercentage(p.MaxVotingPowerPerPool); err != nil {
 		return err
+	}
+
+	if p.MaxVotingPowerPerPool.IsZero() {
+		return errors.New("max voting power per pool cannot be zero")
 	}
 
 	return nil
