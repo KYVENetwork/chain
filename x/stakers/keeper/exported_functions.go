@@ -222,6 +222,10 @@ func (k Keeper) GetEffectiveValidatorStakes(ctx sdk.Context, poolId uint64) (eff
 		return validators[i].Stake < validators[j].Stake
 	})
 
+	if alpha.IsZero() {
+		return
+	}
+
 	// return if max voting power can not be undercut because there are not enough stakers
 	// in the pool
 	if math.LegacyOneDec().Quo(alpha).GT(math.LegacyNewDec(int64(len(validators)))) {

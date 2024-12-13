@@ -47,6 +47,10 @@ func (k Keeper) AssertPoolCanRun(ctx sdk.Context, poolId uint64) error {
 	stakers := int64(len(k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, poolId)))
 	maxVotingPower := k.poolKeeper.GetMaxVotingPowerPerPool(ctx)
 
+	if maxVotingPower.IsZero() {
+		return nil
+	}
+
 	// Error if max voting power is not achievable because there are not enough stakers
 	// in the pool
 	if math.LegacyOneDec().Quo(maxVotingPower).GT(math.LegacyNewDec(stakers)) {
