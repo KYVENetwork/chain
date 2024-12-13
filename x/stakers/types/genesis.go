@@ -65,5 +65,23 @@ func (gs GenesisState) Validate() error {
 		}
 	}
 
+	// Stake Fraction Change
+	stakeFractionChangeMap := make(map[string]struct{})
+
+	for _, elem := range gs.StakeFractionChangeEntries {
+		index := string(StakeFractionChangeEntryKey(elem.Index))
+		if _, ok := stakeFractionChangeMap[index]; ok {
+			return fmt.Errorf("duplicated index for stake fraction change entry %v", elem)
+		}
+		if elem.Index > gs.QueueStateStateFraction.HighIndex {
+			return fmt.Errorf("stake fraction change entry index too high: %v", elem)
+		}
+		if elem.Index < gs.QueueStateStateFraction.LowIndex {
+			return fmt.Errorf("stake fraction change entry index too low: %v", elem)
+		}
+
+		stakeFractionChangeMap[index] = struct{}{}
+	}
+
 	return gs.Params.Validate()
 }

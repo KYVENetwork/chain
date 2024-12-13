@@ -326,6 +326,40 @@ func (suite *KeeperTestSuite) CreateValidatorWithoutCommit(address, moniker stri
 	suite.Commit()
 }
 
+func (suite *KeeperTestSuite) SelfDelegateValidator(address string, amount uint64) {
+	valAddress := util.MustValaddressFromOperatorAddress(address)
+
+	msg := stakingtypes.NewMsgDelegate(
+		address,
+		valAddress,
+		sdk.NewInt64Coin(globalTypes.Denom, int64(amount)),
+	)
+
+	_, err := suite.RunTx(msg)
+	if err != nil {
+		panic(err)
+	}
+
+	suite.Commit()
+}
+
+func (suite *KeeperTestSuite) SelfUndelegateValidator(address string, amount uint64) {
+	valAddress := util.MustValaddressFromOperatorAddress(address)
+
+	msg := stakingtypes.NewMsgUndelegate(
+		address,
+		valAddress,
+		sdk.NewInt64Coin(globalTypes.Denom, int64(amount)),
+	)
+
+	_, err := suite.RunTx(msg)
+	if err != nil {
+		panic(err)
+	}
+
+	suite.Commit()
+}
+
 func (suite *KeeperTestSuite) CreateValidator(address, moniker string, kyveStake int64) {
 	suite.CreateValidatorWithoutCommit(address, moniker, kyveStake)
 	suite.Commit()

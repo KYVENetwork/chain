@@ -36,7 +36,7 @@ var (
 
 	// CommissionChangeEntryKeyPrefix | <index>
 	CommissionChangeEntryKeyPrefix = []byte{4, 0}
-	// CommissionChangeEntryKeyPrefixIndex2 | <staker>
+	// CommissionChangeEntryKeyPrefixIndex2 | <staker> | <poolId>
 	CommissionChangeEntryKeyPrefixIndex2 = []byte{4, 1}
 
 	// LeavePoolEntryKeyPrefix | <index>
@@ -45,6 +45,11 @@ var (
 	LeavePoolEntryKeyPrefixIndex2 = []byte{5, 1}
 
 	ActiveStakerIndex = []byte{6}
+
+	// StakeFractionChangeEntryKeyPrefix | <index>
+	StakeFractionChangeEntryKeyPrefix = []byte{7, 0}
+	// StakeFractionChangeKeyPrefixIndex2 | <staker> | <poolId>
+	StakeFractionChangeKeyPrefixIndex2 = []byte{7, 1}
 )
 
 // ENUM aggregated data types
@@ -56,8 +61,9 @@ var STAKER_STATS_COUNT STAKER_STATS = "total_stakers"
 type QUEUE_IDENTIFIER []byte
 
 var (
-	QUEUE_IDENTIFIER_COMMISSION QUEUE_IDENTIFIER = []byte{30, 2}
-	QUEUE_IDENTIFIER_LEAVE      QUEUE_IDENTIFIER = []byte{30, 3}
+	QUEUE_IDENTIFIER_COMMISSION     QUEUE_IDENTIFIER = []byte{30, 2}
+	QUEUE_IDENTIFIER_LEAVE          QUEUE_IDENTIFIER = []byte{30, 3}
+	QUEUE_IDENTIFIER_STAKE_FRACTION QUEUE_IDENTIFIER = []byte{30, 4}
 )
 
 const MaxStakers = 50
@@ -82,8 +88,8 @@ func CommissionChangeEntryKey(index uint64) []byte {
 }
 
 // Important: only one queue entry per staker is allowed at a time.
-func CommissionChangeEntryKeyIndex2(staker string) []byte {
-	return util.GetByteKey(staker)
+func CommissionChangeEntryKeyIndex2(staker string, poolId uint64) []byte {
+	return util.GetByteKey(staker, poolId)
 }
 
 func LeavePoolEntryKey(index uint64) []byte {
@@ -96,4 +102,12 @@ func LeavePoolEntryKeyIndex2(staker string, poolId uint64) []byte {
 
 func ActiveStakerKeyIndex(staker string) []byte {
 	return util.GetByteKey(staker)
+}
+
+func StakeFractionChangeEntryKey(index uint64) []byte {
+	return util.GetByteKey(index)
+}
+
+func StakeFractionChangeEntryKeyIndex2(staker string, poolId uint64) []byte {
+	return util.GetByteKey(staker, poolId)
 }

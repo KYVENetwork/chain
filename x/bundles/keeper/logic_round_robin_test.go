@@ -35,10 +35,12 @@ func joinDummy(s *i.KeeperTestSuite, index, kyveAmount uint64) {
 	s.CreateValidator(i.DUMMY[index], fmt.Sprintf("dummy-%d", index), int64(kyveAmount*i.KYVE))
 
 	s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-		Creator:    i.DUMMY[index],
-		PoolId:     0,
-		Valaddress: i.VALDUMMY[index],
-		Amount:     0,
+		Creator:       i.DUMMY[index],
+		PoolId:        0,
+		Valaddress:    i.VALDUMMY[index],
+		Amount:        0,
+		Commission:    math.LegacyMustNewDecFromStr("0.1"),
+		StakeFraction: math.LegacyMustNewDecFromStr("1"),
 	})
 }
 

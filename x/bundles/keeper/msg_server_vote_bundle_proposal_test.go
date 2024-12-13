@@ -69,17 +69,21 @@ var _ = Describe("msg_server_vote_bundle_proposal.go", Ordered, func() {
 		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
@@ -216,9 +220,11 @@ var _ = Describe("msg_server_vote_bundle_proposal.go", Ordered, func() {
 		s.CreateValidator(i.STAKER_2, "Staker-2", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_2,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_2_A,
+			Creator:       i.STAKER_2,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_2_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{

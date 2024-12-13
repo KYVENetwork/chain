@@ -9,16 +9,16 @@ import (
 )
 
 var (
-	_ legacytx.LegacyMsg = &MsgJoinPool{}
-	_ sdk.Msg            = &MsgJoinPool{}
+	_ legacytx.LegacyMsg = &MsgUpdateStakeFraction{}
+	_ sdk.Msg            = &MsgUpdateStakeFraction{}
 )
 
-func (msg *MsgJoinPool) GetSignBytes() []byte {
+func (msg *MsgUpdateStakeFraction) GetSignBytes() []byte {
 	bz := Amino.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
-func (msg *MsgJoinPool) GetSigners() []sdk.AccAddress {
+func (msg *MsgUpdateStakeFraction) GetSigners() []sdk.AccAddress {
 	creator, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
 		panic(err)
@@ -27,29 +27,17 @@ func (msg *MsgJoinPool) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{creator}
 }
 
-func (msg *MsgJoinPool) Route() string {
+func (msg *MsgUpdateStakeFraction) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgJoinPool) Type() string {
-	return "kyve/stakers/MsgJoinPool"
+func (msg *MsgUpdateStakeFraction) Type() string {
+	return "kyve/stakers/MsgUpdateStakeFraction"
 }
 
-func (msg *MsgJoinPool) ValidateBasic() error {
+func (msg *MsgUpdateStakeFraction) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Creator); err != nil {
-		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid creator address: %s", err)
-	}
-
-	if _, err := sdk.AccAddressFromBech32(msg.Valaddress); err != nil {
 		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid validator address: %s", err)
-	}
-
-	if util.ValidateNumber(msg.Amount) != nil {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid amount")
-	}
-
-	if util.ValidatePercentage(msg.Commission) != nil {
-		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid commission")
 	}
 
 	if util.ValidatePercentage(msg.StakeFraction) != nil {

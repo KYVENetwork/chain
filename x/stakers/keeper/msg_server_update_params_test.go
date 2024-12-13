@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -32,6 +33,18 @@ TEST CASES - msg_server_update_params.go
 
 * Update leave pool time
 * Update leave pool time with invalid value
+
+* Update stake fraction change time
+* Update stake fraction change time with invalid value
+
+* Update vote slash
+* Update vote slash with invalid value
+
+* Update upload slash
+* Update upload slash with invalid value
+
+* Update timeout slash
+* Update timeout slash with invalid value
 
 */
 
@@ -234,6 +247,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 		Expect(updatedParams.CommissionChangeTime).To(Equal(uint64(5)))
 		Expect(updatedParams.LeavePoolTime).To(Equal(types.DefaultLeavePoolTime))
+		Expect(updatedParams.StakeFractionChangeTime).To(Equal(types.DefaultStakeFractionChangeTime))
 	})
 
 	It("Update commission change time with invalid value", func() {
@@ -264,6 +278,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 		Expect(updatedParams.CommissionChangeTime).To(Equal(types.DefaultCommissionChangeTime))
 		Expect(updatedParams.LeavePoolTime).To(Equal(types.DefaultLeavePoolTime))
+		Expect(updatedParams.StakeFractionChangeTime).To(Equal(types.DefaultStakeFractionChangeTime))
 	})
 
 	It("Update leave pool time", func() {
@@ -300,6 +315,7 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 		Expect(updatedParams.CommissionChangeTime).To(Equal(types.DefaultCommissionChangeTime))
 		Expect(updatedParams.LeavePoolTime).To(Equal(uint64(5)))
+		Expect(updatedParams.StakeFractionChangeTime).To(Equal(types.DefaultStakeFractionChangeTime))
 	})
 
 	It("Update leave pool time with invalid value", func() {
@@ -330,5 +346,278 @@ var _ = Describe("msg_server_update_params.go", Ordered, func() {
 
 		Expect(updatedParams.CommissionChangeTime).To(Equal(types.DefaultCommissionChangeTime))
 		Expect(updatedParams.LeavePoolTime).To(Equal(types.DefaultLeavePoolTime))
+		Expect(updatedParams.StakeFractionChangeTime).To(Equal(types.DefaultStakeFractionChangeTime))
+	})
+
+	It("Update stake fraction change time", func() {
+		// ARRANGE
+		payload := `{
+			"stake_fraction_change_time": 5
+		}`
+
+		msg := &types.MsgUpdateParams{
+			Authority: gov,
+			Payload:   payload,
+		}
+
+		proposal, _ := govV1Types.NewMsgSubmitProposal(
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
+		)
+
+		vote := govV1Types.NewMsgVote(
+			voter, 1, govV1Types.VoteOption_VOTE_OPTION_YES, "",
+		)
+
+		// ACT
+		_, submitErr := s.RunTx(proposal)
+		_, voteErr := s.RunTx(vote)
+
+		s.CommitAfter(*votingPeriod)
+		s.Commit()
+
+		// ASSERT
+		updatedParams := s.App().StakersKeeper.GetParams(s.Ctx())
+
+		Expect(submitErr).NotTo(HaveOccurred())
+		Expect(voteErr).NotTo(HaveOccurred())
+
+		Expect(updatedParams.CommissionChangeTime).To(Equal(types.DefaultCommissionChangeTime))
+		Expect(updatedParams.LeavePoolTime).To(Equal(types.DefaultLeavePoolTime))
+		Expect(updatedParams.StakeFractionChangeTime).To(Equal(uint64(5)))
+	})
+
+	It("Update stake fraction change time with invalid value", func() {
+		// ARRANGE
+		payload := `{
+			"stake_fraction_change_time": "5"
+		}`
+
+		msg := &types.MsgUpdateParams{
+			Authority: gov,
+			Payload:   payload,
+		}
+
+		proposal, _ := govV1Types.NewMsgSubmitProposal(
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
+		)
+
+		// ACT
+		_, submitErr := s.RunTx(proposal)
+
+		s.CommitAfter(*votingPeriod)
+		s.Commit()
+
+		// ASSERT
+		updatedParams := s.App().StakersKeeper.GetParams(s.Ctx())
+
+		Expect(submitErr).To(HaveOccurred())
+
+		Expect(updatedParams.CommissionChangeTime).To(Equal(types.DefaultCommissionChangeTime))
+		Expect(updatedParams.LeavePoolTime).To(Equal(types.DefaultLeavePoolTime))
+		Expect(updatedParams.StakeFractionChangeTime).To(Equal(types.DefaultStakeFractionChangeTime))
+	})
+
+	It("Update vote slash", func() {
+		// ARRANGE
+		payload := `{
+			"vote_slash": "0.05"
+		}`
+
+		msg := &types.MsgUpdateParams{
+			Authority: gov,
+			Payload:   payload,
+		}
+
+		proposal, _ := govV1Types.NewMsgSubmitProposal(
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
+		)
+
+		vote := govV1Types.NewMsgVote(
+			voter, 1, govV1Types.VoteOption_VOTE_OPTION_YES, "",
+		)
+
+		// ACT
+		_, submitErr := s.RunTx(proposal)
+		_, voteErr := s.RunTx(vote)
+
+		s.CommitAfter(*votingPeriod)
+		s.Commit()
+
+		// ASSERT
+		updatedParams := s.App().StakersKeeper.GetParams(s.Ctx())
+
+		Expect(submitErr).NotTo(HaveOccurred())
+		Expect(voteErr).NotTo(HaveOccurred())
+
+		Expect(updatedParams.UploadSlash).To(Equal(types.DefaultUploadSlash))
+		Expect(updatedParams.TimeoutSlash).To(Equal(types.DefaultTimeoutSlash))
+		Expect(updatedParams.VoteSlash).To(Equal(math.LegacyMustNewDecFromStr("0.05")))
+	})
+
+	It("Update vote slash with invalid value", func() {
+		// ARRANGE
+		payload := `{
+			"vote_slash": "invalid"
+		}`
+
+		msg := &types.MsgUpdateParams{
+			Authority: gov,
+			Payload:   payload,
+		}
+
+		proposal, _ := govV1Types.NewMsgSubmitProposal(
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
+		)
+
+		// ACT
+		_, submitErr := s.RunTx(proposal)
+
+		s.CommitAfter(*votingPeriod)
+		s.Commit()
+
+		// ASSERT
+		updatedParams := s.App().StakersKeeper.GetParams(s.Ctx())
+
+		Expect(submitErr).To(HaveOccurred())
+
+		Expect(updatedParams.UploadSlash).To(Equal(types.DefaultUploadSlash))
+		Expect(updatedParams.TimeoutSlash).To(Equal(types.DefaultTimeoutSlash))
+		Expect(updatedParams.VoteSlash).To(Equal(types.DefaultVoteSlash))
+	})
+
+	It("Update upload slash", func() {
+		// ARRANGE
+		payload := `{
+			"upload_slash": "0.05"
+		}`
+
+		msg := &types.MsgUpdateParams{
+			Authority: gov,
+			Payload:   payload,
+		}
+
+		proposal, _ := govV1Types.NewMsgSubmitProposal(
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
+		)
+
+		vote := govV1Types.NewMsgVote(
+			voter, 1, govV1Types.VoteOption_VOTE_OPTION_YES, "",
+		)
+
+		// ACT
+		_, submitErr := s.RunTx(proposal)
+		_, voteErr := s.RunTx(vote)
+
+		s.CommitAfter(*votingPeriod)
+		s.Commit()
+
+		// ASSERT
+		updatedParams := s.App().StakersKeeper.GetParams(s.Ctx())
+
+		Expect(submitErr).NotTo(HaveOccurred())
+		Expect(voteErr).NotTo(HaveOccurred())
+
+		Expect(updatedParams.UploadSlash).To(Equal(math.LegacyMustNewDecFromStr("0.05")))
+		Expect(updatedParams.TimeoutSlash).To(Equal(types.DefaultTimeoutSlash))
+		Expect(updatedParams.VoteSlash).To(Equal(types.DefaultVoteSlash))
+	})
+
+	It("Update upload slash with invalid value", func() {
+		// ARRANGE
+		payload := `{
+			"upload_slash": "1.5"
+		}`
+
+		msg := &types.MsgUpdateParams{
+			Authority: gov,
+			Payload:   payload,
+		}
+
+		proposal, _ := govV1Types.NewMsgSubmitProposal(
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
+		)
+
+		// ACT
+		_, submitErr := s.RunTx(proposal)
+
+		s.CommitAfter(*votingPeriod)
+		s.Commit()
+
+		// ASSERT
+		updatedParams := s.App().StakersKeeper.GetParams(s.Ctx())
+
+		Expect(submitErr).To(HaveOccurred())
+
+		Expect(updatedParams.UploadSlash).To(Equal(types.DefaultUploadSlash))
+		Expect(updatedParams.TimeoutSlash).To(Equal(types.DefaultTimeoutSlash))
+		Expect(updatedParams.VoteSlash).To(Equal(types.DefaultVoteSlash))
+	})
+
+	It("Update timeout slash", func() {
+		// ARRANGE
+		payload := `{
+			"timeout_slash": "0.05"
+		}`
+
+		msg := &types.MsgUpdateParams{
+			Authority: gov,
+			Payload:   payload,
+		}
+
+		proposal, _ := govV1Types.NewMsgSubmitProposal(
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
+		)
+
+		vote := govV1Types.NewMsgVote(
+			voter, 1, govV1Types.VoteOption_VOTE_OPTION_YES, "",
+		)
+
+		// ACT
+		_, submitErr := s.RunTx(proposal)
+		_, voteErr := s.RunTx(vote)
+
+		s.CommitAfter(*votingPeriod)
+		s.Commit()
+
+		// ASSERT
+		updatedParams := s.App().StakersKeeper.GetParams(s.Ctx())
+
+		Expect(submitErr).NotTo(HaveOccurred())
+		Expect(voteErr).NotTo(HaveOccurred())
+
+		Expect(updatedParams.UploadSlash).To(Equal(types.DefaultUploadSlash))
+		Expect(updatedParams.TimeoutSlash).To(Equal(math.LegacyMustNewDecFromStr("0.05")))
+		Expect(updatedParams.VoteSlash).To(Equal(types.DefaultVoteSlash))
+	})
+
+	It("Update timeout slash with invalid value", func() {
+		// ARRANGE
+		payload := `{
+			"upload_slash": "-0.5"
+		}`
+
+		msg := &types.MsgUpdateParams{
+			Authority: gov,
+			Payload:   payload,
+		}
+
+		proposal, _ := govV1Types.NewMsgSubmitProposal(
+			[]sdk.Msg{msg}, minDeposit, i.DUMMY[0], "", "title", "summary", false,
+		)
+
+		// ACT
+		_, submitErr := s.RunTx(proposal)
+
+		s.CommitAfter(*votingPeriod)
+		s.Commit()
+
+		// ASSERT
+		updatedParams := s.App().StakersKeeper.GetParams(s.Ctx())
+
+		Expect(submitErr).To(HaveOccurred())
+
+		Expect(updatedParams.UploadSlash).To(Equal(types.DefaultUploadSlash))
+		Expect(updatedParams.TimeoutSlash).To(Equal(types.DefaultTimeoutSlash))
+		Expect(updatedParams.VoteSlash).To(Equal(types.DefaultVoteSlash))
 	})
 })

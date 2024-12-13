@@ -10,10 +10,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func CmdUpdateCommission() *cobra.Command {
+func CmdUpdateStakeFraction() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-commission [pool_id] [commission]",
-		Short: "Broadcast message update-commission",
+		Use:   "update-stake-fraction [pool_id] [stake_fraction]",
+		Short: "Broadcast message update-stake-fraction",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -26,15 +26,15 @@ func CmdUpdateCommission() *cobra.Command {
 				return err
 			}
 
-			argCommission, err := math.LegacyNewDecFromStr(args[1])
+			argStakeFraction, err := math.LegacyNewDecFromStr(args[1])
 			if err != nil {
 				return err
 			}
 
-			msg := types.MsgUpdateCommission{
-				Creator:    clientCtx.GetFromAddress().String(),
-				PoolId:     argPoolId,
-				Commission: argCommission,
+			msg := types.MsgUpdateStakeFraction{
+				Creator:       clientCtx.GetFromAddress().String(),
+				PoolId:        argPoolId,
+				StakeFraction: argStakeFraction,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {

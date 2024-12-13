@@ -16,8 +16,8 @@ import (
 func (k msgServer) LeavePool(goCtx context.Context, msg *types.MsgLeavePool) (*types.MsgLeavePoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	valaccount, valaccountFound := k.GetValaccount(ctx, msg.PoolId, msg.Creator)
-	if !valaccountFound {
+	valaccount, active := k.GetValaccount(ctx, msg.PoolId, msg.Creator)
+	if !active {
 		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrAlreadyLeftPool.Error())
 	}
 

@@ -91,17 +91,21 @@ var _ = Describe("zero delegation", Ordered, func() {
 		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
@@ -138,9 +142,11 @@ var _ = Describe("zero delegation", Ordered, func() {
 		s.CreateZeroDelegationValidator(i.STAKER_2, "Staker-2")
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_2,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_2_A,
+			Creator:       i.STAKER_2,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_2_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ACT
@@ -186,17 +192,21 @@ var _ = Describe("zero delegation", Ordered, func() {
 		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
@@ -225,9 +235,11 @@ var _ = Describe("zero delegation", Ordered, func() {
 		s.CreateZeroDelegationValidator(i.STAKER_2, "Staker-2")
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_2,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_2_A,
+			Creator:       i.STAKER_2,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_2_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ACT
@@ -288,27 +300,33 @@ var _ = Describe("zero delegation", Ordered, func() {
 		s.CreateZeroDelegationValidator(i.STAKER_0, "Staker-0")
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// create normal validator
 		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// create normal validator
 		s.CreateValidator(i.STAKER_2, "Staker-2", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_2,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_2_A,
+			Creator:       i.STAKER_2,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_2_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
@@ -461,27 +479,33 @@ var _ = Describe("zero delegation", Ordered, func() {
 		s.CreateZeroDelegationValidator(i.STAKER_0, "Staker-0")
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// create normal validator
 		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// create normal validator
 		s.CreateValidator(i.STAKER_2, "Staker-2", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_2,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_2_A,
+			Creator:       i.STAKER_2,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_2_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
@@ -579,8 +603,8 @@ var _ = Describe("zero delegation", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		_, valaccountUploaderFound := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
-		Expect(valaccountUploaderFound).To(BeFalse())
+		_, uploaderActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		Expect(uploaderActive).To(BeFalse())
 
 		balanceValaddress := s.GetBalanceFromAddress(i.VALADDRESS_0_A)
 		Expect(balanceValaddress).To(Equal(initialBalanceValaddress0))
@@ -624,27 +648,33 @@ var _ = Describe("zero delegation", Ordered, func() {
 		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// create zero delegation validator
 		s.CreateZeroDelegationValidator(i.STAKER_1, "Staker-1")
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// create normal validator
 		s.CreateValidator(i.STAKER_2, "Staker-2", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_2,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_2_A,
+			Creator:       i.STAKER_2,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_2_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
@@ -722,8 +752,8 @@ var _ = Describe("zero delegation", Ordered, func() {
 		_, stakerFound := s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_1)
 		Expect(stakerFound).To(BeTrue())
 
-		_, valaccountFound := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
-		Expect(valaccountFound).To(BeFalse())
+		_, valaccountActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		Expect(valaccountActive).To(BeFalse())
 
 		// check if voter got slashed
 		slashAmountRatio := s.App().DelegationKeeper.GetTimeoutSlash(s.Ctx())
@@ -737,17 +767,21 @@ var _ = Describe("zero delegation", Ordered, func() {
 		s.CreateZeroDelegationValidator(i.STAKER_0, "Staker-0")
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.CreateZeroDelegationValidator(i.STAKER_1, "Staker-1")
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{

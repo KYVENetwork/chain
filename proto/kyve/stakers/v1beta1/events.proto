@@ -24,8 +24,24 @@ message EventUpdateParams {
 message EventUpdateCommission {
   // staker is the account address of the protocol node.
   string staker = 1;
+  // pool_id ...
+  uint64 pool_id = 2;
   // commission ...
-  string commission = 2 [
+  string commission = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// EventUpdateCommission ...
+// emitted_by: MsgUpdateStakeFraction, EndBlock
+message EventUpdateStakeFraction {
+  // staker is the account address of the protocol node.
+  string staker = 1;
+  // pool_id ...
+  uint64 pool_id = 2;
+  // stake_fraction ...
+  string stake_fraction = 3 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
@@ -52,6 +68,16 @@ message EventJoinPool {
   string valaddress = 3;
   // amount is the amount of funds transferred to the valaddress
   uint64 amount = 4;
+  // commission ...
+  string commission = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // stake_fraction ...
+  string stake_fraction = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // EventLeavePool ...

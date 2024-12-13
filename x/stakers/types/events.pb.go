@@ -94,8 +94,10 @@ func (m *EventUpdateParams) GetPayload() string {
 type EventUpdateCommission struct {
 	// staker is the account address of the protocol node.
 	Staker string `protobuf:"bytes,1,opt,name=staker,proto3" json:"staker,omitempty"`
+	// pool_id ...
+	PoolId uint64 `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
 	// commission ...
-	Commission cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=commission,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"commission"`
+	Commission cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=commission,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"commission"`
 }
 
 func (m *EventUpdateCommission) Reset()         { *m = EventUpdateCommission{} }
@@ -138,6 +140,71 @@ func (m *EventUpdateCommission) GetStaker() string {
 	return ""
 }
 
+func (m *EventUpdateCommission) GetPoolId() uint64 {
+	if m != nil {
+		return m.PoolId
+	}
+	return 0
+}
+
+// EventUpdateCommission ...
+// emitted_by: MsgUpdateStakeFraction, EndBlock
+type EventUpdateStakeFraction struct {
+	// staker is the account address of the protocol node.
+	Staker string `protobuf:"bytes,1,opt,name=staker,proto3" json:"staker,omitempty"`
+	// pool_id ...
+	PoolId uint64 `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
+	// stake_fraction ...
+	StakeFraction cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=stake_fraction,json=stakeFraction,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"stake_fraction"`
+}
+
+func (m *EventUpdateStakeFraction) Reset()         { *m = EventUpdateStakeFraction{} }
+func (m *EventUpdateStakeFraction) String() string { return proto.CompactTextString(m) }
+func (*EventUpdateStakeFraction) ProtoMessage()    {}
+func (*EventUpdateStakeFraction) Descriptor() ([]byte, []int) {
+	return fileDescriptor_7a1b3dc9634155a0, []int{2}
+}
+func (m *EventUpdateStakeFraction) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventUpdateStakeFraction) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventUpdateStakeFraction.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventUpdateStakeFraction) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventUpdateStakeFraction.Merge(m, src)
+}
+func (m *EventUpdateStakeFraction) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventUpdateStakeFraction) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventUpdateStakeFraction.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventUpdateStakeFraction proto.InternalMessageInfo
+
+func (m *EventUpdateStakeFraction) GetStaker() string {
+	if m != nil {
+		return m.Staker
+	}
+	return ""
+}
+
+func (m *EventUpdateStakeFraction) GetPoolId() uint64 {
+	if m != nil {
+		return m.PoolId
+	}
+	return 0
+}
+
 // EventClaimCommissionRewards ...
 // emitted_by: MsgClaimCommissionRewards
 type EventClaimCommissionRewards struct {
@@ -151,7 +218,7 @@ func (m *EventClaimCommissionRewards) Reset()         { *m = EventClaimCommissio
 func (m *EventClaimCommissionRewards) String() string { return proto.CompactTextString(m) }
 func (*EventClaimCommissionRewards) ProtoMessage()    {}
 func (*EventClaimCommissionRewards) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7a1b3dc9634155a0, []int{2}
+	return fileDescriptor_7a1b3dc9634155a0, []int{3}
 }
 func (m *EventClaimCommissionRewards) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -206,13 +273,17 @@ type EventJoinPool struct {
 	Valaddress string `protobuf:"bytes,3,opt,name=valaddress,proto3" json:"valaddress,omitempty"`
 	// amount is the amount of funds transferred to the valaddress
 	Amount uint64 `protobuf:"varint,4,opt,name=amount,proto3" json:"amount,omitempty"`
+	// commission ...
+	Commission cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=commission,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"commission"`
+	// stake_fraction ...
+	StakeFraction cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=stake_fraction,json=stakeFraction,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"stake_fraction"`
 }
 
 func (m *EventJoinPool) Reset()         { *m = EventJoinPool{} }
 func (m *EventJoinPool) String() string { return proto.CompactTextString(m) }
 func (*EventJoinPool) ProtoMessage()    {}
 func (*EventJoinPool) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7a1b3dc9634155a0, []int{3}
+	return fileDescriptor_7a1b3dc9634155a0, []int{4}
 }
 func (m *EventJoinPool) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -282,7 +353,7 @@ func (m *EventLeavePool) Reset()         { *m = EventLeavePool{} }
 func (m *EventLeavePool) String() string { return proto.CompactTextString(m) }
 func (*EventLeavePool) ProtoMessage()    {}
 func (*EventLeavePool) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7a1b3dc9634155a0, []int{4}
+	return fileDescriptor_7a1b3dc9634155a0, []int{5}
 }
 func (m *EventLeavePool) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -342,7 +413,7 @@ func (m *EventSlash) Reset()         { *m = EventSlash{} }
 func (m *EventSlash) String() string { return proto.CompactTextString(m) }
 func (*EventSlash) ProtoMessage()    {}
 func (*EventSlash) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7a1b3dc9634155a0, []int{5}
+	return fileDescriptor_7a1b3dc9634155a0, []int{6}
 }
 func (m *EventSlash) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -402,6 +473,7 @@ func (m *EventSlash) GetSlashType() SlashType {
 func init() {
 	proto.RegisterType((*EventUpdateParams)(nil), "kyve.stakers.v1beta1.EventUpdateParams")
 	proto.RegisterType((*EventUpdateCommission)(nil), "kyve.stakers.v1beta1.EventUpdateCommission")
+	proto.RegisterType((*EventUpdateStakeFraction)(nil), "kyve.stakers.v1beta1.EventUpdateStakeFraction")
 	proto.RegisterType((*EventClaimCommissionRewards)(nil), "kyve.stakers.v1beta1.EventClaimCommissionRewards")
 	proto.RegisterType((*EventJoinPool)(nil), "kyve.stakers.v1beta1.EventJoinPool")
 	proto.RegisterType((*EventLeavePool)(nil), "kyve.stakers.v1beta1.EventLeavePool")
@@ -411,37 +483,41 @@ func init() {
 func init() { proto.RegisterFile("kyve/stakers/v1beta1/events.proto", fileDescriptor_7a1b3dc9634155a0) }
 
 var fileDescriptor_7a1b3dc9634155a0 = []byte{
-	// 478 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x93, 0xcf, 0x6a, 0xd4, 0x50,
-	0x14, 0xc6, 0x27, 0xed, 0x30, 0x43, 0x8e, 0x58, 0x30, 0x54, 0x0d, 0x53, 0xc9, 0xd4, 0xb8, 0xe9,
-	0x42, 0x12, 0x5a, 0xf7, 0x42, 0x67, 0xac, 0xa0, 0x16, 0x2d, 0xf1, 0x0f, 0xe8, 0x66, 0xb8, 0x93,
-	0x7b, 0x98, 0x09, 0x93, 0xe4, 0x84, 0xdc, 0xdb, 0x4c, 0xf3, 0x16, 0x6e, 0x7c, 0x12, 0x5f, 0xa2,
-	0xcb, 0x2e, 0xc5, 0x45, 0x91, 0x99, 0x17, 0x91, 0xdc, 0x24, 0x9d, 0x08, 0x11, 0xb4, 0xbb, 0x7b,
-	0xc2, 0x77, 0x7e, 0xdf, 0x8f, 0x4b, 0x2e, 0x3c, 0x5e, 0xe4, 0x19, 0xba, 0x42, 0xb2, 0x05, 0xa6,
-	0xc2, 0xcd, 0x0e, 0xa7, 0x28, 0xd9, 0xa1, 0x8b, 0x19, 0xc6, 0x52, 0x38, 0x49, 0x4a, 0x92, 0x8c,
-	0xdd, 0x22, 0xe2, 0x54, 0x11, 0xa7, 0x8a, 0x0c, 0x76, 0x67, 0x34, 0x23, 0x15, 0x70, 0x8b, 0x53,
-	0x99, 0x1d, 0xb4, 0xe3, 0x12, 0x96, 0xb2, 0xa8, 0xc2, 0x0d, 0xec, 0xd6, 0x48, 0x8d, 0x57, 0x19,
-	0xfb, 0xbb, 0x06, 0xf7, 0x4e, 0x0a, 0x87, 0x8f, 0x09, 0x67, 0x12, 0xcf, 0xd4, 0xbe, 0x71, 0x0c,
-	0x40, 0x21, 0x9f, 0x94, 0x34, 0x53, 0xdb, 0xd7, 0x0e, 0xee, 0x1c, 0x3d, 0x72, 0xda, 0xec, 0x9c,
-	0x72, 0x63, 0xd4, 0xbd, 0xbc, 0x1e, 0x76, 0x3c, 0x9d, 0x42, 0xbe, 0x41, 0xc4, 0xb8, 0xac, 0x11,
-	0x5b, 0xff, 0x8e, 0x88, 0x71, 0x59, 0x21, 0x4c, 0xe8, 0x27, 0x2c, 0x0f, 0x89, 0x71, 0x73, 0x7b,
-	0x5f, 0x3b, 0xd0, 0xbd, 0x7a, 0xb4, 0x25, 0xdc, 0x6f, 0x48, 0x8f, 0x29, 0x8a, 0x02, 0x21, 0x02,
-	0x8a, 0x8d, 0x07, 0xd0, 0x2b, 0xe9, 0x4a, 0x5a, 0xf7, 0xaa, 0xc9, 0x18, 0x03, 0xf8, 0x37, 0x29,
-	0x65, 0xa3, 0x8f, 0x9e, 0x14, 0x7d, 0x3f, 0xaf, 0x87, 0x7b, 0x3e, 0x89, 0x88, 0x84, 0xe0, 0x0b,
-	0x27, 0x20, 0x37, 0x62, 0x72, 0xee, 0x9c, 0xe2, 0x8c, 0xf9, 0xf9, 0x0b, 0xf4, 0xbd, 0xc6, 0x9a,
-	0xfd, 0x0e, 0xf6, 0x54, 0xeb, 0x38, 0x64, 0x41, 0xb4, 0x29, 0xf5, 0x70, 0xc9, 0x52, 0x2e, 0xfe,
-	0xda, 0x6d, 0x42, 0x9f, 0x45, 0x74, 0x1e, 0xcb, 0xf2, 0x1a, 0x74, 0xaf, 0x1e, 0xed, 0x0b, 0xb8,
-	0xab, 0x80, 0xaf, 0x29, 0x88, 0xcf, 0x88, 0x42, 0xe3, 0x21, 0xf4, 0x13, 0xa2, 0x70, 0x12, 0x70,
-	0xc5, 0xe8, 0x7a, 0xbd, 0x62, 0x7c, 0xc5, 0x1b, 0xec, 0xad, 0x3f, 0xd8, 0x16, 0x40, 0xc6, 0x42,
-	0xc6, 0x79, 0x8a, 0x42, 0x54, 0xb7, 0xd4, 0xf8, 0x52, 0xec, 0x95, 0x65, 0x66, 0xb7, 0xe4, 0x95,
-	0x93, 0x7d, 0x0c, 0x3b, 0xaa, 0xf9, 0x14, 0x59, 0x86, 0xb7, 0xaa, 0xb6, 0xbf, 0x69, 0x00, 0x8a,
-	0xf1, 0x3e, 0x64, 0x62, 0xfe, 0xff, 0xea, 0x1b, 0xb5, 0xed, 0xa6, 0x9a, 0xf1, 0x1c, 0x40, 0x14,
-	0xc4, 0x89, 0xcc, 0x13, 0x54, 0xda, 0x3b, 0x47, 0xc3, 0xf6, 0x1f, 0x47, 0x35, 0x7f, 0xc8, 0x13,
-	0xf4, 0x74, 0x51, 0x1f, 0x47, 0x2f, 0x2f, 0x57, 0x96, 0x76, 0xb5, 0xb2, 0xb4, 0x5f, 0x2b, 0x4b,
-	0xfb, 0xba, 0xb6, 0x3a, 0x57, 0x6b, 0xab, 0xf3, 0x63, 0x6d, 0x75, 0xbe, 0x3c, 0x9d, 0x05, 0x72,
-	0x7e, 0x3e, 0x75, 0x7c, 0x8a, 0xdc, 0x37, 0x9f, 0x3f, 0x9d, 0xbc, 0x45, 0xb9, 0xa4, 0x74, 0xe1,
-	0xfa, 0x73, 0x16, 0xc4, 0xee, 0xc5, 0xcd, 0x4b, 0x29, 0x8a, 0xc5, 0xb4, 0xa7, 0x1e, 0xc8, 0xb3,
-	0xdf, 0x01, 0x00, 0x00, 0xff, 0xff, 0x6c, 0x29, 0x77, 0x9c, 0xb8, 0x03, 0x00, 0x00,
+	// 532 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x94, 0xc1, 0x6e, 0xd3, 0x40,
+	0x10, 0x86, 0xb3, 0x69, 0x48, 0x94, 0x41, 0x8d, 0x44, 0x54, 0xc0, 0x4a, 0x91, 0x53, 0xcc, 0xa5,
+	0x07, 0x64, 0xab, 0xe5, 0x8e, 0xd4, 0x84, 0x56, 0xa2, 0x54, 0x50, 0xb9, 0x80, 0x04, 0x97, 0x68,
+	0xe3, 0x5d, 0x12, 0x2b, 0xb6, 0xc7, 0xf2, 0x6e, 0x13, 0xfc, 0x08, 0x1c, 0x90, 0xb8, 0x20, 0x1e,
+	0x84, 0x97, 0xe8, 0xb1, 0x47, 0xc4, 0xa1, 0x42, 0xc9, 0x8b, 0x20, 0xaf, 0xed, 0xc6, 0x41, 0x46,
+	0x6a, 0x73, 0xdb, 0xb1, 0xfe, 0xf9, 0xe6, 0xdf, 0x7f, 0xe4, 0x85, 0xc7, 0x93, 0x78, 0xca, 0x2d,
+	0x21, 0xe9, 0x84, 0x47, 0xc2, 0x9a, 0xee, 0x0d, 0xb9, 0xa4, 0x7b, 0x16, 0x9f, 0xf2, 0x40, 0x0a,
+	0x33, 0x8c, 0x50, 0x62, 0x7b, 0x2b, 0x91, 0x98, 0x99, 0xc4, 0xcc, 0x24, 0x9d, 0xad, 0x11, 0x8e,
+	0x50, 0x09, 0xac, 0xe4, 0x94, 0x6a, 0x3b, 0xe5, 0xb8, 0x90, 0x46, 0xd4, 0xcf, 0x70, 0x1d, 0xa3,
+	0x54, 0x92, 0xe3, 0x95, 0xc6, 0xf8, 0x49, 0xe0, 0xde, 0x61, 0xe2, 0xe1, 0x5d, 0xc8, 0xa8, 0xe4,
+	0xa7, 0xaa, 0xbf, 0x7d, 0x00, 0x80, 0x1e, 0x1b, 0xa4, 0x34, 0x8d, 0xec, 0x90, 0xdd, 0xbb, 0xfb,
+	0x8f, 0xcc, 0x32, 0x77, 0x66, 0xda, 0xd1, 0xab, 0x5d, 0x5c, 0x75, 0x2b, 0x76, 0x13, 0x3d, 0xb6,
+	0x44, 0x04, 0x7c, 0x96, 0x23, 0xaa, 0x37, 0x47, 0x04, 0x7c, 0x96, 0x21, 0x34, 0x68, 0x84, 0x34,
+	0xf6, 0x90, 0x32, 0x6d, 0x63, 0x87, 0xec, 0x36, 0xed, 0xbc, 0x34, 0xbe, 0x12, 0xb8, 0x5f, 0x70,
+	0xdd, 0x47, 0xdf, 0x77, 0x85, 0x70, 0x31, 0x68, 0x3f, 0x80, 0x7a, 0x8a, 0x57, 0xae, 0x9b, 0x76,
+	0x56, 0xb5, 0x1f, 0x42, 0x23, 0x44, 0xf4, 0x06, 0x2e, 0x53, 0x5e, 0x6a, 0x76, 0x3d, 0x29, 0x5f,
+	0xb2, 0x76, 0x1f, 0xc0, 0xb9, 0x6e, 0x4f, 0xe7, 0xf4, 0x9e, 0x24, 0x4e, 0x7e, 0x5f, 0x75, 0xb7,
+	0x1d, 0x14, 0x3e, 0x0a, 0xc1, 0x26, 0xa6, 0x8b, 0x96, 0x4f, 0xe5, 0xd8, 0x3c, 0xe1, 0x23, 0xea,
+	0xc4, 0x2f, 0xb8, 0x63, 0x17, 0xda, 0x8c, 0x1f, 0x04, 0xb4, 0x82, 0x9f, 0xb3, 0x64, 0xe6, 0x51,
+	0x44, 0x1d, 0xb9, 0x96, 0xa5, 0x63, 0x68, 0x29, 0xc9, 0xe0, 0x53, 0x86, 0xb8, 0x8d, 0xad, 0x4d,
+	0x51, 0x1c, 0x6e, 0xbc, 0x81, 0x6d, 0x65, 0xac, 0xef, 0x51, 0xd7, 0x5f, 0xe6, 0x64, 0xf3, 0x19,
+	0x8d, 0x98, 0xf8, 0xaf, 0x37, 0x0d, 0x1a, 0xd4, 0xc7, 0xf3, 0x40, 0xa6, 0xab, 0x6b, 0xda, 0x79,
+	0x69, 0x7c, 0xa9, 0xc2, 0xa6, 0x22, 0x1e, 0xa3, 0x1b, 0x9c, 0x22, 0x7a, 0xc5, 0x7b, 0x90, 0x95,
+	0x7b, 0x2c, 0xe1, 0xd5, 0x15, 0xb8, 0x0e, 0x30, 0xa5, 0x1e, 0x65, 0x2c, 0xe2, 0x42, 0x64, 0xab,
+	0x2d, 0x7c, 0x49, 0xfa, 0xd2, 0x69, 0x5a, 0x2d, 0xe5, 0xa5, 0xd5, 0x3f, 0xab, 0xba, 0xb3, 0xd6,
+	0xaa, 0x4a, 0xc2, 0xad, 0xaf, 0x1d, 0xee, 0x01, 0xb4, 0x54, 0x14, 0x27, 0x9c, 0x4e, 0xf9, 0x5a,
+	0x59, 0x18, 0xdf, 0x09, 0x80, 0x62, 0x9c, 0x79, 0x54, 0x8c, 0x6f, 0x9f, 0xe5, 0x32, 0xab, 0x8d,
+	0x95, 0xac, 0x9e, 0x03, 0x88, 0x84, 0x38, 0x90, 0x71, 0xc8, 0x55, 0x8e, 0xad, 0xfd, 0x6e, 0xf9,
+	0xef, 0xa7, 0x26, 0xbf, 0x8d, 0x43, 0x6e, 0x37, 0x45, 0x7e, 0xec, 0x1d, 0x5d, 0xcc, 0x75, 0x72,
+	0x39, 0xd7, 0xc9, 0x9f, 0xb9, 0x4e, 0xbe, 0x2d, 0xf4, 0xca, 0xe5, 0x42, 0xaf, 0xfc, 0x5a, 0xe8,
+	0x95, 0x8f, 0x4f, 0x47, 0xae, 0x1c, 0x9f, 0x0f, 0x4d, 0x07, 0x7d, 0xeb, 0xd5, 0x87, 0xf7, 0x87,
+	0xaf, 0xb9, 0x9c, 0x61, 0x34, 0xb1, 0x9c, 0x31, 0x75, 0x03, 0xeb, 0xf3, 0xf5, 0x7b, 0x93, 0x0c,
+	0x16, 0xc3, 0xba, 0x7a, 0x66, 0x9e, 0xfd, 0x0d, 0x00, 0x00, 0xff, 0xff, 0x42, 0x2b, 0x27, 0xf7,
+	0xfe, 0x04, 0x00, 0x00,
 }
 
 func (m *EventUpdateParams) Marshal() (dAtA []byte, err error) {
@@ -523,7 +599,57 @@ func (m *EventUpdateCommission) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintEvents(dAtA, i, uint64(size))
 	}
 	i--
-	dAtA[i] = 0x12
+	dAtA[i] = 0x1a
+	if m.PoolId != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.PoolId))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.Staker) > 0 {
+		i -= len(m.Staker)
+		copy(dAtA[i:], m.Staker)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Staker)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *EventUpdateStakeFraction) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventUpdateStakeFraction) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventUpdateStakeFraction) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.StakeFraction.Size()
+		i -= size
+		if _, err := m.StakeFraction.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1a
+	if m.PoolId != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.PoolId))
+		i--
+		dAtA[i] = 0x10
+	}
 	if len(m.Staker) > 0 {
 		i -= len(m.Staker)
 		copy(dAtA[i:], m.Staker)
@@ -591,6 +717,26 @@ func (m *EventJoinPool) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	{
+		size := m.StakeFraction.Size()
+		i -= size
+		if _, err := m.StakeFraction.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x32
+	{
+		size := m.Commission.Size()
+		i -= size
+		if _, err := m.Commission.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x2a
 	if m.Amount != 0 {
 		i = encodeVarintEvents(dAtA, i, uint64(m.Amount))
 		i--
@@ -736,7 +882,28 @@ func (m *EventUpdateCommission) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovEvents(uint64(l))
 	}
+	if m.PoolId != 0 {
+		n += 1 + sovEvents(uint64(m.PoolId))
+	}
 	l = m.Commission.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	return n
+}
+
+func (m *EventUpdateStakeFraction) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Staker)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	if m.PoolId != 0 {
+		n += 1 + sovEvents(uint64(m.PoolId))
+	}
+	l = m.StakeFraction.Size()
 	n += 1 + l + sovEvents(uint64(l))
 	return n
 }
@@ -778,6 +945,10 @@ func (m *EventJoinPool) Size() (n int) {
 	if m.Amount != 0 {
 		n += 1 + sovEvents(uint64(m.Amount))
 	}
+	l = m.Commission.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	l = m.StakeFraction.Size()
+	n += 1 + l + sovEvents(uint64(l))
 	return n
 }
 
@@ -1035,6 +1206,25 @@ func (m *EventUpdateCommission) Unmarshal(dAtA []byte) error {
 			m.Staker = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PoolId", wireType)
+			}
+			m.PoolId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.PoolId |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Commission", wireType)
 			}
@@ -1065,6 +1255,141 @@ func (m *EventUpdateCommission) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if err := m.Commission.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvents(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventUpdateStakeFraction) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvents
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventUpdateStakeFraction: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventUpdateStakeFraction: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Staker", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Staker = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PoolId", wireType)
+			}
+			m.PoolId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.PoolId |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StakeFraction", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.StakeFraction.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1334,6 +1659,74 @@ func (m *EventJoinPool) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Commission", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Commission.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StakeFraction", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.StakeFraction.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipEvents(dAtA[iNdEx:])

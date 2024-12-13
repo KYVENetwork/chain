@@ -4698,6 +4698,19 @@ paths:
                     type: string
                     format: uint64
                     description: commission_change_time ...
+                  stake_fraction_change_time:
+                    type: string
+                    format: uint64
+                    description: stake_fraction_change_time ...
+                  vote_slash:
+                    type: string
+                    description: vote_slash ...
+                  upload_slash:
+                    type: string
+                    description: upload_slash ...
+                  timeout_slash:
+                    type: string
+                    description: timeout_slash ...
               pool_params:
                 description: pool_params ...
                 type: object
@@ -7545,6 +7558,12 @@ paths:
                           description: >-
                             isLeaving indicates if a staker is leaving the given
                             pool.
+                        commission:
+                          type: string
+                          description: commission ...
+                        stake_fraction:
+                          type: string
+                          description: stake_fraction ...
                   description: StakerPoolResponse ...
                 description: stakers ...
             description: >-
@@ -9899,6 +9918,19 @@ paths:
                     type: string
                     format: uint64
                     description: commission_change_time ...
+                  stake_fraction_change_time:
+                    type: string
+                    format: uint64
+                    description: stake_fraction_change_time ...
+                  vote_slash:
+                    type: string
+                    description: vote_slash ...
+                  upload_slash:
+                    type: string
+                    description: upload_slash ...
+                  timeout_slash:
+                    type: string
+                    description: timeout_slash ...
             description: >-
               QueryParamsResponse is response type for the Query/Params RPC
               method.

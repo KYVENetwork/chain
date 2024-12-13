@@ -218,7 +218,6 @@ type ModuleInputs struct {
 	PoolKeeper         types.PoolKeeper
 	TeamKeeper         types.TeamKeeper
 	StakersKeeper      types.StakerKeeper
-	DelegationKeeper   types.DelegationKeeper
 	FundersKeeper      types.FundersKeeper
 }
 
@@ -246,7 +245,6 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		in.DistributionKeeper,
 		in.PoolKeeper,
 		in.StakersKeeper,
-		in.DelegationKeeper,
 		in.FundersKeeper,
 	)
 	m := NewAppModule(

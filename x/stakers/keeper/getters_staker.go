@@ -3,6 +3,8 @@ package keeper
 import (
 	"encoding/binary"
 
+	"cosmossdk.io/math"
+
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	storeTypes "cosmossdk.io/store/types"
@@ -19,14 +21,16 @@ import (
 )
 
 // AddValaccountToPool adds a valaccount to a pool.
-// If valaccount already belongs to pool, nothing happens.
-func (k Keeper) AddValaccountToPool(ctx sdk.Context, poolId uint64, stakerAddress string, valaddress string) {
+// If valaccount already active in the to pool nothing happens.
+func (k Keeper) AddValaccountToPool(ctx sdk.Context, poolId uint64, stakerAddress, valaddress string, commission, stakeFraction math.LegacyDec) {
 	if _, validatorExists := k.GetValidator(ctx, stakerAddress); validatorExists {
-		if !k.DoesValaccountExist(ctx, poolId, stakerAddress) {
+		if _, active := k.GetValaccount(ctx, poolId, stakerAddress); !active {
 			k.SetValaccount(ctx, types.Valaccount{
-				PoolId:     poolId,
-				Staker:     stakerAddress,
-				Valaddress: valaddress,
+				PoolId:        poolId,
+				Staker:        stakerAddress,
+				Valaddress:    valaddress,
+				Commission:    commission,
+				StakeFraction: stakeFraction,
 			})
 			k.AddOneToCount(ctx, poolId)
 			k.AddActiveStaker(ctx, stakerAddress)
@@ -37,13 +41,12 @@ func (k Keeper) AddValaccountToPool(ctx sdk.Context, poolId uint64, stakerAddres
 // RemoveValaccountFromPool removes a valaccount from a given pool and updates
 // all aggregated variables. If the valaccount is not in the pool nothing happens.
 func (k Keeper) RemoveValaccountFromPool(ctx sdk.Context, poolId uint64, stakerAddress string) {
-	// get valaccount
-	valaccount, valaccountFound := k.GetValaccount(ctx, poolId, stakerAddress)
-
-	// if valaccount was found on pool continue
-	if valaccountFound {
-		// remove valaccount from pool
-		k.removeValaccount(ctx, valaccount)
+	if valaccount, active := k.GetValaccount(ctx, poolId, stakerAddress); active {
+		// remove valaccount from pool by setting valaddress to zero address
+		valaccount.Valaddress = ""
+		valaccount.Points = 0
+		valaccount.IsLeaving = false
+		k.SetValaccount(ctx, valaccount)
 		k.subtractOneFromCount(ctx, poolId)
 		k.removeActiveStaker(ctx, stakerAddress)
 	}
