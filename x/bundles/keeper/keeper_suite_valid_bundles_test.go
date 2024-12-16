@@ -922,7 +922,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_2, i.STAKER_2)).To(Equal(100*i.KYVE - slashAmountVoter))
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_2, i.CHARLIE)).To(Equal(300*i.KYVE - slashAmountDelegator))
 
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(800 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(800 * i.KYVE))
 
 		// check voter status
 		_, voterActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)

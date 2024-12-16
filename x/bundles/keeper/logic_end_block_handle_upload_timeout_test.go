@@ -281,7 +281,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_1, 0)).To(Equal(20 * i.KYVE))
 	})
 
-	It("Next uploader gets not removed although pool having one node with more than 50% voting power", func() {
+	It("Next uploader gets removed due to pool having validators with too much voting power", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
 			Creator: i.VALADDRESS_0_A,
@@ -289,18 +289,16 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 			PoolId:  0,
 		})
 
-		s.RunTxSuccess(stakingTypes.NewMsgDelegate(
-			i.STAKER_0,
-			util.MustValaddressFromOperatorAddress(i.STAKER_0),
-			sdk.NewInt64Coin(globalTypes.Denom, int64(1*i.KYVE)),
-		))
+		params := s.App().PoolKeeper.GetParams(s.Ctx())
+		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("0.2")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
 
 		// ACT
 		s.CommitAfterSeconds(1)
 
 		// ASSERT
 		bundleProposal, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
-		Expect(bundleProposal.NextUploader).To(Equal("kyve1htgfatqevuvfzvl0sxp97ywteqhg5leha9emf4"))
+		Expect(bundleProposal.NextUploader).To(BeEmpty())
 		Expect(bundleProposal.StorageId).To(BeEmpty())
 
 		poolStakers := s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)
@@ -308,11 +306,11 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 
 		_, found := s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_0)
 		Expect(found).To(BeTrue())
-		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(101 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(BeZero())
 
 		_, found = s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_1)
 		Expect(found).To(BeTrue())
-		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_1, 0)).To(Equal(100 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_1, 0)).To(BeZero())
 	})
 
 	It("Staker is next uploader of genesis bundle and upload interval and timeout does not pass", func() {
@@ -401,7 +399,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		_, found := s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_0)
 		Expect(found).To(BeTrue())
 
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 
 		// check if next uploader not got slashed
 		expectedBalance := 100 * i.KYVE
@@ -578,7 +576,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(expectedBalance).To(Equal(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.STAKER_1)))
 
 		// pool delegations equals delegations of staker 0 & 1
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 	})
 
 	It("Staker is next uploader of bundle proposal and upload timeout passes with the previous bundle not reaching quorum", func() {
@@ -641,7 +639,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(found).To(BeTrue())
 
 		// pool delegations equals delegations of staker 0 & 1
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 	})
 
 	It("Staker is next uploader of bundle proposal and upload timeout passes with the previous bundle being invalid", func() {
@@ -697,7 +695,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 			Vote:      bundletypes.VOTE_TYPE_INVALID,
 		})
 
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(300 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(300 * i.KYVE))
 
 		// ACT
 		s.CommitAfterSeconds(s.App().BundlesKeeper.GetUploadTimeout(s.Ctx()))
@@ -739,7 +737,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(expectedBalance).To(Equal(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_2, i.STAKER_2)))
 
 		// pool delegations equals delegations of staker 1 & 2
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 	})
 
 	It("Staker with already max points is next uploader of bundle proposal and upload timeout passes", func() {
@@ -869,7 +867,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(expectedBalance).To(Equal(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_2, i.STAKER_2)))
 
 		// pool delegations equals delegations of staker 0 & 1
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 	})
 
 	It("A bundle proposal with no quorum does not reach the upload interval", func() {
@@ -1030,7 +1028,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		_, found = s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_2)
 		Expect(found).To(BeTrue())
 
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 
 		// check if next uploader not got slashed
 		expectedBalance := 100 * i.KYVE
@@ -1118,7 +1116,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		_, found = s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_2)
 		Expect(found).To(BeTrue())
 
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 
 		// check if next uploader not got slashed
 		expectedBalance := 100 * i.KYVE
@@ -1201,7 +1199,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		_, found = s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_0)
 		Expect(found).To(BeTrue())
 
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 
 		// check that uploader received upload slash
 		expectedBalance := 100*i.KYVE - uint64(s.App().StakersKeeper.GetUploadSlash(s.Ctx()).Mul(math.LegacyNewDec(int64(100*i.KYVE))).TruncateInt64())
@@ -1367,7 +1365,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		_, found = s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_2)
 		Expect(found).To(BeTrue())
 
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 1)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 1)).To(Equal(200 * i.KYVE))
 
 		// check if next uploader not got slashed
 		slashAmountRatio := s.App().StakersKeeper.GetTimeoutSlash(s.Ctx())

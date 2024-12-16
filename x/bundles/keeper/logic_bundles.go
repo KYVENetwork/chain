@@ -36,28 +36,15 @@ func (k Keeper) AssertPoolCanRun(ctx sdk.Context, poolId uint64) error {
 		return types.ErrEndKeyReached
 	}
 
-	// Get the total and the highest delegation of a single validator in the pool
-	totalDelegation, _ := k.stakerKeeper.GetTotalAndHighestDelegationOfPool(ctx, poolId)
-	if totalDelegation == 0 {
-		return types.ErrPoolHasZeroDelegation
+	// Error if max voting power is not achievable because there are not enough stakers
+	// in the pool
+	if k.stakerKeeper.IsVotingPowerTooHigh(ctx, poolId) {
+		return types.ErrVotingPowerTooHigh
 	}
 
 	// Error if min delegation is not reached
-	if totalDelegation < pool.MinDelegation {
+	if k.stakerKeeper.GetTotalStakeOfPool(ctx, poolId) < pool.MinDelegation {
 		return types.ErrMinDelegationNotReached
-	}
-
-	stakers := int64(len(k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, poolId)))
-	maxVotingPower := k.poolKeeper.GetMaxVotingPowerPerPool(ctx)
-
-	if maxVotingPower.IsZero() {
-		return nil
-	}
-
-	// Error if max voting power is not achievable because there are not enough stakers
-	// in the pool
-	if math.LegacyOneDec().Quo(maxVotingPower).GT(math.LegacyNewDec(stakers)) {
-		return types.ErrVotingPowerTooHigh
 	}
 
 	return nil
@@ -510,26 +497,24 @@ func (k Keeper) GetVoteDistribution(ctx sdk.Context, poolId uint64) (voteDistrib
 		return
 	}
 
-	effectiveStakes := k.stakerKeeper.GetEffectiveValidatorStakes(ctx, poolId)
-
 	// get voting power for valid
 	for _, voter := range bundleProposal.VotersValid {
-		voteDistribution.Valid += effectiveStakes[voter]
+		voteDistribution.Valid += k.stakerKeeper.GetValidatorPoolStake(ctx, voter, poolId)
 	}
 
 	// get voting power for invalid
 	for _, voter := range bundleProposal.VotersInvalid {
-		voteDistribution.Invalid += effectiveStakes[voter]
+		voteDistribution.Invalid += k.stakerKeeper.GetValidatorPoolStake(ctx, voter, poolId)
 	}
 
 	// get voting power for abstain
 	for _, voter := range bundleProposal.VotersAbstain {
-		voteDistribution.Abstain += effectiveStakes[voter]
+		voteDistribution.Abstain += k.stakerKeeper.GetValidatorPoolStake(ctx, voter, poolId)
 	}
 
 	// get total voting power
 	for _, staker := range k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, poolId) {
-		voteDistribution.Total += effectiveStakes[staker]
+		voteDistribution.Total += k.stakerKeeper.GetValidatorPoolStake(ctx, staker, poolId)
 	}
 
 	if voteDistribution.Total == 0 {

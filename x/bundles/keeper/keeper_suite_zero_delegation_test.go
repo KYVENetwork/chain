@@ -291,7 +291,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 		slashAmountVoter := uint64(math.LegacyNewDec(int64(0 * i.KYVE)).Mul(fraction).TruncateInt64())
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_2, i.STAKER_2)).To(Equal(0*i.KYVE - slashAmountVoter))
 
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200*i.KYVE - slashAmountVoter))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200*i.KYVE - slashAmountVoter))
 	})
 
 	It("Staker submit bundle proposal with zero delegation", func() {
@@ -619,7 +619,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 		slashAmount := uint64(math.LegacyNewDec(int64(0 * i.KYVE)).Mul(fraction).TruncateInt64())
 
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(0*i.KYVE - slashAmount))
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200*i.KYVE - slashAmount))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200*i.KYVE - slashAmount))
 
 		// check voter status
 		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)

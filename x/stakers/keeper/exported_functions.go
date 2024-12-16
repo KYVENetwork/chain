@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"sort"
 
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
@@ -81,39 +80,27 @@ func (k Keeper) GetActiveStakers(ctx sdk.Context) []string {
 	return k.getAllActiveStakers(ctx)
 }
 
-// GetDelegationOfPool returns the amount of how many ukyve users have delegated
-// to stakers that are participating in the given pool
-func (k Keeper) GetDelegationOfPool(ctx sdk.Context, poolId uint64) uint64 {
-	totalDelegation := uint64(0)
-	for _, address := range k.GetAllStakerAddressesOfPool(ctx, poolId) {
-		totalDelegation += k.GetValidatorPoolStake(ctx, address, poolId)
-	}
-	return totalDelegation
-}
-
-// GetPoolTotalStake returns the amount in uykve which actively secures
+// GetTotalStakeOfPool returns the amount in uykve which actively secures
 // the given pool
-func (k Keeper) GetPoolTotalStake(ctx sdk.Context, poolId uint64) (totalStake uint64) {
-	effectiveStakes := k.GetEffectiveValidatorStakes(ctx, poolId)
+func (k Keeper) GetTotalStakeOfPool(ctx sdk.Context, poolId uint64) (totalStake uint64) {
+	effectiveStakes := k.getEffectiveValidatorStakes(ctx, poolId)
 	for _, stake := range effectiveStakes {
 		totalStake += stake
 	}
 	return
 }
 
-// GetTotalAndHighestDelegationOfPool iterates all validators of a given pool and returns the stake of the validator
-// with the highest stake and the sum of all stakes.
-func (k Keeper) GetTotalAndHighestDelegationOfPool(ctx sdk.Context, poolId uint64) (totalDelegation, highestDelegation uint64) {
-	for _, address := range k.GetAllStakerAddressesOfPool(ctx, poolId) {
-		delegation := k.GetValidatorPoolStake(ctx, address, poolId)
-		totalDelegation += delegation
+// IsVotingPowerTooHigh returns whether there are enough validators in a pool
+// to successfully stay below the max voting power
+func (k Keeper) IsVotingPowerTooHigh(ctx sdk.Context, poolId uint64) bool {
+	addresses := int64(len(k.GetAllStakerAddressesOfPool(ctx, poolId)))
+	maxVotingPower := k.poolKeeper.GetMaxVotingPowerPerPool(ctx)
 
-		if delegation > highestDelegation {
-			highestDelegation = delegation
-		}
+	if maxVotingPower.IsZero() {
+		return true
 	}
 
-	return totalDelegation, highestDelegation
+	return math.LegacyOneDec().Quo(maxVotingPower).GT(math.LegacyNewDec(addresses))
 }
 
 // GetValidator returns the Cosmos-validator for a given kyve-address.
@@ -136,21 +123,9 @@ func (k Keeper) GetValidatorPoolCommission(ctx sdk.Context, staker string, poolI
 	return valaccount.Commission
 }
 
-// GetValidatorPoolStakeFraction returns the stake fraction a validator has inside the pool
-func (k Keeper) GetValidatorPoolStakeFraction(ctx sdk.Context, staker string, poolId uint64) math.LegacyDec {
-	valaccount, _ := k.GetValaccount(ctx, poolId, staker)
-	return valaccount.StakeFraction
-}
-
-// GetValidatorPoolStake returns stake a validator has inside the pool
+// GetValidatorPoolStake returns stake a validator has actively and at risk inside the pool
 func (k Keeper) GetValidatorPoolStake(ctx sdk.Context, staker string, poolId uint64) uint64 {
-	validator, found := k.GetValidator(ctx, staker)
-	if !found {
-		return 0
-	}
-
-	stakeFraction := k.GetValidatorPoolStakeFraction(ctx, staker, poolId)
-	return uint64(math.LegacyNewDecFromInt(validator.BondedTokens()).Mul(stakeFraction).TruncateInt64())
+	return k.getEffectiveValidatorStakes(ctx, poolId, staker)[staker]
 }
 
 // GetOutstandingCommissionRewards returns the outstanding commission rewards for a given validator
@@ -205,82 +180,6 @@ func (k Keeper) GetOutstandingRewards(orgCtx sdk.Context, staker string, delegat
 	return util.TruncateDecCoins(rewards)
 }
 
-// GetEffectiveValidatorStakes returns a map for all pool stakers their effective stake. Effective stake
-// is the actual stake at risk for a validator, it can be lower than the provided stake because
-// of the max voting power per pool parameter, but it can never be higher. Thus, if the effective
-// stake is lower than the provided one the slash
-// TODO: explain or link to formula
-func (k Keeper) GetEffectiveValidatorStakes(ctx sdk.Context, poolId uint64, mustIncludeStakers ...string) (effectiveStakes map[string]uint64) {
-	type ValidatorStake struct {
-		Address string
-		Stake   uint64
-	}
-
-	addresses := util.RemoveDuplicateStrings(append(k.GetAllStakerAddressesOfPool(ctx, poolId), mustIncludeStakers...))
-	maxVotingPower := k.poolKeeper.GetMaxVotingPowerPerPool(ctx)
-	effectiveStakes = make(map[string]uint64)
-	validators := make([]ValidatorStake, 0)
-	totalStake := int64(0)
-
-	for _, address := range addresses {
-		stake := k.GetValidatorPoolStake(ctx, address, poolId)
-		effectiveStakes[address] = stake
-		validators = append(validators, ValidatorStake{
-			Address: address,
-			Stake:   stake,
-		})
-		totalStake += int64(stake)
-	}
-
-	totalStakeRemainder := totalStake
-
-	// sort descending based on stake
-	sort.Slice(validators, func(i, j int) bool {
-		return validators[i].Stake > validators[j].Stake
-	})
-
-	if totalStake == 0 || maxVotingPower.IsZero() {
-		return make(map[string]uint64)
-	}
-
-	if math.LegacyOneDec().Quo(maxVotingPower).GT(math.LegacyNewDec(int64(len(addresses)))) {
-		return make(map[string]uint64)
-	}
-
-	for i, validator := range validators {
-		if math.LegacyNewDec(int64(effectiveStakes[validator.Address])).GT(maxVotingPower.MulInt64(totalStake)) {
-			amount := math.LegacyNewDec(int64(effectiveStakes[validator.Address])).Sub(maxVotingPower.MulInt64(totalStake)).TruncateInt64()
-
-			totalStakeRemainder -= int64(validator.Stake)
-			effectiveStakes[validator.Address] -= uint64(amount)
-
-			if totalStakeRemainder > 0 {
-				for _, v := range validators[i+1:] {
-					effectiveStakes[v.Address] += uint64(math.LegacyNewDec(int64(v.Stake)).QuoInt64(totalStakeRemainder).MulInt64(amount).TruncateInt64())
-				}
-			}
-		}
-	}
-
-	scaleFactor := math.LegacyZeroDec()
-
-	// get lowest validator with effective stake still bigger than zero
-	for i := len(validators) - 1; i >= 0; i-- {
-		if effectiveStakes[validators[i].Address] > 0 {
-			scaleFactor = math.LegacyNewDec(int64(validators[i].Stake)).QuoInt64(int64(effectiveStakes[validators[i].Address]))
-			break
-		}
-	}
-
-	// scale all effective stakes down to scale factor
-	for _, validator := range validators {
-		// TODO: is rounding here fine?
-		effectiveStakes[validator.Address] = uint64(scaleFactor.MulInt64(int64(effectiveStakes[validator.Address])).RoundInt64())
-	}
-
-	return
-}
-
 // Slash reduces the delegation of all delegators of `staker` by fraction. The slash itself is handled by the cosmos-sdk
 func (k Keeper) Slash(ctx sdk.Context, poolId uint64, staker string, slashType stakertypes.SlashType) {
 	validator, found := k.GetValidator(ctx, staker)
@@ -295,7 +194,7 @@ func (k Keeper) Slash(ctx sdk.Context, poolId uint64, staker string, slashType s
 	stakeFraction := math.LegacyZeroDec()
 
 	if !validator.GetBondedTokens().IsZero() {
-		stakeFraction = math.LegacyNewDec(int64(k.GetEffectiveValidatorStakes(ctx, poolId, staker)[staker])).QuoInt(validator.GetBondedTokens())
+		stakeFraction = math.LegacyNewDec(int64(k.getEffectiveValidatorStakes(ctx, poolId, staker)[staker])).QuoInt(validator.GetBondedTokens())
 	}
 
 	// the validator can only be slashed for his effective stake fraction in a pool, therefore we

@@ -62,6 +62,10 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		}
 		s.RunTxPoolSuccess(msg)
 
+		params := s.App().PoolKeeper.GetParams(s.Ctx())
+		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("1")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+
 		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
 			Creator: i.ALICE,
 			Moniker: "Alice",
@@ -92,12 +96,6 @@ var _ = Describe("invalid bundles", Ordered, func() {
 			Valaddress:    i.VALADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
-		})
-
-		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
-			Staker:  i.STAKER_0,
-			PoolId:  0,
 		})
 
 		initialBalanceStaker0 = s.GetBalanceFromAddress(i.STAKER_0)
@@ -164,8 +162,8 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
-			Staker:        i.STAKER_1,
+			Creator:       i.VALADDRESS_0_A,
+			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
 			DataSize:      100,
@@ -230,7 +228,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		slashAmount := uint64(math.LegacyNewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100*i.KYVE - slashAmount))
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 
 		// check voter status
 		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
@@ -330,8 +328,8 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
-			Staker:        i.STAKER_1,
+			Creator:       i.VALADDRESS_0_A,
+			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
 			DataSize:      100,
@@ -400,7 +398,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100*i.KYVE - slashAmountUploader))
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.ALICE)).To(Equal(100*i.KYVE - slashAmountDelegator))
 
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(400 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(400 * i.KYVE))
 
 		// check voter status
 		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
@@ -526,8 +524,8 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_3_A,
-			Staker:        i.STAKER_3,
+			Creator:       i.VALADDRESS_0_A,
+			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
 			DataSize:      100,
@@ -604,7 +602,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(Equal(100*i.KYVE - slashAmountVoter))
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.BOB)).To(Equal(100*i.KYVE - slashAmountDelegator2))
 
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(450 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(450 * i.KYVE))
 
 		// check voter status
 		_, voterActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
