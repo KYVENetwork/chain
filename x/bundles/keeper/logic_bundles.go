@@ -38,6 +38,9 @@ func (k Keeper) AssertPoolCanRun(ctx sdk.Context, poolId uint64) error {
 
 	// Get the total and the highest delegation of a single validator in the pool
 	totalDelegation, _ := k.stakerKeeper.GetTotalAndHighestDelegationOfPool(ctx, poolId)
+	if totalDelegation == 0 {
+		return types.ErrPoolHasZeroDelegation
+	}
 
 	// Error if min delegation is not reached
 	if totalDelegation < pool.MinDelegation {

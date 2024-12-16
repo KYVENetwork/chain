@@ -229,7 +229,7 @@ func (k Keeper) GetEffectiveValidatorStakes(ctx sdk.Context, poolId uint64, must
 		return validators[i].Stake > validators[j].Stake
 	})
 
-	if maxVotingPower.IsZero() {
+	if totalStake == 0 || maxVotingPower.IsZero() {
 		return
 	}
 
@@ -240,20 +240,24 @@ func (k Keeper) GetEffectiveValidatorStakes(ctx sdk.Context, poolId uint64, must
 			totalStakeRemainder -= int64(validator.Stake)
 			effectiveStakes[validator.Address] -= uint64(amount)
 
-			for _, v := range validators[i+1:] {
-				effectiveStakes[v.Address] += uint64(math.LegacyNewDec(int64(effectiveStakes[v.Address])).QuoInt64(totalStakeRemainder).MulInt64(amount).TruncateInt64())
+			if totalStakeRemainder > 0 {
+				for _, v := range validators[i+1:] {
+					effectiveStakes[v.Address] += uint64(math.LegacyNewDec(int64(effectiveStakes[v.Address])).QuoInt64(totalStakeRemainder).MulInt64(amount).TruncateInt64())
+				}
 			}
 		}
 	}
 
-	// TODO: take lowest validator with effective stake bigger than zero
-	lowestValidator := validators[len(validators)-1]
 	scaleFactor := math.LegacyZeroDec()
 
-	if effectiveStakes[lowestValidator.Address] > 0 {
-		scaleFactor = math.LegacyNewDec(int64(lowestValidator.Stake)).QuoInt64(int64(effectiveStakes[lowestValidator.Address]))
+	// get lowest validator with effective stake still bigger than zero
+	for i := len(validators) - 1; i >= 0; i-- {
+		if effectiveStakes[validators[i].Address] > 0 {
+			scaleFactor = math.LegacyNewDec(int64(validators[i].Stake)).QuoInt64(int64(effectiveStakes[validators[i].Address]))
+		}
 	}
 
+	// scale all effective stakes down to scale factor
 	for _, validator := range validators {
 		effectiveStakes[validator.Address] = uint64(scaleFactor.MulInt64(int64(effectiveStakes[validator.Address])).TruncateInt64())
 	}
@@ -272,7 +276,11 @@ func (k Keeper) Slash(ctx sdk.Context, poolId uint64, staker string, slashType s
 
 	// get real stake fraction from the effective stake which is truly at risk for getting slashed
 	// by dividing it with the total bonded stake from the validator
-	stakeFraction := math.LegacyNewDec(int64(k.GetEffectiveValidatorStakes(ctx, poolId, staker)[staker])).QuoInt(validator.GetBondedTokens())
+	stakeFraction := math.LegacyZeroDec()
+
+	if !validator.GetBondedTokens().IsZero() {
+		stakeFraction = math.LegacyNewDec(int64(k.GetEffectiveValidatorStakes(ctx, poolId, staker)[staker])).QuoInt(validator.GetBondedTokens())
+	}
 
 	// the validator can only be slashed for his effective stake fraction in a pool, therefore we
 	// update the slash fraction accordingly
