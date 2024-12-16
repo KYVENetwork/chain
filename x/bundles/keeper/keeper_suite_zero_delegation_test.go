@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"cosmossdk.io/math"
+	"fmt"
 	i "github.com/KYVENetwork/chain/testutil/integration"
 	bundletypes "github.com/KYVENetwork/chain/x/bundles/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
@@ -164,8 +165,17 @@ var _ = Describe("zero delegation", Ordered, func() {
 		Expect(bundleProposal.VotersInvalid).NotTo(ContainElement(i.STAKER_2))
 		Expect(bundleProposal.VotersAbstain).NotTo(ContainElement(i.STAKER_2))
 
+		fmt.Println(bundleProposal)
+		effectiveStakes := s.App().StakersKeeper.GetEffectiveValidatorStakes(s.Ctx(), 0)
+		fmt.Println(effectiveStakes)
+
+		fmt.Println("wait 60 seconds")
 		s.CommitAfterSeconds(60)
 
+		bundleProposal, _ = s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
+		fmt.Println(bundleProposal)
+
+		// TODO: fails here
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_1_A,
 			Staker:        i.STAKER_1,

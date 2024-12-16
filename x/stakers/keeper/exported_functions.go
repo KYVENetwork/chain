@@ -246,6 +246,7 @@ func (k Keeper) GetEffectiveValidatorStakes(ctx sdk.Context, poolId uint64, must
 		}
 	}
 
+	// TODO: take lowest validator with effective stake bigger than zero
 	lowestValidator := validators[len(validators)-1]
 	scaleFactor := math.LegacyZeroDec()
 

@@ -182,6 +182,8 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 
 	It("Frequency analysis", func() {
 		// ARRANGE
+		// NOTE that dummy with index 2 has more than 50% voting power, so his effective stake
+		// will be lower
 		joinDummy(s, 0, 2)
 		joinDummy(s, 1, 31)
 		joinDummy(s, 2, 67)
@@ -207,16 +209,16 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 		// ASSERT
 
 		Expect(frequency1[i.DUMMY[0]]).To(Equal(0))
-		Expect(frequency1[i.DUMMY[1]]).To(Equal(3))
-		Expect(frequency1[i.DUMMY[2]]).To(Equal(7))
+		Expect(frequency1[i.DUMMY[1]]).To(Equal(5))
+		Expect(frequency1[i.DUMMY[2]]).To(Equal(5))
 
-		Expect(frequency2[i.DUMMY[0]]).To(Equal(2))
-		Expect(frequency2[i.DUMMY[1]]).To(Equal(31))
-		Expect(frequency2[i.DUMMY[2]]).To(Equal(67))
+		Expect(frequency2[i.DUMMY[0]]).To(Equal(3))
+		Expect(frequency2[i.DUMMY[1]]).To(Equal(47))
+		Expect(frequency2[i.DUMMY[2]]).To(Equal(50))
 
-		Expect(frequency3[i.DUMMY[0]]).To(Equal(2000))
-		Expect(frequency3[i.DUMMY[1]]).To(Equal(31000))
-		Expect(frequency3[i.DUMMY[2]]).To(Equal(67000))
+		Expect(frequency3[i.DUMMY[0]]).To(Equal(3031))  // 2/66
+		Expect(frequency3[i.DUMMY[1]]).To(Equal(46969)) // 31/66
+		Expect(frequency3[i.DUMMY[2]]).To(Equal(50000)) // 33/66
 	})
 
 	It("Frequency analysis (rounding)", func() {
