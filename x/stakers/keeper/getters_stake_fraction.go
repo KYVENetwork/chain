@@ -65,7 +65,7 @@ func (k Keeper) RemoveStakeFractionEntry(ctx sdk.Context, stakeFractionChangeEnt
 	store := prefix.NewStore(storeAdapter, types.StakeFractionChangeEntryKeyPrefix)
 	store.Delete(types.StakeFractionChangeEntryKey(stakeFractionChangeEntry.Index))
 
-	indexStore := prefix.NewStore(storeAdapter, types.StakeFractionChangeEntryKeyPrefix)
+	indexStore := prefix.NewStore(storeAdapter, types.StakeFractionChangeKeyPrefixIndex2)
 	indexStore.Delete(types.StakeFractionChangeEntryKeyIndex2(
 		stakeFractionChangeEntry.Staker,
 		stakeFractionChangeEntry.PoolId,

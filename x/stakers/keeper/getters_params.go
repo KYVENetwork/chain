@@ -60,7 +60,7 @@ func (k Keeper) getSlashFraction(ctx sdk.Context, slashType types.SlashType) (sl
 	case types.SLASH_TYPE_UPLOAD:
 		slashAmountRatio = k.GetUploadSlash(ctx)
 	}
-	return
+	return math.LegacyZeroDec()
 }
 
 // SetParams sets the x/stakers module parameters.

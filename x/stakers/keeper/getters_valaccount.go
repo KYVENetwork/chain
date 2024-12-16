@@ -96,14 +96,6 @@ func (k Keeper) GetPoolCount(ctx sdk.Context, stakerAddress string) (poolCount u
 // #  Raw KV-Store operations  #
 // #############################
 
-// DoesValaccountExist only checks if the key is present in the KV-Store
-// without loading and unmarshalling to full entry
-//func (k Keeper) DoesValaccountExist(ctx sdk.Context, poolId uint64, stakerAddress string) bool {
-//	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-//	store := prefix.NewStore(storeAdapter, types.ValaccountPrefix)
-//	return store.Has(types.ValaccountKey(poolId, stakerAddress))
-//}
-
 // SetValaccount set a specific Valaccount in the store from its index
 func (k Keeper) SetValaccount(ctx sdk.Context, valaccount types.Valaccount) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
