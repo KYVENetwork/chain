@@ -91,6 +91,16 @@ func (k Keeper) GetDelegationOfPool(ctx sdk.Context, poolId uint64) uint64 {
 	return totalDelegation
 }
 
+// GetPoolTotalStake returns the amount in uykve which actively secures
+// the given pool
+func (k Keeper) GetPoolTotalStake(ctx sdk.Context, poolId uint64) (totalStake uint64) {
+	effectiveStakes := k.GetEffectiveValidatorStakes(ctx, poolId)
+	for _, stake := range effectiveStakes {
+		totalStake += stake
+	}
+	return
+}
+
 // GetTotalAndHighestDelegationOfPool iterates all validators of a given pool and returns the stake of the validator
 // with the highest stake and the sum of all stakes.
 func (k Keeper) GetTotalAndHighestDelegationOfPool(ctx sdk.Context, poolId uint64) (totalDelegation, highestDelegation uint64) {
@@ -230,11 +240,15 @@ func (k Keeper) GetEffectiveValidatorStakes(ctx sdk.Context, poolId uint64, must
 	})
 
 	if totalStake == 0 || maxVotingPower.IsZero() {
-		return
+		return make(map[string]uint64)
+	}
+
+	if math.LegacyOneDec().Quo(maxVotingPower).GT(math.LegacyNewDec(int64(len(addresses)))) {
+		return make(map[string]uint64)
 	}
 
 	for i, validator := range validators {
-		if math.LegacyNewDec(int64(effectiveStakes[validator.Address])).QuoInt64(totalStake).GT(maxVotingPower) {
+		if math.LegacyNewDec(int64(effectiveStakes[validator.Address])).GT(maxVotingPower.MulInt64(totalStake)) {
 			amount := math.LegacyNewDec(int64(effectiveStakes[validator.Address])).Sub(maxVotingPower.MulInt64(totalStake)).TruncateInt64()
 
 			totalStakeRemainder -= int64(validator.Stake)
@@ -242,7 +256,7 @@ func (k Keeper) GetEffectiveValidatorStakes(ctx sdk.Context, poolId uint64, must
 
 			if totalStakeRemainder > 0 {
 				for _, v := range validators[i+1:] {
-					effectiveStakes[v.Address] += uint64(math.LegacyNewDec(int64(effectiveStakes[v.Address])).QuoInt64(totalStakeRemainder).MulInt64(amount).TruncateInt64())
+					effectiveStakes[v.Address] += uint64(math.LegacyNewDec(int64(v.Stake)).QuoInt64(totalStakeRemainder).MulInt64(amount).TruncateInt64())
 				}
 			}
 		}
@@ -254,12 +268,14 @@ func (k Keeper) GetEffectiveValidatorStakes(ctx sdk.Context, poolId uint64, must
 	for i := len(validators) - 1; i >= 0; i-- {
 		if effectiveStakes[validators[i].Address] > 0 {
 			scaleFactor = math.LegacyNewDec(int64(validators[i].Stake)).QuoInt64(int64(effectiveStakes[validators[i].Address]))
+			break
 		}
 	}
 
 	// scale all effective stakes down to scale factor
 	for _, validator := range validators {
-		effectiveStakes[validator.Address] = uint64(scaleFactor.MulInt64(int64(effectiveStakes[validator.Address])).TruncateInt64())
+		// TODO: is rounding here fine?
+		effectiveStakes[validator.Address] = uint64(scaleFactor.MulInt64(int64(effectiveStakes[validator.Address])).RoundInt64())
 	}
 
 	return
