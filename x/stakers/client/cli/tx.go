@@ -22,6 +22,7 @@ func GetTxCmd() *cobra.Command {
 	cmd.AddCommand(CmdJoinPool())
 	cmd.AddCommand(CmdLeavePool())
 	cmd.AddCommand(CmdUpdateCommission())
+	cmd.AddCommand(CmdUpdateStakeFraction())
 
 	return cmd
 }

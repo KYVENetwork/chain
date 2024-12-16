@@ -61,9 +61,8 @@ func (k Keeper) GetPaginatedStakersByDelegation(ctx sdk.Context, pagination *que
 // If the valaddress is not authorized the appropriate error is returned.
 // Otherwise, it returns `nil`
 func (k Keeper) AssertValaccountAuthorized(ctx sdk.Context, poolId uint64, stakerAddress string, valaddress string) error {
-	valaccount, found := k.GetValaccount(ctx, poolId, stakerAddress)
-
-	if !found {
+	valaccount, active := k.GetValaccount(ctx, poolId, stakerAddress)
+	if !active {
 		return types.ErrValaccountUnauthorized
 	}
 
@@ -85,7 +84,7 @@ func (k Keeper) GetActiveStakers(ctx sdk.Context) []string {
 func (k Keeper) GetDelegationOfPool(ctx sdk.Context, poolId uint64) uint64 {
 	totalDelegation := uint64(0)
 	for _, address := range k.GetAllStakerAddressesOfPool(ctx, poolId) {
-		totalDelegation += k.GetDelegationAmount(ctx, address)
+		totalDelegation += k.GetValidatorPoolStake(ctx, address, poolId)
 	}
 	return totalDelegation
 }
@@ -94,7 +93,7 @@ func (k Keeper) GetDelegationOfPool(ctx sdk.Context, poolId uint64) uint64 {
 // with the highest stake and the sum of all stakes.
 func (k Keeper) GetTotalAndHighestDelegationOfPool(ctx sdk.Context, poolId uint64) (totalDelegation, highestDelegation uint64) {
 	for _, address := range k.GetAllStakerAddressesOfPool(ctx, poolId) {
-		delegation := k.GetDelegationAmount(ctx, address)
+		delegation := k.GetValidatorPoolStake(ctx, address, poolId)
 		totalDelegation += delegation
 
 		if delegation > highestDelegation {
@@ -103,20 +102,6 @@ func (k Keeper) GetTotalAndHighestDelegationOfPool(ctx sdk.Context, poolId uint6
 	}
 
 	return totalDelegation, highestDelegation
-}
-
-// GetDelegationAmount returns the stake of a given validator in ukyve
-func (k Keeper) GetDelegationAmount(ctx sdk.Context, validator string) uint64 {
-	validatorAddress, err := sdk.ValAddressFromBech32(util.MustValaddressFromOperatorAddress(validator))
-	if err != nil {
-		return 0
-	}
-	chainValidator, err := k.stakingKeeper.GetValidator(ctx, validatorAddress)
-	if err != nil {
-		return 0
-	}
-
-	return chainValidator.GetBondedTokens().Uint64()
 }
 
 // GetValidator returns the Cosmos-validator for a given kyve-address.
@@ -131,6 +116,29 @@ func (k Keeper) GetValidator(ctx sdk.Context, staker string) (stakingTypes.Valid
 	}
 
 	return validator, true
+}
+
+// GetValidatorPoolCommission returns the commission a validator has inside the pool
+func (k Keeper) GetValidatorPoolCommission(ctx sdk.Context, staker string, poolId uint64) math.LegacyDec {
+	valaccount, _ := k.GetValaccount(ctx, poolId, staker)
+	return valaccount.Commission
+}
+
+// GetValidatorPoolStakeFraction returns the stake fraction a validator has inside the pool
+func (k Keeper) GetValidatorPoolStakeFraction(ctx sdk.Context, staker string, poolId uint64) math.LegacyDec {
+	valaccount, _ := k.GetValaccount(ctx, poolId, staker)
+	return valaccount.StakeFraction
+}
+
+// GetValidatorPoolStake returns stake a validator has inside the pool
+func (k Keeper) GetValidatorPoolStake(ctx sdk.Context, staker string, poolId uint64) uint64 {
+	validator, found := k.GetValidator(ctx, staker)
+	if !found {
+		return 0
+	}
+
+	stakeFraction := k.GetValidatorPoolStakeFraction(ctx, staker, poolId)
+	return uint64(math.LegacyNewDecFromInt(validator.BondedTokens()).Mul(stakeFraction).TruncateInt64())
 }
 
 // GetOutstandingCommissionRewards returns the outstanding commission rewards for a given validator
@@ -186,7 +194,7 @@ func (k Keeper) GetOutstandingRewards(orgCtx sdk.Context, staker string, delegat
 }
 
 // Slash reduces the delegation of all delegators of `staker` by fraction. The slash itself is handled by the cosmos-sdk
-func (k Keeper) Slash(ctx sdk.Context, poolId uint64, staker string, slashFraction math.LegacyDec) {
+func (k Keeper) Slash(ctx sdk.Context, poolId uint64, staker string, slashType types.SlashType) {
 	validator, found := k.GetValidator(ctx, staker)
 	if !found {
 		return
@@ -194,16 +202,26 @@ func (k Keeper) Slash(ctx sdk.Context, poolId uint64, staker string, slashFracti
 
 	consAddrBytes, _ := validator.GetConsAddr()
 
-	amount, err := k.stakingKeeper.Slash(ctx, consAddrBytes, ctx.BlockHeight(), validator.GetConsensusPower(math.NewInt(1000000)), slashFraction)
+	// the validator can only be slashed for his stake fraction in a pool, therefore we update the slash fraction
+	// accordingly
+	slashFraction := k.getSlashFraction(ctx, slashType).Mul(k.GetValidatorPoolStakeFraction(ctx, staker, poolId))
+
+	amount, err := k.stakingKeeper.Slash(
+		ctx,
+		consAddrBytes,
+		ctx.BlockHeight(),
+		validator.GetConsensusPower(math.NewInt(1000000)),
+		slashFraction,
+	)
 	if err != nil {
 		return
 	}
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventSlash{
-		PoolId: poolId,
-		Staker: staker,
-		Amount: amount.Uint64(),
-		// SlashType: slashType, TODO add slash type, once migrated away from delegation module
+		PoolId:    poolId,
+		Staker:    staker,
+		Amount:    amount.Uint64(),
+		SlashType: slashType,
 	})
 }
 
@@ -251,9 +269,36 @@ func (k Keeper) PayoutRewards(ctx sdk.Context, staker string, amount sdk.Coins, 
 	}
 
 	validator, _ := k.GetValidator(ctx, staker)
-
-	err := k.distKeeper.AllocateTokensToValidator(ctx, validator, sdk.NewDecCoinsFromCoins(amount...))
+	valBz, err := k.stakingKeeper.ValidatorAddressCodec().StringToBytes(validator.GetOperator())
 	if err != nil {
+		return err
+	}
+
+	currentRewards, err := k.distKeeper.GetValidatorCurrentRewards(ctx, valBz)
+	if err != nil {
+		return err
+	}
+
+	currentRewards.Rewards = currentRewards.Rewards.Add(sdk.NewDecCoinsFromCoins(amount...)...)
+	if err := k.distKeeper.SetValidatorCurrentRewards(ctx, valBz, currentRewards); err != nil {
+		return err
+	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			distrtypes.EventTypeRewards,
+			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()),
+			sdk.NewAttribute(distrtypes.AttributeKeyValidator, validator.GetOperator()),
+		),
+	)
+
+	outstanding, err := k.distKeeper.GetValidatorOutstandingRewards(ctx, valBz)
+	if err != nil {
+		return err
+	}
+
+	outstanding.Rewards = outstanding.Rewards.Add(sdk.NewDecCoinsFromCoins(amount...)...)
+	if err := k.distKeeper.SetValidatorOutstandingRewards(ctx, valBz, outstanding); err != nil {
 		return err
 	}
 

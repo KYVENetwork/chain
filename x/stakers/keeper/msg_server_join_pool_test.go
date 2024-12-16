@@ -32,6 +32,9 @@ TEST CASES - msg_server_join_pool.go
 * Try to join another pool with the same valaddress again
 * Try to join another pool with a valaddress that is already used by another staker
 * Try to join another pool with a different valaddress
+* Try to join pool with empty valaddress
+* Try to join pool with empty commission
+* Try to join pool with empty stake fraction
 * Join a pool with a valaddress which does not exist on chain yet
 * Join a pool with a valaddress which does not exist on chain yet and send 0 funds
 * Join a pool with an invalid valaddress
@@ -40,6 +43,8 @@ TEST CASES - msg_server_join_pool.go
 * Fail to kick out lowest staker because not enough stake
 * Kick out lowest staker with respect to stake + delegation
 * Fail to kick out lowest staker because not enough stake + delegation
+* Join pool again with same valaddress after staker has left pool
+* Join pool again with different valaddress after staker has left pool
 
 */
 
@@ -48,6 +53,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 	initialBalanceStaker0 := uint64(0)
 	initialBalanceValaddress0 := uint64(0)
+	initialBalanceValaddress1 := uint64(0)
 
 	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
 
@@ -69,6 +75,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		initialBalanceStaker0 = s.GetBalanceFromAddress(i.STAKER_0)
 		initialBalanceValaddress0 = s.GetBalanceFromAddress(i.VALADDRESS_0_A)
+		initialBalanceValaddress1 = s.GetBalanceFromAddress(i.VALADDRESS_0_B)
 	})
 
 	AfterEach(func() {
@@ -84,10 +91,12 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 	It("Join the first pool as the first staker to a newly created pool", func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     100 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ASSERT
@@ -101,9 +110,9 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 
-		valaccount, found := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, active := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
 
-		Expect(found).To(BeTrue())
+		Expect(active).To(BeTrue())
 
 		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
 		Expect(valaccount.PoolId).To(BeZero())
@@ -118,7 +127,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
 
 		Expect(totalStakeOfPool).To(Equal(100 * i.KYVE))
-		Expect(s.App().StakersKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_0)).To(Equal(totalStakeOfPool))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(totalStakeOfPool))
 
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(totalStakeOfPool))
 	})
@@ -140,10 +149,12 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		// ACT
 		_, err := s.RunTx(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     1,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     100 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        1,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		Expect(err.Error()).To(Equal("can not join disabled pool: internal logic error"))
@@ -159,9 +170,9 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(0))
 
-		_, found := s.App().StakersKeeper.GetValaccount(s.Ctx(), 1, i.STAKER_0)
+		_, active := s.App().StakersKeeper.GetValaccount(s.Ctx(), 1, i.STAKER_0)
 
-		Expect(found).To(BeFalse())
+		Expect(active).To(BeFalse())
 
 		valaccountsOfPool := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 1)
 
@@ -170,7 +181,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 1)
 
 		Expect(totalStakeOfPool).To(Equal(0 * i.KYVE))
-		Expect(s.App().StakersKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_0)).To(Equal(100 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 1)).To(Equal(0 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetActiveStakers(s.Ctx())).To(HaveLen(0))
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100 * i.KYVE))
 	})
@@ -180,18 +191,22 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
-			Amount:     0 * i.KYVE,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Amount:        0 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     0 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        0 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ASSERT
@@ -205,9 +220,9 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 
-		valaccount, found := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, active := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
 
-		Expect(found).To(BeTrue())
+		Expect(active).To(BeTrue())
 
 		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
 		Expect(valaccount.PoolId).To(BeZero())
@@ -222,17 +237,19 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
 
 		Expect(totalStakeOfPool).To(Equal(200 * i.KYVE))
-		Expect(s.App().StakersKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_0)).To(Equal(100 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(100 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100 * i.KYVE))
 	})
 
 	It("Self-Delegate more KYVE after joining a pool", func() {
 		// ARRANGE
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     100 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
@@ -250,9 +267,9 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 
-		valaccount, found := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, active := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
 
-		Expect(found).To(BeTrue())
+		Expect(active).To(BeTrue())
 
 		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
 		Expect(valaccount.PoolId).To(BeZero())
@@ -268,25 +285,29 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(totalStakeOfPool).To(Equal(150 * i.KYVE))
 
-		Expect(s.App().StakersKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_0)).To(Equal(totalStakeOfPool))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(totalStakeOfPool))
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(totalStakeOfPool))
 	})
 
 	It("Try to join the same pool with the same valaddress again", func() {
 		// ARRANGE
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     100 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     100 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ASSERT
@@ -298,10 +319,12 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 	It("join a pool with the same valaddress as the staker address", func() {
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.STAKER_0,
-			Amount:     100 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.STAKER_0,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ASSERT
@@ -313,18 +336,22 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 	It("Try to join the same pool with a different valaddress", func() {
 		// ARRANGE
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     100 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
-			Amount:     100 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ASSERT
@@ -336,10 +363,12 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 	It("Try to join another pool with the same valaddress again", func() {
 		// ARRANGE
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     100 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		msg := &pooltypes.MsgCreatePool{
@@ -353,10 +382,12 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     1,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     100 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        1,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ASSERT
@@ -378,18 +409,22 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     1,
-			Valaddress: i.VALADDRESS_1_A,
-			Amount:     100 * i.KYVE,
+			Creator:       i.STAKER_1,
+			PoolId:        1,
+			Valaddress:    i.VALADDRESS_1_A,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
-			Amount:     100 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ASSERT
@@ -400,20 +435,24 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 	It("Try to join pool with a valaddress that is already used by another staker", func() {
 		// ARRANGE
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     100 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     100 * i.KYVE,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ASSERT
@@ -424,10 +463,12 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 	It("Try to join another pool with a different valaddress", func() {
 		// ARRANGE
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     100 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		msg := &pooltypes.MsgCreatePool{
@@ -441,9 +482,11 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     1,
-			Valaddress: i.VALADDRESS_1_A,
+			Creator:       i.STAKER_0,
+			PoolId:        1,
+			Valaddress:    i.VALADDRESS_1_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ASSERT
@@ -451,13 +494,61 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(valaccountsOfStaker).To(HaveLen(2))
 	})
 
+	It("Try to join pool with empty valaddress", func() {
+		// ACT
+		s.RunTxStakersError(&stakerstypes.MsgJoinPool{
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    "",
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
+		})
+
+		// ASSERT
+		valaccountsOfStaker := s.App().StakersKeeper.GetValaccountsFromStaker(s.Ctx(), i.STAKER_0)
+		Expect(valaccountsOfStaker).To(BeEmpty())
+	})
+
+	It("Try to join pool with empty commission", func() {
+		// ACT
+		s.RunTxStakersError(&stakerstypes.MsgJoinPool{
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        100 * i.KYVE,
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
+		})
+
+		// ASSERT
+		valaccountsOfStaker := s.App().StakersKeeper.GetValaccountsFromStaker(s.Ctx(), i.STAKER_0)
+		Expect(valaccountsOfStaker).To(BeEmpty())
+	})
+
+	It("Try to join pool with empty stake fraction", func() {
+		// ACT
+		s.RunTxStakersError(&stakerstypes.MsgJoinPool{
+			Creator:    i.STAKER_0,
+			PoolId:     0,
+			Valaddress: i.VALADDRESS_0_A,
+			Amount:     100 * i.KYVE,
+			Commission: math.LegacyMustNewDecFromStr("0.1"),
+		})
+
+		// ASSERT
+		valaccountsOfStaker := s.App().StakersKeeper.GetValaccountsFromStaker(s.Ctx(), i.STAKER_0)
+		Expect(valaccountsOfStaker).To(BeEmpty())
+	})
+
 	It("Join a pool with a valaddress which does not exist on chain yet", func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: "kyve1dx0nvx7y9d44jvr2dr6r2p636jea3f9827rn0x",
-			Amount:     100 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    "kyve1dx0nvx7y9d44jvr2dr6r2p636jea3f9827rn0x",
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ASSERT
@@ -471,9 +562,9 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 
-		valaccount, found := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, active := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
 
-		Expect(found).To(BeTrue())
+		Expect(active).To(BeTrue())
 
 		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
 		Expect(valaccount.PoolId).To(BeZero())
@@ -488,17 +579,19 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
 		Expect(totalStakeOfPool).To(Equal(100 * i.KYVE))
 
-		Expect(s.App().StakersKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_0)).To(Equal(totalStakeOfPool))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(totalStakeOfPool))
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(totalStakeOfPool))
 	})
 
 	It("Join a pool with a valaddress which does not exist on chain yet and send 0 funds", func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: "kyve1dx0nvx7y9d44jvr2dr6r2p636jea3f9827rn0x",
-			Amount:     0 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    "kyve1dx0nvx7y9d44jvr2dr6r2p636jea3f9827rn0x",
+			Amount:        0 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ASSERT
@@ -512,9 +605,9 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 
-		valaccount, found := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, active := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
 
-		Expect(found).To(BeTrue())
+		Expect(active).To(BeTrue())
 
 		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
 		Expect(valaccount.PoolId).To(BeZero())
@@ -529,17 +622,19 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
 		Expect(totalStakeOfPool).To(Equal(100 * i.KYVE))
 
-		Expect(s.App().StakersKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_0)).To(Equal(totalStakeOfPool))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(totalStakeOfPool))
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(totalStakeOfPool))
 	})
 
 	It("Join a pool with an invalid valaddress", func() {
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: "invalid_valaddress",
-			Amount:     100 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    "invalid_valaddress",
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ASSERT
@@ -551,10 +646,12 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 	It("Join a pool and fund the valaddress with more KYVE than available in balance", func() {
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: "invalid_valaddress",
-			Amount:     initialBalanceStaker0 + 1,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    "invalid_valaddress",
+			Amount:        initialBalanceStaker0 + 1,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ASSERT
@@ -568,19 +665,23 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(stakerstypes.MaxStakers).To(Equal(50))
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     1,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        1,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		for k := 0; k < 49; k++ {
 			s.CreateValidator(i.DUMMY[k], fmt.Sprintf("dummy-%d", k), int64(150*i.KYVE))
 			s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-				Creator:    i.DUMMY[k],
-				PoolId:     0,
-				Valaddress: i.VALDUMMY[k],
-				Amount:     1,
+				Creator:       i.DUMMY[k],
+				PoolId:        0,
+				Valaddress:    i.VALDUMMY[k],
+				Amount:        1,
+				Commission:    math.LegacyMustNewDecFromStr("0.1"),
+				StakeFraction: math.LegacyMustNewDecFromStr("1"),
 			})
 		}
 
@@ -591,10 +692,12 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		// Act
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
-			Amount:     1,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Amount:        1,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// Assert
@@ -607,19 +710,23 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(stakerstypes.MaxStakers).To(Equal(50))
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     1,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        1,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		for k := 0; k < 49; k++ {
 			s.CreateValidator(i.DUMMY[k], fmt.Sprintf("dummy-%d", k), int64(150*i.KYVE))
 			s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-				Creator:    i.DUMMY[k],
-				PoolId:     0,
-				Valaddress: i.VALDUMMY[k],
-				Amount:     1,
+				Creator:       i.DUMMY[k],
+				PoolId:        0,
+				Valaddress:    i.VALDUMMY[k],
+				Amount:        1,
+				Commission:    math.LegacyMustNewDecFromStr("0.1"),
+				StakeFraction: math.LegacyMustNewDecFromStr("1"),
 			})
 		}
 
@@ -630,10 +737,12 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		// Act
 		s.RunTxStakersError(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
-			Amount:     1,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Amount:        1,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// Assert
@@ -647,19 +756,23 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(stakerstypes.MaxStakers).To(Equal(50))
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     1 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        1 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		for k := 0; k < 49; k++ {
 			s.CreateValidator(i.DUMMY[k], fmt.Sprintf("dummy-%d", k), int64(150*i.KYVE))
 			s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-				Creator:    i.DUMMY[k],
-				PoolId:     0,
-				Valaddress: i.VALDUMMY[k],
-				Amount:     1 * i.KYVE,
+				Creator:       i.DUMMY[k],
+				PoolId:        0,
+				Valaddress:    i.VALDUMMY[k],
+				Amount:        1 * i.KYVE,
+				Commission:    math.LegacyMustNewDecFromStr("0.1"),
+				StakeFraction: math.LegacyMustNewDecFromStr("1"),
 			})
 		}
 
@@ -676,10 +789,12 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
-			Amount:     1,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Amount:        1,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ASSERT
@@ -693,19 +808,23 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(stakerstypes.MaxStakers).To(Equal(50))
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     1,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        1,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		for k := 0; k < 49; k++ {
 			s.CreateValidator(i.DUMMY[k], fmt.Sprintf("dummy-%d", k), int64(150*i.KYVE))
 			s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-				Creator:    i.DUMMY[k],
-				PoolId:     0,
-				Valaddress: i.VALDUMMY[k],
-				Amount:     1,
+				Creator:       i.DUMMY[k],
+				PoolId:        0,
+				Valaddress:    i.VALDUMMY[k],
+				Amount:        1,
+				Commission:    math.LegacyMustNewDecFromStr("0.1"),
+				StakeFraction: math.LegacyMustNewDecFromStr("1"),
 			})
 		}
 
@@ -716,10 +835,12 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		// Act
 		s.RunTxStakersError(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
-			Amount:     1,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Amount:        1,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// Assert
@@ -733,19 +854,23 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(stakerstypes.MaxStakers).To(Equal(50))
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     1 * i.KYVE,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        1 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		for k := 0; k < 49; k++ {
 			s.CreateValidator(i.DUMMY[k], fmt.Sprintf("dummy-%d", k), int64(150*i.KYVE))
 			s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-				Creator:    i.DUMMY[k],
-				PoolId:     0,
-				Valaddress: i.VALDUMMY[k],
-				Amount:     1 * i.KYVE,
+				Creator:       i.DUMMY[k],
+				PoolId:        0,
+				Valaddress:    i.VALDUMMY[k],
+				Amount:        1 * i.KYVE,
+				Commission:    math.LegacyMustNewDecFromStr("0.1"),
+				StakeFraction: math.LegacyMustNewDecFromStr("1"),
 			})
 		}
 
@@ -762,15 +887,155 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
-			Amount:     0,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Amount:        0,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ASSERT
 		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal((150*49 + 100) * i.KYVE))
 		Expect(s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)).To(ContainElement(i.STAKER_0))
 		Expect(s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)).NotTo(ContainElement(i.STAKER_1))
+	})
+
+	It("Join pool again with same valaddress after staker has left pool", func() {
+		// ARRANGE
+		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
+		})
+
+		s.RunTxStakersSuccess(&stakerstypes.MsgLeavePool{
+			Creator: i.STAKER_0,
+			PoolId:  0,
+		})
+
+		// wait for leave pool
+		s.CommitAfterSeconds(s.App().StakersKeeper.GetLeavePoolTime(s.Ctx()))
+		s.CommitAfterSeconds(1)
+
+		_, active := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		Expect(active).To(BeFalse())
+
+		// ACT
+		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        50 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.2"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
+		})
+
+		// ASSERT
+		balanceAfterStaker0 := s.GetBalanceFromAddress(i.STAKER_0)
+		balanceAfterValaddress0 := s.GetBalanceFromAddress(i.VALADDRESS_0_A)
+
+		Expect(initialBalanceStaker0 - balanceAfterStaker0).To(Equal(150 * i.KYVE))
+		Expect(balanceAfterValaddress0 - initialBalanceValaddress0).To(Equal(150 * i.KYVE))
+
+		valaccountsOfStaker := s.App().StakersKeeper.GetValaccountsFromStaker(s.Ctx(), i.STAKER_0)
+
+		Expect(valaccountsOfStaker).To(HaveLen(1))
+
+		valaccount, active := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+
+		Expect(active).To(BeTrue())
+
+		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
+		Expect(valaccount.PoolId).To(BeZero())
+		Expect(valaccount.Valaddress).To(Equal(i.VALADDRESS_0_A))
+		Expect(valaccount.Points).To(BeZero())
+		Expect(valaccount.IsLeaving).To(BeFalse())
+		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.2")))
+		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
+
+		valaccountsOfPool := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
+
+		Expect(valaccountsOfPool).To(HaveLen(1))
+
+		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
+
+		Expect(totalStakeOfPool).To(Equal(100 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(totalStakeOfPool))
+
+		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(totalStakeOfPool))
+	})
+
+	It("Join pool again with different valaddress after staker has left pool", func() {
+		// ARRANGE
+		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
+		})
+
+		s.RunTxStakersSuccess(&stakerstypes.MsgLeavePool{
+			Creator: i.STAKER_0,
+			PoolId:  0,
+		})
+
+		// wait for leave pool
+		s.CommitAfterSeconds(s.App().StakersKeeper.GetLeavePoolTime(s.Ctx()))
+		s.CommitAfterSeconds(1)
+
+		_, active := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		Expect(active).To(BeFalse())
+
+		// ACT
+		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_B,
+			Amount:        50 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.2"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
+		})
+
+		// ASSERT
+		balanceAfterStaker0 := s.GetBalanceFromAddress(i.STAKER_0)
+		balanceAfterValaddress0 := s.GetBalanceFromAddress(i.VALADDRESS_0_A)
+		balanceAfterValaddress1 := s.GetBalanceFromAddress(i.VALADDRESS_0_B)
+
+		Expect(initialBalanceStaker0 - balanceAfterStaker0).To(Equal(150 * i.KYVE))
+		Expect(balanceAfterValaddress0 - initialBalanceValaddress0).To(Equal(100 * i.KYVE))
+		Expect(balanceAfterValaddress1 - initialBalanceValaddress1).To(Equal(50 * i.KYVE))
+
+		valaccountsOfStaker := s.App().StakersKeeper.GetValaccountsFromStaker(s.Ctx(), i.STAKER_0)
+
+		Expect(valaccountsOfStaker).To(HaveLen(1))
+
+		valaccount, active := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+
+		Expect(active).To(BeTrue())
+
+		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
+		Expect(valaccount.PoolId).To(BeZero())
+		Expect(valaccount.Valaddress).To(Equal(i.VALADDRESS_0_B))
+		Expect(valaccount.Points).To(BeZero())
+		Expect(valaccount.IsLeaving).To(BeFalse())
+		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.2")))
+		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
+
+		valaccountsOfPool := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
+
+		Expect(valaccountsOfPool).To(HaveLen(1))
+
+		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
+
+		Expect(totalStakeOfPool).To(Equal(100 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(totalStakeOfPool))
+
+		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(totalStakeOfPool))
 	})
 })

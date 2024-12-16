@@ -119,17 +119,21 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
@@ -452,9 +456,11 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s.CreateValidator(i.STAKER_2, "Staker-2", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_2,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_2_A,
+			Creator:       i.STAKER_2,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_2_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxSuccess(stakingTypes.NewMsgDelegate(
@@ -616,9 +622,11 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s.CreateValidator(i.STAKER_2, "Staker-2", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_2,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_2_A,
+			Creator:       i.STAKER_2,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_2_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxSuccess(stakingTypes.NewMsgDelegate(
@@ -788,9 +796,11 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s.CreateValidator(i.STAKER_2, "Staker-2", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_2,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_2_A,
+			Creator:       i.STAKER_2,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_2_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxSuccess(stakingTypes.NewMsgDelegate(
@@ -905,7 +915,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(balanceUploaderValaddress).To(Equal(initialBalanceValaddress0))
 
 		// calculate voter slashes
-		fraction := s.App().DelegationKeeper.GetVoteSlash(s.Ctx())
+		fraction := s.App().StakersKeeper.GetVoteSlash(s.Ctx())
 		slashAmountVoter := uint64(math.LegacyNewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 		slashAmountDelegator := uint64(math.LegacyNewDec(int64(300 * i.KYVE)).Mul(fraction).TruncateInt64())
 
@@ -915,8 +925,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(800 * i.KYVE))
 
 		// check voter status
-		_, valaccountVoterFound := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
-		Expect(valaccountVoterFound).To(BeFalse())
+		_, voterActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
+		Expect(voterActive).To(BeFalse())
 
 		balanceVoterValaddress := s.GetCoinsFromAddress(i.VALADDRESS_2_A)
 		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress2))
@@ -1221,7 +1231,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), valaccountUploader.Staker).String()).To(Equal(sdk.NewCoins(i.ACoin(1004), i.BCoin(1987), i.CCoin(2974)).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (coin_amount_per_bundle - (coin_amount_per_bundle * 0.01) - _((100 * 0.5) / (3 * coin_weight))_) * (1 - 0.1)
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.ACoin(8895), i.BCoin(17812), i.CCoin(26725)).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.ACoin(8896), i.BCoin(17813), i.CCoin(26726)).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -1390,7 +1400,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), valaccountUploader.Staker).String()).To(Equal(sdk.NewCoins(i.ACoin(1004), i.BCoin(997), i.CCoin(9900)).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (10_000 - (10_000 * 0.01) - _((100 * 0.5) / (3 * coin_weight))_) * (1 - 0.1)
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.ACoin(8895), i.BCoin(8902)).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.ACoin(8896), i.BCoin(8903)).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -1553,7 +1563,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), valaccountUploader.Staker).String()).To(Equal(sdk.NewCoins(i.ACoin(1012), i.BCoin(1000)).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (10_000 - (10_000 * 0.01) - _((100 * 0.5) / (2 * coin_weight))_) * (1 - 0.1)
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.ACoin(8887), i.BCoin(8899)).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.ACoin(8888), i.BCoin(8900)).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -1750,7 +1760,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), valaccountUploader.Staker).String()).To(Equal(sdk.NewCoins(i.KYVECoin(125_973_187), i.ACoin(99_143), i.BCoin(116_661_015_771_428_571), i.CCoin(100_765)).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (amount_per_bundle - (amount_per_bundle * 0.01) - _((29970208 * 0.000000006288 * 1**coin_decimals) / (4 * coin_weight))_) * (1 - 0.1)
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(864_026_812), i.ACoin(890_856), i.BCoin(873_338_984_228_571_428), i.CCoin(889_234)).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(864_026_813), i.ACoin(890_857), i.BCoin(873_338_984_228_571_429), i.CCoin(889_235)).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 

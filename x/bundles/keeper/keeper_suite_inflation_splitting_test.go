@@ -128,17 +128,21 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
@@ -322,7 +326,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// (total_bundle_payout - treasury_reward - storage_cost) * commission + storage_cost
 		// storage_cost = byte_size * usd_per_byte / len(coins) * coin_weight
 		// (2471669 - (2471669 * 0.01) - _((100 * 0.5) / (1 * 1))_) * (1 - 0.1)
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(2_202_214).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(2_202_215).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -408,7 +412,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (49433483 - (49433483 * 0.01) - _((100 * 0.5) / (1 * 1))_) * (1 - 0.1)
 		// Due to cosmos rounding, the result is a little off.
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(44_045_219).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(44_045_220).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -610,7 +614,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), i.STAKER_0).String()).To(Equal(i.KYVECoins(735_121).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (7_415_009 + 10_000 - ((7_415_009 + 10_000) * 0.01) - _((100 * 0.5) / (1 * 1))_) * (1 - 0.1)
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(6_615_641).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(6_615_642).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -707,7 +711,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), i.STAKER_0).String()).To(Equal(i.KYVECoins(2_447_994).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (2_471_6741 + 10_000 - ((2_471_6741 + 10_000) * 0.01) - _((100 * 0.5) / (1 * 1))_) * (1 - 0.1)
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(22_031_497).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(22_031_498).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -803,7 +807,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), i.STAKER_0).String()).To(Equal(i.KYVECoins(74).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (300 - (300 * 0.01) - _((100 * 0.5) / (1 * 1))_) * (1 - 0.1)
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(222).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(223).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -1006,7 +1010,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), i.STAKER_0).String()).To(Equal(i.KYVECoins(2_447_033).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (24_716_741 + 300 - ((24_716_741 + 300) * 0.01) - _((100 * 0.5) / (1 * 1))_) * (1 - 0.1)
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(22_022_855).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(22_022_856).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -1102,7 +1106,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), i.STAKER_0).String()).To(Equal(i.KYVECoins(559).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (5_000 + 200 - ((5_000 + 200) * 0.01) - _((100 * 0.5) / (1 * 1))_) * (1 - 0.1)
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(4_588).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(4_589).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -1207,7 +1211,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), i.STAKER_0).String()).To(Equal(i.KYVECoins(734_646).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (7_415_009 + 5_000 + 200 - ((7_415_009 + 5_000 + 200) * 0.01) - _((100 * 0.5) / (1 * 1))_) * (1 - 0.1)
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(6_611_364).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.KYVECoins(6_611_365).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -1402,7 +1406,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.ACoin(1012), i.BCoin(1990)).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (20_000 - (20_000 * 0.01) - _((100 * 0.5) / (2 * coin_weight))_) * (1 - 0.1)
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.ACoin(8887), i.BCoin(17809)).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.ACoin(8888), i.BCoin(17810)).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -1511,7 +1515,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// for kyve coin (7_415_009 - (7_415_009 * 0.01) - _((100 * 0.5) / (3 * 1))_) * (1 - 0.1)
 		// for acoin (10_000 - (10_000 * 0.01) - _((100 * 0.5) / (3 * 1))_) * (1 - 0.1)
 		// for bcoin (20_000 - (20_000 * 0.01) - _((100 * 0.5) / (3 * 2))_) * (1 - 0.1)
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(6_606_762), i.ACoin(8895), i.BCoin(17812)).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(6_606_763), i.ACoin(8896), i.BCoin(17813)).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -1621,7 +1625,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// for kyve coin (24_716_741 - (24_716_741 * 0.01) - _((100 * 0.5) / (3 * 1))_) * (1 - 0.1)
 		// for acoin (10_000 - (10_000 * 0.01) - _((100 * 0.5) / (3 * 1))_) * (1 - 0.1)
 		// for bcoin (20_000 - (20_000 * 0.01) - _((100 * 0.5) / (3 * 2))_) * (1 - 0.1)
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(22_022_618), i.ACoin(8895), i.BCoin(17812)).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(22_022_619), i.ACoin(8896), i.BCoin(17813)).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -1758,14 +1762,18 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		s.RunTxPoolSuccess(msg)
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     1,
-			Valaddress: i.VALADDRESS_0_B,
+			Creator:       i.STAKER_0,
+			PoolId:        1,
+			Valaddress:    i.VALADDRESS_0_B,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     1,
-			Valaddress: i.VALADDRESS_1_B,
+			Creator:       i.STAKER_1,
+			PoolId:        1,
+			Valaddress:    i.VALADDRESS_1_B,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		preMineBalance := s.App().BankKeeper.GetSupply(s.Ctx(), globalTypes.Denom)
@@ -1845,7 +1853,6 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		Expect(finalBalancePool1).To(Equal(uint64(30919246548)))
 
 		// assert bundle reward
-		uploader, _ := s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_0)
 
 		// the total payout is here just the inflation payout
 		// (inflation - teamRewards)*inflationShare - balancePool0 - balancePool1
@@ -1858,7 +1865,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		storageReward := s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateDec()
 		totalUploaderReward := totalPayout.Sub(treasuryReward).Sub(storageReward)
 
-		uploaderPayoutReward := totalUploaderReward.Mul(uploader.Commission.Rate).TruncateDec()
+		uploaderPayoutReward := totalUploaderReward.Mul(math.LegacyMustNewDecFromStr("0.1")).TruncateDec()
 		uploaderDelegationReward := totalUploaderReward.Sub(uploaderPayoutReward)
 
 		// assert commission rewards
@@ -1866,7 +1873,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// only the commission-rewards distribution)
 		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), i.STAKER_0).AmountOf(globalTypes.Denom).String()).To(Equal(uploaderPayoutReward.Add(storageReward).RoundInt().String()))
 		// assert uploader self delegation rewards
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).ToLegacyDec().Add(math.LegacyOneDec()).String()).To(Equal(uploaderDelegationReward.String()))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).ToLegacyDec().String()).To(Equal(uploaderDelegationReward.String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -1913,14 +1920,19 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		s.RunTxPoolSuccess(msg)
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     1,
-			Valaddress: i.VALADDRESS_0_B,
+			Creator:       i.STAKER_0,
+			PoolId:        1,
+			Valaddress:    i.VALADDRESS_0_B,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
+
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     1,
-			Valaddress: i.VALADDRESS_1_B,
+			Creator:       i.STAKER_1,
+			PoolId:        1,
+			Valaddress:    i.VALADDRESS_1_B,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// Both pools now have inflation_share=1 and zero balance
@@ -1998,7 +2010,6 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		Expect(finalBalancePool1).To(Equal(uint64(17005585601)))
 
 		// assert bundle reward
-		uploader, _ := s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_0)
 
 		// the total payout is here just the inflation payout
 		totalPayout := math.LegacyNewDec(17005585601 - 13604468481)
@@ -2008,13 +2019,13 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		storageReward := s.App().BundlesKeeper.GetStorageCost(s.Ctx(), pool.GetCurrentStorageProviderId()).MulInt64(100).TruncateDec()
 		totalUploaderReward := totalPayout.Sub(treasuryReward).Sub(storageReward)
 
-		uploaderPayoutReward := totalUploaderReward.Mul(uploader.Commission.Rate).TruncateDec()
+		uploaderPayoutReward := totalUploaderReward.Mul(math.LegacyMustNewDecFromStr("0.1")).TruncateDec()
 		uploaderDelegationReward := totalUploaderReward.Sub(uploaderPayoutReward)
 
 		// assert commission rewards
 		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), i.STAKER_0).AmountOf(globalTypes.Denom).ToLegacyDec().String()).To(Equal(uploaderPayoutReward.Add(storageReward).String()))
 		// assert uploader self delegation rewards
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).ToLegacyDec().Add(math.LegacyOneDec()).String()).To(Equal(uploaderDelegationReward.String()))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).AmountOf(globalTypes.Denom).ToLegacyDec().String()).To(Equal(uploaderDelegationReward.String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 

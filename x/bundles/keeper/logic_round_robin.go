@@ -75,7 +75,7 @@ func (k Keeper) LoadRoundRobinValidatorSet(ctx sdk.Context, poolId uint64) Round
 	newValidators := make(map[string]bool, 0)
 	// Add all current pool validators to the round-robin set
 	for _, address := range k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, poolId) {
-		delegation := k.stakerKeeper.GetDelegationAmount(ctx, address)
+		delegation := k.stakerKeeper.GetValidatorPoolStake(ctx, address, poolId)
 		if delegation > 0 {
 			// If a validator has no delegation do not add to the round-robin set. Validator is basically non-existent.
 			vs.Validators = append(vs.Validators, RoundRobinValidatorPower{
