@@ -497,24 +497,26 @@ func (k Keeper) GetVoteDistribution(ctx sdk.Context, poolId uint64) (voteDistrib
 		return
 	}
 
+	stakes := k.stakerKeeper.GetValidatorPoolStakes(ctx, poolId)
+
 	// get voting power for valid
 	for _, voter := range bundleProposal.VotersValid {
-		voteDistribution.Valid += k.stakerKeeper.GetValidatorPoolStake(ctx, voter, poolId)
+		voteDistribution.Valid += stakes[voter]
 	}
 
 	// get voting power for invalid
 	for _, voter := range bundleProposal.VotersInvalid {
-		voteDistribution.Invalid += k.stakerKeeper.GetValidatorPoolStake(ctx, voter, poolId)
+		voteDistribution.Invalid += stakes[voter]
 	}
 
 	// get voting power for abstain
 	for _, voter := range bundleProposal.VotersAbstain {
-		voteDistribution.Abstain += k.stakerKeeper.GetValidatorPoolStake(ctx, voter, poolId)
+		voteDistribution.Abstain += stakes[voter]
 	}
 
 	// get total voting power
 	for _, staker := range k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, poolId) {
-		voteDistribution.Total += k.stakerKeeper.GetValidatorPoolStake(ctx, staker, poolId)
+		voteDistribution.Total += stakes[staker]
 	}
 
 	if voteDistribution.Total == 0 {

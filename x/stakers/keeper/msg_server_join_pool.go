@@ -76,8 +76,6 @@ func (k msgServer) JoinPool(goCtx context.Context, msg *types.MsgJoinPool) (*typ
 		}
 	}
 
-	// TODO: check here if validator with his stake fraction is over the maximum join limit
-
 	k.AddValaccountToPool(ctx, msg.PoolId, msg.Creator, msg.Valaddress, msg.Commission, msg.StakeFraction)
 
 	if err := util.TransferFromAddressToAddress(k.bankKeeper, ctx, msg.Creator, msg.Valaddress, msg.Amount); err != nil {

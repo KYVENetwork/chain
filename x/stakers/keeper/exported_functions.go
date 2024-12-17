@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"sort"
 
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
@@ -83,7 +84,7 @@ func (k Keeper) GetActiveStakers(ctx sdk.Context) []string {
 // GetTotalStakeOfPool returns the amount in uykve which actively secures
 // the given pool
 func (k Keeper) GetTotalStakeOfPool(ctx sdk.Context, poolId uint64) (totalStake uint64) {
-	effectiveStakes := k.getEffectiveValidatorStakes(ctx, poolId)
+	effectiveStakes := k.GetValidatorPoolStakes(ctx, poolId)
 	for _, stake := range effectiveStakes {
 		totalStake += stake
 	}
@@ -125,7 +126,129 @@ func (k Keeper) GetValidatorPoolCommission(ctx sdk.Context, staker string, poolI
 
 // GetValidatorPoolStake returns stake a validator has actively and at risk inside the pool
 func (k Keeper) GetValidatorPoolStake(ctx sdk.Context, staker string, poolId uint64) uint64 {
-	return k.getEffectiveValidatorStakes(ctx, poolId, staker)[staker]
+	return k.GetValidatorPoolStakes(ctx, poolId, staker)[staker]
+}
+
+// GetValidatorPoolStakes returns a map for all pool validators with their effective stake. Effective stake
+// is the actual amount which determines the validator's voting power and is the actual amount at risk for
+// slashing. The effective stake can be lower (never higher) than the specified stake by the validators by
+// his stake fraction because of the maximum voting power which limits the voting power a validator can have
+// in a pool.
+//
+// We limit the voting power by first sorting all validators based on their stake and start at the highest. From
+// there we check if this validator exceeds the voting power with his stake, if he does we cut off an amount
+// from his stake and redistribute it to all the validators below him based on their stakes. Because we are simply
+// redistributing exact amounts we do not need to worry about changing the total stake which would mess up voting
+// powers of other validators again. After this has been repeated for every validator that exceeds the max voting
+// power we finally scale down all stakes to the lowest validator's stake. This is because the top validators lost
+// stake and the lowest validators gained stake, but because it is not allowed to risk more than specified so we scale
+// everything down accordingly. This results in a stake distribution where every validator who was below the max
+// voting power has the same effective stake as his dedicated stake and those validators who where above it have
+// less effective stake.
+func (k Keeper) GetValidatorPoolStakes(ctx sdk.Context, poolId uint64, mustIncludeStakers ...string) map[string]uint64 {
+	type ValidatorStake struct {
+		Address string
+		Stake   uint64
+	}
+
+	validators := make([]ValidatorStake, 0)
+	stakes := make(map[string]uint64)
+
+	// we include given stakers since in some instances the staker we are looking for has been already kicked
+	// out of a pool, but we still need to payout rewards or slash him afterward depending on his last action
+	// right before leaving the pool
+	addresses := util.RemoveDuplicateStrings(append(k.GetAllStakerAddressesOfPool(ctx, poolId), mustIncludeStakers...))
+	maxVotingPower := k.poolKeeper.GetMaxVotingPowerPerPool(ctx)
+
+	// it is impossible regardless how many validators are in a pool to have a max voting power of 0%,
+	// therefore we return here
+	if maxVotingPower.IsZero() {
+		return stakes
+	}
+
+	// if there are not enough validators in a pool so that the max voting power is always
+	// exceeded by at least one validator we return
+	if math.LegacyOneDec().Quo(maxVotingPower).GT(math.LegacyNewDec(int64(len(addresses)))) {
+		return stakes
+	}
+
+	totalStake := int64(0)
+
+	for _, address := range addresses {
+		validator, _ := k.GetValidator(ctx, address)
+		valaccount, _ := k.GetValaccount(ctx, poolId, address)
+
+		// calculate the stake the validator has specifically chosen for this pool
+		// with his stake fraction
+		stake := uint64(valaccount.StakeFraction.MulInt(validator.GetBondedTokens()).TruncateInt64())
+
+		stakes[address] = stake
+		validators = append(validators, ValidatorStake{
+			Address: address,
+			Stake:   stake,
+		})
+		totalStake += int64(stake)
+	}
+
+	totalStakeRemainder := totalStake
+
+	// sort descending based on stake
+	sort.Slice(validators, func(i, j int) bool {
+		return validators[i].Stake > validators[j].Stake
+	})
+
+	// if the total stake of the pool is zero we return
+	if totalStake == 0 {
+		return stakes
+	}
+
+	for i, validator := range validators {
+		// check if the validator has a higher stake than allowed by the max voting power
+		if math.LegacyNewDec(int64(stakes[validator.Address])).GT(maxVotingPower.MulInt64(totalStake)) {
+			// if the validator got a stake which would give him a higher voting power than the maximum allowed
+			// one we cut off the exact amount from his stake so that he is just below the max voting power
+			cutoffAmount := math.LegacyNewDec(int64(stakes[validator.Address])).Sub(maxVotingPower.MulInt64(totalStake)).TruncateInt64()
+
+			totalStakeRemainder -= int64(validator.Stake)
+			stakes[validator.Address] -= uint64(cutoffAmount)
+
+			// we take the cutoff amount and distribute it on the remaining validators down the list
+			// who all have less voting power than the current one. We distribute the cutoff amount
+			// based on the validator's stake
+			if totalStakeRemainder > 0 {
+				for _, v := range validators[i+1:] {
+					stakes[v.Address] += uint64(math.LegacyNewDec(int64(v.Stake)).QuoInt64(totalStakeRemainder).MulInt64(cutoffAmount).TruncateInt64())
+				}
+			}
+		}
+	}
+
+	// after we have redistributed all cutoff amounts so that no validator exceeds the maximum voting power
+	// based on their remaining effective stake we now scale the stakes to get the true effective staking amount.
+	// This is because while the top validators who got their voting power reduced the lower validators have actually
+	// gained voting power relatively. But because their effective stake is now bigger than their allocated stake
+	// we have to scale it down again, because we are not allowed to slash more than the validator has allocated in
+	// this particular pool. Therefore, we take the stake of the lowest validator (with a bigger stake than 0) and scale
+	// down all stakes of all other validators to that accordingly
+	scaleFactor := math.LegacyZeroDec()
+
+	// get the lowest validator with effective stake still bigger than zero and determine the scale factor
+	for i := len(validators) - 1; i >= 0; i-- {
+		if stakes[validators[i].Address] > 0 {
+			scaleFactor = math.LegacyNewDec(int64(validators[i].Stake)).QuoInt64(int64(stakes[validators[i].Address]))
+			break
+		}
+	}
+
+	// scale all effective stakes down to scale factor
+	for _, validator := range validators {
+		stakes[validator.Address] = uint64(scaleFactor.MulInt64(int64(stakes[validator.Address])).RoundInt64())
+	}
+
+	// the result is a map which contains the effective stake for every validator in a pool. The effective stake
+	// can not be higher than the dedicated stake specified by the validator by his stake fraction, therefore it
+	// represents the true amount of $KYVE which is at risk for slashing
+	return stakes
 }
 
 // GetOutstandingCommissionRewards returns the outstanding commission rewards for a given validator
@@ -189,12 +312,14 @@ func (k Keeper) Slash(ctx sdk.Context, poolId uint64, staker string, slashType s
 
 	consAddrBytes, _ := validator.GetConsAddr()
 
-	// get real stake fraction from the effective stake which is truly at risk for getting slashed
-	// by dividing it with the total bonded stake from the validator
+	// here the stake fraction can be actually different from the stake fraction the validator has specified
+	// for this pool because with the max voting power in place his effective stake in a pool could have been
+	// reduced because his original stake was too high. Therefore, we determine the true stake fraction
+	// by dividing his effective stake with his bonded amount.
 	stakeFraction := math.LegacyZeroDec()
 
 	if !validator.GetBondedTokens().IsZero() {
-		stakeFraction = math.LegacyNewDec(int64(k.getEffectiveValidatorStakes(ctx, poolId, staker)[staker])).QuoInt(validator.GetBondedTokens())
+		stakeFraction = math.LegacyNewDec(int64(k.GetValidatorPoolStake(ctx, staker, poolId))).QuoInt(validator.GetBondedTokens())
 	}
 
 	// the validator can only be slashed for his effective stake fraction in a pool, therefore we

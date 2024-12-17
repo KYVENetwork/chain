@@ -42,6 +42,7 @@ type StakerKeeper interface {
 	GetValidatorPoolCommission(ctx sdk.Context, staker string, poolId uint64) math.LegacyDec
 	GetValidatorPoolStake(ctx sdk.Context, staker string, poolId uint64) uint64
 	GetTotalStakeOfPool(ctx sdk.Context, poolId uint64) (totalStake uint64)
+	GetValidatorPoolStakes(ctx sdk.Context, poolId uint64, mustIncludeStakers ...string) map[string]uint64
 	IsVotingPowerTooHigh(ctx sdk.Context, poolId uint64) bool
 	Slash(ctx sdk.Context, poolId uint64, staker string, slashType stakersTypes.SlashType)
 	PayoutRewards(ctx sdk.Context, staker string, amount sdk.Coins, payerModuleName string) error
