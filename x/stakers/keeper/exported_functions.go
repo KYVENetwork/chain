@@ -2,10 +2,11 @@ package keeper
 
 import (
 	"context"
+	"sort"
+
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"sort"
 
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"

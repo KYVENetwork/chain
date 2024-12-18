@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+
 	"github.com/KYVENetwork/chain/x/query/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"

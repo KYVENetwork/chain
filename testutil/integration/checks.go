@@ -2,6 +2,7 @@ package integration
 
 import (
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/KYVENetwork/chain/util"
@@ -123,18 +124,17 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 
 		// test stakers by pool
 		valaccounts := suite.App().StakersKeeper.GetAllValaccountsOfPool(suite.Ctx(), poolsState[i].Id)
-		stakersByPoolState := make([]querytypes.StakerPoolResponse, 0)
+		stakersByPoolState := make([]querytypes.FullStaker, 0)
 
 		for _, valaccount := range valaccounts {
-			_, stakerFound := suite.App().StakersKeeper.GetValidator(suite.Ctx(), valaccount.Staker)
-
-			if stakerFound {
-				stakersByPoolState = append(stakersByPoolState, querytypes.StakerPoolResponse{
-					Staker:     suite.App().QueryKeeper.GetFullStaker(suite.Ctx(), valaccount.Staker),
-					Valaccount: valaccount,
-				})
+			if _, stakerFound := suite.App().StakersKeeper.GetValidator(suite.Ctx(), valaccount.Staker); stakerFound {
+				stakersByPoolState = append(stakersByPoolState, *suite.App().QueryKeeper.GetFullStaker(suite.Ctx(), valaccount.Staker))
 			}
 		}
+
+		sort.Slice(stakersByPoolState, func(a, b int) bool {
+			return suite.App().StakersKeeper.GetValidatorPoolStake(suite.Ctx(), stakersByPoolState[a].Address, poolsState[i].Id) > suite.App().StakersKeeper.GetValidatorPoolStake(suite.Ctx(), stakersByPoolState[b].Address, poolsState[i].Id)
+		})
 
 		stakersByPoolQuery, stakersByPoolQueryErr := suite.App().QueryKeeper.StakersByPool(suite.Ctx(), &querytypes.QueryStakersByPoolRequest{
 			PoolId: poolsState[i].Id,
