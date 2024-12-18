@@ -2,6 +2,8 @@ package keeper
 
 import (
 	"context"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"sort"
 
 	"cosmossdk.io/errors"
@@ -44,18 +46,25 @@ func (k Keeper) GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (sta
 	return stakers
 }
 
-func (k Keeper) GetPaginatedStakersByDelegation(ctx sdk.Context, pagination *query.PageRequest, accumulator func(staker string, accumulate bool) bool) (*query.PageResponse, error) {
+func (k Keeper) GetPaginatedStakersByPoolStake(ctx sdk.Context, pagination *query.PageRequest, accumulator func(validator string, accumulate bool) bool) (*query.PageResponse, error) {
 	validators, err := k.stakingKeeper.GetBondedValidatorsByPower(ctx)
 	if err != nil {
 		return nil, err
 	}
 
+	// TODO: sort by pool stake
+	addresses := make([]string, 0)
+
 	for _, validator := range validators {
-		accumulator(util.MustAccountAddressFromValAddress(validator.OperatorAddress), true)
+		addresses = append(addresses, util.MustAccountAddressFromValAddress(validator.OperatorAddress))
 	}
 
-	res := query.PageResponse{}
-	return &res, nil
+	pageRes, err := arrayPaginationAccumulator(addresses, pagination, accumulator)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return pageRes, nil
 }
 
 // AssertValaccountAuthorized checks if the given `valaddress` is allowed to vote in pool

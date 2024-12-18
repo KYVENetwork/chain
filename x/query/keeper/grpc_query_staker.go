@@ -26,7 +26,7 @@ func (k Keeper) Stakers(c context.Context, req *types.QueryStakersRequest) (*typ
 		fullStaker := k.GetFullStaker(ctx, address)
 
 		searchAddress := strings.ToLower(fullStaker.Address)
-		searchMoniker := strings.ToLower(fullStaker.Metadata.Moniker)
+		searchMoniker := strings.ToLower(fullStaker.Validator.GetMoniker())
 
 		if strings.Contains(searchAddress, req.Search) || strings.Contains(searchMoniker, req.Search) {
 			if accumulate {
@@ -41,7 +41,7 @@ func (k Keeper) Stakers(c context.Context, req *types.QueryStakersRequest) (*typ
 	var pageRes *query.PageResponse
 	var err error
 
-	pageRes, err = k.stakerKeeper.GetPaginatedStakersByDelegation(ctx, req.Pagination, accumulator)
+	pageRes, err = k.stakerKeeper.GetPaginatedStakersByPoolStake(ctx, req.Pagination, accumulator)
 
 	if err != nil {
 		return nil, err

@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"encoding/binary"
+	"fmt"
 
 	"cosmossdk.io/math"
 
@@ -244,4 +245,34 @@ func (k Keeper) getAllActiveStakers(ctx sdk.Context) (list []string) {
 	}
 
 	return
+}
+
+// arrayPaginationAccumulator helps to parse the query.PageRequest for an array
+// instead of a KV-Store.
+func arrayPaginationAccumulator(slice []string, pagination *query.PageRequest, accumulator func(address string, accumulate bool) bool) (*query.PageResponse, error) {
+	if pagination != nil && pagination.Key != nil {
+		return nil, fmt.Errorf("key pagination not supported")
+	}
+
+	page, limit, err := query.ParsePagination(pagination)
+	if err != nil {
+		return nil, err
+	}
+
+	count := 0
+	minIndex := (page - 1) * limit
+	maxIndex := (page) * limit
+
+	for i := 0; i < len(slice); i++ {
+		if accumulator(slice[i], count >= minIndex && count < maxIndex) {
+			count++
+		}
+	}
+
+	pageRes := &query.PageResponse{
+		NextKey: nil,
+		Total:   uint64(count),
+	}
+
+	return pageRes, nil
 }
