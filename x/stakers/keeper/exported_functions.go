@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"sort"
@@ -46,7 +47,7 @@ func (k Keeper) GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (sta
 	return stakers
 }
 
-func (k Keeper) GetPaginatedStakersByPoolStake(ctx sdk.Context, pagination *query.PageRequest, accumulator func(validator string, accumulate bool) bool) (*query.PageResponse, error) {
+func (k Keeper) GetPaginatedStakersByPoolStake(ctx sdk.Context, pagination *query.PageRequest, stakerStatus querytypes.StakerStatus, accumulator func(validator string, accumulate bool) bool) (*query.PageResponse, error) {
 	validators, err := k.stakingKeeper.GetBondedValidatorsByPower(ctx)
 	if err != nil {
 		return nil, err
@@ -55,13 +56,33 @@ func (k Keeper) GetPaginatedStakersByPoolStake(ctx sdk.Context, pagination *quer
 	addresses := make([]string, 0)
 
 	for _, validator := range validators {
-		addresses = append(addresses, util.MustAccountAddressFromValAddress(validator.OperatorAddress))
+		address := util.MustAccountAddressFromValAddress(validator.OperatorAddress)
+
+		if stakerStatus == querytypes.STAKER_STATUS_PROTOCOL_ACTIVE && len(k.GetValaccountsFromStaker(ctx, address)) == 0 {
+			continue
+		}
+
+		if stakerStatus == querytypes.STAKER_STATUS_PROTOCOL_INACTIVE && len(k.GetValaccountsFromStaker(ctx, address)) > 0 {
+			continue
+		}
+
+		if stakerStatus == querytypes.STAKER_STATUS_CHAIN_ACTIVE && !validator.IsBonded() {
+			continue
+		}
+
+		if stakerStatus == querytypes.STAKER_STATUS_CHAIN_INACTIVE && validator.IsBonded() {
+			continue
+		}
+
+		addresses = append(addresses, address)
 	}
 
 	// TODO: is this too expensive?
-	sort.Slice(addresses, func(i, j int) bool {
-		return k.GetValidatorTotalPoolStake(ctx, addresses[i]) > k.GetValidatorTotalPoolStake(ctx, addresses[j])
-	})
+	if stakerStatus == querytypes.STAKER_STATUS_UNSPECIFIED || stakerStatus == querytypes.STAKER_STATUS_PROTOCOL_ACTIVE {
+		sort.Slice(addresses, func(i, j int) bool {
+			return k.GetValidatorTotalPoolStake(ctx, addresses[i]) > k.GetValidatorTotalPoolStake(ctx, addresses[j])
+		})
+	}
 
 	pageRes, err := arrayPaginationAccumulator(addresses, pagination, accumulator)
 	if err != nil {

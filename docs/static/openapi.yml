@@ -8063,15 +8063,19 @@ paths:
             status looks whether a staker is participating in pools or not
 
              - STAKER_STATUS_UNSPECIFIED: STAKER_STATUS_UNSPECIFIED ...
-             - STAKER_STATUS_ACTIVE: STAKER_STATUS_ACTIVE ...
-             - STAKER_STATUS_INACTIVE: STAKER_STATUS_INACTIVE ...
+             - STAKER_STATUS_PROTOCOL_ACTIVE: STAKER_STATUS_PROTOCOL_ACTIVE ...
+             - STAKER_STATUS_PROTOCOL_INACTIVE: STAKER_STATUS_PROTOCOL_INACTIVE ...
+             - STAKER_STATUS_CHAIN_ACTIVE: STAKER_STATUS_CHAIN_ACTIVE ...
+             - STAKER_STATUS_CHAIN_INACTIVE: STAKER_STATUS_CHAIN_INACTIVE ...
           in: query
           required: false
           type: string
           enum:
             - STAKER_STATUS_UNSPECIFIED
-            - STAKER_STATUS_ACTIVE
-            - STAKER_STATUS_INACTIVE
+            - STAKER_STATUS_PROTOCOL_ACTIVE
+            - STAKER_STATUS_PROTOCOL_INACTIVE
+            - STAKER_STATUS_CHAIN_ACTIVE
+            - STAKER_STATUS_CHAIN_INACTIVE
           default: STAKER_STATUS_UNSPECIFIED
         - name: search
           description: search searches for moniker OR address
