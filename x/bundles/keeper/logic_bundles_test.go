@@ -242,7 +242,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		err := s.App().BundlesKeeper.AssertPoolCanRun(s.Ctx(), 0)
 
 		// ASSERT
-		Expect(err).To(Equal(bundlesTypes.ErrVotingPowerTooHigh))
+		Expect(err).To(BeNil())
 	})
 
 	It("Assert pool can run while voting power of one node is 40%", func() {
@@ -366,7 +366,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		err := s.App().BundlesKeeper.AssertPoolCanRun(s.Ctx(), 0)
 
 		// ASSERT
-		Expect(err).To(Equal(bundlesTypes.ErrVotingPowerTooHigh))
+		Expect(err).To(BeNil())
 	})
 
 	It("Assert pool can run with a single staker while voting power is 100%", func() {

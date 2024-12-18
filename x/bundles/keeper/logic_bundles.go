@@ -3,12 +3,11 @@ package keeper
 import (
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
+	"github.com/KYVENetwork/chain/util"
+	"github.com/KYVENetwork/chain/x/bundles/types"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
-
-	"github.com/KYVENetwork/chain/util"
-	"github.com/KYVENetwork/chain/x/bundles/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -37,20 +36,15 @@ func (k Keeper) AssertPoolCanRun(ctx sdk.Context, poolId uint64) error {
 		return types.ErrEndKeyReached
 	}
 
-	// Get the total and the highest delegation of a single validator in the pool
-	totalDelegation, highestDelegation := k.stakerKeeper.GetTotalAndHighestDelegationOfPool(ctx, poolId)
-
-	// Error if min delegation is not reached
-	if totalDelegation < pool.MinDelegation {
-		return types.ErrMinDelegationNotReached
+	// Error if max voting power is not achievable because there are not enough stakers
+	// in the pool
+	if k.stakerKeeper.IsVotingPowerTooHigh(ctx, poolId) {
+		return types.ErrVotingPowerTooHigh
 	}
 
-	maxVotingPower := k.poolKeeper.GetMaxVotingPowerPerPool(ctx)
-	maxDelegation := uint64(maxVotingPower.MulInt64(int64(totalDelegation)).TruncateInt64())
-
-	// Error if highest delegation exceeds max voting power
-	if highestDelegation > maxDelegation {
-		return types.ErrVotingPowerTooHigh
+	// Error if min delegation is not reached
+	if k.stakerKeeper.GetTotalStakeOfPool(ctx, poolId) < pool.MinDelegation {
+		return types.ErrMinDelegationNotReached
 	}
 
 	return nil
@@ -464,14 +458,6 @@ func (k Keeper) dropCurrentBundleProposal(ctx sdk.Context, poolId uint64, voteDi
 	k.SetBundleProposal(ctx, bundleProposal)
 }
 
-// calculateVotingPower calculates the voting power one staker has in a
-// storage pool based only on the total delegation this staker has
-func (k Keeper) calculateVotingPower(delegation uint64) (votingPower uint64) {
-	// voting power is linear
-	votingPower = delegation
-	return
-}
-
 // chooseNextUploader selects the next uploader based on a fixed set of stakers in a pool.
 // It is guaranteed that someone is chosen deterministically if the round-robin set itself is not empty.
 func (k Keeper) chooseNextUploader(ctx sdk.Context, poolId uint64, excluded ...string) (nextUploader string) {
@@ -511,28 +497,26 @@ func (k Keeper) GetVoteDistribution(ctx sdk.Context, poolId uint64) (voteDistrib
 		return
 	}
 
+	stakes := k.stakerKeeper.GetValidatorPoolStakes(ctx, poolId)
+
 	// get voting power for valid
 	for _, voter := range bundleProposal.VotersValid {
-		delegation := k.stakerKeeper.GetValidatorPoolStake(ctx, voter, poolId)
-		voteDistribution.Valid += k.calculateVotingPower(delegation)
+		voteDistribution.Valid += stakes[voter]
 	}
 
 	// get voting power for invalid
 	for _, voter := range bundleProposal.VotersInvalid {
-		delegation := k.stakerKeeper.GetValidatorPoolStake(ctx, voter, poolId)
-		voteDistribution.Invalid += k.calculateVotingPower(delegation)
+		voteDistribution.Invalid += stakes[voter]
 	}
 
 	// get voting power for abstain
 	for _, voter := range bundleProposal.VotersAbstain {
-		delegation := k.stakerKeeper.GetValidatorPoolStake(ctx, voter, poolId)
-		voteDistribution.Abstain += k.calculateVotingPower(delegation)
+		voteDistribution.Abstain += stakes[voter]
 	}
 
 	// get total voting power
 	for _, staker := range k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, poolId) {
-		delegation := k.stakerKeeper.GetValidatorPoolStake(ctx, staker, poolId)
-		voteDistribution.Total += k.calculateVotingPower(delegation)
+		voteDistribution.Total += stakes[staker]
 	}
 
 	if voteDistribution.Total == 0 {
