@@ -6,7 +6,6 @@ import "cosmos/base/query/v1beta1/pagination.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "kyve/query/v1beta1/query.proto";
-import "kyve/stakers/v1beta1/stakers.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/query/types";
 
@@ -56,10 +55,14 @@ enum StakerStatus {
 
   // STAKER_STATUS_UNSPECIFIED ...
   STAKER_STATUS_UNSPECIFIED = 0;
-  // STAKER_STATUS_ACTIVE ...
-  STAKER_STATUS_ACTIVE = 1;
-  // STAKER_STATUS_INACTIVE ...
-  STAKER_STATUS_INACTIVE = 2;
+  // STAKER_STATUS_PROTOCOL_ACTIVE ...
+  STAKER_STATUS_PROTOCOL_ACTIVE = 1;
+  // STAKER_STATUS_PROTOCOL_INACTIVE ...
+  STAKER_STATUS_PROTOCOL_INACTIVE = 2;
+  // STAKER_STATUS_CHAIN_ACTIVE ...
+  STAKER_STATUS_CHAIN_ACTIVE = 3;
+  // STAKER_STATUS_CHAIN_INACTIVE ...
+  STAKER_STATUS_CHAIN_INACTIVE = 4;
 }
 
 // QueryStakersResponse is the response type for the Query/Stakers RPC method.
@@ -99,19 +102,11 @@ message QueryStakersByPoolRequest {
 // QueryStakersByPoolResponse is the response type for the Query/Staker RPC method.
 message QueryStakersByPoolResponse {
   // stakers ...
-  repeated StakerPoolResponse stakers = 1 [(gogoproto.nullable) = false];
-}
-
-// StakerPoolResponse ...
-message StakerPoolResponse {
-  // staker ...
-  FullStaker staker = 1;
-  // valaccount ...
-  kyve.stakers.v1beta1.Valaccount valaccount = 2;
+  repeated FullStaker stakers = 1 [(gogoproto.nullable) = false];
 }
 
 // =========================
-// stakers_by_pool/{pool_id}
+// stakers_by_pool_count
 // =========================
 
 // QueryStakersByPoolCountRequest ...

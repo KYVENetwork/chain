@@ -96,8 +96,14 @@ message EventSlash {
   uint64 pool_id = 1;
   // staker is the account address of the protocol node.
   string staker = 2;
-  // amount ...
+  // amount is the total amount that got slashed
   uint64 amount = 3;
-  // slash_type
+  // slash_type is the type of the protocol slash
   SlashType slash_type = 4;
+  // stake_fraction is the percentage of how much of the validators total
+  // bonded amount was under risk for slashing
+  string stake_fraction = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }

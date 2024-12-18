@@ -2,6 +2,7 @@ package integration
 
 import (
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/KYVENetwork/chain/util"
@@ -101,7 +102,7 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 	for i := range poolsState {
 		bundleProposalState, _ := suite.App().BundlesKeeper.GetBundleProposal(suite.Ctx(), poolsState[i].Id)
 		stakersState := suite.App().StakersKeeper.GetAllStakerAddressesOfPool(suite.Ctx(), poolsState[i].Id)
-		totalDelegationState := suite.App().StakersKeeper.GetDelegationOfPool(suite.Ctx(), poolsState[i].Id)
+		totalDelegationState := suite.App().StakersKeeper.GetTotalStakeOfPool(suite.Ctx(), poolsState[i].Id)
 
 		Expect(poolsQuery[i].Id).To(Equal(poolsState[i].Id))
 		Expect(*poolsQuery[i].Data).To(Equal(poolsState[i]))
@@ -123,18 +124,17 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 
 		// test stakers by pool
 		valaccounts := suite.App().StakersKeeper.GetAllValaccountsOfPool(suite.Ctx(), poolsState[i].Id)
-		stakersByPoolState := make([]querytypes.StakerPoolResponse, 0)
+		stakersByPoolState := make([]querytypes.FullStaker, 0)
 
 		for _, valaccount := range valaccounts {
-			_, stakerFound := suite.App().StakersKeeper.GetValidator(suite.Ctx(), valaccount.Staker)
-
-			if stakerFound {
-				stakersByPoolState = append(stakersByPoolState, querytypes.StakerPoolResponse{
-					Staker:     suite.App().QueryKeeper.GetFullStaker(suite.Ctx(), valaccount.Staker),
-					Valaccount: valaccount,
-				})
+			if _, stakerFound := suite.App().StakersKeeper.GetValidator(suite.Ctx(), valaccount.Staker); stakerFound {
+				stakersByPoolState = append(stakersByPoolState, *suite.App().QueryKeeper.GetFullStaker(suite.Ctx(), valaccount.Staker))
 			}
 		}
+
+		sort.Slice(stakersByPoolState, func(a, b int) bool {
+			return suite.App().StakersKeeper.GetValidatorPoolStake(suite.Ctx(), stakersByPoolState[a].Address, poolsState[i].Id) > suite.App().StakersKeeper.GetValidatorPoolStake(suite.Ctx(), stakersByPoolState[b].Address, poolsState[i].Id)
+		})
 
 		stakersByPoolQuery, stakersByPoolQueryErr := suite.App().QueryKeeper.StakersByPool(suite.Ctx(), &querytypes.QueryStakersByPoolRequest{
 			PoolId: poolsState[i].Id,
@@ -175,7 +175,7 @@ func (suite *KeeperTestSuite) VerifyStakersModuleAssetsIntegrity() {
 func (suite *KeeperTestSuite) VerifyPoolTotalStake() {
 	for _, pool := range suite.App().PoolKeeper.GetAllPools(suite.Ctx()) {
 		expectedBalance := uint64(0)
-		actualBalance := suite.App().StakersKeeper.GetDelegationOfPool(suite.Ctx(), pool.Id)
+		actualBalance := suite.App().StakersKeeper.GetTotalStakeOfPool(suite.Ctx(), pool.Id)
 
 		for _, stakerAddress := range suite.App().StakersKeeper.GetAllStakerAddressesOfPool(suite.Ctx(), pool.Id) {
 			expectedBalance += suite.App().StakersKeeper.GetValidatorPoolStake(suite.Ctx(), stakerAddress, pool.Id)
