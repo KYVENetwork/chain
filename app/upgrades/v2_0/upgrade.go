@@ -31,6 +31,8 @@ func CreateUpgradeHandler(
 
 		// Run KYVE migrations
 
+		// TODO: migrate slash params, commission change queues
+
 		return migratedVersionMap, err
 	}
 }
