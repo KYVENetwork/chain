@@ -99,19 +99,11 @@ message QueryStakersByPoolRequest {
 // QueryStakersByPoolResponse is the response type for the Query/Staker RPC method.
 message QueryStakersByPoolResponse {
   // stakers ...
-  repeated StakerPoolResponse stakers = 1 [(gogoproto.nullable) = false];
-}
-
-// StakerPoolResponse ...
-message StakerPoolResponse {
-  // staker ...
-  FullStaker staker = 1;
-  // valaccount ...
-  kyve.stakers.v1beta1.Valaccount valaccount = 2;
+  repeated FullStaker stakers = 1 [(gogoproto.nullable) = false];
 }
 
 // =========================
-// stakers_by_pool/{pool_id}
+// stakers_by_pool_count
 // =========================
 
 // QueryStakersByPoolCountRequest ...

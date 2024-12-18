@@ -8097,515 +8097,458 @@ paths:
                 items:
                   type: object
                   properties:
-                    staker:
-                      description: staker ...
+                    address:
+                      type: string
+                      title: address of the staker
+                    validator:
                       type: object
                       properties:
-                        address:
+                        operator_address:
                           type: string
-                          title: address of the staker
-                        validator:
+                          description: >-
+                            operator_address defines the address of the
+                            validator's operator; bech encoded in JSON.
+                        consensus_pubkey:
+                          description: >-
+                            consensus_pubkey is the consensus public key of the
+                            validator, as a Protobuf Any.
                           type: object
                           properties:
-                            operator_address:
+                            '@type':
                               type: string
                               description: >-
-                                operator_address defines the address of the
-                                validator's operator; bech encoded in JSON.
-                            consensus_pubkey:
+                                A URL/resource name that uniquely identifies the
+                                type of the serialized
+
+                                protocol buffer message. This string must
+                                contain at least
+
+                                one "/" character. The last segment of the URL's
+                                path must represent
+
+                                the fully qualified name of the type (as in
+
+                                `path/google.protobuf.Duration`). The name
+                                should be in a canonical form
+
+                                (e.g., leading "." is not accepted).
+
+
+                                In practice, teams usually precompile into the
+                                binary all types that they
+
+                                expect it to use in the context of Any. However,
+                                for URLs which use the
+
+                                scheme `http`, `https`, or no scheme, one can
+                                optionally set up a type
+
+                                server that maps type URLs to message
+                                definitions as follows:
+
+
+                                * If no scheme is provided, `https` is assumed.
+
+                                * An HTTP GET on the URL must yield a
+                                [google.protobuf.Type][]
+                                  value in binary format, or produce an error.
+                                * Applications are allowed to cache lookup
+                                results based on the
+                                  URL, or have them precompiled into a binary to avoid any
+                                  lookup. Therefore, binary compatibility needs to be preserved
+                                  on changes to types. (Use versioned type names to manage
+                                  breaking changes.)
+
+                                Note: this functionality is not currently
+                                available in the official
+
+                                protobuf release, and it is not used for type
+                                URLs beginning with
+
+                                type.googleapis.com. As of May 2023, there are
+                                no widely used type server
+
+                                implementations and no plans to implement one.
+
+
+                                Schemes other than `http`, `https` (or the empty
+                                scheme) might be
+
+                                used with implementation specific semantics.
+                          additionalProperties: {}
+                        jailed:
+                          type: boolean
+                          description: >-
+                            jailed defined whether the validator has been jailed
+                            from bonded status or not.
+                        status:
+                          description: >-
+                            status is the validator status
+                            (bonded/unbonding/unbonded).
+                          type: string
+                          enum:
+                            - BOND_STATUS_UNSPECIFIED
+                            - BOND_STATUS_UNBONDED
+                            - BOND_STATUS_UNBONDING
+                            - BOND_STATUS_BONDED
+                          default: BOND_STATUS_UNSPECIFIED
+                        tokens:
+                          type: string
+                          description: >-
+                            tokens define the delegated tokens (incl.
+                            self-delegation).
+                        delegator_shares:
+                          type: string
+                          description: >-
+                            delegator_shares defines total shares issued to a
+                            validator's delegators.
+                        description:
+                          description: >-
+                            description defines the description terms for the
+                            validator.
+                          type: object
+                          properties:
+                            moniker:
+                              type: string
                               description: >-
-                                consensus_pubkey is the consensus public key of
-                                the validator, as a Protobuf Any.
+                                moniker defines a human-readable name for the
+                                validator.
+                            identity:
+                              type: string
+                              description: >-
+                                identity defines an optional identity signature
+                                (ex. UPort or Keybase).
+                            website:
+                              type: string
+                              description: website defines an optional website link.
+                            security_contact:
+                              type: string
+                              description: >-
+                                security_contact defines an optional email for
+                                security contact.
+                            details:
+                              type: string
+                              description: details define other optional details.
+                        unbonding_height:
+                          type: string
+                          format: int64
+                          description: >-
+                            unbonding_height defines, if unbonding, the height
+                            at which this validator has begun unbonding.
+                        unbonding_time:
+                          type: string
+                          format: date-time
+                          description: >-
+                            unbonding_time defines, if unbonding, the min time
+                            for the validator to complete unbonding.
+                        commission:
+                          description: commission defines the commission parameters.
+                          type: object
+                          properties:
+                            commission_rates:
+                              description: >-
+                                commission_rates defines the initial commission
+                                rates to be used for creating a validator.
                               type: object
                               properties:
-                                '@type':
+                                rate:
                                   type: string
                                   description: >-
-                                    A URL/resource name that uniquely identifies
-                                    the type of the serialized
-
-                                    protocol buffer message. This string must
-                                    contain at least
-
-                                    one "/" character. The last segment of the
-                                    URL's path must represent
-
-                                    the fully qualified name of the type (as in
-
-                                    `path/google.protobuf.Duration`). The name
-                                    should be in a canonical form
-
-                                    (e.g., leading "." is not accepted).
-
-
-                                    In practice, teams usually precompile into
-                                    the binary all types that they
-
-                                    expect it to use in the context of Any.
-                                    However, for URLs which use the
-
-                                    scheme `http`, `https`, or no scheme, one
-                                    can optionally set up a type
-
-                                    server that maps type URLs to message
-                                    definitions as follows:
-
-
-                                    * If no scheme is provided, `https` is
-                                    assumed.
-
-                                    * An HTTP GET on the URL must yield a
-                                    [google.protobuf.Type][]
-                                      value in binary format, or produce an error.
-                                    * Applications are allowed to cache lookup
-                                    results based on the
-                                      URL, or have them precompiled into a binary to avoid any
-                                      lookup. Therefore, binary compatibility needs to be preserved
-                                      on changes to types. (Use versioned type names to manage
-                                      breaking changes.)
-
-                                    Note: this functionality is not currently
-                                    available in the official
-
-                                    protobuf release, and it is not used for
-                                    type URLs beginning with
-
-                                    type.googleapis.com. As of May 2023, there
-                                    are no widely used type server
-
-                                    implementations and no plans to implement
-                                    one.
-
-
-                                    Schemes other than `http`, `https` (or the
-                                    empty scheme) might be
-
-                                    used with implementation specific semantics.
-                              additionalProperties: {}
-                            jailed:
-                              type: boolean
-                              description: >-
-                                jailed defined whether the validator has been
-                                jailed from bonded status or not.
-                            status:
-                              description: >-
-                                status is the validator status
-                                (bonded/unbonding/unbonded).
-                              type: string
-                              enum:
-                                - BOND_STATUS_UNSPECIFIED
-                                - BOND_STATUS_UNBONDED
-                                - BOND_STATUS_UNBONDING
-                                - BOND_STATUS_BONDED
-                              default: BOND_STATUS_UNSPECIFIED
-                            tokens:
-                              type: string
-                              description: >-
-                                tokens define the delegated tokens (incl.
-                                self-delegation).
-                            delegator_shares:
-                              type: string
-                              description: >-
-                                delegator_shares defines total shares issued to
-                                a validator's delegators.
-                            description:
-                              description: >-
-                                description defines the description terms for
-                                the validator.
-                              type: object
-                              properties:
-                                moniker:
+                                    rate is the commission rate charged to
+                                    delegators, as a fraction.
+                                max_rate:
                                   type: string
                                   description: >-
-                                    moniker defines a human-readable name for
-                                    the validator.
-                                identity:
+                                    max_rate defines the maximum commission rate
+                                    which validator can ever charge, as a
+                                    fraction.
+                                max_change_rate:
                                   type: string
                                   description: >-
-                                    identity defines an optional identity
-                                    signature (ex. UPort or Keybase).
-                                website:
-                                  type: string
-                                  description: website defines an optional website link.
-                                security_contact:
-                                  type: string
-                                  description: >-
-                                    security_contact defines an optional email
-                                    for security contact.
-                                details:
-                                  type: string
-                                  description: details define other optional details.
-                            unbonding_height:
-                              type: string
-                              format: int64
-                              description: >-
-                                unbonding_height defines, if unbonding, the
-                                height at which this validator has begun
-                                unbonding.
-                            unbonding_time:
+                                    max_change_rate defines the maximum daily
+                                    increase of the validator commission, as a
+                                    fraction.
+                            update_time:
                               type: string
                               format: date-time
                               description: >-
-                                unbonding_time defines, if unbonding, the min
-                                time for the validator to complete unbonding.
-                            commission:
-                              description: commission defines the commission parameters.
-                              type: object
-                              properties:
-                                commission_rates:
-                                  description: >-
-                                    commission_rates defines the initial
-                                    commission rates to be used for creating a
-                                    validator.
-                                  type: object
-                                  properties:
-                                    rate:
-                                      type: string
-                                      description: >-
-                                        rate is the commission rate charged to
-                                        delegators, as a fraction.
-                                    max_rate:
-                                      type: string
-                                      description: >-
-                                        max_rate defines the maximum commission
-                                        rate which validator can ever charge, as
-                                        a fraction.
-                                    max_change_rate:
-                                      type: string
-                                      description: >-
-                                        max_change_rate defines the maximum
-                                        daily increase of the validator
-                                        commission, as a fraction.
-                                update_time:
-                                  type: string
-                                  format: date-time
-                                  description: >-
-                                    update_time is the last time the commission
-                                    rate was changed.
-                            min_self_delegation:
-                              type: string
-                              description: >-
-                                min_self_delegation is the validator's self
-                                declared minimum self delegation.
-
-
-                                Since: cosmos-sdk 0.46
-                            unbonding_on_hold_ref_count:
-                              type: string
-                              format: int64
-                              title: >-
-                                strictly positive if this validator's unbonding
-                                has been stopped by external modules
-                            unbonding_ids:
-                              type: array
-                              items:
-                                type: string
-                                format: uint64
-                              title: >-
-                                list of unbonding ids, each uniquely identifing
-                                an unbonding of this validator
-                          description: >-
-                            Validator defines a validator, together with the
-                            total amount of the
-
-                            Validator's bond shares and their exchange rate to
-                            coins. Slashing results in
-
-                            a decrease in the exchange rate, allowing correct
-                            calculation of future
-
-                            undelegations without iterating over delegators.
-                            When coins are delegated to
-
-                            this validator, the validator is credited with a
-                            delegation whose number of
-
-                            bond shares is based on the amount of coins
-                            delegated divided by the current
-
-                            exchange rate. Voting power can be calculated as
-                            total bonded shares
-
-                            multiplied by exchange rate.
-                        total_pool_stake:
+                                update_time is the last time the commission rate
+                                was changed.
+                        min_self_delegation:
                           type: string
-                          format: uint64
-                          title: >-
-                            total_pool_stake returns the amount the validator
-                            has in total
+                          description: >-
+                            min_self_delegation is the validator's self declared
+                            minimum self delegation.
 
-                            staked in all his pools
-                        pools:
+
+                            Since: cosmos-sdk 0.46
+                        unbonding_on_hold_ref_count:
+                          type: string
+                          format: int64
+                          title: >-
+                            strictly positive if this validator's unbonding has
+                            been stopped by external modules
+                        unbonding_ids:
                           type: array
                           items:
+                            type: string
+                            format: uint64
+                          title: >-
+                            list of unbonding ids, each uniquely identifing an
+                            unbonding of this validator
+                      description: >-
+                        Validator defines a validator, together with the total
+                        amount of the
+
+                        Validator's bond shares and their exchange rate to
+                        coins. Slashing results in
+
+                        a decrease in the exchange rate, allowing correct
+                        calculation of future
+
+                        undelegations without iterating over delegators. When
+                        coins are delegated to
+
+                        this validator, the validator is credited with a
+                        delegation whose number of
+
+                        bond shares is based on the amount of coins delegated
+                        divided by the current
+
+                        exchange rate. Voting power can be calculated as total
+                        bonded shares
+
+                        multiplied by exchange rate.
+                    total_pool_stake:
+                      type: string
+                      format: uint64
+                      title: >-
+                        total_pool_stake returns the amount the validator has in
+                        total
+
+                        staked in all his pools
+                    pools:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          pool:
+                            title: pool contains useful information about the pool
                             type: object
                             properties:
-                              pool:
-                                title: >-
-                                  pool contains useful information about the
-                                  pool
-                                type: object
-                                properties:
-                                  id:
-                                    type: string
-                                    format: uint64
-                                    title: id is the ID of the pool
-                                  name:
-                                    type: string
-                                    title: name of the pool
-                                  runtime:
-                                    type: string
-                                    description: |-
-                                      runtime for the protocol nodes
-                                      like evm, bitcoin, etc.
-                                  logo:
-                                    type: string
-                                    title: logo of the pool
-                                  inflation_share_weight:
-                                    type: string
-                                    title: >-
-                                      inflation_share_weight is the base payout
-                                      for each bundle reward
-                                  upload_interval:
-                                    type: string
-                                    format: uint64
-                                    title: >-
-                                      upload_interval is the interval bundles
-                                      get created
-                                  total_funds:
-                                    type: array
-                                    items:
-                                      type: object
-                                      properties:
-                                        denom:
-                                          type: string
-                                        amount:
-                                          type: string
-                                      description: >-
-                                        Coin defines a token with a denomination
-                                        and an amount.
-
-
-                                        NOTE: The amount field is an Int which
-                                        implements the custom method
-
-                                        signatures required by gogoproto.
-                                    title: >-
-                                      total_funds of the pool. If the pool runs
-
-                                      out of funds no more bundles will be
-                                      produced
-                                  total_stake:
-                                    type: string
-                                    format: uint64
-                                    title: total_stake of the pool
-                                  status:
-                                    description: |-
-                                      status of the pool if pool is able
-                                      to produce bundles, etc.
-                                    type: string
-                                    enum:
-                                      - POOL_STATUS_UNSPECIFIED
-                                      - POOL_STATUS_ACTIVE
-                                      - POOL_STATUS_DISABLED
-                                      - POOL_STATUS_NO_FUNDS
-                                      - POOL_STATUS_NOT_ENOUGH_DELEGATION
-                                      - POOL_STATUS_UPGRADING
-                                      - POOL_STATUS_VOTING_POWER_TOO_HIGH
-                                      - POOL_STATUS_END_KEY_REACHED
-                                    default: POOL_STATUS_UNSPECIFIED
-                              points:
+                              id:
                                 type: string
                                 format: uint64
+                                title: id is the ID of the pool
+                              name:
+                                type: string
+                                title: name of the pool
+                              runtime:
+                                type: string
                                 description: |-
-                                  points indicates if the staker is inactive
-                                  If the staker misses a vote, a point is added.
-                                  After 5 points the staker is removed from
-                                  the stakers set.
-                              is_leaving:
-                                type: boolean
-                                title: >-
-                                  is_leaving indicates if a user has scheduled a
-
-                                  a PoolLeave entry. After the leave-time is
-                                  over
-
-                                  the staker will no longer participate in that
-                                  pool
-                              valaddress:
+                                  runtime for the protocol nodes
+                                  like evm, bitcoin, etc.
+                              logo:
                                 type: string
-                                description: >-
-                                  Valaddress is the address which is authorized
-                                  to vote
-
-                                  and submit bundles. If the server gets
-                                  compromised
-
-                                  the staker can just change the valaddress.
-                              balance:
+                                title: logo of the pool
+                              inflation_share_weight:
+                                type: string
+                                title: >-
+                                  inflation_share_weight is the base payout for
+                                  each bundle reward
+                              upload_interval:
                                 type: string
                                 format: uint64
                                 title: >-
-                                  balance is the valaddress account balance and
-                                  indicates
+                                  upload_interval is the interval bundles get
+                                  created
+                              total_funds:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    denom:
+                                      type: string
+                                    amount:
+                                      type: string
+                                  description: >-
+                                    Coin defines a token with a denomination and
+                                    an amount.
 
-                                  whether or not the valaccount needs additional
-                                  funds to
 
-                                  pay for gas fees
+                                    NOTE: The amount field is an Int which
+                                    implements the custom method
+
+                                    signatures required by gogoproto.
+                                title: |-
+                                  total_funds of the pool. If the pool runs
+                                  out of funds no more bundles will be produced
+                              total_stake:
+                                type: string
+                                format: uint64
+                                title: total_stake of the pool
+                              status:
+                                description: |-
+                                  status of the pool if pool is able
+                                  to produce bundles, etc.
+                                type: string
+                                enum:
+                                  - POOL_STATUS_UNSPECIFIED
+                                  - POOL_STATUS_ACTIVE
+                                  - POOL_STATUS_DISABLED
+                                  - POOL_STATUS_NO_FUNDS
+                                  - POOL_STATUS_NOT_ENOUGH_DELEGATION
+                                  - POOL_STATUS_UPGRADING
+                                  - POOL_STATUS_VOTING_POWER_TOO_HIGH
+                                  - POOL_STATUS_END_KEY_REACHED
+                                default: POOL_STATUS_UNSPECIFIED
+                          points:
+                            type: string
+                            format: uint64
+                            description: |-
+                              points indicates if the staker is inactive
+                              If the staker misses a vote, a point is added.
+                              After 5 points the staker is removed from
+                              the stakers set.
+                          is_leaving:
+                            type: boolean
+                            title: |-
+                              is_leaving indicates if a user has scheduled a
+                              a PoolLeave entry. After the leave-time is over
+                              the staker will no longer participate in that pool
+                          valaddress:
+                            type: string
+                            description: >-
+                              Valaddress is the address which is authorized to
+                              vote
+
+                              and submit bundles. If the server gets compromised
+
+                              the staker can just change the valaddress.
+                          balance:
+                            type: string
+                            format: uint64
+                            title: >-
+                              balance is the valaddress account balance and
+                              indicates
+
+                              whether or not the valaccount needs additional
+                              funds to
+
+                              pay for gas fees
+                          commission:
+                            type: string
+                            title: >-
+                              commission is the commission the validator has
+                              chosen for
+
+                              this specific pool
+                          pending_commission_change:
+                            description: >-
+                              pending_commission_change shows if the staker
+                              plans
+
+                              to change its commission. Delegators will see a
+                              warning in
+
+                              the UI. A Commission change takes some time until
+
+                              the commission is applied. Users have time to
+                              redelegate
+
+                              if they not agree with the new commission.
+                            type: object
+                            properties:
                               commission:
                                 type: string
-                                title: >-
-                                  commission is the commission the validator has
-                                  chosen for
-
-                                  this specific pool
-                              pending_commission_change:
+                                title: |-
+                                  commission is the new commission that will
+                                  become active once the change-time is over
+                              creation_date:
+                                type: string
+                                format: int64
                                 description: >-
-                                  pending_commission_change shows if the staker
-                                  plans
+                                  creation_date is the UNIX-timestamp (in
+                                  seconds)
 
-                                  to change its commission. Delegators will see
-                                  a warning in
+                                  of when the entry was created.
+                            title: >-
+                              CommissionChangeEntry shows when the old
+                              commission
 
-                                  the UI. A Commission change takes some time
-                                  until
+                              of a staker will change to the new commission
+                          stake_fraction:
+                            type: string
+                            title: >-
+                              stake fraction is a percentage the validator has
+                              chosen for
 
-                                  the commission is applied. Users have time to
-                                  redelegate
+                              this pool. It is the fraction of how much of his
+                              total stake
 
-                                  if they not agree with the new commission.
-                                type: object
-                                properties:
-                                  commission:
-                                    type: string
-                                    title: |-
-                                      commission is the new commission that will
-                                      become active once the change-time is over
-                                  creation_date:
-                                    type: string
-                                    format: int64
-                                    description: >-
-                                      creation_date is the UNIX-timestamp (in
-                                      seconds)
+                              the validator wants to stake in this specific pool
+                          pending_stake_fraction_change:
+                            description: >-
+                              pending_stake_fraction_change shows if the staker
+                              plans
 
-                                      of when the entry was created.
-                                title: >-
-                                  CommissionChangeEntry shows when the old
-                                  commission
+                              to change its stake fraction. Delegators will see
+                              a warning in
 
-                                  of a staker will change to the new commission
+                              the UI. A stake fraction change takes some time
+                              until
+
+                              the stake fraction is applied. Users have time to
+                              redelegate
+
+                              if they not agree with the new stake fraction.
+                            type: object
+                            properties:
                               stake_fraction:
                                 type: string
                                 title: >-
-                                  stake fraction is a percentage the validator
-                                  has chosen for
+                                  stake_fraction is the new stake_fraction that
+                                  will
 
-                                  this pool. It is the fraction of how much of
-                                  his total stake
-
-                                  the validator wants to stake in this specific
-                                  pool
-                              pending_stake_fraction_change:
-                                description: >-
-                                  pending_stake_fraction_change shows if the
-                                  staker plans
-
-                                  to change its stake fraction. Delegators will
-                                  see a warning in
-
-                                  the UI. A stake fraction change takes some
-                                  time until
-
-                                  the stake fraction is applied. Users have time
-                                  to redelegate
-
-                                  if they not agree with the new stake fraction.
-                                type: object
-                                properties:
-                                  stake_fraction:
-                                    type: string
-                                    title: >-
-                                      stake_fraction is the new stake_fraction
-                                      that will
-
-                                      become active once the change-time is over
-                                  creation_date:
-                                    type: string
-                                    format: int64
-                                    description: >-
-                                      creation_date is the UNIX-timestamp (in
-                                      seconds)
-
-                                      of when the entry was created.
-                                title: >-
-                                  StakeFractionChangeEntry shows when the old
-                                  stake fraction
-
-                                  of a staker will change to the new stake
-                                  fraction
-                              pool_stake:
+                                  become active once the change-time is over
+                              creation_date:
                                 type: string
-                                format: uint64
-                                title: >-
-                                  pool stake shows the actual amount the
-                                  validator has staked
+                                format: int64
+                                description: >-
+                                  creation_date is the UNIX-timestamp (in
+                                  seconds)
 
-                                  in this pool. It can be lower than the
-                                  specified stake fraction
+                                  of when the entry was created.
+                            title: >-
+                              StakeFractionChangeEntry shows when the old stake
+                              fraction
 
-                                  because of the max voting power limit
-                            title: |-
-                              PoolMembership shows in which pool the staker
-                              is participating
-                          description: |-
-                            pools is a list of all pools the staker is currently
-                            participating, i.e. allowed to vote and upload data.
-                      title: >-
-                        FullStaker aggregates information from the staker and
-                        its delegators
+                              of a staker will change to the new stake fraction
+                          pool_stake:
+                            type: string
+                            format: uint64
+                            title: >-
+                              pool stake shows the actual amount the validator
+                              has staked
 
-                        as well as pending queue entries into one object.
+                              in this pool. It can be lower than the specified
+                              stake fraction
 
-                        It contains almost all needed information for a
-                        convenient usage
-                    valaccount:
-                      description: valaccount ...
-                      type: object
-                      properties:
-                        pool_id:
-                          type: string
-                          format: uint64
-                          description: |-
-                            pool_id defines the pool in which the address
-                            is allowed to vote in.
-                        staker:
-                          type: string
-                          description: staker is the address the valaccount is voting for.
-                        valaddress:
-                          type: string
-                          title: |-
-                            valaddress is the account stored on the protocol
-                            node which votes for the staker in the given pool
-                        points:
-                          type: string
-                          format: uint64
-                          description: |-
-                            When a node is inactive (does not vote at all)
-                            A point is added, after a certain amount of points
-                            is reached the node gets kicked out.
-                        is_leaving:
-                          type: boolean
-                          description: >-
-                            isLeaving indicates if a staker is leaving the given
-                            pool.
-                        commission:
-                          type: string
-                          description: commission ...
-                        stake_fraction:
-                          type: string
-                          description: stake_fraction ...
-                  description: StakerPoolResponse ...
+                              because of the max voting power limit
+                        title: |-
+                          PoolMembership shows in which pool the staker
+                          is participating
+                      description: |-
+                        pools is a list of all pools the staker is currently
+                        participating, i.e. allowed to vote and upload data.
+                  title: >-
+                    FullStaker aggregates information from the staker and its
+                    delegators
+
+                    as well as pending queue entries into one object.
+
+                    It contains almost all needed information for a convenient
+                    usage
                 description: stakers ...
             description: >-
               QueryStakersByPoolResponse is the response type for the
