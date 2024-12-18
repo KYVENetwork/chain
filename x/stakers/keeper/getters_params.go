@@ -59,6 +59,8 @@ func (k Keeper) getSlashFraction(ctx sdk.Context, slashType types.SlashType) (sl
 		slashAmountRatio = k.GetVoteSlash(ctx)
 	case types.SLASH_TYPE_UPLOAD:
 		slashAmountRatio = k.GetUploadSlash(ctx)
+	default:
+		slashAmountRatio = math.LegacyZeroDec()
 	}
 	return
 }
