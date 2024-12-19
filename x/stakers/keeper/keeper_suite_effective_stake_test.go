@@ -139,10 +139,10 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		Expect(s.App().StakersKeeper.IsVotingPowerTooHigh(s.Ctx(), 0)).To(BeFalse())
 
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(100 * i.KYVE))
-		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_1, 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_1, 0)).To(Equal(200*i.KYVE - 1))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_2, 0)).To(Equal(100 * i.KYVE))
 
-		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(400 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(400*i.KYVE - 1))
 	})
 
 	It("Test effective stake with multiple validators above the max pool voting power", func() {
@@ -268,11 +268,11 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		// ASSERT
 		Expect(s.App().StakersKeeper.IsVotingPowerTooHigh(s.Ctx(), 0)).To(BeFalse())
 
-		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(100 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(100*i.KYVE - 1))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_1, 0)).To(Equal(0 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_2, 0)).To(Equal(100 * i.KYVE))
 
-		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200*i.KYVE - 1))
 	})
 
 	It("Test effective stake with all validators having zero delegation", func() {
@@ -459,10 +459,10 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		Expect(s.App().StakersKeeper.IsVotingPowerTooHigh(s.Ctx(), 0)).To(BeFalse())
 
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(100 * i.KYVE))
-		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_1, 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_1, 0)).To(Equal(200*i.KYVE - 1))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_2, 0)).To(Equal(100 * i.KYVE))
 
-		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(400 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(400*i.KYVE - 1))
 	})
 
 	It("Test effective stake with multiple validators above the max pool voting power due to stake fractions", func() {
@@ -504,11 +504,11 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		// ASSERT
 		Expect(s.App().StakersKeeper.IsVotingPowerTooHigh(s.Ctx(), 0)).To(BeFalse())
 
-		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(uint64(23333333334)))
-		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_1, 0)).To(Equal(uint64(23333333334)))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(uint64(23333333333)))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_1, 0)).To(Equal(uint64(23333333333)))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_2, 0)).To(Equal(20 * i.KYVE))
 
-		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(uint64(66666666668)))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(uint64(66666666666)))
 	})
 
 	It("Test effective stake with some validators having zero delegation due to stake fractions", func() {
