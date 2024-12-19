@@ -140,7 +140,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		_, valaccountActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
 		Expect(valaccountActive).To(BeFalse())
 
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 
 		// check if next uploader got not slashed
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100 * i.KYVE))
@@ -228,7 +228,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		_, valaccountActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
 		Expect(valaccountActive).To(BeFalse())
 
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 
 		// check if next uploader got not slashed
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100 * i.KYVE))
@@ -344,7 +344,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		slashAmount := uint64(math.LegacyNewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100*i.KYVE - slashAmount))
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 
 		// check if next uploader did not receive the uploader reward
 		balanceUploader := s.GetBalanceFromAddress(i.STAKER_0)
@@ -444,7 +444,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		slashAmount := uint64(math.LegacyNewDec(int64(100 * i.KYVE)).Mul(fraction).TruncateInt64())
 
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(Equal(100*i.KYVE - slashAmount))
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 
 		// check if next uploader did not receive any rewards
 		balanceVoter := s.GetBalanceFromAddress(i.STAKER_1)
@@ -536,7 +536,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		// check if voter status
 
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(Equal(100 * i.KYVE))
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 
 		// check if next uploader did not receive any rewards
 		balanceVoter := s.GetBalanceFromAddress(i.STAKER_1)
@@ -631,7 +631,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 
 		// check if voter not got slashed
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(Equal(100 * i.KYVE))
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 
 		// check if next uploader did not receive any rewards
 		balanceVoter := s.GetBalanceFromAddress(i.STAKER_1)

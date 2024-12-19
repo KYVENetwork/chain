@@ -60,7 +60,7 @@ func (k Keeper) parsePoolResponse(ctx sdk.Context, pool *poolTypes.Pool) types.P
 		totalSelfDelegation += k.stakerKeeper.GetDelegationAmountOfDelegator(ctx, address, address)
 	}
 
-	totalDelegation := k.stakerKeeper.GetDelegationOfPool(ctx, pool.Id)
+	totalDelegation := k.stakerKeeper.GetTotalStakeOfPool(ctx, pool.Id)
 
 	poolAccount := pool.GetPoolAccount()
 	poolBalance := k.bankKeeper.GetBalance(ctx, poolAccount, globalTypes.Denom).Amount.Uint64()
