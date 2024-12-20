@@ -77,7 +77,6 @@ func (k Keeper) GetPaginatedStakersByPoolStake(ctx sdk.Context, pagination *quer
 		addresses = append(addresses, address)
 	}
 
-	// TODO: is this too expensive?
 	if stakerStatus == querytypes.STAKER_STATUS_UNSPECIFIED || stakerStatus == querytypes.STAKER_STATUS_PROTOCOL_ACTIVE {
 		sort.Slice(addresses, func(i, j int) bool {
 			return k.GetValidatorTotalPoolStake(ctx, addresses[i]) > k.GetValidatorTotalPoolStake(ctx, addresses[j])
@@ -261,7 +260,7 @@ func (k Keeper) GetValidatorPoolStakes(ctx sdk.Context, poolId uint64, mustInclu
 	totalStakeRemainder := totalStake
 
 	// sort descending based on stake
-	sort.Slice(validators, func(i, j int) bool {
+	sort.SliceStable(validators, func(i, j int) bool {
 		return validators[i].Stake > validators[j].Stake
 	})
 
@@ -269,6 +268,8 @@ func (k Keeper) GetValidatorPoolStakes(ctx sdk.Context, poolId uint64, mustInclu
 	if totalStake == 0 {
 		return stakes
 	}
+
+	var lastCutoffIndex int
 
 	for i, validator := range validators {
 		// check if the validator has a higher stake than allowed by the max voting power
@@ -288,7 +289,18 @@ func (k Keeper) GetValidatorPoolStakes(ctx sdk.Context, poolId uint64, mustInclu
 					stakes[v.Address] += uint64(math.LegacyNewDec(int64(v.Stake)).QuoInt64(totalStakeRemainder).MulInt64(cutoffAmount).TruncateInt64())
 				}
 			}
+
+			lastCutoffIndex = i
+		} else {
+			// if we reach the first validator who is below the max voting power we know that the remaining
+			// ones will be also below it
+			break
 		}
+	}
+
+	// if no amounts got cut off we can return already
+	if totalStakeRemainder == totalStake {
+		return stakes
 	}
 
 	// after we have redistributed all cutoff amounts so that no validator exceeds the maximum voting power
@@ -309,8 +321,14 @@ func (k Keeper) GetValidatorPoolStakes(ctx sdk.Context, poolId uint64, mustInclu
 	}
 
 	// scale all effective stakes down to scale factor
-	for _, validator := range validators {
-		stakes[validator.Address] = uint64(scaleFactor.MulInt64(int64(stakes[validator.Address])).RoundInt64())
+	for i, validator := range validators {
+		// for all validators who got cut off we always round down to ensure that their voting power actually
+		// stays below the max voting power
+		if i <= lastCutoffIndex {
+			stakes[validator.Address] = uint64(scaleFactor.MulInt64(int64(stakes[validator.Address])).TruncateInt64())
+		} else {
+			stakes[validator.Address] = uint64(scaleFactor.MulInt64(int64(stakes[validator.Address])).Ceil().TruncateInt64())
+		}
 	}
 
 	// the result is a map which contains the effective stake for every validator in a pool. The effective stake
