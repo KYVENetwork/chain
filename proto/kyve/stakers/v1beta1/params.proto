@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package kyve.stakers.v1beta1;
 
+import "gogoproto/gogo.proto";
+
 option go_package = "github.com/KYVENetwork/chain/x/stakers/types";
 
 // Params defines the stakers module parameters.
@@ -10,4 +12,21 @@ message Params {
   uint64 commission_change_time = 1;
   // commission_change_time ...
   uint64 leave_pool_time = 2;
+  // stake_fraction_change_time ...
+  uint64 stake_fraction_change_time = 3;
+  // vote_slash ...
+  string vote_slash = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // upload_slash ...
+  string upload_slash = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // timeout_slash ...
+  string timeout_slash = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }

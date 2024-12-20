@@ -24,7 +24,10 @@ func (k Keeper) SetCommissionChangeEntry(ctx sdk.Context, commissionChangeEntry 
 	binary.BigEndian.PutUint64(indexBytes, commissionChangeEntry.Index)
 
 	indexStore := prefix.NewStore(storeAdapter, types.CommissionChangeEntryKeyPrefixIndex2)
-	indexStore.Set(types.CommissionChangeEntryKeyIndex2(commissionChangeEntry.Staker), indexBytes)
+	indexStore.Set(types.CommissionChangeEntryKeyIndex2(
+		commissionChangeEntry.Staker,
+		commissionChangeEntry.PoolId,
+	), indexBytes)
 }
 
 // GetCommissionChangeEntry ...
@@ -42,11 +45,11 @@ func (k Keeper) GetCommissionChangeEntry(ctx sdk.Context, index uint64) (val typ
 }
 
 // GetCommissionChangeEntryByIndex2 returns a pending commission change entry by staker address (if there is one)
-func (k Keeper) GetCommissionChangeEntryByIndex2(ctx sdk.Context, staker string) (val types.CommissionChangeEntry, found bool) {
+func (k Keeper) GetCommissionChangeEntryByIndex2(ctx sdk.Context, staker string, poolId uint64) (val types.CommissionChangeEntry, found bool) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	store := prefix.NewStore(storeAdapter, types.CommissionChangeEntryKeyPrefixIndex2)
 
-	b := store.Get(types.CommissionChangeEntryKeyIndex2(staker))
+	b := store.Get(types.CommissionChangeEntryKeyIndex2(staker, poolId))
 	if b == nil {
 		return val, false
 	}
@@ -65,6 +68,7 @@ func (k Keeper) RemoveCommissionChangeEntry(ctx sdk.Context, commissionChangeEnt
 	indexStore := prefix.NewStore(storeAdapter, types.CommissionChangeEntryKeyPrefixIndex2)
 	indexStore.Delete(types.CommissionChangeEntryKeyIndex2(
 		commissionChangeEntry.Staker,
+		commissionChangeEntry.PoolId,
 	))
 }
 

@@ -54,6 +54,16 @@ message Valaccount {
   uint64 points = 4;
   // isLeaving indicates if a staker is leaving the given pool.
   bool is_leaving = 5;
+  // commission ...
+  string commission = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // stake_fraction ...
+  string stake_fraction = 7 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // CommissionChangeEntry stores the information for an
@@ -66,15 +76,40 @@ message CommissionChangeEntry {
   uint64 index = 1;
   // staker is the address of the affected staker
   string staker = 2;
+  // pool_id ...
+  uint64 pool_id = 3;
   // commission is the new commission which will
   // be applied after the waiting time is over.
-  string commission = 3 [
+  string commission = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // creation_date is the UNIX-timestamp in seconds
   // when the entry was created.
-  int64 creation_date = 4;
+  int64 creation_date = 5;
+}
+
+// StakeFractionChangeEntry stores the information for an
+// upcoming stake fraction change. A stake fraction change is
+// only instant if it gets increased, if it gets decreased
+// the staker needs to wait for the stake fraction change time
+message StakeFractionChangeEntry {
+  // index is needed for the queue-algorithm which
+  // processes the commission changes
+  uint64 index = 1;
+  // staker is the address of the affected staker
+  string staker = 2;
+  // pool_id ...
+  uint64 pool_id = 3;
+  // stake_fraction is the new stake fraction which will
+  // be applied after the waiting time is over.
+  string stake_fraction = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // creation_date is the UNIX-timestamp in seconds
+  // when the entry was created.
+  int64 creation_date = 5;
 }
 
 // LeavePoolEntry stores the information for an upcoming

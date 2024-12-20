@@ -101,7 +101,7 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 	for i := range poolsState {
 		bundleProposalState, _ := suite.App().BundlesKeeper.GetBundleProposal(suite.Ctx(), poolsState[i].Id)
 		stakersState := suite.App().StakersKeeper.GetAllStakerAddressesOfPool(suite.Ctx(), poolsState[i].Id)
-		totalDelegationState := suite.App().StakersKeeper.GetDelegationOfPool(suite.Ctx(), poolsState[i].Id)
+		totalDelegationState := suite.App().StakersKeeper.GetTotalStakeOfPool(suite.Ctx(), poolsState[i].Id)
 
 		Expect(poolsQuery[i].Id).To(Equal(poolsState[i].Id))
 		Expect(*poolsQuery[i].Data).To(Equal(poolsState[i]))
@@ -175,10 +175,10 @@ func (suite *KeeperTestSuite) VerifyStakersModuleAssetsIntegrity() {
 func (suite *KeeperTestSuite) VerifyPoolTotalStake() {
 	for _, pool := range suite.App().PoolKeeper.GetAllPools(suite.Ctx()) {
 		expectedBalance := uint64(0)
-		actualBalance := suite.App().StakersKeeper.GetDelegationOfPool(suite.Ctx(), pool.Id)
+		actualBalance := suite.App().StakersKeeper.GetTotalStakeOfPool(suite.Ctx(), pool.Id)
 
 		for _, stakerAddress := range suite.App().StakersKeeper.GetAllStakerAddressesOfPool(suite.Ctx(), pool.Id) {
-			expectedBalance += suite.App().StakersKeeper.GetDelegationAmount(suite.Ctx(), stakerAddress)
+			expectedBalance += suite.App().StakersKeeper.GetValidatorPoolStake(suite.Ctx(), stakerAddress, pool.Id)
 		}
 
 		Expect(actualBalance).To(Equal(expectedBalance))
@@ -461,20 +461,21 @@ func (suite *KeeperTestSuite) verifyFullStaker(fullStaker querytypes.FullStaker,
 	//Expect(fullStaker.Metadata.Commission).To(Equal(staker.Commission))
 	//Expect(fullStaker.Metadata.Moniker).To(Equal(staker.Description.Moniker))
 
-	pendingCommissionChange, found := suite.App().StakersKeeper.GetCommissionChangeEntryByIndex2(suite.Ctx(), stakerAddress)
-	if found {
-		Expect(fullStaker.Metadata.PendingCommissionChange.Commission).To(Equal(pendingCommissionChange.Commission))
-		Expect(fullStaker.Metadata.PendingCommissionChange.CreationDate).To(Equal(pendingCommissionChange.CreationDate))
-	} else {
-		Expect(fullStaker.Metadata.PendingCommissionChange).To(BeNil())
-	}
+	// TODO rework after commission was implemented
+	//pendingCommissionChange, found := suite.App().StakersKeeper.GetCommissionChangeEntryByIndex2(suite.Ctx(), stakerAddress)
+	//if found {
+	//	Expect(fullStaker.Metadata.PendingCommissionChange.Commission).To(Equal(pendingCommissionChange.Commission))
+	//	Expect(fullStaker.Metadata.PendingCommissionChange.CreationDate).To(Equal(pendingCommissionChange.CreationDate))
+	//} else {
+	//	Expect(fullStaker.Metadata.PendingCommissionChange).To(BeNil())
+	//}
 
 	poolIds := make(map[uint64]bool)
 
 	for _, poolMembership := range fullStaker.Pools {
 		poolIds[poolMembership.Pool.Id] = true
-		valaccount, found := suite.App().StakersKeeper.GetValaccount(suite.Ctx(), poolMembership.Pool.Id, stakerAddress)
-		Expect(found).To(BeTrue())
+		valaccount, active := suite.App().StakersKeeper.GetValaccount(suite.Ctx(), poolMembership.Pool.Id, stakerAddress)
+		Expect(active).To(BeTrue())
 
 		Expect(poolMembership.Valaddress).To(Equal(valaccount.Valaddress))
 		Expect(poolMembership.IsLeaving).To(Equal(valaccount.IsLeaving))

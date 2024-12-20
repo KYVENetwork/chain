@@ -32,17 +32,17 @@ func (k Keeper) ProcessLeavePoolQueue(ctx sdk.Context) {
 	k.processQueue(ctx, types.QUEUE_IDENTIFIER_LEAVE, func(index uint64) bool {
 		// Get queue entry in question
 		queueEntry, found := k.GetLeavePoolEntry(ctx, index)
-
 		if !found {
 			// continue with the next entry
 			return true
-		} else if queueEntry.CreationDate+int64(k.GetLeavePoolTime(ctx)) <= ctx.BlockTime().Unix() {
+		}
 
+		if queueEntry.CreationDate+int64(k.GetLeavePoolTime(ctx)) <= ctx.BlockTime().Unix() {
 			k.RemoveLeavePoolEntry(ctx, &queueEntry)
 			k.LeavePool(ctx, queueEntry.Staker, queueEntry.PoolId)
-
 			return true
 		}
+
 		return false
 	})
 }

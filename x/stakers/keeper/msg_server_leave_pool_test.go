@@ -43,11 +43,17 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 		// create staker
 		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
+		params := s.App().PoolKeeper.GetParams(s.Ctx())
+		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("1")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+
 		// join pool
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 	})
 
@@ -68,24 +74,26 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 
-		valaccount, found := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, active := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
 
-		Expect(found).To(BeTrue())
+		Expect(active).To(BeTrue())
 
 		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
 		Expect(valaccount.PoolId).To(BeZero())
 		Expect(valaccount.Valaddress).To(Equal(i.VALADDRESS_0_A))
 		Expect(valaccount.Points).To(BeZero())
 		Expect(valaccount.IsLeaving).To(BeTrue())
+		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
+		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
 
 		valaccountsOfPool := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
 
 		Expect(valaccountsOfPool).To(HaveLen(1))
 
-		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
+		totalStakeOfPool := s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)
 
 		Expect(totalStakeOfPool).To(Equal(100 * i.KYVE))
-		Expect(s.App().StakersKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_0)).To(Equal(totalStakeOfPool))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(totalStakeOfPool))
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(totalStakeOfPool))
 
 		s.PerformValidityChecks()
@@ -98,16 +106,20 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(BeEmpty())
 
-		_, found = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, active = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
 
-		Expect(found).To(BeFalse())
+		Expect(active).To(BeFalse())
 
 		valaccountsOfPool = s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
 
 		Expect(valaccountsOfPool).To(BeEmpty())
 
-		totalStakeOfPool = s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
+		totalStakeOfPool = s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)
 		Expect(totalStakeOfPool).To(BeZero())
+
+		// check if commission and stake fraction is still available
+		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
+		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
 	})
 
 	It("Leave a pool multiple other stakers have joined previously", func() {
@@ -115,10 +127,12 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
-			Amount:     100 * i.KYVE,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ACT
@@ -133,24 +147,26 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 
-		valaccount, found := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, active := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
 
-		Expect(found).To(BeTrue())
+		Expect(active).To(BeTrue())
 
 		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
 		Expect(valaccount.PoolId).To(BeZero())
 		Expect(valaccount.Valaddress).To(Equal(i.VALADDRESS_0_A))
 		Expect(valaccount.Points).To(BeZero())
 		Expect(valaccount.IsLeaving).To(BeTrue())
+		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
+		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
 
 		valaccountsOfPool := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
 
 		Expect(valaccountsOfPool).To(HaveLen(2))
 
-		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
+		totalStakeOfPool := s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)
 
 		Expect(totalStakeOfPool).To(Equal(200 * i.KYVE))
-		Expect(s.App().StakersKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_0)).To(Equal(100 * i.KYVE))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(100 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100 * i.KYVE))
 
 		s.PerformValidityChecks()
@@ -163,16 +179,20 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(BeEmpty())
 
-		_, found = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, active = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
 
-		Expect(found).To(BeFalse())
+		Expect(active).To(BeFalse())
 
 		valaccountsOfPool = s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
 
 		Expect(valaccountsOfPool).To(HaveLen(1))
 
-		totalStakeOfPool = s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
+		totalStakeOfPool = s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)
 		Expect(totalStakeOfPool).To(Equal(100 * i.KYVE))
+
+		// check if commission and stake fraction is still available
+		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
+		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
 	})
 
 	It("Try to leave a pool again", func() {
@@ -213,9 +233,11 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 		s.RunTxPoolSuccess(msg)
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     1,
-			Valaddress: i.VALADDRESS_1_A,
+			Creator:       i.STAKER_0,
+			PoolId:        1,
+			Valaddress:    i.VALADDRESS_1_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 		s.PerformValidityChecks()
 
@@ -230,24 +252,26 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(2))
 
-		valaccount, found := s.App().StakersKeeper.GetValaccount(s.Ctx(), 1, i.STAKER_0)
+		valaccount, active := s.App().StakersKeeper.GetValaccount(s.Ctx(), 1, i.STAKER_0)
 
-		Expect(found).To(BeTrue())
+		Expect(active).To(BeTrue())
 
 		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
 		Expect(valaccount.PoolId).To(Equal(uint64(1)))
 		Expect(valaccount.Valaddress).To(Equal(i.VALADDRESS_1_A))
 		Expect(valaccount.Points).To(BeZero())
 		Expect(valaccount.IsLeaving).To(BeTrue())
+		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
+		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
 
 		valaccountsOfPool := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 1)
 
 		Expect(valaccountsOfPool).To(HaveLen(1))
 
-		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 1)
+		totalStakeOfPool := s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 1)
 		Expect(totalStakeOfPool).To(Equal(100 * i.KYVE))
 
-		Expect(s.App().StakersKeeper.GetDelegationAmount(s.Ctx(), i.STAKER_0)).To(Equal(totalStakeOfPool))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(totalStakeOfPool))
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(totalStakeOfPool))
 
 		// wait for leave pool
@@ -258,16 +282,20 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 
-		_, found = s.App().StakersKeeper.GetValaccount(s.Ctx(), 1, i.STAKER_0)
+		valaccount, active = s.App().StakersKeeper.GetValaccount(s.Ctx(), 1, i.STAKER_0)
 
-		Expect(found).To(BeFalse())
+		Expect(active).To(BeFalse())
 
 		valaccountsOfPool = s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 1)
 
 		Expect(valaccountsOfPool).To(BeEmpty())
 
-		totalStakeOfPool = s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 1)
+		totalStakeOfPool = s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 1)
 		Expect(totalStakeOfPool).To(BeZero())
+
+		// check if commission and stake fraction is still available
+		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
+		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
 	})
 
 	It("Leave a pool a staker has never joined", func() {
@@ -290,5 +318,13 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		valaccountsOfStaker = s.App().StakersKeeper.GetValaccountsFromStaker(s.Ctx(), i.STAKER_1)
 		Expect(valaccountsOfStaker).To(BeEmpty())
+
+		valaccount, active := s.App().StakersKeeper.GetValaccount(s.Ctx(), 1, i.STAKER_0)
+
+		Expect(active).To(BeFalse())
+
+		// check if commission and stake fraction is still available
+		Expect(valaccount.Commission).To(Equal(math.LegacyZeroDec()))
+		Expect(valaccount.StakeFraction).To(Equal(math.LegacyZeroDec()))
 	})
 })
