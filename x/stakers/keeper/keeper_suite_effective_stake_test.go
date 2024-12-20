@@ -50,9 +50,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		}
 		s.RunTxPoolSuccess(msg)
 
-		params := s.App().PoolKeeper.GetParams(s.Ctx())
-		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("0.5")
-		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+		s.SetMaxVotingPower("0.5")
 	})
 
 	AfterEach(func() {
@@ -147,9 +145,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 
 	It("Test effective stake with multiple validators above the max pool voting power", func() {
 		// ARRANGE
-		params := s.App().PoolKeeper.GetParams(s.Ctx())
-		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("0.35")
-		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+		s.SetMaxVotingPower("0.35")
 
 		s.CreateValidator(i.STAKER_0, "Staker-0", int64(600*i.KYVE))
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
@@ -193,9 +189,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 
 	It("Test effective stake with fewer validators than required to undercut the max pool voting power", func() {
 		// ARRANGE
-		params := s.App().PoolKeeper.GetParams(s.Ctx())
-		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("0.2")
-		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+		s.SetMaxVotingPower("0.2")
 
 		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
@@ -315,9 +309,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 
 	It("Test effective stake with 0% as max pool stake", func() {
 		// ARRANGE
-		params := s.App().PoolKeeper.GetParams(s.Ctx())
-		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("0")
-		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+		s.SetMaxVotingPower("0")
 
 		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
@@ -357,9 +349,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 
 	It("Test effective stake with 100% as max pool stake", func() {
 		// ARRANGE
-		params := s.App().PoolKeeper.GetParams(s.Ctx())
-		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("1")
-		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+		s.SetMaxVotingPower("1")
 
 		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
@@ -467,9 +457,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 
 	It("Test effective stake with multiple validators above the max pool voting power due to stake fractions", func() {
 		// ARRANGE
-		params := s.App().PoolKeeper.GetParams(s.Ctx())
-		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("0.35")
-		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+		s.SetMaxVotingPower("0.35")
 
 		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{

@@ -43,9 +43,7 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 		// create staker
 		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
-		params := s.App().PoolKeeper.GetParams(s.Ctx())
-		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("1")
-		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+		s.SetMaxVotingPower("1")
 
 		// join pool
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
