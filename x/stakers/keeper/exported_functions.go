@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"context"
 	"sort"
 
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
@@ -413,32 +412,6 @@ func (k Keeper) Slash(ctx sdk.Context, poolId uint64, staker string, slashType s
 		SlashType:     slashType,
 		StakeFraction: stakeFraction,
 	})
-}
-
-// GOVERNANCE - BONDING
-// The next functions are used in our custom fork of the cosmos-sdk
-// which includes protocol staking into the governance.
-// The behavior is exactly the same as with normal cosmos-validators.
-
-// TotalBondedTokens returns all tokens which are currently bonded by the protocol
-// I.e. the sum of all delegation of all stakers that are currently participating
-// in at least one pool
-func (k Keeper) TotalBondedTokens(ctx context.Context) math.Int {
-	return math.ZeroInt()
-}
-
-// GetActiveValidators returns all protocol-node information which
-// are needed by the governance to calculate the voting powers.
-// The interface needs to correspond to github.com/cosmos/cosmos-sdk/x/gov/types/v1.ValidatorGovInfo
-// But as there is no direct dependency in the cosmos-sdk-fork this value is passed as an interface{}
-func (k Keeper) GetActiveValidators(ctx context.Context) (validators []interface{}) {
-	return
-}
-
-// GetDelegations returns the address and the delegation amount of all active protocol-stakers the
-// delegator as delegated to. This is used to calculate the vote weight each delegator has.
-func (k Keeper) GetDelegations(ctx context.Context, delegator string) (validators []string, amounts []math.LegacyDec) {
-	return
 }
 
 func (k Keeper) DoesStakerExist(ctx sdk.Context, staker string) bool {
