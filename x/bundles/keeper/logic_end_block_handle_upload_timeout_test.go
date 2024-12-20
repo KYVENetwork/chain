@@ -289,9 +289,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 			PoolId:  0,
 		})
 
-		params := s.App().PoolKeeper.GetParams(s.Ctx())
-		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("0.2")
-		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+		s.SetMaxVotingPower("0.2")
 
 		// ACT
 		s.CommitAfterSeconds(1)

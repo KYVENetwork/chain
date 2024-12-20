@@ -64,9 +64,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		}
 		s.RunTxPoolSuccess(msg)
 
-		params := s.App().PoolKeeper.GetParams(s.Ctx())
-		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("1")
-		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+		s.SetMaxVotingPower("1")
 
 		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
 			Creator: i.ALICE,

@@ -86,3 +86,9 @@ func (suite *KeeperTestSuite) GetNextUploader() (nextStaker string, nextValaddre
 
 	return
 }
+
+func (suite *KeeperTestSuite) SetMaxVotingPower(maxVotingPower string) {
+	params := suite.App().PoolKeeper.GetParams(suite.Ctx())
+	params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr(maxVotingPower)
+	suite.App().PoolKeeper.SetParams(suite.Ctx(), params)
+}

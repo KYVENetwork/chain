@@ -307,9 +307,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert pool can run while voting power of one node exceeds 40%", func() {
 		// ARRANGE
-		params := s.App().PoolKeeper.GetParams(s.Ctx())
-		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("0.4")
-		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+		s.SetMaxVotingPower("0.4")
 
 		msg := &pooltypes.MsgCreatePool{
 			Authority:            gov,
@@ -371,9 +369,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 
 	It("Assert pool can run with a single staker while voting power is 100%", func() {
 		// ARRANGE
-		params := s.App().PoolKeeper.GetParams(s.Ctx())
-		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("1")
-		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+		s.SetMaxVotingPower("1")
 
 		msg := &pooltypes.MsgCreatePool{
 			Authority:            gov,

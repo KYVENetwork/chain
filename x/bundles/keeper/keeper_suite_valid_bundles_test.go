@@ -966,9 +966,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 	It("Produce a valid bundle with multiple validators and foreign delegation although some voted invalid with maximum voting power", func() {
 		// ARRANGE
-		params := s.App().PoolKeeper.GetParams(s.Ctx())
-		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("0.4")
-		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+		s.SetMaxVotingPower("0.4")
 
 		s.CreateValidator(i.STAKER_2, "Staker-2", int64(100*i.KYVE))
 
