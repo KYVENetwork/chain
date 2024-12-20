@@ -29,8 +29,10 @@ func (k Keeper) StakersByPool(c context.Context, req *types.QueryStakersByPoolRe
 		stakers = append(stakers, *k.GetFullStaker(ctx, valaccount.Staker))
 	}
 
-	sort.Slice(stakers, func(i, j int) bool {
-		return k.stakerKeeper.GetValidatorPoolStake(ctx, stakers[i].Address, req.PoolId) > k.stakerKeeper.GetValidatorPoolStake(ctx, stakers[j].Address, req.PoolId)
+	stakes := k.stakerKeeper.GetValidatorPoolStakes(ctx, req.PoolId)
+
+	sort.SliceStable(stakers, func(i, j int) bool {
+		return stakes[stakers[i].Address] > stakes[stakers[j].Address]
 	})
 
 	return &types.QueryStakersByPoolResponse{Stakers: stakers}, nil
