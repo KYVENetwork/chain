@@ -132,7 +132,7 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 			}
 		}
 
-		sort.Slice(stakersByPoolState, func(a, b int) bool {
+		sort.SliceStable(stakersByPoolState, func(a, b int) bool {
 			return suite.App().StakersKeeper.GetValidatorPoolStake(suite.Ctx(), stakersByPoolState[a].Address, poolsState[i].Id) > suite.App().StakersKeeper.GetValidatorPoolStake(suite.Ctx(), stakersByPoolState[b].Address, poolsState[i].Id)
 		})
 
