@@ -32,5 +32,4 @@ func (k Keeper) FullyProcessDelegatorUnbondingQueue(ctx sdk.Context) {
 		})
 
 	}
-
 }

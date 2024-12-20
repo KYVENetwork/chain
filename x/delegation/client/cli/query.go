@@ -24,9 +24,5 @@ func GetQueryCmd(_ string) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	cmd.AddCommand(CmdQueryParams())
-
-	// All other queries are found in the queries module
-
 	return cmd
 }

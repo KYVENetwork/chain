@@ -1,11 +1,7 @@
 package keeper
 
 import (
-	"cosmossdk.io/errors"
-	"github.com/KYVENetwork/chain/util"
-	"github.com/KYVENetwork/chain/x/delegation/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // These functions are meant to be called from external modules
@@ -40,77 +36,6 @@ func (k Keeper) GetDelegationOfPool(ctx sdk.Context, poolId uint64) uint64 {
 		totalDelegation += k.GetDelegationAmount(ctx, address)
 	}
 	return totalDelegation
-}
-
-// GetTotalAndHighestDelegationOfPool returns the total delegation amount of all validators in the given pool and
-// the highest total delegation amount of a single validator in a pool
-func (k Keeper) GetTotalAndHighestDelegationOfPool(ctx sdk.Context, poolId uint64) (totalDelegation, highestDelegation uint64) {
-	// Get the total delegation and the highest delegation of a staker in the pool
-	for _, address := range k.stakersKeeper.GetAllStakerAddressesOfPool(ctx, poolId) {
-		delegation := k.GetDelegationAmount(ctx, address)
-		totalDelegation += delegation
-
-		if delegation > highestDelegation {
-			highestDelegation = delegation
-		}
-	}
-
-	return
-}
-
-// PayoutRewards transfers `amount` from the `payerModuleName`-module to the delegation module.
-// It then awards these tokens internally to all delegators of staker `staker`.
-// Delegators can then receive these rewards if they call the `withdraw`-transaction.
-// If the staker has no delegators or the module to module transfer fails, the method fails and
-// returns an error.
-func (k Keeper) PayoutRewards(ctx sdk.Context, staker string, amount sdk.Coins, payerModuleName string) error {
-	// Assert there is an amount
-	if amount.Empty() {
-		return nil
-	}
-
-	// Assert there are delegators
-	if !k.DoesDelegationDataExist(ctx, staker) {
-		return errors.Wrapf(sdkErrors.ErrLogic, "Staker has no delegators which can be paid out.")
-	}
-
-	// Add amount to the rewards pool
-	k.AddAmountToDelegationRewards(ctx, staker, amount)
-
-	// Transfer tokens to the delegation module
-	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, payerModuleName, types.ModuleName, amount); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// SlashDelegators reduces the delegation of all delegators of `staker` by fraction
-// and transfers the amount to the Treasury.
-func (k Keeper) SlashDelegators(ctx sdk.Context, poolId uint64, staker string, slashType types.SlashType) {
-	// Only slash if staker has delegators
-	if k.DoesDelegationDataExist(ctx, staker) {
-
-		// Update in-memory staker index for efficient queries
-		k.RemoveStakerIndex(ctx, staker)
-		defer k.SetStakerIndex(ctx, staker)
-
-		// Perform F1-slash and get slashed amount in ukyve
-		slashedAmount := k.f1Slash(ctx, staker, k.getSlashFraction(ctx, slashType))
-
-		// Transfer tokens to the Treasury
-		if err := util.TransferFromModuleToTreasury(k.accountKeeper, k.distrKeeper, ctx, types.ModuleName, slashedAmount); err != nil {
-			util.PanicHalt(k.upgradeKeeper, ctx, "Not enough tokens in module")
-		}
-
-		// Emit slash event
-		_ = ctx.EventManager().EmitTypedEvent(&types.EventSlash{
-			PoolId:    poolId,
-			Staker:    staker,
-			Amount:    slashedAmount,
-			SlashType: slashType,
-		})
-	}
 }
 
 // GetOutstandingRewards calculates the current rewards a delegator has collected for

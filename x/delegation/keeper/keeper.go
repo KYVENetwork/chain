@@ -23,9 +23,7 @@ type (
 
 		authority string
 
-		accountKeeper types.AccountKeeper
 		bankKeeper    util.BankKeeper
-		distrKeeper   util.DistributionKeeper
 		poolKeeper    types.PoolKeeper
 		upgradeKeeper util.UpgradeKeeper
 		stakersKeeper types.StakersKeeper
@@ -40,9 +38,7 @@ func NewKeeper(
 
 	authority string,
 
-	accountKeeper types.AccountKeeper,
 	bankKeeper util.BankKeeper,
-	distrkeeper util.DistributionKeeper,
 	poolKeeper types.PoolKeeper,
 	upgradeKeeper util.UpgradeKeeper,
 	stakersKeeper types.StakersKeeper,
@@ -55,9 +51,7 @@ func NewKeeper(
 
 		authority: authority,
 
-		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
-		distrKeeper:   distrkeeper,
 		poolKeeper:    poolKeeper,
 		upgradeKeeper: upgradeKeeper,
 		stakersKeeper: stakersKeeper,

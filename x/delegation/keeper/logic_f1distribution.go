@@ -147,35 +147,6 @@ func (k Keeper) f1RemoveDelegator(ctx sdk.Context, stakerAddress string, delegat
 	return balance
 }
 
-// f1Slash performs a slash within the f1-logic.
-// It ends the current period and starts a new one with reduced total delegation.
-// A slash entry is created which is needed to calculate the correct delegation amount
-// of every delegator.
-func (k Keeper) f1Slash(ctx sdk.Context, stakerAddress string, fraction math.LegacyDec) (amount uint64) {
-	delegationData, _ := k.GetDelegationData(ctx, stakerAddress)
-
-	// Finish current period because in the new one there will be
-	// a reduced total delegation for the slashed staker
-	// The slash will be accounted to the period with index `slashedIndex`
-	slashedIndex := k.f1StartNewPeriod(ctx, stakerAddress, &delegationData)
-
-	k.SetDelegationSlashEntry(ctx, types.DelegationSlash{
-		Staker:   stakerAddress,
-		KIndex:   slashedIndex,
-		Fraction: fraction,
-	})
-
-	// remaining_total_delegation = total_delegation * (1 - fraction)
-	totalDelegation := math.LegacyNewDec(int64(delegationData.TotalDelegation))
-	slashedAmount := totalDelegation.Mul(fraction).TruncateInt().Uint64()
-
-	// Remove slashed amount from delegation metadata
-	delegationData.TotalDelegation -= slashedAmount
-	k.SetDelegationData(ctx, delegationData)
-
-	return slashedAmount
-}
-
 // f1WithdrawRewards calculates all outstanding rewards and withdraws them from
 // the f1-logic. A new period starts.
 func (k Keeper) f1WithdrawRewards(ctx sdk.Context, stakerAddress string, delegatorAddress string) sdk.Coins {

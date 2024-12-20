@@ -6,28 +6,18 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// Delegate performs a safe delegation with all necessary checks
-// Warning: does not transfer the amount (only the rewards)
-func (k Keeper) performDelegation(ctx sdk.Context, stakerAddress string, delegatorAddress string, amount uint64) {
+// PerformFullUndelegation performs a full undelegation of the staker delegator pair
+func (k Keeper) PerformFullUndelegation(ctx sdk.Context, stakerAddress string, delegatorAddress string) uint64 {
 	// Update in-memory staker index for efficient queries
 	k.RemoveStakerIndex(ctx, stakerAddress)
 	defer k.SetStakerIndex(ctx, stakerAddress)
 
-	if k.DoesDelegatorExist(ctx, stakerAddress, delegatorAddress) {
-		// If the sender is already a delegator, first perform an undelegation, before delegating.
-		// "perform a withdrawal"
-		if _, err := k.performWithdrawal(ctx, stakerAddress, delegatorAddress); err != nil {
-			util.PanicHalt(k.upgradeKeeper, ctx, "no money left in module")
-		}
-
-		// Perform delegation by fully undelegating and then delegating the new amount
-		unDelegateAmount := k.f1RemoveDelegator(ctx, stakerAddress, delegatorAddress)
-		newDelegationAmount := unDelegateAmount + amount
-		k.f1CreateDelegator(ctx, stakerAddress, delegatorAddress, newDelegationAmount)
-	} else {
-		// If the sender isn't a delegator, simply create a new delegation entry.
-		k.f1CreateDelegator(ctx, stakerAddress, delegatorAddress, amount)
+	// Withdraw all outstanding rewards
+	if _, err := k.performWithdrawal(ctx, stakerAddress, delegatorAddress); err != nil {
+		util.PanicHalt(k.upgradeKeeper, ctx, "no money left in module")
 	}
+
+	return k.f1RemoveDelegator(ctx, stakerAddress, delegatorAddress)
 }
 
 // performUndelegation performs immediately an undelegation of the given amount from the given staker

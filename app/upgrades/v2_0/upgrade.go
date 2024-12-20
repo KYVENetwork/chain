@@ -3,6 +3,7 @@ package v2_0
 import (
 	"context"
 	"fmt"
+
 	delegationkeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
@@ -26,8 +27,8 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	delegationKeeper delegationkeeper.Keeper,
-	stakersKeeper stakersKeeper.Keeper,
-	stakingKeeper stakingkeeper.Keeper,
+	stakersKeeper *stakersKeeper.Keeper,
+	stakingKeeper *stakingkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 		sdkCtx := sdk.UnwrapSDKContext(ctx)
@@ -47,21 +48,23 @@ func CreateUpgradeHandler(
 }
 
 func migrateProtocolStakers(ctx sdk.Context, delegationKeeper delegationkeeper.Keeper,
-	stakersKeeper stakersKeeper.Keeper,
-	stakingKeeper stakingkeeper.Keeper) {
-
+	stakersKeeper *stakersKeeper.Keeper,
+	stakingKeeper *stakingkeeper.Keeper,
+) {
 	// Process current unbonding queue
 	delegationKeeper.FullyProcessDelegatorUnbondingQueue(ctx)
 
+	totalMigratedStake := uint64(0)
+	totalReturnedStake := uint64(0)
 	for _, mapping := range ValidatorMappings {
 		// TODO check if staker exists
 		delegators := delegationKeeper.GetDelegatorsByStaker(ctx, mapping.ProtocolAddress)
 
 		for _, delegator := range delegators {
-			amount := delegationKeeper.GetDelegationAmountOfDelegator(ctx, mapping.ProtocolAddress, delegator)
-			delegationKeeper.PerformUndelegation(ctx, mapping.ProtocolAddress, delegator, amount)
+			amount := delegationKeeper.PerformFullUndelegation(ctx, mapping.ProtocolAddress, delegator)
+			totalMigratedStake += amount
 
-			stakingServer := stakingkeeper.NewMsgServerImpl(&stakingKeeper)
+			stakingServer := stakingkeeper.NewMsgServerImpl(stakingKeeper)
 			_, err := stakingServer.Delegate(ctx, stakingTypes.NewMsgDelegate(
 				delegator,
 				mapping.ConsensusAddress,
@@ -72,8 +75,11 @@ func migrateProtocolStakers(ctx sdk.Context, delegationKeeper delegationkeeper.K
 				return
 			}
 		}
-
-		_ = mapping
 	}
 
+	// Undelegate Remaining
+	for _, delegator := range delegationKeeper.GetAllDelegators(ctx) {
+		amount := delegationKeeper.PerformFullUndelegation(ctx, delegator.Staker, delegator.Delegator)
+		totalReturnedStake += amount
+	}
 }

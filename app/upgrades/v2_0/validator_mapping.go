@@ -7,7 +7,7 @@ type ValidatorMapping struct {
 }
 
 var ValidatorMappings = []ValidatorMapping{
-	ValidatorMapping{
+	{
 		Name:             "",
 		ConsensusAddress: "",
 		ProtocolAddress:  "",
