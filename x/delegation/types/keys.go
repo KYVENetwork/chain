@@ -20,8 +20,6 @@ const (
 
 var ParamsKey = []byte{0x00}
 
-var StakerIndexKeyPrefix = []byte{1} // StakerIndexPoolCountKeyPrefix = []byte{1}
-
 var (
 	// DelegatorKeyPrefix is the prefix to retrieve all Delegator entries
 	DelegatorKeyPrefix = []byte{1, 0}
@@ -86,11 +84,3 @@ func RedelegationCooldownKey(delegator string, block uint64) []byte {
 func DelegationSlashEntriesKey(stakerAddress string, kIndex uint64) []byte {
 	return util.GetByteKey(stakerAddress, kIndex)
 }
-
-func StakerIndexKey(amount uint64, stakerAddress string) []byte {
-	return util.GetByteKey(amount, stakerAddress)
-}
-
-//func StakerIndexByPoolCountKey(poolCount uint64, amount uint64, stakerAddress string) []byte {
-//	return util.GetByteKey(poolCount, amount, stakerAddress)
-//}

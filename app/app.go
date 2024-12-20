@@ -408,6 +408,7 @@ func New(
 			app.DelegationKeeper,
 			app.StakersKeeper,
 			app.StakingKeeper,
+			app.BankKeeper,
 		),
 	)
 

@@ -50,17 +50,6 @@ func (k Keeper) GetDelegator(
 	return val, true
 }
 
-// DoesDelegatorExist checks if the key exists in the KV-store
-func (k Keeper) DoesDelegatorExist(
-	ctx sdk.Context,
-	stakerAddress string,
-	delegatorAddress string,
-) bool {
-	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.DelegatorKeyPrefix)
-	return store.Has(types.DelegatorKey(stakerAddress, delegatorAddress))
-}
-
 // RemoveDelegator removes a delegator from the store
 func (k Keeper) RemoveDelegator(
 	ctx sdk.Context,
@@ -94,20 +83,6 @@ func (k Keeper) GetAllDelegators(ctx sdk.Context) (list []types.Delegator) {
 		list = append(list, val)
 	}
 
-	return
-}
-
-func (k Keeper) GetStakersByDelegator(ctx sdk.Context, delegator string) (list []string) {
-	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	delegatorStore := prefix.NewStore(storeAdapter, types.DelegatorKeyPrefixIndex2)
-	iterator := storeTypes.KVStorePrefixIterator(delegatorStore, util.GetByteKey(delegator))
-
-	defer iterator.Close()
-
-	for ; iterator.Valid(); iterator.Next() {
-		staker := string(iterator.Key()[43 : 43+43])
-		list = append(list, staker)
-	}
 	return
 }
 

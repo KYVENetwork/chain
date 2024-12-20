@@ -15,9 +15,6 @@ import (
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/query"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 // AddValaccountToPool adds a valaccount to a pool.
@@ -67,55 +64,6 @@ func (k Keeper) getAllStakersOfPool(ctx sdk.Context, poolId uint64) []stakingTyp
 	}
 
 	return stakers
-}
-
-// GetLegacyStaker returns a staker from its index
-func (k Keeper) GetLegacyStaker(
-	ctx sdk.Context,
-	staker string,
-) (val types.Staker, found bool) {
-	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.StakerKeyPrefix)
-
-	b := store.Get(types.StakerKey(
-		staker,
-	))
-	if b == nil {
-		return val, false
-	}
-
-	k.cdc.MustUnmarshal(b, &val)
-	return val, true
-}
-
-func (k Keeper) GetPaginatedLegacyStakerQuery(
-	ctx sdk.Context,
-	pagination *query.PageRequest,
-	accumulator func(staker types.Staker),
-) (*query.PageResponse, error) {
-	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.StakerKeyPrefix)
-
-	pageRes, err := query.FilteredPaginate(store, pagination, func(
-		key []byte,
-		value []byte,
-		accumulate bool,
-	) (bool, error) {
-		if accumulate {
-			var staker types.Staker
-			if err := k.cdc.Unmarshal(value, &staker); err != nil {
-				return false, err
-			}
-			accumulator(staker)
-		}
-
-		return true, nil
-	})
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	return pageRes, nil
 }
 
 // GetAllStakers returns all staker
