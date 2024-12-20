@@ -101,7 +101,7 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 	for i := range poolsState {
 		bundleProposalState, _ := suite.App().BundlesKeeper.GetBundleProposal(suite.Ctx(), poolsState[i].Id)
 		stakersState := suite.App().StakersKeeper.GetAllStakerAddressesOfPool(suite.Ctx(), poolsState[i].Id)
-		totalDelegationState := suite.App().StakersKeeper.GetDelegationOfPool(suite.Ctx(), poolsState[i].Id)
+		totalDelegationState := suite.App().StakersKeeper.GetTotalStakeOfPool(suite.Ctx(), poolsState[i].Id)
 
 		Expect(poolsQuery[i].Id).To(Equal(poolsState[i].Id))
 		Expect(*poolsQuery[i].Data).To(Equal(poolsState[i]))
@@ -175,7 +175,7 @@ func (suite *KeeperTestSuite) VerifyStakersModuleAssetsIntegrity() {
 func (suite *KeeperTestSuite) VerifyPoolTotalStake() {
 	for _, pool := range suite.App().PoolKeeper.GetAllPools(suite.Ctx()) {
 		expectedBalance := uint64(0)
-		actualBalance := suite.App().StakersKeeper.GetDelegationOfPool(suite.Ctx(), pool.Id)
+		actualBalance := suite.App().StakersKeeper.GetTotalStakeOfPool(suite.Ctx(), pool.Id)
 
 		for _, stakerAddress := range suite.App().StakersKeeper.GetAllStakerAddressesOfPool(suite.Ctx(), pool.Id) {
 			expectedBalance += suite.App().StakersKeeper.GetValidatorPoolStake(suite.Ctx(), stakerAddress, pool.Id)

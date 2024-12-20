@@ -23,9 +23,9 @@ func (k Keeper) getLowestStaker(ctx sdk.Context, poolId uint64) (val stakingType
 	var minAmount uint64 = m.MaxUint64
 
 	for _, staker := range k.getAllStakersOfPool(ctx, poolId) {
-		delegationAmount := k.GetValidatorPoolStake(ctx, util.MustAccountAddressFromValAddress(staker.OperatorAddress), poolId)
-		if delegationAmount < minAmount {
-			minAmount = delegationAmount
+		stake := k.GetValidatorPoolStake(ctx, util.MustAccountAddressFromValAddress(staker.OperatorAddress), poolId)
+		if stake < minAmount {
+			minAmount = stake
 			val = staker
 		}
 	}

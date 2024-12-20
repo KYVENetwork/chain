@@ -71,6 +71,10 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		}
 		s.RunTxPoolSuccess(msg)
 
+		params := s.App().PoolKeeper.GetParams(s.Ctx())
+		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("1")
+		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+
 		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		initialBalanceStaker0 = s.GetBalanceFromAddress(i.STAKER_0)
@@ -124,7 +128,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfPool).To(HaveLen(1))
 
-		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
+		totalStakeOfPool := s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)
 
 		Expect(totalStakeOfPool).To(Equal(100 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(totalStakeOfPool))
@@ -178,7 +182,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfPool).To(HaveLen(0))
 
-		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 1)
+		totalStakeOfPool := s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 1)
 
 		Expect(totalStakeOfPool).To(Equal(0 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 1)).To(Equal(0 * i.KYVE))
@@ -234,7 +238,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfPool).To(HaveLen(2))
 
-		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
+		totalStakeOfPool := s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)
 
 		Expect(totalStakeOfPool).To(Equal(200 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(100 * i.KYVE))
@@ -252,7 +256,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
-		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
+		totalStakeOfPool := s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)
 		Expect(totalStakeOfPool).To(Equal(100 * i.KYVE))
 
 		// ACT
@@ -281,7 +285,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfPool).To(HaveLen(1))
 
-		totalStakeOfPool = s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
+		totalStakeOfPool = s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)
 
 		Expect(totalStakeOfPool).To(Equal(150 * i.KYVE))
 
@@ -576,7 +580,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfPool).To(HaveLen(1))
 
-		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
+		totalStakeOfPool := s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)
 		Expect(totalStakeOfPool).To(Equal(100 * i.KYVE))
 
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(totalStakeOfPool))
@@ -619,7 +623,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfPool).To(HaveLen(1))
 
-		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
+		totalStakeOfPool := s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)
 		Expect(totalStakeOfPool).To(Equal(100 * i.KYVE))
 
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(totalStakeOfPool))
@@ -686,7 +690,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		}
 
 		// STAKER_0 is lowest staker and all stakers are full now.
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal((150*49 + 100) * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal((150*49 + 100) * i.KYVE))
 
 		s.CreateValidator(i.STAKER_1, "Staker-1", int64(150*i.KYVE))
 
@@ -701,7 +705,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		})
 
 		// Assert
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal((150*49 + 150) * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal((150*49 + 150) * i.KYVE))
 		Expect(s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)).ToNot(ContainElement(i.STAKER_0))
 	})
 
@@ -731,7 +735,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		}
 
 		// STAKER_0 is lowest staker and all stakers are full now.
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal((150*49 + 100) * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal((150*49 + 100) * i.KYVE))
 
 		s.CreateValidator(i.STAKER_1, "Staker-1", int64(50*i.KYVE))
 
@@ -746,7 +750,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		})
 
 		// Assert
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal((150*49 + 100) * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal((150*49 + 100) * i.KYVE))
 		Expect(s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)).To(ContainElement(i.STAKER_0))
 		Expect(s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)).ToNot(ContainElement(i.STAKER_1))
 	})
@@ -777,7 +781,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		}
 
 		// Alice is lowest staker and all stakers are full now.
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal((150*49 + 100) * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal((150*49 + 100) * i.KYVE))
 
 		s.CreateValidator(i.STAKER_1, "Staker-1", int64(150*i.KYVE))
 
@@ -798,7 +802,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		})
 
 		// ASSERT
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal((150*49 + 250) * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal((150*49 + 250) * i.KYVE))
 		Expect(s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)).To(ContainElement(i.STAKER_0))
 		Expect(s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)).NotTo(ContainElement(i.STAKER_1))
 	})
@@ -829,7 +833,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		}
 
 		// STAKER_0 is lowest staker and all stakers are full now.
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal((150*49 + 100) * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal((150*49 + 100) * i.KYVE))
 
 		s.CreateValidator(i.STAKER_1, "Staker-1", int64(50*i.KYVE))
 
@@ -844,7 +848,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		})
 
 		// Assert
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal((150*49 + 100) * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal((150*49 + 100) * i.KYVE))
 		Expect(s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)).To(ContainElement(i.STAKER_0))
 		Expect(s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)).ToNot(ContainElement(i.STAKER_1))
 	})
@@ -875,7 +879,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		}
 
 		// Alice is lowest staker and all stakers are full now.
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal((150*49 + 100) * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal((150*49 + 100) * i.KYVE))
 
 		s.CreateValidator(i.STAKER_1, "Staker-1", int64(50*i.KYVE))
 
@@ -896,7 +900,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		})
 
 		// ASSERT
-		Expect(s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)).To(Equal((150*49 + 100) * i.KYVE))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal((150*49 + 100) * i.KYVE))
 		Expect(s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)).To(ContainElement(i.STAKER_0))
 		Expect(s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)).NotTo(ContainElement(i.STAKER_1))
 	})
@@ -961,7 +965,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfPool).To(HaveLen(1))
 
-		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
+		totalStakeOfPool := s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)
 
 		Expect(totalStakeOfPool).To(Equal(100 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(totalStakeOfPool))
@@ -1031,7 +1035,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfPool).To(HaveLen(1))
 
-		totalStakeOfPool := s.App().StakersKeeper.GetDelegationOfPool(s.Ctx(), 0)
+		totalStakeOfPool := s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)
 
 		Expect(totalStakeOfPool).To(Equal(100 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(totalStakeOfPool))
