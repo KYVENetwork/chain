@@ -78,6 +78,7 @@ func (k Keeper) GetPaginatedStakersByPoolStake(ctx sdk.Context, pagination *quer
 	}
 
 	if stakerStatus == querytypes.STAKER_STATUS_UNSPECIFIED || stakerStatus == querytypes.STAKER_STATUS_PROTOCOL_ACTIVE {
+		// TODO: consider optimization
 		sort.Slice(addresses, func(i, j int) bool {
 			return k.GetValidatorTotalPoolStake(ctx, addresses[i]) > k.GetValidatorTotalPoolStake(ctx, addresses[j])
 		})
