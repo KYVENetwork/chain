@@ -22,6 +22,10 @@ An '!' indicates a state machine breaking change.
 - ! (`x/stakers`) [#210](https://github.com/KYVENetwork/chain/pull/210) Shared Staking: Pool specific commission and stake fraction.
 - ! (`x/stakers`) [#211](https://github.com/KYVENetwork/chain/pull/211) Shared Staking: Maximum voting power per pool.
 
+### Improvements
+
+- (deps) [#213](https://github.com/KYVENetwork/chain/pull/213) Bump to CosmosSDK v0.50.11 and cleanup deps.
+
 ### Bug Fixes
 
 - ! [#207](https://github.com/KYVENetwork/chain/pull/207) Added test case for points.
