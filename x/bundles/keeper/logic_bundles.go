@@ -3,13 +3,11 @@ package keeper
 import (
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
-	globalTypes "github.com/KYVENetwork/chain/x/global/types"
-	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
-
-	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
-
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/bundles/types"
+	globalTypes "github.com/KYVENetwork/chain/x/global/types"
+	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
+	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -38,20 +36,15 @@ func (k Keeper) AssertPoolCanRun(ctx sdk.Context, poolId uint64) error {
 		return types.ErrEndKeyReached
 	}
 
-	// Get the total and the highest delegation of a single validator in the pool
-	totalDelegation, highestDelegation := k.stakerKeeper.GetTotalAndHighestDelegationOfPool(ctx, poolId)
-
-	// Error if min delegation is not reached
-	if totalDelegation < pool.MinDelegation {
-		return types.ErrMinDelegationNotReached
+	// Error if max voting power is not achievable because there are not enough stakers
+	// in the pool
+	if k.stakerKeeper.IsVotingPowerTooHigh(ctx, poolId) {
+		return types.ErrVotingPowerTooHigh
 	}
 
-	maxVotingPower := k.poolKeeper.GetMaxVotingPowerPerPool(ctx)
-	maxDelegation := uint64(maxVotingPower.MulInt64(int64(totalDelegation)).TruncateInt64())
-
-	// Error if highest delegation exceeds max voting power
-	if highestDelegation > maxDelegation {
-		return types.ErrVotingPowerTooHigh
+	// Error if min delegation is not reached
+	if k.stakerKeeper.GetTotalStakeOfPool(ctx, poolId) < pool.MinDelegation {
+		return types.ErrMinDelegationNotReached
 	}
 
 	return nil
@@ -169,20 +162,8 @@ func (k Keeper) validateSubmitBundleArgs(ctx sdk.Context, bundleProposal *types.
 
 // slashDelegatorsAndRemoveStaker slashes a staker with a certain slashType and all including
 // delegators and removes him from the storage pool
-func (k Keeper) slashDelegatorsAndRemoveStaker(ctx sdk.Context, poolId uint64, stakerAddress string, slashType delegationTypes.SlashType) {
-	slashAmountRatio := math.LegacyZeroDec()
-
-	// TODO move the delegation Slash types to the Stakers module
-	switch slashType {
-	case delegationTypes.SLASH_TYPE_TIMEOUT:
-		slashAmountRatio = k.delegationKeeper.GetTimeoutSlash(ctx)
-	case delegationTypes.SLASH_TYPE_VOTE:
-		slashAmountRatio = k.delegationKeeper.GetVoteSlash(ctx)
-	case delegationTypes.SLASH_TYPE_UPLOAD:
-		slashAmountRatio = k.delegationKeeper.GetUploadSlash(ctx)
-	}
-
-	k.stakerKeeper.Slash(ctx, poolId, stakerAddress, slashAmountRatio)
+func (k Keeper) slashDelegatorsAndRemoveStaker(ctx sdk.Context, poolId uint64, stakerAddress string, slashType stakersTypes.SlashType) {
+	k.stakerKeeper.Slash(ctx, poolId, stakerAddress, slashType)
 	k.stakerKeeper.LeavePool(ctx, stakerAddress, poolId)
 }
 
@@ -214,7 +195,7 @@ func (k Keeper) addPoint(ctx sdk.Context, poolId uint64, stakerAddress string) {
 	if points >= k.GetMaxPoints(ctx) {
 		// slash all delegators with a timeout slash and remove staker from pool.
 		// points are reset due to the valaccount being deleted while leaving the pool
-		k.slashDelegatorsAndRemoveStaker(ctx, poolId, stakerAddress, delegationTypes.SLASH_TYPE_TIMEOUT)
+		k.slashDelegatorsAndRemoveStaker(ctx, poolId, stakerAddress, stakersTypes.SLASH_TYPE_TIMEOUT)
 	}
 }
 
@@ -255,8 +236,7 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 	// are divided between uploader and its delegators based on the uploader's commission.
 	bundleProposal, _ := k.GetBundleProposal(ctx, poolId)
 
-	_, found := k.stakerKeeper.GetValidator(ctx, bundleProposal.Uploader)
-	if !found {
+	if _, found := k.stakerKeeper.GetValidator(ctx, bundleProposal.Uploader); !found {
 		return
 	}
 
@@ -318,10 +298,9 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 		return
 	}
 
-	// TODO add custom commission per pool in next PR
-	// commission := k.stakerKeeper.GetCommission(ctx, bundleProposal.Uploader)
-	// commissionRewards, _ := sdk.NewDecCoinsFromCoins(totalPayout...).MulDec(commission).TruncateDecimal()
-	// bundleReward.UploaderCommission = commissionRewards
+	commission := k.stakerKeeper.GetValidatorPoolCommission(ctx, bundleProposal.Uploader, poolId)
+	commissionRewards, _ := sdk.NewDecCoinsFromCoins(totalPayout...).MulDec(commission).TruncateDecimal()
+	bundleReward.UploaderCommission = commissionRewards
 
 	// the remaining total payout belongs to the delegators
 	totalPayout = totalPayout.Sub(bundleReward.UploaderCommission...)
@@ -330,7 +309,7 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 	}
 
 	// if the uploader has no delegators he receives the entire remaining amount
-	if k.stakerKeeper.GetDelegationAmount(ctx, bundleProposal.Uploader) > 0 {
+	if k.stakerKeeper.GetValidatorPoolStake(ctx, bundleProposal.Uploader, poolId) > 0 {
 		bundleReward.Delegation = totalPayout
 	} else {
 		bundleReward.UploaderCommission = bundleReward.UploaderCommission.Add(totalPayout...)
@@ -479,14 +458,6 @@ func (k Keeper) dropCurrentBundleProposal(ctx sdk.Context, poolId uint64, voteDi
 	k.SetBundleProposal(ctx, bundleProposal)
 }
 
-// calculateVotingPower calculates the voting power one staker has in a
-// storage pool based only on the total delegation this staker has
-func (k Keeper) calculateVotingPower(delegation uint64) (votingPower uint64) {
-	// voting power is linear
-	votingPower = delegation
-	return
-}
-
 // chooseNextUploader selects the next uploader based on a fixed set of stakers in a pool.
 // It is guaranteed that someone is chosen deterministically if the round-robin set itself is not empty.
 func (k Keeper) chooseNextUploader(ctx sdk.Context, poolId uint64, excluded ...string) (nextUploader string) {
@@ -526,37 +497,26 @@ func (k Keeper) GetVoteDistribution(ctx sdk.Context, poolId uint64) (voteDistrib
 		return
 	}
 
+	stakes := k.stakerKeeper.GetValidatorPoolStakes(ctx, poolId)
+
 	// get voting power for valid
 	for _, voter := range bundleProposal.VotersValid {
-		// valaccount was found the voter is active in the pool
-		if k.stakerKeeper.DoesValaccountExist(ctx, poolId, voter) {
-			delegation := k.stakerKeeper.GetDelegationAmount(ctx, voter)
-			voteDistribution.Valid += k.calculateVotingPower(delegation)
-		}
+		voteDistribution.Valid += stakes[voter]
 	}
 
 	// get voting power for invalid
 	for _, voter := range bundleProposal.VotersInvalid {
-		// valaccount was found the voter is active in the pool
-		if k.stakerKeeper.DoesValaccountExist(ctx, poolId, voter) {
-			delegation := k.stakerKeeper.GetDelegationAmount(ctx, voter)
-			voteDistribution.Invalid += k.calculateVotingPower(delegation)
-		}
+		voteDistribution.Invalid += stakes[voter]
 	}
 
 	// get voting power for abstain
 	for _, voter := range bundleProposal.VotersAbstain {
-		// valaccount was found the voter is active in the pool
-		if k.stakerKeeper.DoesValaccountExist(ctx, poolId, voter) {
-			delegation := k.stakerKeeper.GetDelegationAmount(ctx, voter)
-			voteDistribution.Abstain += k.calculateVotingPower(delegation)
-		}
+		voteDistribution.Abstain += stakes[voter]
 	}
 
 	// get total voting power
 	for _, staker := range k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, poolId) {
-		delegation := k.stakerKeeper.GetDelegationAmount(ctx, staker)
-		voteDistribution.Total += k.calculateVotingPower(delegation)
+		voteDistribution.Total += stakes[staker]
 	}
 
 	if voteDistribution.Total == 0 {
@@ -623,7 +583,7 @@ func (k Keeper) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bundle
 
 		// slash stakers who voted incorrectly
 		for _, voter := range bundleProposal.VotersInvalid {
-			k.slashDelegatorsAndRemoveStaker(ctx, poolId, voter, delegationTypes.SLASH_TYPE_VOTE)
+			k.slashDelegatorsAndRemoveStaker(ctx, poolId, voter, stakersTypes.SLASH_TYPE_VOTE)
 		}
 
 		return types.TallyResult{
@@ -642,9 +602,9 @@ func (k Keeper) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bundle
 		// slash stakers who voted incorrectly - uploader receives upload slash
 		for _, voter := range bundleProposal.VotersValid {
 			if voter == bundleProposal.Uploader {
-				k.slashDelegatorsAndRemoveStaker(ctx, poolId, voter, delegationTypes.SLASH_TYPE_UPLOAD)
+				k.slashDelegatorsAndRemoveStaker(ctx, poolId, voter, stakersTypes.SLASH_TYPE_UPLOAD)
 			} else {
-				k.slashDelegatorsAndRemoveStaker(ctx, poolId, voter, delegationTypes.SLASH_TYPE_VOTE)
+				k.slashDelegatorsAndRemoveStaker(ctx, poolId, voter, stakersTypes.SLASH_TYPE_VOTE)
 			}
 		}
 

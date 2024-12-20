@@ -11,25 +11,30 @@ option go_package = "github.com/KYVENetwork/chain/x/stakers/types";
 // Msg defines the Msg service.
 service Msg {
   option (cosmos.msg.v1.service) = true;
-  // UpdateCommission ...
-  rpc UpdateCommission(MsgUpdateCommission) returns (MsgUpdateCommissionResponse);
   // JoinPool ...
   rpc JoinPool(MsgJoinPool) returns (MsgJoinPoolResponse);
   // LeavePool ...
   rpc LeavePool(MsgLeavePool) returns (MsgLeavePoolResponse);
+
+  // UpdateCommission ...
+  rpc UpdateCommission(MsgUpdateCommission) returns (MsgUpdateCommissionResponse);
+  // UpdateStakeFraction ...
+  rpc UpdateStakeFraction(MsgUpdateStakeFraction) returns (MsgUpdateStakeFractionResponse);
 
   // UpdateParams defines a governance operation for updating the x/stakers module
   // parameters. The authority is hard-coded to the x/gov module account.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
-// MsgUpdateCommission ...
+// MsgUpdateCommission ... // TODO: create v1 types and rename new to MsgUpdatePoolCommission
 message MsgUpdateCommission {
   option (cosmos.msg.v1.signer) = "creator";
   // creator ...
   string creator = 1;
+  // pool_id ...
+  uint64 pool_id = 2;
   // commission ...
-  string commission = 2 [
+  string commission = 3 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
@@ -38,7 +43,24 @@ message MsgUpdateCommission {
 // MsgUpdateCommissionResponse ...
 message MsgUpdateCommissionResponse {}
 
-// MsgJoinPool ...
+// MsgUpdateStakeFraction ...
+message MsgUpdateStakeFraction {
+  option (cosmos.msg.v1.signer) = "creator";
+  // creator ...
+  string creator = 1;
+  // pool_id ...
+  uint64 pool_id = 2;
+  // commission ...
+  string stake_fraction = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// MsgUpdateStakeFractionResponse ...
+message MsgUpdateStakeFractionResponse {}
+
+// MsgJoinPool ... // TODO: create v1 types
 message MsgJoinPool {
   option (cosmos.msg.v1.signer) = "creator";
   // creator ...
@@ -49,9 +71,16 @@ message MsgJoinPool {
   string valaddress = 3;
   // amount ...
   uint64 amount = 4;
-
-  // TODO add stake fraction (in next PR)
-  // TODO add commission (in next PR)
+  // commission ...
+  string commission = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // stake_fraction ...
+  string stake_fraction = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // MsgJoinPoolResponse ...

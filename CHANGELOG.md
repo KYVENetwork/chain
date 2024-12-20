@@ -19,6 +19,8 @@ An '!' indicates a state machine breaking change.
 ### Features
 
 - ! (`x/stakers`) [#209](https://github.com/KYVENetwork/chain/pull/209) Shared Staking: Consensus-validator stake is now used for the protocol.
+- ! (`x/stakers`) [#210](https://github.com/KYVENetwork/chain/pull/210) Shared Staking: Pool specific commission and stake fraction.
+- ! (`x/stakers`) [#211](https://github.com/KYVENetwork/chain/pull/211) Shared Staking: Maximum voting power per pool.
 
 ### Bug Fixes
 

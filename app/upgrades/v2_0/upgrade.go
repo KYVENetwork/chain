@@ -40,6 +40,8 @@ func CreateUpgradeHandler(
 		// Run KYVE migrations
 		migrateProtocolStakers(sdkCtx, delegationKeeper, stakersKeeper, stakingKeeper)
 
+		// TODO: migrate slash params, commission change queues
+
 		return migratedVersionMap, err
 	}
 }

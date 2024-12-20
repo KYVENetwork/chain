@@ -3,6 +3,8 @@ package keeper
 import (
 	"encoding/binary"
 
+	"cosmossdk.io/math"
+
 	storeTypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -47,7 +49,10 @@ func (k Keeper) GetAllValaccountsOfPool(ctx sdk.Context, poolId uint64) (val []*
 	for ; iterator.Valid(); iterator.Next() {
 		valaccount := types.Valaccount{}
 		k.cdc.MustUnmarshal(iterator.Value(), &valaccount)
-		val = append(val, &valaccount)
+
+		if valaccount.Valaddress != "" {
+			val = append(val, &valaccount)
+		}
 	}
 
 	return
@@ -63,9 +68,9 @@ func (k Keeper) GetValaccountsFromStaker(ctx sdk.Context, stakerAddress string) 
 
 	for ; iterator.Valid(); iterator.Next() {
 		poolId := binary.BigEndian.Uint64(iterator.Key()[len(stakerAddress) : len(stakerAddress)+8])
-		valaccount, valaccountFound := k.GetValaccount(ctx, poolId, stakerAddress)
+		valaccount, active := k.GetValaccount(ctx, poolId, stakerAddress)
 
-		if valaccountFound {
+		if active {
 			val = append(val, &valaccount)
 		}
 	}
@@ -91,14 +96,6 @@ func (k Keeper) GetPoolCount(ctx sdk.Context, stakerAddress string) (poolCount u
 // #  Raw KV-Store operations  #
 // #############################
 
-// DoesValaccountExist only checks if the key is present in the KV-Store
-// without loading and unmarshalling to full entry
-func (k Keeper) DoesValaccountExist(ctx sdk.Context, poolId uint64, stakerAddress string) bool {
-	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.ValaccountPrefix)
-	return store.Has(types.ValaccountKey(poolId, stakerAddress))
-}
-
 // SetValaccount set a specific Valaccount in the store from its index
 func (k Keeper) SetValaccount(ctx sdk.Context, valaccount types.Valaccount) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
@@ -116,24 +113,8 @@ func (k Keeper) SetValaccount(ctx sdk.Context, valaccount types.Valaccount) {
 	), []byte{})
 }
 
-// removeValaccount removes a Valaccount from the store
-func (k Keeper) removeValaccount(ctx sdk.Context, valaccount types.Valaccount) {
-	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.ValaccountPrefix)
-	store.Delete(types.ValaccountKey(
-		valaccount.PoolId,
-		valaccount.Staker,
-	))
-
-	storeIndex2 := prefix.NewStore(storeAdapter, types.ValaccountPrefixIndex2)
-	storeIndex2.Delete(types.ValaccountKeyIndex2(
-		valaccount.Staker,
-		valaccount.PoolId,
-	))
-}
-
 // GetValaccount returns a Valaccount from its index
-func (k Keeper) GetValaccount(ctx sdk.Context, poolId uint64, stakerAddress string) (val types.Valaccount, found bool) {
+func (k Keeper) GetValaccount(ctx sdk.Context, poolId uint64, stakerAddress string) (val types.Valaccount, active bool) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	store := prefix.NewStore(storeAdapter, types.ValaccountPrefix)
 
@@ -142,14 +123,16 @@ func (k Keeper) GetValaccount(ctx sdk.Context, poolId uint64, stakerAddress stri
 		stakerAddress,
 	))
 	if b == nil {
+		val.Commission = math.LegacyZeroDec()
+		val.StakeFraction = math.LegacyZeroDec()
 		return val, false
 	}
 
 	k.cdc.MustUnmarshal(b, &val)
-	return val, true
+	return val, val.Valaddress != ""
 }
 
-// GetAllValaccounts ...
+// GetAllValaccounts returns all active valaccounts
 func (k Keeper) GetAllValaccounts(ctx sdk.Context) (list []types.Valaccount) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	store := prefix.NewStore(storeAdapter, types.ValaccountPrefix)
@@ -160,7 +143,9 @@ func (k Keeper) GetAllValaccounts(ctx sdk.Context) (list []types.Valaccount) {
 	for ; iterator.Valid(); iterator.Next() {
 		var val types.Valaccount
 		k.cdc.MustUnmarshal(iterator.Value(), &val)
-		list = append(list, val)
+		if val.Valaddress != "" {
+			list = append(list, val)
+		}
 	}
 
 	return

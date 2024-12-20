@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -11,9 +12,9 @@ import (
 
 func CmdJoinPool() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "join-pool [pool_id] [valaddress] [amount]",
+		Use:   "join-pool [pool_id] [valaddress] [amount] [commission] [stake_fraction]",
 		Short: "Broadcast message join-pool",
-		Args:  cobra.ExactArgs(3),
+		Args:  cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			argPoolId, err := cast.ToUint64E(args[0])
 			if err != nil {
@@ -27,16 +28,28 @@ func CmdJoinPool() *cobra.Command {
 				return err
 			}
 
+			argCommission, err := math.LegacyNewDecFromStr(args[3])
+			if err != nil {
+				return err
+			}
+
+			argStakeFraction, err := math.LegacyNewDecFromStr(args[4])
+			if err != nil {
+				return err
+			}
+
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
 			msg := types.MsgJoinPool{
-				Creator:    clientCtx.GetFromAddress().String(),
-				PoolId:     argPoolId,
-				Valaddress: argValaddress,
-				Amount:     argAmount,
+				Creator:       clientCtx.GetFromAddress().String(),
+				PoolId:        argPoolId,
+				Valaddress:    argValaddress,
+				Amount:        argAmount,
+				Commission:    argCommission,
+				StakeFraction: argStakeFraction,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {

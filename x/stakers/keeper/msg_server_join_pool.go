@@ -54,7 +54,7 @@ func (k msgServer) JoinPool(goCtx context.Context, msg *types.MsgJoinPool) (*typ
 	}
 
 	// Only join if it is possible
-	if errFreeSlot := k.ensureFreeSlot(ctx, msg.PoolId, msg.Creator); errFreeSlot != nil {
+	if errFreeSlot := k.ensureFreeSlot(ctx, msg.PoolId, msg.Creator, msg.StakeFraction); errFreeSlot != nil {
 		return nil, errFreeSlot
 	}
 
@@ -76,17 +76,19 @@ func (k msgServer) JoinPool(goCtx context.Context, msg *types.MsgJoinPool) (*typ
 		}
 	}
 
-	k.AddValaccountToPool(ctx, msg.PoolId, msg.Creator, msg.Valaddress)
+	k.AddValaccountToPool(ctx, msg.PoolId, msg.Creator, msg.Valaddress, msg.Commission, msg.StakeFraction)
 
 	if err := util.TransferFromAddressToAddress(k.bankKeeper, ctx, msg.Creator, msg.Valaddress, msg.Amount); err != nil {
 		return nil, err
 	}
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventJoinPool{
-		PoolId:     msg.PoolId,
-		Staker:     msg.Creator,
-		Valaddress: msg.Valaddress,
-		Amount:     msg.Amount,
+		PoolId:        msg.PoolId,
+		Staker:        msg.Creator,
+		Valaddress:    msg.Valaddress,
+		Amount:        msg.Amount,
+		Commission:    msg.Commission,
+		StakeFraction: msg.StakeFraction,
 	})
 
 	return &types.MsgJoinPoolResponse{}, nil

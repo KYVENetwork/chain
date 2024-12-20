@@ -1,7 +1,9 @@
 package keeper
 
 import (
-	"math"
+	m "math"
+
+	"cosmossdk.io/math"
 
 	"github.com/KYVENetwork/chain/util"
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -18,12 +20,12 @@ import (
 // If all pool slots are taken, this is the staker who then
 // gets kicked out.
 func (k Keeper) getLowestStaker(ctx sdk.Context, poolId uint64) (val stakingTypes.Validator, found bool) {
-	var minAmount uint64 = math.MaxUint64
+	var minAmount uint64 = m.MaxUint64
 
 	for _, staker := range k.getAllStakersOfPool(ctx, poolId) {
-		delegationAmount := k.GetDelegationAmount(ctx, util.MustAccountAddressFromValAddress(staker.OperatorAddress))
-		if delegationAmount < minAmount {
-			minAmount = delegationAmount
+		stake := k.GetValidatorPoolStake(ctx, util.MustAccountAddressFromValAddress(staker.OperatorAddress), poolId)
+		if stake < minAmount {
+			minAmount = stake
 			val = staker
 		}
 	}
@@ -39,16 +41,17 @@ func (k Keeper) getLowestStaker(ctx sdk.Context, poolId uint64) (val stakingType
 // than the current lowest staker in that pool.
 // If so, the lowest staker gets removed from the pool, so that the
 // new staker can join.
-func (k Keeper) ensureFreeSlot(ctx sdk.Context, poolId uint64, stakerAddress string) error {
+func (k Keeper) ensureFreeSlot(ctx sdk.Context, poolId uint64, stakerAddress string, stakeFraction math.LegacyDec) error {
 	// check if slots are still available
 	if k.GetStakerCountOfPool(ctx, poolId) >= types.MaxStakers {
 		// if not - get lowest staker
 		lowestStaker, _ := k.getLowestStaker(ctx, poolId)
 		lowestStakerAddress := util.MustAccountAddressFromValAddress(lowestStaker.OperatorAddress)
 
-		// if new pool joiner has more stake than lowest staker kick him out
-		newAmount := k.GetDelegationAmount(ctx, stakerAddress)
-		lowestAmount := k.GetDelegationAmount(ctx, lowestStakerAddress)
+		// if new pool joiner would have more stake than lowest staker kick him out
+		newStaker, _ := k.GetValidator(ctx, stakerAddress)
+		newAmount := uint64(math.LegacyNewDecFromInt(newStaker.GetBondedTokens()).Mul(stakeFraction).TruncateInt64())
+		lowestAmount := k.GetValidatorPoolStake(ctx, lowestStakerAddress, poolId)
 		if newAmount > lowestAmount {
 			// remove lowest staker from pool
 			k.LeavePool(ctx, lowestStakerAddress, poolId)

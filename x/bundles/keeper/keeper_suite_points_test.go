@@ -68,25 +68,31 @@ var _ = Describe("points", Ordered, func() {
 		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_0_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_1_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.CreateValidator(i.STAKER_2, "Staker-2", int64(50*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_2,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_2_A,
+			Creator:       i.STAKER_2,
+			PoolId:        0,
+			Valaddress:    i.VALADDRESS_2_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.CommitAfterSeconds(60)
@@ -346,11 +352,11 @@ var _ = Describe("points", Ordered, func() {
 		_, stakerFound := s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_2)
 		Expect(stakerFound).To(BeTrue())
 
-		_, valaccountFound := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
-		Expect(valaccountFound).To(BeFalse())
+		_, valaccountActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
+		Expect(valaccountActive).To(BeFalse())
 
 		// check if voter got slashed
-		slashAmountRatio := s.App().DelegationKeeper.GetTimeoutSlash(s.Ctx())
+		slashAmountRatio := s.App().StakersKeeper.GetTimeoutSlash(s.Ctx())
 		expectedBalance := 50*i.KYVE - uint64(math.LegacyNewDec(int64(50*i.KYVE)).Mul(slashAmountRatio).TruncateInt64())
 
 		Expect(expectedBalance).To(Equal(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_2, i.STAKER_2)))

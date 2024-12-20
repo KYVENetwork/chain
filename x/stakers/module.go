@@ -156,6 +156,7 @@ func (am AppModule) BeginBlock(ctx context.Context) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	am.keeper.ProcessCommissionChangeQueue(sdkCtx)
 	am.keeper.ProcessLeavePoolQueue(sdkCtx)
+	am.keeper.ProcessStakeFractionChangeQueue(sdkCtx)
 	return nil
 }
 

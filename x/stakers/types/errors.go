@@ -22,4 +22,5 @@ var (
 	ErrPoolLeaveAlreadyInProgress = errors.Register(ModuleName, 1117, "Pool leave is already in progress")
 	ErrValaccountUnauthorized     = errors.Register(ModuleName, 1118, "valaccount unauthorized")
 	ErrValidatorJailed            = errors.Register(ModuleName, 1119, "validator jailed")
+	ErrNoValaccount               = errors.Register(ModuleName, 1120, "sender has no valaccount")
 )
