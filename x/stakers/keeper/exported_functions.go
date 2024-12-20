@@ -260,7 +260,7 @@ func (k Keeper) GetValidatorPoolStakes(ctx sdk.Context, poolId uint64, mustInclu
 		if i <= lastCutoffIndex {
 			stakes[validator.Address] = uint64(scaleFactor.MulInt64(int64(stakes[validator.Address])).TruncateInt64())
 		} else {
-			stakes[validator.Address] = uint64(scaleFactor.MulInt64(int64(stakes[validator.Address])).RoundInt64())
+			stakes[validator.Address] = uint64(scaleFactor.MulInt64(int64(stakes[validator.Address])).Ceil().TruncateInt64())
 		}
 	}
 
