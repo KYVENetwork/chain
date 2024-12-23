@@ -33,7 +33,6 @@ func (k Keeper) AddValaccountToPool(ctx sdk.Context, poolId uint64, stakerAddres
 				StakeFraction: stakeFraction,
 			})
 			k.AddOneToCount(ctx, poolId)
-			k.AddActiveStaker(ctx, stakerAddress)
 		}
 	}
 }
@@ -48,7 +47,6 @@ func (k Keeper) RemoveValaccountFromPool(ctx sdk.Context, poolId uint64, stakerA
 		valaccount.IsLeaving = false
 		k.SetValaccount(ctx, valaccount)
 		k.subtractOneFromCount(ctx, poolId)
-		k.removeActiveStaker(ctx, stakerAddress)
 	}
 }
 
@@ -120,81 +118,6 @@ func (k Keeper) setStat(ctx sdk.Context, poolId uint64, statType types.STAKER_ST
 	bz := make([]byte, 8)
 	binary.BigEndian.PutUint64(bz, count)
 	store.Set(util.GetByteKey(string(statType), poolId), bz)
-}
-
-// #############################
-// #      Active Staker        #
-// #############################
-// Active Staker stores all stakers that are at least in one pool
-
-// AddActiveStaker increases the active-staker-count of the given staker by one.
-// The amount tracks the number of pools the staker is in. It also allows
-// to determine that a given staker is at least in one pool.
-func (k Keeper) AddActiveStaker(ctx sdk.Context, staker string) {
-	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.ActiveStakerIndex)
-	// Get current count
-	count := uint64(0)
-	storeBytes := store.Get(types.ActiveStakerKeyIndex(staker))
-	bytes := make([]byte, 8)
-	copy(bytes, storeBytes)
-	if len(bytes) == 8 {
-		count = binary.BigEndian.Uint64(bytes)
-	} else {
-		bytes = make([]byte, 8)
-	}
-	// Count represents in how many pools the current staker is active
-	count += 1
-
-	// Encode and store
-	binary.BigEndian.PutUint64(bytes, count)
-	store.Set(types.ActiveStakerKeyIndex(staker), bytes)
-}
-
-// removeActiveStaker decrements the active-staker-count of the given staker
-// by one. If the amount drop to zero the staker is removed from the set.
-// Therefore, one can be sure, that only stakers which are participating in
-// at least one pool are part of the set
-func (k Keeper) removeActiveStaker(ctx sdk.Context, staker string) {
-	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.ActiveStakerIndex)
-	// Get current count
-	count := uint64(0)
-	storeBytes := store.Get(types.ActiveStakerKeyIndex(staker))
-	bytes := make([]byte, 8)
-	copy(bytes, storeBytes)
-
-	if len(bytes) == 8 {
-		count = binary.BigEndian.Uint64(bytes)
-	} else {
-		bytes = make([]byte, 8)
-	}
-
-	if count == 0 || count == 1 {
-		store.Delete(types.ActiveStakerKeyIndex(staker))
-		return
-	}
-
-	// Count represents in how many pools the current staker is active
-	count -= 1
-
-	// Encode and store
-	binary.BigEndian.PutUint64(bytes, count)
-	store.Set(types.ActiveStakerKeyIndex(staker), bytes)
-}
-
-// getAllActiveStakers returns all active stakers, i.e. every staker
-// that is member of at least one pool.
-func (k Keeper) getAllActiveStakers(ctx sdk.Context) (list []string) {
-	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.ActiveStakerIndex)
-	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		list = append(list, string(iterator.Key()))
-	}
-
-	return
 }
 
 // arrayPaginationAccumulator helps to parse the query.PageRequest for an array

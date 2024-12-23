@@ -133,12 +133,6 @@ func (k Keeper) AssertValaccountAuthorized(ctx sdk.Context, poolId uint64, stake
 	return nil
 }
 
-// GetActiveStakers returns all staker-addresses that are
-// currently participating in at least one pool.
-func (k Keeper) GetActiveStakers(ctx sdk.Context) []string {
-	return k.getAllActiveStakers(ctx)
-}
-
 // GetTotalStakeOfPool returns the amount in uykve which actively secures
 // the given pool
 func (k Keeper) GetTotalStakeOfPool(ctx sdk.Context, poolId uint64) (totalStake uint64) {
@@ -431,12 +425,6 @@ func (k Keeper) Slash(ctx sdk.Context, poolId uint64, staker string, slashType s
 		SlashType:     slashType,
 		StakeFraction: stakeFraction,
 	})
-}
-
-func (k Keeper) DoesStakerExist(ctx sdk.Context, staker string) bool {
-	// ToDo remove after Delegation module got deleted
-	_, found := k.GetValidator(ctx, staker)
-	return found
 }
 
 // PayoutRewards transfers `amount` from the `payerModuleName`-module to the delegation module.

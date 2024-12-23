@@ -26,5 +26,4 @@ type StakersKeeper interface {
 	GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (stakers []string)
 	GetValaccountsFromStaker(ctx sdk.Context, stakerAddress string) (val []*stakerstypes.Valaccount)
 	GetPoolCount(ctx sdk.Context, stakerAddress string) (poolCount uint64)
-	GetActiveStakers(ctx sdk.Context) []string
 }
