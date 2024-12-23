@@ -3,6 +3,10 @@ package keeper
 import (
 	"sort"
 
+	querytypes "github.com/KYVENetwork/chain/x/query/types"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/util"
@@ -43,18 +47,73 @@ func (k Keeper) GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (sta
 	return stakers
 }
 
-func (k Keeper) GetPaginatedStakersByDelegation(ctx sdk.Context, pagination *query.PageRequest, accumulator func(staker string, accumulate bool) bool) (*query.PageResponse, error) {
+func (k Keeper) GetPaginatedStakersByPoolStake(ctx sdk.Context, pagination *query.PageRequest, stakerStatus querytypes.StakerStatus, accumulator func(validator string, accumulate bool) bool) (*query.PageResponse, error) {
 	validators, err := k.stakingKeeper.GetBondedValidatorsByPower(ctx)
 	if err != nil {
 		return nil, err
 	}
 
+	addresses := make([]string, 0)
+
 	for _, validator := range validators {
-		accumulator(util.MustAccountAddressFromValAddress(validator.OperatorAddress), true)
+		address := util.MustAccountAddressFromValAddress(validator.OperatorAddress)
+
+		if stakerStatus == querytypes.STAKER_STATUS_PROTOCOL_ACTIVE && len(k.GetValaccountsFromStaker(ctx, address)) == 0 {
+			continue
+		}
+
+		if stakerStatus == querytypes.STAKER_STATUS_PROTOCOL_INACTIVE && len(k.GetValaccountsFromStaker(ctx, address)) > 0 {
+			continue
+		}
+
+		if stakerStatus == querytypes.STAKER_STATUS_CHAIN_ACTIVE && !validator.IsBonded() {
+			continue
+		}
+
+		if stakerStatus == querytypes.STAKER_STATUS_CHAIN_INACTIVE && validator.IsBonded() {
+			continue
+		}
+
+		addresses = append(addresses, address)
 	}
 
-	res := query.PageResponse{}
-	return &res, nil
+	if stakerStatus == querytypes.STAKER_STATUS_UNSPECIFIED || stakerStatus == querytypes.STAKER_STATUS_PROTOCOL_ACTIVE {
+		// TODO: consider optimization
+		sort.Slice(addresses, func(i, j int) bool {
+			return k.GetValidatorTotalPoolStake(ctx, addresses[i]) > k.GetValidatorTotalPoolStake(ctx, addresses[j])
+		})
+	}
+
+	pageRes, err := arrayPaginationAccumulator(addresses, pagination, accumulator)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return pageRes, nil
+}
+
+func (k Keeper) GetPaginatedStakersByPoolCount(ctx sdk.Context, pagination *query.PageRequest, accumulator func(validator string, accumulate bool) bool) (*query.PageResponse, error) {
+	validators, err := k.stakingKeeper.GetBondedValidatorsByPower(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	addresses := make([]string, 0)
+
+	for _, validator := range validators {
+		addresses = append(addresses, util.MustAccountAddressFromValAddress(validator.OperatorAddress))
+	}
+
+	sort.Slice(addresses, func(i, j int) bool {
+		return len(k.GetValaccountsFromStaker(ctx, addresses[i])) > len(k.GetValaccountsFromStaker(ctx, addresses[j]))
+	})
+
+	pageRes, err := arrayPaginationAccumulator(addresses, pagination, accumulator)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return pageRes, nil
 }
 
 // AssertValaccountAuthorized checks if the given `valaddress` is allowed to vote in pool
@@ -126,6 +185,16 @@ func (k Keeper) GetValidatorPoolCommission(ctx sdk.Context, staker string, poolI
 // GetValidatorPoolStake returns stake a validator has actively and at risk inside the pool
 func (k Keeper) GetValidatorPoolStake(ctx sdk.Context, staker string, poolId uint64) uint64 {
 	return k.GetValidatorPoolStakes(ctx, poolId, staker)[staker]
+}
+
+// GetValidatorTotalPoolStake returns the total stake the validator has combined in every pool
+func (k Keeper) GetValidatorTotalPoolStake(ctx sdk.Context, staker string) (totalStake uint64) {
+	valaccounts := k.GetValaccountsFromStaker(ctx, staker)
+	for _, valaccount := range valaccounts {
+		totalStake += k.GetValidatorPoolStake(ctx, valaccount.Staker, valaccount.PoolId)
+	}
+
+	return
 }
 
 // GetValidatorPoolStakes returns a map for all pool validators with their effective stake. Effective stake
