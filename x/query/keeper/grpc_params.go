@@ -16,7 +16,6 @@ func (k Keeper) Params(goCtx context.Context, req *types.QueryParamsRequest) (*t
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	bp := k.bundleKeeper.GetParams(ctx)
-	dp := k.delegationKeeper.GetParams(ctx)
 	globalParams := k.globalKeeper.GetParams(ctx)
 	govParams, err := k.govKeeper.Params.Get(ctx)
 	if err != nil {
@@ -27,12 +26,11 @@ func (k Keeper) Params(goCtx context.Context, req *types.QueryParamsRequest) (*t
 	fp := k.fundersKeeper.GetParams(ctx)
 
 	return &types.QueryParamsResponse{
-		BundlesParams:    &bp,
-		DelegationParams: &dp,
-		GlobalParams:     &globalParams,
-		GovParams:        &govParams,
-		StakersParams:    &sp,
-		PoolParams:       &pp,
-		FundersParams:    &fp,
+		BundlesParams: &bp,
+		GlobalParams:  &globalParams,
+		GovParams:     &govParams,
+		StakersParams: &sp,
+		PoolParams:    &pp,
+		FundersParams: &fp,
 	}, nil
 }

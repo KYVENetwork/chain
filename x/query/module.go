@@ -10,8 +10,6 @@ import (
 
 	"github.com/KYVENetwork/chain/util"
 	bundlekeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
-	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
-	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
 	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
@@ -86,7 +84,6 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 	_ = types.RegisterQueryAccountHandlerClient(context.Background(), mux, types.NewQueryAccountClient(clientCtx))
 	_ = types.RegisterQueryPoolHandlerClient(context.Background(), mux, types.NewQueryPoolClient(clientCtx))
 	_ = types.RegisterQueryStakersHandlerClient(context.Background(), mux, types.NewQueryStakersClient(clientCtx))
-	_ = types.RegisterQueryDelegationHandlerClient(context.Background(), mux, types.NewQueryDelegationClient(clientCtx))
 	_ = types.RegisterQueryBundlesHandlerClient(context.Background(), mux, types.NewQueryBundlesClient(clientCtx))
 	_ = types.RegisterQueryParamsHandlerClient(context.Background(), mux, types.NewQueryParamsClient(clientCtx))
 	_ = types.RegisterQueryFundersHandlerClient(context.Background(), mux, types.NewQueryFundersClient(clientCtx))
@@ -137,7 +134,6 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryAccountServer(cfg.QueryServer(), am.keeper)
 	types.RegisterQueryPoolServer(cfg.QueryServer(), am.keeper)
 	types.RegisterQueryStakersServer(cfg.QueryServer(), am.keeper)
-	types.RegisterQueryDelegationServer(cfg.QueryServer(), am.keeper)
 	types.RegisterQueryBundlesServer(cfg.QueryServer(), am.keeper)
 	types.RegisterQueryParamsServer(cfg.QueryServer(), am.keeper)
 	types.RegisterQueryFundersServer(cfg.QueryServer(), am.keeper)
@@ -182,8 +178,6 @@ type ModuleInputs struct {
 	Config *modulev1.Module
 	Logger log.Logger
 
-	DelegationStoreService delegationtypes.DelegationKVStoreService
-
 	AccountKeeper      authkeeper.AccountKeeper
 	BankKeeper         bankKeeper.Keeper
 	DistributionKeeper distributionKeeper.Keeper
@@ -191,11 +185,11 @@ type ModuleInputs struct {
 	PoolKeeper         *poolKeeper.Keeper
 	TeamKeeper         teamKeeper.Keeper
 	StakersKeeper      *stakersKeeper.Keeper
-	DelegationKeeper   delegationKeeper.Keeper
 	BundlesKeeper      bundlekeeper.Keeper
 	GovKeeper          *govkeeper.Keeper
 	GlobalKeeper       globalKeeper.Keeper
 	FundersKeeper      fundersKeeper.Keeper
+	StakingKeeper      util.StakingKeeper
 }
 
 type ModuleOutputs struct {
@@ -209,18 +203,17 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 	k := keeper.NewKeeper(
 		in.Cdc,
 		in.Logger,
-		in.DelegationStoreService,
 		in.AccountKeeper,
 		in.BankKeeper,
 		in.DistributionKeeper,
 		in.PoolKeeper,
 		in.StakersKeeper,
-		in.DelegationKeeper,
 		in.BundlesKeeper,
 		in.GlobalKeeper,
 		in.GovKeeper,
 		in.TeamKeeper,
 		in.FundersKeeper,
+		in.StakingKeeper,
 	)
 	m := NewAppModule(
 		in.Cdc,

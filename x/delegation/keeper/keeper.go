@@ -22,9 +22,7 @@ type (
 		authority string
 
 		bankKeeper    util.BankKeeper
-		poolKeeper    types.PoolKeeper
 		upgradeKeeper util.UpgradeKeeper
-		stakersKeeper types.StakersKeeper
 	}
 )
 
@@ -37,9 +35,7 @@ func NewKeeper(
 	authority string,
 
 	bankKeeper util.BankKeeper,
-	poolKeeper types.PoolKeeper,
 	upgradeKeeper util.UpgradeKeeper,
-	stakersKeeper types.StakersKeeper,
 ) Keeper {
 	return Keeper{
 		cdc:          cdc,
@@ -50,9 +46,7 @@ func NewKeeper(
 		authority: authority,
 
 		bankKeeper:    bankKeeper,
-		poolKeeper:    poolKeeper,
 		upgradeKeeper: upgradeKeeper,
-		stakersKeeper: stakersKeeper,
 	}
 }
 

@@ -44,6 +44,9 @@ type StakingKeeper interface {
 	SetHooks(sh stakingtypes.StakingHooks)
 	Delegation(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (stakingtypes.DelegationI, error)
 	ValidatorAddressCodec() address.Codec
+	GetDelegatorBonded(ctx context.Context, delegator sdk.AccAddress) (math.Int, error)
+	GetDelegatorValidators(ctx context.Context, delegatorAddr sdk.AccAddress, maxRetrieve uint32) (stakingtypes.Validators, error)
+	GetDelegatorUnbonding(ctx context.Context, delegator sdk.AccAddress) (math.Int, error)
 }
 
 type UpgradeKeeper interface {

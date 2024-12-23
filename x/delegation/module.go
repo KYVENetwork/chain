@@ -11,8 +11,6 @@ import (
 	"cosmossdk.io/log"
 
 	"github.com/KYVENetwork/chain/util"
-	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
-	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -82,7 +80,6 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, _ client.TxEncodingCo
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	_ = types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
 }
 
 // GetTxCmd returns the root Tx command for the module. The subcommands of this root command are used by end-users to generate new transactions containing messages defined in the module
@@ -121,7 +118,6 @@ func (AppModule) QuerierRoute() string { return types.RouterKey }
 
 // RegisterServices registers a gRPC query service to respond to the module-specific gRPC queries
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 }
 
 // RegisterInvariants registers the invariants of the module. If an invariant deviates from its predicted value, the InvariantRegistry triggers appropriate logic (most often the chain will be halted)
@@ -178,16 +174,13 @@ type ModuleInputs struct {
 
 	BankKeeper    util.BankKeeper
 	UpgradeKeeper util.UpgradeKeeper
-	PoolKeeper    *poolKeeper.Keeper
-	StakersKeeper *stakersKeeper.Keeper
 }
 
 type ModuleOutputs struct {
 	depinject.Out
 
-	DelegationKeeper       keeper.Keeper
-	DelegationStoreService types.DelegationKVStoreService
-	Module                 appmodule.AppModule
+	DelegationKeeper keeper.Keeper
+	Module           appmodule.AppModule
 }
 
 func ProvideModule(in ModuleInputs) ModuleOutputs {
@@ -204,14 +197,12 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		in.Logger,
 		authority.String(),
 		in.BankKeeper,
-		in.PoolKeeper,
 		in.UpgradeKeeper,
-		in.StakersKeeper,
 	)
 	m := NewAppModule(
 		in.Cdc,
 		k,
 	)
 
-	return ModuleOutputs{DelegationKeeper: k, Module: m, DelegationStoreService: in.StoreService}
+	return ModuleOutputs{DelegationKeeper: k, Module: m}
 }

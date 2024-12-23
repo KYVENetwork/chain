@@ -20,19 +20,6 @@
       }
     },
     {
-      "url": "./tmp-swagger-gen/kyve/delegation/v1beta1/query.swagger.json",
-      "operationIds": {
-        "rename": {
-          "Params": "DelegationParams"
-        }
-      },
-      "tags": {
-        "rename": {
-          "Query": "QueryDelegation"
-        }
-      }
-    },
-    {
       "url": "./tmp-swagger-gen/kyve/global/v1beta1/query.swagger.json",
       "operationIds": {
         "rename": {
@@ -50,9 +37,6 @@
     },
     {
       "url": "./tmp-swagger-gen/kyve/query/v1beta1/bundles.swagger.json"
-    },
-    {
-      "url": "./tmp-swagger-gen/kyve/query/v1beta1/delegation.swagger.json"
     },
     {
       "url": "./tmp-swagger-gen/kyve/query/v1beta1/params.swagger.json"
