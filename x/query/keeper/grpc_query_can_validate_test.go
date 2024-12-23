@@ -47,7 +47,7 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_0_A,
+			PoolAddress:   i.VALADDRESS_0_A,
 			Amount:        0,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -58,7 +58,7 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        1,
-			Valaddress:    i.VALADDRESS_1_A,
+			PoolAddress:   i.VALADDRESS_1_A,
 			Amount:        0,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -72,8 +72,8 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 	It("Call can validate if pool does not exist", func() {
 		// ACT
 		canValidate, err := s.App().QueryKeeper.CanValidate(s.Ctx(), &querytypes.QueryCanValidateRequest{
-			PoolId:     2,
-			Valaddress: i.VALADDRESS_0_A,
+			PoolId:      2,
+			PoolAddress: i.VALADDRESS_0_A,
 		})
 
 		// ASSERT
@@ -86,8 +86,8 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 	It("Call can validate if valaddress does not exist", func() {
 		// ACT
 		canValidate, err := s.App().QueryKeeper.CanValidate(s.Ctx(), &querytypes.QueryCanValidateRequest{
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_2_A,
+			PoolId:      0,
+			PoolAddress: i.VALADDRESS_2_A,
 		})
 
 		// ASSERT
@@ -100,8 +100,8 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 	It("Call can validate with a valaddress which belongs to another pool", func() {
 		// ACT
 		canValidate, err := s.App().QueryKeeper.CanValidate(s.Ctx(), &querytypes.QueryCanValidateRequest{
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
+			PoolId:      0,
+			PoolAddress: i.VALADDRESS_1_A,
 		})
 
 		// ASSERT
@@ -114,8 +114,8 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 	It("Call can validate with a valid valaddress", func() {
 		// ACT
 		canValidate, err := s.App().QueryKeeper.CanValidate(s.Ctx(), &querytypes.QueryCanValidateRequest{
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
+			PoolId:      0,
+			PoolAddress: i.VALADDRESS_0_A,
 		})
 
 		// ASSERT

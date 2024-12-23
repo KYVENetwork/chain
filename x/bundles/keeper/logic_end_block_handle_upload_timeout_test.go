@@ -97,7 +97,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_0_A,
+			PoolAddress:   i.VALADDRESS_0_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -105,7 +105,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_1_A,
+			PoolAddress:   i.VALADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -391,7 +391,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(poolStakers).To(HaveLen(2))
 
 		// check if next uploader received a point
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.Points).To(Equal(uint64(1)))
 
 		_, found := s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_0)
@@ -561,11 +561,11 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(poolStakers).To(HaveLen(2))
 
 		// check that staker 0 has no points
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.Points).To(Equal(uint64(0)))
 
 		// check that staker 1 (next uploader) received a point for not uploading
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
 		Expect(valaccount.Points).To(Equal(uint64(1)))
 
 		// check that nobody got slashed
@@ -621,11 +621,11 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(poolStakers).To(ContainElements(i.STAKER_0, i.STAKER_1))
 
 		// check that staker 0 (uploader) has no points
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.Points).To(Equal(uint64(0)))
 
 		// check that staker 1 received a point for not voting
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
 		Expect(valaccount.Points).To(Equal(uint64(1)))
 
 		// check that nobody got slashed
@@ -650,7 +650,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -715,11 +715,11 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(poolStakers).To(ContainElements(i.STAKER_1, i.STAKER_2))
 
 		// check that staker 1 (next uploader) received a point for missing the upload
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
 		Expect(valaccount.Points).To(Equal(uint64(1)))
 
 		// check that staker 2 has a no points
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
+		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
 		Expect(valaccount.Points).To(Equal(uint64(0)))
 
 		// check that staker 0 (uploader) got slashed
@@ -747,7 +747,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -845,11 +845,11 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(poolStakers).To(ContainElements(i.STAKER_0, i.STAKER_1))
 
 		// check that staker 0 (uploader) has no points
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
 		Expect(valaccount.Points).To(Equal(uint64(0)))
 
 		// check that staker 2 has a no points
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
+		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
 		Expect(valaccount.Points).To(Equal(uint64(0)))
 
 		// check that staker 0 (uploader) didn't get slashed
@@ -977,7 +977,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -1005,7 +1005,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		})
 
 		// remove valaccount directly from pool
-		s.App().StakersKeeper.RemoveValaccountFromPool(s.Ctx(), 0, i.STAKER_1)
+		s.App().StakersKeeper.RemovePoolAccountFromPool(s.Ctx(), i.STAKER_1, 0)
 
 		// ACT
 		s.CommitAfterSeconds(60)
@@ -1043,7 +1043,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -1087,7 +1087,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		})
 
 		// remove valaccount directly from pool
-		s.App().StakersKeeper.RemoveValaccountFromPool(s.Ctx(), 0, i.STAKER_1)
+		s.App().StakersKeeper.RemovePoolAccountFromPool(s.Ctx(), i.STAKER_1, 0)
 
 		// ACT
 		s.CommitAfterSeconds(s.App().BundlesKeeper.GetUploadTimeout(s.Ctx()))
@@ -1131,7 +1131,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -1175,7 +1175,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		})
 
 		// remove valaccount directly from pool
-		s.App().StakersKeeper.RemoveValaccountFromPool(s.Ctx(), 0, i.STAKER_0)
+		s.App().StakersKeeper.RemovePoolAccountFromPool(s.Ctx(), i.STAKER_0, 0)
 
 		// ACT
 		s.CommitAfterSeconds(s.App().BundlesKeeper.GetUploadTimeout(s.Ctx()) + 60)
@@ -1239,7 +1239,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        1,
-			Valaddress:    i.VALADDRESS_0_B,
+			PoolAddress:   i.VALADDRESS_0_B,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -1247,7 +1247,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        1,
-			Valaddress:    i.VALADDRESS_1_B,
+			PoolAddress:   i.VALADDRESS_1_B,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -1261,7 +1261,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        1,
-			Valaddress:    i.VALADDRESS_2_B,
+			PoolAddress:   i.VALADDRESS_2_B,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -1357,7 +1357,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(poolStakers).To(HaveLen(2))
 
 		// check if next uploader received a point
-		_, valaccountActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 1, i.STAKER_2)
+		_, valaccountActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 1)
 		Expect(valaccountActive).To(BeFalse())
 
 		_, found = s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_2)

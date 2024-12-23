@@ -70,7 +70,7 @@ var _ = Describe("dropped bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_0_A,
+			PoolAddress:   i.VALADDRESS_0_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -80,7 +80,7 @@ var _ = Describe("dropped bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_1_A,
+			PoolAddress:   i.VALADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -111,7 +111,7 @@ var _ = Describe("dropped bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -171,10 +171,10 @@ var _ = Describe("dropped bundles", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		valaccountUploader, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccountUploader, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccountUploader.Points).To(BeZero())
 
-		balanceValaddress := s.GetBalanceFromAddress(valaccountUploader.Valaddress)
+		balanceValaddress := s.GetBalanceFromAddress(valaccountUploader.PoolAddress)
 		Expect(balanceValaddress).To(Equal(initialBalanceValaddress0))
 
 		balanceUploader := s.GetBalanceFromAddress(valaccountUploader.Staker)
@@ -183,10 +183,10 @@ var _ = Describe("dropped bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
 
 		// check voter status
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
 		Expect(valaccountVoter.Points).To(Equal(uint64(1)))
 
-		balanceVoterValaddress := s.GetBalanceFromAddress(valaccountVoter.Valaddress)
+		balanceVoterValaddress := s.GetBalanceFromAddress(valaccountVoter.PoolAddress)
 		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
 
 		balanceVoter := s.GetBalanceFromAddress(valaccountVoter.Staker)

@@ -99,7 +99,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_0_A,
+			PoolAddress:   i.VALADDRESS_0_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -109,7 +109,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_1_A,
+			PoolAddress:   i.VALADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -135,7 +135,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -216,7 +216,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		_, uploaderActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		_, uploaderActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(uploaderActive).To(BeFalse())
 
 		balanceValaddress := s.GetBalanceFromAddress(i.VALADDRESS_0_A)
@@ -238,10 +238,10 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 
 		// check voter status
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
 		Expect(valaccountVoter.Points).To(BeZero())
 
-		balanceVoterValaddress := s.GetBalanceFromAddress(valaccountVoter.Valaddress)
+		balanceVoterValaddress := s.GetBalanceFromAddress(valaccountVoter.PoolAddress)
 		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
 
 		balanceVoter := s.GetBalanceFromAddress(valaccountVoter.Staker)
@@ -250,10 +250,10 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
 
 		// check voter 2 status
-		valaccountVoter, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
+		valaccountVoter, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
 		Expect(valaccountVoter.Points).To(BeZero())
 
-		balanceVoterValaddress = s.GetBalanceFromAddress(valaccountVoter.Valaddress)
+		balanceVoterValaddress = s.GetBalanceFromAddress(valaccountVoter.PoolAddress)
 		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
 
 		balanceVoter = s.GetBalanceFromAddress(valaccountVoter.Staker)
@@ -276,7 +276,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_0_A,
+			PoolAddress:   i.VALADDRESS_0_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -286,7 +286,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_1_A,
+			PoolAddress:   i.VALADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -308,7 +308,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -411,7 +411,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		_, uploaderActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		_, uploaderActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(uploaderActive).To(BeFalse())
 
 		balanceValaddress := s.GetBalanceFromAddress(i.VALADDRESS_0_A)
@@ -437,10 +437,10 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(400 * i.KYVE))
 
 		// check voter status
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
 		Expect(valaccountVoter.Points).To(BeZero())
 
-		balanceVoterValaddress := s.GetBalanceFromAddress(valaccountVoter.Valaddress)
+		balanceVoterValaddress := s.GetBalanceFromAddress(valaccountVoter.PoolAddress)
 		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
 
 		balanceVoter := s.GetBalanceFromAddress(valaccountVoter.Staker)
@@ -449,10 +449,10 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeEmpty())
 
 		// check voter 2 status
-		valaccountVoter, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		valaccountVoter, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
 		Expect(valaccountVoter.Points).To(BeZero())
 
-		balanceVoterValaddress = s.GetBalanceFromAddress(valaccountVoter.Valaddress)
+		balanceVoterValaddress = s.GetBalanceFromAddress(valaccountVoter.PoolAddress)
 		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
 
 		balanceVoter = s.GetBalanceFromAddress(valaccountVoter.Staker)
@@ -475,7 +475,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_0_A,
+			PoolAddress:   i.VALADDRESS_0_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -485,7 +485,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_1_A,
+			PoolAddress:   i.VALADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -507,7 +507,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -523,7 +523,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_3,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_3_A,
+			PoolAddress:   i.VALADDRESS_3_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -635,7 +635,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		_, uploaderActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		_, uploaderActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(uploaderActive).To(BeFalse())
 
 		balanceValaddress := s.GetBalanceFromAddress(i.VALADDRESS_0_A)
@@ -669,7 +669,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(450 * i.KYVE))
 
 		// check voter status
-		_, voterActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		_, voterActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
 		Expect(voterActive).To(BeFalse())
 
 		balanceVoterValaddress := s.GetBalanceFromAddress(i.VALADDRESS_1_A)
@@ -681,10 +681,10 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.BOB)).To(BeEmpty())
 
 		// check voter2 status
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
+		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
 		Expect(valaccountVoter.Points).To(BeZero())
 
-		balanceVoterValaddress = s.GetBalanceFromAddress(valaccountVoter.Valaddress)
+		balanceVoterValaddress = s.GetBalanceFromAddress(valaccountVoter.PoolAddress)
 		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
 
 		balanceVoter = s.GetBalanceFromAddress(valaccountVoter.Staker)
@@ -693,10 +693,10 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_2, i.CHARLIE)).To(BeEmpty())
 
 		// check voter3 status
-		valaccountVoter, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_3)
+		valaccountVoter, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_3, 0)
 		Expect(valaccountVoter.Points).To(BeZero())
 
-		balanceVoterValaddress = s.GetBalanceFromAddress(valaccountVoter.Valaddress)
+		balanceVoterValaddress = s.GetBalanceFromAddress(valaccountVoter.PoolAddress)
 		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
 
 		balanceVoter = s.GetBalanceFromAddress(valaccountVoter.Staker)
@@ -719,7 +719,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_0_A,
+			PoolAddress:   i.VALADDRESS_0_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("0.5"),
 		})
@@ -729,7 +729,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_1_A,
+			PoolAddress:   i.VALADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -755,7 +755,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -836,7 +836,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		_, uploaderActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		_, uploaderActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(uploaderActive).To(BeFalse())
 
 		balanceValaddress := s.GetBalanceFromAddress(i.VALADDRESS_0_A)
@@ -858,10 +858,10 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 
 		// check voter status
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
 		Expect(valaccountVoter.Points).To(BeZero())
 
-		balanceVoterValaddress := s.GetBalanceFromAddress(valaccountVoter.Valaddress)
+		balanceVoterValaddress := s.GetBalanceFromAddress(valaccountVoter.PoolAddress)
 		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
 
 		balanceVoter := s.GetBalanceFromAddress(valaccountVoter.Staker)
@@ -870,10 +870,10 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
 
 		// check voter 2 status
-		valaccountVoter, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
+		valaccountVoter, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
 		Expect(valaccountVoter.Points).To(BeZero())
 
-		balanceVoterValaddress = s.GetBalanceFromAddress(valaccountVoter.Valaddress)
+		balanceVoterValaddress = s.GetBalanceFromAddress(valaccountVoter.PoolAddress)
 		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
 
 		balanceVoter = s.GetBalanceFromAddress(valaccountVoter.Staker)
@@ -902,7 +902,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_0_A,
+			PoolAddress:   i.VALADDRESS_0_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("0.5"),
 		})
@@ -912,7 +912,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_1_A,
+			PoolAddress:   i.VALADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -938,7 +938,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -1019,7 +1019,7 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		_, uploaderActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		_, uploaderActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(uploaderActive).To(BeFalse())
 
 		balanceValaddress := s.GetBalanceFromAddress(i.VALADDRESS_0_A)
@@ -1043,10 +1043,10 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
 
 		// check voter status
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
 		Expect(valaccountVoter.Points).To(BeZero())
 
-		balanceVoterValaddress := s.GetBalanceFromAddress(valaccountVoter.Valaddress)
+		balanceVoterValaddress := s.GetBalanceFromAddress(valaccountVoter.PoolAddress)
 		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
 
 		balanceVoter := s.GetBalanceFromAddress(valaccountVoter.Staker)
@@ -1055,10 +1055,10 @@ var _ = Describe("invalid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_1, i.STAKER_1)).To(BeEmpty())
 
 		// check voter 2 status
-		valaccountVoter, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
+		valaccountVoter, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
 		Expect(valaccountVoter.Points).To(BeZero())
 
-		balanceVoterValaddress = s.GetBalanceFromAddress(valaccountVoter.Valaddress)
+		balanceVoterValaddress = s.GetBalanceFromAddress(valaccountVoter.PoolAddress)
 		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
 
 		balanceVoter = s.GetBalanceFromAddress(valaccountVoter.Staker)

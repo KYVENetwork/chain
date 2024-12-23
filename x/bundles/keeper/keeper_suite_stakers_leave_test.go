@@ -77,7 +77,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_0_A,
+			PoolAddress:   i.VALADDRESS_0_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -87,7 +87,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_1_A,
+			PoolAddress:   i.VALADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -113,7 +113,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -122,7 +122,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		// leave pool
-		s.App().StakersKeeper.RemoveValaccountFromPool(s.Ctx(), 0, i.STAKER_0)
+		s.App().StakersKeeper.RemovePoolAccountFromPool(s.Ctx(), i.STAKER_0, 0)
 
 		s.CommitAfterSeconds(s.App().BundlesKeeper.GetUploadTimeout(s.Ctx()))
 		s.CommitAfterSeconds(1)
@@ -137,7 +137,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		Expect(poolStakers).To(HaveLen(2))
 		Expect(poolStakers[0]).To(Equal(i.STAKER_1))
 
-		_, valaccountActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		_, valaccountActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccountActive).To(BeFalse())
 
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
@@ -153,7 +153,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -191,7 +191,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		})
 
 		// leave pool
-		s.App().StakersKeeper.RemoveValaccountFromPool(s.Ctx(), 0, i.STAKER_0)
+		s.App().StakersKeeper.RemovePoolAccountFromPool(s.Ctx(), i.STAKER_0, 0)
 
 		// overwrite next uploader for test purposes
 		bundleProposal, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
@@ -225,7 +225,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		Expect(poolStakers).To(HaveLen(2))
 		Expect(poolStakers[0]).To(Equal(i.STAKER_1))
 
-		_, valaccountActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		_, valaccountActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccountActive).To(BeFalse())
 
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200 * i.KYVE))
@@ -264,7 +264,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -302,7 +302,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		})
 
 		// leave pool
-		s.App().StakersKeeper.RemoveValaccountFromPool(s.Ctx(), 0, i.STAKER_0)
+		s.App().StakersKeeper.RemovePoolAccountFromPool(s.Ctx(), i.STAKER_0, 0)
 
 		// overwrite next uploader for test purposes
 		bundleProposal, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
@@ -336,7 +336,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		Expect(poolStakers).To(HaveLen(2))
 		Expect(poolStakers[0]).To(Equal(i.STAKER_1))
 
-		_, valaccountActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		_, valaccountActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccountActive).To(BeFalse())
 
 		// check if next uploader got slashed
@@ -362,7 +362,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -402,7 +402,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		})
 
 		// leave pool
-		s.App().StakersKeeper.RemoveValaccountFromPool(s.Ctx(), 0, i.STAKER_1)
+		s.App().StakersKeeper.RemovePoolAccountFromPool(s.Ctx(), i.STAKER_1, 0)
 
 		// overwrite next uploader for test purposes
 		bundleProposal, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
@@ -436,7 +436,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		Expect(poolStakers).To(HaveLen(2))
 		Expect(poolStakers[0]).To(Equal(i.STAKER_0))
 
-		_, valaccountActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		_, valaccountActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
 		Expect(valaccountActive).To(BeFalse())
 
 		// check if voter got slashed
@@ -462,7 +462,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -494,7 +494,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		initialBalanceStaker1 = s.GetBalanceFromAddress(i.STAKER_1)
 
 		// leave pool
-		s.App().StakersKeeper.RemoveValaccountFromPool(s.Ctx(), 0, i.STAKER_1)
+		s.App().StakersKeeper.RemovePoolAccountFromPool(s.Ctx(), i.STAKER_1, 0)
 
 		// do not vote
 
@@ -530,7 +530,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		Expect(poolStakers).To(HaveLen(2))
 		Expect(poolStakers[0]).To(Equal(i.STAKER_0))
 
-		_, valaccountActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		_, valaccountActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
 		Expect(valaccountActive).To(BeFalse())
 
 		// check if voter status
@@ -554,7 +554,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -599,7 +599,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		initialBalanceStaker1 = s.GetBalanceFromAddress(i.STAKER_1)
 
 		// leave pool
-		s.App().StakersKeeper.RemoveValaccountFromPool(s.Ctx(), 0, i.STAKER_1)
+		s.App().StakersKeeper.RemovePoolAccountFromPool(s.Ctx(), i.STAKER_1, 0)
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -626,7 +626,7 @@ var _ = Describe("stakers leave", Ordered, func() {
 		Expect(poolStakers).To(HaveLen(2))
 		Expect(poolStakers[0]).To(Equal(i.STAKER_0))
 
-		_, valaccountActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		_, valaccountActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
 		Expect(valaccountActive).To(BeFalse())
 
 		// check if voter not got slashed

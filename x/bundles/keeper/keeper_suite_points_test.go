@@ -70,7 +70,7 @@ var _ = Describe("points", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_0_A,
+			PoolAddress:   i.VALADDRESS_0_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -80,7 +80,7 @@ var _ = Describe("points", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_1_A,
+			PoolAddress:   i.VALADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -90,7 +90,7 @@ var _ = Describe("points", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -150,7 +150,7 @@ var _ = Describe("points", Ordered, func() {
 		})
 
 		// ASSERT
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
+		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
 		Expect(valaccountVoter.Points).To(Equal(uint64(1)))
 	})
 
@@ -198,7 +198,7 @@ var _ = Describe("points", Ordered, func() {
 		})
 
 		// ASSERT
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
+		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
 		Expect(valaccountVoter.Points).To(BeZero())
 	})
 
@@ -238,7 +238,7 @@ var _ = Describe("points", Ordered, func() {
 		}
 
 		// ASSERT
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
+		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
 		Expect(valaccountVoter.Points).To(Equal(uint64(3)))
 	})
 
@@ -303,7 +303,7 @@ var _ = Describe("points", Ordered, func() {
 		})
 
 		// ASSERT
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
+		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
 		Expect(valaccountVoter.Points).To(BeZero())
 	})
 
@@ -352,7 +352,7 @@ var _ = Describe("points", Ordered, func() {
 		_, stakerFound := s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_2)
 		Expect(stakerFound).To(BeTrue())
 
-		_, valaccountActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
+		_, valaccountActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
 		Expect(valaccountActive).To(BeFalse())
 
 		// check if voter got slashed
@@ -418,7 +418,7 @@ var _ = Describe("points", Ordered, func() {
 		})
 
 		// ASSERT
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
+		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
 		// points are instantly 1 because node did not vote on this bundle, too
 		Expect(valaccountVoter.Points).To(Equal(uint64(1)))
 	})
@@ -472,7 +472,7 @@ var _ = Describe("points", Ordered, func() {
 		})
 
 		// ASSERT
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
+		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
 		Expect(valaccountVoter.Points).To(BeZero())
 	})
 
@@ -534,7 +534,7 @@ var _ = Describe("points", Ordered, func() {
 		})
 
 		// ASSERT
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
+		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
 		// points are instantly 1 because node did not vote on this bundle, too
 		Expect(valaccountVoter.Points).To(Equal(uint64(1)))
 	})

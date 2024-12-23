@@ -50,7 +50,7 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_0_A,
+			PoolAddress:   i.VALADDRESS_0_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -63,7 +63,7 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 
 	It("Get the default commission from a newly joined pool", func() {
 		// ASSERT
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 	})
 
@@ -77,14 +77,14 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 
 		// wait for update
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetCommissionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 	})
 
@@ -98,14 +98,14 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 
 		// wait for update
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetCommissionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.Commission).To(Equal(math.LegacyZeroDec()))
 	})
 
@@ -119,14 +119,14 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 
 		// wait for update
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetCommissionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.Commission).To(Equal(math.LegacyOneDec()))
 	})
 
@@ -140,7 +140,7 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 	})
 
@@ -154,7 +154,7 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 	})
 
@@ -182,14 +182,14 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 
 		// wait for update
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetCommissionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.3")))
 	})
 
@@ -215,14 +215,14 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 
 		// wait for update
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetCommissionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 	})
 
@@ -240,7 +240,7 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        1,
-			Valaddress:    i.VALADDRESS_0_B,
+			PoolAddress:   i.VALADDRESS_0_B,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -262,20 +262,20 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount0, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount0, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount0.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 
-		valaccount1, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 1, i.STAKER_0)
+		valaccount1, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 1)
 		Expect(valaccount1.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 
 		// wait for update
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetCommissionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		valaccount0, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount0, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount0.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 
-		valaccount1, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 1, i.STAKER_0)
+		valaccount1, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 1)
 		Expect(valaccount1.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 	})
 })

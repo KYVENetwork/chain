@@ -123,7 +123,7 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 		Expect(poolByIdQuery.Pool.TotalDelegation).To(Equal(totalDelegationState))
 
 		// test stakers by pool
-		valaccounts := suite.App().StakersKeeper.GetAllValaccountsOfPool(suite.Ctx(), poolsState[i].Id)
+		valaccounts := suite.App().StakersKeeper.GetAllPoolAccountsOfPool(suite.Ctx(), poolsState[i].Id)
 		stakersByPoolState := make([]querytypes.FullStaker, 0)
 
 		for _, valaccount := range valaccounts {
@@ -474,10 +474,10 @@ func (suite *KeeperTestSuite) verifyFullStaker(fullStaker querytypes.FullStaker,
 
 	for _, poolMembership := range fullStaker.Pools {
 		poolIds[poolMembership.Pool.Id] = true
-		valaccount, active := suite.App().StakersKeeper.GetValaccount(suite.Ctx(), poolMembership.Pool.Id, stakerAddress)
+		valaccount, active := suite.App().StakersKeeper.GetPoolAccount(suite.Ctx(), stakerAddress, poolMembership.Pool.Id)
 		Expect(active).To(BeTrue())
 
-		Expect(poolMembership.Valaddress).To(Equal(valaccount.Valaddress))
+		Expect(poolMembership.PoolAddress).To(Equal(valaccount.PoolAddress))
 		Expect(poolMembership.IsLeaving).To(Equal(valaccount.IsLeaving))
 		Expect(poolMembership.Points).To(Equal(valaccount.Points))
 
@@ -496,7 +496,7 @@ func (suite *KeeperTestSuite) verifyFullStaker(fullStaker querytypes.FullStaker,
 	}
 
 	// Reverse check the pool memberships
-	for _, valaccount := range suite.App().StakersKeeper.GetValaccountsFromStaker(suite.Ctx(), stakerAddress) {
+	for _, valaccount := range suite.App().StakersKeeper.GetPoolAccountsFromStaker(suite.Ctx(), stakerAddress) {
 		Expect(poolIds[valaccount.PoolId]).To(BeTrue())
 	}
 }

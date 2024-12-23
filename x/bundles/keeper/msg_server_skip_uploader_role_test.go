@@ -67,7 +67,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_0_A,
+			PoolAddress:   i.VALADDRESS_0_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -77,7 +77,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_1_A,
+			PoolAddress:   i.VALADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -93,7 +93,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.VALADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -176,7 +176,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		Expect(found).To(BeFalse())
 
 		// check that no validator got a point for the second round
-		valaccounts := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
+		valaccounts := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
 		for _, valaccount := range valaccounts {
 			Expect(valaccount.Points).To(BeZero())
 		}
@@ -248,7 +248,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		Expect(found).To(BeFalse())
 
 		// check that no validator got a point for the second round
-		valaccounts := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
+		valaccounts := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
 		for _, valaccount := range valaccounts {
 			Expect(valaccount.Points).To(BeZero())
 		}
@@ -297,7 +297,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		Expect(found).To(BeFalse())
 
 		// check that no validator got a point for the second round
-		valaccounts := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
+		valaccounts := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
 		for _, valaccount := range valaccounts {
 			if valaccount.Staker == i.STAKER_0 {
 				Expect(valaccount.Points).To(BeZero())
@@ -364,7 +364,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		Expect(finalizedBundle.Uploader).To(Equal(i.STAKER_0))
 
 		// check if no validator got a point for the second round
-		valaccounts := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
+		valaccounts := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
 		for _, valaccount := range valaccounts {
 			Expect(valaccount.Points).To(BeZero())
 		}
@@ -423,7 +423,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		Expect(found).To(BeFalse())
 
 		// check that no validator got a point
-		valaccounts := s.App().StakersKeeper.GetAllValaccountsOfPool(s.Ctx(), 0)
+		valaccounts := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
 		for _, valaccount := range valaccounts {
 			Expect(valaccount.Points).To(BeZero())
 		}

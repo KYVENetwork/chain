@@ -57,7 +57,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_0_A,
+			PoolAddress:   i.VALADDRESS_0_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("0.1"),
@@ -70,7 +70,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 
 	It("Get the default stake fraction from a newly joined pool", func() {
 		// ASSERT
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(10 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(10 * i.KYVE))
@@ -86,7 +86,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(50 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(50 * i.KYVE))
@@ -102,7 +102,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(10 * i.KYVE))
 
@@ -110,7 +110,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetStakeFractionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(BeZero())
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(BeZero())
@@ -126,7 +126,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(10 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(10 * i.KYVE))
@@ -135,7 +135,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetStakeFractionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.01")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(1 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(1 * i.KYVE))
@@ -151,7 +151,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(100 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(100 * i.KYVE))
@@ -167,7 +167,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(10 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(10 * i.KYVE))
@@ -183,7 +183,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(10 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(10 * i.KYVE))
@@ -199,7 +199,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(10 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(10 * i.KYVE))
@@ -222,7 +222,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.2")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(20 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(20 * i.KYVE))
@@ -231,7 +231,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetCommissionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.2")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(20 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(20 * i.KYVE))
@@ -254,7 +254,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(10 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(10 * i.KYVE))
@@ -263,7 +263,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetCommissionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.01")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(1 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(1 * i.KYVE))
@@ -277,7 +277,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 			StakeFraction: math.LegacyMustNewDecFromStr("0.5"),
 		})
 
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(50 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(50 * i.KYVE))
@@ -292,7 +292,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		})
 
 		// ASSERT
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(50 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(50 * i.KYVE))
@@ -301,7 +301,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetCommissionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.02")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(2 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(2 * i.KYVE))
@@ -321,7 +321,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        1,
-			Valaddress:    i.VALADDRESS_0_B,
+			PoolAddress:   i.VALADDRESS_0_B,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("0.1"),
@@ -343,12 +343,12 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount0, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount0, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount0.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(50 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(50 * i.KYVE))
 
-		valaccount1, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 1, i.STAKER_0)
+		valaccount1, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 1)
 		Expect(valaccount1.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 1)).To(Equal(10 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 1)).To(Equal(10 * i.KYVE))
@@ -357,12 +357,12 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetCommissionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		valaccount0, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount0, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount0.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(50 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(50 * i.KYVE))
 
-		valaccount1, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 1, i.STAKER_0)
+		valaccount1, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 1)
 		Expect(valaccount1.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.03")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 1)).To(Equal(3 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 1)).To(Equal(3 * i.KYVE))
@@ -370,7 +370,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 
 	It("Validator stake increases while stake fraction stays the same", func() {
 		// ARRANGE
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(10 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(10 * i.KYVE))
@@ -379,7 +379,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.SelfDelegateValidator(i.STAKER_0, 50*i.KYVE)
 
 		// ASSERT
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(15 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(15 * i.KYVE))
@@ -387,7 +387,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 
 	It("Validator stake decreases while stake fraction stays the same", func() {
 		// ARRANGE
-		valaccount, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(10 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(10 * i.KYVE))
@@ -401,7 +401,7 @@ var _ = Describe("msg_server_update_stake_fraction.go", Ordered, func() {
 		s.CommitAfterSeconds(1)
 
 		// ASSERT
-		valaccount, _ = s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
+		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(5 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(5 * i.KYVE))
