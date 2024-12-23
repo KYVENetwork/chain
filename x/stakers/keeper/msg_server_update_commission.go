@@ -18,7 +18,7 @@ func (k msgServer) UpdateCommission(goCtx context.Context, msg *types.MsgUpdateC
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Check if creator is active in the pool
-	if _, active := k.GetValaccount(ctx, msg.PoolId, msg.Creator); !active {
+	if _, active := k.GetPoolAccount(ctx, msg.Creator, msg.PoolId); !active {
 		return nil, errors.Wrap(errorsTypes.ErrUnauthorized, types.ErrNoStaker.Error())
 	}
 

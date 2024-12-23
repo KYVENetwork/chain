@@ -27,21 +27,22 @@ import (
 // LeavePool removes a staker from a pool and emits the corresponding event.
 // The staker is no longer able to participate in the given pool.
 // All points the staker had in that pool are deleted.
-func (k Keeper) LeavePool(ctx sdk.Context, staker string, poolId uint64) {
-	k.RemoveValaccountFromPool(ctx, poolId, staker)
+func (k Keeper) LeavePool(ctx sdk.Context, stakerAddress string, poolId uint64) {
+	k.RemovePoolAccountFromPool(ctx, stakerAddress, poolId)
 
 	_ = ctx.EventManager().EmitTypedEvent(&stakertypes.EventLeavePool{
 		PoolId: poolId,
-		Staker: staker,
+		Staker: stakerAddress,
 	})
 }
 
 // GetAllStakerAddressesOfPool returns a list of all stakers
-// which have currently a valaccount registered for the given pool
+// which have currently a pool account registered for the given pool
 // and are therefore allowed to participate in that pool.
 func (k Keeper) GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (stakers []string) {
-	for _, valaccount := range k.GetAllValaccountsOfPool(ctx, poolId) {
-		stakers = append(stakers, valaccount.Staker)
+	poolAccounts := k.GetAllPoolAccountsOfPool(ctx, poolId)
+	for _, poolAccount := range poolAccounts {
+		stakers = append(stakers, poolAccount.Staker)
 	}
 
 	return stakers
@@ -58,11 +59,11 @@ func (k Keeper) GetPaginatedStakersByPoolStake(ctx sdk.Context, pagination *quer
 	for _, validator := range validators {
 		address := util.MustAccountAddressFromValAddress(validator.OperatorAddress)
 
-		if stakerStatus == querytypes.STAKER_STATUS_PROTOCOL_ACTIVE && len(k.GetValaccountsFromStaker(ctx, address)) == 0 {
+		if stakerStatus == querytypes.STAKER_STATUS_PROTOCOL_ACTIVE && len(k.GetPoolAccountsFromStaker(ctx, address)) == 0 {
 			continue
 		}
 
-		if stakerStatus == querytypes.STAKER_STATUS_PROTOCOL_INACTIVE && len(k.GetValaccountsFromStaker(ctx, address)) > 0 {
+		if stakerStatus == querytypes.STAKER_STATUS_PROTOCOL_INACTIVE && len(k.GetPoolAccountsFromStaker(ctx, address)) > 0 {
 			continue
 		}
 
@@ -105,7 +106,7 @@ func (k Keeper) GetPaginatedStakersByPoolCount(ctx sdk.Context, pagination *quer
 	}
 
 	sort.Slice(addresses, func(i, j int) bool {
-		return len(k.GetValaccountsFromStaker(ctx, addresses[i])) > len(k.GetValaccountsFromStaker(ctx, addresses[j]))
+		return len(k.GetPoolAccountsFromStaker(ctx, addresses[i])) > len(k.GetPoolAccountsFromStaker(ctx, addresses[j]))
 	})
 
 	pageRes, err := arrayPaginationAccumulator(addresses, pagination, accumulator)
@@ -116,18 +117,18 @@ func (k Keeper) GetPaginatedStakersByPoolCount(ctx sdk.Context, pagination *quer
 	return pageRes, nil
 }
 
-// AssertValaccountAuthorized checks if the given `valaddress` is allowed to vote in pool
+// AssertPoolAccountAuthorized checks if the given `pool address` is allowed to vote in pool
 // with id `poolId` to vote in favor of `stakerAddress`.
-// If the valaddress is not authorized the appropriate error is returned.
+// If the pool address is not authorized the appropriate error is returned.
 // Otherwise, it returns `nil`
-func (k Keeper) AssertValaccountAuthorized(ctx sdk.Context, poolId uint64, stakerAddress string, valaddress string) error {
-	valaccount, active := k.GetValaccount(ctx, poolId, stakerAddress)
+func (k Keeper) AssertPoolAccountAuthorized(ctx sdk.Context, stakerAddress string, poolId uint64, poolAddress string) error {
+	poolAccount, active := k.GetPoolAccount(ctx, stakerAddress, poolId)
 	if !active {
-		return stakertypes.ErrValaccountUnauthorized
+		return stakertypes.ErrPoolAccountUnauthorized
 	}
 
-	if valaccount.Valaddress != valaddress {
-		return stakertypes.ErrValaccountUnauthorized
+	if poolAccount.PoolAddress != poolAddress {
+		return stakertypes.ErrPoolAccountUnauthorized
 	}
 
 	return nil
@@ -157,8 +158,8 @@ func (k Keeper) IsVotingPowerTooHigh(ctx sdk.Context, poolId uint64) bool {
 }
 
 // GetValidator returns the Cosmos-validator for a given kyve-address.
-func (k Keeper) GetValidator(ctx sdk.Context, staker string) (stakingTypes.Validator, bool) {
-	valAddress, err := sdk.ValAddressFromBech32(util.MustValaddressFromOperatorAddress(staker))
+func (k Keeper) GetValidator(ctx sdk.Context, stakerAddress string) (stakingTypes.Validator, bool) {
+	valAddress, err := sdk.ValAddressFromBech32(util.MustValaddressFromOperatorAddress(stakerAddress))
 	if err != nil {
 		return stakingTypes.Validator{}, false
 	}
@@ -171,21 +172,21 @@ func (k Keeper) GetValidator(ctx sdk.Context, staker string) (stakingTypes.Valid
 }
 
 // GetValidatorPoolCommission returns the commission a validator has inside the pool
-func (k Keeper) GetValidatorPoolCommission(ctx sdk.Context, staker string, poolId uint64) math.LegacyDec {
-	valaccount, _ := k.GetValaccount(ctx, poolId, staker)
-	return valaccount.Commission
+func (k Keeper) GetValidatorPoolCommission(ctx sdk.Context, stakerAddress string, poolId uint64) math.LegacyDec {
+	poolAccount, _ := k.GetPoolAccount(ctx, stakerAddress, poolId)
+	return poolAccount.Commission
 }
 
 // GetValidatorPoolStake returns stake a validator has actively and at risk inside the pool
-func (k Keeper) GetValidatorPoolStake(ctx sdk.Context, staker string, poolId uint64) uint64 {
-	return k.GetValidatorPoolStakes(ctx, poolId, staker)[staker]
+func (k Keeper) GetValidatorPoolStake(ctx sdk.Context, stakerAddress string, poolId uint64) uint64 {
+	return k.GetValidatorPoolStakes(ctx, poolId, stakerAddress)[stakerAddress]
 }
 
 // GetValidatorTotalPoolStake returns the total stake the validator has combined in every pool
 func (k Keeper) GetValidatorTotalPoolStake(ctx sdk.Context, staker string) (totalStake uint64) {
-	valaccounts := k.GetValaccountsFromStaker(ctx, staker)
-	for _, valaccount := range valaccounts {
-		totalStake += k.GetValidatorPoolStake(ctx, valaccount.Staker, valaccount.PoolId)
+	poolAccounts := k.GetPoolAccountsFromStaker(ctx, staker)
+	for _, poolAccount := range poolAccounts {
+		totalStake += k.GetValidatorPoolStake(ctx, poolAccount.Staker, poolAccount.PoolId)
 	}
 
 	return
@@ -238,11 +239,11 @@ func (k Keeper) GetValidatorPoolStakes(ctx sdk.Context, poolId uint64, mustInclu
 
 	for _, address := range addresses {
 		validator, _ := k.GetValidator(ctx, address)
-		valaccount, _ := k.GetValaccount(ctx, poolId, address)
+		poolAccount, _ := k.GetPoolAccount(ctx, address, poolId)
 
 		// calculate the stake the validator has specifically chosen for this pool
 		// with his stake fraction
-		stake := uint64(valaccount.StakeFraction.MulInt(validator.GetBondedTokens()).TruncateInt64())
+		stake := uint64(poolAccount.StakeFraction.MulInt(validator.GetBondedTokens()).TruncateInt64())
 
 		stakes[address] = stake
 		validators = append(validators, ValidatorStake{

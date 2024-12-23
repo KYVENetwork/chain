@@ -59,7 +59,7 @@ func (k Keeper) AssertCanVote(ctx sdk.Context, poolId uint64, staker string, vot
 	}
 
 	// Check if sender is a staker in pool
-	if err := k.stakerKeeper.AssertValaccountAuthorized(ctx, poolId, staker, voter); err != nil {
+	if err := k.stakerKeeper.AssertPoolAccountAuthorized(ctx, staker, poolId, voter); err != nil {
 		return err
 	}
 
@@ -99,7 +99,7 @@ func (k Keeper) AssertCanPropose(ctx sdk.Context, poolId uint64, staker string, 
 	}
 
 	// Check if sender is a staker in pool
-	if err := k.stakerKeeper.AssertValaccountAuthorized(ctx, poolId, staker, proposer); err != nil {
+	if err := k.stakerKeeper.AssertPoolAccountAuthorized(ctx, staker, poolId, proposer); err != nil {
 		return err
 	}
 
@@ -162,16 +162,16 @@ func (k Keeper) validateSubmitBundleArgs(ctx sdk.Context, bundleProposal *types.
 
 // slashDelegatorsAndRemoveStaker slashes a staker with a certain slashType and all including
 // delegators and removes him from the storage pool
-func (k Keeper) slashDelegatorsAndRemoveStaker(ctx sdk.Context, poolId uint64, stakerAddress string, slashType stakersTypes.SlashType) {
+func (k Keeper) slashDelegatorsAndRemoveStaker(ctx sdk.Context, stakerAddress string, poolId uint64, slashType stakersTypes.SlashType) {
 	k.stakerKeeper.Slash(ctx, poolId, stakerAddress, slashType)
 	k.stakerKeeper.LeavePool(ctx, stakerAddress, poolId)
 }
 
-// resetPoints resets the points from a valaccount to zero
-func (k Keeper) resetPoints(ctx sdk.Context, poolId uint64, stakerAddress string) {
-	previousPoints := k.stakerKeeper.ResetPoints(ctx, poolId, stakerAddress)
+// resetPoints resets the points from a pool account to zero
+func (k Keeper) resetPoints(ctx sdk.Context, stakerAddress string, poolId uint64) {
+	previousPoints := k.stakerKeeper.ResetPoints(ctx, stakerAddress, poolId)
 
-	// only reset points if valaccount has at least a point
+	// only reset points if pool account has at least a point
 	if previousPoints > 0 {
 		_ = ctx.EventManager().EmitTypedEvent(&types.EventPointsReset{
 			PoolId: poolId,
@@ -180,11 +180,11 @@ func (k Keeper) resetPoints(ctx sdk.Context, poolId uint64, stakerAddress string
 	}
 }
 
-// addPoint increases the points of a valaccount with one and automatically
+// addPoint increases the points of a pool account with one and automatically
 // slashes and removes the staker once he reaches max points
-func (k Keeper) addPoint(ctx sdk.Context, poolId uint64, stakerAddress string) {
+func (k Keeper) addPoint(ctx sdk.Context, stakerAddress string, poolId uint64) {
 	// Add one point to staker in given pool
-	points := k.stakerKeeper.IncrementPoints(ctx, poolId, stakerAddress)
+	points := k.stakerKeeper.IncrementPoints(ctx, stakerAddress, poolId)
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventPointIncreased{
 		PoolId:        poolId,
@@ -194,8 +194,8 @@ func (k Keeper) addPoint(ctx sdk.Context, poolId uint64, stakerAddress string) {
 
 	if points >= k.GetMaxPoints(ctx) {
 		// slash all delegators with a timeout slash and remove staker from pool.
-		// points are reset due to the valaccount being deleted while leaving the pool
-		k.slashDelegatorsAndRemoveStaker(ctx, poolId, stakerAddress, stakersTypes.SLASH_TYPE_TIMEOUT)
+		// points are reset due to the pool account being deleted while leaving the pool
+		k.slashDelegatorsAndRemoveStaker(ctx, stakerAddress, poolId, stakersTypes.SLASH_TYPE_TIMEOUT)
 	}
 }
 
@@ -221,7 +221,7 @@ func (k Keeper) handleNonVoters(ctx sdk.Context, poolId uint64) {
 
 	for _, staker := range k.stakerKeeper.GetAllStakerAddressesOfPool(ctx, poolId) {
 		if !voters[staker] {
-			k.addPoint(ctx, poolId, staker)
+			k.addPoint(ctx, staker, poolId)
 		}
 	}
 }
@@ -583,7 +583,7 @@ func (k Keeper) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bundle
 
 		// slash stakers who voted incorrectly
 		for _, voter := range bundleProposal.VotersInvalid {
-			k.slashDelegatorsAndRemoveStaker(ctx, poolId, voter, stakersTypes.SLASH_TYPE_VOTE)
+			k.slashDelegatorsAndRemoveStaker(ctx, voter, poolId, stakersTypes.SLASH_TYPE_VOTE)
 		}
 
 		return types.TallyResult{
@@ -602,9 +602,9 @@ func (k Keeper) tallyBundleProposal(ctx sdk.Context, bundleProposal types.Bundle
 		// slash stakers who voted incorrectly - uploader receives upload slash
 		for _, voter := range bundleProposal.VotersValid {
 			if voter == bundleProposal.Uploader {
-				k.slashDelegatorsAndRemoveStaker(ctx, poolId, voter, stakersTypes.SLASH_TYPE_UPLOAD)
+				k.slashDelegatorsAndRemoveStaker(ctx, voter, poolId, stakersTypes.SLASH_TYPE_UPLOAD)
 			} else {
-				k.slashDelegatorsAndRemoveStaker(ctx, poolId, voter, stakersTypes.SLASH_TYPE_VOTE)
+				k.slashDelegatorsAndRemoveStaker(ctx, voter, poolId, stakersTypes.SLASH_TYPE_VOTE)
 			}
 		}
 

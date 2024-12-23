@@ -37,17 +37,21 @@ message Staker {
   ];
 }
 
-// Valaccount gets authorized by a staker to
-// vote in a given pool by favor of the staker.
-message Valaccount {
+// PoolAccount gets authorized by a validator to
+// vote in a given pool by favor of the validator.
+// The pool account basically acts like an operator
+// here so the validator private key can be stored
+// securely and not on a remote server where
+// the pool account will operate
+message PoolAccount {
   // pool_id defines the pool in which the address
   // is allowed to vote in.
   uint64 pool_id = 1;
-  // staker is the address the valaccount is voting for.
+  // staker is the address validator
   string staker = 2;
-  // valaddress is the account stored on the protocol
+  // pool_address is the account stored on the protocol
   // node which votes for the staker in the given pool
-  string valaddress = 3;
+  string pool_address = 3;
   // When a node is inactive (does not vote at all)
   // A point is added, after a certain amount of points
   // is reached the node gets kicked out.

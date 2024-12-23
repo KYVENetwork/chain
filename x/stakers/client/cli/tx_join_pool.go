@@ -12,7 +12,7 @@ import (
 
 func CmdJoinPool() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "join-pool [pool_id] [valaddress] [amount] [commission] [stake_fraction]",
+		Use:   "join-pool [pool_id] [pool_address] [amount] [commission] [stake_fraction]",
 		Short: "Broadcast message join-pool",
 		Args:  cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
@@ -21,7 +21,7 @@ func CmdJoinPool() *cobra.Command {
 				return err
 			}
 
-			argValaddress := args[1]
+			argPoolAddress := args[1]
 
 			argAmount, err := cast.ToUint64E(args[2])
 			if err != nil {
@@ -46,7 +46,7 @@ func CmdJoinPool() *cobra.Command {
 			msg := types.MsgJoinPool{
 				Creator:       clientCtx.GetFromAddress().String(),
 				PoolId:        argPoolId,
-				Valaddress:    argValaddress,
+				PoolAddress:   argPoolAddress,
 				Amount:        argAmount,
 				Commission:    argCommission,
 				StakeFraction: argStakeFraction,

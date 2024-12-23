@@ -28,8 +28,8 @@ func (k Keeper) migration_RemoveBranch(ctx sdk.Context, keyPrefix []byte) {
 func (k Keeper) Migration_ResetOldState(ctx sdk.Context) {
 	k.migration_RemoveBranch(ctx, types.StakerKeyPrefix)
 
-	k.migration_RemoveBranch(ctx, types.ValaccountPrefix)
-	k.migration_RemoveBranch(ctx, types.ValaccountPrefixIndex2)
+	k.migration_RemoveBranch(ctx, types.PoolAccountPrefix)
+	k.migration_RemoveBranch(ctx, types.PoolAccountPrefixIndex2)
 
 	k.migration_RemoveBranch(ctx, types.CommissionChangeEntryKeyPrefix)
 	k.migration_RemoveBranch(ctx, types.CommissionChangeEntryKeyPrefixIndex2)

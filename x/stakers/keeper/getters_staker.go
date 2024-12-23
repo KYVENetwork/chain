@@ -20,15 +20,15 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// AddValaccountToPool adds a valaccount to a pool.
-// If valaccount already active in the to pool nothing happens.
-func (k Keeper) AddValaccountToPool(ctx sdk.Context, poolId uint64, stakerAddress, valaddress string, commission, stakeFraction math.LegacyDec) {
+// AddPoolAccountToPool adds a pool account to a pool.
+// If pool account already active in the to pool nothing happens.
+func (k Keeper) AddPoolAccountToPool(ctx sdk.Context, stakerAddress string, poolId uint64, poolAddress string, commission, stakeFraction math.LegacyDec) {
 	if _, validatorExists := k.GetValidator(ctx, stakerAddress); validatorExists {
-		if _, active := k.GetValaccount(ctx, poolId, stakerAddress); !active {
-			k.SetValaccount(ctx, types.Valaccount{
+		if _, active := k.GetPoolAccount(ctx, stakerAddress, poolId); !active {
+			k.SetPoolAccount(ctx, types.PoolAccount{
 				PoolId:        poolId,
 				Staker:        stakerAddress,
-				Valaddress:    valaddress,
+				PoolAddress:   poolAddress,
 				Commission:    commission,
 				StakeFraction: stakeFraction,
 			})
@@ -37,15 +37,15 @@ func (k Keeper) AddValaccountToPool(ctx sdk.Context, poolId uint64, stakerAddres
 	}
 }
 
-// RemoveValaccountFromPool removes a valaccount from a given pool and updates
-// all aggregated variables. If the valaccount is not in the pool nothing happens.
-func (k Keeper) RemoveValaccountFromPool(ctx sdk.Context, poolId uint64, stakerAddress string) {
-	if valaccount, active := k.GetValaccount(ctx, poolId, stakerAddress); active {
-		// remove valaccount from pool by setting valaddress to zero address
-		valaccount.Valaddress = ""
-		valaccount.Points = 0
-		valaccount.IsLeaving = false
-		k.SetValaccount(ctx, valaccount)
+// RemovePoolAccountFromPool removes a pool account from a given pool and updates
+// all aggregated variables. If the pool account is not in the pool nothing happens.
+func (k Keeper) RemovePoolAccountFromPool(ctx sdk.Context, stakerAddress string, poolId uint64) {
+	if poolAccount, active := k.GetPoolAccount(ctx, stakerAddress, poolId); active {
+		// remove pool account from pool by setting pool address to zero address
+		poolAccount.PoolAddress = ""
+		poolAccount.Points = 0
+		poolAccount.IsLeaving = false
+		k.SetPoolAccount(ctx, poolAccount)
 		k.subtractOneFromCount(ctx, poolId)
 	}
 }
@@ -55,12 +55,12 @@ func (k Keeper) RemoveValaccountFromPool(ctx sdk.Context, poolId uint64, stakerA
 // #############################
 
 func (k Keeper) getAllStakersOfPool(ctx sdk.Context, poolId uint64) []stakingTypes.Validator {
-	valaccounts := k.GetAllValaccountsOfPool(ctx, poolId)
+	poolAccounts := k.GetAllPoolAccountsOfPool(ctx, poolId)
 
 	stakers := make([]stakingTypes.Validator, 0)
 
-	for _, valaccount := range valaccounts {
-		staker, _ := k.GetValidator(ctx, valaccount.Staker)
+	for _, poolAccount := range poolAccounts {
+		staker, _ := k.GetValidator(ctx, poolAccount.Staker)
 		stakers = append(stakers, staker)
 	}
 

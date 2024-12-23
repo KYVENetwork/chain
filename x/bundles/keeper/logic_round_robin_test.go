@@ -43,7 +43,7 @@ func joinDummyWithStakeFraction(s *i.KeeperTestSuite, index, kyveAmount uint64, 
 	s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 		Creator:       i.DUMMY[index],
 		PoolId:        0,
-		Valaddress:    i.VALDUMMY[index],
+		PoolAddress:   i.VALDUMMY[index],
 		Amount:        0,
 		Commission:    math.LegacyMustNewDecFromStr("0.1"),
 		StakeFraction: stakeFraction,

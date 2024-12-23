@@ -24,11 +24,11 @@ var (
 	// key -> StakerKeyPrefix | <stakerAddr>
 	StakerKeyPrefix = []byte{1}
 
-	// ValaccountPrefix stores valaccount for each staker and pool
-	// ValaccountPrefix | <poolId> | <staker>
-	ValaccountPrefix = []byte{2, 0}
-	// ValaccountPrefixIndex2 | <staker> | <poolId>
-	ValaccountPrefixIndex2 = []byte{2, 1}
+	// PoolAccountPrefix stores pool account for each staker and pool
+	// PoolAccountPrefix | <poolId> | <staker>
+	PoolAccountPrefix = []byte{2, 0}
+	// PoolAccountPrefixIndex2 | <staker> | <poolId>
+	PoolAccountPrefixIndex2 = []byte{2, 1}
 
 	// CommissionChangeEntryKeyPrefix | <index>
 	CommissionChangeEntryKeyPrefix = []byte{4, 0}
@@ -64,11 +64,11 @@ var (
 
 const MaxStakers = 50
 
-func ValaccountKey(poolId uint64, staker string) []byte {
+func PoolAccountKey(poolId uint64, staker string) []byte {
 	return util.GetByteKey(poolId, staker)
 }
 
-func ValaccountKeyIndex2(staker string, poolId uint64) []byte {
+func PoolAccountKeyIndex2(staker string, poolId uint64) []byte {
 	return util.GetByteKey(staker, poolId)
 }
 

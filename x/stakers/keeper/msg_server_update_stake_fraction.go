@@ -18,14 +18,14 @@ import (
 func (k msgServer) UpdateStakeFraction(goCtx context.Context, msg *types.MsgUpdateStakeFraction) (*types.MsgUpdateStakeFractionResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	valaccount, active := k.GetValaccount(ctx, msg.PoolId, msg.Creator)
+	poolAccount, active := k.GetPoolAccount(ctx, msg.Creator, msg.PoolId)
 	if !active {
-		return nil, errors.Wrap(errorsTypes.ErrUnauthorized, types.ErrNoValaccount.Error())
+		return nil, errors.Wrap(errorsTypes.ErrUnauthorized, types.ErrNoPoolAccount.Error())
 	}
 
 	// if the validator wants to decrease their stake fraction in a pool we have
 	// to do that in the bonding time
-	if msg.StakeFraction.LT(valaccount.StakeFraction) {
+	if msg.StakeFraction.LT(poolAccount.StakeFraction) {
 		// Insert commission change into queue
 		k.orderNewStakeFractionChange(ctx, msg.Creator, msg.PoolId, msg.StakeFraction)
 		return &types.MsgUpdateStakeFractionResponse{}, nil
@@ -38,8 +38,8 @@ func (k msgServer) UpdateStakeFraction(goCtx context.Context, msg *types.MsgUpda
 		k.RemoveStakeFractionEntry(ctx, &queueEntry)
 	}
 
-	valaccount.StakeFraction = msg.StakeFraction
-	k.SetValaccount(ctx, valaccount)
+	poolAccount.StakeFraction = msg.StakeFraction
+	k.SetPoolAccount(ctx, poolAccount)
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventUpdateStakeFraction{
 		Staker:        msg.Creator,
