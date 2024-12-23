@@ -858,22 +858,22 @@ paths:
 
                                   the staker will no longer participate in that
                                   pool
-                              valaddress:
+                              pool_address:
                                 type: string
                                 description: >-
-                                  Valaddress is the address which is authorized
-                                  to vote
+                                  pool address is the address which is
+                                  authorized to vote
 
                                   and submit bundles. If the server gets
                                   compromised
 
-                                  the staker can just change the valaddress.
+                                  the staker can just change the pool address .
                               balance:
                                 type: string
                                 format: uint64
                                 title: >-
-                                  balance is the valaddress account balance and
-                                  indicates
+                                  balance is the pool address  account balance
+                                  and indicates
 
                                   whether or not the valaccount needs additional
                                   funds to
@@ -2053,7 +2053,7 @@ paths:
           format: uint64
       tags:
         - QueryBundles
-  /kyve/query/v1beta1/can_validate/{pool_id}/{valaddress}:
+  /kyve/query/v1beta1/can_validate/{pool_id}/{pool_address}:
     get:
       summary: CanValidate ...
       operationId: CanValidate
@@ -2270,8 +2270,8 @@ paths:
           required: true
           type: string
           format: uint64
-        - name: valaddress
-          description: valaddress ...
+        - name: pool_address
+          description: pool_address ...
           in: path
           required: true
           type: string
@@ -4397,22 +4397,22 @@ paths:
 
                                   the staker will no longer participate in that
                                   pool
-                              valaddress:
+                              pool_address:
                                 type: string
                                 description: >-
-                                  Valaddress is the address which is authorized
-                                  to vote
+                                  pool address is the address which is
+                                  authorized to vote
 
                                   and submit bundles. If the server gets
                                   compromised
 
-                                  the staker can just change the valaddress.
+                                  the staker can just change the pool address .
                               balance:
                                 type: string
                                 format: uint64
                                 title: >-
-                                  balance is the valaddress account balance and
-                                  indicates
+                                  balance is the pool address  account balance
+                                  and indicates
 
                                   whether or not the valaccount needs additional
                                   funds to
@@ -6992,20 +6992,20 @@ paths:
                             is_leaving indicates if a user has scheduled a
                             a PoolLeave entry. After the leave-time is over
                             the staker will no longer participate in that pool
-                        valaddress:
+                        pool_address:
                           type: string
                           description: >-
-                            Valaddress is the address which is authorized to
+                            pool address is the address which is authorized to
                             vote
 
                             and submit bundles. If the server gets compromised
 
-                            the staker can just change the valaddress.
+                            the staker can just change the pool address .
                         balance:
                           type: string
                           format: uint64
                           title: >-
-                            balance is the valaddress account balance and
+                            balance is the pool address  account balance and
                             indicates
 
                             whether or not the valaccount needs additional funds
@@ -7654,20 +7654,20 @@ paths:
                               is_leaving indicates if a user has scheduled a
                               a PoolLeave entry. After the leave-time is over
                               the staker will no longer participate in that pool
-                          valaddress:
+                          pool_address:
                             type: string
                             description: >-
-                              Valaddress is the address which is authorized to
+                              pool address is the address which is authorized to
                               vote
 
                               and submit bundles. If the server gets compromised
 
-                              the staker can just change the valaddress.
+                              the staker can just change the pool address .
                           balance:
                             type: string
                             format: uint64
                             title: >-
-                              balance is the valaddress account balance and
+                              balance is the pool address  account balance and
                               indicates
 
                               whether or not the valaccount needs additional
@@ -8420,20 +8420,20 @@ paths:
                               is_leaving indicates if a user has scheduled a
                               a PoolLeave entry. After the leave-time is over
                               the staker will no longer participate in that pool
-                          valaddress:
+                          pool_address:
                             type: string
                             description: >-
-                              Valaddress is the address which is authorized to
+                              pool address is the address which is authorized to
                               vote
 
                               and submit bundles. If the server gets compromised
 
-                              the staker can just change the valaddress.
+                              the staker can just change the pool address .
                           balance:
                             type: string
                             format: uint64
                             title: >-
-                              balance is the valaddress account balance and
+                              balance is the pool address  account balance and
                               indicates
 
                               whether or not the valaccount needs additional
@@ -9095,20 +9095,20 @@ paths:
                               is_leaving indicates if a user has scheduled a
                               a PoolLeave entry. After the leave-time is over
                               the staker will no longer participate in that pool
-                          valaddress:
+                          pool_address:
                             type: string
                             description: >-
-                              Valaddress is the address which is authorized to
+                              pool address is the address which is authorized to
                               vote
 
                               and submit bundles. If the server gets compromised
 
-                              the staker can just change the valaddress.
+                              the staker can just change the pool address .
                           balance:
                             type: string
                             format: uint64
                             title: >-
-                              balance is the valaddress account balance and
+                              balance is the pool address  account balance and
                               indicates
 
                               whether or not the valaccount needs additional

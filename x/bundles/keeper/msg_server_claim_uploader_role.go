@@ -24,7 +24,7 @@ func (k msgServer) ClaimUploaderRole(
 		return nil, poolErr
 	}
 
-	if err := k.stakerKeeper.AssertValaccountAuthorized(ctx, msg.PoolId, msg.Staker, msg.Creator); err != nil {
+	if err := k.stakerKeeper.AssertPoolAccountAuthorized(ctx, msg.Staker, msg.PoolId, msg.Creator); err != nil {
 		return nil, err
 	}
 

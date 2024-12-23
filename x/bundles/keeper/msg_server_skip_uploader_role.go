@@ -18,7 +18,7 @@ func (k msgServer) SkipUploaderRole(goCtx context.Context, msg *types.MsgSkipUpl
 	bundleProposal, _ := k.GetBundleProposal(ctx, msg.PoolId)
 
 	// reset points of uploader as node has proven to be active
-	k.resetPoints(ctx, msg.PoolId, msg.Staker)
+	k.resetPoints(ctx, msg.Staker, msg.PoolId)
 
 	// If previous bundle was dropped just skip uploader role
 	// No previous round needs to be evaluated

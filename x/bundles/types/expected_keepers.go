@@ -29,16 +29,16 @@ type PoolKeeper interface {
 
 type StakerKeeper interface {
 	GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (stakers []string)
-	AssertValaccountAuthorized(ctx sdk.Context, poolId uint64, stakerAddress string, valaddress string) error
+	AssertPoolAccountAuthorized(ctx sdk.Context, stakerAddress string, poolId uint64, poolAddress string) error
 
-	GetValaccount(ctx sdk.Context, poolId uint64, stakerAddress string) (valaccount stakersTypes.PoolAccount, active bool)
+	GetPoolAccount(ctx sdk.Context, stakerAddress string, poolId uint64) (valaccount stakersTypes.PoolAccount, active bool)
 
-	LeavePool(ctx sdk.Context, staker string, poolId uint64)
+	LeavePool(ctx sdk.Context, stakerAddress string, poolId uint64)
 
-	IncrementPoints(ctx sdk.Context, poolId uint64, stakerAddress string) (newPoints uint64)
-	ResetPoints(ctx sdk.Context, poolId uint64, stakerAddress string) (previousPoints uint64)
+	IncrementPoints(ctx sdk.Context, stakerAddress string, poolId uint64) (newPoints uint64)
+	ResetPoints(ctx sdk.Context, stakerAddress string, poolId uint64) (previousPoints uint64)
 
-	GetValidator(ctx sdk.Context, staker string) (stakingtypes.Validator, bool)
+	GetValidator(ctx sdk.Context, stakerAddress string) (stakingtypes.Validator, bool)
 	GetValidatorPoolCommission(ctx sdk.Context, staker string, poolId uint64) math.LegacyDec
 	GetValidatorPoolStake(ctx sdk.Context, staker string, poolId uint64) uint64
 	GetTotalStakeOfPool(ctx sdk.Context, poolId uint64) (totalStake uint64)

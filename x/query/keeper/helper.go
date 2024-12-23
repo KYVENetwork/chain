@@ -13,13 +13,13 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 	var poolMemberships []*types.PoolMembership
 	totalPoolStake := uint64(0)
 
-	for _, valaccount := range k.stakerKeeper.GetValaccountsFromStaker(ctx, stakerAddress) {
-		pool, _ := k.poolKeeper.GetPool(ctx, valaccount.PoolId)
+	for _, poolAccount := range k.stakerKeeper.GetPoolAccountsFromStaker(ctx, stakerAddress) {
+		pool, _ := k.poolKeeper.GetPool(ctx, poolAccount.PoolId)
 
-		accountValaddress, _ := sdk.AccAddressFromBech32(valaccount.Valaddress)
+		accountValaddress, _ := sdk.AccAddressFromBech32(poolAccount.PoolAddress)
 		balanceValaccount := k.bankKeeper.GetBalance(ctx, accountValaddress, globalTypes.Denom).Amount.Uint64()
 
-		commissionChange, found := k.stakerKeeper.GetCommissionChangeEntryByIndex2(ctx, stakerAddress, valaccount.PoolId)
+		commissionChange, found := k.stakerKeeper.GetCommissionChangeEntryByIndex2(ctx, stakerAddress, poolAccount.PoolId)
 		var commissionChangeEntry *types.CommissionChangeEntry = nil
 		if found {
 			commissionChangeEntry = &types.CommissionChangeEntry{
@@ -28,7 +28,7 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 			}
 		}
 
-		stakeFractionChange, found := k.stakerKeeper.GetStakeFractionChangeEntryByIndex2(ctx, stakerAddress, valaccount.PoolId)
+		stakeFractionChange, found := k.stakerKeeper.GetStakeFractionChangeEntryByIndex2(ctx, stakerAddress, poolAccount.PoolId)
 		var stakeFractionChangeEntry *types.StakeFractionChangeEntry = nil
 		if found {
 			stakeFractionChangeEntry = &types.StakeFractionChangeEntry{
@@ -53,13 +53,13 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 					TotalStake:           k.stakerKeeper.GetTotalStakeOfPool(ctx, pool.Id),
 					Status:               k.GetPoolStatus(ctx, &pool),
 				},
-				Points:                     valaccount.Points,
-				IsLeaving:                  valaccount.IsLeaving,
-				Valaddress:                 valaccount.Valaddress,
+				Points:                     poolAccount.Points,
+				IsLeaving:                  poolAccount.IsLeaving,
+				PoolAddress:                poolAccount.PoolAddress,
 				Balance:                    balanceValaccount,
-				Commission:                 valaccount.Commission,
+				Commission:                 poolAccount.Commission,
 				PendingCommissionChange:    commissionChangeEntry,
-				StakeFraction:              valaccount.StakeFraction,
+				StakeFraction:              poolAccount.StakeFraction,
 				PendingStakeFractionChange: stakeFractionChangeEntry,
 				PoolStake:                  poolStake,
 			},

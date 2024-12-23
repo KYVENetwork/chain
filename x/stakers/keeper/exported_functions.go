@@ -164,8 +164,8 @@ func (k Keeper) IsVotingPowerTooHigh(ctx sdk.Context, poolId uint64) bool {
 }
 
 // GetValidator returns the Cosmos-validator for a given kyve-address.
-func (k Keeper) GetValidator(ctx sdk.Context, staker string) (stakingTypes.Validator, bool) {
-	valAddress, err := sdk.ValAddressFromBech32(util.MustValaddressFromOperatorAddress(staker))
+func (k Keeper) GetValidator(ctx sdk.Context, stakerAddress string) (stakingTypes.Validator, bool) {
+	valAddress, err := sdk.ValAddressFromBech32(util.MustValaddressFromOperatorAddress(stakerAddress))
 	if err != nil {
 		return stakingTypes.Validator{}, false
 	}

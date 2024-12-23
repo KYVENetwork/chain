@@ -35,7 +35,7 @@ type UpgradeKeeper interface {
 type StakersKeeper interface {
 	DoesStakerExist(ctx sdk.Context, staker string) bool
 	GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (stakers []string)
-	GetValaccountsFromStaker(ctx sdk.Context, stakerAddress string) (val []*stakerstypes.PoolAccount)
+	GetPoolAccountsFromStaker(ctx sdk.Context, stakerAddress string) (val []*stakerstypes.PoolAccount)
 	GetPoolCount(ctx sdk.Context, stakerAddress string) (poolCount uint64)
 	GetActiveStakers(ctx sdk.Context) []string
 }

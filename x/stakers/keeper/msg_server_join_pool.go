@@ -13,7 +13,7 @@ import (
 
 // JoinPool handles the SDK message of joining a pool.
 // For joining a pool the staker needs to exist and must not
-// be in that pool (even with a different valaccount)
+// be in that pool (even with a different pool account)
 // Second, there must be free slots available or the staker
 // must have more stake than the lowest staker in that pool.
 // After the staker joined the pool he is subject to slashing.
@@ -44,12 +44,12 @@ func (k msgServer) JoinPool(goCtx context.Context, msg *types.MsgJoinPool) (*typ
 
 	// Validators are not allowed to use their own address, to prevent
 	// users from putting their validator private key on the protocol node server.
-	if msg.Creator == msg.Valaddress {
-		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrValaddressSameAsStaker.Error())
+	if msg.Creator == msg.PoolAddress {
+		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrPoolAddressSameAsStaker.Error())
 	}
 
 	// Validators are not allowed to join a pool twice.
-	if _, valaccountFound := k.GetValaccount(ctx, msg.PoolId, msg.Creator); valaccountFound {
+	if _, poolAccountFound := k.GetPoolAccount(ctx, msg.Creator, msg.PoolId); poolAccountFound {
 		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrAlreadyJoinedPool.Error())
 	}
 
@@ -58,34 +58,34 @@ func (k msgServer) JoinPool(goCtx context.Context, msg *types.MsgJoinPool) (*typ
 		return nil, errFreeSlot
 	}
 
-	// Every valaddress can only be used for one pool. It is not allowed
-	// to use the same valaddress for multiple pools. (to avoid account sequence errors,
+	// Every pool address can only be used for one pool. It is not allowed
+	// to use the same pool address for multiple pools. (to avoid account sequence errors,
 	// when two processes try so submit transactions simultaneously)
-	for _, valaccount := range k.GetValaccountsFromStaker(ctx, msg.Creator) {
-		if valaccount.Valaddress == msg.Valaddress {
-			return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ValaddressAlreadyUsed.Error())
+	for _, poolAccount := range k.GetPoolAccountsFromStaker(ctx, msg.Creator) {
+		if poolAccount.PoolAddress == msg.PoolAddress {
+			return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.PoolAddressAlreadyUsed.Error())
 		}
 	}
 
-	// It is not allowed to use the valaddress of somebody else.
+	// It is not allowed to use the pool address of somebody else.
 	for _, poolStaker := range k.GetAllStakerAddressesOfPool(ctx, msg.PoolId) {
-		valaccount, _ := k.GetValaccount(ctx, msg.PoolId, poolStaker)
+		poolAccount, _ := k.GetPoolAccount(ctx, poolStaker, msg.PoolId)
 
-		if valaccount.Valaddress == msg.Valaddress {
-			return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ValaddressAlreadyUsed.Error())
+		if poolAccount.PoolAddress == msg.PoolAddress {
+			return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.PoolAddressAlreadyUsed.Error())
 		}
 	}
 
-	k.AddValaccountToPool(ctx, msg.PoolId, msg.Creator, msg.Valaddress, msg.Commission, msg.StakeFraction)
+	k.AddPoolAccountToPool(ctx, msg.Creator, msg.PoolId, msg.PoolAddress, msg.Commission, msg.StakeFraction)
 
-	if err := util.TransferFromAddressToAddress(k.bankKeeper, ctx, msg.Creator, msg.Valaddress, msg.Amount); err != nil {
+	if err := util.TransferFromAddressToAddress(k.bankKeeper, ctx, msg.Creator, msg.PoolAddress, msg.Amount); err != nil {
 		return nil, err
 	}
 
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventJoinPool{
 		PoolId:        msg.PoolId,
 		Staker:        msg.Creator,
-		Valaddress:    msg.Valaddress,
+		PoolAddress:   msg.PoolAddress,
 		Amount:        msg.Amount,
 		Commission:    msg.Commission,
 		StakeFraction: msg.StakeFraction,

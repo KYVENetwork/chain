@@ -45,14 +45,14 @@ func (k Keeper) ProcessCommissionChangeQueue(ctx sdk.Context) {
 		if queueEntry.CreationDate+int64(k.GetCommissionChangeTime(ctx)) <= ctx.BlockTime().Unix() {
 			k.RemoveCommissionChangeEntry(ctx, &queueEntry)
 
-			valaccount, valaccountFound := k.GetValaccount(ctx, queueEntry.PoolId, queueEntry.Staker)
-			if !valaccountFound {
+			poolAccount, poolAccountFound := k.GetPoolAccount(ctx, queueEntry.Staker, queueEntry.PoolId)
+			if !poolAccountFound {
 				// continue with the next entry
 				return true
 			}
 
-			valaccount.Commission = queueEntry.Commission
-			k.SetValaccount(ctx, valaccount)
+			poolAccount.Commission = queueEntry.Commission
+			k.SetPoolAccount(ctx, poolAccount)
 
 			_ = ctx.EventManager().EmitTypedEvent(&types.EventUpdateCommission{
 				Staker:     queueEntry.Staker,
