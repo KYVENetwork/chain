@@ -293,7 +293,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(err).To(BeNil())
 
 		Expect(canPropose.Possible).To(BeFalse())
-		Expect(canPropose.Reason).To(Equal(stakertypes.ErrValaccountUnauthorized.Error()))
+		Expect(canPropose.Reason).To(Equal(stakertypes.ErrPoolAccountUnauthorized.Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.VALADDRESS_1_A,

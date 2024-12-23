@@ -20,7 +20,7 @@ var (
 	ErrNotEnoughRewards        = errors.Register(ModuleName, 1114, "claim amount is larger than current rewards")
 
 	ErrPoolLeaveAlreadyInProgress = errors.Register(ModuleName, 1117, "Pool leave is already in progress")
-	ErrValaccountUnauthorized     = errors.Register(ModuleName, 1118, "valaccount unauthorized")
+	ErrPoolAccountUnauthorized    = errors.Register(ModuleName, 1118, "valaccount unauthorized")
 	ErrValidatorJailed            = errors.Register(ModuleName, 1119, "validator jailed")
 	ErrNoValaccount               = errors.Register(ModuleName, 1120, "sender has no valaccount")
 )

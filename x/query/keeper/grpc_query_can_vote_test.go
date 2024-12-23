@@ -259,7 +259,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		Expect(err).To(BeNil())
 
 		Expect(canVote.Possible).To(BeFalse())
-		Expect(canVote.Reason).To(Equal(stakertypes.ErrValaccountUnauthorized.Error()))
+		Expect(canVote.Reason).To(Equal(stakertypes.ErrPoolAccountUnauthorized.Error()))
 
 		_, txErr := s.RunTx(&bundletypes.MsgVoteBundleProposal{
 			Creator:   i.VALADDRESS_1_A,

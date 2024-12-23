@@ -557,7 +557,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		err := s.App().BundlesKeeper.AssertCanVote(s.Ctx(), 0, i.STAKER_2, i.VALADDRESS_2_A, "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI")
 
 		// ASSERT
-		Expect(err).To(Equal(stakertypes.ErrValaccountUnauthorized))
+		Expect(err).To(Equal(stakertypes.ErrPoolAccountUnauthorized))
 	})
 
 	It("Assert can vote if bundle is dropped", func() {
@@ -899,7 +899,7 @@ var _ = Describe("logic_bundles.go", Ordered, func() {
 		err := s.App().BundlesKeeper.AssertCanPropose(s.Ctx(), 0, i.STAKER_2, i.VALADDRESS_2_A, 0)
 
 		// ASSERT
-		Expect(err).To(Equal(stakertypes.ErrValaccountUnauthorized))
+		Expect(err).To(Equal(stakertypes.ErrPoolAccountUnauthorized))
 	})
 
 	It("Assert can propose if sender is not next uploader", func() {

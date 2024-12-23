@@ -31,7 +31,7 @@ type StakerKeeper interface {
 	GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (stakers []string)
 	AssertValaccountAuthorized(ctx sdk.Context, poolId uint64, stakerAddress string, valaddress string) error
 
-	GetValaccount(ctx sdk.Context, poolId uint64, stakerAddress string) (valaccount stakersTypes.Valaccount, active bool)
+	GetValaccount(ctx sdk.Context, poolId uint64, stakerAddress string) (valaccount stakersTypes.PoolAccount, active bool)
 
 	LeavePool(ctx sdk.Context, staker string, poolId uint64)
 
