@@ -9,35 +9,6 @@ import (
 // InitGenesis initializes the capability module's state from a provided genesis
 // state.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) {
-	k.SetParams(ctx, genState.Params)
-
-	for _, delegator := range genState.DelegatorList {
-		k.SetDelegator(ctx, delegator)
-	}
-
-	for _, entry := range genState.DelegationEntryList {
-		k.SetDelegationEntry(ctx, entry)
-	}
-
-	for _, entry := range genState.DelegationDataList {
-		k.SetDelegationData(ctx, entry)
-	}
-
-	for _, entry := range genState.DelegationSlashList {
-		k.SetDelegationSlashEntry(ctx, entry)
-	}
-
-	for _, entry := range genState.UndelegationQueueEntryList {
-		k.SetUndelegationQueueEntry(ctx, entry)
-	}
-
-	k.SetQueueState(ctx, genState.QueueStateUndelegation)
-
-	for _, entry := range genState.RedelegationCooldownList {
-		k.SetRedelegationCooldown(ctx, entry)
-	}
-
-	k.InitMemStore(ctx)
 }
 
 // ExportGenesis returns the capability module's exported genesis.

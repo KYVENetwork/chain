@@ -393,7 +393,6 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		}
 
 		Expect(s.App().StakersKeeper.GetAllPoolAccounts(s.Ctx())).To(HaveLen(2))
-		Expect(s.App().StakersKeeper.GetActiveStakers(s.Ctx())).To(HaveLen(2))
 
 		p, v := BuildGovernanceTxs(s, []sdk.Msg{msgFirstPool})
 
@@ -413,7 +412,6 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
 
 		Expect(s.App().StakersKeeper.GetAllPoolAccounts(s.Ctx())).To(HaveLen(0))
-		Expect(s.App().StakersKeeper.GetActiveStakers(s.Ctx())).To(HaveLen(0))
 
 		firstPool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
@@ -468,7 +466,6 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		}
 
 		Expect(s.App().StakersKeeper.GetAllPoolAccounts(s.Ctx())).To(HaveLen(3))
-		Expect(s.App().StakersKeeper.GetActiveStakers(s.Ctx())).To(HaveLen(2))
 
 		p, v := BuildGovernanceTxs(s, []sdk.Msg{msgFirstPool})
 
@@ -488,7 +485,6 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
 
 		Expect(s.App().StakersKeeper.GetAllPoolAccounts(s.Ctx())).To(HaveLen(1))
-		Expect(s.App().StakersKeeper.GetActiveStakers(s.Ctx())).To(HaveLen(1))
 
 		firstPool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 

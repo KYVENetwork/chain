@@ -3,14 +3,9 @@ package keeper
 import (
 	"context"
 
-	storeTypes "cosmossdk.io/store/types"
-	"github.com/cosmos/cosmos-sdk/runtime"
-
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 
-	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/util"
-	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	"github.com/KYVENetwork/chain/x/query/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"google.golang.org/grpc/codes"
@@ -35,41 +30,37 @@ func (k Keeper) AccountAssets(goCtx context.Context, req *types.QueryAccountAsse
 	balance := k.bankKeeper.GetBalance(ctx, account, globalTypes.Denom)
 	response.Balance = balance.Amount.Uint64()
 
-	// ======================
-	// ProtocolSelfDelegation
-	// ======================
-
-	response.ProtocolSelfDelegation = k.delegationKeeper.GetDelegationAmountOfDelegator(ctx, req.Address, req.Address)
-
 	// ================================================
-	// ProtocolDelegation + ProtocolDelegationUnbonding
+	// OutstandingRewards + Delegation + Unbonding
 	// ================================================
 
-	// Iterate all Delegator entries
-	storeAdapter := runtime.KVStoreAdapter(k.delegationStoreService.OpenKVStore(ctx))
-	delegatorStore := prefix.NewStore(storeAdapter, util.GetByteKey(delegationtypes.DelegatorKeyPrefixIndex2, req.Address))
-	delegatorIterator := storeTypes.KVStorePrefixIterator(delegatorStore, nil)
-	defer delegatorIterator.Close()
-
-	for ; delegatorIterator.Valid(); delegatorIterator.Next() {
-
-		staker := string(delegatorIterator.Key()[0:43])
-
-		response.ProtocolDelegation += k.delegationKeeper.GetDelegationAmountOfDelegator(ctx, staker, req.Address)
-		response.ProtocolRewards = response.ProtocolRewards.Add(k.delegationKeeper.GetOutstandingRewards(ctx, staker, req.Address)...)
+	delegatorAddr, err := sdk.AccAddressFromBech32(req.Address)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	// ======================================================
-	// Delegation Unbonding + ProtocolSelfDelegationUnbonding
-	// ======================================================
-
-	// Iterate all UnbondingDelegation entries to get total delegation unbonding amount
-	for _, entry := range k.delegationKeeper.GetAllUnbondingDelegationQueueEntriesOfDelegator(ctx, req.Address) {
-		response.ProtocolDelegationUnbonding += entry.Amount
-		if entry.Staker == req.Address {
-			response.ProtocolSelfDelegationUnbonding += entry.Amount
-		}
+	validators, err := k.stakingKeeper.GetDelegatorValidators(ctx, delegatorAddr, ^uint32(0))
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
+
+	for _, validator := range validators.Validators {
+		response.OutstandingRewards = response.OutstandingRewards.Add(
+			k.stakerKeeper.GetOutstandingRewards(ctx, util.MustAccountAddressFromValAddress(validator.OperatorAddress), req.Address)...,
+		)
+	}
+
+	delegatorBonded, err := k.stakingKeeper.GetDelegatorBonded(ctx, delegatorAddr)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+	response.Delegation = delegatorBonded.Uint64()
+
+	delegatorUnbonding, err := k.stakingKeeper.GetDelegatorUnbonding(ctx, delegatorAddr)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+	response.DelegationUnbonding = delegatorUnbonding.Uint64()
 
 	// ===============
 	// ProtocolFunding

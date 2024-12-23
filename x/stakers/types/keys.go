@@ -1,7 +1,6 @@
 package types
 
 import (
-	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/util"
 )
 
@@ -14,9 +13,6 @@ const (
 
 	// RouterKey defines the module's message routing key
 	RouterKey = ModuleName
-
-	// MemStoreKey defines the in-memory store key
-	MemStoreKey = "mem_stakers"
 )
 
 var (
@@ -68,13 +64,6 @@ var (
 
 const MaxStakers = 50
 
-var DefaultCommission = math.LegacyMustNewDecFromStr("0.1")
-
-// StakerKey returns the store Key to retrieve a Staker from the index fields
-func StakerKey(staker string) []byte {
-	return util.GetByteKey(staker)
-}
-
 func PoolAccountKey(poolId uint64, staker string) []byte {
 	return util.GetByteKey(poolId, staker)
 }
@@ -98,10 +87,6 @@ func LeavePoolEntryKey(index uint64) []byte {
 
 func LeavePoolEntryKeyIndex2(staker string, poolId uint64) []byte {
 	return util.GetByteKey(staker, poolId)
-}
-
-func ActiveStakerKeyIndex(staker string) []byte {
-	return util.GetByteKey(staker)
 }
 
 func StakeFractionChangeEntryKey(index uint64) []byte {

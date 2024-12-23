@@ -287,7 +287,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_0))
 
 		// calculate voter slashes
-		fraction := s.App().DelegationKeeper.GetVoteSlash(s.Ctx())
+		fraction := s.App().StakersKeeper.GetVoteSlash(s.Ctx())
 		slashAmountVoter := uint64(math.LegacyNewDec(int64(0 * i.KYVE)).Mul(fraction).TruncateInt64())
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_2, i.STAKER_2)).To(Equal(0*i.KYVE - slashAmountVoter))
 
@@ -615,7 +615,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
 
 		// calculate uploader slashes
-		fraction := s.App().DelegationKeeper.GetUploadSlash(s.Ctx())
+		fraction := s.App().StakersKeeper.GetUploadSlash(s.Ctx())
 		slashAmount := uint64(math.LegacyNewDec(int64(0 * i.KYVE)).Mul(fraction).TruncateInt64())
 
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(0*i.KYVE - slashAmount))
@@ -753,7 +753,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 		Expect(poolAccountActive).To(BeFalse())
 
 		// check if voter got slashed
-		slashAmountRatio := s.App().DelegationKeeper.GetTimeoutSlash(s.Ctx())
+		slashAmountRatio := s.App().StakersKeeper.GetTimeoutSlash(s.Ctx())
 		expectedBalance := 0*i.KYVE - uint64(math.LegacyNewDec(int64(0*i.KYVE)).Mul(slashAmountRatio).TruncateInt64())
 
 		Expect(expectedBalance).To(Equal(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.STAKER_1)))

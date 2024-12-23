@@ -11,10 +11,7 @@ import (
 	"cosmossdk.io/log"
 
 	"github.com/KYVENetwork/chain/util"
-	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
-	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
@@ -61,12 +58,10 @@ func (AppModuleBasic) Name() string {
 
 // RegisterLegacyAminoCodec registers the amino codec for the module, which is used to marshal and unmarshal structs to/from []byte in order to persist them in the module's KVStore
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	types.RegisterLegacyAminoCodec(cdc)
 }
 
 // RegisterInterfaces registers a module's interface types and their concrete implementations as proto.Message
 func (a AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
-	types.RegisterInterfaces(reg)
 }
 
 // DefaultGenesis returns a default GenesisState for the module, marshalled to json.RawMessage. The default GenesisState need to be defined by the module developer and is primarily used for testing
@@ -85,7 +80,6 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, _ client.TxEncodingCo
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	_ = types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
 }
 
 // GetTxCmd returns the root Tx command for the module. The subcommands of this root command are used by end-users to generate new transactions containing messages defined in the module
@@ -106,22 +100,16 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 type AppModule struct {
 	AppModuleBasic
 
-	keeper        keeper.Keeper
-	accountKeeper types.AccountKeeper
-	bankKeeper    util.BankKeeper
+	keeper keeper.Keeper
 }
 
 func NewAppModule(
 	cdc codec.Codec,
 	keeper keeper.Keeper,
-	accountKeeper types.AccountKeeper,
-	bankKeeper util.BankKeeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: NewAppModuleBasic(cdc),
 		keeper:         keeper,
-		accountKeeper:  accountKeeper,
-		bankKeeper:     bankKeeper,
 	}
 }
 
@@ -130,8 +118,6 @@ func (AppModule) QuerierRoute() string { return types.RouterKey }
 
 // RegisterServices registers a gRPC query service to respond to the module-specific gRPC queries
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
-	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 }
 
 // RegisterInvariants registers the invariants of the module. If an invariant deviates from its predicted value, the InvariantRegistry triggers appropriate logic (most often the chain will be halted)
@@ -157,8 +143,6 @@ func (AppModule) ConsensusVersion() uint64 { return 1 }
 
 // BeginBlock contains the logic that is automatically triggered at the beginning of each block
 func (am AppModule) BeginBlock(ctx context.Context) error {
-	am.keeper.InitMemStore(sdk.UnwrapSDKContext(ctx))
-	am.keeper.ProcessDelegatorUnbondingQueue(sdk.UnwrapSDKContext(ctx))
 	return nil
 }
 
@@ -188,20 +172,15 @@ type ModuleInputs struct {
 	MemService   store.MemoryStoreService
 	Logger       log.Logger
 
-	AccountKeeper      types.AccountKeeper
-	BankKeeper         util.BankKeeper
-	DistributionKeeper distributionKeeper.Keeper
-	UpgradeKeeper      util.UpgradeKeeper
-	PoolKeeper         *poolKeeper.Keeper
-	StakersKeeper      *stakersKeeper.Keeper
+	BankKeeper    util.BankKeeper
+	UpgradeKeeper util.UpgradeKeeper
 }
 
 type ModuleOutputs struct {
 	depinject.Out
 
-	DelegationKeeper       keeper.Keeper
-	DelegationStoreService types.DelegationKVStoreService
-	Module                 appmodule.AppModule
+	DelegationKeeper keeper.Keeper
+	Module           appmodule.AppModule
 }
 
 func ProvideModule(in ModuleInputs) ModuleOutputs {
@@ -217,19 +196,13 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		in.MemService,
 		in.Logger,
 		authority.String(),
-		in.AccountKeeper,
 		in.BankKeeper,
-		in.DistributionKeeper,
-		in.PoolKeeper,
 		in.UpgradeKeeper,
-		in.StakersKeeper,
 	)
 	m := NewAppModule(
 		in.Cdc,
 		k,
-		in.AccountKeeper,
-		in.BankKeeper,
 	)
 
-	return ModuleOutputs{DelegationKeeper: k, Module: m, DelegationStoreService: in.StoreService}
+	return ModuleOutputs{DelegationKeeper: k, Module: m}
 }

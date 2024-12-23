@@ -5,7 +5,6 @@ package types
 
 import (
 	fmt "fmt"
-	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
 	io "io"
 	math "math"
@@ -22,136 +21,6 @@ var _ = math.Inf
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
-
-// EventUpdateParams is an event emitted when the module parameters are updated.
-// emitted_by: MsgUpdateParams
-type EventUpdateParams struct {
-	// old_params is the module's old parameters.
-	OldParams Params `protobuf:"bytes,1,opt,name=old_params,json=oldParams,proto3" json:"old_params"`
-	// new_params is the module's new parameters.
-	NewParams Params `protobuf:"bytes,2,opt,name=new_params,json=newParams,proto3" json:"new_params"`
-	// payload is the parameter updates that were performed.
-	Payload string `protobuf:"bytes,3,opt,name=payload,proto3" json:"payload,omitempty"`
-}
-
-func (m *EventUpdateParams) Reset()         { *m = EventUpdateParams{} }
-func (m *EventUpdateParams) String() string { return proto.CompactTextString(m) }
-func (*EventUpdateParams) ProtoMessage()    {}
-func (*EventUpdateParams) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d01988a9108a2e89, []int{0}
-}
-func (m *EventUpdateParams) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *EventUpdateParams) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_EventUpdateParams.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *EventUpdateParams) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventUpdateParams.Merge(m, src)
-}
-func (m *EventUpdateParams) XXX_Size() int {
-	return m.Size()
-}
-func (m *EventUpdateParams) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventUpdateParams.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_EventUpdateParams proto.InternalMessageInfo
-
-func (m *EventUpdateParams) GetOldParams() Params {
-	if m != nil {
-		return m.OldParams
-	}
-	return Params{}
-}
-
-func (m *EventUpdateParams) GetNewParams() Params {
-	if m != nil {
-		return m.NewParams
-	}
-	return Params{}
-}
-
-func (m *EventUpdateParams) GetPayload() string {
-	if m != nil {
-		return m.Payload
-	}
-	return ""
-}
-
-// EventDelegate is an event emitted when someone delegates to a protocol node.
-// emitted_by: MsgDelegate
-type EventDelegate struct {
-	// address is the account address of the delegator.
-	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	// staker is the account address of the protocol node.
-	Staker string `protobuf:"bytes,2,opt,name=staker,proto3" json:"staker,omitempty"`
-	// amount ...
-	Amount uint64 `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`
-}
-
-func (m *EventDelegate) Reset()         { *m = EventDelegate{} }
-func (m *EventDelegate) String() string { return proto.CompactTextString(m) }
-func (*EventDelegate) ProtoMessage()    {}
-func (*EventDelegate) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d01988a9108a2e89, []int{1}
-}
-func (m *EventDelegate) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *EventDelegate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_EventDelegate.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *EventDelegate) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventDelegate.Merge(m, src)
-}
-func (m *EventDelegate) XXX_Size() int {
-	return m.Size()
-}
-func (m *EventDelegate) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventDelegate.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_EventDelegate proto.InternalMessageInfo
-
-func (m *EventDelegate) GetAddress() string {
-	if m != nil {
-		return m.Address
-	}
-	return ""
-}
-
-func (m *EventDelegate) GetStaker() string {
-	if m != nil {
-		return m.Staker
-	}
-	return ""
-}
-
-func (m *EventDelegate) GetAmount() uint64 {
-	if m != nil {
-		return m.Amount
-	}
-	return 0
-}
 
 // EventStartUndelegation is an event emitted when someone starts an undelegation from a protocol node.
 // emitted_by: EndBlock
@@ -171,7 +40,7 @@ func (m *EventStartUndelegation) Reset()         { *m = EventStartUndelegation{}
 func (m *EventStartUndelegation) String() string { return proto.CompactTextString(m) }
 func (*EventStartUndelegation) ProtoMessage()    {}
 func (*EventStartUndelegation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d01988a9108a2e89, []int{2}
+	return fileDescriptor_d01988a9108a2e89, []int{0}
 }
 func (m *EventStartUndelegation) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -243,7 +112,7 @@ func (m *EventUndelegate) Reset()         { *m = EventUndelegate{} }
 func (m *EventUndelegate) String() string { return proto.CompactTextString(m) }
 func (*EventUndelegate) ProtoMessage()    {}
 func (*EventUndelegate) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d01988a9108a2e89, []int{3}
+	return fileDescriptor_d01988a9108a2e89, []int{1}
 }
 func (m *EventUndelegate) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -293,80 +162,6 @@ func (m *EventUndelegate) GetAmount() uint64 {
 	return 0
 }
 
-// EventRedelegate is an event emitted when someone redelegates from one protocol node to another.
-// emitted_by: MsgRedelegate
-type EventRedelegate struct {
-	// address is the account address of the delegator.
-	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	// from_staker ...
-	FromStaker string `protobuf:"bytes,2,opt,name=from_staker,json=fromStaker,proto3" json:"from_staker,omitempty"`
-	// to_staker is the account address of the new staker in the the pool
-	ToStaker string `protobuf:"bytes,3,opt,name=to_staker,json=toStaker,proto3" json:"to_staker,omitempty"`
-	// amount ...
-	Amount uint64 `protobuf:"varint,4,opt,name=amount,proto3" json:"amount,omitempty"`
-}
-
-func (m *EventRedelegate) Reset()         { *m = EventRedelegate{} }
-func (m *EventRedelegate) String() string { return proto.CompactTextString(m) }
-func (*EventRedelegate) ProtoMessage()    {}
-func (*EventRedelegate) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d01988a9108a2e89, []int{4}
-}
-func (m *EventRedelegate) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *EventRedelegate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_EventRedelegate.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *EventRedelegate) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventRedelegate.Merge(m, src)
-}
-func (m *EventRedelegate) XXX_Size() int {
-	return m.Size()
-}
-func (m *EventRedelegate) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventRedelegate.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_EventRedelegate proto.InternalMessageInfo
-
-func (m *EventRedelegate) GetAddress() string {
-	if m != nil {
-		return m.Address
-	}
-	return ""
-}
-
-func (m *EventRedelegate) GetFromStaker() string {
-	if m != nil {
-		return m.FromStaker
-	}
-	return ""
-}
-
-func (m *EventRedelegate) GetToStaker() string {
-	if m != nil {
-		return m.ToStaker
-	}
-	return ""
-}
-
-func (m *EventRedelegate) GetAmount() uint64 {
-	if m != nil {
-		return m.Amount
-	}
-	return 0
-}
-
 // EventWithdrawRewards ...
 // emitted_by: MsgRedelegate, MsgDelegate, MsgWithdrawRewards, EndBlock
 type EventWithdrawRewards struct {
@@ -382,7 +177,7 @@ func (m *EventWithdrawRewards) Reset()         { *m = EventWithdrawRewards{} }
 func (m *EventWithdrawRewards) String() string { return proto.CompactTextString(m) }
 func (*EventWithdrawRewards) ProtoMessage()    {}
 func (*EventWithdrawRewards) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d01988a9108a2e89, []int{5}
+	return fileDescriptor_d01988a9108a2e89, []int{2}
 }
 func (m *EventWithdrawRewards) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -432,88 +227,10 @@ func (m *EventWithdrawRewards) GetAmounts() string {
 	return ""
 }
 
-// EventSlash is an event emitted when a protocol node is slashed.
-// emitted_by: MsgSubmitBundleProposal, EndBlock
-type EventSlash struct {
-	// pool_id is the unique ID of the pool.
-	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
-	// staker is the account address of the protocol node.
-	Staker string `protobuf:"bytes,2,opt,name=staker,proto3" json:"staker,omitempty"`
-	// amount ...
-	Amount uint64 `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`
-	// slash_type
-	SlashType SlashType `protobuf:"varint,4,opt,name=slash_type,json=slashType,proto3,enum=kyve.delegation.v1beta1.SlashType" json:"slash_type,omitempty"`
-}
-
-func (m *EventSlash) Reset()         { *m = EventSlash{} }
-func (m *EventSlash) String() string { return proto.CompactTextString(m) }
-func (*EventSlash) ProtoMessage()    {}
-func (*EventSlash) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d01988a9108a2e89, []int{6}
-}
-func (m *EventSlash) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *EventSlash) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_EventSlash.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *EventSlash) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventSlash.Merge(m, src)
-}
-func (m *EventSlash) XXX_Size() int {
-	return m.Size()
-}
-func (m *EventSlash) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventSlash.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_EventSlash proto.InternalMessageInfo
-
-func (m *EventSlash) GetPoolId() uint64 {
-	if m != nil {
-		return m.PoolId
-	}
-	return 0
-}
-
-func (m *EventSlash) GetStaker() string {
-	if m != nil {
-		return m.Staker
-	}
-	return ""
-}
-
-func (m *EventSlash) GetAmount() uint64 {
-	if m != nil {
-		return m.Amount
-	}
-	return 0
-}
-
-func (m *EventSlash) GetSlashType() SlashType {
-	if m != nil {
-		return m.SlashType
-	}
-	return SLASH_TYPE_UNSPECIFIED
-}
-
 func init() {
-	proto.RegisterType((*EventUpdateParams)(nil), "kyve.delegation.v1beta1.EventUpdateParams")
-	proto.RegisterType((*EventDelegate)(nil), "kyve.delegation.v1beta1.EventDelegate")
 	proto.RegisterType((*EventStartUndelegation)(nil), "kyve.delegation.v1beta1.EventStartUndelegation")
 	proto.RegisterType((*EventUndelegate)(nil), "kyve.delegation.v1beta1.EventUndelegate")
-	proto.RegisterType((*EventRedelegate)(nil), "kyve.delegation.v1beta1.EventRedelegate")
 	proto.RegisterType((*EventWithdrawRewards)(nil), "kyve.delegation.v1beta1.EventWithdrawRewards")
-	proto.RegisterType((*EventSlash)(nil), "kyve.delegation.v1beta1.EventSlash")
 }
 
 func init() {
@@ -521,130 +238,26 @@ func init() {
 }
 
 var fileDescriptor_d01988a9108a2e89 = []byte{
-	// 496 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x93, 0x41, 0x6f, 0xd3, 0x3e,
-	0x18, 0xc6, 0xeb, 0xff, 0x3f, 0xea, 0xc8, 0x3b, 0x01, 0x22, 0x9a, 0xb6, 0xb2, 0x49, 0xe9, 0x14,
-	0x71, 0xe8, 0x29, 0xd1, 0xc6, 0x1d, 0x89, 0xa9, 0x3b, 0x4c, 0x48, 0x08, 0xa5, 0x0c, 0x34, 0x38,
-	0x44, 0xee, 0xfc, 0xd2, 0x46, 0x4d, 0xe2, 0xc8, 0x76, 0x1b, 0x7a, 0xe4, 0x1b, 0x70, 0xe4, 0xcc,
-	0xb7, 0xe0, 0x1b, 0xec, 0xb8, 0x23, 0x27, 0x84, 0xda, 0x2f, 0x82, 0x6c, 0x27, 0xb4, 0x43, 0xaa,
-	0xc4, 0xd0, 0x6e, 0x7e, 0xfd, 0x3e, 0xfe, 0x3d, 0x4f, 0xf2, 0xda, 0xf0, 0x64, 0x32, 0x9f, 0x61,
-	0xc4, 0x30, 0xc3, 0x11, 0x55, 0x29, 0x2f, 0xa2, 0xd9, 0xd1, 0x10, 0x15, 0x3d, 0x8a, 0x70, 0x86,
-	0x85, 0x92, 0x61, 0x29, 0xb8, 0xe2, 0xde, 0x9e, 0x56, 0x85, 0x2b, 0x55, 0x58, 0xab, 0xf6, 0x77,
-	0x46, 0x7c, 0xc4, 0x8d, 0x26, 0xd2, 0x2b, 0x2b, 0xdf, 0xef, 0x6d, 0x82, 0xae, 0x11, 0xac, 0x72,
-	0xa3, 0x7d, 0x49, 0x05, 0xcd, 0x6b, 0xfb, 0xe0, 0x1b, 0x81, 0x47, 0xa7, 0x3a, 0xcf, 0x79, 0xc9,
-	0xa8, 0xc2, 0x57, 0xa6, 0xe7, 0xf5, 0x01, 0x78, 0xc6, 0x12, 0xab, 0xec, 0x90, 0x43, 0xd2, 0xdb,
-	0x3e, 0xee, 0x86, 0x1b, 0x92, 0x86, 0xf6, 0xd0, 0x89, 0x73, 0xf5, 0xa3, 0xdb, 0x8a, 0x5d, 0x9e,
-	0xb1, 0x15, 0xa5, 0xc0, 0xaa, 0xa1, 0xfc, 0x77, 0x2b, 0x4a, 0x81, 0x55, 0x4d, 0xe9, 0xc0, 0x56,
-	0x49, 0xe7, 0x19, 0xa7, 0xac, 0xf3, 0xff, 0x21, 0xe9, 0xb9, 0x71, 0x53, 0x06, 0x17, 0x70, 0xdf,
-	0x44, 0xef, 0x5b, 0x18, 0x6a, 0x29, 0x65, 0x4c, 0xa0, 0xb4, 0x99, 0xdd, 0xb8, 0x29, 0xbd, 0x5d,
-	0x68, 0x4b, 0x45, 0x27, 0x28, 0x4c, 0x0c, 0x37, 0xae, 0x2b, 0xbd, 0x4f, 0x73, 0x3e, 0x2d, 0x94,
-	0x61, 0x3b, 0x71, 0x5d, 0x05, 0x5f, 0x09, 0xec, 0x1a, 0xf6, 0x40, 0x51, 0xa1, 0xce, 0x8b, 0x55,
-	0xde, 0xbb, 0x33, 0xf1, 0x9e, 0xc1, 0x01, 0x4a, 0x95, 0xe6, 0x54, 0x21, 0x4b, 0xa6, 0x6b, 0x1e,
-	0x89, 0x1e, 0x45, 0xc7, 0x31, 0xe2, 0xc7, 0xbf, 0x25, 0xeb, 0x29, 0xfa, 0x54, 0x61, 0xf0, 0x1e,
-	0x1e, 0xda, 0xd1, 0x35, 0x8d, 0xbb, 0xfc, 0x03, 0x9f, 0x48, 0x4d, 0x8f, 0xf1, 0x2f, 0xe8, 0x5d,
-	0xd8, 0xfe, 0x20, 0x78, 0x9e, 0xdc, 0xb0, 0x00, 0xbd, 0x35, 0xb0, 0x36, 0x07, 0xe0, 0x2a, 0xde,
-	0xb4, 0xed, 0x1c, 0xef, 0x29, 0x3e, 0xf8, 0x33, 0x83, 0x73, 0x23, 0xc3, 0x10, 0x76, 0x4c, 0x84,
-	0xb7, 0xa9, 0x1a, 0x33, 0x41, 0xab, 0x18, 0x2b, 0x2a, 0x98, 0xfc, 0x87, 0xaf, 0xd4, 0x27, 0x0c,
-	0x53, 0x36, 0x97, 0xa8, 0x2e, 0x83, 0x2f, 0x04, 0xc0, 0x4e, 0x3a, 0xa3, 0x72, 0xec, 0xed, 0xc1,
-	0x56, 0xc9, 0x79, 0x96, 0xa4, 0xcc, 0xa0, 0x9d, 0xb8, 0xad, 0xcb, 0x33, 0x76, 0xeb, 0xe1, 0x3e,
-	0x07, 0x90, 0x9a, 0x98, 0xa8, 0x79, 0x69, 0x67, 0xf9, 0xe0, 0x38, 0xd8, 0x78, 0xf9, 0x8d, 0xf9,
-	0xeb, 0x79, 0x89, 0xb1, 0x2b, 0x9b, 0xe5, 0xc9, 0xd9, 0xd5, 0xc2, 0x27, 0xd7, 0x0b, 0x9f, 0xfc,
-	0x5c, 0xf8, 0xe4, 0xf3, 0xd2, 0x6f, 0x5d, 0x2f, 0xfd, 0xd6, 0xf7, 0xa5, 0xdf, 0x7a, 0x17, 0x8d,
-	0x52, 0x35, 0x9e, 0x0e, 0xc3, 0x4b, 0x9e, 0x47, 0x2f, 0x2e, 0xde, 0x9c, 0xbe, 0x44, 0x55, 0x71,
-	0x31, 0x89, 0x2e, 0xc7, 0x34, 0x2d, 0xa2, 0x8f, 0xeb, 0xaf, 0x5e, 0xdb, 0xcb, 0x61, 0xdb, 0xbc,
-	0xf6, 0xa7, 0xbf, 0x02, 0x00, 0x00, 0xff, 0xff, 0x6a, 0xe5, 0x56, 0xd8, 0x94, 0x04, 0x00, 0x00,
-}
-
-func (m *EventUpdateParams) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *EventUpdateParams) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *EventUpdateParams) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Payload) > 0 {
-		i -= len(m.Payload)
-		copy(dAtA[i:], m.Payload)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.Payload)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	{
-		size, err := m.NewParams.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarintEvents(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0x12
-	{
-		size, err := m.OldParams.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarintEvents(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0xa
-	return len(dAtA) - i, nil
-}
-
-func (m *EventDelegate) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *EventDelegate) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *EventDelegate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Amount != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.Amount))
-		i--
-		dAtA[i] = 0x18
-	}
-	if len(m.Staker) > 0 {
-		i -= len(m.Staker)
-		copy(dAtA[i:], m.Staker)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.Staker)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Address) > 0 {
-		i -= len(m.Address)
-		copy(dAtA[i:], m.Address)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.Address)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
+	// 292 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x91, 0xc1, 0x4a, 0xc3, 0x40,
+	0x10, 0x86, 0xbb, 0x5a, 0x2a, 0xee, 0x45, 0x08, 0x52, 0x23, 0xc2, 0x52, 0x8a, 0x87, 0x9e, 0xb2,
+	0x14, 0xef, 0x1e, 0xc4, 0x1e, 0x44, 0xf0, 0x50, 0x51, 0x51, 0x0f, 0x65, 0xd2, 0x1d, 0xda, 0x50,
+	0x93, 0x2d, 0xbb, 0x93, 0xc4, 0xbe, 0x85, 0xcf, 0xe0, 0xd3, 0x78, 0xec, 0xd1, 0xa3, 0x24, 0x2f,
+	0x22, 0x59, 0x63, 0x9b, 0xb3, 0x78, 0xfc, 0x67, 0xbe, 0x99, 0xff, 0x87, 0x9f, 0x9f, 0x2e, 0x56,
+	0x19, 0x4a, 0x85, 0x2f, 0x38, 0x03, 0x8a, 0x74, 0x22, 0xb3, 0x61, 0x88, 0x04, 0x43, 0x89, 0x19,
+	0x26, 0x64, 0x83, 0xa5, 0xd1, 0xa4, 0xbd, 0xa3, 0x8a, 0x0a, 0xb6, 0x54, 0x50, 0x53, 0xfd, 0x77,
+	0xc6, 0xbb, 0xa3, 0x8a, 0xbc, 0x25, 0x30, 0x74, 0x97, 0x6c, 0x11, 0xcf, 0xe7, 0x7b, 0xa0, 0x94,
+	0x41, 0x6b, 0x7d, 0xd6, 0x63, 0x83, 0xfd, 0xf1, 0xaf, 0xf4, 0xba, 0xbc, 0x63, 0x09, 0x16, 0x68,
+	0xfc, 0x1d, 0xb7, 0xa8, 0x55, 0x35, 0x87, 0x58, 0xa7, 0x09, 0xf9, 0xbb, 0x3d, 0x36, 0x68, 0x8f,
+	0x6b, 0xe5, 0x9d, 0xf3, 0x13, 0xb4, 0x14, 0xc5, 0x40, 0xa8, 0x26, 0x69, 0xc3, 0x63, 0xa2, 0x80,
+	0xd0, 0x6f, 0x3b, 0xf8, 0x78, 0x83, 0x34, 0x53, 0x5c, 0x02, 0x61, 0xff, 0x99, 0x1f, 0xb8, 0x8c,
+	0x9b, 0x05, 0xfe, 0x5f, 0xb8, 0x7e, 0xc8, 0x0f, 0xdd, 0xf3, 0x87, 0x88, 0xe6, 0xca, 0x40, 0x3e,
+	0xc6, 0x1c, 0x8c, 0xb2, 0x7f, 0x70, 0xa8, 0x2e, 0xdc, 0x4f, 0xeb, 0x2c, 0xaa, 0x8b, 0x1f, 0x79,
+	0x71, 0xf5, 0x51, 0x08, 0xb6, 0x2e, 0x04, 0xfb, 0x2a, 0x04, 0x7b, 0x2b, 0x45, 0x6b, 0x5d, 0x8a,
+	0xd6, 0x67, 0x29, 0x5a, 0x4f, 0x72, 0x16, 0xd1, 0x3c, 0x0d, 0x83, 0xa9, 0x8e, 0xe5, 0xf5, 0xe3,
+	0xfd, 0xe8, 0x06, 0x29, 0xd7, 0x66, 0x21, 0xa7, 0x73, 0x88, 0x12, 0xf9, 0xda, 0x2c, 0x96, 0x56,
+	0x4b, 0xb4, 0x61, 0xc7, 0x15, 0x7a, 0xf6, 0x1d, 0x00, 0x00, 0xff, 0xff, 0x3d, 0x62, 0x24, 0x50,
+	0xf8, 0x01, 0x00, 0x00,
 }
 
 func (m *EventStartUndelegation) Marshal() (dAtA []byte, err error) {
@@ -736,55 +349,6 @@ func (m *EventUndelegate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *EventRedelegate) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *EventRedelegate) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *EventRedelegate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Amount != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.Amount))
-		i--
-		dAtA[i] = 0x20
-	}
-	if len(m.ToStaker) > 0 {
-		i -= len(m.ToStaker)
-		copy(dAtA[i:], m.ToStaker)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.ToStaker)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.FromStaker) > 0 {
-		i -= len(m.FromStaker)
-		copy(dAtA[i:], m.FromStaker)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.FromStaker)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Address) > 0 {
-		i -= len(m.Address)
-		copy(dAtA[i:], m.Address)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.Address)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
 func (m *EventWithdrawRewards) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -829,51 +393,6 @@ func (m *EventWithdrawRewards) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *EventSlash) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *EventSlash) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *EventSlash) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.SlashType != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.SlashType))
-		i--
-		dAtA[i] = 0x20
-	}
-	if m.Amount != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.Amount))
-		i--
-		dAtA[i] = 0x18
-	}
-	if len(m.Staker) > 0 {
-		i -= len(m.Staker)
-		copy(dAtA[i:], m.Staker)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.Staker)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if m.PoolId != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.PoolId))
-		i--
-		dAtA[i] = 0x8
-	}
-	return len(dAtA) - i, nil
-}
-
 func encodeVarintEvents(dAtA []byte, offset int, v uint64) int {
 	offset -= sovEvents(v)
 	base := offset
@@ -885,43 +404,6 @@ func encodeVarintEvents(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *EventUpdateParams) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = m.OldParams.Size()
-	n += 1 + l + sovEvents(uint64(l))
-	l = m.NewParams.Size()
-	n += 1 + l + sovEvents(uint64(l))
-	l = len(m.Payload)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	return n
-}
-
-func (m *EventDelegate) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Address)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	l = len(m.Staker)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	if m.Amount != 0 {
-		n += 1 + sovEvents(uint64(m.Amount))
-	}
-	return n
-}
-
 func (m *EventStartUndelegation) Size() (n int) {
 	if m == nil {
 		return 0
@@ -965,30 +447,6 @@ func (m *EventUndelegate) Size() (n int) {
 	return n
 }
 
-func (m *EventRedelegate) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Address)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	l = len(m.FromStaker)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	l = len(m.ToStaker)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	if m.Amount != 0 {
-		n += 1 + sovEvents(uint64(m.Amount))
-	}
-	return n
-}
-
 func (m *EventWithdrawRewards) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1010,314 +468,11 @@ func (m *EventWithdrawRewards) Size() (n int) {
 	return n
 }
 
-func (m *EventSlash) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.PoolId != 0 {
-		n += 1 + sovEvents(uint64(m.PoolId))
-	}
-	l = len(m.Staker)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	if m.Amount != 0 {
-		n += 1 + sovEvents(uint64(m.Amount))
-	}
-	if m.SlashType != 0 {
-		n += 1 + sovEvents(uint64(m.SlashType))
-	}
-	return n
-}
-
 func sovEvents(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
 func sozEvents(x uint64) (n int) {
 	return sovEvents(uint64((x << 1) ^ uint64((int64(x) >> 63))))
-}
-func (m *EventUpdateParams) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowEvents
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: EventUpdateParams: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventUpdateParams: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OldParams", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.OldParams.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NewParams", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.NewParams.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Payload", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Payload = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipEvents(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *EventDelegate) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowEvents
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: EventDelegate: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventDelegate: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Address = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Staker", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Staker = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
-			}
-			m.Amount = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Amount |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipEvents(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
 }
 func (m *EventStartUndelegation) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
@@ -1604,171 +759,6 @@ func (m *EventUndelegate) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *EventRedelegate) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowEvents
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: EventRedelegate: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventRedelegate: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Address = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FromStaker", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.FromStaker = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ToStaker", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ToStaker = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 4:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
-			}
-			m.Amount = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Amount |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipEvents(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
 func (m *EventWithdrawRewards) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1894,145 +884,6 @@ func (m *EventWithdrawRewards) Unmarshal(dAtA []byte) error {
 			}
 			m.Amounts = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipEvents(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *EventSlash) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowEvents
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: EventSlash: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventSlash: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PoolId", wireType)
-			}
-			m.PoolId = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.PoolId |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Staker", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Staker = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
-			}
-			m.Amount = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Amount |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 4:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SlashType", wireType)
-			}
-			m.SlashType = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.SlashType |= SlashType(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipEvents(dAtA[iNdEx:])

@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/KYVENetwork/chain/util"
-	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -22,7 +21,6 @@ import (
 
 	"github.com/KYVENetwork/chain/x/bundles"
 	bundlesTypes "github.com/KYVENetwork/chain/x/bundles/types"
-	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	poolmodule "github.com/KYVENetwork/chain/x/pool"
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	"github.com/KYVENetwork/chain/x/stakers"
@@ -51,9 +49,6 @@ func (suite *KeeperTestSuite) PerformValidityChecks() {
 	// verify bundles module
 	suite.VerifyBundlesQueries()
 	suite.VerifyBundlesGenesisImportExport()
-
-	// verify delegation module
-	suite.VerifyDelegationModuleIntegrity()
 
 	// verify team module
 	// TODO(@troy): implement team funds integrity checks
@@ -292,35 +287,6 @@ func (suite *KeeperTestSuite) VerifyBundlesGenesisImportExport() {
 	err := genState.Validate()
 	Expect(err).To(BeNil())
 	bundles.InitGenesis(suite.Ctx(), suite.App().BundlesKeeper, *genState)
-}
-
-// ========================
-// delegation module checks
-// ========================
-
-func (suite *KeeperTestSuite) VerifyDelegationModuleIntegrity() {
-	expectedBalance := sdk.NewCoins()
-
-	for _, delegator := range suite.App().DelegationKeeper.GetAllDelegators(suite.Ctx()) {
-		expectedBalance = expectedBalance.Add(
-			sdk.NewInt64Coin(globalTypes.Denom,
-				int64(suite.App().DelegationKeeper.GetDelegationAmountOfDelegator(suite.Ctx(), delegator.Staker, delegator.Delegator)),
-			)).Add(
-			suite.App().DelegationKeeper.GetOutstandingRewards(suite.Ctx(), delegator.Staker, delegator.Delegator)...,
-		)
-	}
-
-	// Due to rounding errors the delegation module will get a very few nKYVE over the time.
-	// As long as it is guaranteed that it's always the user who gets paid out less in case of
-	// rounding, everything is fine.
-	difference := suite.GetCoinsFromModule(delegationtypes.ModuleName).Sub(expectedBalance...)
-	//nolint:all
-	Expect(difference.IsAnyNegative()).To(BeFalse())
-
-	// 10 should be enough for testing, these are left-over tokens due to rounding issues
-	for _, coin := range difference {
-		Expect(coin.Amount.Uint64() < 10).To(BeTrue())
-	}
 }
 
 // =========================

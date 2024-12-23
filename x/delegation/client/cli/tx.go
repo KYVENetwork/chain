@@ -19,10 +19,5 @@ func GetTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	cmd.AddCommand(CmdDelegate())
-	cmd.AddCommand(CmdUndelegate())
-	cmd.AddCommand(CmdRedelegate())
-	cmd.AddCommand(CmdWithdrawRewards())
-
 	return cmd
 }

@@ -405,6 +405,10 @@ func New(
 		v2_0.CreateUpgradeHandler(
 			app.ModuleManager,
 			app.Configurator(),
+			app.DelegationKeeper,
+			app.StakersKeeper,
+			app.StakingKeeper,
+			app.BankKeeper,
 		),
 	)
 

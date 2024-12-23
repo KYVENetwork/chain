@@ -147,35 +147,6 @@ func (k Keeper) f1RemoveDelegator(ctx sdk.Context, stakerAddress string, delegat
 	return balance
 }
 
-// f1Slash performs a slash within the f1-logic.
-// It ends the current period and starts a new one with reduced total delegation.
-// A slash entry is created which is needed to calculate the correct delegation amount
-// of every delegator.
-func (k Keeper) f1Slash(ctx sdk.Context, stakerAddress string, fraction math.LegacyDec) (amount uint64) {
-	delegationData, _ := k.GetDelegationData(ctx, stakerAddress)
-
-	// Finish current period because in the new one there will be
-	// a reduced total delegation for the slashed staker
-	// The slash will be accounted to the period with index `slashedIndex`
-	slashedIndex := k.f1StartNewPeriod(ctx, stakerAddress, &delegationData)
-
-	k.SetDelegationSlashEntry(ctx, types.DelegationSlash{
-		Staker:   stakerAddress,
-		KIndex:   slashedIndex,
-		Fraction: fraction,
-	})
-
-	// remaining_total_delegation = total_delegation * (1 - fraction)
-	totalDelegation := math.LegacyNewDec(int64(delegationData.TotalDelegation))
-	slashedAmount := totalDelegation.Mul(fraction).TruncateInt().Uint64()
-
-	// Remove slashed amount from delegation metadata
-	delegationData.TotalDelegation -= slashedAmount
-	k.SetDelegationData(ctx, delegationData)
-
-	return slashedAmount
-}
-
 // f1WithdrawRewards calculates all outstanding rewards and withdraws them from
 // the f1-logic. A new period starts.
 func (k Keeper) f1WithdrawRewards(ctx sdk.Context, stakerAddress string, delegatorAddress string) sdk.Coins {
@@ -267,63 +238,6 @@ func (k Keeper) f1GetCurrentDelegation(ctx sdk.Context, stakerAddress string, de
 		})
 
 	return latestBalance.TruncateInt().Uint64()
-}
-
-// f1GetOutstandingRewards calculates the current outstanding rewards without modifying the f1-state.
-// This method can be used for queries.
-func (k Keeper) f1GetOutstandingRewards(ctx sdk.Context, stakerAddress string, delegatorAddress string) sdk.Coins {
-	delegator, found := k.GetDelegator(ctx, stakerAddress, delegatorAddress)
-	if !found {
-		return sdk.NewCoins()
-	}
-
-	// Fetch metadata
-	delegationData, found := k.GetDelegationData(ctx, stakerAddress)
-	if !found {
-		util.PanicHalt(k.upgradeKeeper, ctx, "No delegationData although somebody is delegating")
-	}
-
-	// End current period and use it for calculating the reward
-	endIndex := delegationData.LatestIndexK
-
-	// According to F1 the reward is calculated as the difference between two entries multiplied by the
-	// delegation amount for the period.
-	// To incorporate slashing one needs to iterate all slashes and calculate the reward for every period
-	// separately and then sum it.
-	reward := sdk.NewDecCoins()
-	latestBalance := math.LegacyNewDec(int64(delegator.InitialAmount))
-	k.f1IterateConstantDelegationPeriods(ctx, stakerAddress, delegatorAddress, delegator.KIndex, endIndex,
-		func(startIndex uint64, endIndex uint64, delegation math.LegacyDec) {
-			difference := k.f1GetEntryDifference(ctx, stakerAddress, startIndex, endIndex)
-			// Multiply with delegation for period
-			periodReward := safeMulDec(difference, delegation)
-			// Add to total rewards
-			reward = reward.Add(periodReward...)
-
-			// For calculating the last (ongoing) period
-			latestBalance = delegation
-		})
-
-	// Append missing rewards from last period to ongoing period
-	entry, found := k.GetDelegationEntry(ctx, stakerAddress, delegationData.LatestIndexK)
-	if !found {
-		util.PanicHalt(k.upgradeKeeper, ctx, "Entry does not exist")
-	}
-	_ = entry
-
-	currentPeriodValue := sdk.NewDecCoins()
-	if delegationData.TotalDelegation != 0 {
-		decCurrentRewards := sdk.NewDecCoinsFromCoins(delegationData.CurrentRewards...)
-		decTotalDelegation := math.LegacyNewDec(int64(delegationData.TotalDelegation))
-
-		// F1: $T_f / n_f$
-		currentPeriodValue = decCurrentRewards.QuoDec(decTotalDelegation)
-	}
-
-	ongoingPeriodReward := safeMulDec(currentPeriodValue, latestBalance)
-
-	reward = reward.Add(ongoingPeriodReward...)
-	return truncateDecCoins(reward)
 }
 
 func (k Keeper) f1GetEntryDifference(ctx sdk.Context, stakerAddress string, lowIndex uint64, highIndex uint64) sdk.DecCoins {

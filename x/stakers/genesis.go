@@ -14,7 +14,6 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, genState types.GenesisState)
 	for _, entry := range genState.PoolAccountList {
 		k.SetPoolAccount(ctx, entry)
 		k.AddOneToCount(ctx, entry.PoolId)
-		k.AddActiveStaker(ctx, entry.Staker)
 	}
 
 	for _, entry := range genState.CommissionChangeEntries {

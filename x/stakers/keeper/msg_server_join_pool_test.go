@@ -184,7 +184,6 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(totalStakeOfPool).To(Equal(0 * i.KYVE))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 1)).To(Equal(0 * i.KYVE))
-		Expect(s.App().StakersKeeper.GetActiveStakers(s.Ctx())).To(HaveLen(0))
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(100 * i.KYVE))
 	})
 
