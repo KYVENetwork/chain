@@ -8,27 +8,37 @@ import (
 )
 
 func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.FullStaker {
-	staker, _ := k.stakerKeeper.GetValidator(ctx, stakerAddress)
-
-	stakerMetadata := types.StakerMetadata{
-		Commission:              staker.Commission.Rate,
-		Moniker:                 staker.GetMoniker(),
-		Website:                 staker.Description.Website,
-		Identity:                staker.Description.Identity,
-		SecurityContact:         staker.Description.SecurityContact,
-		Details:                 staker.Description.GetDetails(),
-		PendingCommissionChange: nil,
-		CommissionRewards:       sdk.NewCoins(),
-	}
+	validator, _ := k.stakerKeeper.GetValidator(ctx, stakerAddress)
 
 	var poolMemberships []*types.PoolMembership
+	totalPoolStake := uint64(0)
 
 	for _, valaccount := range k.stakerKeeper.GetValaccountsFromStaker(ctx, stakerAddress) {
-
 		pool, _ := k.poolKeeper.GetPool(ctx, valaccount.PoolId)
 
 		accountValaddress, _ := sdk.AccAddressFromBech32(valaccount.Valaddress)
 		balanceValaccount := k.bankKeeper.GetBalance(ctx, accountValaddress, globalTypes.Denom).Amount.Uint64()
+
+		commissionChange, found := k.stakerKeeper.GetCommissionChangeEntryByIndex2(ctx, stakerAddress, valaccount.PoolId)
+		var commissionChangeEntry *types.CommissionChangeEntry = nil
+		if found {
+			commissionChangeEntry = &types.CommissionChangeEntry{
+				Commission:   commissionChange.Commission,
+				CreationDate: commissionChange.CreationDate,
+			}
+		}
+
+		stakeFractionChange, found := k.stakerKeeper.GetStakeFractionChangeEntryByIndex2(ctx, stakerAddress, valaccount.PoolId)
+		var stakeFractionChangeEntry *types.StakeFractionChangeEntry = nil
+		if found {
+			stakeFractionChangeEntry = &types.StakeFractionChangeEntry{
+				StakeFraction: stakeFractionChange.StakeFraction,
+				CreationDate:  stakeFractionChange.CreationDate,
+			}
+		}
+
+		poolStake := k.stakerKeeper.GetValidatorPoolStake(ctx, stakerAddress, pool.Id)
+		totalPoolStake += poolStake
 
 		poolMemberships = append(
 			poolMemberships, &types.PoolMembership{
@@ -40,29 +50,27 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 					InflationShareWeight: pool.InflationShareWeight,
 					UploadInterval:       pool.UploadInterval,
 					TotalFunds:           k.fundersKeeper.GetTotalActiveFunding(ctx, pool.Id),
-					TotalDelegation:      k.stakerKeeper.GetTotalStakeOfPool(ctx, pool.Id),
+					TotalStake:           k.stakerKeeper.GetTotalStakeOfPool(ctx, pool.Id),
 					Status:               k.GetPoolStatus(ctx, &pool),
 				},
-				Points:     valaccount.Points,
-				IsLeaving:  valaccount.IsLeaving,
-				Valaddress: valaccount.Valaddress,
-				Balance:    balanceValaccount,
+				Points:                     valaccount.Points,
+				IsLeaving:                  valaccount.IsLeaving,
+				Valaddress:                 valaccount.Valaddress,
+				Balance:                    balanceValaccount,
+				Commission:                 valaccount.Commission,
+				PendingCommissionChange:    commissionChangeEntry,
+				StakeFraction:              valaccount.StakeFraction,
+				PendingStakeFractionChange: stakeFractionChangeEntry,
+				PoolStake:                  poolStake,
 			},
 		)
 	}
 
-	// Iterate all UnbondingDelegation entries to get total delegation unbonding amount
-	selfDelegationUnbonding := uint64(0)
-	// TODO rework query spec
-
 	return &types.FullStaker{
-		Address:                 stakerAddress,
-		Metadata:                &stakerMetadata,
-		SelfDelegation:          uint64(0), // TODO rework query spec
-		SelfDelegationUnbonding: selfDelegationUnbonding,
-		TotalDelegation:         staker.Tokens.Uint64(),
-		DelegatorCount:          0, // TODO rework query spec
-		Pools:                   poolMemberships,
+		Address:        stakerAddress,
+		Validator:      &validator,
+		TotalPoolStake: totalPoolStake,
+		Pools:          poolMemberships,
 	}
 }
 

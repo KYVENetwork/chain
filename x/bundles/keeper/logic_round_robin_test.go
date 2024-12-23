@@ -101,9 +101,7 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 		}
 		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
 
-		params := s.App().PoolKeeper.GetParams(s.Ctx())
-		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("1")
-		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+		s.SetMaxVotingPower("1")
 	})
 
 	AfterEach(func() {
@@ -269,9 +267,7 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 
 	It("Frequency analysis with maximum voting power cap", func() {
 		// ARRANGE
-		params := s.App().PoolKeeper.GetParams(s.Ctx())
-		params.MaxVotingPowerPerPool = math.LegacyMustNewDecFromStr("0.5")
-		s.App().PoolKeeper.SetParams(s.Ctx(), params)
+		s.SetMaxVotingPower("0.5")
 
 		// NOTE that dummy with index 2 has more than 50% voting power, so his effective stake
 		// will be lower
