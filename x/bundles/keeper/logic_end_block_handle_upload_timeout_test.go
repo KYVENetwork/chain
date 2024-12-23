@@ -97,7 +97,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -105,7 +105,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_1_A,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -118,7 +118,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 	It("Next uploader can stay although pool ran out of funds", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -173,7 +173,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 	It("Next uploader gets removed due to pool upgrading", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -212,7 +212,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 	It("Next uploader gets removed due to pool being disabled", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -244,7 +244,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 	It("Next uploader gets removed due to pool not reaching min delegation", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -284,7 +284,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 	It("Next uploader gets removed due to pool having validators with too much voting power", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -314,7 +314,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 	It("Staker is next uploader of genesis bundle and upload interval and timeout does not pass", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -342,7 +342,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 	It("Staker is next uploader of genesis bundle and upload timeout does not pass but upload interval passes", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -371,7 +371,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 	It("Staker is next uploader of genesis bundle and upload timeout does pass together with upload interval", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -407,7 +407,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 	It("Staker is next uploader of bundle proposal and upload interval does not pass", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -415,7 +415,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -429,7 +429,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -459,7 +459,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 	It("Staker is next uploader of bundle proposal and upload timeout does not pass", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -467,7 +467,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -481,7 +481,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -512,7 +512,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 	It("Staker is next uploader of bundle proposal and upload timeout passes with the previous bundle being valid", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -520,7 +520,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -534,7 +534,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -580,7 +580,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 	It("Staker is next uploader of bundle proposal and upload timeout passes with the previous bundle not reaching quorum", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -588,7 +588,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -650,13 +650,13 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -664,7 +664,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -678,7 +678,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -686,7 +686,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_2_A,
+			Creator:   i.POOL_ADDRESS_2_A,
 			Staker:    i.STAKER_2,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -747,13 +747,13 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -761,7 +761,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -775,7 +775,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -793,7 +793,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 			s.App().BundlesKeeper.SetBundleProposal(s.Ctx(), bundleProposal)
 
 			s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-				Creator:       i.VALADDRESS_0_A,
+				Creator:       i.POOL_ADDRESS_0_A,
 				Staker:        i.STAKER_0,
 				PoolId:        0,
 				StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -807,7 +807,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 			})
 
 			s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-				Creator:   i.VALADDRESS_1_A,
+				Creator:   i.POOL_ADDRESS_1_A,
 				Staker:    i.STAKER_1,
 				PoolId:    0,
 				StorageId: "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -871,7 +871,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 	It("A bundle proposal with no quorum does not reach the upload interval", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -879,7 +879,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -915,7 +915,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 	It("A bundle proposal with no quorum does reach the upload interval", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -923,7 +923,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -977,13 +977,13 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -991,7 +991,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1043,13 +1043,13 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -1057,7 +1057,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1071,7 +1071,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1079,7 +1079,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_2_A,
+			Creator:   i.POOL_ADDRESS_2_A,
 			Staker:    i.STAKER_2,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1131,13 +1131,13 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -1145,7 +1145,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1159,7 +1159,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1167,7 +1167,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_2_A,
+			Creator:   i.POOL_ADDRESS_2_A,
 			Staker:    i.STAKER_2,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1239,7 +1239,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        1,
-			PoolAddress:   i.VALADDRESS_0_B,
+			PoolAddress:   i.POOL_ADDRESS_0_B,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -1247,7 +1247,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        1,
-			PoolAddress:   i.VALADDRESS_1_B,
+			PoolAddress:   i.POOL_ADDRESS_1_B,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -1261,13 +1261,13 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        1,
-			PoolAddress:   i.VALADDRESS_2_B,
+			PoolAddress:   i.POOL_ADDRESS_2_B,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_1_B,
+			Creator: i.POOL_ADDRESS_1_B,
 			Staker:  i.STAKER_1,
 			PoolId:  1,
 		})
@@ -1275,7 +1275,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_B,
+			Creator:       i.POOL_ADDRESS_1_B,
 			Staker:        i.STAKER_1,
 			PoolId:        1,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1289,7 +1289,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_0_B,
+			Creator:   i.POOL_ADDRESS_0_B,
 			Staker:    i.STAKER_0,
 			PoolId:    1,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1307,7 +1307,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 			s.App().BundlesKeeper.SetBundleProposal(s.Ctx(), bundleProposal)
 
 			s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-				Creator:       i.VALADDRESS_1_B,
+				Creator:       i.POOL_ADDRESS_1_B,
 				Staker:        i.STAKER_1,
 				PoolId:        1,
 				StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -1321,7 +1321,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 			})
 
 			s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-				Creator:   i.VALADDRESS_0_B,
+				Creator:   i.POOL_ADDRESS_0_B,
 				Staker:    i.STAKER_0,
 				PoolId:    1,
 				StorageId: "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -1357,8 +1357,8 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(poolStakers).To(HaveLen(2))
 
 		// check if next uploader received a point
-		_, valaccountActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 1)
-		Expect(valaccountActive).To(BeFalse())
+		_, poolAccountActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 1)
+		Expect(poolAccountActive).To(BeFalse())
 
 		_, found = s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_2)
 		Expect(found).To(BeTrue())

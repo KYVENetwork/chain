@@ -73,7 +73,7 @@ var _ = Describe("Delegation - Redelegation", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.BOB,
 			PoolId:        1,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Amount:        0,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),

@@ -16,8 +16,8 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 	for _, poolAccount := range k.stakerKeeper.GetPoolAccountsFromStaker(ctx, stakerAddress) {
 		pool, _ := k.poolKeeper.GetPool(ctx, poolAccount.PoolId)
 
-		accountValaddress, _ := sdk.AccAddressFromBech32(poolAccount.PoolAddress)
-		balanceValaccount := k.bankKeeper.GetBalance(ctx, accountValaddress, globalTypes.Denom).Amount.Uint64()
+		poolAddressAccount, _ := sdk.AccAddressFromBech32(poolAccount.PoolAddress)
+		balancePoolAddress := k.bankKeeper.GetBalance(ctx, poolAddressAccount, globalTypes.Denom).Amount.Uint64()
 
 		commissionChange, found := k.stakerKeeper.GetCommissionChangeEntryByIndex2(ctx, stakerAddress, poolAccount.PoolId)
 		var commissionChangeEntry *types.CommissionChangeEntry = nil
@@ -56,7 +56,7 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 				Points:                     poolAccount.Points,
 				IsLeaving:                  poolAccount.IsLeaving,
 				PoolAddress:                poolAccount.PoolAddress,
-				Balance:                    balanceValaccount,
+				Balance:                    balancePoolAddress,
 				Commission:                 poolAccount.Commission,
 				PendingCommissionChange:    commissionChangeEntry,
 				StakeFraction:              poolAccount.StakeFraction,

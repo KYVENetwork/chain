@@ -50,7 +50,7 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -240,7 +240,7 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        1,
-			PoolAddress:   i.VALADDRESS_0_B,
+			PoolAddress:   i.POOL_ADDRESS_0_B,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -262,20 +262,20 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.PerformValidityChecks()
 
 		// ASSERT
-		valaccount0, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
-		Expect(valaccount0.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
+		poolAccount0, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount0.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 
-		valaccount1, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 1)
-		Expect(valaccount1.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
+		poolAccount1, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 1)
+		Expect(poolAccount1.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 
 		// wait for update
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetCommissionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		valaccount0, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
-		Expect(valaccount0.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
+		poolAccount0, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount0.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 
-		valaccount1, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 1)
-		Expect(valaccount1.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
+		poolAccount1, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 1)
+		Expect(poolAccount1.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 	})
 })

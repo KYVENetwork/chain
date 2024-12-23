@@ -130,7 +130,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -140,13 +140,13 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_1_A,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -177,7 +177,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -191,7 +191,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -205,7 +205,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -261,7 +261,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -275,7 +275,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -288,7 +288,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -348,7 +348,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -362,7 +362,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -375,7 +375,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -448,7 +448,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -462,7 +462,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -476,7 +476,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -552,7 +552,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -566,7 +566,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -579,7 +579,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -650,7 +650,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -664,7 +664,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -677,7 +677,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -747,7 +747,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -761,7 +761,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -775,7 +775,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -850,7 +850,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -864,7 +864,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -877,7 +877,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -948,7 +948,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -962,7 +962,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -975,7 +975,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -1046,7 +1046,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1060,7 +1060,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1074,7 +1074,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -1149,7 +1149,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1163,7 +1163,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1176,7 +1176,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -1247,7 +1247,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1261,7 +1261,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1274,7 +1274,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -1345,7 +1345,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1359,7 +1359,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1373,7 +1373,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -1448,7 +1448,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1462,7 +1462,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1476,7 +1476,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -1558,7 +1558,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1572,7 +1572,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1586,7 +1586,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -1658,7 +1658,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1672,7 +1672,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1685,7 +1685,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -1764,14 +1764,14 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        1,
-			PoolAddress:   i.VALADDRESS_0_B,
+			PoolAddress:   i.POOL_ADDRESS_0_B,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        1,
-			PoolAddress:   i.VALADDRESS_1_B,
+			PoolAddress:   i.POOL_ADDRESS_1_B,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -1783,7 +1783,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		}
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1797,7 +1797,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1810,7 +1810,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -1922,7 +1922,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        1,
-			PoolAddress:   i.VALADDRESS_0_B,
+			PoolAddress:   i.POOL_ADDRESS_0_B,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -1930,7 +1930,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        1,
-			PoolAddress:   i.VALADDRESS_1_B,
+			PoolAddress:   i.POOL_ADDRESS_1_B,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -1945,7 +1945,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// Prepare bundle proposal
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1959,7 +1959,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1972,7 +1972,7 @@ var _ = Describe("inflation splitting", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",

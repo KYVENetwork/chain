@@ -66,22 +66,22 @@ func (suite *KeeperTestSuite) GetCoinsFromModule(moduleName string) sdk.Coins {
 	return suite.App().BankKeeper.GetAllBalances(suite.Ctx(), moduleAcc)
 }
 
-func (suite *KeeperTestSuite) GetNextUploader() (nextStaker string, nextValaddress string) {
+func (suite *KeeperTestSuite) GetNextUploader() (nextStaker string, nextPoolAddress string) {
 	bundleProposal, _ := suite.App().BundlesKeeper.GetBundleProposal(suite.Ctx(), 0)
 
 	switch bundleProposal.NextUploader {
 	case STAKER_0:
 		nextStaker = STAKER_0
-		nextValaddress = VALADDRESS_0_A
+		nextPoolAddress = POOL_ADDRESS_0_A
 	case STAKER_1:
 		nextStaker = STAKER_1
-		nextValaddress = VALADDRESS_1_A
+		nextPoolAddress = POOL_ADDRESS_1_A
 	case STAKER_2:
 		nextStaker = STAKER_2
-		nextValaddress = VALADDRESS_2_A
+		nextPoolAddress = POOL_ADDRESS_2_A
 	default:
 		nextStaker = ""
-		nextValaddress = ""
+		nextPoolAddress = ""
 	}
 
 	return

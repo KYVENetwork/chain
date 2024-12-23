@@ -70,7 +70,7 @@ var _ = Describe("points", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -80,7 +80,7 @@ var _ = Describe("points", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_1_A,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -90,7 +90,7 @@ var _ = Describe("points", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -103,7 +103,7 @@ var _ = Describe("points", Ordered, func() {
 		s.App().BundlesKeeper.SetBundleProposal(s.Ctx(), pool)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -117,7 +117,7 @@ var _ = Describe("points", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -136,7 +136,7 @@ var _ = Describe("points", Ordered, func() {
 		// do not vote
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -150,8 +150,8 @@ var _ = Describe("points", Ordered, func() {
 		})
 
 		// ASSERT
-		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
-		Expect(valaccountVoter.Points).To(Equal(uint64(1)))
+		poolAccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
+		Expect(poolAccountVoter.Points).To(Equal(uint64(1)))
 	})
 
 	It("One validator votes after having not voted previously", func() {
@@ -159,7 +159,7 @@ var _ = Describe("points", Ordered, func() {
 		// do not vote
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -174,7 +174,7 @@ var _ = Describe("points", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_2_A,
+			Creator:   i.POOL_ADDRESS_2_A,
 			Staker:    i.STAKER_2,
 			PoolId:    0,
 			StorageId: "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -184,7 +184,7 @@ var _ = Describe("points", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "18SRvVuCrB8vy_OCLBaNbXONMVGeflGcw4gGTZ1oUt4",
@@ -198,8 +198,8 @@ var _ = Describe("points", Ordered, func() {
 		})
 
 		// ASSERT
-		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
-		Expect(valaccountVoter.Points).To(BeZero())
+		poolAccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
+		Expect(poolAccountVoter.Points).To(BeZero())
 	})
 
 	It("One validator does not vote for multiple proposals in a row", func() {
@@ -211,7 +211,7 @@ var _ = Describe("points", Ordered, func() {
 			s.App().BundlesKeeper.SetBundleProposal(s.Ctx(), bundleProposal)
 
 			s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-				Creator:       i.VALADDRESS_0_A,
+				Creator:       i.POOL_ADDRESS_0_A,
 				Staker:        i.STAKER_0,
 				PoolId:        0,
 				StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -225,7 +225,7 @@ var _ = Describe("points", Ordered, func() {
 			})
 
 			s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-				Creator:   i.VALADDRESS_1_A,
+				Creator:   i.POOL_ADDRESS_1_A,
 				Staker:    i.STAKER_1,
 				PoolId:    0,
 				StorageId: "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -238,8 +238,8 @@ var _ = Describe("points", Ordered, func() {
 		}
 
 		// ASSERT
-		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
-		Expect(valaccountVoter.Points).To(Equal(uint64(3)))
+		poolAccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
+		Expect(poolAccountVoter.Points).To(Equal(uint64(3)))
 	})
 
 	It("One validator votes after having not voted previously multiple times", func() {
@@ -251,7 +251,7 @@ var _ = Describe("points", Ordered, func() {
 			s.App().BundlesKeeper.SetBundleProposal(s.Ctx(), bundleProposal)
 
 			s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-				Creator:       i.VALADDRESS_0_A,
+				Creator:       i.POOL_ADDRESS_0_A,
 				Staker:        i.STAKER_0,
 				PoolId:        0,
 				StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -265,7 +265,7 @@ var _ = Describe("points", Ordered, func() {
 			})
 
 			s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-				Creator:   i.VALADDRESS_1_A,
+				Creator:   i.POOL_ADDRESS_1_A,
 				Staker:    i.STAKER_1,
 				PoolId:    0,
 				StorageId: "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -279,7 +279,7 @@ var _ = Describe("points", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_2_A,
+			Creator:   i.POOL_ADDRESS_2_A,
 			Staker:    i.STAKER_2,
 			PoolId:    0,
 			StorageId: "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -289,7 +289,7 @@ var _ = Describe("points", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "18SRvVuCrB8vy_OCLBaNbXONMVGeflGcw4gGTZ1oUt4",
@@ -303,8 +303,8 @@ var _ = Describe("points", Ordered, func() {
 		})
 
 		// ASSERT
-		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
-		Expect(valaccountVoter.Points).To(BeZero())
+		poolAccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
+		Expect(poolAccountVoter.Points).To(BeZero())
 	})
 
 	It("One validator does not vote for multiple proposals and reaches max points", func() {
@@ -319,7 +319,7 @@ var _ = Describe("points", Ordered, func() {
 			s.App().BundlesKeeper.SetBundleProposal(s.Ctx(), bundleProposal)
 
 			s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-				Creator:       i.VALADDRESS_0_A,
+				Creator:       i.POOL_ADDRESS_0_A,
 				Staker:        i.STAKER_0,
 				PoolId:        0,
 				StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -333,7 +333,7 @@ var _ = Describe("points", Ordered, func() {
 			})
 
 			s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-				Creator:   i.VALADDRESS_1_A,
+				Creator:   i.POOL_ADDRESS_1_A,
 				Staker:    i.STAKER_1,
 				PoolId:    0,
 				StorageId: "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -352,8 +352,8 @@ var _ = Describe("points", Ordered, func() {
 		_, stakerFound := s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_2)
 		Expect(stakerFound).To(BeTrue())
 
-		_, valaccountActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
-		Expect(valaccountActive).To(BeFalse())
+		_, poolAccountActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
+		Expect(poolAccountActive).To(BeFalse())
 
 		// check if voter got slashed
 		slashAmountRatio := s.App().StakersKeeper.GetTimeoutSlash(s.Ctx())
@@ -371,7 +371,7 @@ var _ = Describe("points", Ordered, func() {
 			s.App().BundlesKeeper.SetBundleProposal(s.Ctx(), bundleProposal)
 
 			s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-				Creator:       i.VALADDRESS_0_A,
+				Creator:       i.POOL_ADDRESS_0_A,
 				Staker:        i.STAKER_0,
 				PoolId:        0,
 				StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -385,7 +385,7 @@ var _ = Describe("points", Ordered, func() {
 			})
 
 			s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-				Creator:   i.VALADDRESS_1_A,
+				Creator:   i.POOL_ADDRESS_1_A,
 				Staker:    i.STAKER_1,
 				PoolId:    0,
 				StorageId: "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -404,7 +404,7 @@ var _ = Describe("points", Ordered, func() {
 		s.App().BundlesKeeper.SetBundleProposal(s.Ctx(), bundleProposal)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_2_A,
+			Creator:       i.POOL_ADDRESS_2_A,
 			Staker:        i.STAKER_2,
 			PoolId:        0,
 			StorageId:     "18SRvVuCrB8vy_OCLBaNbXONMVGeflGcw4gGTZ1oUt4",
@@ -418,9 +418,9 @@ var _ = Describe("points", Ordered, func() {
 		})
 
 		// ASSERT
-		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
+		poolAccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
 		// points are instantly 1 because node did not vote on this bundle, too
-		Expect(valaccountVoter.Points).To(Equal(uint64(1)))
+		Expect(poolAccountVoter.Points).To(Equal(uint64(1)))
 	})
 
 	It("One validator does not vote for multiple proposals and skip the uploader role", func() {
@@ -432,7 +432,7 @@ var _ = Describe("points", Ordered, func() {
 			s.App().BundlesKeeper.SetBundleProposal(s.Ctx(), bundleProposal)
 
 			s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-				Creator:       i.VALADDRESS_0_A,
+				Creator:       i.POOL_ADDRESS_0_A,
 				Staker:        i.STAKER_0,
 				PoolId:        0,
 				StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -446,7 +446,7 @@ var _ = Describe("points", Ordered, func() {
 			})
 
 			s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-				Creator:   i.VALADDRESS_1_A,
+				Creator:   i.POOL_ADDRESS_1_A,
 				Staker:    i.STAKER_1,
 				PoolId:    0,
 				StorageId: "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -465,15 +465,15 @@ var _ = Describe("points", Ordered, func() {
 		s.App().BundlesKeeper.SetBundleProposal(s.Ctx(), bundleProposal)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{
-			Creator:   i.VALADDRESS_2_A,
+			Creator:   i.POOL_ADDRESS_2_A,
 			Staker:    i.STAKER_2,
 			PoolId:    0,
 			FromIndex: 400,
 		})
 
 		// ASSERT
-		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
-		Expect(valaccountVoter.Points).To(BeZero())
+		poolAccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
+		Expect(poolAccountVoter.Points).To(BeZero())
 	})
 
 	It("One validator submits a bundle proposal where he reaches max points because he did not vote before", func() {
@@ -487,7 +487,7 @@ var _ = Describe("points", Ordered, func() {
 			s.App().BundlesKeeper.SetBundleProposal(s.Ctx(), bundleProposal)
 
 			s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-				Creator:       i.VALADDRESS_0_A,
+				Creator:       i.POOL_ADDRESS_0_A,
 				Staker:        i.STAKER_0,
 				PoolId:        0,
 				StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -501,7 +501,7 @@ var _ = Describe("points", Ordered, func() {
 			})
 
 			s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-				Creator:   i.VALADDRESS_1_A,
+				Creator:   i.POOL_ADDRESS_1_A,
 				Staker:    i.STAKER_1,
 				PoolId:    0,
 				StorageId: "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -520,7 +520,7 @@ var _ = Describe("points", Ordered, func() {
 		s.App().BundlesKeeper.SetBundleProposal(s.Ctx(), bundleProposal)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_2_A,
+			Creator:       i.POOL_ADDRESS_2_A,
 			Staker:        i.STAKER_2,
 			PoolId:        0,
 			StorageId:     "18SRvVuCrB8vy_OCLBaNbXONMVGeflGcw4gGTZ1oUt4",
@@ -534,8 +534,8 @@ var _ = Describe("points", Ordered, func() {
 		})
 
 		// ASSERT
-		valaccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
+		poolAccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
 		// points are instantly 1 because node did not vote on this bundle, too
-		Expect(valaccountVoter.Points).To(Equal(uint64(1)))
+		Expect(poolAccountVoter.Points).To(Equal(uint64(1)))
 	})
 })

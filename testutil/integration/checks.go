@@ -123,10 +123,10 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 		Expect(poolByIdQuery.Pool.TotalDelegation).To(Equal(totalDelegationState))
 
 		// test stakers by pool
-		valaccounts := suite.App().StakersKeeper.GetAllPoolAccountsOfPool(suite.Ctx(), poolsState[i].Id)
+		poolAccounts := suite.App().StakersKeeper.GetAllPoolAccountsOfPool(suite.Ctx(), poolsState[i].Id)
 		stakersByPoolState := make([]querytypes.FullStaker, 0)
 
-		for _, poolAccount := range valaccounts {
+		for _, poolAccount := range poolAccounts {
 			if _, stakerFound := suite.App().StakersKeeper.GetValidator(suite.Ctx(), poolAccount.Staker); stakerFound {
 				stakersByPoolState = append(stakersByPoolState, *suite.App().QueryKeeper.GetFullStaker(suite.Ctx(), poolAccount.Staker))
 			}

@@ -63,7 +63,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -73,7 +73,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_1_A,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -83,7 +83,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -107,7 +107,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -117,7 +117,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_1_A,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -127,7 +127,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -151,7 +151,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -161,7 +161,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_1_A,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -171,7 +171,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -195,7 +195,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -205,7 +205,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_1_A,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -215,7 +215,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -233,7 +233,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -243,7 +243,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_1_A,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -253,7 +253,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -275,7 +275,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -285,7 +285,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_1_A,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -295,7 +295,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -315,7 +315,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -325,7 +325,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_1_A,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -335,7 +335,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -355,7 +355,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -375,7 +375,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -385,7 +385,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_1_A,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("0.5"),
@@ -395,7 +395,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("0.2"),
@@ -419,7 +419,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("0.5"),
@@ -429,7 +429,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_1_A,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("0.9"),
@@ -439,7 +439,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("0.2"),
@@ -463,7 +463,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("0.8"),
@@ -473,7 +473,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_1_A,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("0.7"),
@@ -483,7 +483,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("0.2"),
@@ -505,7 +505,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
@@ -515,7 +515,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_1_A,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("0"),
@@ -525,7 +525,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("0.5"),
@@ -547,7 +547,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("0"),
@@ -557,7 +557,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_1_A,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("0"),
@@ -567,7 +567,7 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("0"),

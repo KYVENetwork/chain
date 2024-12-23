@@ -71,7 +71,7 @@ var _ = Describe("msg_server_vote_bundle_proposal.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -81,19 +81,19 @@ var _ = Describe("msg_server_vote_bundle_proposal.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_1_A,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -114,7 +114,7 @@ var _ = Describe("msg_server_vote_bundle_proposal.go", Ordered, func() {
 	It("Try to vote abstain on proposal again", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -123,7 +123,7 @@ var _ = Describe("msg_server_vote_bundle_proposal.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesError(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -141,7 +141,7 @@ var _ = Describe("msg_server_vote_bundle_proposal.go", Ordered, func() {
 	It("Try to vote valid on proposal after abstain vote", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -150,7 +150,7 @@ var _ = Describe("msg_server_vote_bundle_proposal.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -168,7 +168,7 @@ var _ = Describe("msg_server_vote_bundle_proposal.go", Ordered, func() {
 	It("Try to vote invalid on proposal after abstain vote", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -177,7 +177,7 @@ var _ = Describe("msg_server_vote_bundle_proposal.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -195,7 +195,7 @@ var _ = Describe("msg_server_vote_bundle_proposal.go", Ordered, func() {
 	It("Try to vote unspecified on proposal", func() {
 		// ACT
 		s.RunTxBundlesError(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -222,13 +222,13 @@ var _ = Describe("msg_server_vote_bundle_proposal.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -237,7 +237,7 @@ var _ = Describe("msg_server_vote_bundle_proposal.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_2_A,
+			Creator:   i.POOL_ADDRESS_2_A,
 			Staker:    i.STAKER_2,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",

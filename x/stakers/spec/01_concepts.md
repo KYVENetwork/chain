@@ -7,7 +7,7 @@ order: 1
 The stakers module manages all properties of the stakers except their stake
 (this is done by the delegation module). It handles staker creation, metadata
 (like moniker, logo, website and commission) and the joining and leaving of
-pools using valaccounts.
+pools using poolAccounts.
 
 ## Code Structure
 
@@ -26,7 +26,7 @@ metadata which can be changed at any time.
 Additionally, a staker can specify a commission. However, this takes 
 `CommissionChangeTime` seconds of time before the change is applied.
 
-## Valaccounts
+## Pool Accounts
 To join a pool the user creates a pool account for this pool.
 The existence of a pool account (for a pool) means that the staker 
 is a member of the given pool and needs to comply with the protocol

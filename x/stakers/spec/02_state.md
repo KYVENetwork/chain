@@ -32,11 +32,11 @@ penalty-points.
 
 - PoolAccount: `0x02 | 0x00 | PoolId | StakerAddr -> ProtocolBuffer(poolAccount)`
 
-One additional index is maintained to query for all valaccounts of a staker. 
+One additional index is maintained to query for all poolAccounts of a staker. 
 For this index only the key is used as StakerAddr and PoolId contain all 
 information to fetch the pool account using the main key.
 
-- ValaccountIndex2: `0x02 | 0x01 | StakerAddr | PoolId -> (empty)`
+- PoolAccountIndex2: `0x02 | 0x01 | StakerAddr | PoolId -> (empty)`
 
 ```go
 type PoolAccount struct {

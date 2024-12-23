@@ -67,7 +67,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -77,13 +77,13 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_1_A,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -93,7 +93,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			PoolAddress:   i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -102,7 +102,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		s.WaitSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -123,7 +123,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 	It("Skip uploader role on data bundle if staker is next uploader", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -131,7 +131,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_2_A,
+			Creator:   i.POOL_ADDRESS_2_A,
 			Staker:    i.STAKER_2,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -143,7 +143,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			FromIndex: 100,
@@ -185,7 +185,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 	It("Skip uploader on data bundle after uploader role has already been skipped", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -193,7 +193,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_2_A,
+			Creator:   i.POOL_ADDRESS_2_A,
 			Staker:    i.STAKER_2,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -204,7 +204,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		s.WaitSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			FromIndex: 100,
@@ -215,7 +215,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{
-			Creator:   i.VALADDRESS_0_A,
+			Creator:   i.POOL_ADDRESS_0_A,
 			Staker:    i.STAKER_0,
 			PoolId:    0,
 			FromIndex: 100,
@@ -265,7 +265,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{
-			Creator:   i.VALADDRESS_0_A,
+			Creator:   i.POOL_ADDRESS_0_A,
 			Staker:    i.STAKER_0,
 			PoolId:    0,
 			FromIndex: 0,
@@ -311,7 +311,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 	It("Skip uploader role on data bundle with current round containing a valid bundle", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -319,7 +319,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_2_A,
+			Creator:   i.POOL_ADDRESS_2_A,
 			Staker:    i.STAKER_2,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -331,7 +331,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			FromIndex: 100,
@@ -373,7 +373,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 	It("Skip uploader role on data bundle with current round containing an invalid bundle", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -381,7 +381,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_2_A,
+			Creator:   i.POOL_ADDRESS_2_A,
 			Staker:    i.STAKER_2,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -393,7 +393,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			FromIndex: 100,

@@ -23,11 +23,11 @@ type StakersKeeper interface {
     // GetCommission returns the commission of a staker as a parsed sdk.Dec
 	GetCommission(ctx sdk.Context, stakerAddress string) sdk.Dec
 
-    // AssertValaccountAuthorized checks if the given `pool address` is allowed to vote in pool
+    // AssertPoolAccountAuthorized checks if the given `pool address` is allowed to vote in pool
     // with id `poolId` to vote in favor of `stakerAddress`.
     // If the pool address is not authorized the appropriate error is returned.
     // Otherwise, it returns `nil`
-    AssertValaccountAuthorized(ctx sdk.Context, poolId uint64, stakerAddress string, pool address string) error
+    AssertPoolAccountAuthorized(ctx sdk.Context, poolId uint64, stakerAddress string, pool address string) error
 
     // GetActiveStakers returns all staker-addresses that are
     // currently participating in at least one pool.
@@ -55,10 +55,6 @@ type StakersKeeper interface {
     // ResetPoints sets the point count for the staker in the given pool back to zero.
     // Returns the amount of points the staker had before the reset.
     ResetPoints(ctx sdk.Context, poolId uint64, stakerAddress string) (previousPoints uint64)
-
-    // DoesValaccountExist only checks if the key is present in the KV-Store
-    // without loading and unmarshalling to full entry
-    DoesValaccountExist(ctx sdk.Context, poolId uint64, stakerAddress string) bool
 
     DoesStakerExist(ctx sdk.Context, staker string) bool
 
