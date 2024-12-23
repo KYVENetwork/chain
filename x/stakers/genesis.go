@@ -11,8 +11,8 @@ import (
 func InitGenesis(ctx sdk.Context, k *keeper.Keeper, genState types.GenesisState) {
 	k.SetParams(ctx, genState.Params)
 
-	for _, entry := range genState.ValaccountList {
-		k.SetValaccount(ctx, entry)
+	for _, entry := range genState.PoolAccountList {
+		k.SetPoolAccount(ctx, entry)
 		k.AddOneToCount(ctx, entry.PoolId)
 		k.AddActiveStaker(ctx, entry.Staker)
 	}
@@ -39,7 +39,7 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 	genesis := types.DefaultGenesis()
 	genesis.Params = k.GetParams(ctx)
 
-	genesis.ValaccountList = k.GetAllValaccounts(ctx)
+	genesis.PoolAccountList = k.GetAllPoolAccounts(ctx)
 
 	genesis.CommissionChangeEntries = k.GetAllCommissionChangeEntries(ctx)
 

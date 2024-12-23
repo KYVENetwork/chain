@@ -23,7 +23,7 @@ func (k msgServer) SubmitBundleProposal(goCtx context.Context, msg *types.MsgSub
 	}
 
 	// Reset points of uploader as node has proven to be active.
-	k.resetPoints(ctx, msg.PoolId, msg.Staker)
+	k.resetPoints(ctx, msg.Staker, msg.PoolId)
 
 	// If previous bundle was dropped just register the new bundle.
 	// No previous round needs to be evaluated

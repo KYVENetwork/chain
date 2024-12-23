@@ -45,14 +45,14 @@ func (k Keeper) ProcessStakeFractionChangeQueue(ctx sdk.Context) {
 		if queueEntry.CreationDate+int64(k.GetStakeFractionChangeTime(ctx)) <= ctx.BlockTime().Unix() {
 			k.RemoveStakeFractionEntry(ctx, &queueEntry)
 
-			valaccount, valaccountFound := k.GetValaccount(ctx, queueEntry.PoolId, queueEntry.Staker)
-			if !valaccountFound {
+			poolAccount, poolAccountFound := k.GetPoolAccount(ctx, queueEntry.Staker, queueEntry.PoolId)
+			if !poolAccountFound {
 				// continue with the next entry
 				return true
 			}
 
-			valaccount.StakeFraction = queueEntry.StakeFraction
-			k.SetValaccount(ctx, valaccount)
+			poolAccount.StakeFraction = queueEntry.StakeFraction
+			k.SetPoolAccount(ctx, poolAccount)
 
 			_ = ctx.EventManager().EmitTypedEvent(&types.EventUpdateStakeFraction{
 				Staker:        queueEntry.Staker,

@@ -46,7 +46,7 @@ func (k msgServer) VoteBundleProposal(
 	k.SetBundleProposal(ctx, bundleProposal)
 
 	// reset points as user has now proven to be active
-	k.resetPoints(ctx, msg.PoolId, msg.Staker)
+	k.resetPoints(ctx, msg.Staker, msg.PoolId)
 
 	// Emit a vote event.
 	_ = ctx.EventManager().EmitTypedEvent(&types.EventBundleVote{

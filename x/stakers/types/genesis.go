@@ -16,14 +16,14 @@ func (gs GenesisState) Validate() error {
 	// Staker
 	stakerLeaving := make(map[string]bool)
 
-	// Valaccounts
-	valaccountMap := make(map[string]struct{})
-	for _, elem := range gs.ValaccountList {
-		index := string(ValaccountKey(elem.PoolId, elem.Staker))
-		if _, ok := valaccountMap[index]; ok {
-			return fmt.Errorf("duplicated index for valaccount %v", elem)
+	// Pool accounts
+	poolAccountsMap := make(map[string]struct{})
+	for _, elem := range gs.PoolAccountList {
+		index := string(PoolAccountKey(elem.PoolId, elem.Staker))
+		if _, ok := poolAccountsMap[index]; ok {
+			return fmt.Errorf("duplicated index for pool account %v", elem)
 		}
-		valaccountMap[index] = struct{}{}
+		poolAccountsMap[index] = struct{}{}
 		stakerLeaving[index] = elem.IsLeaving
 	}
 
@@ -53,10 +53,10 @@ func (gs GenesisState) Validate() error {
 		if elem.Index < gs.QueueStateLeave.LowIndex {
 			return fmt.Errorf("unbonding stake entry index too low: %v", elem)
 		}
-		if !stakerLeaving[string(ValaccountKey(elem.PoolId, elem.Staker))] {
+		if !stakerLeaving[string(PoolAccountKey(elem.PoolId, elem.Staker))] {
 			return fmt.Errorf("inconsistent staker leave: %v", elem)
 		}
-		stakerLeaving[string(ValaccountKey(elem.PoolId, elem.Staker))] = false
+		stakerLeaving[string(PoolAccountKey(elem.PoolId, elem.Staker))] = false
 	}
 
 	for staker, isLeaving := range stakerLeaving {

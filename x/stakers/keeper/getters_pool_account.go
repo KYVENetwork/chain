@@ -17,61 +17,61 @@ import (
 
 // IncrementPoints increments to Points for a staker in a given pool.
 // Returns the amount of the current points (including the current incrementation)
-func (k Keeper) IncrementPoints(ctx sdk.Context, poolId uint64, stakerAddress string) uint64 {
-	valaccount, found := k.GetValaccount(ctx, poolId, stakerAddress)
+func (k Keeper) IncrementPoints(ctx sdk.Context, stakerAddress string, poolId uint64) uint64 {
+	poolAccount, found := k.GetPoolAccount(ctx, stakerAddress, poolId)
 	if found {
-		valaccount.Points += 1
-		k.SetValaccount(ctx, valaccount)
+		poolAccount.Points += 1
+		k.SetPoolAccount(ctx, poolAccount)
 	}
-	return valaccount.Points
+	return poolAccount.Points
 }
 
 // ResetPoints sets the point count for the staker in the given pool back to zero.
 // Returns the amount of points the staker had before the reset.
-func (k Keeper) ResetPoints(ctx sdk.Context, poolId uint64, stakerAddress string) (previousPoints uint64) {
-	valaccount, found := k.GetValaccount(ctx, poolId, stakerAddress)
+func (k Keeper) ResetPoints(ctx sdk.Context, stakerAddress string, poolId uint64) (previousPoints uint64) {
+	poolAccount, found := k.GetPoolAccount(ctx, stakerAddress, poolId)
 	if found {
-		previousPoints = valaccount.Points
-		valaccount.Points = 0
-		k.SetValaccount(ctx, valaccount)
+		previousPoints = poolAccount.Points
+		poolAccount.Points = 0
+		k.SetPoolAccount(ctx, poolAccount)
 	}
 	return
 }
 
-// GetAllValaccountsOfPool returns a list of all valaccount
-func (k Keeper) GetAllValaccountsOfPool(ctx sdk.Context, poolId uint64) (val []*types.Valaccount) {
+// GetAllPoolAccountsOfPool returns a list of all pool accounts
+func (k Keeper) GetAllPoolAccountsOfPool(ctx sdk.Context, poolId uint64) (val []*types.PoolAccount) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.ValaccountPrefix)
+	store := prefix.NewStore(storeAdapter, types.PoolAccountPrefix)
 
 	iterator := storeTypes.KVStorePrefixIterator(store, util.GetByteKey(poolId))
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		valaccount := types.Valaccount{}
-		k.cdc.MustUnmarshal(iterator.Value(), &valaccount)
+		poolAccount := types.PoolAccount{}
+		k.cdc.MustUnmarshal(iterator.Value(), &poolAccount)
 
-		if valaccount.Valaddress != "" {
-			val = append(val, &valaccount)
+		if poolAccount.PoolAddress != "" {
+			val = append(val, &poolAccount)
 		}
 	}
 
 	return
 }
 
-// GetValaccountsFromStaker returns all pools the staker has valaccounts in
-func (k Keeper) GetValaccountsFromStaker(ctx sdk.Context, stakerAddress string) (val []*types.Valaccount) {
+// GetPoolAccountsFromStaker returns all pools the staker has pool accounts in
+func (k Keeper) GetPoolAccountsFromStaker(ctx sdk.Context, stakerAddress string) (val []*types.PoolAccount) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	storeIndex2 := prefix.NewStore(storeAdapter, types.ValaccountPrefixIndex2)
+	storeIndex2 := prefix.NewStore(storeAdapter, types.PoolAccountPrefixIndex2)
 
 	iterator := storeTypes.KVStorePrefixIterator(storeIndex2, util.GetByteKey(stakerAddress))
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
 		poolId := binary.BigEndian.Uint64(iterator.Key()[len(stakerAddress) : len(stakerAddress)+8])
-		valaccount, active := k.GetValaccount(ctx, poolId, stakerAddress)
+		poolAccount, active := k.GetPoolAccount(ctx, stakerAddress, poolId)
 
 		if active {
-			val = append(val, &valaccount)
+			val = append(val, &poolAccount)
 		}
 	}
 
@@ -82,7 +82,7 @@ func (k Keeper) GetValaccountsFromStaker(ctx sdk.Context, stakerAddress string) 
 // currently participating.
 func (k Keeper) GetPoolCount(ctx sdk.Context, stakerAddress string) (poolCount uint64) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	storeIndex2 := prefix.NewStore(storeAdapter, types.ValaccountPrefixIndex2)
+	storeIndex2 := prefix.NewStore(storeAdapter, types.PoolAccountPrefixIndex2)
 	iterator := storeTypes.KVStorePrefixIterator(storeIndex2, util.GetByteKey(stakerAddress))
 	defer iterator.Close()
 
@@ -96,29 +96,29 @@ func (k Keeper) GetPoolCount(ctx sdk.Context, stakerAddress string) (poolCount u
 // #  Raw KV-Store operations  #
 // #############################
 
-// SetValaccount set a specific Valaccount in the store from its index
-func (k Keeper) SetValaccount(ctx sdk.Context, valaccount types.Valaccount) {
+// SetPoolAccount set a specific pool account in the store from its index
+func (k Keeper) SetPoolAccount(ctx sdk.Context, poolAccount types.PoolAccount) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.ValaccountPrefix)
-	b := k.cdc.MustMarshal(&valaccount)
-	store.Set(types.ValaccountKey(
-		valaccount.PoolId,
-		valaccount.Staker,
+	store := prefix.NewStore(storeAdapter, types.PoolAccountPrefix)
+	b := k.cdc.MustMarshal(&poolAccount)
+	store.Set(types.PoolAccountKey(
+		poolAccount.PoolId,
+		poolAccount.Staker,
 	), b)
 
-	storeIndex2 := prefix.NewStore(storeAdapter, types.ValaccountPrefixIndex2)
-	storeIndex2.Set(types.ValaccountKeyIndex2(
-		valaccount.Staker,
-		valaccount.PoolId,
+	storeIndex2 := prefix.NewStore(storeAdapter, types.PoolAccountPrefixIndex2)
+	storeIndex2.Set(types.PoolAccountKeyIndex2(
+		poolAccount.Staker,
+		poolAccount.PoolId,
 	), []byte{})
 }
 
-// GetValaccount returns a Valaccount from its index
-func (k Keeper) GetValaccount(ctx sdk.Context, poolId uint64, stakerAddress string) (val types.Valaccount, active bool) {
+// GetPoolAccount returns a pool account from its index
+func (k Keeper) GetPoolAccount(ctx sdk.Context, stakerAddress string, poolId uint64) (val types.PoolAccount, active bool) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.ValaccountPrefix)
+	store := prefix.NewStore(storeAdapter, types.PoolAccountPrefix)
 
-	b := store.Get(types.ValaccountKey(
+	b := store.Get(types.PoolAccountKey(
 		poolId,
 		stakerAddress,
 	))
@@ -129,21 +129,21 @@ func (k Keeper) GetValaccount(ctx sdk.Context, poolId uint64, stakerAddress stri
 	}
 
 	k.cdc.MustUnmarshal(b, &val)
-	return val, val.Valaddress != ""
+	return val, val.PoolAddress != ""
 }
 
-// GetAllValaccounts returns all active valaccounts
-func (k Keeper) GetAllValaccounts(ctx sdk.Context) (list []types.Valaccount) {
+// GetAllPoolAccounts returns all active pool accounts
+func (k Keeper) GetAllPoolAccounts(ctx sdk.Context) (list []types.PoolAccount) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.ValaccountPrefix)
+	store := prefix.NewStore(storeAdapter, types.PoolAccountPrefix)
 
 	iterator := storeTypes.KVStorePrefixIterator(store, []byte{})
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var val types.Valaccount
+		var val types.PoolAccount
 		k.cdc.MustUnmarshal(iterator.Value(), &val)
-		if val.Valaddress != "" {
+		if val.PoolAddress != "" {
 			list = append(list, val)
 		}
 	}

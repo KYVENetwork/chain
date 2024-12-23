@@ -24,9 +24,9 @@ func (k Keeper) StakersByPool(c context.Context, req *types.QueryStakersByPoolRe
 
 	stakers := make([]types.FullStaker, 0)
 
-	valaccounts := k.stakerKeeper.GetAllValaccountsOfPool(ctx, req.PoolId)
-	for _, valaccount := range valaccounts {
-		stakers = append(stakers, *k.GetFullStaker(ctx, valaccount.Staker))
+	poolAccounts := k.stakerKeeper.GetAllPoolAccountsOfPool(ctx, req.PoolId)
+	for _, poolAccount := range poolAccounts {
+		stakers = append(stakers, *k.GetFullStaker(ctx, poolAccount.Staker))
 	}
 
 	stakes := k.stakerKeeper.GetValidatorPoolStakes(ctx, req.PoolId)

@@ -27,7 +27,7 @@ func (k msgServer) Redelegate(goCtx context.Context, msg *types.MsgRedelegate) (
 		return nil, sdkErrors.WithType(types.ErrStakerDoesNotExist, msg.ToStaker)
 	}
 
-	if len(k.stakersKeeper.GetValaccountsFromStaker(ctx, msg.ToStaker)) == 0 {
+	if len(k.stakersKeeper.GetPoolAccountsFromStaker(ctx, msg.ToStaker)) == 0 {
 		return nil, sdkErrors.WithType(types.ErrRedelegationToInactiveStaker, msg.ToStaker)
 	}
 

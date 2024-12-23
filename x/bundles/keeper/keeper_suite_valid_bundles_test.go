@@ -36,7 +36,7 @@ TEST CASES - valid bundles
 
 var _ = Describe("valid bundles", Ordered, func() {
 	var s *i.KeeperTestSuite
-	var initialBalanceStaker0, initialBalanceValaddress0, initialBalanceStaker1, initialBalanceValaddress1, initialBalanceStaker2, initialBalanceValaddress2 sdk.Coins
+	var initialBalanceStaker0, initialBalancePoolAddress0, initialBalanceStaker1, initialBalancePoolAddress1, initialBalanceStaker2, initialBalancePoolAddress2 sdk.Coins
 
 	amountPerBundle := int64(10_000)
 	BeforeEach(func() {
@@ -44,13 +44,13 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s = i.NewCleanChain()
 
 		initialBalanceStaker0 = s.GetCoinsFromAddress(i.STAKER_0)
-		initialBalanceValaddress0 = s.GetCoinsFromAddress(i.VALADDRESS_0_A)
+		initialBalancePoolAddress0 = s.GetCoinsFromAddress(i.POOL_ADDRESS_0_A)
 
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
-		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+		initialBalancePoolAddress1 = s.GetCoinsFromAddress(i.POOL_ADDRESS_1_A)
 
 		initialBalanceStaker2 = s.GetCoinsFromAddress(i.STAKER_2)
-		initialBalanceValaddress2 = s.GetCoinsFromAddress(i.VALADDRESS_2_A)
+		initialBalancePoolAddress2 = s.GetCoinsFromAddress(i.POOL_ADDRESS_2_A)
 
 		// create clean pool for every test case
 		gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
@@ -122,7 +122,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_0_A,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -132,22 +132,22 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_1,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_1_A,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
 
 		initialBalanceStaker0 = s.GetCoinsFromAddress(i.STAKER_0)
-		initialBalanceValaddress0 = s.GetCoinsFromAddress(i.VALADDRESS_0_A)
+		initialBalancePoolAddress0 = s.GetCoinsFromAddress(i.POOL_ADDRESS_0_A)
 
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
-		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+		initialBalancePoolAddress1 = s.GetCoinsFromAddress(i.POOL_ADDRESS_1_A)
 
 		s.CommitAfterSeconds(60)
 	})
@@ -159,7 +159,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 	It("Produce a valid bundle with multiple validators and no foreign delegations", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -173,7 +173,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -181,7 +181,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
-		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+		initialBalancePoolAddress1 = s.GetCoinsFromAddress(i.POOL_ADDRESS_1_A)
 
 		c1 := s.GetCoinsFromCommunityPool()
 
@@ -189,7 +189,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -249,24 +249,24 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		valaccountUploader, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
-		Expect(valaccountUploader.Points).To(BeZero())
+		poolAccountUploader, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccountUploader.Points).To(BeZero())
 
-		balanceUploaderValaddress := s.GetCoinsFromAddress(valaccountUploader.Valaddress)
-		Expect(balanceUploaderValaddress).To(Equal(initialBalanceValaddress0))
+		balanceUploaderValaddress := s.GetCoinsFromAddress(poolAccountUploader.PoolAddress)
+		Expect(balanceUploaderValaddress).To(Equal(initialBalancePoolAddress0))
 
 		// check voter status
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
-		Expect(valaccountVoter.Points).To(BeZero())
+		poolAccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
+		Expect(poolAccountVoter.Points).To(BeZero())
 
-		balanceVoterValaddress := s.GetCoinsFromAddress(valaccountVoter.Valaddress)
-		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
+		balanceVoterPoolAddress := s.GetCoinsFromAddress(poolAccountVoter.PoolAddress)
+		Expect(balanceVoterPoolAddress).To(Equal(initialBalancePoolAddress1))
 
-		balanceVoter := s.GetCoinsFromAddress(valaccountVoter.Staker)
+		balanceVoter := s.GetCoinsFromAddress(poolAccountVoter.Staker)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// check uploader rewards
-		balanceUploader := s.GetCoinsFromAddress(valaccountUploader.Staker)
+		balanceUploader := s.GetCoinsFromAddress(poolAccountUploader.Staker)
 
 		// assert payout transfer
 		Expect(balanceUploader.String()).To(Equal(initialBalanceStaker0.String()))
@@ -277,7 +277,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// assert commission rewards
 		// (total_bundle_payout - treasury_reward - storage_cost) * commission + storage_cost
 		// (10_000 - (10_000 * 0.01) - (100 * 0.5)) * 0.1 + (100 * 0.5)
-		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), valaccountUploader.Staker).String()).To(Equal(i.ACoins(1035).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), poolAccountUploader.Staker).String()).To(Equal(i.ACoins(1035).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -305,7 +305,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		))
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -319,7 +319,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -327,7 +327,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
-		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+		initialBalancePoolAddress1 = s.GetCoinsFromAddress(i.POOL_ADDRESS_1_A)
 
 		c1 := s.GetCoinsFromCommunityPool()
 
@@ -335,7 +335,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -395,30 +395,30 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		valaccountUploader, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
-		Expect(valaccountUploader.Points).To(BeZero())
+		poolAccountUploader, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccountUploader.Points).To(BeZero())
 
-		balanceUploaderValaddress := s.GetCoinsFromAddress(valaccountUploader.Valaddress)
-		Expect(balanceUploaderValaddress).To(Equal(initialBalanceValaddress0))
+		balanceUploaderValaddress := s.GetCoinsFromAddress(poolAccountUploader.PoolAddress)
+		Expect(balanceUploaderValaddress).To(Equal(initialBalancePoolAddress0))
 
 		// check voter status
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
-		Expect(valaccountVoter.Points).To(BeZero())
+		poolAccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
+		Expect(poolAccountVoter.Points).To(BeZero())
 
-		balanceVoterValaddress := s.GetCoinsFromAddress(valaccountVoter.Valaddress)
-		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
+		balanceVoterPoolAddress := s.GetCoinsFromAddress(poolAccountVoter.PoolAddress)
+		Expect(balanceVoterPoolAddress).To(Equal(initialBalancePoolAddress1))
 
-		balanceVoter := s.GetCoinsFromAddress(valaccountVoter.Staker)
+		balanceVoter := s.GetCoinsFromAddress(poolAccountVoter.Staker)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// check uploader rewards
-		balanceUploader := s.GetCoinsFromAddress(valaccountUploader.Staker)
+		balanceUploader := s.GetCoinsFromAddress(poolAccountUploader.Staker)
 
 		// assert payout transfer
 		Expect(balanceUploader.String()).To(Equal(initialBalanceStaker0.String()))
 		// assert commission rewards
 		// (10_000 - (10_000 * 0.01) - (100 * 0.5)) * 0.1 + (100 * 0.5)
-		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), valaccountUploader.Staker).String()).To(Equal(i.ACoins(1035).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), poolAccountUploader.Staker).String()).To(Equal(i.ACoins(1035).String()))
 		// assert uploader self delegation rewards
 		// (10_000 - (10_000 * 0.01) - (100 * 0.5)) * (1 - 0.1) * (1/4)
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.ACoins(2216).String()))
@@ -459,7 +459,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -471,7 +471,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		))
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -485,7 +485,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -493,7 +493,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
-		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+		initialBalancePoolAddress1 = s.GetCoinsFromAddress(i.POOL_ADDRESS_1_A)
 
 		c1 := s.GetCoinsFromCommunityPool()
 
@@ -501,7 +501,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -561,30 +561,30 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		valaccountUploader, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
-		Expect(valaccountUploader.Points).To(BeZero())
+		poolAccountUploader, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccountUploader.Points).To(BeZero())
 
-		balanceUploaderValaddress := s.GetCoinsFromAddress(valaccountUploader.Valaddress)
-		Expect(balanceUploaderValaddress).To(Equal(initialBalanceValaddress0))
+		balanceUploaderValaddress := s.GetCoinsFromAddress(poolAccountUploader.PoolAddress)
+		Expect(balanceUploaderValaddress).To(Equal(initialBalancePoolAddress0))
 
 		// check voter status
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
-		Expect(valaccountVoter.Points).To(Equal(uint64(1)))
+		poolAccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
+		Expect(poolAccountVoter.Points).To(Equal(uint64(1)))
 
-		balanceVoterValaddress := s.GetCoinsFromAddress(valaccountVoter.Valaddress)
-		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
+		balanceVoterPoolAddress := s.GetCoinsFromAddress(poolAccountVoter.PoolAddress)
+		Expect(balanceVoterPoolAddress).To(Equal(initialBalancePoolAddress1))
 
-		balanceVoter := s.GetCoinsFromAddress(valaccountVoter.Staker)
+		balanceVoter := s.GetCoinsFromAddress(poolAccountVoter.Staker)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// check uploader rewards
-		balanceUploader := s.GetCoinsFromAddress(valaccountUploader.Staker)
+		balanceUploader := s.GetCoinsFromAddress(poolAccountUploader.Staker)
 
 		// assert payout transfer
 		Expect(balanceUploader.String()).To(Equal(initialBalanceStaker0.String()))
 		// assert commission rewards
 		// (10_000 - (10_000 * 0.01) - (100 * 0.5)) * 0.1 + (100 * 0.5)
-		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), valaccountUploader.Staker).String()).To(Equal(i.ACoins(1035).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), poolAccountUploader.Staker).String()).To(Equal(i.ACoins(1035).String()))
 		// assert uploader self delegation rewards
 		// (10_000 - (10_000 * 0.01) - (100 * 0.5)) * (1 - 0.1) * (1/4)
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.ACoins(2216).String()))
@@ -625,7 +625,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -637,7 +637,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		))
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -651,7 +651,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -659,7 +659,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_2_A,
+			Creator:   i.POOL_ADDRESS_2_A,
 			Staker:    i.STAKER_2,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -667,7 +667,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
-		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+		initialBalancePoolAddress1 = s.GetCoinsFromAddress(i.POOL_ADDRESS_1_A)
 
 		c1 := s.GetCoinsFromCommunityPool()
 
@@ -675,7 +675,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -735,30 +735,30 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		valaccountUploader, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
-		Expect(valaccountUploader.Points).To(BeZero())
+		poolAccountUploader, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccountUploader.Points).To(BeZero())
 
-		balanceUploaderValaddress := s.GetCoinsFromAddress(valaccountUploader.Valaddress)
-		Expect(balanceUploaderValaddress).To(Equal(initialBalanceValaddress0))
+		balanceUploaderValaddress := s.GetCoinsFromAddress(poolAccountUploader.PoolAddress)
+		Expect(balanceUploaderValaddress).To(Equal(initialBalancePoolAddress0))
 
 		// check voter status
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
-		Expect(valaccountVoter.Points).To(BeZero())
+		poolAccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
+		Expect(poolAccountVoter.Points).To(BeZero())
 
-		balanceVoterValaddress := s.GetCoinsFromAddress(valaccountVoter.Valaddress)
-		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
+		balanceVoterPoolAddress := s.GetCoinsFromAddress(poolAccountVoter.PoolAddress)
+		Expect(balanceVoterPoolAddress).To(Equal(initialBalancePoolAddress1))
 
-		balanceVoter := s.GetCoinsFromAddress(valaccountVoter.Staker)
+		balanceVoter := s.GetCoinsFromAddress(poolAccountVoter.Staker)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// check uploader rewards
-		balanceUploader := s.GetCoinsFromAddress(valaccountUploader.Staker)
+		balanceUploader := s.GetCoinsFromAddress(poolAccountUploader.Staker)
 
 		// assert payout transfer
 		Expect(balanceUploader.String()).To(Equal(initialBalanceStaker0.String()))
 		// assert commission rewards
 		// (10_000 - (10_000 * 0.01) - (100 * 0.5)) * 0.1 + (100 * 0.5)
-		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), valaccountUploader.Staker).String()).To(Equal(i.ACoins(1035).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), poolAccountUploader.Staker).String()).To(Equal(i.ACoins(1035).String()))
 		// assert uploader self delegation rewards
 		// (10_000 - (10_000 * 0.01) - (100 * 0.5)) * (1 - 0.1) * (1/4)
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.ACoins(2216).String()))
@@ -799,7 +799,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -811,7 +811,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		))
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -825,7 +825,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -833,7 +833,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_2_A,
+			Creator:   i.POOL_ADDRESS_2_A,
 			Staker:    i.STAKER_2,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -841,7 +841,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		initialBalanceStaker2 = s.GetCoinsFromAddress(i.STAKER_2)
-		initialBalanceValaddress2 = s.GetCoinsFromAddress(i.VALADDRESS_2_A)
+		initialBalancePoolAddress2 = s.GetCoinsFromAddress(i.POOL_ADDRESS_2_A)
 
 		c1 := s.GetCoinsFromCommunityPool()
 
@@ -849,7 +849,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -909,11 +909,11 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		valaccountUploader, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
-		Expect(valaccountUploader.Points).To(BeZero())
+		poolAccountUploader, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccountUploader.Points).To(BeZero())
 
-		balanceUploaderValaddress := s.GetCoinsFromAddress(valaccountUploader.Valaddress)
-		Expect(balanceUploaderValaddress).To(Equal(initialBalanceValaddress0))
+		balanceUploaderValaddress := s.GetCoinsFromAddress(poolAccountUploader.PoolAddress)
+		Expect(balanceUploaderValaddress).To(Equal(initialBalancePoolAddress0))
 
 		// calculate voter slashes
 		fraction := s.App().StakersKeeper.GetVoteSlash(s.Ctx())
@@ -926,23 +926,23 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(800 * i.KYVE))
 
 		// check voter status
-		_, voterActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
+		_, voterActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
 		Expect(voterActive).To(BeFalse())
 
-		balanceVoterValaddress := s.GetCoinsFromAddress(i.VALADDRESS_2_A)
-		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress2))
+		balanceVoterPoolAddress := s.GetCoinsFromAddress(i.POOL_ADDRESS_2_A)
+		Expect(balanceVoterPoolAddress).To(Equal(initialBalancePoolAddress2))
 
 		balanceVoter := s.GetCoinsFromAddress(i.STAKER_2)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker2))
 
 		// check uploader rewards
-		balanceUploader := s.GetCoinsFromAddress(valaccountUploader.Staker)
+		balanceUploader := s.GetCoinsFromAddress(poolAccountUploader.Staker)
 
 		// assert payout transfer
 		Expect(balanceUploader.String()).To(Equal(initialBalanceStaker0.String()))
 		// assert commission rewards
 		// (10_000 - (10_000 * 0.01) - (100 * 0.5)) * 0.1 + (100 * 0.5)
-		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), valaccountUploader.Staker).String()).To(Equal(i.ACoins(1035).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), poolAccountUploader.Staker).String()).To(Equal(i.ACoins(1035).String()))
 		// assert uploader self delegation rewards
 		// (10_000 - (10_000 * 0.01) - (100 * 0.5)) * (1 - 0.1) * (1/4)
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.ACoins(2216).String()))
@@ -973,7 +973,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_2,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_2_A,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -990,13 +990,13 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
 			Creator:       i.STAKER_3,
 			PoolId:        0,
-			Valaddress:    i.VALADDRESS_3_A,
+			PoolAddress:   i.POOL_ADDRESS_3_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -1004,7 +1004,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1018,7 +1018,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1026,7 +1026,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_2_A,
+			Creator:   i.POOL_ADDRESS_2_A,
 			Staker:    i.STAKER_2,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1034,7 +1034,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_3_A,
+			Creator:   i.POOL_ADDRESS_3_A,
 			Staker:    i.STAKER_3,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1042,7 +1042,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		initialBalanceStaker2 = s.GetCoinsFromAddress(i.STAKER_2)
-		initialBalanceValaddress2 = s.GetCoinsFromAddress(i.VALADDRESS_2_A)
+		initialBalancePoolAddress2 = s.GetCoinsFromAddress(i.POOL_ADDRESS_2_A)
 
 		c1 := s.GetCoinsFromCommunityPool()
 
@@ -1051,7 +1051,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// ACT
 		// TODO: why is staker 2 selected as next uploader?
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_2_A,
+			Creator:       i.POOL_ADDRESS_2_A,
 			Staker:        i.STAKER_2,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -1111,11 +1111,11 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		valaccountUploader, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
-		Expect(valaccountUploader.Points).To(BeZero())
+		poolAccountUploader, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccountUploader.Points).To(BeZero())
 
-		balanceUploaderValaddress := s.GetCoinsFromAddress(valaccountUploader.Valaddress)
-		Expect(balanceUploaderValaddress).To(Equal(initialBalanceValaddress0))
+		balanceUploaderValaddress := s.GetCoinsFromAddress(poolAccountUploader.PoolAddress)
+		Expect(balanceUploaderValaddress).To(Equal(initialBalancePoolAddress0))
 
 		// calculate voter slashes (due to maximum vote power only 200 kyve out of 400 where at risk for slashing)
 		fraction := s.App().StakersKeeper.GetVoteSlash(s.Ctx()).Mul(math.LegacyMustNewDecFromStr("0.5")) // 200 / 400
@@ -1128,23 +1128,23 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(300 * i.KYVE))
 
 		// check voter status
-		_, voterActive := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_2)
+		_, voterActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
 		Expect(voterActive).To(BeFalse())
 
-		balanceVoterValaddress := s.GetCoinsFromAddress(i.VALADDRESS_2_A)
-		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress2))
+		balanceVoterPoolAddress := s.GetCoinsFromAddress(i.POOL_ADDRESS_2_A)
+		Expect(balanceVoterPoolAddress).To(Equal(initialBalancePoolAddress2))
 
 		balanceVoter := s.GetCoinsFromAddress(i.STAKER_2)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker2))
 
 		// check uploader rewards
-		balanceUploader := s.GetCoinsFromAddress(valaccountUploader.Staker)
+		balanceUploader := s.GetCoinsFromAddress(poolAccountUploader.Staker)
 
 		// assert payout transfer
 		Expect(balanceUploader.String()).To(Equal(initialBalanceStaker0.String()))
 		// assert commission rewards
 		// (10_000 - (10_000 * 0.01) - (100 * 0.5)) * 0.1 + (100 * 0.5)
-		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), valaccountUploader.Staker).String()).To(Equal(i.ACoins(1035).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), poolAccountUploader.Staker).String()).To(Equal(i.ACoins(1035).String()))
 		// assert uploader self delegation rewards
 		// (10_000 - (10_000 * 0.01) - (100 * 0.5)) * (1 - 0.1)
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.ACoins(8865).String()))
@@ -1176,7 +1176,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1190,7 +1190,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1198,7 +1198,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
-		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+		initialBalancePoolAddress1 = s.GetCoinsFromAddress(i.POOL_ADDRESS_1_A)
 
 		c1 := s.GetCoinsFromCommunityPool()
 
@@ -1206,7 +1206,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -1266,24 +1266,24 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		valaccountUploader, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
-		Expect(valaccountUploader.Points).To(BeZero())
+		poolAccountUploader, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccountUploader.Points).To(BeZero())
 
-		balanceUploaderValaddress := s.GetCoinsFromAddress(valaccountUploader.Valaddress)
-		Expect(balanceUploaderValaddress).To(Equal(initialBalanceValaddress0))
+		balanceUploaderValaddress := s.GetCoinsFromAddress(poolAccountUploader.PoolAddress)
+		Expect(balanceUploaderValaddress).To(Equal(initialBalancePoolAddress0))
 
 		// check voter status
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
-		Expect(valaccountVoter.Points).To(BeZero())
+		poolAccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
+		Expect(poolAccountVoter.Points).To(BeZero())
 
-		balanceVoterValaddress := s.GetCoinsFromAddress(valaccountVoter.Valaddress)
-		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
+		balanceVoterPoolAddress := s.GetCoinsFromAddress(poolAccountVoter.PoolAddress)
+		Expect(balanceVoterPoolAddress).To(Equal(initialBalancePoolAddress1))
 
-		balanceVoter := s.GetCoinsFromAddress(valaccountVoter.Staker)
+		balanceVoter := s.GetCoinsFromAddress(poolAccountVoter.Staker)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// check uploader rewards
-		balanceUploader := s.GetCoinsFromAddress(valaccountUploader.Staker)
+		balanceUploader := s.GetCoinsFromAddress(poolAccountUploader.Staker)
 
 		// assert payout transfer
 		Expect(balanceUploader.String()).To(Equal(initialBalanceStaker0.String()))
@@ -1292,7 +1292,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(i.ACoins(8829).String()))
 		// assert commission rewards
 		// (10_000 - (10_000 * 0.01) - (100 * 0.9)) * 0.1 + (100 * 0.9)
-		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), valaccountUploader.Staker).String()).To(Equal(i.ACoins(1071).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), poolAccountUploader.Staker).String()).To(Equal(i.ACoins(1071).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -1315,7 +1315,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1329,7 +1329,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1337,7 +1337,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
-		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+		initialBalancePoolAddress1 = s.GetCoinsFromAddress(i.POOL_ADDRESS_1_A)
 
 		c1 := s.GetCoinsFromCommunityPool()
 
@@ -1345,7 +1345,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -1405,30 +1405,30 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		valaccountUploader, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
-		Expect(valaccountUploader.Points).To(BeZero())
+		poolAccountUploader, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccountUploader.Points).To(BeZero())
 
-		balanceUploaderValaddress := s.GetCoinsFromAddress(valaccountUploader.Valaddress)
-		Expect(balanceUploaderValaddress).To(Equal(initialBalanceValaddress0))
+		balanceUploaderValaddress := s.GetCoinsFromAddress(poolAccountUploader.PoolAddress)
+		Expect(balanceUploaderValaddress).To(Equal(initialBalancePoolAddress0))
 
 		// check voter status
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
-		Expect(valaccountVoter.Points).To(BeZero())
+		poolAccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
+		Expect(poolAccountVoter.Points).To(BeZero())
 
-		balanceVoterValaddress := s.GetCoinsFromAddress(valaccountVoter.Valaddress)
-		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
+		balanceVoterPoolAddress := s.GetCoinsFromAddress(poolAccountVoter.PoolAddress)
+		Expect(balanceVoterPoolAddress).To(Equal(initialBalancePoolAddress1))
 
-		balanceVoter := s.GetCoinsFromAddress(valaccountVoter.Staker)
+		balanceVoter := s.GetCoinsFromAddress(poolAccountVoter.Staker)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// check uploader rewards
-		balanceUploader := s.GetCoinsFromAddress(valaccountUploader.Staker)
+		balanceUploader := s.GetCoinsFromAddress(poolAccountUploader.Staker)
 
 		// assert payout transfer
 		Expect(balanceUploader.String()).To(Equal(initialBalanceStaker0.String()))
 		// assert commission rewards (here we round down since the result of commission rewards gets truncated)
 		// (coin_amount_per_bundle - (coin_amount_per_bundle * 0.01) - _((100 * 0.5) / (3 * coin_weight))_) * 0.1 + _((100 * 0.5) / (3 * coin_weight))_
-		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), valaccountUploader.Staker).String()).To(Equal(sdk.NewCoins(i.ACoin(1004), i.BCoin(1987), i.CCoin(2974)).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), poolAccountUploader.Staker).String()).To(Equal(sdk.NewCoins(i.ACoin(1004), i.BCoin(1987), i.CCoin(2974)).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (coin_amount_per_bundle - (coin_amount_per_bundle * 0.01) - _((100 * 0.5) / (3 * coin_weight))_) * (1 - 0.1)
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.ACoin(8896), i.BCoin(17813), i.CCoin(26726)).String()))
@@ -1484,7 +1484,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1498,7 +1498,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1506,7 +1506,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
-		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+		initialBalancePoolAddress1 = s.GetCoinsFromAddress(i.POOL_ADDRESS_1_A)
 
 		c1 := s.GetCoinsFromCommunityPool()
 
@@ -1514,7 +1514,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -1574,30 +1574,30 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		valaccountUploader, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
-		Expect(valaccountUploader.Points).To(BeZero())
+		poolAccountUploader, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccountUploader.Points).To(BeZero())
 
-		balanceUploaderValaddress := s.GetCoinsFromAddress(valaccountUploader.Valaddress)
-		Expect(balanceUploaderValaddress).To(Equal(initialBalanceValaddress0))
+		balanceUploaderValaddress := s.GetCoinsFromAddress(poolAccountUploader.PoolAddress)
+		Expect(balanceUploaderValaddress).To(Equal(initialBalancePoolAddress0))
 
 		// check voter status
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
-		Expect(valaccountVoter.Points).To(BeZero())
+		poolAccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
+		Expect(poolAccountVoter.Points).To(BeZero())
 
-		balanceVoterValaddress := s.GetCoinsFromAddress(valaccountVoter.Valaddress)
-		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
+		balanceVoterPoolAddress := s.GetCoinsFromAddress(poolAccountVoter.PoolAddress)
+		Expect(balanceVoterPoolAddress).To(Equal(initialBalancePoolAddress1))
 
-		balanceVoter := s.GetCoinsFromAddress(valaccountVoter.Staker)
+		balanceVoter := s.GetCoinsFromAddress(poolAccountVoter.Staker)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// check uploader rewards
-		balanceUploader := s.GetCoinsFromAddress(valaccountUploader.Staker)
+		balanceUploader := s.GetCoinsFromAddress(poolAccountUploader.Staker)
 
 		// assert payout transfer
 		Expect(balanceUploader.String()).To(Equal(initialBalanceStaker0.String()))
 		// assert commission rewards (here we round down since the result of commission rewards gets truncated)
 		// (10_000 - (10_000 * 0.01) - _((100 * 0.5) / (3 * coin_weight))_) * 0.1 + _((100 * 0.5) / (3 * coin_weight))_
-		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), valaccountUploader.Staker).String()).To(Equal(sdk.NewCoins(i.ACoin(1004), i.BCoin(997), i.CCoin(9900)).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), poolAccountUploader.Staker).String()).To(Equal(sdk.NewCoins(i.ACoin(1004), i.BCoin(997), i.CCoin(9900)).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (10_000 - (10_000 * 0.01) - _((100 * 0.5) / (3 * coin_weight))_) * (1 - 0.1)
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.ACoin(8896), i.BCoin(8903)).String()))
@@ -1647,7 +1647,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		}, 0))
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1661,7 +1661,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1669,7 +1669,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
-		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+		initialBalancePoolAddress1 = s.GetCoinsFromAddress(i.POOL_ADDRESS_1_A)
 
 		c1 := s.GetCoinsFromCommunityPool()
 
@@ -1677,7 +1677,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -1737,30 +1737,30 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		valaccountUploader, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
-		Expect(valaccountUploader.Points).To(BeZero())
+		poolAccountUploader, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccountUploader.Points).To(BeZero())
 
-		balanceUploaderValaddress := s.GetCoinsFromAddress(valaccountUploader.Valaddress)
-		Expect(balanceUploaderValaddress).To(Equal(initialBalanceValaddress0))
+		balanceUploaderValaddress := s.GetCoinsFromAddress(poolAccountUploader.PoolAddress)
+		Expect(balanceUploaderValaddress).To(Equal(initialBalancePoolAddress0))
 
 		// check voter status
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
-		Expect(valaccountVoter.Points).To(BeZero())
+		poolAccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
+		Expect(poolAccountVoter.Points).To(BeZero())
 
-		balanceVoterValaddress := s.GetCoinsFromAddress(valaccountVoter.Valaddress)
-		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
+		balanceVoterPoolAddress := s.GetCoinsFromAddress(poolAccountVoter.PoolAddress)
+		Expect(balanceVoterPoolAddress).To(Equal(initialBalancePoolAddress1))
 
-		balanceVoter := s.GetCoinsFromAddress(valaccountVoter.Staker)
+		balanceVoter := s.GetCoinsFromAddress(poolAccountVoter.Staker)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// check uploader rewards
-		balanceUploader := s.GetCoinsFromAddress(valaccountUploader.Staker)
+		balanceUploader := s.GetCoinsFromAddress(poolAccountUploader.Staker)
 
 		// assert payout transfer
 		Expect(balanceUploader.String()).To(Equal(initialBalanceStaker0.String()))
 		// assert commission rewards (here we round down since the result of commission rewards gets truncated)
 		// (10_000 - (10_000 * 0.01) - _((100 * 0.5) / (2 * coin_weight))_) * 0.1 + _((100 * 0.5) / (2 * coin_weight))_
-		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), valaccountUploader.Staker).String()).To(Equal(sdk.NewCoins(i.ACoin(1012), i.BCoin(1000)).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), poolAccountUploader.Staker).String()).To(Equal(sdk.NewCoins(i.ACoin(1012), i.BCoin(1000)).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (10_000 - (10_000 * 0.01) - _((100 * 0.5) / (2 * coin_weight))_) * (1 - 0.1)
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.ACoin(8888), i.BCoin(8900)).String()))
@@ -1842,7 +1842,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1856,7 +1856,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -1864,7 +1864,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		})
 
 		initialBalanceStaker1 = s.GetCoinsFromAddress(i.STAKER_1)
-		initialBalanceValaddress1 = s.GetCoinsFromAddress(i.VALADDRESS_1_A)
+		initialBalancePoolAddress1 = s.GetCoinsFromAddress(i.POOL_ADDRESS_1_A)
 
 		c1 := s.GetCoinsFromCommunityPool()
 
@@ -1872,7 +1872,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_1_A,
+			Creator:       i.POOL_ADDRESS_1_A,
 			Staker:        i.STAKER_1,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
@@ -1932,24 +1932,24 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		valaccountUploader, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_0)
-		Expect(valaccountUploader.Points).To(BeZero())
+		poolAccountUploader, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccountUploader.Points).To(BeZero())
 
-		balanceUploaderValaddress := s.GetCoinsFromAddress(valaccountUploader.Valaddress)
-		Expect(balanceUploaderValaddress).To(Equal(initialBalanceValaddress0))
+		balanceUploaderValaddress := s.GetCoinsFromAddress(poolAccountUploader.PoolAddress)
+		Expect(balanceUploaderValaddress).To(Equal(initialBalancePoolAddress0))
 
 		// check voter status
-		valaccountVoter, _ := s.App().StakersKeeper.GetValaccount(s.Ctx(), 0, i.STAKER_1)
-		Expect(valaccountVoter.Points).To(BeZero())
+		poolAccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
+		Expect(poolAccountVoter.Points).To(BeZero())
 
-		balanceVoterValaddress := s.GetCoinsFromAddress(valaccountVoter.Valaddress)
-		Expect(balanceVoterValaddress).To(Equal(initialBalanceValaddress1))
+		balanceVoterPoolAddress := s.GetCoinsFromAddress(poolAccountVoter.PoolAddress)
+		Expect(balanceVoterPoolAddress).To(Equal(initialBalancePoolAddress1))
 
-		balanceVoter := s.GetCoinsFromAddress(valaccountVoter.Staker)
+		balanceVoter := s.GetCoinsFromAddress(poolAccountVoter.Staker)
 		Expect(balanceVoter).To(Equal(initialBalanceStaker1))
 
 		// check uploader rewards
-		balanceUploader := s.GetCoinsFromAddress(valaccountUploader.Staker)
+		balanceUploader := s.GetCoinsFromAddress(poolAccountUploader.Staker)
 
 		// assert payout transfer
 		Expect(balanceUploader.String()).To(Equal(initialBalanceStaker0.String()))
@@ -1957,7 +1957,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// (amount_per_bundle - treasury_reward - storage_cost) * uploader_commission + storage_cost
 		// storage_cost = 1MB * storage_price / coin_length * coin_price
 		// (amount_per_bundle - (amount_per_bundle * 0.01) - _((1048576 * 0.000000006288 * 10**coin_decimals) / (4 * coin_weight))_) * 0.1 + _((1048576 * 0.000000006288) / (4 * coin_weight))_
-		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), valaccountUploader.Staker).String()).To(Equal(sdk.NewCoins(i.KYVECoin(125_973_187), i.ACoin(99_143), i.BCoin(116_661_015_771_428_571), i.CCoin(100_765)).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), poolAccountUploader.Staker).String()).To(Equal(sdk.NewCoins(i.KYVECoin(125_973_187), i.ACoin(99_143), i.BCoin(116_661_015_771_428_571), i.CCoin(100_765)).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (amount_per_bundle - (amount_per_bundle * 0.01) - _((29970208 * 0.000000006288 * 1**coin_decimals) / (4 * coin_weight))_) * (1 - 0.1)
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(864_026_813), i.ACoin(890_857), i.BCoin(873_338_984_228_571_429), i.CCoin(889_235)).String()))
