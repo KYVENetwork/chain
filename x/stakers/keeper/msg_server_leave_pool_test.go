@@ -72,17 +72,17 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 
-		valaccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		poolAccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 
 		Expect(active).To(BeTrue())
 
-		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
-		Expect(valaccount.PoolId).To(BeZero())
-		Expect(valaccount.PoolAddress).To(Equal(i.VALADDRESS_0_A))
-		Expect(valaccount.Points).To(BeZero())
-		Expect(valaccount.IsLeaving).To(BeTrue())
-		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
-		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
+		Expect(poolAccount.Staker).To(Equal(i.STAKER_0))
+		Expect(poolAccount.PoolId).To(BeZero())
+		Expect(poolAccount.PoolAddress).To(Equal(i.VALADDRESS_0_A))
+		Expect(poolAccount.Points).To(BeZero())
+		Expect(poolAccount.IsLeaving).To(BeTrue())
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
+		Expect(poolAccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
 
 		valaccountsOfPool := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
 
@@ -104,7 +104,7 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(BeEmpty())
 
-		valaccount, active = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		poolAccount, active = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 
 		Expect(active).To(BeFalse())
 
@@ -116,8 +116,8 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 		Expect(totalStakeOfPool).To(BeZero())
 
 		// check if commission and stake fraction is still available
-		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
-		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
+		Expect(poolAccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
 	})
 
 	It("Leave a pool multiple other stakers have joined previously", func() {
@@ -145,17 +145,17 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 
-		valaccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		poolAccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 
 		Expect(active).To(BeTrue())
 
-		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
-		Expect(valaccount.PoolId).To(BeZero())
-		Expect(valaccount.PoolAddress).To(Equal(i.VALADDRESS_0_A))
-		Expect(valaccount.Points).To(BeZero())
-		Expect(valaccount.IsLeaving).To(BeTrue())
-		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
-		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
+		Expect(poolAccount.Staker).To(Equal(i.STAKER_0))
+		Expect(poolAccount.PoolId).To(BeZero())
+		Expect(poolAccount.PoolAddress).To(Equal(i.VALADDRESS_0_A))
+		Expect(poolAccount.Points).To(BeZero())
+		Expect(poolAccount.IsLeaving).To(BeTrue())
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
+		Expect(poolAccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
 
 		valaccountsOfPool := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
 
@@ -177,7 +177,7 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(BeEmpty())
 
-		valaccount, active = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		poolAccount, active = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 
 		Expect(active).To(BeFalse())
 
@@ -189,8 +189,8 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 		Expect(totalStakeOfPool).To(Equal(100 * i.KYVE))
 
 		// check if commission and stake fraction is still available
-		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
-		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
+		Expect(poolAccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
 	})
 
 	It("Try to leave a pool again", func() {
@@ -250,17 +250,17 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(2))
 
-		valaccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 1)
+		poolAccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 1)
 
 		Expect(active).To(BeTrue())
 
-		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
-		Expect(valaccount.PoolId).To(Equal(uint64(1)))
-		Expect(valaccount.PoolAddress).To(Equal(i.VALADDRESS_1_A))
-		Expect(valaccount.Points).To(BeZero())
-		Expect(valaccount.IsLeaving).To(BeTrue())
-		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
-		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
+		Expect(poolAccount.Staker).To(Equal(i.STAKER_0))
+		Expect(poolAccount.PoolId).To(Equal(uint64(1)))
+		Expect(poolAccount.PoolAddress).To(Equal(i.VALADDRESS_1_A))
+		Expect(poolAccount.Points).To(BeZero())
+		Expect(poolAccount.IsLeaving).To(BeTrue())
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
+		Expect(poolAccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
 
 		valaccountsOfPool := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 1)
 
@@ -280,7 +280,7 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 
-		valaccount, active = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 1)
+		poolAccount, active = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 1)
 
 		Expect(active).To(BeFalse())
 
@@ -292,8 +292,8 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 		Expect(totalStakeOfPool).To(BeZero())
 
 		// check if commission and stake fraction is still available
-		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
-		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
+		Expect(poolAccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
 	})
 
 	It("Leave a pool a staker has never joined", func() {
@@ -317,12 +317,12 @@ var _ = Describe("msg_server_leave_pool.go", Ordered, func() {
 		valaccountsOfStaker = s.App().StakersKeeper.GetPoolAccountsFromStaker(s.Ctx(), i.STAKER_1)
 		Expect(valaccountsOfStaker).To(BeEmpty())
 
-		valaccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 1)
+		poolAccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 1)
 
 		Expect(active).To(BeFalse())
 
 		// check if commission and stake fraction is still available
-		Expect(valaccount.Commission).To(Equal(math.LegacyZeroDec()))
-		Expect(valaccount.StakeFraction).To(Equal(math.LegacyZeroDec()))
+		Expect(poolAccount.Commission).To(Equal(math.LegacyZeroDec()))
+		Expect(poolAccount.StakeFraction).To(Equal(math.LegacyZeroDec()))
 	})
 })

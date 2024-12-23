@@ -21,7 +21,7 @@ func (gs GenesisState) Validate() error {
 	for _, elem := range gs.PoolAccountList {
 		index := string(PoolAccountKey(elem.PoolId, elem.Staker))
 		if _, ok := valaccountMap[index]; ok {
-			return fmt.Errorf("duplicated index for valaccount %v", elem)
+			return fmt.Errorf("duplicated index for pool account %v", elem)
 		}
 		valaccountMap[index] = struct{}{}
 		stakerLeaving[index] = elem.IsLeaving

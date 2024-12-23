@@ -17,9 +17,9 @@ import (
 TEST CASES - grpc_query_can_validate.go
 
 * Call can validate if pool does not exist
-* Call can validate if valaddress does not exist
-* Call can validate with a valaddress which belongs to another pool
-* Call can validate with a valid valaddress
+* Call can validate if pool address does not exist
+* Call can validate with a pool address which belongs to another pool
+* Call can validate with a valid pool address
 
 */
 
@@ -83,7 +83,7 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 		Expect(canValidate.Reason).To(Equal(errors.Wrapf(errorsTypes.ErrNotFound, pooltypes.ErrPoolNotFound.Error(), 2).Error()))
 	})
 
-	It("Call can validate if valaddress does not exist", func() {
+	It("Call can validate if pool address does not exist", func() {
 		// ACT
 		canValidate, err := s.App().QueryKeeper.CanValidate(s.Ctx(), &querytypes.QueryCanValidateRequest{
 			PoolId:      0,
@@ -94,10 +94,10 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 		Expect(err).To(BeNil())
 
 		Expect(canValidate.Possible).To(BeFalse())
-		Expect(canValidate.Reason).To(Equal("no valaccount found"))
+		Expect(canValidate.Reason).To(Equal("no pool account found"))
 	})
 
-	It("Call can validate with a valaddress which belongs to another pool", func() {
+	It("Call can validate with a pool address which belongs to another pool", func() {
 		// ACT
 		canValidate, err := s.App().QueryKeeper.CanValidate(s.Ctx(), &querytypes.QueryCanValidateRequest{
 			PoolId:      0,
@@ -108,10 +108,10 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 		Expect(err).To(BeNil())
 
 		Expect(canValidate.Possible).To(BeFalse())
-		Expect(canValidate.Reason).To(Equal("no valaccount found"))
+		Expect(canValidate.Reason).To(Equal("no pool account found"))
 	})
 
-	It("Call can validate with a valid valaddress", func() {
+	It("Call can validate with a valid pool address", func() {
 		// ACT
 		canValidate, err := s.App().QueryKeeper.CanValidate(s.Ctx(), &querytypes.QueryCanValidateRequest{
 			PoolId:      0,

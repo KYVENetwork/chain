@@ -25,7 +25,7 @@ func (k Keeper) CanValidate(c context.Context, req *types.QueryCanValidateReques
 
 	var staker string
 
-	// Check if valaddress has a valaccount in pool
+	// Check if pool address has a pool account in pool
 	for _, poolAccount := range k.stakerKeeper.GetAllPoolAccountsOfPool(ctx, req.PoolId) {
 		if poolAccount.PoolAddress == req.PoolAddress {
 			staker = poolAccount.Staker
@@ -36,7 +36,7 @@ func (k Keeper) CanValidate(c context.Context, req *types.QueryCanValidateReques
 	if staker == "" {
 		return &types.QueryCanValidateResponse{
 			Possible: false,
-			Reason:   "no valaccount found",
+			Reason:   "no pool account found",
 		}, nil
 	}
 

@@ -27,7 +27,7 @@ TEST CASES - grpc_query_can_propose.go
 * Call can propose if pool is disabled
 * Call can propose if pool is out of funds
 * Call can propose if pool has not reached the minimum stake
-* Call can propose with a valaccount which does not exist
+* Call can propose with a pool account which does not exist
 * Call can propose as a staker who is not the next uploader
 * Call can propose before the upload interval passed
 * Call can propose with an invalid from height
@@ -280,7 +280,7 @@ var _ = Describe("grpc_query_can_propose.go", Ordered, func() {
 		Expect(txErr.Error()).To(Equal(canPropose.Reason))
 	})
 
-	It("Call can propose with a valaccount which does not exist", func() {
+	It("Call can propose with a pool account which does not exist", func() {
 		// ACT
 		canPropose, err := s.App().QueryKeeper.CanPropose(s.Ctx(), &querytypes.QueryCanProposeRequest{
 			PoolId:    0,

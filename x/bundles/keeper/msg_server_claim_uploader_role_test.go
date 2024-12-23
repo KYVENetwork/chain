@@ -19,8 +19,8 @@ TEST CASES - msg_server_claim_uploader_role.go
 * Try to claim uploader role without pool being funded
 * Try to claim uploader role without being a staker
 * Try to claim uploader role if the next uploader is not set yet
-* Try to claim uploader role with non-existing valaccount
-* Try to claim uploader role with valaccount that belongs to another pool
+* Try to claim uploader role with non-existing pool account
+* Try to claim uploader role with pool account that belongs to another pool
 
 */
 
@@ -155,7 +155,7 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 	})
 
-	It("Try to claim uploader role with non existing valaccount", func() {
+	It("Try to claim uploader role with non existing pool account", func() {
 		// ARRANGE
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
 			Creator:          i.ALICE,
@@ -176,7 +176,7 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 		Expect(found).To(BeFalse())
 	})
 
-	It("Try to claim uploader role with valaccount that belongs to another pool", func() {
+	It("Try to claim uploader role with pool account that belongs to another pool", func() {
 		// ARRANGE
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
 			Creator:          i.ALICE,

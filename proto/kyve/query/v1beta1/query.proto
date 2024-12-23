@@ -137,7 +137,7 @@ message PoolMembership {
   string pool_address = 4;
 
   // balance is the pool address  account balance and indicates
-  // whether or not the valaccount needs additional funds to
+  // whether or not the pool account needs additional funds to
   // pay for gas fees
   uint64 balance = 5;
 

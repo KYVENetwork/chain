@@ -875,8 +875,8 @@ paths:
                                   balance is the pool address  account balance
                                   and indicates
 
-                                  whether or not the valaccount needs additional
-                                  funds to
+                                  whether or not the pool account needs
+                                  additional funds to
 
                                   pay for gas fees
                               commission:
@@ -4414,8 +4414,8 @@ paths:
                                   balance is the pool address  account balance
                                   and indicates
 
-                                  whether or not the valaccount needs additional
-                                  funds to
+                                  whether or not the pool account needs
+                                  additional funds to
 
                                   pay for gas fees
                               commission:
@@ -7008,8 +7008,8 @@ paths:
                             balance is the pool address  account balance and
                             indicates
 
-                            whether or not the valaccount needs additional funds
-                            to
+                            whether or not the pool account needs additional
+                            funds to
 
                             pay for gas fees
                         commission:
@@ -7670,7 +7670,7 @@ paths:
                               balance is the pool address  account balance and
                               indicates
 
-                              whether or not the valaccount needs additional
+                              whether or not the pool account needs additional
                               funds to
 
                               pay for gas fees
@@ -8436,7 +8436,7 @@ paths:
                               balance is the pool address  account balance and
                               indicates
 
-                              whether or not the valaccount needs additional
+                              whether or not the pool account needs additional
                               funds to
 
                               pay for gas fees
@@ -9111,7 +9111,7 @@ paths:
                               balance is the pool address  account balance and
                               indicates
 
-                              whether or not the valaccount needs additional
+                              whether or not the pool account needs additional
                               funds to
 
                               pay for gas fees

@@ -26,7 +26,7 @@ TEST CASES - grpc_query_can_vote.go
 * Call can vote if pool is currently upgrading
 * Call can vote if pool is disabled
 * Call can vote if pool has not reached the minimum stake
-* Call can vote with a valaccount which does not exist
+* Call can vote with a pool account which does not exist
 * Call can vote if current bundle was dropped
 * Call can vote with a different storage id than the current one
 * Call can vote if voter has already voted valid
@@ -246,7 +246,7 @@ var _ = Describe("grpc_query_can_vote.go", Ordered, func() {
 		Expect(txErr.Error()).To(Equal(canVote.Reason))
 	})
 
-	It("Call can vote with a valaccount which does not exist", func() {
+	It("Call can vote with a pool account which does not exist", func() {
 		// ACT
 		canVote, err := s.App().QueryKeeper.CanVote(s.Ctx(), &querytypes.QueryCanVoteRequest{
 			PoolId:    0,

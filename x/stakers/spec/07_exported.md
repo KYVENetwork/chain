@@ -16,18 +16,18 @@ type StakersKeeper interface {
 	LeavePool(ctx sdk.Context, staker string, poolId uint64)
 
     // GetAllStakerAddressesOfPool returns a list of all stakers
-    // which have currently a valaccount registered for the given pool
+    // which have currently a pool account registered for the given pool
     // and are therefore allowed to participate in that pool.
     GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (stakers []string)
 
     // GetCommission returns the commission of a staker as a parsed sdk.Dec
 	GetCommission(ctx sdk.Context, stakerAddress string) sdk.Dec
 
-    // AssertValaccountAuthorized checks if the given `valaddress` is allowed to vote in pool
+    // AssertValaccountAuthorized checks if the given `pool address` is allowed to vote in pool
     // with id `poolId` to vote in favor of `stakerAddress`.
-    // If the valaddress is not authorized the appropriate error is returned.
+    // If the pool address is not authorized the appropriate error is returned.
     // Otherwise, it returns `nil`
-    AssertValaccountAuthorized(ctx sdk.Context, poolId uint64, stakerAddress string, valaddress string) error
+    AssertValaccountAuthorized(ctx sdk.Context, poolId uint64, stakerAddress string, pool address string) error
 
     // GetActiveStakers returns all staker-addresses that are
     // currently participating in at least one pool.

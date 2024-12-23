@@ -26,25 +26,25 @@ TEST CASES - msg_server_join_pool.go
 * Join disabled pool
 * Join a pool where other stakers have already joined
 * Self-Delegate more KYVE after joining a pool
-* Join a pool with the same valaddress as the staker address
-* Try to join the same pool with the same valaddress again
-* Try to join the same pool with a different valaddress
-* Try to join another pool with the same valaddress again
-* Try to join another pool with a valaddress that is already used by another staker
-* Try to join another pool with a different valaddress
-* Try to join pool with empty valaddress
+* Join a pool with the same pool address as the staker address
+* Try to join the same pool with the same pool address again
+* Try to join the same pool with a different pool address
+* Try to join another pool with the same pool address again
+* Try to join another pool with a pool address that is already used by another staker
+* Try to join another pool with a different pool address
+* Try to join pool with empty pool address
 * Try to join pool with empty commission
 * Try to join pool with empty stake fraction
-* Join a pool with a valaddress which does not exist on chain yet
-* Join a pool with a valaddress which does not exist on chain yet and send 0 funds
-* Join a pool with an invalid valaddress
-* Join a pool and fund the valaddress with more KYVE than available in balance
+* Join a pool with a pool address which does not exist on chain yet
+* Join a pool with a pool address which does not exist on chain yet and send 0 funds
+* Join a pool with an invalid pool address
+* Join a pool and fund the pool address with more KYVE than available in balance
 * Kick out lowest staker by joining a full pool
 * Fail to kick out lowest staker because not enough stake
 * Kick out lowest staker with respect to stake + delegation
 * Fail to kick out lowest staker because not enough stake + delegation
-* Join pool again with same valaddress after staker has left pool
-* Join pool again with different valaddress after staker has left pool
+* Join pool again with same pool address after staker has left pool
+* Join pool again with different pool address after staker has left pool
 
 */
 
@@ -112,15 +112,15 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 
-		valaccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		poolAccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 
 		Expect(active).To(BeTrue())
 
-		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
-		Expect(valaccount.PoolId).To(BeZero())
-		Expect(valaccount.PoolAddress).To(Equal(i.VALADDRESS_0_A))
-		Expect(valaccount.Points).To(BeZero())
-		Expect(valaccount.IsLeaving).To(BeFalse())
+		Expect(poolAccount.Staker).To(Equal(i.STAKER_0))
+		Expect(poolAccount.PoolId).To(BeZero())
+		Expect(poolAccount.PoolAddress).To(Equal(i.VALADDRESS_0_A))
+		Expect(poolAccount.Points).To(BeZero())
+		Expect(poolAccount.IsLeaving).To(BeFalse())
 
 		valaccountsOfPool := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
 
@@ -222,15 +222,15 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 
-		valaccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		poolAccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 
 		Expect(active).To(BeTrue())
 
-		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
-		Expect(valaccount.PoolId).To(BeZero())
-		Expect(valaccount.PoolAddress).To(Equal(i.VALADDRESS_0_A))
-		Expect(valaccount.Points).To(BeZero())
-		Expect(valaccount.IsLeaving).To(BeFalse())
+		Expect(poolAccount.Staker).To(Equal(i.STAKER_0))
+		Expect(poolAccount.PoolId).To(BeZero())
+		Expect(poolAccount.PoolAddress).To(Equal(i.VALADDRESS_0_A))
+		Expect(poolAccount.Points).To(BeZero())
+		Expect(poolAccount.IsLeaving).To(BeFalse())
 
 		valaccountsOfPool := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
 
@@ -269,15 +269,15 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 
-		valaccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		poolAccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 
 		Expect(active).To(BeTrue())
 
-		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
-		Expect(valaccount.PoolId).To(BeZero())
-		Expect(valaccount.PoolAddress).To(Equal(i.VALADDRESS_0_A))
-		Expect(valaccount.Points).To(BeZero())
-		Expect(valaccount.IsLeaving).To(BeFalse())
+		Expect(poolAccount.Staker).To(Equal(i.STAKER_0))
+		Expect(poolAccount.PoolId).To(BeZero())
+		Expect(poolAccount.PoolAddress).To(Equal(i.VALADDRESS_0_A))
+		Expect(poolAccount.Points).To(BeZero())
+		Expect(poolAccount.IsLeaving).To(BeFalse())
 
 		valaccountsOfPool := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
 
@@ -291,7 +291,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(totalStakeOfPool))
 	})
 
-	It("Try to join the same pool with the same valaddress again", func() {
+	It("Try to join the same pool with the same pool address again", func() {
 		// ARRANGE
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
@@ -318,7 +318,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 	})
 
-	It("join a pool with the same valaddress as the staker address", func() {
+	It("join a pool with the same pool address as the staker address", func() {
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
@@ -335,7 +335,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(valaccountsOfStaker).To(BeEmpty())
 	})
 
-	It("Try to join the same pool with a different valaddress", func() {
+	It("Try to join the same pool with a different pool address", func() {
 		// ARRANGE
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
@@ -362,7 +362,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 	})
 
-	It("Try to join another pool with the same valaddress again", func() {
+	It("Try to join another pool with the same pool address again", func() {
 		// ARRANGE
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
@@ -397,7 +397,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 	})
 
-	It("Try to join pool with a valaddress that is already used by another staker", func() {
+	It("Try to join pool with a pool address that is already used by another staker", func() {
 		// ARRANGE
 		msg := &pooltypes.MsgCreatePool{
 			Authority:            gov,
@@ -434,7 +434,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 	})
 
-	It("Try to join pool with a valaddress that is already used by another staker", func() {
+	It("Try to join pool with a pool address that is already used by another staker", func() {
 		// ARRANGE
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
@@ -462,7 +462,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(valaccountsOfStaker).To(BeEmpty())
 	})
 
-	It("Try to join another pool with a different valaddress", func() {
+	It("Try to join another pool with a different pool address", func() {
 		// ARRANGE
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
@@ -496,7 +496,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(valaccountsOfStaker).To(HaveLen(2))
 	})
 
-	It("Try to join pool with empty valaddress", func() {
+	It("Try to join pool with empty pool address", func() {
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
@@ -542,7 +542,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(valaccountsOfStaker).To(BeEmpty())
 	})
 
-	It("Join a pool with a valaddress which does not exist on chain yet", func() {
+	It("Join a pool with a pool address which does not exist on chain yet", func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
@@ -564,15 +564,15 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 
-		valaccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		poolAccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 
 		Expect(active).To(BeTrue())
 
-		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
-		Expect(valaccount.PoolId).To(BeZero())
-		Expect(valaccount.PoolAddress).To(Equal("kyve1dx0nvx7y9d44jvr2dr6r2p636jea3f9827rn0x"))
-		Expect(valaccount.Points).To(BeZero())
-		Expect(valaccount.IsLeaving).To(BeFalse())
+		Expect(poolAccount.Staker).To(Equal(i.STAKER_0))
+		Expect(poolAccount.PoolId).To(BeZero())
+		Expect(poolAccount.PoolAddress).To(Equal("kyve1dx0nvx7y9d44jvr2dr6r2p636jea3f9827rn0x"))
+		Expect(poolAccount.Points).To(BeZero())
+		Expect(poolAccount.IsLeaving).To(BeFalse())
 
 		valaccountsOfPool := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
 
@@ -585,7 +585,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(totalStakeOfPool))
 	})
 
-	It("Join a pool with a valaddress which does not exist on chain yet and send 0 funds", func() {
+	It("Join a pool with a pool address which does not exist on chain yet and send 0 funds", func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
@@ -607,15 +607,15 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 
-		valaccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		poolAccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 
 		Expect(active).To(BeTrue())
 
-		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
-		Expect(valaccount.PoolId).To(BeZero())
-		Expect(valaccount.PoolAddress).To(Equal("kyve1dx0nvx7y9d44jvr2dr6r2p636jea3f9827rn0x"))
-		Expect(valaccount.Points).To(BeZero())
-		Expect(valaccount.IsLeaving).To(BeFalse())
+		Expect(poolAccount.Staker).To(Equal(i.STAKER_0))
+		Expect(poolAccount.PoolId).To(BeZero())
+		Expect(poolAccount.PoolAddress).To(Equal("kyve1dx0nvx7y9d44jvr2dr6r2p636jea3f9827rn0x"))
+		Expect(poolAccount.Points).To(BeZero())
+		Expect(poolAccount.IsLeaving).To(BeFalse())
 
 		valaccountsOfPool := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
 
@@ -628,7 +628,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(totalStakeOfPool))
 	})
 
-	It("Join a pool with an invalid valaddress", func() {
+	It("Join a pool with an invalid pool address", func() {
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
@@ -645,7 +645,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(valaccountsOfStaker).To(BeEmpty())
 	})
 
-	It("Join a pool and fund the valaddress with more KYVE than available in balance", func() {
+	It("Join a pool and fund the pool address with more KYVE than available in balance", func() {
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
@@ -903,7 +903,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)).NotTo(ContainElement(i.STAKER_1))
 	})
 
-	It("Join pool again with same valaddress after staker has left pool", func() {
+	It("Join pool again with same pool address after staker has left pool", func() {
 		// ARRANGE
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
@@ -947,17 +947,17 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 
-		valaccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		poolAccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 
 		Expect(active).To(BeTrue())
 
-		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
-		Expect(valaccount.PoolId).To(BeZero())
-		Expect(valaccount.PoolAddress).To(Equal(i.VALADDRESS_0_A))
-		Expect(valaccount.Points).To(BeZero())
-		Expect(valaccount.IsLeaving).To(BeFalse())
-		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.2")))
-		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
+		Expect(poolAccount.Staker).To(Equal(i.STAKER_0))
+		Expect(poolAccount.PoolId).To(BeZero())
+		Expect(poolAccount.PoolAddress).To(Equal(i.VALADDRESS_0_A))
+		Expect(poolAccount.Points).To(BeZero())
+		Expect(poolAccount.IsLeaving).To(BeFalse())
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.2")))
+		Expect(poolAccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
 
 		valaccountsOfPool := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
 
@@ -971,7 +971,7 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(totalStakeOfPool))
 	})
 
-	It("Join pool again with different valaddress after staker has left pool", func() {
+	It("Join pool again with different pool address after staker has left pool", func() {
 		// ARRANGE
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
 			Creator:       i.STAKER_0,
@@ -1017,17 +1017,17 @@ var _ = Describe("msg_server_join_pool.go", Ordered, func() {
 
 		Expect(valaccountsOfStaker).To(HaveLen(1))
 
-		valaccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		poolAccount, active := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
 
 		Expect(active).To(BeTrue())
 
-		Expect(valaccount.Staker).To(Equal(i.STAKER_0))
-		Expect(valaccount.PoolId).To(BeZero())
-		Expect(valaccount.PoolAddress).To(Equal(i.VALADDRESS_0_B))
-		Expect(valaccount.Points).To(BeZero())
-		Expect(valaccount.IsLeaving).To(BeFalse())
-		Expect(valaccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.2")))
-		Expect(valaccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
+		Expect(poolAccount.Staker).To(Equal(i.STAKER_0))
+		Expect(poolAccount.PoolId).To(BeZero())
+		Expect(poolAccount.PoolAddress).To(Equal(i.VALADDRESS_0_B))
+		Expect(poolAccount.Points).To(BeZero())
+		Expect(poolAccount.IsLeaving).To(BeFalse())
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.2")))
+		Expect(poolAccount.StakeFraction).To(Equal(math.LegacyMustNewDecFromStr("1")))
 
 		valaccountsOfPool := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
 

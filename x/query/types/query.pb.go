@@ -341,7 +341,7 @@ type PoolMembership struct {
 	// the staker can just change the pool address .
 	PoolAddress string `protobuf:"bytes,4,opt,name=pool_address,json=poolAddress,proto3" json:"pool_address,omitempty"`
 	// balance is the pool address  account balance and indicates
-	// whether or not the valaccount needs additional funds to
+	// whether or not the pool account needs additional funds to
 	// pay for gas fees
 	Balance uint64 `protobuf:"varint,5,opt,name=balance,proto3" json:"balance,omitempty"`
 	// commission is the commission the validator has chosen for

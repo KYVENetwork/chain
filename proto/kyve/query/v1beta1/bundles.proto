@@ -182,7 +182,7 @@ message QueryCurrentVoteStatusResponse {
 }
 
 // ===================================
-// can_validate/{pool_id}/{valaddress}
+// can_validate/{pool_id}/{pool_address}
 // ===================================
 
 // QueryCanProposeRequest is the request type for the Query/CanPropose RPC method.

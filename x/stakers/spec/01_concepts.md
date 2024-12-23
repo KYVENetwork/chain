@@ -27,15 +27,15 @@ Additionally, a staker can specify a commission. However, this takes
 `CommissionChangeTime` seconds of time before the change is applied.
 
 ## Valaccounts
-To join a pool the user creates a valaccount for this pool.
-The existence of a valaccount (for a pool) means that the staker 
+To join a pool the user creates a pool account for this pool.
+The existence of a pool account (for a pool) means that the staker 
 is a member of the given pool and needs to comply with the protocol
 in order to not get slashed. 
-A valaccount consists of the poolId a valaddress and a points counter. 
-The valaddress is the address of the protocol node which is allowed
+A pool account consists of the poolId a pool account and a points counter. 
+The pool address is the address of the protocol node which is allowed
 to vote in favor of the staker. For certain types of misbehavior 
 (e.g. being offline) a staker collects points. These are also 
-stored in the valaccount.
+stored in the poolAccount.
 
 If a staker wants to leave a pool, a queue entry must be created. After
 `LeavePoolTime` seconds of time the actual leaving is performed and the

@@ -28,7 +28,7 @@ var (
 	// key -> StakerKeyPrefix | <stakerAddr>
 	StakerKeyPrefix = []byte{1}
 
-	// PoolAccountPrefix stores valaccount for each staker and pool
+	// PoolAccountPrefix stores pool account for each staker and pool
 	// PoolAccountPrefix | <poolId> | <staker>
 	PoolAccountPrefix = []byte{2, 0}
 	// PoolAccountPrefixIndex2 | <staker> | <poolId>

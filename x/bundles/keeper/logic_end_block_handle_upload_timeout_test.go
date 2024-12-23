@@ -391,8 +391,8 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(poolStakers).To(HaveLen(2))
 
 		// check if next uploader received a point
-		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
-		Expect(valaccount.Points).To(Equal(uint64(1)))
+		poolAccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount.Points).To(Equal(uint64(1)))
 
 		_, found := s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_0)
 		Expect(found).To(BeTrue())
@@ -561,12 +561,12 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(poolStakers).To(HaveLen(2))
 
 		// check that staker 0 has no points
-		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
-		Expect(valaccount.Points).To(Equal(uint64(0)))
+		poolAccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount.Points).To(Equal(uint64(0)))
 
 		// check that staker 1 (next uploader) received a point for not uploading
-		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
-		Expect(valaccount.Points).To(Equal(uint64(1)))
+		poolAccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
+		Expect(poolAccount.Points).To(Equal(uint64(1)))
 
 		// check that nobody got slashed
 		expectedBalance := 100 * i.KYVE
@@ -621,12 +621,12 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(poolStakers).To(ContainElements(i.STAKER_0, i.STAKER_1))
 
 		// check that staker 0 (uploader) has no points
-		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
-		Expect(valaccount.Points).To(Equal(uint64(0)))
+		poolAccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount.Points).To(Equal(uint64(0)))
 
 		// check that staker 1 received a point for not voting
-		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
-		Expect(valaccount.Points).To(Equal(uint64(1)))
+		poolAccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
+		Expect(poolAccount.Points).To(Equal(uint64(1)))
 
 		// check that nobody got slashed
 		expectedBalance := 100 * i.KYVE
@@ -715,12 +715,12 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(poolStakers).To(ContainElements(i.STAKER_1, i.STAKER_2))
 
 		// check that staker 1 (next uploader) received a point for missing the upload
-		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
-		Expect(valaccount.Points).To(Equal(uint64(1)))
+		poolAccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
+		Expect(poolAccount.Points).To(Equal(uint64(1)))
 
 		// check that staker 2 has a no points
-		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
-		Expect(valaccount.Points).To(Equal(uint64(0)))
+		poolAccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
+		Expect(poolAccount.Points).To(Equal(uint64(0)))
 
 		// check that staker 0 (uploader) got slashed
 		expectedBalance := 100*i.KYVE - uint64(s.App().StakersKeeper.GetUploadSlash(s.Ctx()).Mul(math.LegacyNewDec(int64(100*i.KYVE))).TruncateInt64())
@@ -845,12 +845,12 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 		Expect(poolStakers).To(ContainElements(i.STAKER_0, i.STAKER_1))
 
 		// check that staker 0 (uploader) has no points
-		valaccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
-		Expect(valaccount.Points).To(Equal(uint64(0)))
+		poolAccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
+		Expect(poolAccount.Points).To(Equal(uint64(0)))
 
 		// check that staker 2 has a no points
-		valaccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
-		Expect(valaccount.Points).To(Equal(uint64(0)))
+		poolAccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_2, 0)
+		Expect(poolAccount.Points).To(Equal(uint64(0)))
 
 		// check that staker 0 (uploader) didn't get slashed
 		expectedBalance := 100 * i.KYVE
@@ -1004,7 +1004,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 			BundleSummary: "test_value",
 		})
 
-		// remove valaccount directly from pool
+		// remove pool account directly from pool
 		s.App().StakersKeeper.RemovePoolAccountFromPool(s.Ctx(), i.STAKER_1, 0)
 
 		// ACT
@@ -1086,7 +1086,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 			Vote:      bundletypes.VOTE_TYPE_VALID,
 		})
 
-		// remove valaccount directly from pool
+		// remove pool account directly from pool
 		s.App().StakersKeeper.RemovePoolAccountFromPool(s.Ctx(), i.STAKER_1, 0)
 
 		// ACT
@@ -1174,7 +1174,7 @@ var _ = Describe("logic_end_block_handle_upload_timeout.go", Ordered, func() {
 			Vote:      bundletypes.VOTE_TYPE_INVALID,
 		})
 
-		// remove valaccount directly from pool
+		// remove pool account directly from pool
 		s.App().StakersKeeper.RemovePoolAccountFromPool(s.Ctx(), i.STAKER_0, 0)
 
 		// ACT
