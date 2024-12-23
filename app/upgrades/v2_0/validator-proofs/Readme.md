@@ -25,6 +25,17 @@ all stake is returned to the original delegators during the migration.
 
 6.  (Optional) Perform the same steps for the `kaon` directory with your Kaon validators.
 
+## General Upgrade Procedure
+
+All pending protocol commission will be claimed and returned to the validators
+during the upgrade.
+
+During the upgrade, all validators will be kicked out of all pools and
+need to manually rejoin after the upgrade. This is due to the fact, that 
+every validator now has to specify a commission per pool and a stake-fraction.
+The stake-fraction is a percentage of how much of the chain-stake a validator
+wants to use for a specific pool.
+
 ## Questions
 
 If you have any questions feel free to submit an issue or ask them directly while
