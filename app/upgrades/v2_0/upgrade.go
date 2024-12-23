@@ -9,7 +9,7 @@ import (
 
 	delegationkeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
-	stakersKeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
+	stakerskeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -30,7 +30,7 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	delegationKeeper delegationkeeper.Keeper,
-	stakersKeeper *stakersKeeper.Keeper,
+	stakersKeeper *stakerskeeper.Keeper,
 	stakingKeeper *stakingkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
@@ -45,12 +45,14 @@ func CreateUpgradeHandler(
 		// Run KYVE migrations
 		migrateProtocolStakers(sdkCtx, delegationKeeper, stakersKeeper, stakingKeeper, bankKeeper)
 
+		logger.Info(fmt.Sprintf("finished upgrade %v", UpgradeName))
+
 		return migratedVersionMap, err
 	}
 }
 
 func migrateProtocolStakers(ctx sdk.Context, delegationKeeper delegationkeeper.Keeper,
-	stakersKeeper *stakersKeeper.Keeper,
+	stakersKeeper *stakerskeeper.Keeper,
 	stakingKeeper *stakingkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 ) {
@@ -77,12 +79,11 @@ func migrateProtocolStakers(ctx sdk.Context, delegationKeeper delegationkeeper.K
 				sdk.NewInt64Coin(globalTypes.Denom, int64(amount)),
 			))
 			if err != nil {
-				// TODO how to handle
-				return
+				panic(err)
 			}
 		}
 	}
-	logger.Info("migrated %d ukyve from protocol to chain", totalMigratedStake)
+	logger.Info(fmt.Sprintf("migrated %d ukyve from protocol to chain", totalMigratedStake))
 
 	// Undelegate Remaining
 	totalReturnedStake := uint64(0)
@@ -90,7 +91,7 @@ func migrateProtocolStakers(ctx sdk.Context, delegationKeeper delegationkeeper.K
 		amount := delegationKeeper.PerformFullUndelegation(ctx, delegator.Staker, delegator.Delegator)
 		totalReturnedStake += amount
 	}
-	logger.Info("returned %d ukyve from protocol to users", totalReturnedStake)
+	logger.Info(fmt.Sprintf("returned %d ukyve from protocol to users", totalReturnedStake))
 
 	// Withdraw Pending Commissions
 	for _, staker := range stakersKeeper.GetAllLegacyStakers(ctx) {

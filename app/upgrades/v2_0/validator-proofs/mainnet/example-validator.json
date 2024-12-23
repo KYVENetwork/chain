@@ -1,0 +1,7 @@
+{
+  "name": "My example validator name - this is just for human-readability",
+  "consensus_address": "kyvevaloper...",
+  "protocol_address": "kyve...",
+  "proof_1": "EEA08DDDA94434BBE1FA25AB941B58D85FC5EE48E866B602549CA194CAB41B11",
+  "proof_2": "21771F8B4B2F72D0F292F3517051FD6D8CAA5BB9EC83B906F2BF38684F1E624E"
+}
