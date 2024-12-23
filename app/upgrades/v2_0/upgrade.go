@@ -45,8 +45,6 @@ func CreateUpgradeHandler(
 		// Run KYVE migrations
 		migrateProtocolStakers(sdkCtx, delegationKeeper, stakersKeeper, stakingKeeper, bankKeeper)
 
-		// TODO: migrate slash params, commission change queues
-
 		return migratedVersionMap, err
 	}
 }
@@ -59,9 +57,13 @@ func migrateProtocolStakers(ctx sdk.Context, delegationKeeper delegationkeeper.K
 	// Process current unbonding queue
 	delegationKeeper.FullyProcessDelegatorUnbondingQueue(ctx)
 
+	validatorMapping := ValidatorMappingsMainnet
+	if ctx.ChainID() == "kaon-1" {
+		validatorMapping = ValidatorMappingsKaon
+	}
+
 	totalMigratedStake := uint64(0)
-	for _, mapping := range ValidatorMappings {
-		// TODO check if staker exists
+	for _, mapping := range validatorMapping {
 		delegators := delegationKeeper.GetDelegatorsByStaker(ctx, mapping.ProtocolAddress)
 
 		for _, delegator := range delegators {
@@ -101,5 +103,16 @@ func migrateProtocolStakers(ctx sdk.Context, delegationKeeper delegationkeeper.K
 		})
 	}
 
-	// TODO delete staker object
+	// Delete all legacy stakers objects
+	stakersKeeper.Migration_ResetOldState(ctx)
+
+	// Migrate Params
+	delegationParams := delegationKeeper.GetParams(ctx)
+	stakersParams := stakersKeeper.GetParams(ctx)
+
+	stakersParams.TimeoutSlash = delegationParams.TimeoutSlash
+	stakersParams.UploadSlash = delegationParams.UploadSlash
+	stakersParams.VoteSlash = delegationParams.VoteSlash
+
+	stakersKeeper.SetParams(ctx, stakersParams)
 }
