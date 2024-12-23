@@ -17,9 +17,7 @@ func (k Keeper) AccountFundedList(goCtx context.Context, req *types.QueryAccount
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	var funded []types.Funded
 
-	fundings := k.fundersKeeper.GetFundingsOfFunder(ctx, req.Address)
-
-	for _, funding := range fundings {
+	for _, funding := range k.fundersKeeper.GetFundingsOfFunder(ctx, req.Address) {
 		if !funding.Amounts.IsZero() {
 			pool, found := k.poolKeeper.GetPool(ctx, funding.PoolId)
 			if !found {

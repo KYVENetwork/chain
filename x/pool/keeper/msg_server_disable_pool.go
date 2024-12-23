@@ -39,8 +39,7 @@ func (k msgServer) DisablePool(
 	k.SetPool(ctx, pool)
 
 	// remove all stakers from pool in order to "reset" it
-	poolMembers := k.stakersKeeper.GetAllStakerAddressesOfPool(ctx, pool.Id)
-	for _, staker := range poolMembers {
+	for _, staker := range k.stakersKeeper.GetAllStakerAddressesOfPool(ctx, pool.Id) {
 		k.stakersKeeper.LeavePool(ctx, staker, pool.Id)
 	}
 
