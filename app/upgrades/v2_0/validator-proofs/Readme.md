@@ -25,6 +25,8 @@ all stake is returned to the original delegators during the migration.
 
 6.  (Optional) Perform the same steps for the `kaon` directory with your Kaon validators.
 
+7.  Run `python3 verify.py` to check if everything is correct.
+
 ## General Upgrade Procedure
 
 All pending protocol commission will be claimed and returned to the validators
