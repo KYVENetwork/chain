@@ -4208,6 +4208,9 @@ paths:
                   address:
                     type: string
                     title: address of the staker
+                  valaddress:
+                    type: string
+                    title: valaddress returns the validator address of the validator
                   validator:
                     type: object
                     properties:
@@ -4427,14 +4430,55 @@ paths:
                       bonded shares
 
                       multiplied by exchange rate.
-                  total_pool_stake:
+                  validator_delegators:
                     type: string
                     format: uint64
                     title: >-
-                      total_pool_stake returns the amount the validator has in
-                      total
+                      validator_delegators returns the amount of delegators
+                      which have delegated
+
+                      into this validator
+                  validator_self_delegation:
+                    type: string
+                    format: uint64
+                    title: >-
+                      validator_self_delegation returns the amount in $KYVE the
+                      validator has
+
+                      personally delegated
+                  validator_unbonding:
+                    type: string
+                    format: uint64
+                    title: >-
+                      validator_unbonding returns the amount in $KYVE the
+                      validator is currently
+
+                      unbonding from his validator
+                  validator_total_pool_stake:
+                    type: string
+                    format: uint64
+                    title: >-
+                      validator_total_pool_stake returns the amount the
+                      validator has in total
 
                       staked in all his pools
+                  validator_commission_rewards:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a token with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
                   pools:
                     type: array
                     items:
@@ -4870,6 +4914,11 @@ paths:
                     address:
                       type: string
                       title: address of the staker
+                    valaddress:
+                      type: string
+                      title: >-
+                        valaddress returns the validator address of the
+                        validator
                     validator:
                       type: object
                       properties:
@@ -5089,14 +5138,56 @@ paths:
                         bonded shares
 
                         multiplied by exchange rate.
-                    total_pool_stake:
+                    validator_delegators:
                       type: string
                       format: uint64
                       title: >-
-                        total_pool_stake returns the amount the validator has in
-                        total
+                        validator_delegators returns the amount of delegators
+                        which have delegated
+
+                        into this validator
+                    validator_self_delegation:
+                      type: string
+                      format: uint64
+                      title: >-
+                        validator_self_delegation returns the amount in $KYVE
+                        the validator has
+
+                        personally delegated
+                    validator_unbonding:
+                      type: string
+                      format: uint64
+                      title: >-
+                        validator_unbonding returns the amount in $KYVE the
+                        validator is currently
+
+                        unbonding from his validator
+                    validator_total_pool_stake:
+                      type: string
+                      format: uint64
+                      title: >-
+                        validator_total_pool_stake returns the amount the
+                        validator has in total
 
                         staked in all his pools
+                    validator_commission_rewards:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
                     pools:
                       type: array
                       items:
@@ -5636,6 +5727,11 @@ paths:
                     address:
                       type: string
                       title: address of the staker
+                    valaddress:
+                      type: string
+                      title: >-
+                        valaddress returns the validator address of the
+                        validator
                     validator:
                       type: object
                       properties:
@@ -5855,14 +5951,56 @@ paths:
                         bonded shares
 
                         multiplied by exchange rate.
-                    total_pool_stake:
+                    validator_delegators:
                       type: string
                       format: uint64
                       title: >-
-                        total_pool_stake returns the amount the validator has in
-                        total
+                        validator_delegators returns the amount of delegators
+                        which have delegated
+
+                        into this validator
+                    validator_self_delegation:
+                      type: string
+                      format: uint64
+                      title: >-
+                        validator_self_delegation returns the amount in $KYVE
+                        the validator has
+
+                        personally delegated
+                    validator_unbonding:
+                      type: string
+                      format: uint64
+                      title: >-
+                        validator_unbonding returns the amount in $KYVE the
+                        validator is currently
+
+                        unbonding from his validator
+                    validator_total_pool_stake:
+                      type: string
+                      format: uint64
+                      title: >-
+                        validator_total_pool_stake returns the amount the
+                        validator has in total
 
                         staked in all his pools
+                    validator_commission_rewards:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
                     pools:
                       type: array
                       items:
@@ -6311,6 +6449,11 @@ paths:
                     address:
                       type: string
                       title: address of the staker
+                    valaddress:
+                      type: string
+                      title: >-
+                        valaddress returns the validator address of the
+                        validator
                     validator:
                       type: object
                       properties:
@@ -6530,14 +6673,56 @@ paths:
                         bonded shares
 
                         multiplied by exchange rate.
-                    total_pool_stake:
+                    validator_delegators:
                       type: string
                       format: uint64
                       title: >-
-                        total_pool_stake returns the amount the validator has in
-                        total
+                        validator_delegators returns the amount of delegators
+                        which have delegated
+
+                        into this validator
+                    validator_self_delegation:
+                      type: string
+                      format: uint64
+                      title: >-
+                        validator_self_delegation returns the amount in $KYVE
+                        the validator has
+
+                        personally delegated
+                    validator_unbonding:
+                      type: string
+                      format: uint64
+                      title: >-
+                        validator_unbonding returns the amount in $KYVE the
+                        validator is currently
+
+                        unbonding from his validator
+                    validator_total_pool_stake:
+                      type: string
+                      format: uint64
+                      title: >-
+                        validator_total_pool_stake returns the amount the
+                        validator has in total
 
                         staked in all his pools
+                    validator_commission_rewards:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
                     pools:
                       type: array
                       items:

@@ -1,17 +1,56 @@
 package keeper
 
 import (
+	"cosmossdk.io/math"
+	"github.com/KYVENetwork/chain/util"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	"github.com/KYVENetwork/chain/x/query/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.FullStaker {
-	validator, _ := k.stakerKeeper.GetValidator(ctx, stakerAddress)
+	valAddress, err := sdk.ValAddressFromBech32(util.MustValaddressFromOperatorAddress(stakerAddress))
+	if err != nil {
+		return &types.FullStaker{}
+	}
+	validator, err := k.stakingKeeper.GetValidator(ctx, valAddress)
+	if err != nil {
+		return &types.FullStaker{}
+	}
+
+	validatorAccAddress, _ := sdk.AccAddressFromBech32(stakerAddress)
+	validatorUnbonding := math.ZeroInt()
+	err = k.stakingKeeper.IterateDelegatorUnbondingDelegations(ctx, validatorAccAddress, func(ubd stakingTypes.UnbondingDelegation) bool {
+		if ubd.ValidatorAddress == validator.OperatorAddress {
+			for _, entry := range ubd.Entries {
+				validatorUnbonding = validatorUnbonding.Add(entry.Balance)
+			}
+		}
+		return false
+	})
+	if err != nil {
+		return &types.FullStaker{}
+	}
+
+	validatorDelegations, err := k.stakingKeeper.GetValidatorDelegations(ctx, valAddress)
+	if err != nil {
+		return &types.FullStaker{}
+	}
+
+	validatorSelfDelegation, err := k.stakingKeeper.GetDelegation(ctx, validatorAccAddress, valAddress)
+	if err != nil {
+		return &types.FullStaker{}
+	}
+
+	validatorCommissionRewards, err := k.distrkeeper.GetValidatorAccumulatedCommission(ctx, valAddress)
+	if err != nil {
+		return &types.FullStaker{}
+	}
 
 	var poolMemberships []*types.PoolMembership
-	totalPoolStake := uint64(0)
+	validatorTotalPoolStake := uint64(0)
 
 	for _, poolAccount := range k.stakerKeeper.GetPoolAccountsFromStaker(ctx, stakerAddress) {
 		pool, _ := k.poolKeeper.GetPool(ctx, poolAccount.PoolId)
@@ -38,7 +77,7 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 		}
 
 		poolStake := k.stakerKeeper.GetValidatorPoolStake(ctx, stakerAddress, pool.Id)
-		totalPoolStake += poolStake
+		validatorTotalPoolStake += poolStake
 
 		poolMemberships = append(
 			poolMemberships, &types.PoolMembership{
@@ -67,10 +106,14 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 	}
 
 	return &types.FullStaker{
-		Address:        stakerAddress,
-		Validator:      &validator,
-		TotalPoolStake: totalPoolStake,
-		Pools:          poolMemberships,
+		Address:                    stakerAddress,
+		Validator:                  &validator,
+		ValidatorDelegators:        uint64(len(validatorDelegations)),
+		ValidatorUnbonding:         validatorUnbonding.Uint64(),
+		ValidatorSelfDelegation:    uint64(validator.TokensFromSharesTruncated(validatorSelfDelegation.Shares).TruncateInt64()),
+		ValidatorTotalPoolStake:    validatorTotalPoolStake,
+		ValidatorCommissionRewards: util.TruncateDecCoins(validatorCommissionRewards.Commission),
+		Pools:                      poolMemberships,
 	}
 }
 
