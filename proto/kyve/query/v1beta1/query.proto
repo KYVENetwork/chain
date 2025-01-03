@@ -73,28 +73,25 @@ message FullStaker {
   // address of the staker
   string address = 1;
 
-  // valaddress returns the validator address of the validator
-  string valaddress = 2;
-
-  cosmos.staking.v1beta1.Validator validator = 3;
+  cosmos.staking.v1beta1.Validator validator = 2;
 
   // validator_delegators returns the amount of delegators which have delegated
   // into this validator
-  uint64 validator_delegators = 4;
+  uint64 validator_delegators = 3;
 
   // validator_self_delegation returns the amount in $KYVE the validator has
   // personally delegated
-  uint64 validator_self_delegation = 5;
+  uint64 validator_self_delegation = 4;
 
   // validator_unbonding returns the amount in $KYVE the validator is currently
   // unbonding from his validator
-  uint64 validator_unbonding = 6;
+  uint64 validator_unbonding = 5;
 
   // validator_total_pool_stake returns the amount the validator has in total
   // staked in all his pools
-  uint64 validator_total_pool_stake = 7;
+  uint64 validator_total_pool_stake = 6;
 
-  repeated cosmos.base.v1beta1.Coin validator_commission_rewards = 8 [
+  repeated cosmos.base.v1beta1.Coin validator_commission_rewards = 7 [
     (gogoproto.nullable) = false,
     (amino.dont_omitempty) = true,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
@@ -102,7 +99,7 @@ message FullStaker {
 
   // pools is a list of all pools the staker is currently
   // participating, i.e. allowed to vote and upload data.
-  repeated PoolMembership pools = 9;
+  repeated PoolMembership pools = 8;
 }
 
 // CommissionChangeEntry shows when the old commission

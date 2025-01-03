@@ -4208,9 +4208,6 @@ paths:
                   address:
                     type: string
                     title: address of the staker
-                  valaddress:
-                    type: string
-                    title: valaddress returns the validator address of the validator
                   validator:
                     type: object
                     properties:
@@ -4914,11 +4911,6 @@ paths:
                     address:
                       type: string
                       title: address of the staker
-                    valaddress:
-                      type: string
-                      title: >-
-                        valaddress returns the validator address of the
-                        validator
                     validator:
                       type: object
                       properties:
@@ -5727,11 +5719,6 @@ paths:
                     address:
                       type: string
                       title: address of the staker
-                    valaddress:
-                      type: string
-                      title: >-
-                        valaddress returns the validator address of the
-                        validator
                     validator:
                       type: object
                       properties:
@@ -6449,11 +6436,6 @@ paths:
                     address:
                       type: string
                       title: address of the staker
-                    valaddress:
-                      type: string
-                      title: >-
-                        valaddress returns the validator address of the
-                        validator
                     validator:
                       type: object
                       properties:
