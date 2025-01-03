@@ -45,10 +45,12 @@ func (k Keeper) AccountAssets(goCtx context.Context, req *types.QueryAccountAsse
 	}
 
 	for _, validator := range validators.Validators {
-		response.OutstandingRewards = response.OutstandingRewards.Add(
+		response.DelegationRewards = response.DelegationRewards.Add(
 			k.stakerKeeper.GetOutstandingRewards(ctx, util.MustAccountAddressFromValAddress(validator.OperatorAddress), req.Address)...,
 		)
 	}
+
+	response.CommissionRewards = k.stakerKeeper.GetOutstandingCommissionRewards(ctx, util.MustAccountAddressFromValAddress(util.MustValaddressFromOperatorAddress(req.Address)))
 
 	delegatorBonded, err := k.stakingKeeper.GetDelegatorBonded(ctx, delegatorAddr)
 	if err != nil {
