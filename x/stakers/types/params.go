@@ -1,6 +1,7 @@
 package types
 
 import (
+	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/util"
 )
 
@@ -10,14 +11,34 @@ var DefaultCommissionChangeTime = uint64(60 * 60 * 24 * 5)
 // DefaultLeavePoolTime ...
 var DefaultLeavePoolTime = uint64(60 * 60 * 24 * 5)
 
+// DefaultStakeFractionChangeTime ...
+var DefaultStakeFractionChangeTime = uint64(60 * 60 * 24 * 5)
+
+// DefaultVoteSlash ...
+var DefaultVoteSlash = math.LegacyMustNewDecFromStr("0.01")
+
+// DefaultUploadSlash ...
+var DefaultUploadSlash = math.LegacyMustNewDecFromStr("0.02")
+
+// DefaultTimeoutSlash ...
+var DefaultTimeoutSlash = math.LegacyMustNewDecFromStr("0.002")
+
 // NewParams creates a new Params instance
 func NewParams(
 	commissionChangeTime uint64,
 	leavePoolTime uint64,
+	stakeFractionChangeTime uint64,
+	voteSlash math.LegacyDec,
+	uploadSlash math.LegacyDec,
+	timeoutSlash math.LegacyDec,
 ) Params {
 	return Params{
-		CommissionChangeTime: commissionChangeTime,
-		LeavePoolTime:        leavePoolTime,
+		CommissionChangeTime:    commissionChangeTime,
+		LeavePoolTime:           leavePoolTime,
+		StakeFractionChangeTime: stakeFractionChangeTime,
+		VoteSlash:               voteSlash,
+		UploadSlash:             uploadSlash,
+		TimeoutSlash:            timeoutSlash,
 	}
 }
 
@@ -26,6 +47,10 @@ func DefaultParams() Params {
 	return NewParams(
 		DefaultCommissionChangeTime,
 		DefaultLeavePoolTime,
+		DefaultStakeFractionChangeTime,
+		DefaultVoteSlash,
+		DefaultUploadSlash,
+		DefaultTimeoutSlash,
 	)
 }
 
@@ -36,6 +61,22 @@ func (p Params) Validate() error {
 	}
 
 	if err := util.ValidateNumber(p.LeavePoolTime); err != nil {
+		return err
+	}
+
+	if err := util.ValidateNumber(p.StakeFractionChangeTime); err != nil {
+		return err
+	}
+
+	if err := util.ValidatePercentage(p.VoteSlash); err != nil {
+		return err
+	}
+
+	if err := util.ValidatePercentage(p.UploadSlash); err != nil {
+		return err
+	}
+
+	if err := util.ValidatePercentage(p.TimeoutSlash); err != nil {
 		return err
 	}
 

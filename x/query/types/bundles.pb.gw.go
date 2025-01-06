@@ -257,15 +257,15 @@ func request_QueryBundles_CanValidate_0(ctx context.Context, marshaler runtime.M
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "pool_id", err)
 	}
 
-	val, ok = pathParams["valaddress"]
+	val, ok = pathParams["pool_address"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "valaddress")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "pool_address")
 	}
 
-	protoReq.Valaddress, err = runtime.String(val)
+	protoReq.PoolAddress, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "valaddress", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "pool_address", err)
 	}
 
 	msg, err := client.CanValidate(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -295,15 +295,15 @@ func local_request_QueryBundles_CanValidate_0(ctx context.Context, marshaler run
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "pool_id", err)
 	}
 
-	val, ok = pathParams["valaddress"]
+	val, ok = pathParams["pool_address"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "valaddress")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "pool_address")
 	}
 
-	protoReq.Valaddress, err = runtime.String(val)
+	protoReq.PoolAddress, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "valaddress", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "pool_address", err)
 	}
 
 	msg, err := server.CanValidate(ctx, &protoReq)
@@ -866,7 +866,7 @@ var (
 
 	pattern_QueryBundles_CurrentVoteStatus_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"kyve", "query", "v1beta1", "current_vote_status", "pool_id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_QueryBundles_CanValidate_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"kyve", "query", "v1beta1", "can_validate", "pool_id", "valaddress"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_QueryBundles_CanValidate_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"kyve", "query", "v1beta1", "can_validate", "pool_id", "pool_address"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_QueryBundles_CanPropose_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5, 1, 0, 4, 1, 5, 6, 1, 0, 4, 1, 5, 7}, []string{"kyve", "query", "v1beta1", "can_propose", "pool_id", "staker", "proposer", "from_index"}, "", runtime.AssumeColonVerbOpt(true)))
 

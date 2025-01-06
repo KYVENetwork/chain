@@ -21,13 +21,12 @@ type (
 
 		authority string
 
-		accountKeeper    types.AccountKeeper
-		bankKeeper       util.BankKeeper
-		distrkeeper      util.DistributionKeeper
-		poolKeeper       types.PoolKeeper
-		stakerKeeper     types.StakerKeeper
-		delegationKeeper types.DelegationKeeper
-		fundersKeeper    types.FundersKeeper
+		accountKeeper types.AccountKeeper
+		bankKeeper    util.BankKeeper
+		distrkeeper   util.DistributionKeeper
+		poolKeeper    types.PoolKeeper
+		stakerKeeper  types.StakerKeeper
+		fundersKeeper types.FundersKeeper
 
 		Schema        collections.Schema
 		BundlesParams collections.Item[types.Params]
@@ -44,10 +43,9 @@ func NewKeeper(
 
 	accountKeeper types.AccountKeeper,
 	bankKeeper util.BankKeeper,
-	distrkeeper util.DistributionKeeper,
+	distrKeeper util.DistributionKeeper,
 	poolKeeper types.PoolKeeper,
 	stakerKeeper types.StakerKeeper,
-	delegationKeeper types.DelegationKeeper,
 	fundersKeeper types.FundersKeeper,
 ) Keeper {
 	sb := collections.NewSchemaBuilder(storeService)
@@ -59,13 +57,12 @@ func NewKeeper(
 
 		authority: authority,
 
-		accountKeeper:    accountKeeper,
-		bankKeeper:       bankKeeper,
-		distrkeeper:      distrkeeper,
-		poolKeeper:       poolKeeper,
-		stakerKeeper:     stakerKeeper,
-		delegationKeeper: delegationKeeper,
-		fundersKeeper:    fundersKeeper,
+		accountKeeper: accountKeeper,
+		bankKeeper:    bankKeeper,
+		distrkeeper:   distrKeeper,
+		poolKeeper:    poolKeeper,
+		stakerKeeper:  stakerKeeper,
+		fundersKeeper: fundersKeeper,
 
 		BundlesParams: collections.NewItem(sb, types.ParamsPrefix, "params", codec.CollValue[types.Params](cdc)),
 	}

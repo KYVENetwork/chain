@@ -1,9 +1,11 @@
 package integration
 
 import (
-	"encoding/hex"
 	mrand "math/rand"
 	"time"
+
+	"cosmossdk.io/math"
+	"github.com/KYVENetwork/chain/util"
 
 	"github.com/stretchr/testify/suite"
 
@@ -19,7 +21,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -29,25 +30,25 @@ const (
 	CHARLIE = "kyve1ay22rr3kz659fupu0tcswlagq4ql6rwm4nuv0s"
 	DAVID   = "kyve1jxa7kp37jlm8hzwgc5qprquv9k7vawq79qhctt"
 
-	STAKER_0       = "kyve1htgfatqevuvfzvl0sxp97ywteqhg5leha9emf4"
-	VALADDRESS_0_A = "kyve1qnf86dkvvtpdukx30r3vajav7rdq8snktm90hm"
-	VALADDRESS_0_B = "kyve10t8gnqjnem7tsu09erzswj3zm8599lsnex79rz"
-	VALADDRESS_0_C = "kyve13ztkcm2pket6mrmxj8rrmwc6supw7aqakg3uu3"
+	STAKER_0         = "kyve1htgfatqevuvfzvl0sxp97ywteqhg5leha9emf4"
+	POOL_ADDRESS_0_A = "kyve1qnf86dkvvtpdukx30r3vajav7rdq8snktm90hm"
+	POOL_ADDRESS_0_B = "kyve10t8gnqjnem7tsu09erzswj3zm8599lsnex79rz"
+	POOL_ADDRESS_0_C = "kyve13ztkcm2pket6mrmxj8rrmwc6supw7aqakg3uu3"
 
-	STAKER_1       = "kyve1gnr35rwn8rmflnlzs6nn5hhkmzzkxg9ap8xepw"
-	VALADDRESS_1_A = "kyve1hpjgzljglmv00nstk3jvcw0zzq94nu0cuxv5ga"
-	VALADDRESS_1_B = "kyve14runw9qkltpz2mcx3gsfmlqyyvdzkt3rq3w6fm"
-	VALADDRESS_1_C = "kyve15w9m7zpq9ctsxsveqaqkp4uuvw98z5vct6s9g9"
+	STAKER_1         = "kyve1gnr35rwn8rmflnlzs6nn5hhkmzzkxg9ap8xepw"
+	POOL_ADDRESS_1_A = "kyve1hpjgzljglmv00nstk3jvcw0zzq94nu0cuxv5ga"
+	POOL_ADDRESS_1_B = "kyve14runw9qkltpz2mcx3gsfmlqyyvdzkt3rq3w6fm"
+	POOL_ADDRESS_1_C = "kyve15w9m7zpq9ctsxsveqaqkp4uuvw98z5vct6s9g9"
 
-	STAKER_2       = "kyve1xsemlxghgvusumhqzm2ztjw7dz9krvu3de54e2"
-	VALADDRESS_2_A = "kyve1u0870dkae6ql63hxvy9y7g65c0y8csfh8allzl"
-	VALADDRESS_2_B = "kyve16g3utghkvvlz53jk0fq96zwrhxmqfu36ue965q"
-	VALADDRESS_2_C = "kyve18gjtzsn6jme3qsczj9q7wefymlkfu7ngyq5f9c"
+	STAKER_2         = "kyve1xsemlxghgvusumhqzm2ztjw7dz9krvu3de54e2"
+	POOL_ADDRESS_2_A = "kyve1u0870dkae6ql63hxvy9y7g65c0y8csfh8allzl"
+	POOL_ADDRESS_2_B = "kyve16g3utghkvvlz53jk0fq96zwrhxmqfu36ue965q"
+	POOL_ADDRESS_2_C = "kyve18gjtzsn6jme3qsczj9q7wefymlkfu7ngyq5f9c"
 
-	STAKER_3       = "kyve1ca7rzyrxfpdm7j8jgccq4rduuf4sxpq0dhmwm4"
-	VALADDRESS_3_A = "kyve1d2clkfrw0r99ctgmkjvluzn6xm98yls06mnxv8"
-	VALADDRESS_3_B = "kyve1f36cvde6jnygcrz2yas4acp0akn9cw7vp5ze0w"
-	VALADDRESS_3_C = "kyve1gcnd8gya2ysfur6d6z4wpl9z54zadg7qzk8uyc"
+	STAKER_3         = "kyve1ca7rzyrxfpdm7j8jgccq4rduuf4sxpq0dhmwm4"
+	POOL_ADDRESS_3_A = "kyve1d2clkfrw0r99ctgmkjvluzn6xm98yls06mnxv8"
+	POOL_ADDRESS_3_B = "kyve1f36cvde6jnygcrz2yas4acp0akn9cw7vp5ze0w"
+	POOL_ADDRESS_3_C = "kyve1gcnd8gya2ysfur6d6z4wpl9z54zadg7qzk8uyc"
 
 	// To avoid giving burner permissions to a module for the tests
 	BURNER = "kyve1ld23ktfwc9zstaq8aanwkkj8cf0ru6adtz59y5"
@@ -123,24 +124,24 @@ func (suite *KeeperTestSuite) initDummyAccounts() {
 	_ = suite.MintCoins(DAVID, 1000*KYVE)
 
 	_ = suite.MintCoins(STAKER_0, 1000*KYVE)
-	_ = suite.MintCoins(VALADDRESS_0_A, 1000*KYVE)
-	_ = suite.MintCoins(VALADDRESS_0_B, 1000*KYVE)
-	_ = suite.MintCoins(VALADDRESS_0_C, 1000*KYVE)
+	_ = suite.MintCoins(POOL_ADDRESS_0_A, 1000*KYVE)
+	_ = suite.MintCoins(POOL_ADDRESS_0_B, 1000*KYVE)
+	_ = suite.MintCoins(POOL_ADDRESS_0_C, 1000*KYVE)
 
 	_ = suite.MintCoins(STAKER_1, 1000*KYVE)
-	_ = suite.MintCoins(VALADDRESS_1_A, 1000*KYVE)
-	_ = suite.MintCoins(VALADDRESS_1_B, 1000*KYVE)
-	_ = suite.MintCoins(VALADDRESS_1_C, 1000*KYVE)
+	_ = suite.MintCoins(POOL_ADDRESS_1_A, 1000*KYVE)
+	_ = suite.MintCoins(POOL_ADDRESS_1_B, 1000*KYVE)
+	_ = suite.MintCoins(POOL_ADDRESS_1_C, 1000*KYVE)
 
 	_ = suite.MintCoins(STAKER_2, 1000*KYVE)
-	_ = suite.MintCoins(VALADDRESS_2_A, 1000*KYVE)
-	_ = suite.MintCoins(VALADDRESS_2_B, 1000*KYVE)
-	_ = suite.MintCoins(VALADDRESS_2_C, 1000*KYVE)
+	_ = suite.MintCoins(POOL_ADDRESS_2_A, 1000*KYVE)
+	_ = suite.MintCoins(POOL_ADDRESS_2_B, 1000*KYVE)
+	_ = suite.MintCoins(POOL_ADDRESS_2_C, 1000*KYVE)
 
 	_ = suite.MintCoins(STAKER_3, 1000*KYVE)
-	_ = suite.MintCoins(VALADDRESS_3_A, 1000*KYVE)
-	_ = suite.MintCoins(VALADDRESS_3_B, 1000*KYVE)
-	_ = suite.MintCoins(VALADDRESS_3_C, 1000*KYVE)
+	_ = suite.MintCoins(POOL_ADDRESS_3_A, 1000*KYVE)
+	_ = suite.MintCoins(POOL_ADDRESS_3_B, 1000*KYVE)
+	_ = suite.MintCoins(POOL_ADDRESS_3_C, 1000*KYVE)
 
 	DUMMY = make([]string, 50)
 
@@ -241,11 +242,8 @@ type KeeperTestSuite struct {
 
 	ctx sdk.Context
 
-	app         *app.App
-	address     [20]byte
-	consAddress sdk.ConsAddress
-	validator   stakingtypes.Validator
-	denom       string
+	app   *app.App
+	denom string
 }
 
 func (suite *KeeperTestSuite) App() *app.App {
@@ -269,18 +267,11 @@ func (suite *KeeperTestSuite) SetupApp(startTime int64) {
 
 	suite.denom = globalTypes.Denom
 
-	rawHex, _ := hex.DecodeString("0xBf71F763e4DEd30139C40160AE74Df881D5C7A2d")
-	suite.address = [20]byte(rawHex[:20])
-
-	// consensus key
-	ePriv := ed25519.GenPrivKeyFromSecret([]byte{1})
-	suite.consAddress = sdk.ConsAddress(ePriv.PubKey().Address())
-
 	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, tmproto.Header{
 		Height:          1,
 		ChainID:         "kyve-test",
 		Time:            time.Unix(startTime, 0).UTC(),
-		ProposerAddress: suite.consAddress.Bytes(),
+		ProposerAddress: sdk.ConsAddress(ed25519.GenPrivKeyFromSecret([]byte("Validator-1")).PubKey().Address()).Bytes(),
 
 		Version: tmversion.Consensus{
 			Block: version.BlockProtocol,
@@ -307,20 +298,86 @@ func (suite *KeeperTestSuite) SetupApp(startTime int64) {
 
 	stakingParams, _ := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = suite.denom
+	stakingParams.MaxValidators = 51
 	_ = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 
 	govParams, _ := suite.app.GovKeeper.Params.Get(suite.ctx)
 	govParams.MinDeposit = sdk.NewCoins(sdk.NewInt64Coin(KYVE_DENOM, int64(100_000_000_000))) // set min deposit to 100 KYVE
 	_ = suite.app.GovKeeper.Params.Set(suite.ctx, govParams)
+}
 
-	// Set Validator
-	valAddr := sdk.ValAddress(suite.address[:])
-	validator, _ := stakingtypes.NewValidator(valAddr.String(), ePriv.PubKey(), stakingtypes.Description{})
-	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
-	//_ = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
-	_ = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
-	validators, _ := suite.app.StakingKeeper.GetValidators(suite.ctx, 1)
-	suite.validator = validators[0]
+func (suite *KeeperTestSuite) CreateValidatorWithoutCommit(address, moniker string, kyveStake int64) {
+	valAddress := util.MustValaddressFromOperatorAddress(address)
+
+	msg, _ := stakingtypes.NewMsgCreateValidator(
+		valAddress,
+		ed25519.GenPrivKeyFromSecret([]byte(valAddress)).PubKey(),
+		sdk.NewInt64Coin(globalTypes.Denom, kyveStake),
+		stakingtypes.Description{Moniker: moniker},
+		stakingtypes.NewCommissionRates(math.LegacyMustNewDecFromStr("0.1"), math.LegacyMustNewDecFromStr("1"), math.LegacyMustNewDecFromStr("1")),
+		math.NewInt(1),
+	)
+
+	_, err := suite.RunTx(msg)
+	if err != nil {
+		panic(err)
+	}
+
+	suite.Commit()
+}
+
+func (suite *KeeperTestSuite) SelfDelegateValidator(address string, amount uint64) {
+	valAddress := util.MustValaddressFromOperatorAddress(address)
+
+	msg := stakingtypes.NewMsgDelegate(
+		address,
+		valAddress,
+		sdk.NewInt64Coin(globalTypes.Denom, int64(amount)),
+	)
+
+	_, err := suite.RunTx(msg)
+	if err != nil {
+		panic(err)
+	}
+
+	suite.Commit()
+}
+
+func (suite *KeeperTestSuite) SelfUndelegateValidator(address string, amount uint64) {
+	valAddress := util.MustValaddressFromOperatorAddress(address)
+
+	msg := stakingtypes.NewMsgUndelegate(
+		address,
+		valAddress,
+		sdk.NewInt64Coin(globalTypes.Denom, int64(amount)),
+	)
+
+	_, err := suite.RunTx(msg)
+	if err != nil {
+		panic(err)
+	}
+
+	suite.Commit()
+}
+
+func (suite *KeeperTestSuite) CreateValidator(address, moniker string, kyveStake int64) {
+	suite.CreateValidatorWithoutCommit(address, moniker, kyveStake)
+	suite.Commit()
+}
+
+func (suite *KeeperTestSuite) CreateZeroDelegationValidator(address, name string) {
+	// create zero delegation validator by overwriting the min-self-delegation with an invalid value
+	// it is fine for the test
+	suite.CreateValidator(address, name, int64(100*KYVE))
+	val, _ := sdk.ValAddressFromBech32(util.MustValaddressFromOperatorAddress(address))
+	validator, _ := suite.App().StakingKeeper.GetValidator(suite.Ctx(), val)
+	validator.MinSelfDelegation = math.ZeroInt()
+	_ = suite.App().StakingKeeper.SetValidator(suite.Ctx(), validator)
+	suite.RunTxSuccess(stakingtypes.NewMsgUndelegate(
+		address,
+		util.MustValaddressFromOperatorAddress(address),
+		sdk.NewInt64Coin("tkyve", int64(100*KYVE)),
+	))
 }
 
 func (suite *KeeperTestSuite) Commit() {

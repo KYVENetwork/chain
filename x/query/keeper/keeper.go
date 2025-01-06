@@ -3,12 +3,12 @@ package keeper
 import (
 	"fmt"
 
-	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
+	"github.com/KYVENetwork/chain/util"
+
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
 	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
 
-	delegationkeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
 	poolkeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	stakerskeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
@@ -28,57 +28,53 @@ type (
 		cdc    codec.BinaryCodec
 		logger log.Logger
 
-		delegationStoreService delegationtypes.DelegationKVStoreService
-
 		accountKeeper authkeeper.AccountKeeper
 		bankKeeper    bankkeeper.Keeper
 		distrkeeper   distrkeeper.Keeper
 		poolKeeper    *poolkeeper.Keeper
 		// TODO: rename to stakersKeeper
-		stakerKeeper     *stakerskeeper.Keeper
-		delegationKeeper delegationkeeper.Keeper
+		stakerKeeper *stakerskeeper.Keeper
 		// TODO: rename to bundlesKeeper
 		bundleKeeper  types.BundlesKeeper
 		globalKeeper  globalKeeper.Keeper
 		govKeeper     *govkeeper.Keeper
 		teamKeeper    teamKeeper.Keeper
 		fundersKeeper fundersKeeper.Keeper
+		stakingKeeper util.StakingKeeper
 	}
 )
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	logger log.Logger,
-	delegationStoreService delegationtypes.DelegationKVStoreService,
 
 	accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
 	distrkeeper distrkeeper.Keeper,
 	poolKeeper *poolkeeper.Keeper,
 	stakerKeeper *stakerskeeper.Keeper,
-	delegationKeeper delegationkeeper.Keeper,
 	bundleKeeper types.BundlesKeeper,
 	globalKeeper globalKeeper.Keeper,
 	govKeeper *govkeeper.Keeper,
 	teamKeeper teamKeeper.Keeper,
 	fundersKeeper fundersKeeper.Keeper,
+	stakingKeeper util.StakingKeeper,
 ) Keeper {
 	return Keeper{
-		cdc:                    cdc,
-		logger:                 logger,
-		delegationStoreService: delegationStoreService,
+		cdc:    cdc,
+		logger: logger,
 
-		accountKeeper:    accountKeeper,
-		bankKeeper:       bankKeeper,
-		distrkeeper:      distrkeeper,
-		poolKeeper:       poolKeeper,
-		stakerKeeper:     stakerKeeper,
-		delegationKeeper: delegationKeeper,
-		bundleKeeper:     bundleKeeper,
-		globalKeeper:     globalKeeper,
-		govKeeper:        govKeeper,
-		teamKeeper:       teamKeeper,
-		fundersKeeper:    fundersKeeper,
+		accountKeeper: accountKeeper,
+		bankKeeper:    bankKeeper,
+		distrkeeper:   distrkeeper,
+		poolKeeper:    poolKeeper,
+		stakerKeeper:  stakerKeeper,
+		bundleKeeper:  bundleKeeper,
+		globalKeeper:  globalKeeper,
+		govKeeper:     govKeeper,
+		teamKeeper:    teamKeeper,
+		fundersKeeper: fundersKeeper,
+		stakingKeeper: stakingKeeper,
 	}
 }
 

@@ -19,8 +19,8 @@ TEST CASES - msg_server_claim_uploader_role.go
 * Try to claim uploader role without pool being funded
 * Try to claim uploader role without being a staker
 * Try to claim uploader role if the next uploader is not set yet
-* Try to claim uploader role with non-existing valaccount
-* Try to claim uploader role with valaccount that belongs to another pool
+* Try to claim uploader role with non-existing pool account
+* Try to claim uploader role with pool account that belongs to another pool
 
 */
 
@@ -58,26 +58,24 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 			Moniker: "Alice",
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 	})
 
@@ -90,7 +88,7 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -111,7 +109,7 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesError(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_2_A,
+			Creator: i.POOL_ADDRESS_2_A,
 			Staker:  i.STAKER_2,
 			PoolId:  0,
 		})
@@ -132,7 +130,7 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -157,7 +155,7 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 	})
 
-	It("Try to claim uploader role with non existing valaccount", func() {
+	It("Try to claim uploader role with non existing pool account", func() {
 		// ARRANGE
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
 			Creator:          i.ALICE,
@@ -168,7 +166,7 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesError(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_1_A,
+			Creator: i.POOL_ADDRESS_1_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -178,7 +176,7 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 		Expect(found).To(BeFalse())
 	})
 
-	It("Try to claim uploader role with valaccount that belongs to another pool", func() {
+	It("Try to claim uploader role with pool account that belongs to another pool", func() {
 		// ARRANGE
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
 			Creator:          i.ALICE,
@@ -206,14 +204,16 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 		s.RunTxPoolSuccess(msg)
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     1,
-			Valaddress: i.VALADDRESS_0_B,
+			Creator:       i.STAKER_0,
+			PoolId:        1,
+			PoolAddress:   i.POOL_ADDRESS_0_B,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ACT
 		s.RunTxBundlesError(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_B,
+			Creator: i.POOL_ADDRESS_0_B,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -233,14 +233,14 @@ var _ = Describe("msg_server_claim_uploader_role.go", Ordered, func() {
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
 
 		// ACT
 		s.RunTxBundlesError(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_1_A,
+			Creator: i.POOL_ADDRESS_1_A,
 			Staker:  i.STAKER_1,
 			PoolId:  0,
 		})

@@ -8,6 +8,7 @@ import "gogoproto/gogo.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/stakers/types";
 
+// deprecated
 // Staker contains all metadata for a staker
 // Every address can only create one staker (itself)
 message Staker {
@@ -36,23 +37,37 @@ message Staker {
   ];
 }
 
-// Valaccount gets authorized by a staker to
-// vote in a given pool by favor of the staker.
-message Valaccount {
+// PoolAccount gets authorized by a validator to
+// vote in a given pool by favor of the validator.
+// The pool account basically acts like an operator
+// here so the validator private key can be stored
+// securely and not on a remote server where
+// the pool account will operate
+message PoolAccount {
   // pool_id defines the pool in which the address
   // is allowed to vote in.
   uint64 pool_id = 1;
-  // staker is the address the valaccount is voting for.
+  // staker is the address validator
   string staker = 2;
-  // valaddress is the account stored on the protocol
+  // pool_address is the account stored on the protocol
   // node which votes for the staker in the given pool
-  string valaddress = 3;
+  string pool_address = 3;
   // When a node is inactive (does not vote at all)
   // A point is added, after a certain amount of points
   // is reached the node gets kicked out.
   uint64 points = 4;
   // isLeaving indicates if a staker is leaving the given pool.
   bool is_leaving = 5;
+  // commission ...
+  string commission = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // stake_fraction ...
+  string stake_fraction = 7 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // CommissionChangeEntry stores the information for an
@@ -65,15 +80,40 @@ message CommissionChangeEntry {
   uint64 index = 1;
   // staker is the address of the affected staker
   string staker = 2;
+  // pool_id ...
+  uint64 pool_id = 3;
   // commission is the new commission which will
   // be applied after the waiting time is over.
-  string commission = 3 [
+  string commission = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // creation_date is the UNIX-timestamp in seconds
   // when the entry was created.
-  int64 creation_date = 4;
+  int64 creation_date = 5;
+}
+
+// StakeFractionChangeEntry stores the information for an
+// upcoming stake fraction change. A stake fraction change is
+// only instant if it gets increased, if it gets decreased
+// the staker needs to wait for the stake fraction change time
+message StakeFractionChangeEntry {
+  // index is needed for the queue-algorithm which
+  // processes the commission changes
+  uint64 index = 1;
+  // staker is the address of the affected staker
+  string staker = 2;
+  // pool_id ...
+  uint64 pool_id = 3;
+  // stake_fraction is the new stake fraction which will
+  // be applied after the waiting time is over.
+  string stake_fraction = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // creation_date is the UNIX-timestamp in seconds
+  // when the entry was created.
+  int64 creation_date = 5;
 }
 
 // LeavePoolEntry stores the information for an upcoming
@@ -103,4 +143,18 @@ message QueueState {
   // high_index is the head of the queue. New entries
   // are added to the top.
   uint64 high_index = 2;
+}
+
+// SlashType ...
+enum SlashType {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // SLASH_TYPE_UNSPECIFIED ...
+  SLASH_TYPE_UNSPECIFIED = 0;
+  // SLASH_TYPE_TIMEOUT ...
+  SLASH_TYPE_TIMEOUT = 1;
+  // SLASH_TYPE_VOTE ...
+  SLASH_TYPE_VOTE = 2;
+  // SLASH_TYPE_UPLOAD ...
+  SLASH_TYPE_UPLOAD = 3;
 }

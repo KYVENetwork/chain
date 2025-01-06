@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"sort"
 
 	"cosmossdk.io/math"
@@ -21,6 +22,8 @@ TEST CASES - logic_bundles.go
 * Empty round-robin set
 * Partially filled round-robin set (one staker with 0 delegation)
 * Frequency analysis
+* Frequency analysis with stake fractions
+* Frequency analysis with maximum voting power cap
 * Frequency analysis (rounding)
 * Frequency analysis (excluded)
 * Exclude everybody
@@ -31,16 +34,19 @@ TEST CASES - logic_bundles.go
 */
 
 func joinDummy(s *i.KeeperTestSuite, index, kyveAmount uint64) {
-	s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-		Creator: i.DUMMY[index],
-		Amount:  kyveAmount * i.KYVE,
-	})
+	joinDummyWithStakeFraction(s, index, kyveAmount, math.LegacyOneDec())
+}
+
+func joinDummyWithStakeFraction(s *i.KeeperTestSuite, index, kyveAmount uint64, stakeFraction math.LegacyDec) {
+	s.CreateValidator(i.DUMMY[index], fmt.Sprintf("dummy-%d", index), int64(kyveAmount*i.KYVE))
 
 	s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-		Creator:    i.DUMMY[index],
-		PoolId:     0,
-		Valaddress: i.VALDUMMY[index],
-		Amount:     0,
+		Creator:       i.DUMMY[index],
+		PoolId:        0,
+		PoolAddress:   i.VALDUMMY[index],
+		Amount:        0,
+		Commission:    math.LegacyMustNewDecFromStr("0.1"),
+		StakeFraction: stakeFraction,
 	})
 }
 
@@ -94,6 +100,8 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 			Duration:    60,
 		}
 		s.App().PoolKeeper.SetPool(s.Ctx(), pool)
+
+		s.SetMaxVotingPower("1")
 	})
 
 	AfterEach(func() {
@@ -160,30 +168,8 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 		Expect(rrvs.Progress[i.DUMMY[2]]).To(Equal(int64(1)))
 	})
 
-	It("Empty round-robin set", func() {
-		// ARRANGE
-		joinDummy(s, 0, 0)
-		joinDummy(s, 1, 0)
-		joinDummy(s, 2, 0)
-
-		// ACT
-		rrvs := s.App().BundlesKeeper.LoadRoundRobinValidatorSet(s.Ctx(), 0)
-		state := rrvs.GetRoundRobinProgress()
-
-		nextProposer := rrvs.NextProposer()
-
-		// ASSERT
-		Expect(rrvs.Validators).To(HaveLen(0))
-		Expect(rrvs.Progress).To(HaveLen(0))
-
-		Expect(state).To(HaveLen(0))
-
-		Expect(nextProposer).To(BeEmpty())
-	})
-
 	It("Partially filled round-robin set (one staker with 0 delegation)", func() {
 		// ARRANGE
-		joinDummy(s, 0, 0)
 		joinDummy(s, 1, 10)
 		joinDummy(s, 2, 5)
 
@@ -239,6 +225,86 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 		Expect(frequency3[i.DUMMY[0]]).To(Equal(2000))
 		Expect(frequency3[i.DUMMY[1]]).To(Equal(31000))
 		Expect(frequency3[i.DUMMY[2]]).To(Equal(67000))
+	})
+
+	It("Frequency analysis with stake fractions", func() {
+		// ARRANGE
+		joinDummyWithStakeFraction(s, 0, 100, math.LegacyMustNewDecFromStr("0"))
+		joinDummyWithStakeFraction(s, 1, 100, math.LegacyMustNewDecFromStr("0.5"))
+		joinDummyWithStakeFraction(s, 2, 100, math.LegacyMustNewDecFromStr("1"))
+
+		// ACT
+		rrvs := s.App().BundlesKeeper.LoadRoundRobinValidatorSet(s.Ctx(), 0)
+
+		frequency1 := make(map[string]int, 0)
+		for i := 0; i < 10; i++ {
+			frequency1[rrvs.NextProposer()] += 1
+		}
+
+		frequency2 := make(map[string]int, 0)
+		for i := 0; i < 100; i++ {
+			frequency2[rrvs.NextProposer()] += 1
+		}
+
+		frequency3 := make(map[string]int, 0)
+		for i := 0; i < 100000; i++ {
+			frequency3[rrvs.NextProposer()] += 1
+		}
+
+		// ASSERT
+		Expect(frequency1[i.DUMMY[0]]).To(Equal(0))
+		Expect(frequency1[i.DUMMY[1]]).To(Equal(3))
+		Expect(frequency1[i.DUMMY[2]]).To(Equal(7))
+
+		Expect(frequency2[i.DUMMY[0]]).To(Equal(0))
+		Expect(frequency2[i.DUMMY[1]]).To(Equal(34))
+		Expect(frequency2[i.DUMMY[2]]).To(Equal(66))
+
+		Expect(frequency3[i.DUMMY[0]]).To(Equal(0))
+		Expect(frequency3[i.DUMMY[1]]).To(Equal(33333))
+		Expect(frequency3[i.DUMMY[2]]).To(Equal(66667))
+	})
+
+	It("Frequency analysis with maximum voting power cap", func() {
+		// ARRANGE
+		s.SetMaxVotingPower("0.5")
+
+		// NOTE that dummy with index 2 has more than 50% voting power, so his effective stake
+		// will be lower
+		joinDummy(s, 0, 2)
+		joinDummy(s, 1, 31)
+		joinDummy(s, 2, 67)
+
+		// ACT
+		rrvs := s.App().BundlesKeeper.LoadRoundRobinValidatorSet(s.Ctx(), 0)
+
+		frequency1 := make(map[string]int, 0)
+		for i := 0; i < 10; i++ {
+			frequency1[rrvs.NextProposer()] += 1
+		}
+
+		frequency2 := make(map[string]int, 0)
+		for i := 0; i < 100; i++ {
+			frequency2[rrvs.NextProposer()] += 1
+		}
+
+		frequency3 := make(map[string]int, 0)
+		for i := 0; i < 100000; i++ {
+			frequency3[rrvs.NextProposer()] += 1
+		}
+
+		// ASSERT
+		Expect(frequency1[i.DUMMY[0]]).To(Equal(0))
+		Expect(frequency1[i.DUMMY[1]]).To(Equal(5))
+		Expect(frequency1[i.DUMMY[2]]).To(Equal(5))
+
+		Expect(frequency2[i.DUMMY[0]]).To(Equal(3))
+		Expect(frequency2[i.DUMMY[1]]).To(Equal(47))
+		Expect(frequency2[i.DUMMY[2]]).To(Equal(50))
+
+		Expect(frequency3[i.DUMMY[0]]).To(Equal(3031))  // 2/66
+		Expect(frequency3[i.DUMMY[1]]).To(Equal(46969)) // 31/66
+		Expect(frequency3[i.DUMMY[2]]).To(Equal(50000)) // 33/66
 	})
 
 	It("Frequency analysis (rounding)", func() {

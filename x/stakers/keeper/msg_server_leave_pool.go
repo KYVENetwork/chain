@@ -16,13 +16,13 @@ import (
 func (k msgServer) LeavePool(goCtx context.Context, msg *types.MsgLeavePool) (*types.MsgLeavePoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	valaccount, valaccountFound := k.GetValaccount(ctx, msg.PoolId, msg.Creator)
-	if !valaccountFound {
+	poolAccount, active := k.GetPoolAccount(ctx, msg.Creator, msg.PoolId)
+	if !active {
 		return nil, errors.Wrapf(errorsTypes.ErrInvalidRequest, types.ErrAlreadyLeftPool.Error())
 	}
 
-	valaccount.IsLeaving = true
-	k.SetValaccount(ctx, valaccount)
+	poolAccount.IsLeaving = true
+	k.SetPoolAccount(ctx, poolAccount)
 
 	// Creates the queue entry to leave a pool. Does nothing further
 	if err := k.orderLeavePool(ctx, msg.Creator, msg.PoolId); err != nil {

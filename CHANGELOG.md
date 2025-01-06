@@ -14,6 +14,22 @@
 
 An '!' indicates a state machine breaking change.
 
+## Unreleased
+
+### Features
+
+- ! (`x/stakers`) [#209](https://github.com/KYVENetwork/chain/pull/209) Shared Staking: Consensus-validator stake is now used for the protocol.
+- ! (`x/stakers`) [#210](https://github.com/KYVENetwork/chain/pull/210) Shared Staking: Pool specific commission and stake fraction.
+- ! (`x/stakers`) [#211](https://github.com/KYVENetwork/chain/pull/211) Shared Staking: Maximum voting power per pool.
+
+### Improvements
+
+- (deps) [#213](https://github.com/KYVENetwork/chain/pull/213) Bump to CosmosSDK v0.50.11 and cleanup deps.
+
+### Bug Fixes
+
+- ! [#207](https://github.com/KYVENetwork/chain/pull/207) Added test case for points.
+
 ## [v1.5.0](https://github.com/KYVENetwork/chain/releases/tag/v1.5.0) - 2024-07-05
 
 ### Features

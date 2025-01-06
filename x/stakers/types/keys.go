@@ -1,7 +1,6 @@
 package types
 
 import (
-	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/util"
 )
 
@@ -14,9 +13,6 @@ const (
 
 	// RouterKey defines the module's message routing key
 	RouterKey = ModuleName
-
-	// MemStoreKey defines the in-memory store key
-	MemStoreKey = "mem_stakers"
 )
 
 var (
@@ -28,15 +24,15 @@ var (
 	// key -> StakerKeyPrefix | <stakerAddr>
 	StakerKeyPrefix = []byte{1}
 
-	// ValaccountPrefix stores valaccount for each staker and pool
-	// ValaccountPrefix | <poolId> | <staker>
-	ValaccountPrefix = []byte{2, 0}
-	// ValaccountPrefixIndex2 | <staker> | <poolId>
-	ValaccountPrefixIndex2 = []byte{2, 1}
+	// PoolAccountPrefix stores pool account for each staker and pool
+	// PoolAccountPrefix | <poolId> | <staker>
+	PoolAccountPrefix = []byte{2, 0}
+	// PoolAccountPrefixIndex2 | <staker> | <poolId>
+	PoolAccountPrefixIndex2 = []byte{2, 1}
 
 	// CommissionChangeEntryKeyPrefix | <index>
 	CommissionChangeEntryKeyPrefix = []byte{4, 0}
-	// CommissionChangeEntryKeyPrefixIndex2 | <staker>
+	// CommissionChangeEntryKeyPrefixIndex2 | <staker> | <poolId>
 	CommissionChangeEntryKeyPrefixIndex2 = []byte{4, 1}
 
 	// LeavePoolEntryKeyPrefix | <index>
@@ -45,6 +41,11 @@ var (
 	LeavePoolEntryKeyPrefixIndex2 = []byte{5, 1}
 
 	ActiveStakerIndex = []byte{6}
+
+	// StakeFractionChangeEntryKeyPrefix | <index>
+	StakeFractionChangeEntryKeyPrefix = []byte{7, 0}
+	// StakeFractionChangeKeyPrefixIndex2 | <staker> | <poolId>
+	StakeFractionChangeKeyPrefixIndex2 = []byte{7, 1}
 )
 
 // ENUM aggregated data types
@@ -56,24 +57,18 @@ var STAKER_STATS_COUNT STAKER_STATS = "total_stakers"
 type QUEUE_IDENTIFIER []byte
 
 var (
-	QUEUE_IDENTIFIER_COMMISSION QUEUE_IDENTIFIER = []byte{30, 2}
-	QUEUE_IDENTIFIER_LEAVE      QUEUE_IDENTIFIER = []byte{30, 3}
+	QUEUE_IDENTIFIER_COMMISSION     QUEUE_IDENTIFIER = []byte{30, 2}
+	QUEUE_IDENTIFIER_LEAVE          QUEUE_IDENTIFIER = []byte{30, 3}
+	QUEUE_IDENTIFIER_STAKE_FRACTION QUEUE_IDENTIFIER = []byte{30, 4}
 )
 
 const MaxStakers = 50
 
-var DefaultCommission = math.LegacyMustNewDecFromStr("0.1")
-
-// StakerKey returns the store Key to retrieve a Staker from the index fields
-func StakerKey(staker string) []byte {
-	return util.GetByteKey(staker)
-}
-
-func ValaccountKey(poolId uint64, staker string) []byte {
+func PoolAccountKey(poolId uint64, staker string) []byte {
 	return util.GetByteKey(poolId, staker)
 }
 
-func ValaccountKeyIndex2(staker string, poolId uint64) []byte {
+func PoolAccountKeyIndex2(staker string, poolId uint64) []byte {
 	return util.GetByteKey(staker, poolId)
 }
 
@@ -82,8 +77,8 @@ func CommissionChangeEntryKey(index uint64) []byte {
 }
 
 // Important: only one queue entry per staker is allowed at a time.
-func CommissionChangeEntryKeyIndex2(staker string) []byte {
-	return util.GetByteKey(staker)
+func CommissionChangeEntryKeyIndex2(staker string, poolId uint64) []byte {
+	return util.GetByteKey(staker, poolId)
 }
 
 func LeavePoolEntryKey(index uint64) []byte {
@@ -94,6 +89,10 @@ func LeavePoolEntryKeyIndex2(staker string, poolId uint64) []byte {
 	return util.GetByteKey(staker, poolId)
 }
 
-func ActiveStakerKeyIndex(staker string) []byte {
-	return util.GetByteKey(staker)
+func StakeFractionChangeEntryKey(index uint64) []byte {
+	return util.GetByteKey(index)
+}
+
+func StakeFractionChangeEntryKeyIndex2(staker string, poolId uint64) []byte {
+	return util.GetByteKey(staker, poolId)
 }

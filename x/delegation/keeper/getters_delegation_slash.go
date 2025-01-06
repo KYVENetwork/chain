@@ -13,53 +13,6 @@ import (
 // This is needed by the F1-Fee algorithm to correctly calculate the
 // remaining delegation of delegators whose staker got slashed.
 
-// SetDelegationSlashEntry for the affected staker with the index of the period
-// the slash is starting.
-func (k Keeper) SetDelegationSlashEntry(ctx sdk.Context, slashEntry types.DelegationSlash) {
-	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.DelegationSlashEntriesKeyPrefix)
-	b := k.cdc.MustMarshal(&slashEntry)
-	store.Set(types.DelegationEntriesKey(
-		slashEntry.Staker,
-		slashEntry.KIndex,
-	), b)
-}
-
-// GetDelegationSlashEntry returns a DelegationSlash for the given staker and index.
-func (k Keeper) GetDelegationSlashEntry(
-	ctx sdk.Context,
-	stakerAddress string,
-	kIndex uint64,
-) (val types.DelegationSlash, found bool) {
-	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.DelegationSlashEntriesKeyPrefix)
-
-	b := store.Get(types.DelegationSlashEntriesKey(
-		stakerAddress,
-		kIndex,
-	))
-	if b == nil {
-		return val, false
-	}
-
-	k.cdc.MustUnmarshal(b, &val)
-	return val, true
-}
-
-// RemoveDelegationSlashEntry removes an entry for a given staker and index
-func (k Keeper) RemoveDelegationSlashEntry(
-	ctx sdk.Context,
-	stakerAddress string,
-	kIndex uint64,
-) {
-	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.DelegationSlashEntriesKeyPrefix)
-	store.Delete(types.DelegationSlashEntriesKey(
-		stakerAddress,
-		kIndex,
-	))
-}
-
 // GetAllDelegationSlashEntries returns all delegation slash entries (of all stakers)
 func (k Keeper) GetAllDelegationSlashEntries(ctx sdk.Context) (list []types.DelegationSlash) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))

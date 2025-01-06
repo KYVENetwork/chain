@@ -27,8 +27,6 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 	// Account
 	cmd.AddCommand(CmdAccountAssets())
 	cmd.AddCommand(CmdAccountFundedList())
-	cmd.AddCommand(CmdAccountDelegationUnbondings())
-	cmd.AddCommand(CmdAccountRedelegation())
 
 	// Pool
 	cmd.AddCommand(CmdShowPool())
@@ -38,11 +36,6 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 	cmd.AddCommand(CmdShowStaker())
 	cmd.AddCommand(CmdListStakers())
 	cmd.AddCommand(CmdListStakersByPool())
-
-	// Delegation
-	cmd.AddCommand(CmdDelegator())
-	cmd.AddCommand(CmdStakersByPoolAndDelegator())
-	cmd.AddCommand(CmdDelegatorsByPoolAndStaker())
 
 	// Bundles
 	cmd.AddCommand(CmdShowFinalizedBundle())

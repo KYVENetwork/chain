@@ -1,49 +1,31 @@
 package keeper
 
 import (
-	"math"
+	m "math"
+
+	"cosmossdk.io/math"
+
+	"github.com/KYVENetwork/chain/util"
+	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/KYVENetwork/chain/x/stakers/types"
 
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
-
-// IncreaseStakerCommissionRewards sets the uploader's commission rewards and transfers the funds from
-// the payer module to the stakers module, so the funds can be later claimed and transferred from here
-func (k Keeper) IncreaseStakerCommissionRewards(ctx sdk.Context, address string, payerModuleName string, amount sdk.Coins) error {
-	// Assert there is an amount
-	if amount.Empty() {
-		return nil
-	}
-
-	// Assert the staker exists
-	if _, found := k.GetStaker(ctx, address); !found {
-		return errors.Wrapf(sdkErrors.ErrNotFound, "Staker does not exist.")
-	}
-
-	// transfer funds from pool to stakers module
-	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, payerModuleName, types.ModuleName, amount); err != nil {
-		return err
-	}
-
-	k.updateStakerCommissionRewards(ctx, address, amount)
-	return nil
-}
 
 // getLowestStaker returns the staker with the lowest total stake
 // (self-delegation + delegation) of a given pool.
 // If all pool slots are taken, this is the staker who then
 // gets kicked out.
-func (k Keeper) getLowestStaker(ctx sdk.Context, poolId uint64) (val types.Staker, found bool) {
-	var minAmount uint64 = math.MaxUint64
+func (k Keeper) getLowestStaker(ctx sdk.Context, poolId uint64) (val stakingTypes.Validator, found bool) {
+	var minAmount uint64 = m.MaxUint64
 
 	for _, staker := range k.getAllStakersOfPool(ctx, poolId) {
-		delegationAmount := k.delegationKeeper.GetDelegationAmount(ctx, staker.Address)
-		if delegationAmount < minAmount {
-			minAmount = delegationAmount
+		stake := k.GetValidatorPoolStake(ctx, util.MustAccountAddressFromValAddress(staker.OperatorAddress), poolId)
+		if stake < minAmount {
+			minAmount = stake
 			val = staker
 		}
 	}
@@ -59,20 +41,22 @@ func (k Keeper) getLowestStaker(ctx sdk.Context, poolId uint64) (val types.Stake
 // than the current lowest staker in that pool.
 // If so, the lowest staker gets removed from the pool, so that the
 // new staker can join.
-func (k Keeper) ensureFreeSlot(ctx sdk.Context, poolId uint64, stakerAddress string) error {
+func (k Keeper) ensureFreeSlot(ctx sdk.Context, poolId uint64, stakerAddress string, stakeFraction math.LegacyDec) error {
 	// check if slots are still available
 	if k.GetStakerCountOfPool(ctx, poolId) >= types.MaxStakers {
 		// if not - get lowest staker
 		lowestStaker, _ := k.getLowestStaker(ctx, poolId)
+		lowestStakerAddress := util.MustAccountAddressFromValAddress(lowestStaker.OperatorAddress)
 
-		// if new pool joiner has more stake than lowest staker kick him out
-		newAmount := k.delegationKeeper.GetDelegationAmount(ctx, stakerAddress)
-		lowestAmount := k.delegationKeeper.GetDelegationAmount(ctx, lowestStaker.Address)
+		// if new pool joiner would have more stake than lowest staker kick him out
+		newStaker, _ := k.GetValidator(ctx, stakerAddress)
+		newAmount := uint64(math.LegacyNewDecFromInt(newStaker.GetBondedTokens()).Mul(stakeFraction).TruncateInt64())
+		lowestAmount := k.GetValidatorPoolStake(ctx, lowestStakerAddress, poolId)
 		if newAmount > lowestAmount {
 			// remove lowest staker from pool
-			k.LeavePool(ctx, lowestStaker.Address, poolId)
+			k.LeavePool(ctx, lowestStakerAddress, poolId)
 		} else {
-			return errors.Wrapf(errorsTypes.ErrLogic, types.ErrStakeTooLow.Error(), k.delegationKeeper.GetDelegationAmount(ctx, lowestStaker.Address))
+			return errors.Wrapf(errorsTypes.ErrLogic, types.ErrStakeTooLow.Error(), lowestAmount)
 		}
 	}
 

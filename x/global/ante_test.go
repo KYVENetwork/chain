@@ -3,6 +3,7 @@ package global_test
 import (
 	"cosmossdk.io/math"
 	i "github.com/KYVENetwork/chain/testutil/integration"
+	fundersTypes "github.com/KYVENetwork/chain/x/funders/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -303,7 +304,7 @@ var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
 				Amount: 2000,
 			},
 			{
-				Type:   "/kyve.stakers.v1beta1.MsgCreateStaker",
+				Type:   "/kyve.funders.v1beta1.MsgCreateFunder",
 				Amount: 1000,
 			},
 		}
@@ -368,7 +369,7 @@ var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
 	It("Transaction with multiple adjusted messages.", func() {
 		// ARRANGE
 		firstMsg := stakingTypes.MsgCreateValidator{}
-		secondMsg := stakersTypes.MsgCreateStaker{}
+		secondMsg := fundersTypes.MsgCreateFunder{}
 
 		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 		_ = txBuilder.SetMsgs(&firstMsg, &secondMsg)
@@ -387,7 +388,7 @@ var _ = Describe("GasAdjustmentDecorator", Ordered, func() {
 	It("Transaction with multiple normal and multiple adjusted messages.", func() {
 		// ARRANGE
 		firstMsg := stakersTypes.MsgJoinPool{}
-		secondMsg := stakersTypes.MsgCreateStaker{}
+		secondMsg := fundersTypes.MsgCreateFunder{}
 		thirdMsg := stakingTypes.MsgCreateValidator{}
 
 		txBuilder := encodingConfig.TxConfig.NewTxBuilder()

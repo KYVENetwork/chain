@@ -17,23 +17,6 @@ import (
 // === QUEUE ENTRIES ===
 // #####################
 
-// SetUndelegationQueueEntry ...
-func (k Keeper) SetUndelegationQueueEntry(ctx sdk.Context, undelegationQueueEntry types.UndelegationQueueEntry) {
-	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.UndelegationQueueKeyPrefix)
-	b := k.cdc.MustMarshal(&undelegationQueueEntry)
-	store.Set(types.UndelegationQueueKey(
-		undelegationQueueEntry.Index,
-	), b)
-
-	// Insert the same entry with a different key prefix for query lookup
-	indexStore := prefix.NewStore(storeAdapter, types.UndelegationQueueKeyPrefixIndex2)
-	indexStore.Set(types.UndelegationQueueKeyIndex2(
-		undelegationQueueEntry.Delegator,
-		undelegationQueueEntry.Index,
-	), []byte{})
-}
-
 // GetUndelegationQueueEntry ...
 func (k Keeper) GetUndelegationQueueEntry(ctx sdk.Context, index uint64) (val types.UndelegationQueueEntry, found bool) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
@@ -46,19 +29,6 @@ func (k Keeper) GetUndelegationQueueEntry(ctx sdk.Context, index uint64) (val ty
 
 	k.cdc.MustUnmarshal(b, &val)
 	return val, true
-}
-
-// RemoveUndelegationQueueEntry ...
-func (k Keeper) RemoveUndelegationQueueEntry(ctx sdk.Context, undelegationQueueEntry *types.UndelegationQueueEntry) {
-	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.UndelegationQueueKeyPrefix)
-	store.Delete(types.UndelegationQueueKey(undelegationQueueEntry.Index))
-
-	indexStore := prefix.NewStore(storeAdapter, types.UndelegationQueueKeyPrefixIndex2)
-	indexStore.Delete(types.UndelegationQueueKeyIndex2(
-		undelegationQueueEntry.Delegator,
-		undelegationQueueEntry.Index,
-	))
 }
 
 // GetAllUnbondingDelegationQueueEntries returns all delegator unbondings
@@ -111,12 +81,4 @@ func (k Keeper) GetQueueState(ctx sdk.Context) (state types.QueueState) {
 
 	k.cdc.MustUnmarshal(b, &state)
 	return
-}
-
-// SetQueueState saves the undelegation queue state
-func (k Keeper) SetQueueState(ctx sdk.Context, state types.QueueState) {
-	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, []byte{})
-	b := k.cdc.MustMarshal(&state)
-	store.Set(types.QueueKey, b)
 }

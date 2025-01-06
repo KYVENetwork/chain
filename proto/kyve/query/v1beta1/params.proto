@@ -5,7 +5,6 @@ package kyve.query.v1beta1;
 import "cosmos/gov/v1/gov.proto";
 import "google/api/annotations.proto";
 import "kyve/bundles/v1beta1/params.proto";
-import "kyve/delegation/v1beta1/params.proto";
 import "kyve/funders/v1beta1/params.proto";
 import "kyve/global/v1beta1/global.proto";
 import "kyve/pool/v1beta1/params.proto";
@@ -32,8 +31,6 @@ message QueryParamsRequest {}
 message QueryParamsResponse {
   // bundles_params ...
   kyve.bundles.v1beta1.Params bundles_params = 1;
-  // delegation_params ...
-  kyve.delegation.v1beta1.Params delegation_params = 2;
   // global_params ...
   kyve.global.v1beta1.Params global_params = 3;
   // gov_params ...

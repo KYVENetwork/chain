@@ -117,10 +117,10 @@ message EventJoinPool {
   uint64 pool_id = 1;
   // staker is the address of the staker
   string staker = 2;
-  // valaddress is the address of the protocol node which 
+  // pool address is the address of the protocol node which 
   // votes in favor of the staker
-  string valaddress = 3;
-  // amount is the amount of funds transferred to the valaddress
+  string pool address = 3;
+  // amount is the amount of funds transferred to the pool address
   uint64 amount = 4;
 }
 ```

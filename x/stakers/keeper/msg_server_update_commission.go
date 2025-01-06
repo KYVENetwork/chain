@@ -3,10 +3,11 @@ package keeper
 import (
 	"context"
 
-	"cosmossdk.io/errors"
-	"github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errorsTypes "github.com/cosmos/cosmos-sdk/types/errors"
+
+	"cosmossdk.io/errors"
+	"github.com/KYVENetwork/chain/x/stakers/types"
 )
 
 // UpdateCommission creates a queue entry to update the staker commission.
@@ -16,13 +17,13 @@ import (
 func (k msgServer) UpdateCommission(goCtx context.Context, msg *types.MsgUpdateCommission) (*types.MsgUpdateCommissionResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// Check if the sender is a protocol node (aka has staked into this pool).
-	if !k.DoesStakerExist(ctx, msg.Creator) {
+	// Check if creator is active in the pool
+	if _, active := k.GetPoolAccount(ctx, msg.Creator, msg.PoolId); !active {
 		return nil, errors.Wrap(errorsTypes.ErrUnauthorized, types.ErrNoStaker.Error())
 	}
 
 	// Insert commission change into queue
-	k.orderNewCommissionChange(ctx, msg.Creator, msg.Commission)
+	k.orderNewCommissionChange(ctx, msg.Creator, msg.PoolId, msg.Commission)
 
 	return &types.MsgUpdateCommissionResponse{}, nil
 }

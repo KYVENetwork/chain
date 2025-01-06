@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"cosmossdk.io/math"
+	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -13,30 +14,46 @@ import (
 
 TEST CASES - msg_server_update_commission.go
 
-* Get the default commission from a newly created staker
-* Update commission to 50% from previously default commission
-* Update commission to 0% from previously default commission
-* Update commission to 100% from previously default commission
-* Update commission with an invalid number from previously default commission
-* Update commission with a negative number from previously default commission
-* Update commission with a too high number from previously default commission
+* Check if initial commission is correct
+* Update commission to 50% from previous commission
+* Update commission to 0% from previous commission
+* Update commission to 100% from previous commission
+* Update commission with a negative number from previous commission
+* Update commission with a too high number from previous commission
 * Update commission multiple times during the commission change time
 * Update commission multiple times during the commission change time with the same value
-* Update commission with multiple stakers
+* Update commission with multiple pools
 
 */
 
 var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 	s := i.NewCleanChain()
 
+	gov := s.App().GovKeeper.GetGovernanceAccount(s.Ctx()).GetAddress().String()
+
 	BeforeEach(func() {
 		// init new clean chain
 		s = i.NewCleanChain()
 
-		// create staker
-		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
+		// create pool
+		msg := &pooltypes.MsgCreatePool{
+			Authority:            gov,
+			UploadInterval:       60,
+			MaxBundleSize:        100,
+			InflationShareWeight: math.LegacyZeroDec(),
+			Binaries:             "{}",
+		}
+		s.RunTxPoolSuccess(msg)
+
+		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
+
+		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 	})
 
@@ -44,195 +61,221 @@ var _ = Describe("msg_server_update_commission.go", Ordered, func() {
 		s.PerformValidityChecks()
 	})
 
-	It("Get the default commission from a newly created staker", func() {
+	It("Get the default commission from a newly joined pool", func() {
 		// ASSERT
-		staker, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker.Commission).To(Equal(stakerstypes.DefaultCommission))
+		poolAccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 	})
 
-	It("Update commission to 50% from previously default commission", func() {
+	It("Update commission to 50% from previous commission", func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
+			PoolId:     0,
 			Commission: math.LegacyMustNewDecFromStr("0.5"),
 		})
 		s.PerformValidityChecks()
 
 		// ASSERT
-		staker, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker.Commission).To(Equal(stakerstypes.DefaultCommission))
+		poolAccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 
 		// wait for update
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetCommissionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		staker, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
+		poolAccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 	})
 
-	It("Update commission to 0% from previously default commission", func() {
+	It("Update commission to 0% from previous commission", func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
+			PoolId:     0,
 			Commission: math.LegacyZeroDec(),
 		})
 		s.PerformValidityChecks()
 
 		// ASSERT
-		staker, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker.Commission).To(Equal(stakerstypes.DefaultCommission))
+		poolAccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 
 		// wait for update
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetCommissionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		staker, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker.Commission).To(Equal(math.LegacyZeroDec()))
+		poolAccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount.Commission).To(Equal(math.LegacyZeroDec()))
 	})
 
-	It("Update commission to 100% from previously default commission", func() {
+	It("Update commission to 100% from previous commission", func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
+			PoolId:     0,
 			Commission: math.LegacyOneDec(),
 		})
 		s.PerformValidityChecks()
 
 		// ASSERT
-		staker, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker.Commission).To(Equal(stakerstypes.DefaultCommission))
+		poolAccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 
 		// wait for update
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetCommissionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		staker, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker.Commission).To(Equal(math.LegacyOneDec()))
+		poolAccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount.Commission).To(Equal(math.LegacyOneDec()))
 	})
 
-	It("Update commission with a negative number from previously default commission", func() {
+	It("Update commission with a negative number from previous commission", func() {
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
+			PoolId:     0,
 			Commission: math.LegacyMustNewDecFromStr("-0.5"),
 		})
 		s.PerformValidityChecks()
 
 		// ASSERT
-		staker, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker.Commission).To(Equal(stakerstypes.DefaultCommission))
+		poolAccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 	})
 
-	It("Update commission with a too high number from previously default commission", func() {
+	It("Update commission with a too high number from previous commission", func() {
 		// ACT
 		s.RunTxStakersError(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
+			PoolId:     0,
 			Commission: math.LegacyNewDec(2),
 		})
 		s.PerformValidityChecks()
 
 		// ASSERT
-		staker, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker.Commission).To(Equal(stakerstypes.DefaultCommission))
+		poolAccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 	})
 
 	It("Update commission multiple times during the commission change time", func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
+			PoolId:     0,
 			Commission: math.LegacyMustNewDecFromStr("0.5"),
 		})
 		s.PerformValidityChecks()
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
+			PoolId:     0,
 			Commission: math.LegacyMustNewDecFromStr("0.2"),
 		})
 		s.PerformValidityChecks()
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
+			PoolId:     0,
 			Commission: math.LegacyMustNewDecFromStr("0.3"),
 		})
 		s.PerformValidityChecks()
 
 		// ASSERT
-		staker, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker.Commission).To(Equal(stakerstypes.DefaultCommission))
+		poolAccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 
 		// wait for update
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetCommissionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		staker, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.3")))
+		poolAccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.3")))
 	})
 
 	It("Update commission multiple times during the commission change time with the same value", func() {
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
+			PoolId:     0,
 			Commission: math.LegacyMustNewDecFromStr("0.5"),
 		})
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
+			PoolId:     0,
 			Commission: math.LegacyMustNewDecFromStr("0.2"),
 		})
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
-			Commission: stakerstypes.DefaultCommission,
+			PoolId:     0,
+			Commission: math.LegacyMustNewDecFromStr("0.1"),
 		})
 		s.PerformValidityChecks()
 
 		// ASSERT
-		staker, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker.Commission).To(Equal(stakerstypes.DefaultCommission))
+		poolAccount, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 
 		// wait for update
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetCommissionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		staker, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker.Commission).To(Equal(stakerstypes.DefaultCommission))
+		poolAccount, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 	})
 
-	It("Update commission with multiple stakers", func() {
+	It("Update commission with multiple pools", func() {
 		// ARRANGE
-		s.RunTxStakersSuccess(&stakerstypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
+		msg := &pooltypes.MsgCreatePool{
+			Authority:            gov,
+			UploadInterval:       60,
+			MaxBundleSize:        100,
+			InflationShareWeight: math.LegacyZeroDec(),
+			Binaries:             "{}",
+		}
+		s.RunTxPoolSuccess(msg)
+
+		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
+			Creator:       i.STAKER_0,
+			PoolId:        1,
+			PoolAddress:   i.POOL_ADDRESS_0_B,
+			Amount:        100 * i.KYVE,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		// ACT
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
 			Creator:    i.STAKER_0,
+			PoolId:     0,
 			Commission: math.LegacyMustNewDecFromStr("0.5"),
 		})
 
 		s.RunTxStakersSuccess(&stakerstypes.MsgUpdateCommission{
-			Creator:    i.STAKER_1,
+			Creator:    i.STAKER_0,
+			PoolId:     1,
 			Commission: math.LegacyMustNewDecFromStr("0.5"),
 		})
 
 		s.PerformValidityChecks()
 
 		// ASSERT
-		staker0, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker0.Commission).To(Equal(stakerstypes.DefaultCommission))
+		poolAccount0, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount0.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 
-		staker1, _ := s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_1)
-		Expect(staker1.Commission).To(Equal(stakerstypes.DefaultCommission))
+		poolAccount1, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 1)
+		Expect(poolAccount1.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.1")))
 
 		// wait for update
 		s.CommitAfterSeconds(s.App().StakersKeeper.GetCommissionChangeTime(s.Ctx()))
 		s.CommitAfterSeconds(1)
 
-		staker0, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_0)
-		Expect(staker0.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
+		poolAccount0, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		Expect(poolAccount0.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 
-		staker1, _ = s.App().StakersKeeper.GetStaker(s.Ctx(), i.STAKER_1)
-		Expect(staker1.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
+		poolAccount1, _ = s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 1)
+		Expect(poolAccount1.Commission).To(Equal(math.LegacyMustNewDecFromStr("0.5")))
 	})
 })

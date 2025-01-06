@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package kyve.stakers.v1beta1;
 
-import "amino/amino.proto";
-import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
@@ -13,69 +11,30 @@ option go_package = "github.com/KYVENetwork/chain/x/stakers/types";
 // Msg defines the Msg service.
 service Msg {
   option (cosmos.msg.v1.service) = true;
-  // CreateStaker ...
-  rpc CreateStaker(MsgCreateStaker) returns (MsgCreateStakerResponse);
-  // UpdateMetadata ...
-  rpc UpdateMetadata(MsgUpdateMetadata) returns (MsgUpdateMetadataResponse);
-  // UpdateCommission ...
-  rpc UpdateCommission(MsgUpdateCommission) returns (MsgUpdateCommissionResponse);
-  // ClaimCommissionRewards ...
-  rpc ClaimCommissionRewards(MsgClaimCommissionRewards) returns (MsgClaimCommissionRewardsResponse);
   // JoinPool ...
   rpc JoinPool(MsgJoinPool) returns (MsgJoinPoolResponse);
   // LeavePool ...
   rpc LeavePool(MsgLeavePool) returns (MsgLeavePoolResponse);
+
+  // UpdateCommission ...
+  rpc UpdateCommission(MsgUpdateCommission) returns (MsgUpdateCommissionResponse);
+  // UpdateStakeFraction ...
+  rpc UpdateStakeFraction(MsgUpdateStakeFraction) returns (MsgUpdateStakeFractionResponse);
 
   // UpdateParams defines a governance operation for updating the x/stakers module
   // parameters. The authority is hard-coded to the x/gov module account.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
-// MsgCreateStaker defines a SDK message for creating a staker.
-message MsgCreateStaker {
-  option (cosmos.msg.v1.signer) = "creator";
-  // creator is the address of the staker.
-  string creator = 1;
-  // amount is the initial self-stake of the staker.
-  uint64 amount = 2;
-  // commission is the percentage that is deducted from rewards before
-  // distributing the staker's delegators.
-  string commission = 3 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-}
-
-// MsgStakePoolResponse defines the Msg/StakePool response type.
-message MsgCreateStakerResponse {}
-
-// MsgUpdateMetadata defines a SDK message for claiming the uploader role.
-message MsgUpdateMetadata {
-  option (cosmos.msg.v1.signer) = "creator";
-  // creator ...
-  string creator = 1;
-  // moniker ...
-  string moniker = 2;
-  // website ...
-  string website = 3;
-  // identity from keybase.io
-  string identity = 4;
-  // security_contact ...
-  string security_contact = 5;
-  // details ...
-  string details = 6;
-}
-
-// MsgUpdateMetadataResponse defines the Msg/MsgUpdateMetadata response type.
-message MsgUpdateMetadataResponse {}
-
-// MsgUpdateCommission ...
+// MsgUpdateCommission ... // TODO: create v1 types and rename new to MsgUpdatePoolCommission
 message MsgUpdateCommission {
   option (cosmos.msg.v1.signer) = "creator";
   // creator ...
   string creator = 1;
+  // pool_id ...
+  uint64 pool_id = 2;
   // commission ...
-  string commission = 2 [
+  string commission = 3 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
@@ -84,33 +43,44 @@ message MsgUpdateCommission {
 // MsgUpdateCommissionResponse ...
 message MsgUpdateCommissionResponse {}
 
-// MsgClaimCommissionRewards ...
-message MsgClaimCommissionRewards {
+// MsgUpdateStakeFraction ...
+message MsgUpdateStakeFraction {
   option (cosmos.msg.v1.signer) = "creator";
   // creator ...
   string creator = 1;
-  // amounts ...
-  repeated cosmos.base.v1beta1.Coin amounts = 2 [
-    (gogoproto.nullable) = false,
-    (amino.dont_omitempty) = true,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  // pool_id ...
+  uint64 pool_id = 2;
+  // commission ...
+  string stake_fraction = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
   ];
 }
 
-// MsgClaimCommissionRewardsResponse ...
-message MsgClaimCommissionRewardsResponse {}
+// MsgUpdateStakeFractionResponse ...
+message MsgUpdateStakeFractionResponse {}
 
-// MsgJoinPool ...
+// MsgJoinPool ... // TODO: create v1 types
 message MsgJoinPool {
   option (cosmos.msg.v1.signer) = "creator";
   // creator ...
   string creator = 1;
   // pool_id ...
   uint64 pool_id = 2;
-  // valaddress ...
-  string valaddress = 3;
+  // pool_address ...
+  string pool_address = 3;
   // amount ...
   uint64 amount = 4;
+  // commission ...
+  string commission = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // stake_fraction ...
+  string stake_fraction = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // MsgJoinPoolResponse ...

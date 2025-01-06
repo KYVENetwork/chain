@@ -50,19 +50,6 @@ func (k Keeper) GetTimeoutSlash(ctx sdk.Context) (res math.LegacyDec) {
 	return k.GetParams(ctx).TimeoutSlash
 }
 
-func (k Keeper) getSlashFraction(ctx sdk.Context, slashType types.SlashType) (slashAmountRatio math.LegacyDec) {
-	// Retrieve slash fraction from params
-	switch slashType {
-	case types.SLASH_TYPE_TIMEOUT:
-		slashAmountRatio = k.GetTimeoutSlash(ctx)
-	case types.SLASH_TYPE_VOTE:
-		slashAmountRatio = k.GetVoteSlash(ctx)
-	case types.SLASH_TYPE_UPLOAD:
-		slashAmountRatio = k.GetUploadSlash(ctx)
-	}
-	return
-}
-
 // SetParams sets the x/delegation module parameters.
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))

@@ -1058,6 +1058,7 @@ func _QueryFunders_FundingsByPool_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+var QueryFunders_serviceDesc = _QueryFunders_serviceDesc
 var _QueryFunders_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "kyve.query.v1beta1.QueryFunders",
 	HandlerType: (*QueryFundersServer)(nil),

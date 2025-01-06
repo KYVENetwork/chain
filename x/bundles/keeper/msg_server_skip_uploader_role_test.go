@@ -50,7 +50,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		}
 		s.RunTxPoolSuccess(msg)
 
-		//// create funders
+		// create funders
 		s.RunTxFundersSuccess(&funderstypes.MsgCreateFunder{
 			Creator: i.ALICE,
 			Moniker: "Alice",
@@ -62,50 +62,47 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 			AmountsPerBundle: i.KYVECoins(1 * i.T_KYVE),
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_2,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_2, "Staker-2", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_2,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_2_A,
+			Creator:       i.STAKER_2,
+			PoolId:        0,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.Commit()
 		s.WaitSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -125,12 +122,28 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 
 	It("Skip uploader role on data bundle if staker is next uploader", func() {
 		// ARRANGE
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.POOL_ADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_ABSTAIN,
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.POOL_ADDRESS_2_A,
+			Staker:    i.STAKER_2,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_ABSTAIN,
+		})
+
 		s.Commit()
 		s.WaitSeconds(60)
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			FromIndex: 100,
@@ -152,7 +165,8 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		Expect(bundleProposal.UpdatedAt).NotTo(BeZero())
 		Expect(bundleProposal.VotersValid).To(ContainElement(i.STAKER_0))
 		Expect(bundleProposal.VotersInvalid).To(BeEmpty())
-		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
+		Expect(bundleProposal.VotersAbstain).To(ContainElement(i.STAKER_1))
+		Expect(bundleProposal.VotersAbstain).To(ContainElement(i.STAKER_2))
 
 		// here the next uploader should be always be different after skipping
 		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_0))
@@ -160,15 +174,36 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		// check that the bundle is not finalized
 		_, found = s.App().BundlesKeeper.GetFinalizedBundle(s.Ctx(), 0, 0)
 		Expect(found).To(BeFalse())
+
+		// check that no validator got a point for the second round
+		for _, poolAccount := range s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0) {
+			Expect(poolAccount.Points).To(BeZero())
+		}
 	})
 
 	It("Skip uploader on data bundle after uploader role has already been skipped", func() {
 		// ARRANGE
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.POOL_ADDRESS_1_A,
+			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_ABSTAIN,
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.POOL_ADDRESS_2_A,
+			Staker:    i.STAKER_2,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_ABSTAIN,
+		})
+
 		s.Commit()
 		s.WaitSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			FromIndex: 100,
@@ -179,7 +214,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{
-			Creator:   i.VALADDRESS_0_A,
+			Creator:   i.POOL_ADDRESS_0_A,
 			Staker:    i.STAKER_0,
 			PoolId:    0,
 			FromIndex: 100,
@@ -201,14 +236,20 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		Expect(bundleProposal.UpdatedAt).NotTo(BeZero())
 		Expect(bundleProposal.VotersValid).To(ContainElement(i.STAKER_0))
 		Expect(bundleProposal.VotersInvalid).To(BeEmpty())
-		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
+		Expect(bundleProposal.VotersAbstain).To(ContainElement(i.STAKER_1))
+		Expect(bundleProposal.VotersAbstain).To(ContainElement(i.STAKER_2))
 
-		// here the next uploader should be always be different after skipping
+		// here the next uploader should always be different after skipping
 		Expect(bundleProposal.NextUploader).NotTo(Equal(i.STAKER_0))
 
 		// check that the bundle is not finalized
 		_, found = s.App().BundlesKeeper.GetFinalizedBundle(s.Ctx(), 0, 0)
 		Expect(found).To(BeFalse())
+
+		// check that no validator got a point for the second round
+		for _, poolAccount := range s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0) {
+			Expect(poolAccount.Points).To(BeZero())
+		}
 	})
 
 	It("Skip uploader role on dropped bundle", func() {
@@ -222,7 +263,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{
-			Creator:   i.VALADDRESS_0_A,
+			Creator:   i.POOL_ADDRESS_0_A,
 			Staker:    i.STAKER_0,
 			PoolId:    0,
 			FromIndex: 0,
@@ -252,13 +293,31 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		// check that the bundle is not finalized
 		_, found = s.App().BundlesKeeper.GetFinalizedBundle(s.Ctx(), 0, 0)
 		Expect(found).To(BeFalse())
+
+		// check that no validator got a point for the second round
+		for _, poolAccount := range s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0) {
+			if poolAccount.Staker == i.STAKER_0 {
+				Expect(poolAccount.Points).To(BeZero())
+			} else {
+				// All others have one point because they did not vote at all
+				Expect(poolAccount.Points).To(Equal(uint64(1)))
+			}
+		}
 	})
 
 	It("Skip uploader role on data bundle with current round containing a valid bundle", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
+			PoolId:    0,
+			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
+			Vote:      bundletypes.VOTE_TYPE_VALID,
+		})
+
+		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
+			Creator:   i.POOL_ADDRESS_2_A,
+			Staker:    i.STAKER_2,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
 			Vote:      bundletypes.VOTE_TYPE_VALID,
@@ -269,7 +328,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			FromIndex: 100,
@@ -300,19 +359,25 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 
 		Expect(finalizedBundle.PoolId).To(Equal(uint64(0)))
 		Expect(finalizedBundle.Uploader).To(Equal(i.STAKER_0))
+
+		// check if no validator got a point for the second round
+		for _, poolAccount := range s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0) {
+			Expect(poolAccount.Points).To(BeZero())
+		}
 	})
 
 	It("Skip uploader role on data bundle with current round containing an invalid bundle", func() {
 		// ARRANGE
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
 			Vote:      bundletypes.VOTE_TYPE_INVALID,
 		})
+
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
-			Creator:   i.VALADDRESS_2_A,
+			Creator:   i.POOL_ADDRESS_2_A,
 			Staker:    i.STAKER_2,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
@@ -324,7 +389,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSkipUploaderRole{
-			Creator:   i.VALADDRESS_1_A,
+			Creator:   i.POOL_ADDRESS_1_A,
 			Staker:    i.STAKER_1,
 			PoolId:    0,
 			FromIndex: 100,
@@ -352,5 +417,10 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		// check that the bundle is not finalized
 		_, found = s.App().BundlesKeeper.GetFinalizedBundle(s.Ctx(), 0, 0)
 		Expect(found).To(BeFalse())
+
+		// check that no validator got a point
+		for _, poolAccount := range s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0) {
+			Expect(poolAccount.Points).To(BeZero())
+		}
 	})
 })

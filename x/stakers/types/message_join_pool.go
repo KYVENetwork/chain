@@ -40,12 +40,20 @@ func (msg *MsgJoinPool) ValidateBasic() error {
 		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid creator address: %s", err)
 	}
 
-	if _, err := sdk.AccAddressFromBech32(msg.Valaddress); err != nil {
-		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid validator address: %s", err)
+	if _, err := sdk.AccAddressFromBech32(msg.PoolAddress); err != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid pool address: %s", err)
 	}
 
 	if util.ValidateNumber(msg.Amount) != nil {
 		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid amount")
+	}
+
+	if util.ValidatePercentage(msg.Commission) != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid commission")
+	}
+
+	if util.ValidatePercentage(msg.StakeFraction) != nil {
+		return errors.Wrapf(errorsTypes.ErrInvalidRequest, "invalid stake fraction")
 	}
 
 	return nil

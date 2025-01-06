@@ -6,28 +6,35 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 )
 
 func CmdUpdateCommission() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-commission [commission]",
+		Use:   "update-commission [pool_id] [commission]",
 		Short: "Broadcast message update-commission",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			commission, err := math.LegacyNewDecFromStr(args[0])
+			argPoolId, err := cast.ToUint64E(args[0])
+			if err != nil {
+				return err
+			}
+
+			argCommission, err := math.LegacyNewDecFromStr(args[1])
 			if err != nil {
 				return err
 			}
 
 			msg := types.MsgUpdateCommission{
 				Creator:    clientCtx.GetFromAddress().String(),
-				Commission: commission,
+				PoolId:     argPoolId,
+				Commission: argCommission,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {

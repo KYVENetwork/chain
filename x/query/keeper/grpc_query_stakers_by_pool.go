@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"sort"
 
 	"github.com/KYVENetwork/chain/x/query/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,24 +16,23 @@ func (k Keeper) StakersByPool(c context.Context, req *types.QueryStakersByPoolRe
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	data := make([]types.StakerPoolResponse, 0)
-
 	ctx := sdk.UnwrapSDKContext(c)
 
-	_, found := k.poolKeeper.GetPool(ctx, req.PoolId)
-	if !found {
+	if _, found := k.poolKeeper.GetPool(ctx, req.PoolId); !found {
 		return nil, sdkerrors.ErrKeyNotFound
 	}
 
-	valaccounts := k.stakerKeeper.GetAllValaccountsOfPool(ctx, req.PoolId)
-	for _, valaccount := range valaccounts {
-		if k.stakerKeeper.DoesStakerExist(ctx, valaccount.Staker) {
-			data = append(data, types.StakerPoolResponse{
-				Staker:     k.GetFullStaker(ctx, valaccount.Staker),
-				Valaccount: valaccount,
-			})
-		}
+	stakers := make([]types.FullStaker, 0)
+
+	for _, poolAccount := range k.stakerKeeper.GetAllPoolAccountsOfPool(ctx, req.PoolId) {
+		stakers = append(stakers, *k.GetFullStaker(ctx, poolAccount.Staker))
 	}
 
-	return &types.QueryStakersByPoolResponse{Stakers: data}, nil
+	stakes := k.stakerKeeper.GetValidatorPoolStakes(ctx, req.PoolId)
+
+	sort.SliceStable(stakers, func(i, j int) bool {
+		return stakes[stakers[i].Address] > stakes[stakers[j].Address]
+	})
+
+	return &types.QueryStakersByPoolResponse{Stakers: stakers}, nil
 }

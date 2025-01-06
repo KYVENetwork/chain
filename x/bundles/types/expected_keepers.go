@@ -2,10 +2,11 @@ package types
 
 import (
 	"cosmossdk.io/math"
-	delegationTypes "github.com/KYVENetwork/chain/x/delegation/types"
-	"github.com/KYVENetwork/chain/x/funders/types"
+	fundersTypes "github.com/KYVENetwork/chain/x/funders/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
+	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // AccountKeeper defines the expected account keeper used for simulations (noalias)
@@ -28,29 +29,28 @@ type PoolKeeper interface {
 
 type StakerKeeper interface {
 	GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (stakers []string)
-	GetCommission(ctx sdk.Context, stakerAddress string) math.LegacyDec
-	IncreaseStakerCommissionRewards(ctx sdk.Context, address string, payerModuleName string, amount sdk.Coins) error
-	AssertValaccountAuthorized(ctx sdk.Context, poolId uint64, stakerAddress string, valaddress string) error
+	AssertPoolAccountAuthorized(ctx sdk.Context, stakerAddress string, poolId uint64, poolAddress string) error
 
-	DoesStakerExist(ctx sdk.Context, staker string) bool
-	DoesValaccountExist(ctx sdk.Context, poolId uint64, stakerAddress string) bool
+	GetPoolAccount(ctx sdk.Context, stakerAddress string, poolId uint64) (poolAccount stakersTypes.PoolAccount, active bool)
 
-	LeavePool(ctx sdk.Context, staker string, poolId uint64)
+	LeavePool(ctx sdk.Context, stakerAddress string, poolId uint64)
 
-	IncrementPoints(ctx sdk.Context, poolId uint64, stakerAddress string) (newPoints uint64)
-	ResetPoints(ctx sdk.Context, poolId uint64, stakerAddress string) (previousPoints uint64)
-}
+	IncrementPoints(ctx sdk.Context, stakerAddress string, poolId uint64) (newPoints uint64)
+	ResetPoints(ctx sdk.Context, stakerAddress string, poolId uint64) (previousPoints uint64)
 
-type DelegationKeeper interface {
-	GetDelegationAmount(ctx sdk.Context, staker string) uint64
-	GetDelegationOfPool(ctx sdk.Context, poolId uint64) uint64
-	GetTotalAndHighestDelegationOfPool(ctx sdk.Context, poolId uint64) (uint64, uint64)
+	GetValidator(ctx sdk.Context, stakerAddress string) (stakingtypes.Validator, bool)
+	GetValidatorPoolCommission(ctx sdk.Context, staker string, poolId uint64) math.LegacyDec
+	GetValidatorPoolStake(ctx sdk.Context, staker string, poolId uint64) uint64
+	GetTotalStakeOfPool(ctx sdk.Context, poolId uint64) (totalStake uint64)
+	GetValidatorPoolStakes(ctx sdk.Context, poolId uint64, mustIncludeStakers ...string) map[string]uint64
+	IsVotingPowerTooHigh(ctx sdk.Context, poolId uint64) bool
+	Slash(ctx sdk.Context, poolId uint64, staker string, slashType stakersTypes.SlashType)
 	PayoutRewards(ctx sdk.Context, staker string, amount sdk.Coins, payerModuleName string) error
-	SlashDelegators(ctx sdk.Context, poolId uint64, staker string, slashType delegationTypes.SlashType)
+	PayoutAdditionalCommissionRewards(ctx sdk.Context, validator string, payerModuleName string, amount sdk.Coins) error
 }
 
 type FundersKeeper interface {
-	GetCoinWhitelistMap(ctx sdk.Context) (whitelist map[string]types.WhitelistCoinEntry)
+	GetCoinWhitelistMap(ctx sdk.Context) (whitelist map[string]fundersTypes.WhitelistCoinEntry)
 	ChargeFundersOfPool(ctx sdk.Context, poolId uint64, recipient string) (payout sdk.Coins, err error)
 }
 

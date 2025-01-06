@@ -17,9 +17,9 @@ import (
 TEST CASES - grpc_query_can_validate.go
 
 * Call can validate if pool does not exist
-* Call can validate if valaddress does not exist
-* Call can validate with a valaddress which belongs to another pool
-* Call can validate with a valid valaddress
+* Call can validate if pool address does not exist
+* Call can validate with a pool address which belongs to another pool
+* Call can validate with a valid pool address
 
 */
 
@@ -42,28 +42,26 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 		s.RunTxPoolSuccess(msg)
 		s.RunTxPoolSuccess(msg)
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     0,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
+			Amount:        0,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     1,
-			Valaddress: i.VALADDRESS_1_A,
-			Amount:     0,
+			Creator:       i.STAKER_1,
+			PoolId:        1,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
+			Amount:        0,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 	})
 
@@ -74,8 +72,8 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 	It("Call can validate if pool does not exist", func() {
 		// ACT
 		canValidate, err := s.App().QueryKeeper.CanValidate(s.Ctx(), &querytypes.QueryCanValidateRequest{
-			PoolId:     2,
-			Valaddress: i.VALADDRESS_0_A,
+			PoolId:      2,
+			PoolAddress: i.POOL_ADDRESS_0_A,
 		})
 
 		// ASSERT
@@ -85,39 +83,39 @@ var _ = Describe("grpc_query_can_validate.go", Ordered, func() {
 		Expect(canValidate.Reason).To(Equal(errors.Wrapf(errorsTypes.ErrNotFound, pooltypes.ErrPoolNotFound.Error(), 2).Error()))
 	})
 
-	It("Call can validate if valaddress does not exist", func() {
+	It("Call can validate if pool address does not exist", func() {
 		// ACT
 		canValidate, err := s.App().QueryKeeper.CanValidate(s.Ctx(), &querytypes.QueryCanValidateRequest{
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_2_A,
+			PoolId:      0,
+			PoolAddress: i.POOL_ADDRESS_2_A,
 		})
 
 		// ASSERT
 		Expect(err).To(BeNil())
 
 		Expect(canValidate.Possible).To(BeFalse())
-		Expect(canValidate.Reason).To(Equal("no valaccount found"))
+		Expect(canValidate.Reason).To(Equal("no pool account found"))
 	})
 
-	It("Call can validate with a valaddress which belongs to another pool", func() {
+	It("Call can validate with a pool address which belongs to another pool", func() {
 		// ACT
 		canValidate, err := s.App().QueryKeeper.CanValidate(s.Ctx(), &querytypes.QueryCanValidateRequest{
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
+			PoolId:      0,
+			PoolAddress: i.POOL_ADDRESS_1_A,
 		})
 
 		// ASSERT
 		Expect(err).To(BeNil())
 
 		Expect(canValidate.Possible).To(BeFalse())
-		Expect(canValidate.Reason).To(Equal("no valaccount found"))
+		Expect(canValidate.Reason).To(Equal("no pool account found"))
 	})
 
-	It("Call can validate with a valid valaddress", func() {
+	It("Call can validate with a valid pool address", func() {
 		// ACT
 		canValidate, err := s.App().QueryKeeper.CanValidate(s.Ctx(), &querytypes.QueryCanValidateRequest{
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
+			PoolId:      0,
+			PoolAddress: i.POOL_ADDRESS_0_A,
 		})
 
 		// ASSERT

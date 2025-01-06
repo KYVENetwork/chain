@@ -1,16 +1,17 @@
 package keeper
 
 import (
+	"context"
 	"fmt"
+
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"cosmossdk.io/core/store"
 
-	"github.com/KYVENetwork/chain/util"
-	delegationKeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
-
 	"cosmossdk.io/log"
+	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 )
@@ -24,12 +25,10 @@ type (
 
 		authority string
 
-		accountKeeper    util.AccountKeeper
-		bankKeeper       util.BankKeeper
-		distrkeeper      util.DistributionKeeper
-		poolKeeper       types.PoolKeeper
-		upgradeKeeper    util.UpgradeKeeper
-		delegationKeeper delegationKeeper.Keeper
+		bankKeeper    util.BankKeeper
+		poolKeeper    types.PoolKeeper
+		stakingKeeper util.StakingKeeper
+		distKeeper    util.DistributionKeeper
 	}
 )
 
@@ -41,13 +40,12 @@ func NewKeeper(
 
 	authority string,
 
-	accountKeeper util.AccountKeeper,
 	bankKeeper util.BankKeeper,
-	distrkeeper util.DistributionKeeper,
 	poolKeeper types.PoolKeeper,
-	upgradeKeeper util.UpgradeKeeper,
+	stakingKeeper util.StakingKeeper,
+	distributionKeeper util.DistributionKeeper,
 ) *Keeper {
-	return &Keeper{
+	k := &Keeper{
 		cdc:          cdc,
 		storeService: storeService,
 		memService:   memService,
@@ -55,23 +53,65 @@ func NewKeeper(
 
 		authority: authority,
 
-		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
-		distrkeeper:   distrkeeper,
 		poolKeeper:    poolKeeper,
-		upgradeKeeper: upgradeKeeper,
+		stakingKeeper: stakingKeeper,
+		distKeeper:    distributionKeeper,
 	}
-}
 
-func SetDelegationKeeper(k *Keeper, delegationKeeper delegationKeeper.Keeper) {
-	k.delegationKeeper = delegationKeeper
+	return k
 }
 
 func (k Keeper) Logger() log.Logger {
 	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-// TODO: remove after migration
-func (k Keeper) Migration_SetStaker(ctx sdk.Context, staker types.Staker) {
-	k.setStaker(ctx, staker)
+// HOOKS
+
+func (k Keeper) AfterValidatorCreated(ctx context.Context, valAddr sdk.ValAddress) error {
+	return nil
+}
+
+func (k Keeper) BeforeValidatorModified(ctx context.Context, valAddr sdk.ValAddress) error {
+	return nil
+}
+
+func (k Keeper) AfterValidatorRemoved(ctx context.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) error {
+	return nil
+}
+
+func (k Keeper) AfterValidatorBonded(ctx context.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) error {
+	return nil
+}
+
+func (k Keeper) AfterValidatorBeginUnbonding(goCtx context.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) error {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	for _, v := range k.GetPoolAccountsFromStaker(ctx, valAddr.String()) {
+		k.LeavePool(ctx, v.Staker, v.PoolId)
+	}
+	return nil
+}
+
+func (k Keeper) BeforeDelegationCreated(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
+	return nil
+}
+
+func (k Keeper) BeforeDelegationSharesModified(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
+	return nil
+}
+
+func (k Keeper) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
+	return nil
+}
+
+func (k Keeper) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
+	return nil
+}
+
+func (k Keeper) BeforeValidatorSlashed(goCtx context.Context, valAddr sdk.ValAddress, fraction math.LegacyDec) error {
+	return nil
+}
+
+func (k Keeper) AfterUnbondingInitiated(ctx context.Context, id uint64) error {
+	return nil
 }

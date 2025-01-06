@@ -552,6 +552,7 @@ func _QueryPool_Pool_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+var QueryPool_serviceDesc = _QueryPool_serviceDesc
 var _QueryPool_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "kyve.query.v1beta1.QueryPool",
 	HandlerType: (*QueryPoolServer)(nil),

@@ -5,6 +5,7 @@ import (
 
 	"github.com/KYVENetwork/chain/x/query/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -16,15 +17,22 @@ func (k Keeper) StakersByPoolCount(c context.Context, req *types.QueryStakersByP
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	result, pageRes, err := k.delegationKeeper.GetPaginatedActiveStakersByPoolCountAndDelegation(ctx, req.Pagination)
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+	data := make([]types.FullStaker, 0)
+
+	accumulator := func(address string, accumulate bool) bool {
+		if accumulate {
+			data = append(data, *k.GetFullStaker(ctx, address))
+		}
+		return true
 	}
 
-	data := make([]types.FullStaker, len(result))
+	var pageRes *query.PageResponse
+	var err error
 
-	for i := 0; i < len(result); i++ {
-		data[i] = *k.GetFullStaker(ctx, result[i])
+	pageRes, err = k.stakerKeeper.GetPaginatedStakersByPoolCount(ctx, req.Pagination, accumulator)
+
+	if err != nil {
+		return nil, err
 	}
 
 	return &types.QueryStakersByPoolCountResponse{Stakers: data, Pagination: pageRes}, nil

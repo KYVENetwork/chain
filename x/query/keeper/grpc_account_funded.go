@@ -17,9 +17,7 @@ func (k Keeper) AccountFundedList(goCtx context.Context, req *types.QueryAccount
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	var funded []types.Funded
 
-	fundings := k.fundersKeeper.GetFundingsOfFunder(ctx, req.Address)
-
-	for _, funding := range fundings {
+	for _, funding := range k.fundersKeeper.GetFundingsOfFunder(ctx, req.Address) {
 		if !funding.Amounts.IsZero() {
 			pool, found := k.poolKeeper.GetPool(ctx, funding.PoolId)
 			if !found {
@@ -35,7 +33,7 @@ func (k Keeper) AccountFundedList(goCtx context.Context, req *types.QueryAccount
 					InflationShareWeight: pool.InflationShareWeight,
 					UploadInterval:       pool.UploadInterval,
 					TotalFunds:           k.fundersKeeper.GetTotalActiveFunding(ctx, pool.Id),
-					TotalDelegation:      k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id),
+					TotalStake:           k.stakerKeeper.GetTotalStakeOfPool(ctx, pool.Id),
 					Status:               k.GetPoolStatus(ctx, &pool),
 				},
 			})

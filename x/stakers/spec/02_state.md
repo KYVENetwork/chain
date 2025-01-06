@@ -24,30 +24,30 @@ type Staker struct {
 }
 ```
 
-## Valaccount
-The Valaccount represents the membership of the staker in a given pool.
+## PoolAccount
+The PoolAccount represents the membership of the staker in a given pool.
 It contains the address of the protocol node which is allowed to vote
 in favor of the staker and stores the poolId as well as a counter for 
 penalty-points.
 
-- Valaccount: `0x02 | 0x00 | PoolId | StakerAddr -> ProtocolBuffer(valaccount)`
+- PoolAccount: `0x02 | 0x00 | PoolId | StakerAddr -> ProtocolBuffer(poolAccount)`
 
-One additional index is maintained to query for all valaccounts of a staker. 
+One additional index is maintained to query for all poolAccounts of a staker. 
 For this index only the key is used as StakerAddr and PoolId contain all 
-information to fetch the valaccount using the main key.
+information to fetch the pool account using the main key.
 
-- ValaccountIndex2: `0x02 | 0x01 | StakerAddr | PoolId -> (empty)`
+- PoolAccountIndex2: `0x02 | 0x01 | StakerAddr | PoolId -> (empty)`
 
 ```go
-type Valaccount struct {
+type PoolAccount struct {
     // PoolId defines the pool in which the address
     // is allowed to vote in.
     PoolId uint64
-    // Staker is the address the valaccount is voting for.
+    // Staker is the address the pool account is voting for.
     Staker string
-    // valaddress is the account stored on the protocol
+    // pool address is the account stored on the protocol
     // node which votes for the staker in the given pool
-    Valaddress string
+    PoolAccount string
     // When a node is inactive (does not vote at all)
     // a point is added. After a certain amount of points
     // is reached, the node gets kicked out.

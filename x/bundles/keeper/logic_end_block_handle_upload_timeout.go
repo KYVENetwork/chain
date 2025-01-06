@@ -111,10 +111,10 @@ func (k Keeper) HandleUploadTimeout(goCtx context.Context) {
 			k.SetBundleProposal(ctx, bundleProposal)
 		}
 
-		// Now we increase the points of the valaccount
-		// (if he is still participating in the pool)
-		if k.stakerKeeper.DoesValaccountExist(ctx, pool.Id, timedoutUploader) {
-			k.addPoint(ctx, pool.Id, timedoutUploader)
+		// Now we increase the points of the pool account
+		// (if he is still active in the pool)
+		if _, active := k.stakerKeeper.GetPoolAccount(ctx, timedoutUploader, pool.Id); active {
+			k.addPoint(ctx, timedoutUploader, pool.Id)
 		}
 	}
 }

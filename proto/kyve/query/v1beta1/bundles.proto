@@ -27,7 +27,7 @@ service QueryBundles {
 
   // CanValidate ...
   rpc CanValidate(QueryCanValidateRequest) returns (QueryCanValidateResponse) {
-    option (google.api.http).get = "/kyve/query/v1beta1/can_validate/{pool_id}/{valaddress}";
+    option (google.api.http).get = "/kyve/query/v1beta1/can_validate/{pool_id}/{pool_address}";
   }
 
   // CanPropose ...
@@ -182,15 +182,15 @@ message QueryCurrentVoteStatusResponse {
 }
 
 // ===================================
-// can_validate/{pool_id}/{valaddress}
+// can_validate/{pool_id}/{pool_address}
 // ===================================
 
 // QueryCanProposeRequest is the request type for the Query/CanPropose RPC method.
 message QueryCanValidateRequest {
   // pool_id defines the unique ID of the pool.
   uint64 pool_id = 1;
-  // valaddress ...
-  string valaddress = 2;
+  // pool_address ...
+  string pool_address = 2;
 }
 
 // QueryCanProposeResponse is the response type for the Query/CanPropose RPC method.

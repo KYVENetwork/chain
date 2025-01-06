@@ -10,9 +10,9 @@ import (
 // The queue is checked in every endBlock and when the commissionChangeTime
 // is over the new commission will be applied to the user.
 // If another entry is currently in the queue it will be removed.
-func (k Keeper) orderNewCommissionChange(ctx sdk.Context, staker string, commission math.LegacyDec) {
+func (k Keeper) orderNewCommissionChange(ctx sdk.Context, staker string, poolId uint64, commission math.LegacyDec) {
 	// Remove existing queue entry
-	queueEntry, found := k.GetCommissionChangeEntryByIndex2(ctx, staker)
+	queueEntry, found := k.GetCommissionChangeEntryByIndex2(ctx, staker, poolId)
 	if found {
 		k.RemoveCommissionChangeEntry(ctx, &queueEntry)
 	}
@@ -22,6 +22,7 @@ func (k Keeper) orderNewCommissionChange(ctx sdk.Context, staker string, commiss
 	commissionChangeEntry := types.CommissionChangeEntry{
 		Index:        queueIndex,
 		Staker:       staker,
+		PoolId:       poolId,
 		Commission:   commission,
 		CreationDate: ctx.BlockTime().Unix(),
 	}
@@ -36,18 +37,26 @@ func (k Keeper) ProcessCommissionChangeQueue(ctx sdk.Context) {
 	k.processQueue(ctx, types.QUEUE_IDENTIFIER_COMMISSION, func(index uint64) bool {
 		// Get queue entry in question
 		queueEntry, found := k.GetCommissionChangeEntry(ctx, index)
-
 		if !found {
 			// continue with the next entry
 			return true
-		} else if queueEntry.CreationDate+int64(k.GetCommissionChangeTime(ctx)) <= ctx.BlockTime().Unix() {
+		}
 
+		if queueEntry.CreationDate+int64(k.GetCommissionChangeTime(ctx)) <= ctx.BlockTime().Unix() {
 			k.RemoveCommissionChangeEntry(ctx, &queueEntry)
 
-			k.UpdateStakerCommission(ctx, queueEntry.Staker, queueEntry.Commission)
+			poolAccount, poolAccountFound := k.GetPoolAccount(ctx, queueEntry.Staker, queueEntry.PoolId)
+			if !poolAccountFound {
+				// continue with the next entry
+				return true
+			}
+
+			poolAccount.Commission = queueEntry.Commission
+			k.SetPoolAccount(ctx, poolAccount)
 
 			_ = ctx.EventManager().EmitTypedEvent(&types.EventUpdateCommission{
 				Staker:     queueEntry.Staker,
+				PoolId:     queueEntry.PoolId,
 				Commission: queueEntry.Commission,
 			})
 

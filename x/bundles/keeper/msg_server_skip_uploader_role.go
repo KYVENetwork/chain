@@ -18,7 +18,23 @@ func (k msgServer) SkipUploaderRole(goCtx context.Context, msg *types.MsgSkipUpl
 	bundleProposal, _ := k.GetBundleProposal(ctx, msg.PoolId)
 
 	// reset points of uploader as node has proven to be active
-	k.resetPoints(ctx, msg.PoolId, msg.Staker)
+	k.resetPoints(ctx, msg.Staker, msg.PoolId)
+
+	// If previous bundle was dropped just skip uploader role
+	// No previous round needs to be evaluated
+	if bundleProposal.StorageId == "" {
+		nextUploader := k.chooseNextUploader(ctx, msg.PoolId)
+
+		// Register empty bundle with next uploader
+		bundleProposal = types.BundleProposal{
+			PoolId:       msg.PoolId,
+			NextUploader: nextUploader,
+			UpdatedAt:    uint64(ctx.BlockTime().Unix()),
+		}
+		k.SetBundleProposal(ctx, bundleProposal)
+
+		return &types.MsgSkipUploaderRoleResponse{}, nil
+	}
 
 	// Previous round contains a bundle which needs to be validated now
 	result, err := k.tallyBundleProposal(ctx, bundleProposal, msg.PoolId)

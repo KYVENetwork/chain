@@ -1,4 +1,4 @@
-package v1_5_test
+package v2_0_test
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 
 	"cosmossdk.io/math"
 
-	"github.com/KYVENetwork/chain/app/upgrades/v1_5"
+	"github.com/KYVENetwork/chain/app/upgrades/v2_0"
 	"github.com/strangelove-ventures/interchaintest/v8"
 
 	"github.com/docker/docker/client"
@@ -28,10 +28,10 @@ var UpgradeContainerVersion = "local"
 
 func TestV1P2Upgrade(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, fmt.Sprintf("%s Upgrade Test Suite", v1_5.UpgradeName))
+	RunSpecs(t, fmt.Sprintf("%s Upgrade Test Suite", v2_0.UpgradeName))
 }
 
-var _ = Describe(fmt.Sprintf("%s Upgrade Tests", v1_5.UpgradeName), Ordered, func() {
+var _ = Describe(fmt.Sprintf("%s Upgrade Tests", v2_0.UpgradeName), Ordered, func() {
 	var kaon *cosmos.CosmosChain
 	var kyve *cosmos.CosmosChain
 
@@ -118,7 +118,7 @@ func generateUpgradeProposal(chain *cosmos.CosmosChain, height int64) cosmos.TxP
 		Typedef:   "/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade",
 		Authority: "kyve10d07y265gmmuvt4z0w9aw880jnsr700jdv7nah",
 		Plan: Plan{
-			Name:   v1_5.UpgradeName,
+			Name:   v2_0.UpgradeName,
 			Height: strconv.FormatInt(height, 10),
 			Info:   "",
 		},
@@ -129,8 +129,8 @@ func generateUpgradeProposal(chain *cosmos.CosmosChain, height int64) cosmos.TxP
 		Messages: []json.RawMessage{msg},
 		Metadata: "",
 		Deposit:  fmt.Sprintf("1000000000%s", chain.Config().Denom),
-		Title:    v1_5.UpgradeName,
-		Summary:  v1_5.UpgradeName,
+		Title:    v2_0.UpgradeName,
+		Summary:  v2_0.UpgradeName,
 	}
 }
 

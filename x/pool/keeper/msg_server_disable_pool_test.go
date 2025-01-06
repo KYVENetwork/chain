@@ -365,28 +365,26 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 
 	It("Kick out all stakers from pool", func() {
 		// ARRANGE
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     0,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
+			Amount:        0,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
-			Amount:     0,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
+			Amount:        0,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		msgFirstPool := &types.MsgDisablePool{
@@ -394,8 +392,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 			Id:        0,
 		}
 
-		Expect(s.App().StakersKeeper.GetAllValaccounts(s.Ctx())).To(HaveLen(2))
-		Expect(s.App().StakersKeeper.GetActiveStakers(s.Ctx())).To(HaveLen(2))
+		Expect(s.App().StakersKeeper.GetAllPoolAccounts(s.Ctx())).To(HaveLen(2))
 
 		p, v := BuildGovernanceTxs(s, []sdk.Msg{msgFirstPool})
 
@@ -414,8 +411,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		// ASSERT
 		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
 
-		Expect(s.App().StakersKeeper.GetAllValaccounts(s.Ctx())).To(HaveLen(0))
-		Expect(s.App().StakersKeeper.GetActiveStakers(s.Ctx())).To(HaveLen(0))
+		Expect(s.App().StakersKeeper.GetAllPoolAccounts(s.Ctx())).To(HaveLen(0))
 
 		firstPool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
@@ -433,35 +429,35 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 
 	It("Kick out all stakers from pool which are still members of another pool", func() {
 		// ARRANGE
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
+		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
+
+		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
+			Amount:        0,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     0,
+			Creator:       i.STAKER_0,
+			PoolId:        1,
+			PoolAddress:   i.POOL_ADDRESS_2_A,
+			Amount:        0,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
+
+		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     1,
-			Valaddress: i.VALADDRESS_2_A,
-			Amount:     0,
-		})
-
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
-
-		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
-			Amount:     0,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
+			Amount:        0,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		msgFirstPool := &types.MsgDisablePool{
@@ -469,8 +465,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 			Id:        0,
 		}
 
-		Expect(s.App().StakersKeeper.GetAllValaccounts(s.Ctx())).To(HaveLen(3))
-		Expect(s.App().StakersKeeper.GetActiveStakers(s.Ctx())).To(HaveLen(2))
+		Expect(s.App().StakersKeeper.GetAllPoolAccounts(s.Ctx())).To(HaveLen(3))
 
 		p, v := BuildGovernanceTxs(s, []sdk.Msg{msgFirstPool})
 
@@ -489,8 +484,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		// ASSERT
 		proposal, _ := s.App().GovKeeper.Proposals.Get(s.Ctx(), 1)
 
-		Expect(s.App().StakersKeeper.GetAllValaccounts(s.Ctx())).To(HaveLen(1))
-		Expect(s.App().StakersKeeper.GetActiveStakers(s.Ctx())).To(HaveLen(1))
+		Expect(s.App().StakersKeeper.GetAllPoolAccounts(s.Ctx())).To(HaveLen(1))
 
 		firstPool, _ := s.App().PoolKeeper.GetPool(s.Ctx(), 0)
 
@@ -508,32 +502,30 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 
 	It("Drop current bundle proposal when pool gets disabled", func() {
 		// ARRANGE
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_0,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_0, "Staker-0", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_0,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_0_A,
-			Amount:     0,
+			Creator:       i.STAKER_0,
+			PoolId:        0,
+			PoolAddress:   i.POOL_ADDRESS_0_A,
+			Amount:        0,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
-		s.RunTxStakersSuccess(&stakertypes.MsgCreateStaker{
-			Creator: i.STAKER_1,
-			Amount:  100 * i.KYVE,
-		})
+		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:    i.STAKER_1,
-			PoolId:     0,
-			Valaddress: i.VALADDRESS_1_A,
-			Amount:     0,
+			Creator:       i.STAKER_1,
+			PoolId:        0,
+			PoolAddress:   i.POOL_ADDRESS_1_A,
+			Amount:        0,
+			Commission:    math.LegacyMustNewDecFromStr("0.1"),
+			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgClaimUploaderRole{
-			Creator: i.VALADDRESS_0_A,
+			Creator: i.POOL_ADDRESS_0_A,
 			Staker:  i.STAKER_0,
 			PoolId:  0,
 		})
@@ -541,7 +533,7 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.VALADDRESS_0_A,
+			Creator:       i.POOL_ADDRESS_0_A,
 			Staker:        i.STAKER_0,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",

@@ -8,38 +8,37 @@ import (
 )
 
 func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.FullStaker {
-	staker, _ := k.stakerKeeper.GetStaker(ctx, stakerAddress)
-
-	commissionChange, found := k.stakerKeeper.GetCommissionChangeEntryByIndex2(ctx, staker.Address)
-	var commissionChangeEntry *types.CommissionChangeEntry = nil
-	if found {
-		commissionChangeEntry = &types.CommissionChangeEntry{
-			Commission:   commissionChange.Commission,
-			CreationDate: commissionChange.CreationDate,
-		}
-	}
-
-	stakerMetadata := types.StakerMetadata{
-		Commission:              staker.Commission,
-		Moniker:                 staker.Moniker,
-		Website:                 staker.Website,
-		Identity:                staker.Identity,
-		SecurityContact:         staker.SecurityContact,
-		Details:                 staker.Details,
-		PendingCommissionChange: commissionChangeEntry,
-		CommissionRewards:       staker.CommissionRewards,
-	}
-
-	delegationData, _ := k.delegationKeeper.GetDelegationData(ctx, staker.Address)
+	validator, _ := k.stakerKeeper.GetValidator(ctx, stakerAddress)
 
 	var poolMemberships []*types.PoolMembership
+	totalPoolStake := uint64(0)
 
-	for _, valaccount := range k.stakerKeeper.GetValaccountsFromStaker(ctx, staker.Address) {
+	for _, poolAccount := range k.stakerKeeper.GetPoolAccountsFromStaker(ctx, stakerAddress) {
+		pool, _ := k.poolKeeper.GetPool(ctx, poolAccount.PoolId)
 
-		pool, _ := k.poolKeeper.GetPool(ctx, valaccount.PoolId)
+		poolAddressAccount, _ := sdk.AccAddressFromBech32(poolAccount.PoolAddress)
+		balancePoolAddress := k.bankKeeper.GetBalance(ctx, poolAddressAccount, globalTypes.Denom).Amount.Uint64()
 
-		accountValaddress, _ := sdk.AccAddressFromBech32(valaccount.Valaddress)
-		balanceValaccount := k.bankKeeper.GetBalance(ctx, accountValaddress, globalTypes.Denom).Amount.Uint64()
+		commissionChange, found := k.stakerKeeper.GetCommissionChangeEntryByIndex2(ctx, stakerAddress, poolAccount.PoolId)
+		var commissionChangeEntry *types.CommissionChangeEntry = nil
+		if found {
+			commissionChangeEntry = &types.CommissionChangeEntry{
+				Commission:   commissionChange.Commission,
+				CreationDate: commissionChange.CreationDate,
+			}
+		}
+
+		stakeFractionChange, found := k.stakerKeeper.GetStakeFractionChangeEntryByIndex2(ctx, stakerAddress, poolAccount.PoolId)
+		var stakeFractionChangeEntry *types.StakeFractionChangeEntry = nil
+		if found {
+			stakeFractionChangeEntry = &types.StakeFractionChangeEntry{
+				StakeFraction: stakeFractionChange.StakeFraction,
+				CreationDate:  stakeFractionChange.CreationDate,
+			}
+		}
+
+		poolStake := k.stakerKeeper.GetValidatorPoolStake(ctx, stakerAddress, pool.Id)
+		totalPoolStake += poolStake
 
 		poolMemberships = append(
 			poolMemberships, &types.PoolMembership{
@@ -51,42 +50,31 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 					InflationShareWeight: pool.InflationShareWeight,
 					UploadInterval:       pool.UploadInterval,
 					TotalFunds:           k.fundersKeeper.GetTotalActiveFunding(ctx, pool.Id),
-					TotalDelegation:      k.delegationKeeper.GetDelegationOfPool(ctx, pool.Id),
+					TotalStake:           k.stakerKeeper.GetTotalStakeOfPool(ctx, pool.Id),
 					Status:               k.GetPoolStatus(ctx, &pool),
 				},
-				Points:     valaccount.Points,
-				IsLeaving:  valaccount.IsLeaving,
-				Valaddress: valaccount.Valaddress,
-				Balance:    balanceValaccount,
+				Points:                     poolAccount.Points,
+				IsLeaving:                  poolAccount.IsLeaving,
+				PoolAddress:                poolAccount.PoolAddress,
+				Balance:                    balancePoolAddress,
+				Commission:                 poolAccount.Commission,
+				PendingCommissionChange:    commissionChangeEntry,
+				StakeFraction:              poolAccount.StakeFraction,
+				PendingStakeFractionChange: stakeFractionChangeEntry,
+				PoolStake:                  poolStake,
 			},
 		)
 	}
 
-	// Iterate all UnbondingDelegation entries to get total delegation unbonding amount
-	selfDelegationUnbonding := uint64(0)
-	for _, entry := range k.delegationKeeper.GetAllUnbondingDelegationQueueEntriesOfDelegator(ctx, stakerAddress) {
-		if entry.Staker == stakerAddress {
-			selfDelegationUnbonding += entry.Amount
-		}
-	}
-
 	return &types.FullStaker{
-		Address:                 staker.Address,
-		Metadata:                &stakerMetadata,
-		SelfDelegation:          k.delegationKeeper.GetDelegationAmountOfDelegator(ctx, stakerAddress, stakerAddress),
-		SelfDelegationUnbonding: selfDelegationUnbonding,
-		TotalDelegation:         k.delegationKeeper.GetDelegationAmount(ctx, staker.Address),
-		DelegatorCount:          delegationData.DelegatorCount,
-		Pools:                   poolMemberships,
+		Address:        stakerAddress,
+		Validator:      &validator,
+		TotalPoolStake: totalPoolStake,
+		Pools:          poolMemberships,
 	}
 }
 
 func (k Keeper) GetPoolStatus(ctx sdk.Context, pool *pooltypes.Pool) pooltypes.PoolStatus {
-	// Get the total and the highest delegation of a single validator in the pool
-	totalDelegation, highestDelegation := k.delegationKeeper.GetTotalAndHighestDelegationOfPool(ctx, pool.Id)
-	maxVotingPower := k.poolKeeper.GetMaxVotingPowerPerPool(ctx)
-	maxDelegation := uint64(maxVotingPower.MulInt64(int64(totalDelegation)).TruncateInt64())
-
 	var poolStatus pooltypes.PoolStatus
 
 	poolStatus = pooltypes.POOL_STATUS_ACTIVE
@@ -96,10 +84,10 @@ func (k Keeper) GetPoolStatus(ctx sdk.Context, pool *pooltypes.Pool) pooltypes.P
 		poolStatus = pooltypes.POOL_STATUS_DISABLED
 	} else if pool.EndKey != "" && pool.EndKey == pool.CurrentKey {
 		poolStatus = pooltypes.POOL_STATUS_END_KEY_REACHED
-	} else if totalDelegation < pool.MinDelegation {
-		poolStatus = pooltypes.POOL_STATUS_NOT_ENOUGH_DELEGATION
-	} else if highestDelegation > maxDelegation {
+	} else if k.stakerKeeper.IsVotingPowerTooHigh(ctx, pool.Id) {
 		poolStatus = pooltypes.POOL_STATUS_VOTING_POWER_TOO_HIGH
+	} else if k.stakerKeeper.GetTotalStakeOfPool(ctx, pool.Id) < pool.MinDelegation {
+		poolStatus = pooltypes.POOL_STATUS_NOT_ENOUGH_DELEGATION
 	} else if k.fundersKeeper.GetTotalActiveFunding(ctx, pool.Id).IsZero() {
 		poolStatus = pooltypes.POOL_STATUS_NO_FUNDS
 	}

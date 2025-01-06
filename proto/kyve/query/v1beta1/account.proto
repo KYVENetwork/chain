@@ -18,19 +18,9 @@ service QueryAccount {
     option (google.api.http).get = "/kyve/query/v1beta1/account_assets/{address}";
   }
 
-  // AccountDelegationUnbondings ...
-  rpc AccountDelegationUnbondings(QueryAccountDelegationUnbondingsRequest) returns (QueryAccountDelegationUnbondingsResponse) {
-    option (google.api.http).get = "/kyve/query/v1beta1/account_delegation_unbondings/{address}";
-  }
-
   // AccountFundedList returns all pools the given user has funded into.
   rpc AccountFundedList(QueryAccountFundedListRequest) returns (QueryAccountFundedListResponse) {
     option (google.api.http).get = "/kyve/query/v1beta1/account_funded_list/{address}";
-  }
-
-  // AccountRedelegation ...
-  rpc AccountRedelegation(QueryAccountRedelegationRequest) returns (QueryAccountRedelegationResponse) {
-    option (google.api.http).get = "/kyve/query/v1beta1/account_redelegation/{address}";
   }
 }
 
@@ -49,15 +39,11 @@ message QueryAccountAssetsResponse {
   // balance ...
   uint64 balance = 1;
   // protocol_staking ...
-  uint64 protocol_self_delegation = 2;
+  uint64 delegation = 2;
   // protocol_staking_unbonding ...
-  uint64 protocol_self_delegation_unbonding = 3;
-  // protocol_delegation ...
-  uint64 protocol_delegation = 4;
-  // protocol_delegation_unbonding ...
-  uint64 protocol_delegation_unbonding = 5;
+  uint64 delegation_unbonding = 3;
   // protocol_rewards ...
-  repeated cosmos.base.v1beta1.Coin protocol_rewards = 6 [
+  repeated cosmos.base.v1beta1.Coin outstanding_rewards = 6 [
     (gogoproto.nullable) = false,
     (amino.dont_omitempty) = true,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"

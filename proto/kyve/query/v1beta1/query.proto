@@ -4,6 +4,7 @@ package kyve.query.v1beta1;
 
 import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/staking/v1beta1/staking.proto";
 import "gogoproto/gogo.proto";
 import "kyve/pool/v1beta1/pool.proto";
 
@@ -57,8 +58,8 @@ message BasicPool {
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
 
-  // total_delegation of the pool
-  uint64 total_delegation = 8;
+  // total_stake of the pool
+  uint64 total_stake = 8;
 
   // status of the pool if pool is able
   // to produce bundles, etc.
@@ -72,72 +73,15 @@ message FullStaker {
   // address of the staker
   string address = 1;
 
-  // metadata as logo, moniker, etc.
-  StakerMetadata metadata = 2;
+  cosmos.staking.v1beta1.Validator validator = 2;
 
-  // amount the staker has delegated to himself
-  uint64 self_delegation = 3;
-
-  // unbonding_amount is the amount the staker is currently unbonding
-  // from the self-delegation.
-  // This amount can be larger than `amount` when the staker
-  // got slashed during unbonding. However, at the end of
-  // the unbonding period this amount is double checked with the
-  // remaining amount.
-  uint64 self_delegation_unbonding = 4;
-
-  // total_delegation returns the sum of all $KYVE users
-  // have delegated to this staker
-  uint64 total_delegation = 5;
-
-  // delegator_count is the total number of individual
-  // delegator addresses for that user.
-  uint64 delegator_count = 6;
+  // total_pool_stake returns the amount the validator has in total
+  // staked in all his pools
+  uint64 total_pool_stake = 3;
 
   // pools is a list of all pools the staker is currently
   // participating, i.e. allowed to vote and upload data.
-  repeated PoolMembership pools = 7;
-}
-
-// StakerMetadata contains static information for a staker
-message StakerMetadata {
-  // commission is the percentage of the rewards that will
-  // get transferred to the staker before the remaining
-  // rewards are split across all delegators
-  string commission = 1 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-
-  // moniker is a human-readable name for displaying
-  // the staker in the UI
-  string moniker = 2;
-
-  // website is a https-link to the website of the staker
-  string website = 3;
-
-  // identity from keybase.io
-  string identity = 4;
-
-  // security_contact ...
-  string security_contact = 5;
-
-  // details ...
-  string details = 6;
-
-  // pending_commission_change shows if the staker plans
-  // to change its commission. Delegators will see a warning in
-  // the UI. A Commission change takes some time until
-  // the commission is applied. Users have time to redelegate
-  // if they not agree with the new commission.
-  CommissionChangeEntry pending_commission_change = 7;
-
-  // commission_rewards are the rewards through commission and storage cost
-  repeated cosmos.base.v1beta1.Coin commission_rewards = 8 [
-    (gogoproto.nullable) = false,
-    (amino.dont_omitempty) = true,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
+  repeated PoolMembership pools = 4;
 }
 
 // CommissionChangeEntry shows when the old commission
@@ -146,6 +90,21 @@ message CommissionChangeEntry {
   // commission is the new commission that will
   // become active once the change-time is over
   string commission = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // creation_date is the UNIX-timestamp (in seconds)
+  // of when the entry was created.
+  int64 creation_date = 2;
+}
+
+// StakeFractionChangeEntry shows when the old stake fraction
+// of a staker will change to the new stake fraction
+message StakeFractionChangeEntry {
+  // stake_fraction is the new stake_fraction that will
+  // become active once the change-time is over
+  string stake_fraction = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
@@ -172,13 +131,47 @@ message PoolMembership {
   // the staker will no longer participate in that pool
   bool is_leaving = 3;
 
-  // Valaddress is the address which is authorized to vote
+  // pool address is the address which is authorized to vote
   // and submit bundles. If the server gets compromised
-  // the staker can just change the valaddress.
-  string valaddress = 4;
+  // the staker can just change the pool address .
+  string pool_address = 4;
 
-  // balance is the valaddress account balance and indicates
-  // whether or not the valaccount needs additional funds to
+  // balance is the pool address  account balance and indicates
+  // whether or not the pool account needs additional funds to
   // pay for gas fees
   uint64 balance = 5;
+
+  // commission is the commission the validator has chosen for
+  // this specific pool
+  string commission = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // pending_commission_change shows if the staker plans
+  // to change its commission. Delegators will see a warning in
+  // the UI. A Commission change takes some time until
+  // the commission is applied. Users have time to redelegate
+  // if they not agree with the new commission.
+  CommissionChangeEntry pending_commission_change = 7;
+
+  // stake fraction is a percentage the validator has chosen for
+  // this pool. It is the fraction of how much of his total stake
+  // the validator wants to stake in this specific pool
+  string stake_fraction = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // pending_stake_fraction_change shows if the staker plans
+  // to change its stake fraction. Delegators will see a warning in
+  // the UI. A stake fraction change takes some time until
+  // the stake fraction is applied. Users have time to redelegate
+  // if they not agree with the new stake fraction.
+  StakeFractionChangeEntry pending_stake_fraction_change = 9;
+
+  // pool stake shows the actual amount the validator has staked
+  // in this pool. It can be lower than the specified stake fraction
+  // because of the max voting power limit
+  uint64 pool_stake = 10;
 }

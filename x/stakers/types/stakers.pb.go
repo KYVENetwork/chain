@@ -27,6 +27,43 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// SlashType ...
+type SlashType int32
+
+const (
+	// SLASH_TYPE_UNSPECIFIED ...
+	SLASH_TYPE_UNSPECIFIED SlashType = 0
+	// SLASH_TYPE_TIMEOUT ...
+	SLASH_TYPE_TIMEOUT SlashType = 1
+	// SLASH_TYPE_VOTE ...
+	SLASH_TYPE_VOTE SlashType = 2
+	// SLASH_TYPE_UPLOAD ...
+	SLASH_TYPE_UPLOAD SlashType = 3
+)
+
+var SlashType_name = map[int32]string{
+	0: "SLASH_TYPE_UNSPECIFIED",
+	1: "SLASH_TYPE_TIMEOUT",
+	2: "SLASH_TYPE_VOTE",
+	3: "SLASH_TYPE_UPLOAD",
+}
+
+var SlashType_value = map[string]int32{
+	"SLASH_TYPE_UNSPECIFIED": 0,
+	"SLASH_TYPE_TIMEOUT":     1,
+	"SLASH_TYPE_VOTE":        2,
+	"SLASH_TYPE_UPLOAD":      3,
+}
+
+func (x SlashType) String() string {
+	return proto.EnumName(SlashType_name, int32(x))
+}
+
+func (SlashType) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_d209d1a2a74d375d, []int{0}
+}
+
+// deprecated
 // Staker contains all metadata for a staker
 // Every address can only create one staker (itself)
 type Staker struct {
@@ -130,37 +167,45 @@ func (m *Staker) GetCommissionRewards() github_com_cosmos_cosmos_sdk_types.Coins
 	return nil
 }
 
-// Valaccount gets authorized by a staker to
-// vote in a given pool by favor of the staker.
-type Valaccount struct {
+// PoolAccount gets authorized by a validator to
+// vote in a given pool by favor of the validator.
+// The pool account basically acts like an operator
+// here so the validator private key can be stored
+// securely and not on a remote server where
+// the pool account will operate
+type PoolAccount struct {
 	// pool_id defines the pool in which the address
 	// is allowed to vote in.
 	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
-	// staker is the address the valaccount is voting for.
+	// staker is the address validator
 	Staker string `protobuf:"bytes,2,opt,name=staker,proto3" json:"staker,omitempty"`
-	// valaddress is the account stored on the protocol
+	// pool_address is the account stored on the protocol
 	// node which votes for the staker in the given pool
-	Valaddress string `protobuf:"bytes,3,opt,name=valaddress,proto3" json:"valaddress,omitempty"`
+	PoolAddress string `protobuf:"bytes,3,opt,name=pool_address,json=poolAddress,proto3" json:"pool_address,omitempty"`
 	// When a node is inactive (does not vote at all)
 	// A point is added, after a certain amount of points
 	// is reached the node gets kicked out.
 	Points uint64 `protobuf:"varint,4,opt,name=points,proto3" json:"points,omitempty"`
 	// isLeaving indicates if a staker is leaving the given pool.
 	IsLeaving bool `protobuf:"varint,5,opt,name=is_leaving,json=isLeaving,proto3" json:"is_leaving,omitempty"`
+	// commission ...
+	Commission cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=commission,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"commission"`
+	// stake_fraction ...
+	StakeFraction cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=stake_fraction,json=stakeFraction,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"stake_fraction"`
 }
 
-func (m *Valaccount) Reset()         { *m = Valaccount{} }
-func (m *Valaccount) String() string { return proto.CompactTextString(m) }
-func (*Valaccount) ProtoMessage()    {}
-func (*Valaccount) Descriptor() ([]byte, []int) {
+func (m *PoolAccount) Reset()         { *m = PoolAccount{} }
+func (m *PoolAccount) String() string { return proto.CompactTextString(m) }
+func (*PoolAccount) ProtoMessage()    {}
+func (*PoolAccount) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d209d1a2a74d375d, []int{1}
 }
-func (m *Valaccount) XXX_Unmarshal(b []byte) error {
+func (m *PoolAccount) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *Valaccount) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *PoolAccount) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_Valaccount.Marshal(b, m, deterministic)
+		return xxx_messageInfo_PoolAccount.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -170,47 +215,47 @@ func (m *Valaccount) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *Valaccount) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Valaccount.Merge(m, src)
+func (m *PoolAccount) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PoolAccount.Merge(m, src)
 }
-func (m *Valaccount) XXX_Size() int {
+func (m *PoolAccount) XXX_Size() int {
 	return m.Size()
 }
-func (m *Valaccount) XXX_DiscardUnknown() {
-	xxx_messageInfo_Valaccount.DiscardUnknown(m)
+func (m *PoolAccount) XXX_DiscardUnknown() {
+	xxx_messageInfo_PoolAccount.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_Valaccount proto.InternalMessageInfo
+var xxx_messageInfo_PoolAccount proto.InternalMessageInfo
 
-func (m *Valaccount) GetPoolId() uint64 {
+func (m *PoolAccount) GetPoolId() uint64 {
 	if m != nil {
 		return m.PoolId
 	}
 	return 0
 }
 
-func (m *Valaccount) GetStaker() string {
+func (m *PoolAccount) GetStaker() string {
 	if m != nil {
 		return m.Staker
 	}
 	return ""
 }
 
-func (m *Valaccount) GetValaddress() string {
+func (m *PoolAccount) GetPoolAddress() string {
 	if m != nil {
-		return m.Valaddress
+		return m.PoolAddress
 	}
 	return ""
 }
 
-func (m *Valaccount) GetPoints() uint64 {
+func (m *PoolAccount) GetPoints() uint64 {
 	if m != nil {
 		return m.Points
 	}
 	return 0
 }
 
-func (m *Valaccount) GetIsLeaving() bool {
+func (m *PoolAccount) GetIsLeaving() bool {
 	if m != nil {
 		return m.IsLeaving
 	}
@@ -227,12 +272,14 @@ type CommissionChangeEntry struct {
 	Index uint64 `protobuf:"varint,1,opt,name=index,proto3" json:"index,omitempty"`
 	// staker is the address of the affected staker
 	Staker string `protobuf:"bytes,2,opt,name=staker,proto3" json:"staker,omitempty"`
+	// pool_id ...
+	PoolId uint64 `protobuf:"varint,3,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
 	// commission is the new commission which will
 	// be applied after the waiting time is over.
-	Commission cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=commission,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"commission"`
+	Commission cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=commission,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"commission"`
 	// creation_date is the UNIX-timestamp in seconds
 	// when the entry was created.
-	CreationDate int64 `protobuf:"varint,4,opt,name=creation_date,json=creationDate,proto3" json:"creation_date,omitempty"`
+	CreationDate int64 `protobuf:"varint,5,opt,name=creation_date,json=creationDate,proto3" json:"creation_date,omitempty"`
 }
 
 func (m *CommissionChangeEntry) Reset()         { *m = CommissionChangeEntry{} }
@@ -282,7 +329,95 @@ func (m *CommissionChangeEntry) GetStaker() string {
 	return ""
 }
 
+func (m *CommissionChangeEntry) GetPoolId() uint64 {
+	if m != nil {
+		return m.PoolId
+	}
+	return 0
+}
+
 func (m *CommissionChangeEntry) GetCreationDate() int64 {
+	if m != nil {
+		return m.CreationDate
+	}
+	return 0
+}
+
+// StakeFractionChangeEntry stores the information for an
+// upcoming stake fraction change. A stake fraction change is
+// only instant if it gets increased, if it gets decreased
+// the staker needs to wait for the stake fraction change time
+type StakeFractionChangeEntry struct {
+	// index is needed for the queue-algorithm which
+	// processes the commission changes
+	Index uint64 `protobuf:"varint,1,opt,name=index,proto3" json:"index,omitempty"`
+	// staker is the address of the affected staker
+	Staker string `protobuf:"bytes,2,opt,name=staker,proto3" json:"staker,omitempty"`
+	// pool_id ...
+	PoolId uint64 `protobuf:"varint,3,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
+	// stake_fraction is the new stake fraction which will
+	// be applied after the waiting time is over.
+	StakeFraction cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=stake_fraction,json=stakeFraction,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"stake_fraction"`
+	// creation_date is the UNIX-timestamp in seconds
+	// when the entry was created.
+	CreationDate int64 `protobuf:"varint,5,opt,name=creation_date,json=creationDate,proto3" json:"creation_date,omitempty"`
+}
+
+func (m *StakeFractionChangeEntry) Reset()         { *m = StakeFractionChangeEntry{} }
+func (m *StakeFractionChangeEntry) String() string { return proto.CompactTextString(m) }
+func (*StakeFractionChangeEntry) ProtoMessage()    {}
+func (*StakeFractionChangeEntry) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d209d1a2a74d375d, []int{3}
+}
+func (m *StakeFractionChangeEntry) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *StakeFractionChangeEntry) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_StakeFractionChangeEntry.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *StakeFractionChangeEntry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StakeFractionChangeEntry.Merge(m, src)
+}
+func (m *StakeFractionChangeEntry) XXX_Size() int {
+	return m.Size()
+}
+func (m *StakeFractionChangeEntry) XXX_DiscardUnknown() {
+	xxx_messageInfo_StakeFractionChangeEntry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StakeFractionChangeEntry proto.InternalMessageInfo
+
+func (m *StakeFractionChangeEntry) GetIndex() uint64 {
+	if m != nil {
+		return m.Index
+	}
+	return 0
+}
+
+func (m *StakeFractionChangeEntry) GetStaker() string {
+	if m != nil {
+		return m.Staker
+	}
+	return ""
+}
+
+func (m *StakeFractionChangeEntry) GetPoolId() uint64 {
+	if m != nil {
+		return m.PoolId
+	}
+	return 0
+}
+
+func (m *StakeFractionChangeEntry) GetCreationDate() int64 {
 	if m != nil {
 		return m.CreationDate
 	}
@@ -311,7 +446,7 @@ func (m *LeavePoolEntry) Reset()         { *m = LeavePoolEntry{} }
 func (m *LeavePoolEntry) String() string { return proto.CompactTextString(m) }
 func (*LeavePoolEntry) ProtoMessage()    {}
 func (*LeavePoolEntry) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d209d1a2a74d375d, []int{3}
+	return fileDescriptor_d209d1a2a74d375d, []int{4}
 }
 func (m *LeavePoolEntry) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -383,7 +518,7 @@ func (m *QueueState) Reset()         { *m = QueueState{} }
 func (m *QueueState) String() string { return proto.CompactTextString(m) }
 func (*QueueState) ProtoMessage()    {}
 func (*QueueState) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d209d1a2a74d375d, []int{4}
+	return fileDescriptor_d209d1a2a74d375d, []int{5}
 }
 func (m *QueueState) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -427,9 +562,11 @@ func (m *QueueState) GetHighIndex() uint64 {
 }
 
 func init() {
+	proto.RegisterEnum("kyve.stakers.v1beta1.SlashType", SlashType_name, SlashType_value)
 	proto.RegisterType((*Staker)(nil), "kyve.stakers.v1beta1.Staker")
-	proto.RegisterType((*Valaccount)(nil), "kyve.stakers.v1beta1.Valaccount")
+	proto.RegisterType((*PoolAccount)(nil), "kyve.stakers.v1beta1.PoolAccount")
 	proto.RegisterType((*CommissionChangeEntry)(nil), "kyve.stakers.v1beta1.CommissionChangeEntry")
+	proto.RegisterType((*StakeFractionChangeEntry)(nil), "kyve.stakers.v1beta1.StakeFractionChangeEntry")
 	proto.RegisterType((*LeavePoolEntry)(nil), "kyve.stakers.v1beta1.LeavePoolEntry")
 	proto.RegisterType((*QueueState)(nil), "kyve.stakers.v1beta1.QueueState")
 }
@@ -439,46 +576,55 @@ func init() {
 }
 
 var fileDescriptor_d209d1a2a74d375d = []byte{
-	// 612 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x54, 0xcd, 0x6e, 0xd3, 0x40,
-	0x10, 0x8e, 0x9b, 0x36, 0x4d, 0x86, 0xdf, 0x5a, 0x05, 0x4c, 0xab, 0xba, 0x55, 0x7a, 0x29, 0x08,
-	0x6c, 0x15, 0xc4, 0x0b, 0x34, 0x2d, 0xa2, 0xa2, 0x42, 0xe0, 0x4a, 0x95, 0xe0, 0x12, 0x6d, 0xd6,
-	0x23, 0x67, 0x15, 0x7b, 0x37, 0xf2, 0x6e, 0x92, 0x46, 0x42, 0xe2, 0x15, 0x38, 0xf0, 0x10, 0x88,
-	0x0b, 0x3c, 0x46, 0x8f, 0x3d, 0x22, 0x0e, 0x05, 0x35, 0x07, 0x9e, 0x02, 0x09, 0xed, 0xae, 0x9d,
-	0xa6, 0x07, 0x24, 0xd4, 0x8b, 0xbd, 0xdf, 0xf7, 0xcd, 0xce, 0xcc, 0x7e, 0x3b, 0x36, 0x34, 0x7b,
-	0xe3, 0x21, 0x86, 0x52, 0x91, 0x1e, 0xe6, 0x32, 0x1c, 0x6e, 0x77, 0x50, 0x91, 0xed, 0x12, 0x07,
-	0xfd, 0x5c, 0x28, 0xe1, 0x2e, 0xeb, 0x98, 0xa0, 0xe4, 0x8a, 0x98, 0x95, 0x25, 0x92, 0x31, 0x2e,
-	0x42, 0xf3, 0xb4, 0x81, 0x2b, 0x3e, 0x15, 0x32, 0x13, 0x32, 0xec, 0x10, 0x89, 0xd3, 0x5c, 0x54,
-	0x30, 0x5e, 0xe8, 0xcb, 0x89, 0x48, 0x84, 0x59, 0x86, 0x7a, 0x65, 0xd9, 0xe6, 0x9f, 0x39, 0xa8,
-	0x1d, 0x9a, 0xe4, 0xae, 0x07, 0x8b, 0x24, 0x8e, 0x73, 0x94, 0xd2, 0x73, 0x36, 0x9c, 0xad, 0x46,
-	0x54, 0x42, 0xb7, 0x05, 0x40, 0x45, 0x96, 0x31, 0x29, 0x99, 0xe0, 0xde, 0x9c, 0x16, 0x77, 0x36,
-	0x4f, 0xce, 0xd6, 0x2b, 0x3f, 0xce, 0xd6, 0x57, 0x6d, 0x59, 0x19, 0xf7, 0x02, 0x26, 0xc2, 0x8c,
-	0xa8, 0x6e, 0x70, 0x80, 0x09, 0xa1, 0xe3, 0x5d, 0xa4, 0xd1, 0xcc, 0x36, 0x9d, 0x3e, 0x13, 0x9c,
-	0xf5, 0x30, 0xf7, 0xaa, 0x36, 0x7d, 0x01, 0xb5, 0x32, 0xc2, 0x8e, 0x64, 0x0a, 0xbd, 0x79, 0xab,
-	0x14, 0xd0, 0x5d, 0x81, 0x3a, 0x8b, 0x91, 0x2b, 0xa6, 0xc6, 0xde, 0x82, 0x91, 0xa6, 0xd8, 0x7d,
-	0x00, 0xb7, 0x25, 0xd2, 0x41, 0xce, 0xd4, 0xb8, 0x4d, 0x05, 0x57, 0x84, 0x2a, 0xaf, 0x66, 0x62,
-	0x6e, 0x95, 0x7c, 0xcb, 0xd2, 0xba, 0x40, 0x8c, 0x8a, 0xb0, 0x54, 0x7a, 0x8b, 0xb6, 0x40, 0x01,
-	0xdd, 0x0f, 0xe0, 0x5e, 0xb4, 0xd8, 0xce, 0x71, 0x44, 0xf2, 0x58, 0x7a, 0xf5, 0x8d, 0xea, 0xd6,
-	0xb5, 0x27, 0xf7, 0x03, 0x7b, 0xb4, 0x40, 0x3b, 0x5a, 0x3a, 0x1f, 0xb4, 0x04, 0xe3, 0x3b, 0xcf,
-	0xf4, 0xe1, 0xbf, 0xfc, 0x5c, 0xdf, 0x4a, 0x98, 0xea, 0x0e, 0x3a, 0x01, 0x15, 0x59, 0x58, 0xd8,
-	0x6f, 0x5f, 0x8f, 0x65, 0xdc, 0x0b, 0xd5, 0xb8, 0x8f, 0xd2, 0x6c, 0x90, 0x9f, 0x7f, 0x7f, 0x7b,
-	0xe8, 0x44, 0x4b, 0x17, 0xb5, 0x22, 0x5b, 0xaa, 0xf9, 0xc9, 0x01, 0x38, 0x22, 0x29, 0xa1, 0x54,
-	0x0c, 0xb8, 0x72, 0xef, 0xc1, 0x62, 0x5f, 0x88, 0xb4, 0xcd, 0x62, 0x73, 0x07, 0xf3, 0x51, 0x4d,
-	0xc3, 0xfd, 0xd8, 0xbd, 0x0b, 0x35, 0x3b, 0x03, 0xd6, 0xfe, 0xa8, 0x40, 0xae, 0x0f, 0x30, 0x24,
-	0x69, 0x79, 0x6f, 0xd6, 0xd8, 0x19, 0x46, 0xef, 0xeb, 0x0b, 0xc6, 0x95, 0x34, 0xd6, 0x9a, 0x7c,
-	0x1a, 0xb9, 0x6b, 0x00, 0x4c, 0xb6, 0x53, 0x24, 0x43, 0xc6, 0x13, 0xe3, 0x6d, 0x3d, 0x6a, 0x30,
-	0x79, 0x60, 0x89, 0xe6, 0x57, 0x07, 0xee, 0xb4, 0xa6, 0xcd, 0xb6, 0xba, 0x84, 0x27, 0xb8, 0xc7,
-	0x55, 0x3e, 0x76, 0x97, 0x61, 0x81, 0xf1, 0x18, 0x8f, 0x8b, 0xfe, 0x2c, 0xf8, 0x67, 0x7b, 0x97,
-	0x27, 0xa7, 0x7a, 0xb5, 0xc9, 0xd9, 0x84, 0x1b, 0x34, 0x47, 0xa2, 0xf4, 0x15, 0xc5, 0xa4, 0x98,
-	0x92, 0x6a, 0x74, 0xbd, 0x24, 0x77, 0x89, 0xc2, 0xe6, 0x7b, 0xb8, 0xa9, 0x9b, 0xc7, 0xd7, 0x42,
-	0xa4, 0x57, 0xe9, 0x74, 0xc6, 0xf9, 0xea, 0x25, 0xe7, 0xff, 0xab, 0xfa, 0x0b, 0x80, 0x37, 0x03,
-	0x1c, 0xe0, 0xa1, 0x22, 0x0a, 0xdd, 0x55, 0x68, 0xa4, 0x62, 0xd4, 0x9e, 0xad, 0x5e, 0x4f, 0xc5,
-	0x68, 0xdf, 0x34, 0xb0, 0x06, 0xd0, 0x65, 0x49, 0xb7, 0x50, 0xe7, 0x8c, 0xda, 0xd0, 0x8c, 0x91,
-	0x77, 0x9e, 0x9f, 0x9c, 0xfb, 0xce, 0xe9, 0xb9, 0xef, 0xfc, 0x3a, 0xf7, 0x9d, 0x8f, 0x13, 0xbf,
-	0x72, 0x3a, 0xf1, 0x2b, 0xdf, 0x27, 0x7e, 0xe5, 0xdd, 0xa3, 0x99, 0x61, 0x7b, 0xf9, 0xf6, 0x68,
-	0xef, 0x15, 0xaa, 0x91, 0xc8, 0x7b, 0x21, 0xed, 0x12, 0xc6, 0xc3, 0xe3, 0xe9, 0x7f, 0xc4, 0x8c,
-	0x5d, 0xa7, 0x66, 0xbe, 0xef, 0xa7, 0x7f, 0x03, 0x00, 0x00, 0xff, 0xff, 0x6c, 0xd5, 0x78, 0x96,
-	0x64, 0x04, 0x00, 0x00,
+	// 756 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x55, 0x4d, 0x4f, 0xdb, 0x48,
+	0x18, 0x8e, 0x93, 0x90, 0x8f, 0xe1, 0x2b, 0xcc, 0x42, 0xd6, 0x1b, 0x84, 0x61, 0xc3, 0x85, 0x45,
+	0xbb, 0xb6, 0xd8, 0xd5, 0xfe, 0x80, 0x90, 0x04, 0x91, 0x36, 0x85, 0xd4, 0x09, 0x48, 0xf4, 0x62,
+	0x4d, 0xec, 0x69, 0x32, 0x4a, 0xe2, 0x49, 0x3d, 0x13, 0x42, 0xa4, 0x4a, 0xbd, 0xf6, 0xd8, 0xff,
+	0xd0, 0x4b, 0xdb, 0x53, 0x7f, 0x06, 0x47, 0xd4, 0x53, 0xd5, 0x03, 0xad, 0xe0, 0xd0, 0x5f, 0x51,
+	0xa9, 0x9a, 0xb1, 0x13, 0x4c, 0x69, 0x25, 0x84, 0xda, 0x4b, 0x32, 0xcf, 0xfb, 0xcc, 0xfb, 0xbc,
+	0xf3, 0x3e, 0xef, 0x68, 0x0c, 0xf2, 0x9d, 0xd1, 0x31, 0x36, 0x18, 0x47, 0x1d, 0xec, 0x31, 0xe3,
+	0x78, 0xab, 0x89, 0x39, 0xda, 0x1a, 0x63, 0xbd, 0xef, 0x51, 0x4e, 0xe1, 0xa2, 0xd8, 0xa3, 0x8f,
+	0x63, 0xc1, 0x9e, 0xdc, 0x02, 0xea, 0x11, 0x97, 0x1a, 0xf2, 0xd7, 0xdf, 0x98, 0xd3, 0x6c, 0xca,
+	0x7a, 0x94, 0x19, 0x4d, 0xc4, 0xf0, 0x44, 0xcb, 0xa6, 0xc4, 0x0d, 0xf8, 0xc5, 0x16, 0x6d, 0x51,
+	0xb9, 0x34, 0xc4, 0xca, 0x8f, 0xe6, 0xbf, 0x44, 0x41, 0xa2, 0x2e, 0xc5, 0xa1, 0x0a, 0x92, 0xc8,
+	0x71, 0x3c, 0xcc, 0x98, 0xaa, 0xac, 0x29, 0x1b, 0x69, 0x73, 0x0c, 0x61, 0x11, 0x00, 0x9b, 0xf6,
+	0x7a, 0x84, 0x31, 0x42, 0x5d, 0x35, 0x2a, 0xc8, 0xed, 0xf5, 0xd3, 0xf3, 0xd5, 0xc8, 0x87, 0xf3,
+	0xd5, 0x65, 0xbf, 0x2c, 0x73, 0x3a, 0x3a, 0xa1, 0x46, 0x0f, 0xf1, 0xb6, 0x5e, 0xc5, 0x2d, 0x64,
+	0x8f, 0x4a, 0xd8, 0x36, 0x43, 0x69, 0x42, 0xbe, 0x47, 0x5d, 0xd2, 0xc1, 0x9e, 0x1a, 0xf3, 0xe5,
+	0x03, 0x28, 0x98, 0x21, 0x6e, 0x32, 0xc2, 0xb1, 0x1a, 0xf7, 0x99, 0x00, 0xc2, 0x1c, 0x48, 0x11,
+	0x07, 0xbb, 0x9c, 0xf0, 0x91, 0x3a, 0x25, 0xa9, 0x09, 0x86, 0x7f, 0x81, 0x0c, 0xc3, 0xf6, 0xc0,
+	0x23, 0x7c, 0x64, 0xd9, 0xd4, 0xe5, 0xc8, 0xe6, 0x6a, 0x42, 0xee, 0x99, 0x1f, 0xc7, 0x8b, 0x7e,
+	0x58, 0x14, 0x70, 0x30, 0x47, 0xa4, 0xcb, 0xd4, 0xa4, 0x5f, 0x20, 0x80, 0xf0, 0x19, 0x80, 0x57,
+	0x47, 0xb4, 0x3c, 0x3c, 0x44, 0x9e, 0xc3, 0xd4, 0xd4, 0x5a, 0x6c, 0x63, 0xfa, 0xdf, 0x3f, 0x74,
+	0xbf, 0x35, 0x5d, 0x38, 0x3a, 0x76, 0x5e, 0x2f, 0x52, 0xe2, 0x6e, 0xff, 0x2f, 0x9a, 0x7f, 0xf3,
+	0x71, 0x75, 0xa3, 0x45, 0x78, 0x7b, 0xd0, 0xd4, 0x6d, 0xda, 0x33, 0x02, 0xfb, 0xfd, 0xbf, 0x7f,
+	0x98, 0xd3, 0x31, 0xf8, 0xa8, 0x8f, 0x99, 0x4c, 0x60, 0xaf, 0x3e, 0xbf, 0xdd, 0x54, 0xcc, 0x85,
+	0xab, 0x5a, 0xa6, 0x5f, 0x2a, 0xff, 0x3a, 0x0a, 0xa6, 0x6b, 0x94, 0x76, 0x0b, 0xb6, 0x4d, 0x07,
+	0x2e, 0x87, 0xbf, 0x83, 0x64, 0x9f, 0xd2, 0xae, 0x45, 0x1c, 0x39, 0x84, 0xb8, 0x99, 0x10, 0xb0,
+	0xe2, 0xc0, 0x2c, 0x48, 0xf8, 0x97, 0xc0, 0xf7, 0xdf, 0x0c, 0x10, 0xfc, 0x13, 0xcc, 0xc8, 0x84,
+	0xf1, 0xe8, 0x7c, 0x6f, 0xa7, 0x45, 0xac, 0x10, 0x8c, 0x2f, 0x0b, 0x12, 0x7d, 0x4a, 0x5c, 0xce,
+	0xa4, 0xbd, 0x52, 0x52, 0x20, 0xb8, 0x02, 0x00, 0x61, 0x56, 0x17, 0xa3, 0x63, 0xe2, 0xb6, 0xa4,
+	0xbf, 0x29, 0x33, 0x4d, 0x58, 0xd5, 0x0f, 0x7c, 0x33, 0xf5, 0xc4, 0xdd, 0xa6, 0x7e, 0x0f, 0xcc,
+	0xc9, 0x83, 0x5a, 0x8f, 0x3d, 0x64, 0x73, 0x21, 0x94, 0xbc, 0xbd, 0xd0, 0xac, 0x4c, 0xdd, 0x09,
+	0x32, 0xf3, 0xa7, 0x0a, 0x58, 0x2a, 0x4e, 0xa4, 0x8b, 0x6d, 0xe4, 0xb6, 0x70, 0xd9, 0xe5, 0xde,
+	0x08, 0x2e, 0x82, 0x29, 0xe2, 0x3a, 0xf8, 0x24, 0xf0, 0xcc, 0x07, 0x3f, 0xb4, 0x2c, 0xe4, 0x71,
+	0xec, 0x9a, 0xc7, 0xd7, 0x3b, 0x8e, 0xdf, 0xad, 0xe3, 0x75, 0x30, 0x6b, 0x7b, 0x18, 0x89, 0x13,
+	0x5b, 0x0e, 0xe2, 0x58, 0x1a, 0x1b, 0x33, 0x67, 0xc6, 0xc1, 0x12, 0xe2, 0x38, 0xff, 0x4e, 0x01,
+	0x6a, 0x3d, 0xdc, 0xdc, 0x2f, 0xe8, 0xe6, 0xa6, 0xf5, 0xf1, 0xbb, 0x5a, 0x7f, 0xbb, 0xa6, 0x9e,
+	0x82, 0x39, 0x71, 0x77, 0xb0, 0xb8, 0xcf, 0x3f, 0xb5, 0x93, 0x1b, 0xd5, 0xe3, 0xdf, 0xa9, 0xbe,
+	0x0b, 0xc0, 0xc3, 0x01, 0x1e, 0xe0, 0x3a, 0x47, 0x1c, 0xc3, 0x65, 0x90, 0xee, 0xd2, 0xa1, 0x15,
+	0xae, 0x9e, 0xea, 0xd2, 0x61, 0x45, 0x1e, 0x60, 0x05, 0x80, 0x36, 0x69, 0xb5, 0x03, 0x36, 0x2a,
+	0xd9, 0xb4, 0x88, 0x48, 0x7a, 0xf3, 0x09, 0x48, 0xd7, 0xbb, 0x88, 0xb5, 0x1b, 0xa3, 0xbe, 0x78,
+	0x82, 0xb2, 0xf5, 0x6a, 0xa1, 0xbe, 0x6b, 0x35, 0x8e, 0x6a, 0x65, 0xeb, 0x60, 0xaf, 0x5e, 0x2b,
+	0x17, 0x2b, 0x3b, 0x95, 0x72, 0x29, 0x13, 0x81, 0x59, 0x00, 0x43, 0x5c, 0xa3, 0xf2, 0xa0, 0xbc,
+	0x7f, 0xd0, 0xc8, 0x28, 0xf0, 0x37, 0x30, 0x1f, 0x8a, 0x1f, 0xee, 0x37, 0xca, 0x99, 0x28, 0x5c,
+	0x02, 0x0b, 0x61, 0xa1, 0x5a, 0x75, 0xbf, 0x50, 0xca, 0xc4, 0x72, 0xf1, 0xe7, 0x2f, 0xb5, 0xc8,
+	0xf6, 0xce, 0xe9, 0x85, 0xa6, 0x9c, 0x5d, 0x68, 0xca, 0xa7, 0x0b, 0x4d, 0x79, 0x71, 0xa9, 0x45,
+	0xce, 0x2e, 0xb5, 0xc8, 0xfb, 0x4b, 0x2d, 0xf2, 0xe8, 0xef, 0xd0, 0x13, 0x73, 0xff, 0xe8, 0xb0,
+	0xbc, 0x87, 0xf9, 0x90, 0x7a, 0x1d, 0xc3, 0x6e, 0x23, 0xe2, 0x1a, 0x27, 0x93, 0xaf, 0x87, 0x7c,
+	0x6c, 0x9a, 0x09, 0xf9, 0xaa, 0xff, 0xf7, 0x35, 0x00, 0x00, 0xff, 0xff, 0x31, 0xd2, 0xb6, 0x78,
+	0x5a, 0x06, 0x00, 0x00,
 }
 
 func (m *Staker) Marshal() (dAtA []byte, err error) {
@@ -570,7 +716,7 @@ func (m *Staker) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *Valaccount) Marshal() (dAtA []byte, err error) {
+func (m *PoolAccount) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -580,16 +726,36 @@ func (m *Valaccount) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *Valaccount) MarshalTo(dAtA []byte) (int, error) {
+func (m *PoolAccount) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *Valaccount) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *PoolAccount) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	{
+		size := m.StakeFraction.Size()
+		i -= size
+		if _, err := m.StakeFraction.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintStakers(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x3a
+	{
+		size := m.Commission.Size()
+		i -= size
+		if _, err := m.Commission.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintStakers(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x32
 	if m.IsLeaving {
 		i--
 		if m.IsLeaving {
@@ -605,10 +771,10 @@ func (m *Valaccount) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x20
 	}
-	if len(m.Valaddress) > 0 {
-		i -= len(m.Valaddress)
-		copy(dAtA[i:], m.Valaddress)
-		i = encodeVarintStakers(dAtA, i, uint64(len(m.Valaddress)))
+	if len(m.PoolAddress) > 0 {
+		i -= len(m.PoolAddress)
+		copy(dAtA[i:], m.PoolAddress)
+		i = encodeVarintStakers(dAtA, i, uint64(len(m.PoolAddress)))
 		i--
 		dAtA[i] = 0x1a
 	}
@@ -650,7 +816,7 @@ func (m *CommissionChangeEntry) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	if m.CreationDate != 0 {
 		i = encodeVarintStakers(dAtA, i, uint64(m.CreationDate))
 		i--
-		dAtA[i] = 0x20
+		dAtA[i] = 0x28
 	}
 	{
 		size := m.Commission.Size()
@@ -661,7 +827,67 @@ func (m *CommissionChangeEntry) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintStakers(dAtA, i, uint64(size))
 	}
 	i--
-	dAtA[i] = 0x1a
+	dAtA[i] = 0x22
+	if m.PoolId != 0 {
+		i = encodeVarintStakers(dAtA, i, uint64(m.PoolId))
+		i--
+		dAtA[i] = 0x18
+	}
+	if len(m.Staker) > 0 {
+		i -= len(m.Staker)
+		copy(dAtA[i:], m.Staker)
+		i = encodeVarintStakers(dAtA, i, uint64(len(m.Staker)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.Index != 0 {
+		i = encodeVarintStakers(dAtA, i, uint64(m.Index))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *StakeFractionChangeEntry) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *StakeFractionChangeEntry) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *StakeFractionChangeEntry) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.CreationDate != 0 {
+		i = encodeVarintStakers(dAtA, i, uint64(m.CreationDate))
+		i--
+		dAtA[i] = 0x28
+	}
+	{
+		size := m.StakeFraction.Size()
+		i -= size
+		if _, err := m.StakeFraction.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintStakers(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x22
+	if m.PoolId != 0 {
+		i = encodeVarintStakers(dAtA, i, uint64(m.PoolId))
+		i--
+		dAtA[i] = 0x18
+	}
 	if len(m.Staker) > 0 {
 		i -= len(m.Staker)
 		copy(dAtA[i:], m.Staker)
@@ -807,7 +1033,7 @@ func (m *Staker) Size() (n int) {
 	return n
 }
 
-func (m *Valaccount) Size() (n int) {
+func (m *PoolAccount) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -820,7 +1046,7 @@ func (m *Valaccount) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovStakers(uint64(l))
 	}
-	l = len(m.Valaddress)
+	l = len(m.PoolAddress)
 	if l > 0 {
 		n += 1 + l + sovStakers(uint64(l))
 	}
@@ -830,6 +1056,10 @@ func (m *Valaccount) Size() (n int) {
 	if m.IsLeaving {
 		n += 2
 	}
+	l = m.Commission.Size()
+	n += 1 + l + sovStakers(uint64(l))
+	l = m.StakeFraction.Size()
+	n += 1 + l + sovStakers(uint64(l))
 	return n
 }
 
@@ -846,7 +1076,34 @@ func (m *CommissionChangeEntry) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovStakers(uint64(l))
 	}
+	if m.PoolId != 0 {
+		n += 1 + sovStakers(uint64(m.PoolId))
+	}
 	l = m.Commission.Size()
+	n += 1 + l + sovStakers(uint64(l))
+	if m.CreationDate != 0 {
+		n += 1 + sovStakers(uint64(m.CreationDate))
+	}
+	return n
+}
+
+func (m *StakeFractionChangeEntry) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Index != 0 {
+		n += 1 + sovStakers(uint64(m.Index))
+	}
+	l = len(m.Staker)
+	if l > 0 {
+		n += 1 + l + sovStakers(uint64(l))
+	}
+	if m.PoolId != 0 {
+		n += 1 + sovStakers(uint64(m.PoolId))
+	}
+	l = m.StakeFraction.Size()
 	n += 1 + l + sovStakers(uint64(l))
 	if m.CreationDate != 0 {
 		n += 1 + sovStakers(uint64(m.CreationDate))
@@ -1207,7 +1464,7 @@ func (m *Staker) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *Valaccount) Unmarshal(dAtA []byte) error {
+func (m *PoolAccount) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1230,10 +1487,10 @@ func (m *Valaccount) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: Valaccount: wiretype end group for non-group")
+			return fmt.Errorf("proto: PoolAccount: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Valaccount: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: PoolAccount: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1289,7 +1546,7 @@ func (m *Valaccount) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Valaddress", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field PoolAddress", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1317,7 +1574,7 @@ func (m *Valaccount) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Valaddress = string(dAtA[iNdEx:postIndex])
+			m.PoolAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 4:
 			if wireType != 0 {
@@ -1358,6 +1615,74 @@ func (m *Valaccount) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.IsLeaving = bool(v != 0)
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Commission", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStakers
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStakers
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStakers
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Commission.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StakeFraction", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStakers
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStakers
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStakers
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.StakeFraction.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipStakers(dAtA[iNdEx:])
@@ -1460,6 +1785,25 @@ func (m *CommissionChangeEntry) Unmarshal(dAtA []byte) error {
 			m.Staker = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PoolId", wireType)
+			}
+			m.PoolId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStakers
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.PoolId |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Commission", wireType)
 			}
@@ -1493,7 +1837,180 @@ func (m *CommissionChangeEntry) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CreationDate", wireType)
+			}
+			m.CreationDate = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStakers
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.CreationDate |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipStakers(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthStakers
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *StakeFractionChangeEntry) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowStakers
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: StakeFractionChangeEntry: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: StakeFractionChangeEntry: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Index", wireType)
+			}
+			m.Index = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStakers
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Index |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Staker", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStakers
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStakers
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStakers
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Staker = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PoolId", wireType)
+			}
+			m.PoolId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStakers
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.PoolId |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StakeFraction", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStakers
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStakers
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStakers
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.StakeFraction.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CreationDate", wireType)
 			}
