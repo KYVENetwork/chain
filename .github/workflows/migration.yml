@@ -11,5 +11,5 @@ jobs:
         uses: actions/checkout@v4
       # Setup Golang
       - name: Verify migration proofs
-        working-directory: ./app/upgrades/v2_0/validator_proofs
+        working-directory: ./app/upgrades/v2_0/validator-proofs
         run: python3 verify.py
