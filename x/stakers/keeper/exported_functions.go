@@ -40,8 +40,7 @@ func (k Keeper) LeavePool(ctx sdk.Context, stakerAddress string, poolId uint64) 
 // which have currently a pool account registered for the given pool
 // and are therefore allowed to participate in that pool.
 func (k Keeper) GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (stakers []string) {
-	poolAccounts := k.GetAllPoolAccountsOfPool(ctx, poolId)
-	for _, poolAccount := range poolAccounts {
+	for _, poolAccount := range k.GetAllPoolAccountsOfPool(ctx, poolId) {
 		stakers = append(stakers, poolAccount.Staker)
 	}
 
@@ -137,8 +136,7 @@ func (k Keeper) AssertPoolAccountAuthorized(ctx sdk.Context, stakerAddress strin
 // GetTotalStakeOfPool returns the amount in uykve which actively secures
 // the given pool
 func (k Keeper) GetTotalStakeOfPool(ctx sdk.Context, poolId uint64) (totalStake uint64) {
-	effectiveStakes := k.GetValidatorPoolStakes(ctx, poolId)
-	for _, stake := range effectiveStakes {
+	for _, stake := range k.GetValidatorPoolStakes(ctx, poolId) {
 		totalStake += stake
 	}
 	return
@@ -184,8 +182,7 @@ func (k Keeper) GetValidatorPoolStake(ctx sdk.Context, stakerAddress string, poo
 
 // GetValidatorTotalPoolStake returns the total stake the validator has combined in every pool
 func (k Keeper) GetValidatorTotalPoolStake(ctx sdk.Context, staker string) (totalStake uint64) {
-	poolAccounts := k.GetPoolAccountsFromStaker(ctx, staker)
-	for _, poolAccount := range poolAccounts {
+	for _, poolAccount := range k.GetPoolAccountsFromStaker(ctx, staker) {
 		totalStake += k.GetValidatorPoolStake(ctx, poolAccount.Staker, poolAccount.PoolId)
 	}
 

@@ -176,8 +176,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		Expect(found).To(BeFalse())
 
 		// check that no validator got a point for the second round
-		poolAccounts := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
-		for _, poolAccount := range poolAccounts {
+		for _, poolAccount := range s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0) {
 			Expect(poolAccount.Points).To(BeZero())
 		}
 	})
@@ -248,8 +247,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		Expect(found).To(BeFalse())
 
 		// check that no validator got a point for the second round
-		poolAccounts := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
-		for _, poolAccount := range poolAccounts {
+		for _, poolAccount := range s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0) {
 			Expect(poolAccount.Points).To(BeZero())
 		}
 	})
@@ -297,8 +295,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		Expect(found).To(BeFalse())
 
 		// check that no validator got a point for the second round
-		poolAccounts := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
-		for _, poolAccount := range poolAccounts {
+		for _, poolAccount := range s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0) {
 			if poolAccount.Staker == i.STAKER_0 {
 				Expect(poolAccount.Points).To(BeZero())
 			} else {
@@ -364,8 +361,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		Expect(finalizedBundle.Uploader).To(Equal(i.STAKER_0))
 
 		// check if no validator got a point for the second round
-		poolAccounts := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
-		for _, poolAccount := range poolAccounts {
+		for _, poolAccount := range s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0) {
 			Expect(poolAccount.Points).To(BeZero())
 		}
 	})
@@ -423,8 +419,7 @@ var _ = Describe("msg_server_skip_uploader_role.go", Ordered, func() {
 		Expect(found).To(BeFalse())
 
 		// check that no validator got a point
-		poolAccounts := s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0)
-		for _, poolAccount := range poolAccounts {
+		for _, poolAccount := range s.App().StakersKeeper.GetAllPoolAccountsOfPool(s.Ctx(), 0) {
 			Expect(poolAccount.Points).To(BeZero())
 		}
 	})
