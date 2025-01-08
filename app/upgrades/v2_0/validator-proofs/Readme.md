@@ -11,19 +11,21 @@ all stake is returned to the original delegators during the migration.
 
 ### Steps
 
-1. 	Enter the `mainnet`-directory and copy the `example-validator.json` config file and name it after your validator.
+1. 	Enter the `mainnet`-directory and copy an existing config file and name it after your validator.
 
 2.  Fill out the `name`, `protocol_address` and `consensus_address`
 
 3.  Send 1 $KYVE from the protocol-address to the consensus-validator-operator address using the memo "Shared-Staking"
     and put the tx-hash in proof_1.
 
-4.  Send 1 $KYVE from the consensus-validator-operator address to the protocol address using the memo "Shared-Staking"
+4.  Send 1 $KYVE from the consensus-validator-operator address to the protocol-address using the memo "Shared-Staking"
     and put the tx-hash in proof_2.
 
 5.  Submit a Pull-Request to https://github.com/KYVENetwork/chain
 
-6.  (Optional) Perform the same steps for the `kaon` directory with your Kaon validators.
+6.  (Optional) Perform the same steps for the `kaon` directory with your Kaon validators. (Transactions must be submitted on the Kaon network.)
+
+7.  Check if the GitHub action (verify-migration-proofs) is passing. You can also run `python3 verify.py` locally to check if everything is correct.
 
 ## General Upgrade Procedure
 
