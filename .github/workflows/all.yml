@@ -2,12 +2,11 @@ name: run all jobs
 on: push
 
 jobs:
-  migration:
+  verify-migration-proofs:
     uses: ./.github/workflows/migration.yml
 
-  # TODO tmp disable
-#  lint:
-#    uses: ./.github/workflows/lint.yml
-#
-#  test:
-#    uses: ./.github/workflows/test.yml
+  lint:
+    uses: ./.github/workflows/lint.yml
+
+  test:
+    uses: ./.github/workflows/test.yml
