@@ -9,7 +9,9 @@ jobs:
       # Checkout the repository
       - name: Check out repository code
         uses: actions/checkout@v4
-      # Setup Golang
+      # Setup Python
+      - name: Install dependencies
+        run: pip3 install bech32 requests
       - name: Verify migration proofs
         working-directory: ./app/upgrades/v2_0/validator-proofs
         run: python3 verify.py
