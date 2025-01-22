@@ -20,8 +20,13 @@ func (k Keeper) StakersByPoolCount(c context.Context, req *types.QueryStakersByP
 	data := make([]types.FullStaker, 0)
 
 	accumulator := func(address string, accumulate bool) bool {
+		fullStaker, err := k.GetFullStaker(ctx, address)
+		if err != nil {
+			return false
+		}
+
 		if accumulate {
-			data = append(data, *k.GetFullStaker(ctx, address))
+			data = append(data, *fullStaker)
 		}
 		return true
 	}

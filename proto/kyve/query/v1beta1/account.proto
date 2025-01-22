@@ -38,18 +38,24 @@ message QueryAccountAssetsRequest {
 message QueryAccountAssetsResponse {
   // balance ...
   uint64 balance = 1;
-  // protocol_staking ...
+  // delegation is the amount in $KYVE this account has in total delegated ...
   uint64 delegation = 2;
-  // protocol_staking_unbonding ...
+  // delegation_unbonding is the amount in $KYVE this account has in total currently unbonding ...
   uint64 delegation_unbonding = 3;
-  // protocol_rewards ...
-  repeated cosmos.base.v1beta1.Coin outstanding_rewards = 6 [
+  // delegation_rewards are the current unclaimed delegation rewards
+  repeated cosmos.base.v1beta1.Coin delegation_rewards = 6 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // commission_rewards are the current unclaimed commission rewards
+  repeated cosmos.base.v1beta1.Coin commission_rewards = 7 [
     (gogoproto.nullable) = false,
     (amino.dont_omitempty) = true,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
   // protocol_funding ...
-  repeated cosmos.base.v1beta1.Coin protocol_funding = 7 [
+  repeated cosmos.base.v1beta1.Coin protocol_funding = 8 [
     (gogoproto.nullable) = false,
     (amino.dont_omitempty) = true,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"

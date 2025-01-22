@@ -157,7 +157,7 @@ genesis:
           total_bundles: "0"
           upload_interval: "60"
           protocol:
-            version: "1.1.6"
+            version: "1.2.8"
             binaries: "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.1.6/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.1.6/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.1.6/kyve-macos-x64.zip\"}"
             last_upgrade: "0"
           upgrade_plan:
