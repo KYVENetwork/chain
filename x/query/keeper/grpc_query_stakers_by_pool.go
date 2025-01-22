@@ -24,8 +24,7 @@ func (k Keeper) StakersByPool(c context.Context, req *types.QueryStakersByPoolRe
 
 	stakers := make([]types.FullStaker, 0)
 
-	poolAccounts := k.stakerKeeper.GetAllPoolAccountsOfPool(ctx, req.PoolId)
-	for _, poolAccount := range poolAccounts {
+	for _, poolAccount := range k.stakerKeeper.GetAllPoolAccountsOfPool(ctx, req.PoolId) {
 		fullStaker, err := k.GetFullStaker(ctx, poolAccount.Staker)
 		if err != nil {
 			return nil, err
