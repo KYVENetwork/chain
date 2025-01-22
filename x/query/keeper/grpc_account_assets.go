@@ -39,7 +39,7 @@ func (k Keeper) AccountAssets(goCtx context.Context, req *types.QueryAccountAsse
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	validators, err := k.stakingKeeper.GetDelegatorValidators(ctx, delegatorAddr, ^uint32(0))
+	validators, err := k.stakingKeeper.GetDelegatorValidators(ctx, delegatorAddr, 1000)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}

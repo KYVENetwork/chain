@@ -40,6 +40,7 @@ type StakingKeeper interface {
 	Slash(ctx context.Context, consAddr sdk.ConsAddress, infractionHeight, power int64, slashFactor math.LegacyDec) (math.Int, error)
 	GetValidator(ctx context.Context, addr sdk.ValAddress) (validator stakingtypes.Validator, err error)
 	GetBondedValidatorsByPower(ctx context.Context) ([]stakingtypes.Validator, error)
+	GetValidators(ctx context.Context, maxRetrieve uint32) (validators []stakingtypes.Validator, err error)
 	PowerReduction(ctx context.Context) math.Int
 	SetHooks(sh stakingtypes.StakingHooks)
 	Delegation(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (stakingtypes.DelegationI, error)
