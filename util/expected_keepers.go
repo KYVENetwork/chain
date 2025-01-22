@@ -2,6 +2,7 @@ package util
 
 import (
 	"context"
+
 	"cosmossdk.io/core/address"
 	"cosmossdk.io/math"
 	distributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"

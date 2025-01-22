@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"cosmossdk.io/math"
+
 	"github.com/KYVENetwork/chain/util"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
@@ -10,14 +11,14 @@ import (
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.FullStaker {
+func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) (*types.FullStaker, error) {
 	valAddress, err := sdk.ValAddressFromBech32(util.MustValaddressFromOperatorAddress(stakerAddress))
 	if err != nil {
-		return &types.FullStaker{}
+		return nil, err
 	}
 	validator, err := k.stakingKeeper.GetValidator(ctx, valAddress)
 	if err != nil {
-		return &types.FullStaker{}
+		return nil, err
 	}
 
 	validatorAccAddress, _ := sdk.AccAddressFromBech32(stakerAddress)
@@ -31,22 +32,23 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 		return false
 	})
 	if err != nil {
-		return &types.FullStaker{}
+		return nil, err
 	}
 
 	validatorDelegations, err := k.stakingKeeper.GetValidatorDelegations(ctx, valAddress)
 	if err != nil {
-		return &types.FullStaker{}
+		return nil, err
 	}
 
-	validatorSelfDelegation, err := k.stakingKeeper.GetDelegation(ctx, validatorAccAddress, valAddress)
-	if err != nil {
-		return &types.FullStaker{}
+	validatorSelfDelegation := uint64(0)
+
+	if d, err := k.stakingKeeper.GetDelegation(ctx, validatorAccAddress, valAddress); err == nil {
+		validatorSelfDelegation = uint64(validator.TokensFromSharesTruncated(d.Shares).TruncateInt64())
 	}
 
 	validatorCommissionRewards, err := k.distrkeeper.GetValidatorAccumulatedCommission(ctx, valAddress)
 	if err != nil {
-		return &types.FullStaker{}
+		return nil, err
 	}
 
 	var poolMemberships []*types.PoolMembership
@@ -110,11 +112,11 @@ func (k Keeper) GetFullStaker(ctx sdk.Context, stakerAddress string) *types.Full
 		Validator:                  &validator,
 		ValidatorDelegators:        uint64(len(validatorDelegations)),
 		ValidatorUnbonding:         validatorUnbonding.Uint64(),
-		ValidatorSelfDelegation:    uint64(validator.TokensFromSharesTruncated(validatorSelfDelegation.Shares).TruncateInt64()),
+		ValidatorSelfDelegation:    validatorSelfDelegation,
 		ValidatorTotalPoolStake:    validatorTotalPoolStake,
 		ValidatorCommissionRewards: util.TruncateDecCoins(validatorCommissionRewards.Commission),
 		Pools:                      poolMemberships,
-	}
+	}, nil
 }
 
 func (k Keeper) GetPoolStatus(ctx sdk.Context, pool *pooltypes.Pool) pooltypes.PoolStatus {
