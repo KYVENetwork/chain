@@ -186,6 +186,7 @@ func (suite *KeeperTestSuite) VerifyPoolTotalStake() {
 func (suite *KeeperTestSuite) VerifyStakersQueries() {
 	validators, _ := suite.App().StakingKeeper.GetBondedValidatorsByPower(suite.Ctx())
 	stakersQuery, stakersQueryErr := suite.App().QueryKeeper.Stakers(suite.Ctx(), &querytypes.QueryStakersRequest{
+		Status: querytypes.STAKER_STATUS_CHAIN_ACTIVE,
 		Pagination: &query.PageRequest{
 			Limit: 1000,
 		},
