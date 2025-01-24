@@ -6,6 +6,9 @@ package types
 import (
 	context "context"
 	fmt "fmt"
+	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+	types "github.com/cosmos/cosmos-sdk/types"
+	_ "github.com/cosmos/cosmos-sdk/types/tx/amino"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"
@@ -112,34 +115,240 @@ func (m *QueryParamsResponse) GetParams() Params {
 	return Params{}
 }
 
+// QueryMultiCoinRefundPolicyRequest ...
+type QueryMultiCoinRefundPolicyRequest struct {
+}
+
+func (m *QueryMultiCoinRefundPolicyRequest) Reset()         { *m = QueryMultiCoinRefundPolicyRequest{} }
+func (m *QueryMultiCoinRefundPolicyRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryMultiCoinRefundPolicyRequest) ProtoMessage()    {}
+func (*QueryMultiCoinRefundPolicyRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_6c1bf6f190db35c0, []int{2}
+}
+func (m *QueryMultiCoinRefundPolicyRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryMultiCoinRefundPolicyRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryMultiCoinRefundPolicyRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryMultiCoinRefundPolicyRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryMultiCoinRefundPolicyRequest.Merge(m, src)
+}
+func (m *QueryMultiCoinRefundPolicyRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryMultiCoinRefundPolicyRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryMultiCoinRefundPolicyRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryMultiCoinRefundPolicyRequest proto.InternalMessageInfo
+
+// QueryMultiCoinRefundPolicyResponse ...
+type QueryMultiCoinRefundPolicyResponse struct {
+	// params holds all the parameters of this module.
+	Policy MultiCoinRefundPolicy `protobuf:"bytes,1,opt,name=policy,proto3" json:"policy"`
+}
+
+func (m *QueryMultiCoinRefundPolicyResponse) Reset()         { *m = QueryMultiCoinRefundPolicyResponse{} }
+func (m *QueryMultiCoinRefundPolicyResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryMultiCoinRefundPolicyResponse) ProtoMessage()    {}
+func (*QueryMultiCoinRefundPolicyResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_6c1bf6f190db35c0, []int{3}
+}
+func (m *QueryMultiCoinRefundPolicyResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryMultiCoinRefundPolicyResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryMultiCoinRefundPolicyResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryMultiCoinRefundPolicyResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryMultiCoinRefundPolicyResponse.Merge(m, src)
+}
+func (m *QueryMultiCoinRefundPolicyResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryMultiCoinRefundPolicyResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryMultiCoinRefundPolicyResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryMultiCoinRefundPolicyResponse proto.InternalMessageInfo
+
+func (m *QueryMultiCoinRefundPolicyResponse) GetPolicy() MultiCoinRefundPolicy {
+	if m != nil {
+		return m.Policy
+	}
+	return MultiCoinRefundPolicy{}
+}
+
+// QueryMultiCoinRefundPolicyRequest ...
+type QueryMultiCoinStatusRequest struct {
+	// address ...
+	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+}
+
+func (m *QueryMultiCoinStatusRequest) Reset()         { *m = QueryMultiCoinStatusRequest{} }
+func (m *QueryMultiCoinStatusRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryMultiCoinStatusRequest) ProtoMessage()    {}
+func (*QueryMultiCoinStatusRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_6c1bf6f190db35c0, []int{4}
+}
+func (m *QueryMultiCoinStatusRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryMultiCoinStatusRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryMultiCoinStatusRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryMultiCoinStatusRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryMultiCoinStatusRequest.Merge(m, src)
+}
+func (m *QueryMultiCoinStatusRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryMultiCoinStatusRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryMultiCoinStatusRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryMultiCoinStatusRequest proto.InternalMessageInfo
+
+func (m *QueryMultiCoinStatusRequest) GetAddress() string {
+	if m != nil {
+		return m.Address
+	}
+	return ""
+}
+
+// QueryMultiCoinRefundPolicyResponse ...
+type QueryMultiCoinStatusResponse struct {
+	// enabled ...
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	// pending_multi_coin_rewards ...
+	PendingMultiCoinRewards github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=pending_multi_coin_rewards,json=pendingMultiCoinRewards,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"pending_multi_coin_rewards"`
+}
+
+func (m *QueryMultiCoinStatusResponse) Reset()         { *m = QueryMultiCoinStatusResponse{} }
+func (m *QueryMultiCoinStatusResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryMultiCoinStatusResponse) ProtoMessage()    {}
+func (*QueryMultiCoinStatusResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_6c1bf6f190db35c0, []int{5}
+}
+func (m *QueryMultiCoinStatusResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryMultiCoinStatusResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryMultiCoinStatusResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryMultiCoinStatusResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryMultiCoinStatusResponse.Merge(m, src)
+}
+func (m *QueryMultiCoinStatusResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryMultiCoinStatusResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryMultiCoinStatusResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryMultiCoinStatusResponse proto.InternalMessageInfo
+
+func (m *QueryMultiCoinStatusResponse) GetEnabled() bool {
+	if m != nil {
+		return m.Enabled
+	}
+	return false
+}
+
+func (m *QueryMultiCoinStatusResponse) GetPendingMultiCoinRewards() github_com_cosmos_cosmos_sdk_types.Coins {
+	if m != nil {
+		return m.PendingMultiCoinRewards
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*QueryParamsRequest)(nil), "kyve.stakers.v1beta1.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "kyve.stakers.v1beta1.QueryParamsResponse")
+	proto.RegisterType((*QueryMultiCoinRefundPolicyRequest)(nil), "kyve.stakers.v1beta1.QueryMultiCoinRefundPolicyRequest")
+	proto.RegisterType((*QueryMultiCoinRefundPolicyResponse)(nil), "kyve.stakers.v1beta1.QueryMultiCoinRefundPolicyResponse")
+	proto.RegisterType((*QueryMultiCoinStatusRequest)(nil), "kyve.stakers.v1beta1.QueryMultiCoinStatusRequest")
+	proto.RegisterType((*QueryMultiCoinStatusResponse)(nil), "kyve.stakers.v1beta1.QueryMultiCoinStatusResponse")
 }
 
 func init() { proto.RegisterFile("kyve/stakers/v1beta1/query.proto", fileDescriptor_6c1bf6f190db35c0) }
 
 var fileDescriptor_6c1bf6f190db35c0 = []byte{
-	// 289 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x52, 0xc8, 0xae, 0x2c, 0x4b,
-	0xd5, 0x2f, 0x2e, 0x49, 0xcc, 0x4e, 0x2d, 0x2a, 0xd6, 0x2f, 0x33, 0x4c, 0x4a, 0x2d, 0x49, 0x34,
-	0xd4, 0x2f, 0x2c, 0x4d, 0x2d, 0xaa, 0xd4, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x12, 0x01, 0xa9,
-	0xd0, 0x83, 0xaa, 0xd0, 0x83, 0xaa, 0x90, 0x12, 0x49, 0xcf, 0x4f, 0xcf, 0x07, 0x2b, 0xd0, 0x07,
-	0xb1, 0x20, 0x6a, 0xa5, 0x64, 0xd2, 0xf3, 0xf3, 0xd3, 0x73, 0x52, 0xf5, 0x13, 0x0b, 0x32, 0xf5,
-	0x13, 0xf3, 0xf2, 0xf2, 0x4b, 0x12, 0x4b, 0x32, 0xf3, 0xf3, 0x8a, 0xa1, 0xb2, 0x8a, 0x58, 0xed,
-	0x2a, 0x48, 0x2c, 0x4a, 0xcc, 0x85, 0x2a, 0x51, 0x12, 0xe1, 0x12, 0x0a, 0x04, 0xd9, 0x1d, 0x00,
-	0x16, 0x0c, 0x4a, 0x2d, 0x2c, 0x4d, 0x2d, 0x2e, 0x51, 0x0a, 0xe4, 0x12, 0x46, 0x11, 0x2d, 0x2e,
-	0xc8, 0xcf, 0x2b, 0x4e, 0x15, 0xb2, 0xe2, 0x62, 0x83, 0x68, 0x96, 0x60, 0x54, 0x60, 0xd4, 0xe0,
-	0x36, 0x92, 0xd1, 0xc3, 0xe6, 0x54, 0x3d, 0x88, 0x2e, 0x27, 0x96, 0x13, 0xf7, 0xe4, 0x19, 0x82,
-	0xa0, 0x3a, 0x8c, 0x7a, 0x19, 0xb9, 0x58, 0xc1, 0x66, 0x0a, 0x35, 0x33, 0x72, 0xb1, 0x41, 0x94,
-	0x08, 0x69, 0x60, 0x37, 0x00, 0xd3, 0x45, 0x52, 0x9a, 0x44, 0xa8, 0x84, 0xb8, 0x52, 0x49, 0xa5,
-	0xe9, 0xf2, 0x93, 0xc9, 0x4c, 0x72, 0x42, 0x32, 0xfa, 0x78, 0xbc, 0xef, 0xe4, 0x76, 0xe2, 0x91,
-	0x1c, 0xe3, 0x85, 0x47, 0x72, 0x8c, 0x0f, 0x1e, 0xc9, 0x31, 0x4e, 0x78, 0x2c, 0xc7, 0x70, 0xe1,
-	0xb1, 0x1c, 0xc3, 0x8d, 0xc7, 0x72, 0x0c, 0x51, 0x3a, 0xe9, 0x99, 0x25, 0x19, 0xa5, 0x49, 0x7a,
-	0xc9, 0xf9, 0xb9, 0xfa, 0xde, 0x91, 0x61, 0xae, 0x7e, 0xa9, 0x25, 0xe5, 0xf9, 0x45, 0xd9, 0xfa,
-	0xc9, 0x19, 0x89, 0x99, 0x79, 0xfa, 0x15, 0x70, 0x03, 0x4b, 0x2a, 0x0b, 0x52, 0x8b, 0x93, 0xd8,
-	0xc0, 0xe1, 0x68, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0x95, 0x3e, 0x8d, 0x82, 0xd8, 0x01, 0x00,
-	0x00,
+	// 582 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x94, 0x4f, 0x6b, 0x13, 0x41,
+	0x18, 0xc6, 0x33, 0xb5, 0xa6, 0x3a, 0x3d, 0x88, 0x63, 0xc0, 0xb8, 0x86, 0x6d, 0xba, 0x7a, 0x88,
+	0xff, 0x76, 0x4c, 0x8a, 0x56, 0x3d, 0x46, 0x14, 0x44, 0x94, 0x76, 0x05, 0x41, 0x2f, 0x61, 0x92,
+	0x1d, 0xb7, 0x4b, 0xb2, 0x33, 0xdb, 0x9d, 0xd9, 0xd6, 0x20, 0x5e, 0xf4, 0x5c, 0x10, 0xfc, 0x12,
+	0xe2, 0x49, 0xf0, 0x43, 0x98, 0x63, 0xc1, 0x8b, 0x27, 0x95, 0x44, 0xf0, 0x6b, 0xc8, 0xce, 0xcc,
+	0x86, 0x46, 0x97, 0xd8, 0x5e, 0x92, 0x9d, 0xd9, 0xe7, 0x99, 0xf7, 0xf7, 0xbe, 0xf3, 0xb0, 0xb0,
+	0xde, 0x1f, 0xee, 0x50, 0x2c, 0x24, 0xe9, 0xd3, 0x44, 0xe0, 0x9d, 0x66, 0x97, 0x4a, 0xd2, 0xc4,
+	0xdb, 0x29, 0x4d, 0x86, 0x6e, 0x9c, 0x70, 0xc9, 0x51, 0x25, 0x53, 0xb8, 0x46, 0xe1, 0x1a, 0x85,
+	0x75, 0x9a, 0x44, 0x21, 0xe3, 0x58, 0xfd, 0x6a, 0xa1, 0x65, 0xf7, 0xb8, 0x88, 0xb8, 0xc0, 0x5d,
+	0x22, 0xe8, 0xf4, 0xa4, 0x1e, 0x0f, 0x99, 0x79, 0x5f, 0x09, 0x78, 0xc0, 0xd5, 0x23, 0xce, 0x9e,
+	0xcc, 0x6e, 0x2d, 0xe0, 0x3c, 0x18, 0x50, 0x4c, 0xe2, 0x10, 0x13, 0xc6, 0xb8, 0x24, 0x32, 0xe4,
+	0x4c, 0x98, 0xb7, 0xab, 0x85, 0x78, 0x31, 0x49, 0x48, 0x94, 0x4b, 0x9c, 0x42, 0x49, 0xce, 0xab,
+	0x34, 0x4e, 0x05, 0xa2, 0xcd, 0xac, 0xa5, 0x0d, 0x65, 0xf4, 0xe8, 0x76, 0x4a, 0x85, 0x74, 0x36,
+	0xe1, 0x99, 0x99, 0x5d, 0x11, 0x73, 0x26, 0x28, 0xba, 0x03, 0xcb, 0xba, 0x40, 0x15, 0xd4, 0x41,
+	0x63, 0xb9, 0x55, 0x73, 0x8b, 0x26, 0xe0, 0x6a, 0x57, 0x7b, 0x71, 0xf4, 0x7d, 0xa5, 0xe4, 0x19,
+	0x87, 0x73, 0x01, 0xae, 0xaa, 0x23, 0x1f, 0xa5, 0x03, 0x19, 0xde, 0xe5, 0x21, 0xf3, 0xe8, 0x8b,
+	0x94, 0xf9, 0x1b, 0x7c, 0x10, 0xf6, 0x86, 0x79, 0x5d, 0x0e, 0x9d, 0x79, 0x22, 0x83, 0xf1, 0x00,
+	0x96, 0x63, 0xb5, 0x63, 0x30, 0xae, 0x14, 0x63, 0x14, 0x1e, 0x32, 0xa5, 0x52, 0x2b, 0x67, 0x1d,
+	0x9e, 0x9f, 0x2d, 0xf8, 0x44, 0x12, 0x99, 0xe6, 0x73, 0x40, 0x55, 0xb8, 0x44, 0x7c, 0x3f, 0xa1,
+	0x42, 0x77, 0x7c, 0xd2, 0xcb, 0x97, 0xce, 0x08, 0xc0, 0x5a, 0xb1, 0xd3, 0x40, 0x56, 0xe1, 0x12,
+	0x65, 0xa4, 0x3b, 0xa0, 0xbe, 0xb2, 0x9e, 0xf0, 0xf2, 0x25, 0xda, 0x03, 0xd0, 0x8a, 0x29, 0xf3,
+	0x43, 0x16, 0x74, 0xa2, 0xcc, 0xdd, 0xc9, 0xa2, 0xd0, 0x49, 0xe8, 0x2e, 0x49, 0x7c, 0x51, 0x5d,
+	0xa8, 0x1f, 0x6b, 0x2c, 0xb7, 0xce, 0xb9, 0x3a, 0x33, 0x6e, 0x96, 0x99, 0x69, 0x4b, 0x59, 0x9d,
+	0xf6, 0x8d, 0xac, 0x83, 0x8f, 0x3f, 0x56, 0x1a, 0x41, 0x28, 0xb7, 0xd2, 0xae, 0xdb, 0xe3, 0x11,
+	0x36, 0x01, 0xd3, 0x7f, 0xd7, 0x84, 0xdf, 0xc7, 0x72, 0x18, 0x53, 0xa1, 0x0c, 0xe2, 0xc3, 0xef,
+	0x4f, 0x97, 0x81, 0x77, 0xd6, 0xd4, 0x3c, 0x30, 0x16, 0x55, 0xb0, 0xb5, 0xb7, 0x08, 0x8f, 0xab,
+	0x56, 0xd0, 0x5b, 0x00, 0xcb, 0xfa, 0xf2, 0x50, 0xa3, 0x78, 0xa6, 0xff, 0x66, 0xc5, 0xba, 0x74,
+	0x08, 0xa5, 0x9e, 0x89, 0x73, 0xf1, 0xcd, 0xd7, 0x5f, 0xef, 0x17, 0x6c, 0x54, 0xc3, 0x73, 0xc2,
+	0x8b, 0xbe, 0x00, 0x68, 0x15, 0xde, 0x9d, 0x86, 0x5c, 0x9f, 0x53, 0x6f, 0x5e, 0xb8, 0xac, 0x5b,
+	0x47, 0x37, 0x1a, 0xee, 0x9b, 0x8a, 0xfb, 0x3a, 0x72, 0x8b, 0xb9, 0x67, 0x2e, 0x31, 0xb3, 0x77,
+	0x74, 0xba, 0xd0, 0x67, 0x00, 0x4f, 0xfd, 0x95, 0x0f, 0xd4, 0x3c, 0x0c, 0xc5, 0x4c, 0x0a, 0xad,
+	0xd6, 0x51, 0x2c, 0x06, 0xf9, 0xb6, 0x42, 0x5e, 0x43, 0xcd, 0xff, 0x22, 0x0b, 0x65, 0xc4, 0xaf,
+	0x4c, 0xb2, 0x5f, 0xb7, 0xef, 0x8f, 0xc6, 0x36, 0xd8, 0x1f, 0xdb, 0xe0, 0xe7, 0xd8, 0x06, 0xef,
+	0x26, 0x76, 0x69, 0x7f, 0x62, 0x97, 0xbe, 0x4d, 0xec, 0xd2, 0xf3, 0xab, 0x07, 0x12, 0xf7, 0xf0,
+	0xd9, 0xd3, 0x7b, 0x8f, 0xa9, 0xdc, 0xe5, 0x49, 0x1f, 0xf7, 0xb6, 0x48, 0xc8, 0xf0, 0xcb, 0x69,
+	0x15, 0x95, 0xbd, 0x6e, 0x59, 0x7d, 0x61, 0xd6, 0xfe, 0x04, 0x00, 0x00, 0xff, 0xff, 0x15, 0x0e,
+	0xd4, 0x56, 0x49, 0x05, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -156,6 +365,10 @@ const _ = grpc.SupportPackageIsVersion4
 type QueryClient interface {
 	// Parameters queries the parameters of the module.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
+	// policy, multi-coin-enabled, multi-coin-status/address: {enabled true false, pending rewards}
+	MultiCoinRefundPolicyQuery(ctx context.Context, in *QueryMultiCoinRefundPolicyRequest, opts ...grpc.CallOption) (*QueryMultiCoinRefundPolicyResponse, error)
+	// MultiCoinStatus ...
+	MultiCoinStatus(ctx context.Context, in *QueryMultiCoinStatusRequest, opts ...grpc.CallOption) (*QueryMultiCoinStatusResponse, error)
 }
 
 type queryClient struct {
@@ -175,10 +388,32 @@ func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts .
 	return out, nil
 }
 
+func (c *queryClient) MultiCoinRefundPolicyQuery(ctx context.Context, in *QueryMultiCoinRefundPolicyRequest, opts ...grpc.CallOption) (*QueryMultiCoinRefundPolicyResponse, error) {
+	out := new(QueryMultiCoinRefundPolicyResponse)
+	err := c.cc.Invoke(ctx, "/kyve.stakers.v1beta1.Query/MultiCoinRefundPolicyQuery", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) MultiCoinStatus(ctx context.Context, in *QueryMultiCoinStatusRequest, opts ...grpc.CallOption) (*QueryMultiCoinStatusResponse, error) {
+	out := new(QueryMultiCoinStatusResponse)
+	err := c.cc.Invoke(ctx, "/kyve.stakers.v1beta1.Query/MultiCoinStatus", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 type QueryServer interface {
 	// Parameters queries the parameters of the module.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
+	// policy, multi-coin-enabled, multi-coin-status/address: {enabled true false, pending rewards}
+	MultiCoinRefundPolicyQuery(context.Context, *QueryMultiCoinRefundPolicyRequest) (*QueryMultiCoinRefundPolicyResponse, error)
+	// MultiCoinStatus ...
+	MultiCoinStatus(context.Context, *QueryMultiCoinStatusRequest) (*QueryMultiCoinStatusResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -187,6 +422,12 @@ type UnimplementedQueryServer struct {
 
 func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryParamsRequest) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
+}
+func (*UnimplementedQueryServer) MultiCoinRefundPolicyQuery(ctx context.Context, req *QueryMultiCoinRefundPolicyRequest) (*QueryMultiCoinRefundPolicyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MultiCoinRefundPolicyQuery not implemented")
+}
+func (*UnimplementedQueryServer) MultiCoinStatus(ctx context.Context, req *QueryMultiCoinStatusRequest) (*QueryMultiCoinStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MultiCoinStatus not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -211,6 +452,42 @@ func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_MultiCoinRefundPolicyQuery_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryMultiCoinRefundPolicyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).MultiCoinRefundPolicyQuery(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/kyve.stakers.v1beta1.Query/MultiCoinRefundPolicyQuery",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).MultiCoinRefundPolicyQuery(ctx, req.(*QueryMultiCoinRefundPolicyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_MultiCoinStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryMultiCoinStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).MultiCoinStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/kyve.stakers.v1beta1.Query/MultiCoinStatus",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).MultiCoinStatus(ctx, req.(*QueryMultiCoinStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var Query_serviceDesc = _Query_serviceDesc
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "kyve.stakers.v1beta1.Query",
@@ -219,6 +496,14 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Params",
 			Handler:    _Query_Params_Handler,
+		},
+		{
+			MethodName: "MultiCoinRefundPolicyQuery",
+			Handler:    _Query_MultiCoinRefundPolicyQuery_Handler,
+		},
+		{
+			MethodName: "MultiCoinStatus",
+			Handler:    _Query_MultiCoinStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -281,6 +566,139 @@ func (m *QueryParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *QueryMultiCoinRefundPolicyRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryMultiCoinRefundPolicyRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryMultiCoinRefundPolicyRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryMultiCoinRefundPolicyResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryMultiCoinRefundPolicyResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryMultiCoinRefundPolicyResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Policy.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryMultiCoinStatusRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryMultiCoinStatusRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryMultiCoinStatusRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Address) > 0 {
+		i -= len(m.Address)
+		copy(dAtA[i:], m.Address)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Address)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryMultiCoinStatusResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryMultiCoinStatusResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryMultiCoinStatusResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.PendingMultiCoinRewards) > 0 {
+		for iNdEx := len(m.PendingMultiCoinRewards) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.PendingMultiCoinRewards[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if m.Enabled {
+		i--
+		if m.Enabled {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	offset -= sovQuery(v)
 	base := offset
@@ -309,6 +727,57 @@ func (m *QueryParamsResponse) Size() (n int) {
 	_ = l
 	l = m.Params.Size()
 	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryMultiCoinRefundPolicyRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *QueryMultiCoinRefundPolicyResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Policy.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryMultiCoinStatusRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Address)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryMultiCoinStatusResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Enabled {
+		n += 2
+	}
+	if len(m.PendingMultiCoinRewards) > 0 {
+		for _, e := range m.PendingMultiCoinRewards {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
 	return n
 }
 
@@ -427,6 +896,325 @@ func (m *QueryParamsResponse) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if err := m.Params.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryMultiCoinRefundPolicyRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryMultiCoinRefundPolicyRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryMultiCoinRefundPolicyRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryMultiCoinRefundPolicyResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryMultiCoinRefundPolicyResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryMultiCoinRefundPolicyResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Policy", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Policy.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryMultiCoinStatusRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryMultiCoinStatusRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryMultiCoinStatusRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Address = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryMultiCoinStatusResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryMultiCoinStatusResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryMultiCoinStatusResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Enabled", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Enabled = bool(v != 0)
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PendingMultiCoinRewards", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.PendingMultiCoinRewards = append(m.PendingMultiCoinRewards, types.Coin{})
+			if err := m.PendingMultiCoinRewards[len(m.PendingMultiCoinRewards)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

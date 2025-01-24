@@ -35,6 +35,11 @@ func (k Keeper) GetStakeFractionChangeTime(ctx sdk.Context) (res uint64) {
 	return k.GetParams(ctx).StakeFractionChangeTime
 }
 
+// GetMultiCoinRefundPendingTime returns the MultiCoinRefundPendingTime param
+func (k Keeper) GetMultiCoinRefundPendingTime(ctx sdk.Context) (res uint64) {
+	return k.GetParams(ctx).MultiCoinRefundPendingTime
+}
+
 // GetVoteSlash returns the VoteSlash param
 func (k Keeper) GetVoteSlash(ctx sdk.Context) (res math.LegacyDec) {
 	return k.GetParams(ctx).VoteSlash

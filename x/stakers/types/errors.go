@@ -23,4 +23,9 @@ var (
 	ErrPoolAccountUnauthorized    = errors.Register(ModuleName, 1118, "pool account unauthorized")
 	ErrValidatorJailed            = errors.Register(ModuleName, 1119, "validator jailed")
 	ErrNoPoolAccount              = errors.Register(ModuleName, 1120, "sender has no pool account")
+
+	ErrMultiCoinRefundPolicyInvalidAdminAddress = errors.Register(ModuleName, 1122, "multi coin refund policy admin address invalid")
+	ErrMultiCoinRefundPolicyInvalid             = errors.Register(ModuleName, 1123, "multi coin refund policy invalid")
+	ErrMultiCoinRewardsAlreadyEnabled           = errors.Register(ModuleName, 1124, "multi coin rewards already enabled")
+	ErrMultiCoinRewardsAlreadyDisabled          = errors.Register(ModuleName, 1125, "multi coin rewards already disabled")
 )

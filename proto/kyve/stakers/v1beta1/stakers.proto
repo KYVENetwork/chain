@@ -158,3 +158,40 @@ enum SlashType {
   // SLASH_TYPE_UPLOAD ...
   SLASH_TYPE_UPLOAD = 3;
 }
+
+// MultiCoinPendingRewardsEntry ...
+message MultiCoinPendingRewardsEntry {
+  // index is needed for the queue-algorithm which
+  // processes the commission changes
+  uint64 index = 1;
+  // staker is the address of the affected staker
+  string address = 2;
+  // rewards ...
+  repeated cosmos.base.v1beta1.Coin rewards = 3 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+
+  int64 creation_date = 4;
+}
+
+// MultiCoinRefundPolicy ...
+message MultiCoinRefundPolicy {
+  repeated MultiCoinRefundDenomEntry entries = 1;
+}
+
+// MultiCoinRefundDenomEntry ...
+message MultiCoinRefundDenomEntry {
+  string denom = 1;
+  repeated MultiCoinRefundPoolWeightEntry pool_weights = 2;
+}
+
+// MultiCoinRefundPoolWeightEntry ...
+message MultiCoinRefundPoolWeightEntry {
+  uint64 pool_id = 1;
+  string weight = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}

@@ -4,12 +4,16 @@ import (
 	"context"
 	"fmt"
 
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	delegationkeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	stakerskeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
+	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -29,6 +33,7 @@ var logger log.Logger
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
+	accountKeeper authkeeper.AccountKeeper,
 	delegationKeeper delegationkeeper.Keeper,
 	stakersKeeper *stakerskeeper.Keeper,
 	stakingKeeper *stakingkeeper.Keeper,
@@ -44,11 +49,29 @@ func CreateUpgradeHandler(
 
 		// Run KYVE migrations
 		migrateProtocolStakers(sdkCtx, delegationKeeper, stakersKeeper, stakingKeeper, bankKeeper)
+		EnsureComplianceAccount(sdkCtx, accountKeeper)
 
 		logger.Info(fmt.Sprintf("finished upgrade %v", UpgradeName))
 
 		return migratedVersionMap, err
 	}
+}
+
+func EnsureComplianceAccount(ctx sdk.Context, ak authkeeper.AccountKeeper) {
+	address := authTypes.NewModuleAddress(stakersTypes.MultiCoinRewardsRedistributionAccountName)
+	account := ak.GetAccount(ctx, address)
+
+	if account == nil {
+		// account doesn't exist, initialise a new module account.
+		newAcc := authTypes.NewEmptyModuleAccount(stakersTypes.MultiCoinRewardsRedistributionAccountName)
+		account = ak.NewAccountWithAddress(ctx, newAcc.GetAddress())
+	} else {
+		// account exists, adjust it to a module account.
+		baseAccount := authTypes.NewBaseAccount(address, nil, account.GetAccountNumber(), 0)
+		account = authTypes.NewModuleAccount(baseAccount, stakersTypes.MultiCoinRewardsRedistributionAccountName)
+	}
+
+	ak.SetAccount(ctx, account)
 }
 
 func migrateProtocolStakers(ctx sdk.Context, delegationKeeper delegationkeeper.Keeper,

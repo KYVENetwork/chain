@@ -7,7 +7,8 @@ import (
 // DefaultGenesis returns the default Capability genesis state
 func DefaultGenesis() *GenesisState {
 	return &GenesisState{
-		Params: DefaultParams(),
+		Params:                DefaultParams(),
+		MultiCoinRefundPolicy: &MultiCoinRefundPolicy{},
 	}
 }
 
@@ -73,14 +74,36 @@ func (gs GenesisState) Validate() error {
 		if _, ok := stakeFractionChangeMap[index]; ok {
 			return fmt.Errorf("duplicated index for stake fraction change entry %v", elem)
 		}
-		if elem.Index > gs.QueueStateStateFraction.HighIndex {
+		if elem.Index > gs.QueueStateStakeFraction.HighIndex {
 			return fmt.Errorf("stake fraction change entry index too high: %v", elem)
 		}
-		if elem.Index < gs.QueueStateStateFraction.LowIndex {
+		if elem.Index < gs.QueueStateStakeFraction.LowIndex {
 			return fmt.Errorf("stake fraction change entry index too low: %v", elem)
 		}
 
 		stakeFractionChangeMap[index] = struct{}{}
+	}
+
+	// Multi Coin Pending Rewards
+	multiCoinPendingRewardsMap := make(map[string]struct{})
+
+	for _, elem := range gs.MultiCoinPendingRewardsEntries {
+		index := string(MultiCoinPendingRewardsKeyEntry(elem.Index))
+		if _, ok := multiCoinPendingRewardsMap[index]; ok {
+			return fmt.Errorf("duplicated index for multi coin pending rewards entry %v", elem)
+		}
+		if elem.Index > gs.QueueStatePendingRewards.HighIndex {
+			return fmt.Errorf(" multi coin pending rewards entry index too high: %v", elem)
+		}
+		if elem.Index < gs.QueueStatePendingRewards.LowIndex {
+			return fmt.Errorf(" multi coin pending rewards entry index too low: %v", elem)
+		}
+
+		multiCoinPendingRewardsMap[index] = struct{}{}
+	}
+
+	if _, err := ParseMultiCoinComplianceMap(*gs.MultiCoinRefundPolicy); err != nil {
+		return err
 	}
 
 	return gs.Params.Validate()

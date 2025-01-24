@@ -5,6 +5,7 @@ package kyve.stakers.v1beta1;
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
+import "kyve/stakers/v1beta1/stakers.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/stakers/types";
 
@@ -24,6 +25,12 @@ service Msg {
   // UpdateParams defines a governance operation for updating the x/stakers module
   // parameters. The authority is hard-coded to the x/gov module account.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  // ToggleMultiCoinRewards ...
+  rpc ToggleMultiCoinRewards(MsgToggleMultiCoinRewards) returns (MsgToggleMultiCoinRewardsResponse);
+
+  // SetMultiCoinRewardRefundPolicy ...
+  rpc SetMultiCoinRewardRefundPolicy(MsgSetMultiCoinRewardsRefundPolicy) returns (MsgSetMultiCoinRewardsRefundPolicyResponse);
 }
 
 // MsgUpdateCommission ... // TODO: create v1 types and rename new to MsgUpdatePoolCommission
@@ -110,3 +117,29 @@ message MsgUpdateParams {
 
 // MsgUpdateParamsResponse defines the Msg/UpdateParams response type.
 message MsgUpdateParamsResponse {}
+
+// MsgEnableMultiCoinReward enables multi-coin rewards for the sender address
+// and claims all current pending rewards.
+message MsgToggleMultiCoinRewards {
+  option (cosmos.msg.v1.signer) = "creator";
+  // creator ...
+  string creator = 1;
+  // enabled ...
+  bool enabled = 2;
+}
+
+// MsgEnableMultiCoinRewardResponse ...
+message MsgToggleMultiCoinRewardsResponse {}
+
+// MsgEnableMultiCoinReward enables multi-coin rewards for the sender address
+// and claims all current pending rewards.
+message MsgSetMultiCoinRewardsRefundPolicy {
+  option (cosmos.msg.v1.signer) = "creator";
+  // creator ...
+  string creator = 1;
+  // policy ...
+  kyve.stakers.v1beta1.MultiCoinRefundPolicy policy = 2;
+}
+
+// MsgEnableMultiCoinRewardResponse ...
+message MsgSetMultiCoinRewardsRefundPolicyResponse {}

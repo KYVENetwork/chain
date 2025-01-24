@@ -28,9 +28,21 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, genState types.GenesisState)
 		k.SetStakeFractionChangeEntry(ctx, entry)
 	}
 
+	for _, entry := range genState.MultiCoinPendingRewardsEntries {
+		k.SetMultiCoinPendingRewardsEntry(ctx, entry)
+	}
+
+	for _, entry := range genState.MultiCoinEnabled {
+		err := k.MultiCoinRewardsEnabled.Set(ctx, sdk.MustAccAddressFromBech32(entry))
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	k.SetQueueState(ctx, types.QUEUE_IDENTIFIER_COMMISSION, genState.QueueStateCommission)
 	k.SetQueueState(ctx, types.QUEUE_IDENTIFIER_LEAVE, genState.QueueStateLeave)
-	k.SetQueueState(ctx, types.QUEUE_IDENTIFIER_STAKE_FRACTION, genState.QueueStateStateFraction)
+	k.SetQueueState(ctx, types.QUEUE_IDENTIFIER_STAKE_FRACTION, genState.QueueStateStakeFraction)
+	k.SetQueueState(ctx, types.QUEUE_IDENTIFIER_MULTI_COIN_REWARDS, genState.QueueStatePendingRewards)
 }
 
 // ExportGenesis returns the capability module's exported genesis.
@@ -46,11 +58,20 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 
 	genesis.StakeFractionChangeEntries = k.GetAllStakeFractionChangeEntries(ctx)
 
+	genesis.MultiCoinPendingRewardsEntries = k.GetAllMultiCoinPendingRewardsEntries(ctx)
+
 	genesis.QueueStateCommission = k.GetQueueState(ctx, types.QUEUE_IDENTIFIER_COMMISSION)
 
 	genesis.QueueStateLeave = k.GetQueueState(ctx, types.QUEUE_IDENTIFIER_LEAVE)
 
-	genesis.QueueStateStateFraction = k.GetQueueState(ctx, types.QUEUE_IDENTIFIER_STAKE_FRACTION)
+	genesis.QueueStateStakeFraction = k.GetQueueState(ctx, types.QUEUE_IDENTIFIER_STAKE_FRACTION)
+
+	genesis.QueueStatePendingRewards = k.GetQueueState(ctx, types.QUEUE_IDENTIFIER_MULTI_COIN_REWARDS)
+
+	policy, _ := k.MultiCoinRefundPolicy.Get(ctx)
+	genesis.MultiCoinRefundPolicy = &policy
+
+	genesis.MultiCoinEnabled = k.GetAllEnabledMultiCoinAddresses(ctx)
 
 	return genesis
 }

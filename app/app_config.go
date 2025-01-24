@@ -181,6 +181,7 @@ var (
 		{Account: delegationtypes.ModuleName},
 		{Account: pooltypes.ModuleName},
 		{Account: stakerstypes.ModuleName},
+		{Account: stakerstypes.MultiCoinRewardsRedistributionAccountName},
 		{Account: teamtypes.ModuleName},
 		{Account: funderstypes.ModuleName},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
