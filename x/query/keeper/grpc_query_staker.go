@@ -23,7 +23,10 @@ func (k Keeper) Stakers(c context.Context, req *types.QueryStakersRequest) (*typ
 	req.Search = strings.ToLower(req.Search)
 
 	accumulator := func(address string, accumulate bool) bool {
-		fullStaker := k.GetFullStaker(ctx, address)
+		fullStaker, err := k.GetFullStaker(ctx, address)
+		if err != nil {
+			return false
+		}
 
 		searchAddress := strings.ToLower(fullStaker.Address)
 		searchMoniker := strings.ToLower(fullStaker.Validator.GetMoniker())
@@ -61,5 +64,10 @@ func (k Keeper) Staker(c context.Context, req *types.QueryStakerRequest) (*types
 		return nil, sdkerrors.ErrKeyNotFound
 	}
 
-	return &types.QueryStakerResponse{Staker: *k.GetFullStaker(ctx, req.Address)}, nil
+	fullStaker, err := k.GetFullStaker(ctx, req.Address)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.QueryStakerResponse{Staker: *fullStaker}, nil
 }
