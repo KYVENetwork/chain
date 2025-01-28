@@ -7,17 +7,11 @@ import (
 	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/util"
 
-	"github.com/stretchr/testify/suite"
-
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 
 	"github.com/KYVENetwork/chain/app"
-	"github.com/cometbft/cometbft/crypto/tmhash"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
-	"github.com/cometbft/cometbft/version"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
@@ -104,15 +98,12 @@ func CCoins(amount int64) sdk.Coins {
 }
 
 func NewCleanChain() *KeeperTestSuite {
-	s := KeeperTestSuite{}
-	s.SetupTest(time.Now().Unix())
-	s.initDummyAccounts()
-	return &s
+	return NewCleanChainAtTime(time.Now().Unix())
 }
 
 func NewCleanChainAtTime(startTime int64) *KeeperTestSuite {
 	s := KeeperTestSuite{}
-	s.SetupTest(startTime)
+	s.SetupApp(startTime)
 	s.initDummyAccounts()
 	return &s
 }
@@ -237,15 +228,6 @@ func (suite *KeeperTestSuite) MintDenomToModule(moduleAddress string, amount uin
 	return nil
 }
 
-type KeeperTestSuite struct {
-	suite.Suite
-
-	ctx sdk.Context
-
-	app   *app.App
-	denom string
-}
-
 func (suite *KeeperTestSuite) App() *app.App {
 	return suite.app
 }
@@ -256,54 +238,6 @@ func (suite *KeeperTestSuite) Ctx() sdk.Context {
 
 func (suite *KeeperTestSuite) SetCtx(ctx sdk.Context) {
 	suite.ctx = ctx
-}
-
-func (suite *KeeperTestSuite) SetupTest(startTime int64) {
-	suite.SetupApp(startTime)
-}
-
-func (suite *KeeperTestSuite) SetupApp(startTime int64) {
-	suite.app = app.Setup()
-
-	suite.denom = globalTypes.Denom
-
-	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, tmproto.Header{
-		Height:          1,
-		ChainID:         "kyve-test",
-		Time:            time.Unix(startTime, 0).UTC(),
-		ProposerAddress: sdk.ConsAddress(ed25519.GenPrivKeyFromSecret([]byte("Validator-1")).PubKey().Address()).Bytes(),
-
-		Version: tmversion.Consensus{
-			Block: version.BlockProtocol,
-		},
-		LastBlockId: tmproto.BlockID{
-			Hash: tmhash.Sum([]byte("block_id")),
-			PartSetHeader: tmproto.PartSetHeader{
-				Total: 11,
-				Hash:  tmhash.Sum([]byte("partset_header")),
-			},
-		},
-		AppHash:            tmhash.Sum([]byte("app")),
-		DataHash:           tmhash.Sum([]byte("data")),
-		EvidenceHash:       tmhash.Sum([]byte("evidence")),
-		ValidatorsHash:     tmhash.Sum([]byte("validators")),
-		NextValidatorsHash: tmhash.Sum([]byte("next_validators")),
-		ConsensusHash:      tmhash.Sum([]byte("consensus")),
-		LastResultsHash:    tmhash.Sum([]byte("last_result")),
-	})
-
-	mintParams, _ := suite.app.MintKeeper.Params.Get(suite.ctx)
-	mintParams.MintDenom = suite.denom
-	_ = suite.app.MintKeeper.Params.Set(suite.ctx, mintParams)
-
-	stakingParams, _ := suite.app.StakingKeeper.GetParams(suite.ctx)
-	stakingParams.BondDenom = suite.denom
-	stakingParams.MaxValidators = 51
-	_ = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
-
-	govParams, _ := suite.app.GovKeeper.Params.Get(suite.ctx)
-	govParams.MinDeposit = sdk.NewCoins(sdk.NewInt64Coin(KYVE_DENOM, int64(100_000_000_000))) // set min deposit to 100 KYVE
-	_ = suite.app.GovKeeper.Params.Set(suite.ctx, govParams)
 }
 
 func (suite *KeeperTestSuite) CreateValidatorWithoutCommit(address, moniker string, kyveStake int64) {

@@ -126,8 +126,6 @@ func Setup() *App {
 
 	setPrefixes(AccountAddressPrefix)
 
-	// cw := zerolog.NewConsoleWriter()
-	// logger := log.NewCustomLogger(zerolog.New(cw).Level(zerolog.DebugLevel))
 	logger := log.NewNopLogger()
 	app, err := New(logger, db, nil, true, EmptyAppOptions{}, baseapp.SetChainID("kyve-test"))
 	if err != nil {
