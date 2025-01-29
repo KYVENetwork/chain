@@ -33,7 +33,7 @@ type BundlesMigrationEntry struct {
 	maxBundleId uint64
 }
 
-// bundlesMigration includes the poolId and max bundleId to determine which bundles are migrated
+// bundlesMigration includes the poolId and maxBundleId (exclusive) to determine which bundles are migrated
 var bundlesMigration []BundlesMigrationEntry
 
 func init() {
@@ -62,6 +62,8 @@ func init() {
 }
 
 func MigrateBundlesModule(sdkCtx sdk.Context, bundlesKeeper bundleskeeper.Keeper, upgradeHeight int64) {
+	logger = sdkCtx.Logger().With("upgrade", "bundles-migration")
+
 	if sdkCtx.BlockHeight()-upgradeHeight < WaitingBlockPeriod {
 		logger.Info("sdkCtx.BlockHeight()-upgradeHeight < WaitingBlockPeriod > return")
 		return
@@ -71,10 +73,9 @@ func MigrateBundlesModule(sdkCtx sdk.Context, bundlesKeeper bundleskeeper.Keeper
 		step := uint64(sdkCtx.BlockHeight()-upgradeHeight) - WaitingBlockPeriod
 		offset := step * BundlesMigrationStepSizePerPool
 
-		// Exit if all bundles have already been migrated
-		if offset > bundlesMigrationEntry.maxBundleId {
-			logger.Info("offset > maxBundleId > return")
-			return
+		// Skip if all bundles have already been migrated
+		if offset > bundlesMigrationEntry.maxBundleId+BundlesMigrationStepSizePerPool {
+			continue
 		}
 
 		if err := migrateFinalizedBundles(sdkCtx, bundlesKeeper, offset, bundlesMigrationEntry); err != nil {
