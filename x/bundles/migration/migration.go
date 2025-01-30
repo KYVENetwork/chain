@@ -61,6 +61,7 @@ func init() {
 	}
 }
 
+// MigrateBundlesModule migrates the bundles by adding the missing Merkle Roots to the bundle summary.
 func MigrateBundlesModule(sdkCtx sdk.Context, bundlesKeeper bundleskeeper.Keeper, upgradeHeight int64) {
 	logger = sdkCtx.Logger().With("upgrade", "bundles-migration")
 
@@ -79,14 +80,12 @@ func MigrateBundlesModule(sdkCtx sdk.Context, bundlesKeeper bundleskeeper.Keeper
 		}
 
 		if err := migrateFinalizedBundles(sdkCtx, bundlesKeeper, offset, bundlesMigrationEntry); err != nil {
-			// TODO: Error handling
 			panic(err)
 		}
 	}
 }
 
-// MigrateFinalizedBundles ...
-// maxBundleId -> inclusive
+// migrateFinalizedBundles sets the updated bundles for a certain range.
 func migrateFinalizedBundles(ctx sdk.Context, bundlesKeeper bundleskeeper.Keeper, offset uint64, bundlesMigrationEntry BundlesMigrationEntry) error {
 	// Init Bundles Store
 	storeAdapter := runtime.KVStoreAdapter(bundlesKeeper.Migration_GetStoreService().OpenKVStore(ctx))

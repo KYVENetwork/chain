@@ -47,7 +47,7 @@ func CreateUpgradeHandler(
 		// Run KYVE migrations
 		migrateProtocolStakers(sdkCtx, delegationKeeper, stakersKeeper, stakingKeeper, bankKeeper)
 
-		// Run KYVE migrations
+		// Run Bundles Merkle Roots migrations
 		bundlesKeeper.SetBundlesMigrationUpgradeHeight(sdkCtx, uint64(sdkCtx.BlockHeight()))
 
 		logger.Info(fmt.Sprintf("finished upgrade %v", UpgradeName))
