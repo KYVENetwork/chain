@@ -104,7 +104,7 @@ func migrateFinalizedBundles(ctx sdk.Context, bundlesKeeper bundleskeeper.Keeper
 		}
 
 		if rawFinalizedBundle.Id >= bundlesMigrationEntry.maxBundleId {
-			return nil
+			break
 		}
 
 		merkleRoot := bundlesMigrationEntry.merkleRoots[rawFinalizedBundle.Id*32 : rawFinalizedBundle.Id*32+32]
