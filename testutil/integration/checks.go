@@ -123,7 +123,10 @@ func (suite *KeeperTestSuite) VerifyPoolQueries() {
 
 		for _, poolAccount := range poolAccounts {
 			if _, stakerFound := suite.App().StakersKeeper.GetValidator(suite.Ctx(), poolAccount.Staker); stakerFound {
-				stakersByPoolState = append(stakersByPoolState, *suite.App().QueryKeeper.GetFullStaker(suite.Ctx(), poolAccount.Staker))
+				fullStaker, err := suite.App().QueryKeeper.GetFullStaker(suite.Ctx(), poolAccount.Staker)
+				if err == nil {
+					stakersByPoolState = append(stakersByPoolState, *fullStaker)
+				}
 			}
 		}
 
@@ -183,6 +186,7 @@ func (suite *KeeperTestSuite) VerifyPoolTotalStake() {
 func (suite *KeeperTestSuite) VerifyStakersQueries() {
 	validators, _ := suite.App().StakingKeeper.GetBondedValidatorsByPower(suite.Ctx())
 	stakersQuery, stakersQueryErr := suite.App().QueryKeeper.Stakers(suite.Ctx(), &querytypes.QueryStakersRequest{
+		Status: querytypes.STAKER_STATUS_CHAIN_ACTIVE,
 		Pagination: &query.PageRequest{
 			Limit: 1000,
 		},

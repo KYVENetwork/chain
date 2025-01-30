@@ -48,7 +48,7 @@ func (k Keeper) GetAllStakerAddressesOfPool(ctx sdk.Context, poolId uint64) (sta
 }
 
 func (k Keeper) GetPaginatedStakersByPoolStake(ctx sdk.Context, pagination *query.PageRequest, stakerStatus querytypes.StakerStatus, accumulator func(validator string, accumulate bool) bool) (*query.PageResponse, error) {
-	validators, err := k.stakingKeeper.GetBondedValidatorsByPower(ctx)
+	validators, err := k.stakingKeeper.GetValidators(ctx, 1000)
 	if err != nil {
 		return nil, err
 	}

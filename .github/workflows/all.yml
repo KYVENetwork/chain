@@ -2,6 +2,9 @@ name: run all jobs
 on: push
 
 jobs:
+  verify-migration-proofs:
+    uses: ./.github/workflows/migration.yml
+
   lint:
     uses: ./.github/workflows/lint.yml
 
