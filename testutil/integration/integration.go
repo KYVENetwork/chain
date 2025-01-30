@@ -1,7 +1,9 @@
 package integration
 
 import (
+	"github.com/cometbft/cometbft/proto/tendermint/types"
 	mrand "math/rand"
+	"strconv"
 	"time"
 
 	"cosmossdk.io/math"
@@ -17,6 +19,19 @@ import (
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
+
+type TestValidatorAddress struct {
+	Moniker string
+
+	PrivateKey *ed25519.PrivKey
+
+	Address        string
+	AccAddress     sdk.AccAddress
+	ConsAccAddress sdk.ConsAddress
+	ConsAddress    string
+
+	PoolAccount [10]string
+}
 
 const (
 	ALICE   = "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd"
@@ -54,7 +69,7 @@ var (
 )
 
 const (
-	KYVE   = uint64(1_000_000_000)
+	KYVE   = uint64(1_000_000)
 	T_KYVE = int64(KYVE)
 )
 
@@ -240,6 +255,26 @@ func (suite *KeeperTestSuite) SetCtx(ctx sdk.Context) {
 	suite.ctx = ctx
 }
 
+func (suite *KeeperTestSuite) CreateValidatorFromFullAddress(address TestValidatorAddress, kyveStake int64) {
+	valAddress := util.MustValaddressFromOperatorAddress(address.Address)
+
+	msg, _ := stakingtypes.NewMsgCreateValidator(
+		valAddress,
+		address.PrivateKey.PubKey(),
+		sdk.NewInt64Coin(globalTypes.Denom, kyveStake),
+		stakingtypes.Description{Moniker: address.Moniker},
+		stakingtypes.NewCommissionRates(math.LegacyMustNewDecFromStr("0.1"), math.LegacyMustNewDecFromStr("1"), math.LegacyMustNewDecFromStr("1")),
+		math.NewInt(1),
+	)
+
+	_, err := suite.RunTx(msg)
+	if err != nil {
+		panic(err)
+	}
+
+	suite.Commit()
+}
+
 func (suite *KeeperTestSuite) CreateValidatorWithoutCommit(address, moniker string, kyveStake int64) {
 	valAddress := util.MustValaddressFromOperatorAddress(address)
 
@@ -256,10 +291,9 @@ func (suite *KeeperTestSuite) CreateValidatorWithoutCommit(address, moniker stri
 	if err != nil {
 		panic(err)
 	}
-
-	suite.Commit()
 }
 
+// TODO consider remove
 func (suite *KeeperTestSuite) SelfDelegateValidator(address string, amount uint64) {
 	valAddress := util.MustValaddressFromOperatorAddress(address)
 
@@ -277,6 +311,7 @@ func (suite *KeeperTestSuite) SelfDelegateValidator(address string, amount uint6
 	suite.Commit()
 }
 
+// TODO consider remove
 func (suite *KeeperTestSuite) SelfUndelegateValidator(address string, amount uint64) {
 	valAddress := util.MustValaddressFromOperatorAddress(address)
 
@@ -292,6 +327,25 @@ func (suite *KeeperTestSuite) SelfUndelegateValidator(address string, amount uin
 	}
 
 	suite.Commit()
+}
+
+func (suite *KeeperTestSuite) CreateNewValidator(moniker string, kyveStake uint64) TestValidatorAddress {
+	a := GenerateTestValidatorAddress(moniker)
+	_ = suite.MintCoins(a.Address, 10*kyveStake)
+	msg, _ := stakingtypes.NewMsgCreateValidator(
+		util.MustValaddressFromOperatorAddress(a.Address),
+		a.PrivateKey.PubKey(),
+		sdk.NewInt64Coin(globalTypes.Denom, int64(kyveStake)),
+		stakingtypes.Description{Moniker: moniker},
+		stakingtypes.NewCommissionRates(math.LegacyMustNewDecFromStr("0.1"), math.LegacyMustNewDecFromStr("1"), math.LegacyMustNewDecFromStr("1")),
+		math.NewInt(1),
+	)
+	_, err := suite.RunTx(msg)
+	if err != nil {
+		panic(err)
+	}
+	suite.Commit()
+	return a
 }
 
 func (suite *KeeperTestSuite) CreateValidator(address, moniker string, kyveStake int64) {
@@ -314,6 +368,18 @@ func (suite *KeeperTestSuite) CreateZeroDelegationValidator(address, name string
 	))
 }
 
+func (suite *KeeperTestSuite) SetDelegationToZero(address string) {
+	val, _ := sdk.ValAddressFromBech32(util.MustValaddressFromOperatorAddress(address))
+	validator, _ := suite.App().StakingKeeper.GetValidator(suite.Ctx(), val)
+	validator.MinSelfDelegation = math.ZeroInt()
+	_ = suite.App().StakingKeeper.SetValidator(suite.Ctx(), validator)
+	suite.RunTxSuccess(stakingtypes.NewMsgUndelegate(
+		address,
+		util.MustValaddressFromOperatorAddress(address),
+		sdk.NewInt64Coin("tkyve", validator.BondedTokens().Int64()),
+	))
+}
+
 func (suite *KeeperTestSuite) Commit() {
 	suite.CommitAfter(time.Second * 0)
 }
@@ -329,6 +395,10 @@ func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	_, err := suite.app.FinalizeBlock(&abci.RequestFinalizeBlock{
 		Height: header.Height,
 		Time:   header.Time,
+		DecidedLastCommit: abci.CommitInfo{
+			Round: 0,
+			Votes: suite.VoteInfos,
+		},
 	})
 	if err != nil {
 		panic(err)
@@ -352,4 +422,51 @@ func (suite *KeeperTestSuite) Wait(t time.Duration) {
 	header.Time = header.Time.Add(t)
 
 	suite.ctx = suite.ctx.WithBlockTime(suite.ctx.BlockTime().Add(t))
+}
+
+func GenerateTestValidatorAddress(moniker string) TestValidatorAddress {
+	a := TestValidatorAddress{}
+	a.Moniker = moniker
+	a.PrivateKey = ed25519.GenPrivKeyFromSecret([]byte(moniker))
+
+	a.AccAddress = sdk.AccAddress(a.PrivateKey.PubKey().Address())
+	bech32Address, _ := sdk.Bech32ifyAddressBytes("kyve", a.AccAddress)
+	a.Address = bech32Address
+
+	a.ConsAccAddress = sdk.ConsAddress(a.PrivateKey.PubKey().Address())
+	bech32ConsAddress, _ := sdk.Bech32ifyAddressBytes("kyvevalcons", a.AccAddress)
+	a.ConsAddress = bech32ConsAddress
+
+	for i := 0; i < 10; i++ {
+		poolAddress := ed25519.GenPrivKeyFromSecret([]byte("pool_address" + moniker + strconv.Itoa(i))).PubKey().Address()
+		address, _ := sdk.Bech32ifyAddressBytes("kyve", sdk.AccAddress(poolAddress))
+		a.PoolAccount[i] = address
+	}
+
+	return a
+}
+
+func (suite *KeeperTestSuite) ResetAbciVotes() {
+	suite.VoteInfos = nil
+}
+
+func (suite *KeeperTestSuite) AddAbciCommitVotes(addresses ...sdk.ConsAddress) {
+	suite.addAbciVotes(2, addresses...)
+}
+
+func (suite *KeeperTestSuite) AddAbciAbsentVote(addresses ...sdk.ConsAddress) {
+	suite.addAbciVotes(1, addresses...)
+}
+
+func (suite *KeeperTestSuite) addAbciVotes(blogFlagId int32, addresses ...sdk.ConsAddress) {
+	suite.VoteInfos = make([]abci.VoteInfo, 0)
+	for _, address := range addresses {
+		suite.VoteInfos = []abci.VoteInfo{{
+			Validator: abci.Validator{
+				Address: address,
+				Power:   1,
+			},
+			BlockIdFlag: types.BlockIDFlag(blogFlagId),
+		}}
+	}
 }

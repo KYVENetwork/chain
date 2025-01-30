@@ -464,7 +464,7 @@ var _ = Describe("logic_round_robin.go", Ordered, func() {
 		// ACT
 		joinDummy(s, 3, 400)
 		rrvs = s.App().BundlesKeeper.LoadRoundRobinValidatorSet(s.Ctx(), 0)
-		shift := int64(1125_000_000_000 / 4)
+		shift := int64(1125_000_000 / 4)
 
 		// Assert
 		Expect(rrvs.Progress[i.DUMMY[0]]).To(Equal(100*int64(i.KYVE) + shift))

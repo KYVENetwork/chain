@@ -17,9 +17,13 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	govTypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	slashingTypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/suite"
 	"time"
@@ -30,8 +34,10 @@ type KeeperTestSuite struct {
 
 	ctx sdk.Context
 
-	app   *app.App
-	denom string
+	app                 *app.App
+	denom               string
+	privateValidatorKey *ed25519.PrivKey
+	VoteInfos           []abci.VoteInfo
 }
 
 // DefaultConsensusParams ...
@@ -55,7 +61,14 @@ var DefaultConsensusParams = &cmtProto.ConsensusParams{
 func (suite *KeeperTestSuite) SetupApp(startTime int64) {
 	db := dbm.NewMemDB()
 
-	setPrefixes(app.AccountAddressPrefix)
+	config := sdk.GetConfig()
+	if config.GetBech32AccountAddrPrefix() != "kyve" ||
+		config.GetBech32AccountPubPrefix() != "kyvepub" {
+		config.SetBech32PrefixForAccount("kyve", "kyve"+"pub")
+		config.SetBech32PrefixForValidator("kyve"+"valoper", "kyve"+"valoperpub")
+		config.SetBech32PrefixForConsensusNode("kyve"+"valcons", "kyve"+"valconspub")
+		config.Seal()
+	}
 
 	logger := log.NewNopLogger()
 	localApp, err := app.New(logger, db, nil, true, EmptyAppOptions{}, baseapp.SetChainID("kyve-test"))
@@ -64,7 +77,8 @@ func (suite *KeeperTestSuite) SetupApp(startTime int64) {
 	}
 	suite.app = localApp
 
-	genesisState := DefaultGenesisWithValSet(suite.app)
+	suite.privateValidatorKey = ed25519.GenPrivKeyFromSecret([]byte("Validator-1"))
+	genesisState := DefaultGenesisWithValSet(suite.app, suite.privateValidatorKey)
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	if err != nil {
 		panic(err)
@@ -88,7 +102,7 @@ func (suite *KeeperTestSuite) SetupApp(startTime int64) {
 		Height:          1,
 		ChainID:         "kyve-test",
 		Time:            time.Unix(startTime, 0).UTC(),
-		ProposerAddress: sdk.ConsAddress(ed25519.GenPrivKeyFromSecret([]byte("Validator-1")).PubKey().Address()).Bytes(),
+		ProposerAddress: sdk.ConsAddress(suite.privateValidatorKey.PubKey().Address()).Bytes(),
 
 		Version: tmversion.Consensus{
 			Block: version.BlockProtocol,
@@ -108,49 +122,13 @@ func (suite *KeeperTestSuite) SetupApp(startTime int64) {
 		ConsensusHash:      tmhash.Sum([]byte("consensus")),
 		LastResultsHash:    tmhash.Sum([]byte("last_result")),
 	})
-
-	mintParams, _ := suite.app.MintKeeper.Params.Get(suite.ctx)
-	mintParams.MintDenom = suite.denom
-	_ = suite.app.MintKeeper.Params.Set(suite.ctx, mintParams)
-
-	stakingParams, _ := suite.app.StakingKeeper.GetParams(suite.ctx)
-	stakingParams.BondDenom = suite.denom
-	stakingParams.MaxValidators = 51
-	_ = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
-
-	govParams, _ := suite.app.GovKeeper.Params.Get(suite.ctx)
-	govParams.MinDeposit = sdk.NewCoins(sdk.NewInt64Coin(KYVE_DENOM, int64(100_000_000_000))) // set min deposit to 100 KYVE
-	_ = suite.app.GovKeeper.Params.Set(suite.ctx, govParams)
 }
 
-func setPrefixes(accountAddressPrefix string) {
-	// Set prefixes
-	accountPubKeyPrefix := accountAddressPrefix + "pub"
-	validatorAddressPrefix := accountAddressPrefix + "valoper"
-	validatorPubKeyPrefix := accountAddressPrefix + "valoperpub"
-	consNodeAddressPrefix := accountAddressPrefix + "valcons"
-	consNodePubKeyPrefix := accountAddressPrefix + "valconspub"
-
-	config := sdk.GetConfig()
-
-	// Return if prefixes are already set
-	if config.GetBech32AccountAddrPrefix() == accountAddressPrefix &&
-		config.GetBech32AccountPubPrefix() == accountPubKeyPrefix {
-		return
-	}
-
-	// Set and seal config
-	config.SetBech32PrefixForAccount(accountAddressPrefix, accountPubKeyPrefix)
-	config.SetBech32PrefixForValidator(validatorAddressPrefix, validatorPubKeyPrefix)
-	config.SetBech32PrefixForConsensusNode(consNodeAddressPrefix, consNodePubKeyPrefix)
-	config.Seal()
-}
-
-func DefaultGenesisWithValSet(app *app.App) map[string]json.RawMessage {
+func DefaultGenesisWithValSet(app *app.App, validatorPrivateKey *ed25519.PrivKey) map[string]json.RawMessage {
 	bondingDenom := globalTypes.Denom
 
 	// Generate a new validator.
-	pubKey := ed25519.GenPrivKey().PubKey()
+	pubKey := validatorPrivateKey.PubKey()
 	valAddress := sdk.ValAddress(pubKey.Address()).String()
 	pkAny, _ := codectypes.NewAnyWithValue(pubKey)
 
@@ -170,9 +148,8 @@ func DefaultGenesisWithValSet(app *app.App) map[string]json.RawMessage {
 		},
 	}
 	// Generate a new delegator.
-	delegatorKey := secp256k1.GenPrivKey()
 	delegator := authTypes.NewBaseAccount(
-		delegatorKey.PubKey().Address().Bytes(), delegatorKey.PubKey(), 0, 0,
+		validatorPrivateKey.PubKey().Address().Bytes(), validatorPrivateKey.PubKey(), 0, 0,
 	)
 
 	delegations := []stakingTypes.Delegation{
@@ -206,11 +183,39 @@ func DefaultGenesisWithValSet(app *app.App) map[string]json.RawMessage {
 	// Update x/staking state.
 	stakingParams := stakingTypes.DefaultParams()
 	stakingParams.BondDenom = bondingDenom
+	stakingParams.MaxValidators = 51
 
 	stakingGenesis := stakingTypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingTypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
-	// Return.
+	mintParams := mintTypes.DefaultParams()
+	mintParams.MintDenom = bondingDenom
+	mintGenesis := mintTypes.NewGenesisState(mintTypes.DefaultInitialMinter(), mintParams)
+	genesisState[mintTypes.ModuleName] = app.AppCodec().MustMarshalJSON(mintGenesis)
+
+	govParams := govTypes.DefaultParams()
+	govParams.MinDeposit = sdk.NewCoins(sdk.NewInt64Coin(KYVE_DENOM, int64(100*KYVE)))
+	govGenesis := govTypes.NewGenesisState(1, govParams)
+	genesisState["gov"] = app.AppCodec().MustMarshalJSON(govGenesis)
+
+	slashingParams := slashingTypes.DefaultParams()
+	slashingParams.SignedBlocksWindow = 1_000_000
+	// Allow always being offline
+	slashingParams.MinSignedPerWindow = math.LegacyMustNewDecFromStr("0.1")
+	slashingInfo := []slashingTypes.SigningInfo{{
+		Address: sdk.MustBech32ifyAddressBytes("kyvevalcons", validatorPrivateKey.PubKey().Address()),
+		ValidatorSigningInfo: slashingTypes.ValidatorSigningInfo{
+			Address:             sdk.MustBech32ifyAddressBytes("kyvevalcons", validatorPrivateKey.PubKey().Address()),
+			StartHeight:         0,
+			IndexOffset:         0,
+			JailedUntil:         time.Time{},
+			Tombstoned:          false,
+			MissedBlocksCounter: 0,
+		},
+	}}
+	slashingGenesis := slashingTypes.NewGenesisState(slashingParams, slashingInfo, nil)
+	genesisState["slashing"] = app.AppCodec().MustMarshalJSON(slashingGenesis)
+
 	return genesisState
 }
 
