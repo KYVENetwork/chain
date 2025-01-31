@@ -177,8 +177,10 @@ func (am AppModule) BeginBlock(ctx context.Context) error {
 	am.keeper.InitMemStore(sdkCtx)
 	SplitInflation(sdkCtx, am.keeper, am.bankKeeper, am.mintKeeper, am.poolKeeper, am.teamKeeper, am.upgradeKeeper)
 
-	upgradeHeight := am.keeper.GetBundlesMigrationUpgradeHeight(sdkCtx)
-	migration.MigrateBundlesModule(sdkCtx, am.keeper, int64(upgradeHeight))
+	upgradeHeight, err := am.keeper.GetBundlesMigrationUpgradeHeight(sdkCtx)
+	if err == nil {
+		migration.MigrateBundlesModule(sdkCtx, am.keeper, int64(upgradeHeight))
+	}
 
 	return nil
 }
