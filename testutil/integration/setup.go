@@ -1,9 +1,12 @@
 package integration
 
 import (
+	"encoding/json"
+	"time"
+
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
-	"encoding/json"
+
 	"github.com/KYVENetwork/chain/app"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	teamTypes "github.com/KYVENetwork/chain/x/team/types"
@@ -26,7 +29,6 @@ import (
 	slashingTypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/suite"
-	"time"
 )
 
 type KeeperTestSuite struct {

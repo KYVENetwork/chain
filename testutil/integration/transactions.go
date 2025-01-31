@@ -48,27 +48,12 @@ func (suite *KeeperTestSuite) RunTxPoolSuccess(msg sdk.Msg) {
 	Expect(err).NotTo(HaveOccurred())
 }
 
-func (suite *KeeperTestSuite) RunTxPoolError(msg sdk.Msg) {
-	_, err := suite.RunTx(msg)
-	Expect(err).To(HaveOccurred())
-}
-
 func (suite *KeeperTestSuite) RunTxStakersSuccess(msg sdk.Msg) {
 	_, err := suite.RunTx(msg)
 	Expect(err).NotTo(HaveOccurred())
 }
 
 func (suite *KeeperTestSuite) RunTxStakersError(msg sdk.Msg) {
-	_, err := suite.RunTx(msg)
-	Expect(err).To(HaveOccurred())
-}
-
-func (suite *KeeperTestSuite) RunTxDelegatorSuccess(msg sdk.Msg) {
-	_, err := suite.RunTx(msg)
-	Expect(err).NotTo(HaveOccurred())
-}
-
-func (suite *KeeperTestSuite) RunTxDelegatorError(msg sdk.Msg) {
 	_, err := suite.RunTx(msg)
 	Expect(err).To(HaveOccurred())
 }

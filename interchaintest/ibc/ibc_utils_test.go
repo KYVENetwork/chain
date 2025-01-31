@@ -2,8 +2,9 @@ package relayer_test
 
 import (
 	"encoding/json"
-	i "github.com/KYVENetwork/chain/testutil/integration"
 	"strconv"
+
+	i "github.com/KYVENetwork/chain/testutil/integration"
 
 	"cosmossdk.io/math"
 

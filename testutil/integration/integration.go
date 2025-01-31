@@ -1,10 +1,11 @@
 package integration
 
 import (
-	"github.com/cometbft/cometbft/proto/tendermint/types"
 	mrand "math/rand"
 	"strconv"
 	"time"
+
+	"github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/util"
@@ -19,19 +20,6 @@ import (
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
-
-type TestValidatorAddress struct {
-	Moniker string
-
-	PrivateKey *ed25519.PrivKey
-
-	Address        string
-	AccAddress     sdk.AccAddress
-	ConsAccAddress sdk.ConsAddress
-	ConsAddress    string
-
-	PoolAccount [10]string
-}
 
 const (
 	ALICE   = "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd"
@@ -124,30 +112,30 @@ func NewCleanChainAtTime(startTime int64) *KeeperTestSuite {
 }
 
 func (suite *KeeperTestSuite) initDummyAccounts() {
-	_ = suite.MintCoins(ALICE, 1000*KYVE)
-	_ = suite.MintCoins(BOB, 1000*KYVE)
-	_ = suite.MintCoins(CHARLIE, 1000*KYVE)
-	_ = suite.MintCoins(DAVID, 1000*KYVE)
+	_ = suite.MintBaseCoins(ALICE, 1000*KYVE)
+	_ = suite.MintBaseCoins(BOB, 1000*KYVE)
+	_ = suite.MintBaseCoins(CHARLIE, 1000*KYVE)
+	_ = suite.MintBaseCoins(DAVID, 1000*KYVE)
 
-	_ = suite.MintCoins(STAKER_0, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_0_A, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_0_B, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_0_C, 1000*KYVE)
+	_ = suite.MintBaseCoins(STAKER_0, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_0_A, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_0_B, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_0_C, 1000*KYVE)
 
-	_ = suite.MintCoins(STAKER_1, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_1_A, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_1_B, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_1_C, 1000*KYVE)
+	_ = suite.MintBaseCoins(STAKER_1, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_1_A, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_1_B, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_1_C, 1000*KYVE)
 
-	_ = suite.MintCoins(STAKER_2, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_2_A, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_2_B, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_2_C, 1000*KYVE)
+	_ = suite.MintBaseCoins(STAKER_2, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_2_A, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_2_B, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_2_C, 1000*KYVE)
 
-	_ = suite.MintCoins(STAKER_3, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_3_A, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_3_B, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_3_C, 1000*KYVE)
+	_ = suite.MintBaseCoins(STAKER_3, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_3_A, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_3_B, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_3_C, 1000*KYVE)
 
 	DUMMY = make([]string, 50)
 
@@ -159,7 +147,7 @@ func (suite *KeeperTestSuite) initDummyAccounts() {
 		}
 		dummy, _ := sdk.Bech32ifyAddressBytes("kyve", byteAddr)
 		DUMMY[i] = dummy
-		_ = suite.MintCoins(dummy, 1000*KYVE)
+		_ = suite.MintBaseCoins(dummy, 1000*KYVE)
 	}
 
 	VALDUMMY = make([]string, 50)
@@ -171,41 +159,22 @@ func (suite *KeeperTestSuite) initDummyAccounts() {
 		}
 		dummy, _ := sdk.Bech32ifyAddressBytes("kyve", byteAddr)
 		VALDUMMY[i] = dummy
-		_ = suite.MintCoins(dummy, 1000*KYVE)
+		_ = suite.MintBaseCoins(dummy, 1000*KYVE)
 	}
 }
 
-func (suite *KeeperTestSuite) MintCoins(address string, amount uint64) error {
-	// mint coins ukyve, A, B, C
-	coins := sdk.NewCoins(
+func (suite *KeeperTestSuite) MintBaseCoins(address string, amount uint64) error {
+	return suite.MintCoins(address, sdk.NewCoins(
+		// mint coins ukyve, A, B, C
 		sdk.NewInt64Coin(KYVE_DENOM, int64(amount)),
 		sdk.NewInt64Coin(A_DENOM, int64(amount)),
 		sdk.NewInt64Coin(B_DENOM, int64(amount)),
 		sdk.NewInt64Coin(C_DENOM, int64(amount)),
-	)
-	err := suite.app.BankKeeper.MintCoins(suite.ctx, mintTypes.ModuleName, coins)
-	if err != nil {
-		return err
-	}
-
-	suite.Commit()
-
-	receiver, err := sdk.AccAddressFromBech32(address)
-	if err != nil {
-		return err
-	}
-
-	err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, mintTypes.ModuleName, receiver, coins)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	))
 }
 
-func (suite *KeeperTestSuite) MintCoin(address string, coin sdk.Coin) error {
+func (suite *KeeperTestSuite) MintCoins(address string, coins sdk.Coins) error {
 	// mint coins ukyve, A, B, C
-	coins := sdk.NewCoins(coin)
 	err := suite.app.BankKeeper.MintCoins(suite.ctx, mintTypes.ModuleName, coins)
 	if err != nil {
 		return err
@@ -255,6 +224,19 @@ func (suite *KeeperTestSuite) SetCtx(ctx sdk.Context) {
 	suite.ctx = ctx
 }
 
+type TestValidatorAddress struct {
+	Moniker string
+
+	PrivateKey *ed25519.PrivKey
+
+	Address        string
+	AccAddress     sdk.AccAddress
+	ConsAccAddress sdk.ConsAddress
+	ConsAddress    string
+
+	PoolAccount [10]string
+}
+
 func (suite *KeeperTestSuite) CreateValidatorFromFullAddress(address TestValidatorAddress, kyveStake int64) {
 	valAddress := util.MustValaddressFromOperatorAddress(address.Address)
 
@@ -293,7 +275,6 @@ func (suite *KeeperTestSuite) CreateValidatorWithoutCommit(address, moniker stri
 	}
 }
 
-// TODO consider remove
 func (suite *KeeperTestSuite) SelfDelegateValidator(address string, amount uint64) {
 	valAddress := util.MustValaddressFromOperatorAddress(address)
 
@@ -311,7 +292,6 @@ func (suite *KeeperTestSuite) SelfDelegateValidator(address string, amount uint6
 	suite.Commit()
 }
 
-// TODO consider remove
 func (suite *KeeperTestSuite) SelfUndelegateValidator(address string, amount uint64) {
 	valAddress := util.MustValaddressFromOperatorAddress(address)
 
@@ -331,7 +311,7 @@ func (suite *KeeperTestSuite) SelfUndelegateValidator(address string, amount uin
 
 func (suite *KeeperTestSuite) CreateNewValidator(moniker string, kyveStake uint64) TestValidatorAddress {
 	a := GenerateTestValidatorAddress(moniker)
-	_ = suite.MintCoins(a.Address, 10*kyveStake)
+	_ = suite.MintBaseCoins(a.Address, 10*kyveStake)
 	msg, _ := stakingtypes.NewMsgCreateValidator(
 		util.MustValaddressFromOperatorAddress(a.Address),
 		a.PrivateKey.PubKey(),
