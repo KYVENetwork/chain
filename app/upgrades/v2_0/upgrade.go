@@ -3,6 +3,7 @@ package v2_0
 import (
 	"context"
 	"fmt"
+
 	bundleskeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
 
 	"github.com/KYVENetwork/chain/x/stakers/types"

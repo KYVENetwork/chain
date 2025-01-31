@@ -3,6 +3,7 @@ package keeper
 import (
 	"encoding/binary"
 	"errors"
+
 	"github.com/KYVENetwork/chain/x/bundles/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"

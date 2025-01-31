@@ -1,27 +1,27 @@
 package migration
 
 import (
-	"cosmossdk.io/log"
-	"cosmossdk.io/store/prefix"
-	storeTypes "cosmossdk.io/store/types"
 	"embed"
 	_ "embed"
 	"encoding/hex"
 	"fmt"
+	"strconv"
+	"strings"
+
+	"cosmossdk.io/log"
+	"cosmossdk.io/store/prefix"
 	"github.com/KYVENetwork/chain/util"
 	bundleskeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
 	"github.com/KYVENetwork/chain/x/bundles/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"strconv"
-	"strings"
 )
 
 var logger log.Logger
 
 const (
 	BundlesMigrationStepSizePerPool uint64 = 100
-	WaitingBlockPeriod                     = 1
+	WaitingBlockPeriod              int64  = 1
 )
 
 //go:embed files/*
@@ -71,8 +71,8 @@ func MigrateBundlesModule(sdkCtx sdk.Context, bundlesKeeper bundleskeeper.Keeper
 	}
 
 	for _, bundlesMigrationEntry := range bundlesMigration {
-		step := uint64(sdkCtx.BlockHeight()-upgradeHeight) - WaitingBlockPeriod
-		offset := step * BundlesMigrationStepSizePerPool
+		step := sdkCtx.BlockHeight() - upgradeHeight - WaitingBlockPeriod
+		offset := uint64(step) * BundlesMigrationStepSizePerPool
 
 		// Skip if all bundles have already been migrated
 		if offset > bundlesMigrationEntry.maxBundleId+BundlesMigrationStepSizePerPool {
@@ -91,8 +91,7 @@ func migrateFinalizedBundles(ctx sdk.Context, bundlesKeeper bundleskeeper.Keeper
 	storeAdapter := runtime.KVStoreAdapter(bundlesKeeper.Migration_GetStoreService().OpenKVStore(ctx))
 	store := prefix.NewStore(storeAdapter, util.GetByteKey(types.FinalizedBundlePrefix, bundlesMigrationEntry.poolId))
 
-	var iterator storeTypes.Iterator
-	iterator = store.Iterator(util.GetByteKey(offset), util.GetByteKey(offset+BundlesMigrationStepSizePerPool))
+	iterator := store.Iterator(util.GetByteKey(offset), util.GetByteKey(offset+BundlesMigrationStepSizePerPool))
 
 	var migratedBundles []types.FinalizedBundle
 

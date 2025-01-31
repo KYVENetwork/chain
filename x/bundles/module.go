@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/KYVENetwork/chain/x/bundles/migration"
 
 	"cosmossdk.io/core/appmodule"
