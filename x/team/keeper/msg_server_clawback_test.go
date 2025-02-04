@@ -48,11 +48,11 @@ var _ = Describe("msg_server_clawback.go", Ordered, func() {
 		Expect(tva.LastClaimedTime).To(Equal(uint64(0)))
 
 		status := teamKeeper.GetVestingStatus(tva, uint64(s.Ctx().BlockTime().Unix()))
-		Expect(status.TotalVestedAmount).To(Equal(uint64(694_444_444_444_444)))
-		Expect(status.TotalUnlockedAmount).To(Equal(uint64(28_935_185_185_185)))
-		Expect(status.RemainingUnvestedAmount).To(Equal(uint64(305_555_555_555_556)))
-		Expect(status.LockedVestedAmount).To(Equal(uint64(665_509_259_259_259)))
-		Expect(status.CurrentClaimableAmount).To(Equal(uint64(28_935_185_185_185)))
+		Expect(status.TotalVestedAmount).To(Equal(uint64(694_444_444_444)))
+		Expect(status.TotalUnlockedAmount).To(Equal(uint64(28_935_185_185)))
+		Expect(status.RemainingUnvestedAmount).To(Equal(uint64(305_555_555_556)))
+		Expect(status.LockedVestedAmount).To(Equal(uint64(665_509_259_259)))
+		Expect(status.CurrentClaimableAmount).To(Equal(uint64(28_935_185_185)))
 
 		// ACT
 		s.RunTxTeamError(&types.MsgClawback{
@@ -81,11 +81,11 @@ var _ = Describe("msg_server_clawback.go", Ordered, func() {
 		Expect(tva.LastClaimedTime).To(Equal(uint64(0)))
 
 		status := teamKeeper.GetVestingStatus(tva, uint64(s.Ctx().BlockTime().Unix()))
-		Expect(status.TotalVestedAmount).To(Equal(uint64(694_444_444_444_444)))
-		Expect(status.TotalUnlockedAmount).To(Equal(uint64(28_935_185_185_185)))
-		Expect(status.RemainingUnvestedAmount).To(Equal(uint64(305_555_555_555_556)))
-		Expect(status.LockedVestedAmount).To(Equal(uint64(665_509_259_259_259)))
-		Expect(status.CurrentClaimableAmount).To(Equal(uint64(28_935_185_185_185)))
+		Expect(status.TotalVestedAmount).To(Equal(uint64(694_444_444_444)))
+		Expect(status.TotalUnlockedAmount).To(Equal(uint64(28_935_185_185)))
+		Expect(status.RemainingUnvestedAmount).To(Equal(uint64(305_555_555_556)))
+		Expect(status.LockedVestedAmount).To(Equal(uint64(665_509_259_259)))
+		Expect(status.CurrentClaimableAmount).To(Equal(uint64(28_935_185_185)))
 		s.PerformValidityChecks()
 
 		// ACT
@@ -115,18 +115,18 @@ var _ = Describe("msg_server_clawback.go", Ordered, func() {
 		Expect(acc.LastClaimedTime).To(Equal(uint64(0)))
 
 		status := teamKeeper.GetVestingStatus(acc, uint64(s.Ctx().BlockTime().Unix()))
-		Expect(status.TotalVestedAmount).To(Equal(uint64(694_444_444_444_444)))
-		Expect(status.TotalUnlockedAmount).To(Equal(uint64(28_935_185_185_185)))
-		Expect(status.RemainingUnvestedAmount).To(Equal(uint64(305_555_555_555_556)))
-		Expect(status.LockedVestedAmount).To(Equal(uint64(665_509_259_259_259)))
-		Expect(status.CurrentClaimableAmount).To(Equal(uint64(28_935_185_185_185)))
+		Expect(status.TotalVestedAmount).To(Equal(uint64(694_444_444_444)))
+		Expect(status.TotalUnlockedAmount).To(Equal(uint64(28_935_185_185)))
+		Expect(status.RemainingUnvestedAmount).To(Equal(uint64(305_555_555_556)))
+		Expect(status.LockedVestedAmount).To(Equal(uint64(665_509_259_259)))
+		Expect(status.CurrentClaimableAmount).To(Equal(uint64(28_935_185_185)))
 		s.PerformValidityChecks()
 
 		// ACT
 		s.RunTxTeamSuccess(&types.MsgClaimUnlocked{
 			Authority: types.FOUNDATION_ADDRESS,
 			Id:        0,
-			Amount:    10_935_185_185_185,
+			Amount:    10_935_185_185,
 			Recipient: i.ALICE,
 		})
 
@@ -139,14 +139,14 @@ var _ = Describe("msg_server_clawback.go", Ordered, func() {
 		// ASSERT
 		acc, _ = s.App().TeamKeeper.GetTeamVestingAccount(s.Ctx(), 0)
 		Expect(acc.Clawback).To(BeZero())
-		Expect(acc.UnlockedClaimed).To(Equal(uint64(10_935_185_185_185)))
+		Expect(acc.UnlockedClaimed).To(Equal(uint64(10_935_185_185)))
 
 		status = teamKeeper.GetVestingStatus(acc, uint64(s.Ctx().BlockTime().Unix()))
-		Expect(status.TotalVestedAmount).To(Equal(uint64(694_444_444_444_444)))
-		Expect(status.TotalUnlockedAmount).To(Equal(uint64(28_935_185_185_185)))
-		Expect(status.RemainingUnvestedAmount).To(Equal(uint64(305_555_555_555_556)))
-		Expect(status.LockedVestedAmount).To(Equal(uint64(665_509_259_259_259)))
-		Expect(status.CurrentClaimableAmount).To(Equal(uint64(18_000_000_000_000)))
+		Expect(status.TotalVestedAmount).To(Equal(uint64(694_444_444_444)))
+		Expect(status.TotalUnlockedAmount).To(Equal(uint64(28_935_185_185)))
+		Expect(status.RemainingUnvestedAmount).To(Equal(uint64(305_555_555_556)))
+		Expect(status.LockedVestedAmount).To(Equal(uint64(665_509_259_259)))
+		Expect(status.CurrentClaimableAmount).To(Equal(uint64(18_000_000_000)))
 	})
 
 	It("apply_clawback", func() {
@@ -164,11 +164,11 @@ var _ = Describe("msg_server_clawback.go", Ordered, func() {
 		Expect(tva.LastClaimedTime).To(Equal(uint64(0)))
 
 		status := teamKeeper.GetVestingStatus(tva, uint64(s.Ctx().BlockTime().Unix()))
-		Expect(status.TotalVestedAmount).To(Equal(uint64(694_444_444_444_444)))
-		Expect(status.TotalUnlockedAmount).To(Equal(uint64(28_935_185_185_185)))
-		Expect(status.RemainingUnvestedAmount).To(Equal(uint64(305_555_555_555_556)))
-		Expect(status.LockedVestedAmount).To(Equal(uint64(665_509_259_259_259)))
-		Expect(status.CurrentClaimableAmount).To(Equal(uint64(28_935_185_185_185)))
+		Expect(status.TotalVestedAmount).To(Equal(uint64(694_444_444_444)))
+		Expect(status.TotalUnlockedAmount).To(Equal(uint64(28_935_185_185)))
+		Expect(status.RemainingUnvestedAmount).To(Equal(uint64(305_555_555_556)))
+		Expect(status.LockedVestedAmount).To(Equal(uint64(665_509_259_259)))
+		Expect(status.CurrentClaimableAmount).To(Equal(uint64(28_935_185_185)))
 		s.PerformValidityChecks()
 
 		s.RunTxTeamSuccess(&types.MsgClaimUnlocked{
@@ -208,8 +208,8 @@ var _ = Describe("msg_server_clawback.go", Ordered, func() {
 		Expect(info.FoundationAuthority).To(Equal(types.FOUNDATION_ADDRESS))
 		Expect(info.BcpAuthority).To(Equal(types.BCP_ADDRESS))
 		Expect(info.TotalTeamAllocation).To(Equal(types.TEAM_ALLOCATION))
-		Expect(info.IssuedTeamAllocation).To(Equal(uint64(694_444_444_444_444)))
-		Expect(info.AvailableTeamAllocation).To(Equal(types.TEAM_ALLOCATION - uint64(694_444_444_444_444)))
+		Expect(info.IssuedTeamAllocation).To(Equal(uint64(694_444_444_444)))
+		Expect(info.AvailableTeamAllocation).To(Equal(types.TEAM_ALLOCATION - uint64(694_444_444_444)))
 
 		Expect(info.ClaimedAuthorityRewards).To(BeZero())
 		Expect(info.AvailableAuthorityRewards).To(Equal(info.TotalAuthorityRewards))
@@ -234,8 +234,8 @@ var _ = Describe("msg_server_clawback.go", Ordered, func() {
 		Expect(info.FoundationAuthority).To(Equal(types.FOUNDATION_ADDRESS))
 		Expect(info.BcpAuthority).To(Equal(types.BCP_ADDRESS))
 		Expect(info.TotalTeamAllocation).To(Equal(types.TEAM_ALLOCATION))
-		Expect(info.IssuedTeamAllocation).To(Equal(uint64(694_444_444_444_444)))
-		Expect(info.AvailableTeamAllocation).To(Equal(types.TEAM_ALLOCATION - uint64(694_444_444_444_444)))
+		Expect(info.IssuedTeamAllocation).To(Equal(uint64(694_444_444_444)))
+		Expect(info.AvailableTeamAllocation).To(Equal(types.TEAM_ALLOCATION - uint64(694_444_444_444)))
 
 		Expect(info.ClaimedAuthorityRewards).To(BeZero())
 		Expect(info.AvailableAuthorityRewards).To(Equal(info.TotalAuthorityRewards))
@@ -268,11 +268,11 @@ var _ = Describe("msg_server_clawback.go", Ordered, func() {
 		Expect(tva.LastClaimedTime).To(Equal(uint64(0)))
 
 		status := teamKeeper.GetVestingStatus(tva, uint64(s.Ctx().BlockTime().Unix()))
-		Expect(status.TotalVestedAmount).To(Equal(uint64(694_444_444_444_444)))
-		Expect(status.TotalUnlockedAmount).To(Equal(uint64(28_935_185_185_185)))
-		Expect(status.RemainingUnvestedAmount).To(Equal(uint64(305_555_555_555_556)))
-		Expect(status.LockedVestedAmount).To(Equal(uint64(665_509_259_259_259)))
-		Expect(status.CurrentClaimableAmount).To(Equal(uint64(28_935_185_185_185)))
+		Expect(status.TotalVestedAmount).To(Equal(uint64(694_444_444_444)))
+		Expect(status.TotalUnlockedAmount).To(Equal(uint64(28_935_185_185)))
+		Expect(status.RemainingUnvestedAmount).To(Equal(uint64(305_555_555_556)))
+		Expect(status.LockedVestedAmount).To(Equal(uint64(665_509_259_259)))
+		Expect(status.CurrentClaimableAmount).To(Equal(uint64(28_935_185_185)))
 		s.PerformValidityChecks()
 
 		s.RunTxTeamSuccess(&types.MsgClaimUnlocked{
@@ -312,8 +312,8 @@ var _ = Describe("msg_server_clawback.go", Ordered, func() {
 		Expect(info.FoundationAuthority).To(Equal(types.FOUNDATION_ADDRESS))
 		Expect(info.BcpAuthority).To(Equal(types.BCP_ADDRESS))
 		Expect(info.TotalTeamAllocation).To(Equal(types.TEAM_ALLOCATION))
-		Expect(info.IssuedTeamAllocation).To(Equal(uint64(694_444_444_444_444)))
-		Expect(info.AvailableTeamAllocation).To(Equal(types.TEAM_ALLOCATION - uint64(694_444_444_444_444)))
+		Expect(info.IssuedTeamAllocation).To(Equal(uint64(694_444_444_444)))
+		Expect(info.AvailableTeamAllocation).To(Equal(types.TEAM_ALLOCATION - uint64(694_444_444_444)))
 
 		Expect(info.TotalAuthorityRewards).To(BeNumerically(">", uint64(0)))
 		Expect(info.ClaimedAuthorityRewards).To(BeZero())
@@ -340,8 +340,8 @@ var _ = Describe("msg_server_clawback.go", Ordered, func() {
 		Expect(info.FoundationAuthority).To(Equal(types.FOUNDATION_ADDRESS))
 		Expect(info.BcpAuthority).To(Equal(types.BCP_ADDRESS))
 		Expect(info.TotalTeamAllocation).To(Equal(types.TEAM_ALLOCATION))
-		Expect(info.IssuedTeamAllocation).To(Equal(uint64(694_444_444_444_444)))
-		Expect(info.AvailableTeamAllocation).To(Equal(types.TEAM_ALLOCATION - uint64(694_444_444_444_444)))
+		Expect(info.IssuedTeamAllocation).To(Equal(uint64(694_444_444_444)))
+		Expect(info.AvailableTeamAllocation).To(Equal(types.TEAM_ALLOCATION - uint64(694_444_444_444)))
 
 		Expect(info.TotalAuthorityRewards).To(BeNumerically(">", uint64(0)))
 		Expect(info.ClaimedAuthorityRewards).To(BeZero())

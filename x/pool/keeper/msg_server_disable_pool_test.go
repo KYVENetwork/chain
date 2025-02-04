@@ -69,6 +69,10 @@ var _ = Describe("msg_server_disable_pool.go", Ordered, func() {
 			Moniker: "Alice",
 		})
 
+		params := s.App().FundersKeeper.GetParams(s.Ctx())
+		params.CoinWhitelist[0].MinFundingAmount = math.NewInt(100_000_000)
+		s.App().FundersKeeper.SetParams(s.Ctx(), params)
+
 		s.RunTxPoolSuccess(&funderstypes.MsgFundPool{
 			Creator:          i.ALICE,
 			PoolId:           0,

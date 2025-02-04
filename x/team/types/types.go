@@ -43,7 +43,7 @@ type VestingStatus struct {
 var (
 	TEAM_FOUNDATION_STRING = "kyve1u7ukf2nv6v5j5y2yqprm8yqruue2rlmrkx4xgq"
 	TEAM_BCP_STRING        = "kyve1ruxaec07ca3dh0amkzxjap7av3xjt5vjgnd424"
-	TEAM_ALLOCATION_STRING = "165000000000000000"
+	TEAM_ALLOCATION_STRING = "165000000000000"
 	TGE_STRING             = "2023-02-01T10:34:15"
 )
 

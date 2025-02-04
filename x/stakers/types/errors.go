@@ -21,7 +21,7 @@ var (
 
 	ErrPoolLeaveAlreadyInProgress = errors.Register(ModuleName, 1117, "Pool leave is already in progress")
 	ErrPoolAccountUnauthorized    = errors.Register(ModuleName, 1118, "pool account unauthorized")
-	ErrValidatorJailed            = errors.Register(ModuleName, 1119, "validator jailed")
+	ErrValidatorNotInActiveSet    = errors.Register(ModuleName, 1119, "validator not in active set")
 	ErrNoPoolAccount              = errors.Register(ModuleName, 1120, "sender has no pool account")
 
 	ErrMultiCoinRefundPolicyInvalidAdminAddress = errors.Register(ModuleName, 1122, "multi coin refund policy admin address invalid")
