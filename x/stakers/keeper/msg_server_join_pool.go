@@ -39,7 +39,7 @@ func (k msgServer) JoinPool(goCtx context.Context, msg *types.MsgJoinPool) (*typ
 
 	// Validator must be in the active set.
 	if !validator.IsBonded() {
-		return nil, errors.Wrapf(errorsTypes.ErrNotFound, types.ErrValidatorJailed.Error())
+		return nil, types.ErrValidatorNotInActiveSet
 	}
 
 	// Validators are not allowed to use their own address, to prevent
