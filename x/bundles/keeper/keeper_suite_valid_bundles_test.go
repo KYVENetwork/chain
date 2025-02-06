@@ -1796,10 +1796,10 @@ var _ = Describe("valid bundles", Ordered, func() {
 		s.App().FundersKeeper.SetParams(s.Ctx(), fundersTypes.NewParams([]*fundersTypes.WhitelistCoinEntry{
 			{
 				CoinDenom:                 globalTypes.Denom,
-				CoinDecimals:              9,
-				MinFundingAmount:          math.NewIntFromUint64(100_000_000_000), // 100 $KYVE
-				MinFundingAmountPerBundle: math.NewInt(100_000_000),               // 0.1 $KYVE
-				CoinWeight:                math.LegacyMustNewDecFromStr("0.055"),  // 0.055 $USD
+				CoinDecimals:              6,
+				MinFundingAmount:          math.NewIntFromUint64(100_000_000),    // 100 $KYVE
+				MinFundingAmountPerBundle: math.NewInt(100_000),                  // 0.1 $KYVE
+				CoinWeight:                math.LegacyMustNewDecFromStr("0.055"), // 0.055 $USD
 			},
 			{
 				CoinDenom:                 i.A_DENOM,
@@ -1825,7 +1825,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		}, 0))
 
 		// mint another 1,000 $ARCH to Alice
-		err := s.MintCoin(i.ALICE, sdk.NewCoin(i.B_DENOM, s.MustNewIntFromStr("1000000000000000000000")))
+		err := s.MintCoins(i.ALICE, sdk.NewCoins(sdk.NewCoin(i.B_DENOM, s.MustNewIntFromStr("1000000000000000000000"))))
 		_ = err
 
 		// defund everything so we have a clean state
@@ -1837,8 +1837,8 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// fund with every coin 100 units for amount and 1 for amount per bundle
 		s.RunTxPoolSuccess(&fundersTypes.MsgFundPool{
 			Creator:          i.ALICE,
-			Amounts:          sdk.NewCoins(i.KYVECoin(100_000_000_000), i.ACoin(100_000_000), sdk.NewCoin(i.B_DENOM, s.MustNewIntFromStr("100000000000000000000")), i.CCoin(100_000_000)),
-			AmountsPerBundle: sdk.NewCoins(i.KYVECoin(1_000_000_000), i.ACoin(1_000_000), sdk.NewCoin(i.B_DENOM, s.MustNewIntFromStr("1000000000000000000")), i.CCoin(1_000_000)),
+			Amounts:          sdk.NewCoins(i.KYVECoin(100_000_000), i.ACoin(100_000_000), sdk.NewCoin(i.B_DENOM, s.MustNewIntFromStr("100000000000000000000")), i.CCoin(100_000_000)),
+			AmountsPerBundle: sdk.NewCoins(i.KYVECoin(1_000_000), i.ACoin(1_000_000), sdk.NewCoin(i.B_DENOM, s.MustNewIntFromStr("1000000000000000000")), i.CCoin(1_000_000)),
 		})
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
@@ -1957,10 +1957,10 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// (amount_per_bundle - treasury_reward - storage_cost) * uploader_commission + storage_cost
 		// storage_cost = 1MB * storage_price / coin_length * coin_price
 		// (amount_per_bundle - (amount_per_bundle * 0.01) - _((1048576 * 0.000000006288 * 10**coin_decimals) / (4 * coin_weight))_) * 0.1 + _((1048576 * 0.000000006288) / (4 * coin_weight))_
-		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), poolAccountUploader.Staker).String()).To(Equal(sdk.NewCoins(i.KYVECoin(125_973_187), i.ACoin(99_143), i.BCoin(116_661_015_771_428_571), i.CCoin(100_765)).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), poolAccountUploader.Staker).String()).To(Equal(sdk.NewCoins(i.KYVECoin(125_973), i.ACoin(99_143), i.BCoin(116_661_015_771_428_571), i.CCoin(100_765)).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (amount_per_bundle - (amount_per_bundle * 0.01) - _((29970208 * 0.000000006288 * 1**coin_decimals) / (4 * coin_weight))_) * (1 - 0.1)
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(864_026_813), i.ACoin(890_857), i.BCoin(873_338_984_228_571_429), i.CCoin(889_235)).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(864_027), i.ACoin(890_857), i.BCoin(873_338_984_228_571_429), i.CCoin(889_235)).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -1971,7 +1971,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		Expect(c2.Sub(c1...).AmountOf(i.C_DENOM)).To(Equal(math.NewInt(10000)))
 
 		// assert total pool funds
-		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(sdk.NewCoins(i.KYVECoin(99_000_000_000), i.ACoin(99_000_000), sdk.NewCoin(i.B_DENOM, s.MustNewIntFromStr("99000000000000000000")), i.CCoin(99_000_000)).String()))
+		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId).String()).To(Equal(sdk.NewCoins(i.KYVECoin(99_000_000), i.ACoin(99_000_000), sdk.NewCoin(i.B_DENOM, s.MustNewIntFromStr("99000000000000000000")), i.CCoin(99_000_000)).String()))
 		Expect(fundingState.ActiveFunderAddresses).To(HaveLen(1))
 	})
 })

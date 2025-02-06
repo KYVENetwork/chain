@@ -31,8 +31,8 @@ func DefaultParams() Params {
 			{
 				CoinDenom:                 globalTypes.Denom,
 				CoinDecimals:              uint32(6),
-				MinFundingAmount:          math.NewInt(1_000_000_000), // 1,000 $KYVE
-				MinFundingAmountPerBundle: math.NewInt(100_000),       // 0.1 $KYVE
+				MinFundingAmount:          math.NewInt(100_000_000), // 100 $KYVE
+				MinFundingAmountPerBundle: math.NewInt(100_000),     // 0.1 $KYVE
 				CoinWeight:                math.LegacyNewDec(1),
 			},
 		},

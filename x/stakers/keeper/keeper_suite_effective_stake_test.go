@@ -271,35 +271,38 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 
 	It("Test effective stake with all validators having zero delegation", func() {
 		// ARRANGE
-		s.CreateZeroDelegationValidator(i.STAKER_0, "Staker-0")
+		staker0 := s.CreateNewValidator("Staker-0", 100*i.KYVE)
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:       i.STAKER_0,
+			Creator:       staker0.Address,
 			PoolId:        0,
-			PoolAddress:   i.POOL_ADDRESS_0_A,
+			PoolAddress:   staker0.PoolAccount[0],
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
-		s.CreateZeroDelegationValidator(i.STAKER_1, "Staker-1")
+		staker1 := s.CreateNewValidator("Staker-1", 100*i.KYVE)
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:       i.STAKER_1,
+			Creator:       staker1.Address,
 			PoolId:        0,
-			PoolAddress:   i.POOL_ADDRESS_1_A,
+			PoolAddress:   staker1.PoolAccount[0],
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
 
-		s.CreateZeroDelegationValidator(i.STAKER_2, "Staker-2")
+		staker2 := s.CreateNewValidator("Staker-2", 100*i.KYVE)
 		s.RunTxStakersSuccess(&stakerstypes.MsgJoinPool{
-			Creator:       i.STAKER_2,
+			Creator:       staker2.Address,
 			PoolId:        0,
-			PoolAddress:   i.POOL_ADDRESS_2_A,
+			PoolAddress:   staker2.PoolAccount[0],
 			Amount:        100 * i.KYVE,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
+		s.SetDelegationToZero(staker0.Address)
+		s.SetDelegationToZero(staker1.Address)
+		s.SetDelegationToZero(staker2.Address)
 
 		// ASSERT
 		Expect(s.App().StakersKeeper.IsVotingPowerTooHigh(s.Ctx(), 0)).To(BeFalse())
@@ -492,11 +495,11 @@ var _ = Describe("keeper_suite_effective_stake_test.go", Ordered, func() {
 		// ASSERT
 		Expect(s.App().StakersKeeper.IsVotingPowerTooHigh(s.Ctx(), 0)).To(BeFalse())
 
-		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(uint64(23333333333)))
-		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_1, 0)).To(Equal(uint64(23333333333)))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_0, 0)).To(Equal(uint64(23333333)))
+		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_1, 0)).To(Equal(uint64(23333333)))
 		Expect(s.App().StakersKeeper.GetValidatorPoolStake(s.Ctx(), i.STAKER_2, 0)).To(Equal(20 * i.KYVE))
 
-		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(uint64(66666666666)))
+		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(uint64(66666666)))
 	})
 
 	It("Test effective stake with some validators having zero delegation due to stake fractions", func() {

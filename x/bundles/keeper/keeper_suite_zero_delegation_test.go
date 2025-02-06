@@ -296,11 +296,15 @@ var _ = Describe("zero delegation", Ordered, func() {
 
 	It("Staker submit bundle proposal with zero delegation", func() {
 		// ARRANGE
+
 		// create zero delegation validator
-		s.CreateZeroDelegationValidator(i.STAKER_0, "Staker-0")
+		staker0 := s.CreateNewValidator("Staker-0", 100*i.KYVE)
+
+		validators, _ := s.App().StakingKeeper.GetValidators(s.Ctx(), 20)
+		_ = validators
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:       i.STAKER_0,
+			Creator:       staker0.Address,
 			PoolId:        0,
 			PoolAddress:   i.POOL_ADDRESS_0_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
@@ -308,10 +312,10 @@ var _ = Describe("zero delegation", Ordered, func() {
 		})
 
 		// create normal validator
-		s.CreateValidator(i.STAKER_1, "Staker-1", int64(100*i.KYVE))
+		staker1 := s.CreateNewValidator("Staker-1", 100*i.KYVE)
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:       i.STAKER_1,
+			Creator:       staker1.Address,
 			PoolId:        0,
 			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
@@ -319,10 +323,10 @@ var _ = Describe("zero delegation", Ordered, func() {
 		})
 
 		// create normal validator
-		s.CreateValidator(i.STAKER_2, "Staker-2", int64(100*i.KYVE))
+		staker2 := s.CreateNewValidator("Staker-2", 100*i.KYVE)
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:       i.STAKER_2,
+			Creator:       staker2.Address,
 			PoolId:        0,
 			PoolAddress:   i.POOL_ADDRESS_2_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
@@ -331,14 +335,14 @@ var _ = Describe("zero delegation", Ordered, func() {
 
 		// manually set next uploader
 		bundleProposal, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
-		bundleProposal.NextUploader = i.STAKER_0
+		bundleProposal.NextUploader = staker0.Address
 		s.App().BundlesKeeper.SetBundleProposal(s.Ctx(), bundleProposal)
 
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.POOL_ADDRESS_0_A,
-			Staker:        i.STAKER_0,
+			Staker:        staker0.Address,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
 			DataSize:      100,
@@ -352,7 +356,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
 			Creator:   i.POOL_ADDRESS_1_A,
-			Staker:    i.STAKER_1,
+			Staker:    staker1.Address,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
 			Vote:      bundletypes.VOTE_TYPE_VALID,
@@ -360,7 +364,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgVoteBundleProposal{
 			Creator:   i.POOL_ADDRESS_2_A,
-			Staker:    i.STAKER_2,
+			Staker:    staker2.Address,
 			PoolId:    0,
 			StorageId: "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
 			Vote:      bundletypes.VOTE_TYPE_VALID,
@@ -368,16 +372,17 @@ var _ = Describe("zero delegation", Ordered, func() {
 
 		s.CommitAfterSeconds(60)
 
-		initialBalanceStaker0 = s.GetBalanceFromAddress(i.STAKER_0)
+		initialBalanceStaker0 = s.GetBalanceFromAddress(staker0.Address)
 		initialBalancePoolAddress0 = s.GetBalanceFromAddress(i.POOL_ADDRESS_0_A)
 
-		initialBalanceStaker1 = s.GetBalanceFromAddress(i.STAKER_1)
+		initialBalanceStaker1 = s.GetBalanceFromAddress(staker1.Address)
 		initialBalancePoolAddress1 = s.GetBalanceFromAddress(i.POOL_ADDRESS_1_A)
 
+		s.SetDelegationToZero(staker0.Address)
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.POOL_ADDRESS_1_A,
-			Staker:        i.STAKER_1,
+			Staker:        staker1.Address,
 			PoolId:        0,
 			StorageId:     "P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg",
 			DataSize:      100,
@@ -405,7 +410,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 
 		Expect(finalizedBundle.PoolId).To(Equal(uint64(0)))
 		Expect(finalizedBundle.StorageId).To(Equal("y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI"))
-		Expect(finalizedBundle.Uploader).To(Equal(i.STAKER_0))
+		Expect(finalizedBundle.Uploader).To(Equal(staker0.Address))
 		Expect(finalizedBundle.FromIndex).To(Equal(uint64(0)))
 		Expect(finalizedBundle.ToIndex).To(Equal(uint64(100)))
 		Expect(finalizedBundle.FromKey).To(Equal("0"))
@@ -420,8 +425,8 @@ var _ = Describe("zero delegation", Ordered, func() {
 
 		Expect(bundleProposal.PoolId).To(Equal(uint64(0)))
 		Expect(bundleProposal.StorageId).To(Equal("P9edn0bjEfMU_lecFDIPLvGO2v2ltpFNUMWp5kgPddg"))
-		Expect(bundleProposal.Uploader).To(Equal(i.STAKER_1))
-		Expect(bundleProposal.NextUploader).To(Equal(i.STAKER_1))
+		Expect(bundleProposal.Uploader).To(Equal(staker1.Address))
+		Expect(bundleProposal.NextUploader).To(Equal(staker1.Address))
 		Expect(bundleProposal.DataSize).To(Equal(uint64(100)))
 		Expect(bundleProposal.DataHash).To(Equal("test_hash2"))
 		Expect(bundleProposal.BundleSize).To(Equal(uint64(100)))
@@ -429,12 +434,12 @@ var _ = Describe("zero delegation", Ordered, func() {
 		Expect(bundleProposal.ToKey).To(Equal("199"))
 		Expect(bundleProposal.BundleSummary).To(Equal("test_value2"))
 		Expect(bundleProposal.UpdatedAt).NotTo(BeZero())
-		Expect(bundleProposal.VotersValid).To(ContainElement(i.STAKER_1))
+		Expect(bundleProposal.VotersValid).To(ContainElement(staker1.Address))
 		Expect(bundleProposal.VotersInvalid).To(BeEmpty())
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		poolAccountUploader, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		poolAccountUploader, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), staker0.Address, 0)
 		Expect(poolAccountUploader.Points).To(BeZero())
 
 		balanceUploaderValaddress := s.GetBalanceFromAddress(poolAccountUploader.PoolAddress)
@@ -443,7 +448,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 		balanceUploader := s.GetBalanceFromAddress(poolAccountUploader.Staker)
 
 		// check voter status
-		poolAccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
+		poolAccountVoter, _ := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), staker1.Address, 0)
 		Expect(poolAccountVoter.Points).To(BeZero())
 
 		balanceVoterPoolAddress := s.GetBalanceFromAddress(poolAccountVoter.PoolAddress)
@@ -461,9 +466,9 @@ var _ = Describe("zero delegation", Ordered, func() {
 		// assert payout transfer
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
 		// assert commission rewards
-		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), i.STAKER_0).AmountOf(globaltypes.Denom).Int64()).To(Equal(totalUploaderReward.Add(storageReward).TruncateInt64()))
+		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), staker0.Address).AmountOf(globaltypes.Denom).Int64()).To(Equal(totalUploaderReward.Add(storageReward).TruncateInt64()))
 		// assert uploader self delegation rewards
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), staker0.Address, staker0.Address)).To(BeEmpty())
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -475,12 +480,12 @@ var _ = Describe("zero delegation", Ordered, func() {
 	It("Staker receives upload slash with zero delegation", func() {
 		// ARRANGE
 		// create zero delegation validator
-		s.CreateZeroDelegationValidator(i.STAKER_0, "Staker-0")
+		staker0 := s.CreateNewValidator("Staker-0", 1*i.KYVE)
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:       i.STAKER_0,
+			Creator:       staker0.Address,
 			PoolId:        0,
-			PoolAddress:   i.POOL_ADDRESS_0_A,
+			PoolAddress:   staker0.PoolAccount[0],
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
 			StakeFraction: math.LegacyMustNewDecFromStr("1"),
 		})
@@ -509,14 +514,14 @@ var _ = Describe("zero delegation", Ordered, func() {
 
 		// manually set next uploader
 		bundleProposal, _ := s.App().BundlesKeeper.GetBundleProposal(s.Ctx(), 0)
-		bundleProposal.NextUploader = i.STAKER_0
+		bundleProposal.NextUploader = staker0.Address
 		s.App().BundlesKeeper.SetBundleProposal(s.Ctx(), bundleProposal)
 
 		s.CommitAfterSeconds(60)
 
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
-			Creator:       i.POOL_ADDRESS_0_A,
-			Staker:        i.STAKER_0,
+			Creator:       staker0.PoolAccount[0],
+			Staker:        staker0.Address,
 			PoolId:        0,
 			StorageId:     "y62A3tfbSNcNYDGoL-eXwzyV-Zc9Q0OVtDvR1biJmNI",
 			DataSize:      100,
@@ -546,12 +551,13 @@ var _ = Describe("zero delegation", Ordered, func() {
 
 		s.CommitAfterSeconds(60)
 
-		initialBalanceStaker0 = s.GetBalanceFromAddress(i.STAKER_0)
-		initialBalancePoolAddress0 = s.GetBalanceFromAddress(i.POOL_ADDRESS_0_A)
+		initialBalanceStaker0 = s.GetBalanceFromAddress(staker0.Address)
+		initialBalancePoolAddress0 = s.GetBalanceFromAddress(staker0.PoolAccount[0])
 
 		initialBalanceStaker1 = s.GetBalanceFromAddress(i.STAKER_1)
 		initialBalancePoolAddress1 = s.GetBalanceFromAddress(i.POOL_ADDRESS_1_A)
 
+		s.SetDelegationToZero(staker0.Address)
 		// ACT
 		s.RunTxBundlesSuccess(&bundletypes.MsgSubmitBundleProposal{
 			Creator:       i.POOL_ADDRESS_1_A,
@@ -601,24 +607,24 @@ var _ = Describe("zero delegation", Ordered, func() {
 		Expect(bundleProposal.VotersAbstain).To(BeEmpty())
 
 		// check uploader status
-		_, uploaderActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_0, 0)
+		_, uploaderActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), staker0.Address, 0)
 		Expect(uploaderActive).To(BeFalse())
 
-		balancePoolAddress := s.GetBalanceFromAddress(i.POOL_ADDRESS_0_A)
+		balancePoolAddress := s.GetBalanceFromAddress(staker0.PoolAccount[0])
 		Expect(balancePoolAddress).To(Equal(initialBalancePoolAddress0))
 
-		balanceUploader := s.GetBalanceFromAddress(i.STAKER_0)
-		_, uploaderFound := s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_0)
+		balanceUploader := s.GetBalanceFromAddress(staker0.Address)
+		_, uploaderFound := s.App().StakersKeeper.GetValidator(s.Ctx(), staker0.Address)
 		Expect(uploaderFound).To(BeTrue())
 
 		Expect(balanceUploader).To(Equal(initialBalanceStaker0))
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), staker0.Address, staker0.Address)).To(BeEmpty())
 
 		// calculate uploader slashes
 		fraction := s.App().StakersKeeper.GetUploadSlash(s.Ctx())
 		slashAmount := uint64(math.LegacyNewDec(int64(0 * i.KYVE)).Mul(fraction).TruncateInt64())
 
-		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_0, i.STAKER_0)).To(Equal(0*i.KYVE - slashAmount))
+		Expect(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), staker0.Address, staker0.Address)).To(Equal(0*i.KYVE - slashAmount))
 		Expect(s.App().StakersKeeper.GetTotalStakeOfPool(s.Ctx(), 0)).To(Equal(200*i.KYVE - slashAmount))
 
 		// check voter status
@@ -654,10 +660,10 @@ var _ = Describe("zero delegation", Ordered, func() {
 		})
 
 		// create zero delegation validator
-		s.CreateZeroDelegationValidator(i.STAKER_1, "Staker-1")
+		staker1 := s.CreateNewValidator("Staker-1", 100*i.KYVE)
 
 		s.RunTxStakersSuccess(&stakertypes.MsgJoinPool{
-			Creator:       i.STAKER_1,
+			Creator:       staker1.Address,
 			PoolId:        0,
 			PoolAddress:   i.POOL_ADDRESS_1_A,
 			Commission:    math.LegacyMustNewDecFromStr("0.1"),
@@ -705,6 +711,7 @@ var _ = Describe("zero delegation", Ordered, func() {
 		})
 
 		s.CommitAfterSeconds(60)
+		s.SetDelegationToZero(staker1.Address)
 
 		// ACT
 		maxPoints := int(s.App().BundlesKeeper.GetMaxPoints(s.Ctx()))
@@ -746,17 +753,17 @@ var _ = Describe("zero delegation", Ordered, func() {
 		poolStakers := s.App().StakersKeeper.GetAllStakerAddressesOfPool(s.Ctx(), 0)
 		Expect(poolStakers).To(HaveLen(2))
 
-		_, stakerFound := s.App().StakersKeeper.GetValidator(s.Ctx(), i.STAKER_1)
+		_, stakerFound := s.App().StakersKeeper.GetValidator(s.Ctx(), staker1.Address)
 		Expect(stakerFound).To(BeTrue())
 
-		_, poolAccountActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), i.STAKER_1, 0)
+		_, poolAccountActive := s.App().StakersKeeper.GetPoolAccount(s.Ctx(), staker1.Address, 0)
 		Expect(poolAccountActive).To(BeFalse())
 
 		// check if voter got slashed
 		slashAmountRatio := s.App().StakersKeeper.GetTimeoutSlash(s.Ctx())
 		expectedBalance := 0*i.KYVE - uint64(math.LegacyNewDec(int64(0*i.KYVE)).Mul(slashAmountRatio).TruncateInt64())
 
-		Expect(expectedBalance).To(Equal(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), i.STAKER_1, i.STAKER_1)))
+		Expect(expectedBalance).To(Equal(s.App().StakersKeeper.GetDelegationAmountOfDelegator(s.Ctx(), staker1.Address, staker1.Address)))
 	})
 
 	It("Stakers try to produce valid bundle but all stakers have zero delegation", func() {
