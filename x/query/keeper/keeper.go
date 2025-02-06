@@ -9,15 +9,13 @@ import (
 
 	fundersKeeper "github.com/KYVENetwork/chain/x/funders/keeper"
 
+	"cosmossdk.io/log"
 	globalKeeper "github.com/KYVENetwork/chain/x/global/keeper"
 	poolkeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	stakerskeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
 	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-
-	"cosmossdk.io/log"
 
 	"github.com/KYVENetwork/chain/x/query/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -30,7 +28,7 @@ type (
 
 		accountKeeper authkeeper.AccountKeeper
 		bankKeeper    bankkeeper.Keeper
-		distrkeeper   distrkeeper.Keeper
+		distrkeeper   util.DistributionKeeper
 		poolKeeper    *poolkeeper.Keeper
 		// TODO: rename to stakersKeeper
 		stakerKeeper *stakerskeeper.Keeper
@@ -50,7 +48,7 @@ func NewKeeper(
 
 	accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
-	distrkeeper distrkeeper.Keeper,
+	distrkeeper util.DistributionKeeper,
 	poolKeeper *poolkeeper.Keeper,
 	stakerKeeper *stakerskeeper.Keeper,
 	bundleKeeper types.BundlesKeeper,

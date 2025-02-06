@@ -4,20 +4,22 @@ import (
 	"context"
 	"sort"
 
+	"github.com/KYVENetwork/chain/x/compliance/types"
+
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 
-	"github.com/KYVENetwork/chain/x/stakers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 )
 
 func (k Keeper) addPendingComplianceRewards(ctx sdk.Context, address string, rewards sdk.Coins) {
-	queueIndex := k.getNextQueueSlot(ctx, types.QUEUE_IDENTIFIER_LEAVE)
+	queueIndex := k.getNextQueueSlot(ctx, types.QUEUE_IDENTIFIER_MULTI_COIN_REWARDS)
 
 	compliancePendingEntry := types.MultiCoinPendingRewardsEntry{
-		Index:   queueIndex,
-		Address: address,
-		Rewards: rewards,
+		Index:        queueIndex,
+		Address:      address,
+		Rewards:      rewards,
+		CreationDate: ctx.BlockTime().Unix(),
 	}
 
 	k.SetMultiCoinPendingRewardsEntry(ctx, compliancePendingEntry)
@@ -134,7 +136,9 @@ func (k Keeper) HandleMultiCoinRewards(goCtx context.Context, withdrawAddress sd
 		panic(err)
 	}
 	// Add Pending-Queue entry
-	k.addPendingComplianceRewards(ctx, withdrawAddress.String(), nonCompliantRewards)
+	if !nonCompliantRewards.Empty() {
+		k.addPendingComplianceRewards(ctx, withdrawAddress.String(), nonCompliantRewards)
+	}
 
 	return compliantRewards
 }

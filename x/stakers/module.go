@@ -15,7 +15,6 @@ import (
 	"github.com/KYVENetwork/chain/util"
 	poolKeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	// this line is used by starport scaffolding # 1
 
@@ -157,14 +156,6 @@ func (am AppModule) BeginBlock(ctx context.Context) error {
 	am.keeper.ProcessCommissionChangeQueue(sdkCtx)
 	am.keeper.ProcessLeavePoolQueue(sdkCtx)
 	am.keeper.ProcessStakeFractionChangeQueue(sdkCtx)
-
-	am.keeper.ProcessComplianceQueue(sdkCtx)
-
-	// Only execute every 50 blocks
-	if sdkCtx.BlockHeight()%50 != 0 {
-		_ = am.keeper.DistributeNonClaimedRewards(sdkCtx)
-	}
-
 	return nil
 }
 
@@ -194,9 +185,8 @@ type ModuleInputs struct {
 	MemService   store.MemoryStoreService
 	Logger       log.Logger
 
-	AccountKeeper      util.AccountKeeper
 	BankKeeper         util.BankKeeper
-	DistributionKeeper distributionKeeper.Keeper
+	DistributionKeeper util.DistributionKeeper
 	PoolKeeper         *poolKeeper.Keeper
 	StakingKeeper      util.StakingKeeper
 }
@@ -221,7 +211,6 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		in.MemService,
 		in.Logger,
 		authority.String(),
-		in.AccountKeeper,
 		in.BankKeeper,
 		in.PoolKeeper,
 		in.StakingKeeper,

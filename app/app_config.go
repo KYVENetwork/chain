@@ -28,6 +28,7 @@ import (
 	"cosmossdk.io/x/feegrant"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	bundlesmodulev1 "github.com/KYVENetwork/chain/api/kyve/bundles/module"
+	compliancemodulev1 "github.com/KYVENetwork/chain/api/kyve/compliance/module"
 	delegationmodulev1 "github.com/KYVENetwork/chain/api/kyve/delegation/module"
 	fundersmodulev1 "github.com/KYVENetwork/chain/api/kyve/funders/module"
 	globalmodulev1 "github.com/KYVENetwork/chain/api/kyve/global/module"
@@ -56,6 +57,7 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	bundlestypes "github.com/KYVENetwork/chain/x/bundles/types"
+	compliancetypes "github.com/KYVENetwork/chain/x/compliance/types"
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	globaltypes "github.com/KYVENetwork/chain/x/global/types"
@@ -105,6 +107,7 @@ var (
 		globaltypes.ModuleName,
 		teamtypes.ModuleName,
 		funderstypes.ModuleName,
+		compliancetypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	}
 
@@ -135,6 +138,7 @@ var (
 		// KYVE modules
 		delegationtypes.ModuleName,
 		stakerstypes.ModuleName,
+		compliancetypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	}
 
@@ -181,7 +185,8 @@ var (
 		{Account: delegationtypes.ModuleName},
 		{Account: pooltypes.ModuleName},
 		{Account: stakerstypes.ModuleName},
-		{Account: stakerstypes.MultiCoinRewardsRedistributionAccountName},
+		{Account: compliancetypes.ModuleName},
+		{Account: compliancetypes.MultiCoinRewardsRedistributionAccountName},
 		{Account: teamtypes.ModuleName},
 		{Account: funderstypes.ModuleName},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
@@ -355,6 +360,10 @@ var (
 			{
 				Name:   funderstypes.ModuleName,
 				Config: appconfig.WrapAny(&fundersmodulev1.Module{}),
+			},
+			{
+				Name:   compliancetypes.ModuleName,
+				Config: appconfig.WrapAny(&compliancemodulev1.Module{}),
 			},
 			// this line is used by starport scaffolding # stargate/app/moduleConfig
 		},

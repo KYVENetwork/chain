@@ -14,9 +14,6 @@ var DefaultLeavePoolTime = uint64(60 * 60 * 24 * 5)
 // DefaultStakeFractionChangeTime ...
 var DefaultStakeFractionChangeTime = uint64(60 * 60 * 24 * 5)
 
-// DefaultMultiCoinRefundPendingTime ...
-var DefaultMultiCoinRefundPendingTime = uint64(60 * 60 * 24 * 14)
-
 // DefaultVoteSlash ...
 var DefaultVoteSlash = math.LegacyMustNewDecFromStr("0.01")
 
@@ -31,19 +28,17 @@ func NewParams(
 	commissionChangeTime uint64,
 	leavePoolTime uint64,
 	stakeFractionChangeTime uint64,
-	multiCoinRefundPendingTime uint64,
 	voteSlash math.LegacyDec,
 	uploadSlash math.LegacyDec,
 	timeoutSlash math.LegacyDec,
 ) Params {
 	return Params{
-		CommissionChangeTime:       commissionChangeTime,
-		LeavePoolTime:              leavePoolTime,
-		StakeFractionChangeTime:    stakeFractionChangeTime,
-		MultiCoinRefundPendingTime: multiCoinRefundPendingTime,
-		VoteSlash:                  voteSlash,
-		UploadSlash:                uploadSlash,
-		TimeoutSlash:               timeoutSlash,
+		CommissionChangeTime:    commissionChangeTime,
+		LeavePoolTime:           leavePoolTime,
+		StakeFractionChangeTime: stakeFractionChangeTime,
+		VoteSlash:               voteSlash,
+		UploadSlash:             uploadSlash,
+		TimeoutSlash:            timeoutSlash,
 	}
 }
 
@@ -53,7 +48,6 @@ func DefaultParams() Params {
 		DefaultCommissionChangeTime,
 		DefaultLeavePoolTime,
 		DefaultStakeFractionChangeTime,
-		DefaultMultiCoinRefundPendingTime,
 		DefaultVoteSlash,
 		DefaultUploadSlash,
 		DefaultTimeoutSlash,
@@ -71,10 +65,6 @@ func (p Params) Validate() error {
 	}
 
 	if err := util.ValidateNumber(p.StakeFractionChangeTime); err != nil {
-		return err
-	}
-
-	if err := util.ValidateNumber(p.MultiCoinRefundPendingTime); err != nil {
 		return err
 	}
 

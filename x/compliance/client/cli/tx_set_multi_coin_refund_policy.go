@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/KYVENetwork/chain/x/stakers/types"
+	"github.com/KYVENetwork/chain/x/compliance/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"

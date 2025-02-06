@@ -13,8 +13,6 @@ const (
 
 	// RouterKey defines the module's message routing key
 	RouterKey = ModuleName
-
-	MultiCoinRewardsRedistributionAccountName = "multi_coin_rewards_redistribution"
 )
 
 var (
@@ -48,15 +46,6 @@ var (
 	StakeFractionChangeEntryKeyPrefix = []byte{7, 0}
 	// StakeFractionChangeKeyPrefixIndex2 | <staker> | <poolId>
 	StakeFractionChangeKeyPrefixIndex2 = []byte{7, 1}
-
-	// MultiCoinPendingRewardsEntryKeyPrefix | <index>
-	MultiCoinPendingRewardsEntryKeyPrefix = []byte{8, 0}
-	// MultiCoinPendingRewardsEntryKeyPrefixIndex2 | <staker> | <poolId>
-	MultiCoinPendingRewardsEntryKeyPrefixIndex2 = []byte{8, 1}
-
-	MultiCoinRewardsEnabledKeyPrefix = []byte{9, 2}
-
-	MultiCoinRefundPolicyKeyPrefix = []byte{9, 3}
 )
 
 // ENUM aggregated data types
@@ -68,10 +57,9 @@ var STAKER_STATS_COUNT STAKER_STATS = "total_stakers"
 type QUEUE_IDENTIFIER []byte
 
 var (
-	QUEUE_IDENTIFIER_COMMISSION         QUEUE_IDENTIFIER = []byte{30, 2}
-	QUEUE_IDENTIFIER_LEAVE              QUEUE_IDENTIFIER = []byte{30, 3}
-	QUEUE_IDENTIFIER_STAKE_FRACTION     QUEUE_IDENTIFIER = []byte{30, 4}
-	QUEUE_IDENTIFIER_MULTI_COIN_REWARDS QUEUE_IDENTIFIER = []byte{30, 5}
+	QUEUE_IDENTIFIER_COMMISSION     QUEUE_IDENTIFIER = []byte{30, 2}
+	QUEUE_IDENTIFIER_LEAVE          QUEUE_IDENTIFIER = []byte{30, 3}
+	QUEUE_IDENTIFIER_STAKE_FRACTION QUEUE_IDENTIFIER = []byte{30, 4}
 )
 
 const MaxStakers = 50
@@ -107,12 +95,4 @@ func StakeFractionChangeEntryKey(index uint64) []byte {
 
 func StakeFractionChangeEntryKeyIndex2(staker string, poolId uint64) []byte {
 	return util.GetByteKey(staker, poolId)
-}
-
-func MultiCoinPendingRewardsKeyEntry(index uint64) []byte {
-	return util.GetByteKey(index)
-}
-
-func MultiCoinPendingRewardsKeyEntryIndex2(address string, index uint64) []byte {
-	return util.GetByteKey(address, index)
 }

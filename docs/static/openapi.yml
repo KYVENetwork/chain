@@ -2683,18 +2683,6 @@ paths:
                   timeout_slash:
                     type: string
                     description: timeout_slash ...
-                  multi_coin_refund_policy_admin_address:
-                    type: string
-                    title: >-
-                      multi_coin_compliance_admin_address specifies an address
-                      which is allowed to adjust the weights for
-
-                      the coin redistribution. This address can now drain coins,
-                      but only
-                  multi_coin_refund_pending_time:
-                    type: string
-                    format: uint64
-                    description: multi_coin_refund_pending_time ...
               pool_params:
                 description: pool_params ...
                 type: object
@@ -8833,120 +8821,6 @@ paths:
           default: FUNDING_STATUS_UNSPECIFIED
       tags:
         - QueryFunders
-  /kyve/stakers/v1beta1/multi_coin_refund_policy:
-    get:
-      summary: >-
-        policy, multi-coin-enabled, multi-coin-status/address: {enabled true
-        false, pending rewards}
-      operationId: MultiCoinRefundPolicyQuery
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              policy:
-                description: params holds all the parameters of this module.
-                type: object
-                properties:
-                  entries:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        denom:
-                          type: string
-                        pool_weights:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              pool_id:
-                                type: string
-                                format: uint64
-                              weight:
-                                type: string
-                            description: MultiCoinRefundPoolWeightEntry ...
-                      description: MultiCoinRefundDenomEntry ...
-            description: QueryMultiCoinRefundPolicyResponse ...
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      tags:
-        - QueryStakers
-  /kyve/stakers/v1beta1/multi_coin_status/{address}:
-    get:
-      summary: MultiCoinStatus ...
-      operationId: MultiCoinStatus
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              enabled:
-                type: boolean
-                description: enabled ...
-              pending_multi_coin_rewards:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    denom:
-                      type: string
-                    amount:
-                      type: string
-                  description: >-
-                    Coin defines a token with a denomination and an amount.
-
-
-                    NOTE: The amount field is an Int which implements the custom
-                    method
-
-                    signatures required by gogoproto.
-                description: pending_multi_coin_rewards ...
-            description: QueryMultiCoinRefundPolicyResponse ...
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      parameters:
-        - name: address
-          description: address ...
-          in: path
-          required: true
-          type: string
-      tags:
-        - QueryStakers
   /kyve/stakers/v1beta1/params:
     get:
       summary: Parameters queries the parameters of the module.
@@ -8982,18 +8856,6 @@ paths:
                   timeout_slash:
                     type: string
                     description: timeout_slash ...
-                  multi_coin_refund_policy_admin_address:
-                    type: string
-                    title: >-
-                      multi_coin_compliance_admin_address specifies an address
-                      which is allowed to adjust the weights for
-
-                      the coin redistribution. This address can now drain coins,
-                      but only
-                  multi_coin_refund_pending_time:
-                    type: string
-                    format: uint64
-                    description: multi_coin_refund_pending_time ...
             description: >-
               QueryParamsResponse is response type for the Query/Params RPC
               method.

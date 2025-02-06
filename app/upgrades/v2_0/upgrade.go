@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	compliancetypes "github.com/KYVENetwork/chain/x/compliance/types"
+
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
@@ -13,7 +15,6 @@ import (
 	delegationkeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 	stakerskeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
-	stakersTypes "github.com/KYVENetwork/chain/x/stakers/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -58,17 +59,17 @@ func CreateUpgradeHandler(
 }
 
 func EnsureComplianceAccount(ctx sdk.Context, ak authkeeper.AccountKeeper) {
-	address := authTypes.NewModuleAddress(stakersTypes.MultiCoinRewardsRedistributionAccountName)
+	address := authTypes.NewModuleAddress(compliancetypes.MultiCoinRewardsRedistributionAccountName)
 	account := ak.GetAccount(ctx, address)
 
 	if account == nil {
 		// account doesn't exist, initialise a new module account.
-		newAcc := authTypes.NewEmptyModuleAccount(stakersTypes.MultiCoinRewardsRedistributionAccountName)
+		newAcc := authTypes.NewEmptyModuleAccount(compliancetypes.MultiCoinRewardsRedistributionAccountName)
 		account = ak.NewAccountWithAddress(ctx, newAcc.GetAddress())
 	} else {
 		// account exists, adjust it to a module account.
 		baseAccount := authTypes.NewBaseAccount(address, nil, account.GetAccountNumber(), 0)
-		account = authTypes.NewModuleAccount(baseAccount, stakersTypes.MultiCoinRewardsRedistributionAccountName)
+		account = authTypes.NewModuleAccount(baseAccount, compliancetypes.MultiCoinRewardsRedistributionAccountName)
 	}
 
 	ak.SetAccount(ctx, account)

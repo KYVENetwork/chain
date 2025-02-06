@@ -2,12 +2,9 @@ syntax = "proto3";
 
 package kyve.stakers.v1beta1;
 
-import "amino/amino.proto";
-import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "kyve/stakers/v1beta1/params.proto";
-import "kyve/stakers/v1beta1/stakers.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/stakers/types";
 
@@ -16,16 +13,6 @@ service Query {
   // Parameters queries the parameters of the module.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/kyve/stakers/v1beta1/params";
-  }
-
-  // policy, multi-coin-enabled, multi-coin-status/address: {enabled true false, pending rewards}
-  rpc MultiCoinRefundPolicyQuery(QueryMultiCoinRefundPolicyRequest) returns (QueryMultiCoinRefundPolicyResponse) {
-    option (google.api.http).get = "/kyve/stakers/v1beta1/multi_coin_refund_policy";
-  }
-
-  // MultiCoinStatus ...
-  rpc MultiCoinStatus(QueryMultiCoinStatusRequest) returns (QueryMultiCoinStatusResponse) {
-    option (google.api.http).get = "/kyve/stakers/v1beta1/multi_coin_status/{address}";
   }
 }
 
@@ -36,32 +23,4 @@ message QueryParamsRequest {}
 message QueryParamsResponse {
   // params holds all the parameters of this module.
   Params params = 1 [(gogoproto.nullable) = false];
-}
-
-// QueryMultiCoinRefundPolicyRequest ...
-message QueryMultiCoinRefundPolicyRequest {}
-
-// QueryMultiCoinRefundPolicyResponse ...
-message QueryMultiCoinRefundPolicyResponse {
-  // params holds all the parameters of this module.
-  MultiCoinRefundPolicy policy = 1 [(gogoproto.nullable) = false];
-}
-
-// QueryMultiCoinRefundPolicyRequest ...
-message QueryMultiCoinStatusRequest {
-  // address ...
-  string address = 1;
-}
-
-// QueryMultiCoinRefundPolicyResponse ...
-message QueryMultiCoinStatusResponse {
-  // enabled ...
-  bool enabled = 1;
-
-  // pending_multi_coin_rewards ...
-  repeated cosmos.base.v1beta1.Coin pending_multi_coin_rewards = 2 [
-    (gogoproto.nullable) = false,
-    (amino.dont_omitempty) = true,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
 }

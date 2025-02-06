@@ -4,7 +4,7 @@ import (
 	"cosmossdk.io/store/prefix"
 	storeTypes "cosmossdk.io/store/types"
 	"github.com/KYVENetwork/chain/util"
-	"github.com/KYVENetwork/chain/x/stakers/types"
+	"github.com/KYVENetwork/chain/x/compliance/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -33,7 +33,7 @@ func (k Keeper) SetMultiCoinPendingRewardsEntry(ctx sdk.Context, compliancePendi
 // GetMultiCoinPendingRewardsEntry ...
 func (k Keeper) GetMultiCoinPendingRewardsEntry(ctx sdk.Context, index uint64) (val types.MultiCoinPendingRewardsEntry, found bool) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	store := prefix.NewStore(storeAdapter, types.CommissionChangeEntryKeyPrefix)
+	store := prefix.NewStore(storeAdapter, types.MultiCoinPendingRewardsEntryKeyPrefix)
 
 	b := store.Get(types.MultiCoinPendingRewardsKeyEntry(index))
 	if b == nil {
@@ -54,6 +54,9 @@ func (k Keeper) GetMultiCoinPendingRewardsEntriesByIndex2(ctx sdk.Context, addre
 
 	for ; iterator.Valid(); iterator.Next() {
 		var val types.MultiCoinPendingRewardsEntry
+		println("key")
+		println(string(iterator.Key()))
+		println(string(iterator.Value()))
 		k.cdc.MustUnmarshal(iterator.Value(), &val)
 		list = append(list, val)
 	}

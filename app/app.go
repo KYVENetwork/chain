@@ -75,6 +75,8 @@ import (
 	// Kyve modules
 	_ "github.com/KYVENetwork/chain/x/bundles"
 	bundleskeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
+	_ "github.com/KYVENetwork/chain/x/compliance" // import for side-effects
+	compliancekeeper "github.com/KYVENetwork/chain/x/compliance/keeper"
 	_ "github.com/KYVENetwork/chain/x/delegation" // import for side-effects
 	delegationkeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	_ "github.com/KYVENetwork/chain/x/funders" // import for side-effects
@@ -119,7 +121,7 @@ type App struct {
 	AccountKeeper      authkeeper.AccountKeeper
 	BankKeeper         bankkeeper.Keeper
 	StakingKeeper      *stakingkeeper.Keeper
-	DistributionKeeper distrkeeper.Keeper
+	DistributionKeeper *distrkeeper.Keeper
 	ConsensusKeeper    consensuskeeper.Keeper
 
 	SlashingKeeper slashingkeeper.Keeper
@@ -151,6 +153,7 @@ type App struct {
 	StakersKeeper    *stakerskeeper.Keeper
 	TeamKeeper       teamkeeper.Keeper
 	FundersKeeper    funderskeeper.Keeper
+	ComplianceKeeper compliancekeeper.Keeper
 
 	// simulation manager
 	// sm *module.SimulationManager
@@ -296,6 +299,7 @@ func New(
 		&app.StakersKeeper,
 		&app.TeamKeeper,
 		&app.FundersKeeper,
+		&app.ComplianceKeeper,
 		// this line is used by starport scaffolding # stargate/app/keeperDefinition
 	); err != nil {
 		panic(err)

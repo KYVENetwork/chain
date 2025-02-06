@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"cosmossdk.io/errors"
-	"github.com/KYVENetwork/chain/x/stakers/types"
+	"github.com/KYVENetwork/chain/x/compliance/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

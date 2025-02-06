@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"cosmossdk.io/collections"
-
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -27,16 +25,10 @@ type (
 
 		authority string
 
-		accountKeeper util.AccountKeeper
 		bankKeeper    util.BankKeeper
 		poolKeeper    types.PoolKeeper
 		stakingKeeper util.StakingKeeper
 		distKeeper    util.DistributionKeeper
-
-		MultiCoinRewardsEnabled collections.KeySet[sdk.AccAddress]
-		MultiCoinRefundPolicy   collections.Item[types.MultiCoinRefundPolicy]
-
-		Schema collections.Schema
 	}
 )
 
@@ -48,14 +40,11 @@ func NewKeeper(
 
 	authority string,
 
-	accountKeeper util.AccountKeeper,
 	bankKeeper util.BankKeeper,
 	poolKeeper types.PoolKeeper,
 	stakingKeeper util.StakingKeeper,
 	distributionKeeper util.DistributionKeeper,
 ) *Keeper {
-	sb := collections.NewSchemaBuilder(storeService)
-
 	k := &Keeper{
 		cdc:          cdc,
 		storeService: storeService,
@@ -64,24 +53,11 @@ func NewKeeper(
 
 		authority: authority,
 
-		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
 		poolKeeper:    poolKeeper,
 		stakingKeeper: stakingKeeper,
 		distKeeper:    distributionKeeper,
-
-		MultiCoinRewardsEnabled: collections.NewKeySet(sb, types.MultiCoinRewardsEnabledKeyPrefix,
-			"compliance_multi_coin_enabled", sdk.AccAddressKey),
-		MultiCoinRefundPolicy: collections.NewItem(sb, types.MultiCoinRefundPolicyKeyPrefix,
-			"compliance_multi_coin_policy", codec.CollValue[types.MultiCoinRefundPolicy](cdc)),
 	}
-
-	schema, err := sb.Build()
-	if err != nil {
-		panic(err)
-	}
-
-	k.Schema = schema
 
 	return k
 }

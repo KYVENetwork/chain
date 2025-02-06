@@ -23,8 +23,6 @@ func GetTxCmd() *cobra.Command {
 	cmd.AddCommand(CmdLeavePool())
 	cmd.AddCommand(CmdUpdateCommission())
 	cmd.AddCommand(CmdUpdateStakeFraction())
-	cmd.AddCommand(CmdToggleMultiCoinRewards())
-	cmd.AddCommand(CmdSetMultiCoinRefundPolicy())
 
 	return cmd
 }
