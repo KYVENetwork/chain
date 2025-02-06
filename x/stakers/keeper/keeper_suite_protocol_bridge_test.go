@@ -131,7 +131,7 @@ var _ = Describe("keeper_suite_protocol_bridge.go", Ordered, func() {
 
 		// Assert
 		for k := 1; k < 10; k++ {
-			poolMembersCount := s.App().StakersKeeper.GetStakerCountOfPool(s.Ctx(), 0)
+			poolMembersCount := s.App().StakersKeeper.GetStakerCountOfPool(s.Ctx(), uint64(k))
 			Expect(poolMembersCount).To(Equal(uint64(0)))
 		}
 

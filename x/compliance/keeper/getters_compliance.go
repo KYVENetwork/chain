@@ -1,8 +1,11 @@
 package keeper
 
 import (
+	"encoding/binary"
+
 	"cosmossdk.io/store/prefix"
 	storeTypes "cosmossdk.io/store/types"
+
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/compliance/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -23,11 +26,15 @@ func (k Keeper) SetMultiCoinPendingRewardsEntry(ctx sdk.Context, compliancePendi
 	), b)
 
 	// Insert the same entry with a different key prefix for query lookup
+	indexBytes := make([]byte, 8)
+	binary.BigEndian.PutUint64(indexBytes, compliancePendingRewards.Index)
+
+	// Insert the same entry with a different key prefix for query lookup
 	indexStore := prefix.NewStore(storeAdapter, types.MultiCoinPendingRewardsEntryKeyPrefixIndex2)
 	indexStore.Set(types.MultiCoinPendingRewardsKeyEntryIndex2(
 		compliancePendingRewards.Address,
 		compliancePendingRewards.Index,
-	), []byte{1})
+	), indexBytes)
 }
 
 // GetMultiCoinPendingRewardsEntry ...
@@ -53,12 +60,9 @@ func (k Keeper) GetMultiCoinPendingRewardsEntriesByIndex2(ctx sdk.Context, addre
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var val types.MultiCoinPendingRewardsEntry
-		println("key")
-		println(string(iterator.Key()))
-		println(string(iterator.Value()))
-		k.cdc.MustUnmarshal(iterator.Value(), &val)
-		list = append(list, val)
+		index := binary.BigEndian.Uint64(iterator.Value())
+		entry, _ := k.GetMultiCoinPendingRewardsEntry(ctx, index)
+		list = append(list, entry)
 	}
 
 	return
