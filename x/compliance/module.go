@@ -153,8 +153,14 @@ func (am AppModule) BeginBlock(ctx context.Context) error {
 	am.keeper.ProcessComplianceQueue(sdkCtx)
 
 	// Only execute every 50 blocks
-	if sdkCtx.BlockHeight()%50 != 0 {
-		_ = am.keeper.DistributeNonClaimedRewards(sdkCtx)
+	if sdkCtx.BlockHeight()%50 == 0 {
+		cachedCtx, commit := sdkCtx.CacheContext()
+		err := am.keeper.DistributeNonClaimedRewards(cachedCtx)
+		if err == nil {
+			commit()
+		} else {
+			am.keeper.Logger().Error(err.Error())
+		}
 	}
 
 	return nil

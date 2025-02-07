@@ -28,7 +28,7 @@ TEST CASES - msg_server_leave_pool.go
 
 */
 
-var _ = Describe("msg_server_compliance_test.go", Ordered, func() {
+var _ = Describe("msg_server_compliance_toggle_test.go", Ordered, func() {
 	var s *i.KeeperTestSuite
 	var gov string
 	var validator1 i.TestValidatorAddress

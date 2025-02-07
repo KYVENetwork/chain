@@ -22,10 +22,14 @@ func ParseMultiCoinComplianceMap(policy MultiCoinRefundPolicy) (ComplianceMultiC
 
 		totalWeight := math.LegacyNewDec(0)
 		for _, weights := range denomEntry.PoolWeights {
+			if !weights.Weight.IsPositive() {
+				return nil, fmt.Errorf("invalid weight for pool id %d", weights.PoolId)
+			}
 			totalWeight = totalWeight.Add(weights.Weight)
 			if _, ok := complianceWeightsDuplicateCheck[weights.PoolId]; ok {
 				return nil, fmt.Errorf("duplicate compliance weight for pool id %d", weights.PoolId)
 			}
+			complianceWeightsDuplicateCheck[weights.PoolId] = struct{}{}
 		}
 
 		normalizedWeights := make([]ComplainceMultiCoinPoolNormalizedEntry, 0)

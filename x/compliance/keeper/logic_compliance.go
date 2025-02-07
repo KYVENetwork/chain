@@ -58,15 +58,16 @@ func (k Keeper) DistributeNonClaimedRewards(ctx sdk.Context) error {
 		return err
 	}
 
+	// Store rewards for all pools. There could be multiple rules which re-direct coins to the same pool
 	type PoolRewards struct {
 		account sdk.AccAddress
 		rewards sdk.Coins
 		poolId  uint64
 	}
-
-	rewards := k.bankKeeper.GetAllBalances(ctx, k.accountKeeper.GetModuleAddress(types.MultiCoinRewardsRedistributionAccountName))
-
 	poolRewards := make(map[uint64]PoolRewards)
+
+	// Get all rewards
+	rewards := k.bankKeeper.GetAllBalances(ctx, k.accountKeeper.GetModuleAddress(types.MultiCoinRewardsRedistributionAccountName))
 
 	for _, coin := range rewards {
 		weightMap, ok := complianceMap[coin.Denom]
@@ -85,27 +86,34 @@ func (k Keeper) DistributeNonClaimedRewards(ctx sdk.Context) error {
 					// if pool does not exist, the compliance map is incorrect, cancel the process
 					return err
 				}
+
 				accounts.poolId = pool.Id
 				accounts.account = pool.GetPoolAccount()
+				accounts.rewards = sdk.NewCoins()
+				poolRewards[weight.PoolId] = accounts
 			}
 
+			// Truncate int ensures that there are never more tokens distributed than available
 			poolReward := sdk.NewCoin(coin.Denom, weight.NormalizedWeight.MulInt(rewards.AmountOf(coin.Denom)).TruncateInt())
 
-			// Subtract reward from available rewards
-			rewards = rewards.Sub(poolReward)
 			// Add reward to pool
 			accounts.rewards = accounts.rewards.Add(poolReward)
+
+			// Update map
+			poolRewards[weight.PoolId] = accounts
 		}
 	}
 
+	// Sort PoolRewards for determinism
 	accountList := make([]PoolRewards, 0)
 	for _, account := range poolRewards {
 		accountList = append(accountList, account)
 	}
 	sort.Slice(accountList, func(i, j int) bool { return accountList[i].poolId < accountList[j].poolId })
 
+	// Redistribute all tokens
 	for _, account := range accountList {
-		err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.MultiCoinRewardsRedistributionAccountName, account.account.String(), account.rewards)
+		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.MultiCoinRewardsRedistributionAccountName, account.account, account.rewards)
 		if err != nil {
 			return err
 		}

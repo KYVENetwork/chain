@@ -10,4 +10,5 @@ type PoolKeeper interface {
 	GetMaxVotingPowerPerPool(ctx sdk.Context) (res math.LegacyDec)
 	AssertPoolExists(ctx sdk.Context, poolId uint64) error
 	GetPoolWithError(ctx sdk.Context, poolId uint64) (poolTypes.Pool, error)
+	EnsurePoolAccount(ctx sdk.Context, id uint64)
 }
