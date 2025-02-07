@@ -69,6 +69,10 @@ genesis:
       supply:
         - denom: "tkyve"
           amount: "165000000000000000"
+    compliance:
+      params:
+        multi_coin_refund_pending_time: 10
+        multi_coin_refund_policy_admin_address: "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd"
     delegation:
       params:
         unbonding_delegation_time: 10
@@ -172,7 +176,6 @@ genesis:
     stakers:
       params:
         commission_change_time: 10
-        multi_coin_refund_policy_admin_address: "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd"
     staking:
       params:
         bond_denom: tkyve
