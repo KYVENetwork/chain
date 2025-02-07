@@ -75,14 +75,14 @@ import (
 	// Kyve modules
 	_ "github.com/KYVENetwork/chain/x/bundles"
 	bundleskeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
-	_ "github.com/KYVENetwork/chain/x/compliance" // import for side-effects
-	compliancekeeper "github.com/KYVENetwork/chain/x/compliance/keeper"
 	_ "github.com/KYVENetwork/chain/x/delegation" // import for side-effects
 	delegationkeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
 	_ "github.com/KYVENetwork/chain/x/funders" // import for side-effects
 	funderskeeper "github.com/KYVENetwork/chain/x/funders/keeper"
 	_ "github.com/KYVENetwork/chain/x/global" // import for side-effects
 	globalkeeper "github.com/KYVENetwork/chain/x/global/keeper"
+	_ "github.com/KYVENetwork/chain/x/multi_coin_rewards" // import for side-effects
+	multicoinrewardskeeper "github.com/KYVENetwork/chain/x/multi_coin_rewards/keeper"
 	_ "github.com/KYVENetwork/chain/x/pool" // import for side-effects
 	poolkeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	_ "github.com/KYVENetwork/chain/x/query" // import for side-effects
@@ -145,15 +145,15 @@ type App struct {
 	ScopedIBCTransferKeeper capabilitykeeper.ScopedKeeper
 
 	// KYVE
-	BundlesKeeper    bundleskeeper.Keeper
-	DelegationKeeper delegationkeeper.Keeper
-	GlobalKeeper     globalkeeper.Keeper
-	PoolKeeper       *poolkeeper.Keeper
-	QueryKeeper      querykeeper.Keeper
-	StakersKeeper    *stakerskeeper.Keeper
-	TeamKeeper       teamkeeper.Keeper
-	FundersKeeper    funderskeeper.Keeper
-	ComplianceKeeper compliancekeeper.Keeper
+	BundlesKeeper          bundleskeeper.Keeper
+	DelegationKeeper       delegationkeeper.Keeper
+	GlobalKeeper           globalkeeper.Keeper
+	PoolKeeper             *poolkeeper.Keeper
+	QueryKeeper            querykeeper.Keeper
+	StakersKeeper          *stakerskeeper.Keeper
+	TeamKeeper             teamkeeper.Keeper
+	FundersKeeper          funderskeeper.Keeper
+	MultiCoinRewardsKeeper multicoinrewardskeeper.Keeper
 
 	// simulation manager
 	// sm *module.SimulationManager
@@ -299,7 +299,7 @@ func New(
 		&app.StakersKeeper,
 		&app.TeamKeeper,
 		&app.FundersKeeper,
-		&app.ComplianceKeeper,
+		&app.MultiCoinRewardsKeeper,
 		// this line is used by starport scaffolding # stargate/app/keeperDefinition
 	); err != nil {
 		panic(err)

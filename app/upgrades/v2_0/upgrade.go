@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	compliancetypes "github.com/KYVENetwork/chain/x/compliance/types"
+	multicoinrewardstypes "github.com/KYVENetwork/chain/x/multi_coin_rewards/types"
 
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -50,7 +50,7 @@ func CreateUpgradeHandler(
 
 		// Run KYVE migrations
 		migrateProtocolStakers(sdkCtx, delegationKeeper, stakersKeeper, stakingKeeper, bankKeeper)
-		EnsureComplianceAccount(sdkCtx, accountKeeper)
+		EnsureMultiCoinDistributionAccount(sdkCtx, accountKeeper)
 
 		logger.Info(fmt.Sprintf("finished upgrade %v", UpgradeName))
 
@@ -58,18 +58,18 @@ func CreateUpgradeHandler(
 	}
 }
 
-func EnsureComplianceAccount(ctx sdk.Context, ak authkeeper.AccountKeeper) {
-	address := authTypes.NewModuleAddress(compliancetypes.MultiCoinRewardsRedistributionAccountName)
+func EnsureMultiCoinDistributionAccount(ctx sdk.Context, ak authkeeper.AccountKeeper) {
+	address := authTypes.NewModuleAddress(multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName)
 	account := ak.GetAccount(ctx, address)
 
 	if account == nil {
 		// account doesn't exist, initialise a new module account.
-		newAcc := authTypes.NewEmptyModuleAccount(compliancetypes.MultiCoinRewardsRedistributionAccountName)
+		newAcc := authTypes.NewEmptyModuleAccount(multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName)
 		account = ak.NewAccountWithAddress(ctx, newAcc.GetAddress())
 	} else {
 		// account exists, adjust it to a module account.
 		baseAccount := authTypes.NewBaseAccount(address, nil, account.GetAccountNumber(), 0)
-		account = authTypes.NewModuleAccount(baseAccount, compliancetypes.MultiCoinRewardsRedistributionAccountName)
+		account = authTypes.NewModuleAccount(baseAccount, multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName)
 	}
 
 	ak.SetAccount(ctx, account)

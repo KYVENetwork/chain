@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package kyve.multi_coin_rewards.v1beta1;
+
+import "amino/amino.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/multi_coin_rewards/types";
+
+// UnbondingState stores the state for the unbonding of stakes and delegations.
+message QueueState {
+  // low_index is the tail of the queue. It is the
+  // oldest entry in the queue. If this entry isn't
+  // due, non of the other entries is.
+  uint64 low_index = 1;
+  // high_index is the head of the queue. New entries
+  // are added to the top.
+  uint64 high_index = 2;
+}
+
+// MultiCoinPendingRewardsEntry ...
+message MultiCoinPendingRewardsEntry {
+  // index is needed for the queue-algorithm which
+  // processes the commission changes
+  uint64 index = 1;
+  // address ...
+  string address = 2;
+  // rewards ...
+  repeated cosmos.base.v1beta1.Coin rewards = 3 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+
+  int64 creation_date = 4;
+}
+
+// MultiCoinDistributionPolicy ...
+message MultiCoinDistributionPolicy {
+  repeated MultiCoinDistributionDenomEntry entries = 1;
+}
+
+// MultiCoinDistributionDenomEntry ...
+message MultiCoinDistributionDenomEntry {
+  string denom = 1;
+  repeated MultiCoinDistributionPoolWeightEntry pool_weights = 2;
+}
+
+// MultiCoinDistributionPoolWeightEntry ...
+message MultiCoinDistributionPoolWeightEntry {
+  uint64 pool_id = 1;
+  string weight = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}

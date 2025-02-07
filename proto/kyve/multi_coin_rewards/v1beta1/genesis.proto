@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package kyve.multi_coin_rewards.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "kyve/multi_coin_rewards/v1beta1/params.proto";
+import "kyve/multi_coin_rewards/v1beta1/types.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/multi_coin_rewards/types";
+
+// GenesisState defines the multi_coin_rewards module's genesis state.
+message GenesisState {
+  // params defines all the parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+
+  // MultiCoinPendingRewardsEntry ...
+  repeated MultiCoinPendingRewardsEntry multi_coin_pending_rewards_entries = 2 [(gogoproto.nullable) = false];
+  // queue_state_state_fraction ...
+  QueueState queue_state_pending_rewards = 3 [(gogoproto.nullable) = false];
+
+  // multi_coin_enabled ...
+  repeated string multi_coin_enabled = 4;
+
+  // multi_coin_distribution_policy ...
+  MultiCoinDistributionPolicy multi_coin_distribution_policy = 5;
+}

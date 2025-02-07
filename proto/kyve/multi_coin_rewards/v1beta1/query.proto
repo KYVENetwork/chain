@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package kyve.multi_coin_rewards.v1beta1;
+
+import "amino/amino.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "kyve/multi_coin_rewards/v1beta1/params.proto";
+import "kyve/multi_coin_rewards/v1beta1/types.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/multi_coin_rewards/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Parameters queries the parameters of the module.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/kyve/multi_coin_rewards/v1/params";
+  }
+
+  // policy, multi-coin-enabled, multi-coin-status/address: {enabled true false, pending rewards}
+  rpc MultiCoinDistributionPolicyQuery(QueryMultiCoinDistributionPolicyRequest) returns (QueryMultiCoinDistributionPolicyResponse) {
+    option (google.api.http).get = "/kyve/multi_coin_rewards/v1/multi_coin_distribution_policy";
+  }
+
+  // MultiCoinStatus ...
+  rpc MultiCoinStatus(QueryMultiCoinStatusRequest) returns (QueryMultiCoinStatusResponse) {
+    option (google.api.http).get = "/kyve/multi_coin_rewards/v1/multi_coin_status/{address}";
+  }
+}
+
+// QueryParamsRequest is request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params holds all the parameters of this module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryMultiCoinDistributionPolicyRequest ...
+message QueryMultiCoinDistributionPolicyRequest {}
+
+// QueryMultiCoinDistributionPolicyResponse ...
+message QueryMultiCoinDistributionPolicyResponse {
+  // params holds all the parameters of this module.
+  MultiCoinDistributionPolicy policy = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryMultiCoinDistributionPolicyRequest ...
+message QueryMultiCoinStatusRequest {
+  // address ...
+  string address = 1;
+}
+
+// QueryMultiCoinDistributionPolicyResponse ...
+message QueryMultiCoinStatusResponse {
+  // enabled ...
+  bool enabled = 1;
+
+  // pending_multi_coin_rewards ...
+  repeated cosmos.base.v1beta1.Coin pending_multi_coin_rewards = 2 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}

@@ -28,10 +28,10 @@ import (
 	"cosmossdk.io/x/feegrant"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	bundlesmodulev1 "github.com/KYVENetwork/chain/api/kyve/bundles/module"
-	compliancemodulev1 "github.com/KYVENetwork/chain/api/kyve/compliance/module"
 	delegationmodulev1 "github.com/KYVENetwork/chain/api/kyve/delegation/module"
 	fundersmodulev1 "github.com/KYVENetwork/chain/api/kyve/funders/module"
 	globalmodulev1 "github.com/KYVENetwork/chain/api/kyve/global/module"
+	multicoinrewardsmodulev1 "github.com/KYVENetwork/chain/api/kyve/multi_coin_rewards/module"
 	poolmodulev1 "github.com/KYVENetwork/chain/api/kyve/pool/module"
 	querymodulev1 "github.com/KYVENetwork/chain/api/kyve/query/module"
 	stakersmodulev1 "github.com/KYVENetwork/chain/api/kyve/stakers/module"
@@ -57,10 +57,10 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	bundlestypes "github.com/KYVENetwork/chain/x/bundles/types"
-	compliancetypes "github.com/KYVENetwork/chain/x/compliance/types"
 	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	globaltypes "github.com/KYVENetwork/chain/x/global/types"
+	multicoinrewardstypes "github.com/KYVENetwork/chain/x/multi_coin_rewards/types"
 	pooltypes "github.com/KYVENetwork/chain/x/pool/types"
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	stakerstypes "github.com/KYVENetwork/chain/x/stakers/types"
@@ -107,7 +107,7 @@ var (
 		globaltypes.ModuleName,
 		teamtypes.ModuleName,
 		funderstypes.ModuleName,
-		compliancetypes.ModuleName,
+		multicoinrewardstypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	}
 
@@ -138,7 +138,7 @@ var (
 		// KYVE modules
 		delegationtypes.ModuleName,
 		stakerstypes.ModuleName,
-		compliancetypes.ModuleName,
+		multicoinrewardstypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	}
 
@@ -185,8 +185,8 @@ var (
 		{Account: delegationtypes.ModuleName},
 		{Account: pooltypes.ModuleName},
 		{Account: stakerstypes.ModuleName},
-		{Account: compliancetypes.ModuleName},
-		{Account: compliancetypes.MultiCoinRewardsRedistributionAccountName},
+		{Account: multicoinrewardstypes.ModuleName},
+		{Account: multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName},
 		{Account: teamtypes.ModuleName},
 		{Account: funderstypes.ModuleName},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
@@ -362,8 +362,8 @@ var (
 				Config: appconfig.WrapAny(&fundersmodulev1.Module{}),
 			},
 			{
-				Name:   compliancetypes.ModuleName,
-				Config: appconfig.WrapAny(&compliancemodulev1.Module{}),
+				Name:   multicoinrewardstypes.ModuleName,
+				Config: appconfig.WrapAny(&multicoinrewardsmodulev1.Module{}),
 			},
 			// this line is used by starport scaffolding # stargate/app/moduleConfig
 		},
