@@ -1,15 +1,11 @@
 package keeper
 
 import (
-	"context"
 	"sort"
 
 	"github.com/KYVENetwork/chain/x/compliance/types"
 
-	globalTypes "github.com/KYVENetwork/chain/x/global/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	distributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 )
 
 func (k Keeper) addPendingComplianceRewards(ctx sdk.Context, address string, rewards sdk.Coins) {
@@ -116,29 +112,4 @@ func (k Keeper) DistributeNonClaimedRewards(ctx sdk.Context) error {
 	}
 
 	return nil
-}
-
-func (k Keeper) HandleMultiCoinRewards(goCtx context.Context, withdrawAddress sdk.AccAddress, coins sdk.Coins) sdk.Coins {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	has, err := k.MultiCoinRewardsEnabled.Has(ctx, withdrawAddress)
-	if err == nil && has {
-		// User has enabled multi-coin rewards, all coins are compliant
-		return coins
-	}
-
-	// MultiCoinRewards is not enabled
-	compliantRewards := sdk.NewCoins(sdk.NewCoin(globalTypes.Denom, coins.AmountOf(globalTypes.Denom)))
-	nonCompliantRewards := coins.Sub(compliantRewards...)
-
-	// Transfer non-compliant rewards
-	if err = k.bankKeeper.SendCoinsFromModuleToModule(ctx, distributionTypes.ModuleName, types.ModuleName, nonCompliantRewards); err != nil {
-		panic(err)
-	}
-	// Add Pending-Queue entry
-	if !nonCompliantRewards.Empty() {
-		k.addPendingComplianceRewards(ctx, withdrawAddress.String(), nonCompliantRewards)
-	}
-
-	return compliantRewards
 }
