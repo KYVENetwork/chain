@@ -93,12 +93,12 @@ func (k Keeper) InitMemStore(gasCtx sdk.Context) {
 	}
 }
 
-// TODO: remove after migration
+// TODO: remove after v2 migration
 func (k Keeper) Migration_GetStoreService() store.KVStoreService {
 	return k.storeService
 }
 
-// TODO: remove after migration
+// TODO: remove after v2 migration
 func (k Keeper) Migration_GetCodec() codec.BinaryCodec {
 	return k.cdc
 }
