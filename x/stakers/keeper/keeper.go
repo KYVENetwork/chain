@@ -86,7 +86,7 @@ func (k Keeper) AfterValidatorBonded(ctx context.Context, consAddr sdk.ConsAddre
 
 func (k Keeper) AfterValidatorBeginUnbonding(goCtx context.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) error {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	for _, v := range k.GetPoolAccountsFromStaker(ctx, valAddr.String()) {
+	for _, v := range k.GetPoolAccountsFromStaker(ctx, util.MustAccountAddressFromValAddress(valAddr.String())) {
 		k.LeavePool(ctx, v.Staker, v.PoolId)
 	}
 	return nil

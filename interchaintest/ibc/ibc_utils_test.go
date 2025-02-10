@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"strconv"
 
+	i "github.com/KYVENetwork/chain/testutil/integration"
+
 	"cosmossdk.io/math"
 
-	"github.com/KYVENetwork/chain/app"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -24,7 +25,7 @@ const (
 
 func encodingConfig() *sdktestutil.TestEncodingConfig {
 	cfg := sdktestutil.TestEncodingConfig{}
-	a := app.Setup()
+	a := i.NewCleanChain().App()
 
 	cfg.Codec = a.AppCodec()
 	cfg.TxConfig = authtx.NewTxConfig(a.AppCodec(), authtx.DefaultSignModes)

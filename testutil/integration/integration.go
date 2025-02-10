@@ -2,22 +2,19 @@ package integration
 
 import (
 	mrand "math/rand"
+	"strconv"
 	"time"
+
+	"github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"cosmossdk.io/math"
 	"github.com/KYVENetwork/chain/util"
-
-	"github.com/stretchr/testify/suite"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	globalTypes "github.com/KYVENetwork/chain/x/global/types"
 
 	"github.com/KYVENetwork/chain/app"
-	"github.com/cometbft/cometbft/crypto/tmhash"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
-	"github.com/cometbft/cometbft/version"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	mintTypes "github.com/cosmos/cosmos-sdk/x/mint/types"
@@ -60,7 +57,7 @@ var (
 )
 
 const (
-	KYVE   = uint64(1_000_000_000)
+	KYVE   = uint64(1_000_000)
 	T_KYVE = int64(KYVE)
 )
 
@@ -104,44 +101,41 @@ func CCoins(amount int64) sdk.Coins {
 }
 
 func NewCleanChain() *KeeperTestSuite {
-	s := KeeperTestSuite{}
-	s.SetupTest(time.Now().Unix())
-	s.initDummyAccounts()
-	return &s
+	return NewCleanChainAtTime(time.Now().Unix())
 }
 
 func NewCleanChainAtTime(startTime int64) *KeeperTestSuite {
 	s := KeeperTestSuite{}
-	s.SetupTest(startTime)
+	s.SetupApp(startTime)
 	s.initDummyAccounts()
 	return &s
 }
 
 func (suite *KeeperTestSuite) initDummyAccounts() {
-	_ = suite.MintCoins(ALICE, 1000*KYVE)
-	_ = suite.MintCoins(BOB, 1000*KYVE)
-	_ = suite.MintCoins(CHARLIE, 1000*KYVE)
-	_ = suite.MintCoins(DAVID, 1000*KYVE)
+	_ = suite.MintBaseCoins(ALICE, 1000*KYVE)
+	_ = suite.MintBaseCoins(BOB, 1000*KYVE)
+	_ = suite.MintBaseCoins(CHARLIE, 1000*KYVE)
+	_ = suite.MintBaseCoins(DAVID, 1000*KYVE)
 
-	_ = suite.MintCoins(STAKER_0, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_0_A, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_0_B, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_0_C, 1000*KYVE)
+	_ = suite.MintBaseCoins(STAKER_0, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_0_A, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_0_B, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_0_C, 1000*KYVE)
 
-	_ = suite.MintCoins(STAKER_1, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_1_A, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_1_B, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_1_C, 1000*KYVE)
+	_ = suite.MintBaseCoins(STAKER_1, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_1_A, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_1_B, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_1_C, 1000*KYVE)
 
-	_ = suite.MintCoins(STAKER_2, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_2_A, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_2_B, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_2_C, 1000*KYVE)
+	_ = suite.MintBaseCoins(STAKER_2, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_2_A, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_2_B, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_2_C, 1000*KYVE)
 
-	_ = suite.MintCoins(STAKER_3, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_3_A, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_3_B, 1000*KYVE)
-	_ = suite.MintCoins(POOL_ADDRESS_3_C, 1000*KYVE)
+	_ = suite.MintBaseCoins(STAKER_3, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_3_A, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_3_B, 1000*KYVE)
+	_ = suite.MintBaseCoins(POOL_ADDRESS_3_C, 1000*KYVE)
 
 	DUMMY = make([]string, 50)
 
@@ -153,7 +147,7 @@ func (suite *KeeperTestSuite) initDummyAccounts() {
 		}
 		dummy, _ := sdk.Bech32ifyAddressBytes("kyve", byteAddr)
 		DUMMY[i] = dummy
-		_ = suite.MintCoins(dummy, 1000*KYVE)
+		_ = suite.MintBaseCoins(dummy, 1000*KYVE)
 	}
 
 	VALDUMMY = make([]string, 50)
@@ -165,41 +159,22 @@ func (suite *KeeperTestSuite) initDummyAccounts() {
 		}
 		dummy, _ := sdk.Bech32ifyAddressBytes("kyve", byteAddr)
 		VALDUMMY[i] = dummy
-		_ = suite.MintCoins(dummy, 1000*KYVE)
+		_ = suite.MintBaseCoins(dummy, 1000*KYVE)
 	}
 }
 
-func (suite *KeeperTestSuite) MintCoins(address string, amount uint64) error {
-	// mint coins ukyve, A, B, C
-	coins := sdk.NewCoins(
+func (suite *KeeperTestSuite) MintBaseCoins(address string, amount uint64) error {
+	return suite.MintCoins(address, sdk.NewCoins(
+		// mint coins ukyve, A, B, C
 		sdk.NewInt64Coin(KYVE_DENOM, int64(amount)),
 		sdk.NewInt64Coin(A_DENOM, int64(amount)),
 		sdk.NewInt64Coin(B_DENOM, int64(amount)),
 		sdk.NewInt64Coin(C_DENOM, int64(amount)),
-	)
-	err := suite.app.BankKeeper.MintCoins(suite.ctx, mintTypes.ModuleName, coins)
-	if err != nil {
-		return err
-	}
-
-	suite.Commit()
-
-	receiver, err := sdk.AccAddressFromBech32(address)
-	if err != nil {
-		return err
-	}
-
-	err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, mintTypes.ModuleName, receiver, coins)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	))
 }
 
-func (suite *KeeperTestSuite) MintCoin(address string, coin sdk.Coin) error {
+func (suite *KeeperTestSuite) MintCoins(address string, coins sdk.Coins) error {
 	// mint coins ukyve, A, B, C
-	coins := sdk.NewCoins(coin)
 	err := suite.app.BankKeeper.MintCoins(suite.ctx, mintTypes.ModuleName, coins)
 	if err != nil {
 		return err
@@ -237,15 +212,6 @@ func (suite *KeeperTestSuite) MintDenomToModule(moduleAddress string, amount uin
 	return nil
 }
 
-type KeeperTestSuite struct {
-	suite.Suite
-
-	ctx sdk.Context
-
-	app   *app.App
-	denom string
-}
-
 func (suite *KeeperTestSuite) App() *app.App {
 	return suite.app
 }
@@ -258,52 +224,37 @@ func (suite *KeeperTestSuite) SetCtx(ctx sdk.Context) {
 	suite.ctx = ctx
 }
 
-func (suite *KeeperTestSuite) SetupTest(startTime int64) {
-	suite.SetupApp(startTime)
+type TestValidatorAddress struct {
+	Moniker string
+
+	PrivateKey *ed25519.PrivKey
+
+	Address        string
+	AccAddress     sdk.AccAddress
+	ConsAccAddress sdk.ConsAddress
+	ConsAddress    string
+
+	PoolAccount [10]string
 }
 
-func (suite *KeeperTestSuite) SetupApp(startTime int64) {
-	suite.app = app.Setup()
+func (suite *KeeperTestSuite) CreateValidatorFromFullAddress(address TestValidatorAddress, kyveStake int64) {
+	valAddress := util.MustValaddressFromOperatorAddress(address.Address)
 
-	suite.denom = globalTypes.Denom
+	msg, _ := stakingtypes.NewMsgCreateValidator(
+		valAddress,
+		address.PrivateKey.PubKey(),
+		sdk.NewInt64Coin(globalTypes.Denom, kyveStake),
+		stakingtypes.Description{Moniker: address.Moniker},
+		stakingtypes.NewCommissionRates(math.LegacyMustNewDecFromStr("0.1"), math.LegacyMustNewDecFromStr("1"), math.LegacyMustNewDecFromStr("1")),
+		math.NewInt(1),
+	)
 
-	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, tmproto.Header{
-		Height:          1,
-		ChainID:         "kyve-test",
-		Time:            time.Unix(startTime, 0).UTC(),
-		ProposerAddress: sdk.ConsAddress(ed25519.GenPrivKeyFromSecret([]byte("Validator-1")).PubKey().Address()).Bytes(),
+	_, err := suite.RunTx(msg)
+	if err != nil {
+		panic(err)
+	}
 
-		Version: tmversion.Consensus{
-			Block: version.BlockProtocol,
-		},
-		LastBlockId: tmproto.BlockID{
-			Hash: tmhash.Sum([]byte("block_id")),
-			PartSetHeader: tmproto.PartSetHeader{
-				Total: 11,
-				Hash:  tmhash.Sum([]byte("partset_header")),
-			},
-		},
-		AppHash:            tmhash.Sum([]byte("app")),
-		DataHash:           tmhash.Sum([]byte("data")),
-		EvidenceHash:       tmhash.Sum([]byte("evidence")),
-		ValidatorsHash:     tmhash.Sum([]byte("validators")),
-		NextValidatorsHash: tmhash.Sum([]byte("next_validators")),
-		ConsensusHash:      tmhash.Sum([]byte("consensus")),
-		LastResultsHash:    tmhash.Sum([]byte("last_result")),
-	})
-
-	mintParams, _ := suite.app.MintKeeper.Params.Get(suite.ctx)
-	mintParams.MintDenom = suite.denom
-	_ = suite.app.MintKeeper.Params.Set(suite.ctx, mintParams)
-
-	stakingParams, _ := suite.app.StakingKeeper.GetParams(suite.ctx)
-	stakingParams.BondDenom = suite.denom
-	stakingParams.MaxValidators = 51
-	_ = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
-
-	govParams, _ := suite.app.GovKeeper.Params.Get(suite.ctx)
-	govParams.MinDeposit = sdk.NewCoins(sdk.NewInt64Coin(KYVE_DENOM, int64(100_000_000_000))) // set min deposit to 100 KYVE
-	_ = suite.app.GovKeeper.Params.Set(suite.ctx, govParams)
+	suite.Commit()
 }
 
 func (suite *KeeperTestSuite) CreateValidatorWithoutCommit(address, moniker string, kyveStake int64) {
@@ -322,8 +273,6 @@ func (suite *KeeperTestSuite) CreateValidatorWithoutCommit(address, moniker stri
 	if err != nil {
 		panic(err)
 	}
-
-	suite.Commit()
 }
 
 func (suite *KeeperTestSuite) SelfDelegateValidator(address string, amount uint64) {
@@ -360,6 +309,25 @@ func (suite *KeeperTestSuite) SelfUndelegateValidator(address string, amount uin
 	suite.Commit()
 }
 
+func (suite *KeeperTestSuite) CreateNewValidator(moniker string, kyveStake uint64) TestValidatorAddress {
+	a := GenerateTestValidatorAddress(moniker)
+	_ = suite.MintBaseCoins(a.Address, 10*kyveStake)
+	msg, _ := stakingtypes.NewMsgCreateValidator(
+		util.MustValaddressFromOperatorAddress(a.Address),
+		a.PrivateKey.PubKey(),
+		sdk.NewInt64Coin(globalTypes.Denom, int64(kyveStake)),
+		stakingtypes.Description{Moniker: moniker},
+		stakingtypes.NewCommissionRates(math.LegacyMustNewDecFromStr("0.1"), math.LegacyMustNewDecFromStr("1"), math.LegacyMustNewDecFromStr("1")),
+		math.NewInt(1),
+	)
+	_, err := suite.RunTx(msg)
+	if err != nil {
+		panic(err)
+	}
+	suite.Commit()
+	return a
+}
+
 func (suite *KeeperTestSuite) CreateValidator(address, moniker string, kyveStake int64) {
 	suite.CreateValidatorWithoutCommit(address, moniker, kyveStake)
 	suite.Commit()
@@ -380,6 +348,18 @@ func (suite *KeeperTestSuite) CreateZeroDelegationValidator(address, name string
 	))
 }
 
+func (suite *KeeperTestSuite) SetDelegationToZero(address string) {
+	val, _ := sdk.ValAddressFromBech32(util.MustValaddressFromOperatorAddress(address))
+	validator, _ := suite.App().StakingKeeper.GetValidator(suite.Ctx(), val)
+	validator.MinSelfDelegation = math.ZeroInt()
+	_ = suite.App().StakingKeeper.SetValidator(suite.Ctx(), validator)
+	suite.RunTxSuccess(stakingtypes.NewMsgUndelegate(
+		address,
+		util.MustValaddressFromOperatorAddress(address),
+		sdk.NewInt64Coin("tkyve", validator.BondedTokens().Int64()),
+	))
+}
+
 func (suite *KeeperTestSuite) Commit() {
 	suite.CommitAfter(time.Second * 0)
 }
@@ -395,6 +375,10 @@ func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	_, err := suite.app.FinalizeBlock(&abci.RequestFinalizeBlock{
 		Height: header.Height,
 		Time:   header.Time,
+		DecidedLastCommit: abci.CommitInfo{
+			Round: 0,
+			Votes: suite.VoteInfos,
+		},
 	})
 	if err != nil {
 		panic(err)
@@ -418,4 +402,51 @@ func (suite *KeeperTestSuite) Wait(t time.Duration) {
 	header.Time = header.Time.Add(t)
 
 	suite.ctx = suite.ctx.WithBlockTime(suite.ctx.BlockTime().Add(t))
+}
+
+func GenerateTestValidatorAddress(moniker string) TestValidatorAddress {
+	a := TestValidatorAddress{}
+	a.Moniker = moniker
+	a.PrivateKey = ed25519.GenPrivKeyFromSecret([]byte(moniker))
+
+	a.AccAddress = sdk.AccAddress(a.PrivateKey.PubKey().Address())
+	bech32Address, _ := sdk.Bech32ifyAddressBytes("kyve", a.AccAddress)
+	a.Address = bech32Address
+
+	a.ConsAccAddress = sdk.ConsAddress(a.PrivateKey.PubKey().Address())
+	bech32ConsAddress, _ := sdk.Bech32ifyAddressBytes("kyvevalcons", a.AccAddress)
+	a.ConsAddress = bech32ConsAddress
+
+	for i := 0; i < 10; i++ {
+		poolAddress := ed25519.GenPrivKeyFromSecret([]byte("pool_address" + moniker + strconv.Itoa(i))).PubKey().Address()
+		address, _ := sdk.Bech32ifyAddressBytes("kyve", sdk.AccAddress(poolAddress))
+		a.PoolAccount[i] = address
+	}
+
+	return a
+}
+
+func (suite *KeeperTestSuite) ResetAbciVotes() {
+	suite.VoteInfos = nil
+}
+
+func (suite *KeeperTestSuite) AddAbciCommitVotes(addresses ...sdk.ConsAddress) {
+	suite.addAbciVotes(2, addresses...)
+}
+
+func (suite *KeeperTestSuite) AddAbciAbsentVote(addresses ...sdk.ConsAddress) {
+	suite.addAbciVotes(1, addresses...)
+}
+
+func (suite *KeeperTestSuite) addAbciVotes(blogFlagId int32, addresses ...sdk.ConsAddress) {
+	suite.VoteInfos = make([]abci.VoteInfo, 0)
+	for _, address := range addresses {
+		suite.VoteInfos = []abci.VoteInfo{{
+			Validator: abci.Validator{
+				Address: address,
+				Power:   1,
+			},
+			BlockIdFlag: types.BlockIDFlag(blogFlagId),
+		}}
+	}
 }
