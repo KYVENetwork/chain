@@ -29,7 +29,6 @@ the multi-coin-rewards module is called.
 2. User has not opted in: Only the native token is paid out, the other tokens are
    transferred to the `multi_coin_rewards` module account. A queue entry is
    created and a user has a certain amount of time to enable multi-coin-rewards.
-   certain amount of time to enable 
    1. User enables rewards within time: All pending rewards are transferred to the user
    2. User does not enable rewards within time: The rewards are transferred to 
       the `multi_coin_rewards_distribution` module account.
