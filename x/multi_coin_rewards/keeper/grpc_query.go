@@ -26,7 +26,7 @@ func (k Keeper) MultiCoinDistributionPolicyQuery(ctx context.Context, request *t
 	if err != nil {
 		return nil, err
 	}
-	return &types.QueryMultiCoinDistributionPolicyResponse{Policy: policy}, err
+	return &types.QueryMultiCoinDistributionPolicyResponse{Policy: policy}, nil
 }
 
 func (k Keeper) MultiCoinStatus(ctx context.Context, request *types.QueryMultiCoinStatusRequest) (*types.QueryMultiCoinStatusResponse, error) {

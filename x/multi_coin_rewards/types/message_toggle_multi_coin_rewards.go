@@ -31,7 +31,7 @@ func (msg *MsgToggleMultiCoinRewards) Route() string {
 }
 
 func (msg *MsgToggleMultiCoinRewards) Type() string {
-	return "kyve/stakers/MsgToggleMultiCoinRewards"
+	return "kyve/multi_coin_rewards/MsgToggleMultiCoinRewards"
 }
 
 func (msg *MsgToggleMultiCoinRewards) ValidateBasic() error {

@@ -34,7 +34,10 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 
 	genesis.QueueStatePendingRewards = k.GetQueueState(ctx, types.QUEUE_IDENTIFIER_MULTI_COIN_REWARDS)
 
-	policy, _ := k.MultiCoinDistributionPolicy.Get(ctx)
+	policy, err := k.MultiCoinDistributionPolicy.Get(ctx)
+	if err != nil {
+		panic(err)
+	}
 	genesis.MultiCoinDistributionPolicy = &policy
 
 	genesis.MultiCoinEnabled = k.GetAllEnabledMultiCoinAddresses(ctx)

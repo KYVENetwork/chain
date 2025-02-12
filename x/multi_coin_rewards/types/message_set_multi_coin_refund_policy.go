@@ -31,12 +31,16 @@ func (msg *MsgSetMultiCoinRewardsDistributionPolicy) Route() string {
 }
 
 func (msg *MsgSetMultiCoinRewardsDistributionPolicy) Type() string {
-	return "kyve/stakers/MsgSetMultiCoinRewardsDistributionPolicy"
+	return "kyve/multi_coin_rewards/MsgSetMultiCoinRewardsDistributionPolicy"
 }
 
 func (msg *MsgSetMultiCoinRewardsDistributionPolicy) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Creator); err != nil {
 		return errors.Wrapf(errorsTypes.ErrInvalidAddress, "invalid creator address: %s", err)
+	}
+
+	if msg.Policy == nil {
+		return errors.Wrap(errorsTypes.ErrInvalidRequest, "policy cannot be nil")
 	}
 
 	if _, err := ParseMultiCoinDistributionMap(*msg.Policy); err != nil {

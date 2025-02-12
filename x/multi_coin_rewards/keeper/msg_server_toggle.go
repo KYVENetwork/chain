@@ -19,6 +19,7 @@ func (k msgServer) ToggleMultiCoinRewards(ctx context.Context, toggle *types.Msg
 		return nil, err
 	}
 
+	totalRewards := sdk.NewCoins()
 	if toggle.Enabled {
 		// User wants to enable multi-coin rewards
 
@@ -27,13 +28,11 @@ func (k msgServer) ToggleMultiCoinRewards(ctx context.Context, toggle *types.Msg
 		}
 
 		rewards, _ := k.GetMultiCoinPendingRewardsEntriesByIndex2(sdk.UnwrapSDKContext(ctx), accountAddress.String())
-		totalRewards := sdk.NewCoins()
 		for _, reward := range rewards {
 			totalRewards = totalRewards.Add(reward.Rewards...)
 		}
 
-		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, accountAddress, totalRewards)
-		if err != nil {
+		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, accountAddress, totalRewards); err != nil {
 			return nil, err
 		}
 
@@ -51,6 +50,12 @@ func (k msgServer) ToggleMultiCoinRewards(ctx context.Context, toggle *types.Msg
 			return nil, err
 		}
 	}
+
+	_ = sdk.UnwrapSDKContext(ctx).EventManager().EmitTypedEvent(&types.EventToggleMultiCoinRewards{
+		Address:               toggle.Creator,
+		Enabled:               toggle.Enabled,
+		PendingRewardsClaimed: totalRewards.String(),
+	})
 
 	return &types.MsgToggleMultiCoinRewardsResponse{}, nil
 }

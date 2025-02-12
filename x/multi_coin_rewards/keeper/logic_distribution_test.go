@@ -14,7 +14,6 @@ import (
 
 TEST CASES - msg_server_leave_pool.go
 
-TODO
 * Do not redistribute if no policy is set
 * Redistribute single
 * Redistribute multi

@@ -14,7 +14,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestStakersKeeper(t *testing.T) {
+func TestMultiCoinRewardsKeeper(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, fmt.Sprintf("x/%s Keeper Test Suite", types.ModuleName))
 }

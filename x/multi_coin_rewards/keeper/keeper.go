@@ -62,9 +62,9 @@ func NewKeeper(
 		bankKeeper:    bankKeeper,
 		poolKeeper:    poolKeeper,
 
-		MultiCoinRewardsEnabled: collections.NewKeySet(sb, types.MultiCoinRewardsEnabledKeyPrefix,
+		MultiCoinRewardsEnabled: collections.NewKeySet(sb, types.MultiCoinRewardsEnabledKey,
 			"multi_coin_rewards_enabled", sdk.AccAddressKey),
-		MultiCoinDistributionPolicy: collections.NewItem(sb, types.MultiCoinDistributionPolicyKeyPrefix,
+		MultiCoinDistributionPolicy: collections.NewItem(sb, types.MultiCoinDistributionPolicyKey,
 			"multi_coin_rewards_policy", codec.CollValue[types.MultiCoinDistributionPolicy](cdc)),
 	}
 

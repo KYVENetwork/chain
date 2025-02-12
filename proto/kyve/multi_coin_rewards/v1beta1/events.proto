@@ -18,4 +18,14 @@ message EventUpdateParams {
   string payload = 3;
 }
 
-// TODO add events
+// EventToggleMultiCoinRewards ...
+message EventToggleMultiCoinRewards {
+  // address ...
+  string address = 1;
+
+  // enabled ...
+  bool enabled = 2;
+
+  // pending_rewards_claimed ...
+  string pending_rewards_claimed = 3;
+}

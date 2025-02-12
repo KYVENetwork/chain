@@ -47,6 +47,8 @@ func (k Keeper) ProcessPendingRewardsQueue(ctx sdk.Context) {
 	}
 }
 
+// DistributeNonClaimedRewards takes all non-claimed rewards which have exceeding the claim time
+// and re-distribute them to the pools according to the redistribution-policy.
 func (k Keeper) DistributeNonClaimedRewards(ctx sdk.Context) error {
 	policy, err := k.MultiCoinDistributionPolicy.Get(ctx)
 	if err != nil {
@@ -59,16 +61,17 @@ func (k Keeper) DistributeNonClaimedRewards(ctx sdk.Context) error {
 	}
 
 	// Store rewards for all pools. There could be multiple rules which re-direct coins to the same pool
-	type PoolRewards struct {
+	type PoolRewardsBasket struct {
 		account sdk.AccAddress
 		rewards sdk.Coins
 		poolId  uint64
 	}
-	poolRewards := make(map[uint64]PoolRewards)
+	poolRewardBaskets := make(map[uint64]PoolRewardsBasket)
 
 	// Get all rewards
 	rewards := k.bankKeeper.GetAllBalances(ctx, k.accountKeeper.GetModuleAddress(types.MultiCoinRewardsRedistributionAccountName))
 
+	// Iterate every coin denom and re-distribute accordingly
 	for _, coin := range rewards {
 		weightMap, ok := distributionMap[coin.Denom]
 		if !ok {
@@ -76,9 +79,11 @@ func (k Keeper) DistributeNonClaimedRewards(ctx sdk.Context) error {
 			continue
 		}
 
+		// weight-map contains for every denom the destination pools together with a weight.
 		for _, weight := range weightMap {
 			// Check if pool is already in temporary map
-			accounts, ok := poolRewards[weight.PoolId]
+			poolBasket, ok := poolRewardBaskets[weight.PoolId]
+			// If pool is not registered in map yet, initialize new pool basket.
 			if !ok {
 				// if not, get pool from id
 				pool, err := k.poolKeeper.GetPoolWithError(ctx, weight.PoolId)
@@ -87,34 +92,33 @@ func (k Keeper) DistributeNonClaimedRewards(ctx sdk.Context) error {
 					return err
 				}
 
-				accounts.poolId = pool.Id
-				accounts.account = pool.GetPoolAccount()
-				accounts.rewards = sdk.NewCoins()
-				poolRewards[weight.PoolId] = accounts
+				poolBasket.poolId = pool.Id
+				poolBasket.account = pool.GetPoolAccount()
+				poolBasket.rewards = sdk.NewCoins()
+				poolRewardBaskets[weight.PoolId] = poolBasket
 			}
 
 			// Truncate int ensures that there are never more tokens distributed than available
 			poolReward := sdk.NewCoin(coin.Denom, weight.NormalizedWeight.MulInt(rewards.AmountOf(coin.Denom)).TruncateInt())
 
 			// Add reward to pool
-			accounts.rewards = accounts.rewards.Add(poolReward)
+			poolBasket.rewards = poolBasket.rewards.Add(poolReward)
 
 			// Update map
-			poolRewards[weight.PoolId] = accounts
+			poolRewardBaskets[weight.PoolId] = poolBasket
 		}
 	}
 
 	// Sort PoolRewards for determinism
-	accountList := make([]PoolRewards, 0)
-	for _, account := range poolRewards {
+	accountList := make([]PoolRewardsBasket, 0)
+	for _, account := range poolRewardBaskets {
 		accountList = append(accountList, account)
 	}
 	sort.Slice(accountList, func(i, j int) bool { return accountList[i].poolId < accountList[j].poolId })
 
 	// Redistribute all tokens
 	for _, account := range accountList {
-		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.MultiCoinRewardsRedistributionAccountName, account.account, account.rewards)
-		if err != nil {
+		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.MultiCoinRewardsRedistributionAccountName, account.account, account.rewards); err != nil {
 			return err
 		}
 	}
