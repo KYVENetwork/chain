@@ -6,8 +6,8 @@ import (
 	"cosmossdk.io/collections"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/log"
-
 	storetypes "cosmossdk.io/store/types"
+
 	"github.com/KYVENetwork/chain/util"
 	"github.com/KYVENetwork/chain/x/bundles/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -91,4 +91,14 @@ func (k Keeper) InitMemStore(gasCtx sdk.Context) {
 
 		memStoreInitialized = true
 	}
+}
+
+// TODO: remove after v2 migration
+func (k Keeper) Migration_GetStoreService() store.KVStoreService {
+	return k.storeService
+}
+
+// TODO: remove after v2 migration
+func (k Keeper) Migration_GetCodec() codec.BinaryCodec {
+	return k.cdc
 }

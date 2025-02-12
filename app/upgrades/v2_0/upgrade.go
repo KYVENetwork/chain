@@ -9,6 +9,8 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	bundleskeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
+
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
@@ -39,6 +41,7 @@ func CreateUpgradeHandler(
 	stakersKeeper *stakerskeeper.Keeper,
 	stakingKeeper *stakingkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
+	bundlesKeeper bundleskeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 		sdkCtx := sdk.UnwrapSDKContext(ctx)
@@ -51,6 +54,9 @@ func CreateUpgradeHandler(
 		// Run KYVE migrations
 		migrateProtocolStakers(sdkCtx, delegationKeeper, stakersKeeper, stakingKeeper, bankKeeper)
 		EnsureMultiCoinDistributionAccount(sdkCtx, accountKeeper)
+
+		// Run Bundles Merkle Roots migrations
+		bundlesKeeper.SetBundlesMigrationUpgradeHeight(sdkCtx, uint64(sdkCtx.BlockHeight()))
 
 		logger.Info(fmt.Sprintf("finished upgrade %v", UpgradeName))
 
