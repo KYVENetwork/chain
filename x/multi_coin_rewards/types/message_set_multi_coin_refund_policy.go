@@ -43,7 +43,7 @@ func (msg *MsgSetMultiCoinRewardsDistributionPolicy) ValidateBasic() error {
 		return errors.Wrap(errorsTypes.ErrInvalidRequest, "policy cannot be nil")
 	}
 
-	if _, err := ParseMultiCoinDistributionMap(*msg.Policy); err != nil {
+	if _, err := ParseAndNormalizeMultiCoinDistributionMap(*msg.Policy); err != nil {
 		return err
 	}
 

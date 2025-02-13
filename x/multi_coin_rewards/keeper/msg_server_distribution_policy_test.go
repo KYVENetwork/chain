@@ -88,7 +88,7 @@ var _ = Describe("msg_server_distribution_policy_test.go", Ordered, func() {
 
 		// ASSERT
 		policy, _ := s.App().MultiCoinRewardsKeeper.MultiCoinDistributionPolicy.Get(s.Ctx())
-		distributionMap, err := multicoinrewardstypes.ParseMultiCoinDistributionMap(policy)
+		distributionMap, err := multicoinrewardstypes.ParseAndNormalizeMultiCoinDistributionMap(policy)
 		Expect(err).To(BeNil())
 		Expect(distributionMap).To(HaveLen(3))
 	})

@@ -22,7 +22,7 @@ func (k Keeper) addPendingRewards(ctx sdk.Context, address string, rewards sdk.C
 }
 
 // ProcessPendingRewardsQueue ...
-func (k Keeper) ProcessPendingRewardsQueue(ctx sdk.Context) {
+func (k Keeper) ProcessPendingRewardsQueue(ctx sdk.Context) error {
 	collectedRewards := sdk.NewCoins()
 
 	k.processQueue(ctx, types.QUEUE_IDENTIFIER_MULTI_COIN_REWARDS, func(index uint64) bool {
@@ -43,8 +43,10 @@ func (k Keeper) ProcessPendingRewardsQueue(ctx sdk.Context) {
 	})
 
 	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, types.MultiCoinRewardsRedistributionAccountName, collectedRewards); err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
 // DistributeNonClaimedRewards takes all non-claimed rewards which have exceeding the claim time
@@ -55,7 +57,7 @@ func (k Keeper) DistributeNonClaimedRewards(ctx sdk.Context) error {
 		return err
 	}
 
-	distributionMap, err := types.ParseMultiCoinDistributionMap(policy)
+	distributionMap, err := types.ParseAndNormalizeMultiCoinDistributionMap(policy)
 	if err != nil {
 		return err
 	}

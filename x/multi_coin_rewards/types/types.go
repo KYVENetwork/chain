@@ -14,7 +14,9 @@ type (
 	}
 )
 
-func ParseMultiCoinDistributionMap(policy MultiCoinDistributionPolicy) (MultiCoinDistributionMap, error) {
+// ParseAndNormalizeMultiCoinDistributionMap turns the list structured policy map into a go map and
+// normalizes the pool weights. Due to go maps indeterminism one can not store go-maps directly in state.
+func ParseAndNormalizeMultiCoinDistributionMap(policy MultiCoinDistributionPolicy) (MultiCoinDistributionMap, error) {
 	var distributionMap MultiCoinDistributionMap = make(map[string][]MultiCoinDistributionPoolNormalizedEntry)
 
 	for _, denomEntry := range policy.Entries {

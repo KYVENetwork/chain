@@ -32,7 +32,7 @@ func (gs GenesisState) Validate() error {
 		multiCoinPendingRewardsMap[index] = struct{}{}
 	}
 
-	if _, err := ParseMultiCoinDistributionMap(*gs.MultiCoinDistributionPolicy); err != nil {
+	if _, err := ParseAndNormalizeMultiCoinDistributionMap(*gs.MultiCoinDistributionPolicy); err != nil {
 		return err
 	}
 

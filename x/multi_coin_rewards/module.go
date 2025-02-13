@@ -150,7 +150,9 @@ func (AppModule) ConsensusVersion() uint64 { return 1 }
 // BeginBlock contains the logic that is automatically triggered at the beginning of each block
 func (am AppModule) BeginBlock(ctx context.Context) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	am.keeper.ProcessPendingRewardsQueue(sdkCtx)
+	if err := am.keeper.ProcessPendingRewardsQueue(sdkCtx); err != nil {
+		return err
+	}
 
 	// Only execute every 50 blocks
 	if sdkCtx.BlockHeight()%50 == 0 {
