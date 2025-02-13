@@ -5,8 +5,8 @@
 | Version | Supported          |
 |---------|--------------------|
 | main    | :white_check_mark: |
-| v1.4.x  | :white_check_mark: |
-| < v1.4  | :x:                |
+| v1.5.x  | :white_check_mark: |
+| < v1.5  | :x:                |
 
 ## Reporting a Vulnerability
 

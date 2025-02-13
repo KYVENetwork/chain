@@ -4,12 +4,17 @@ import (
 	"context"
 	"fmt"
 
+	multicoinrewardskeeper "github.com/KYVENetwork/chain/x/multi_coin_rewards/keeper"
 	multicoinrewardstypes "github.com/KYVENetwork/chain/x/multi_coin_rewards/types"
 
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	bundleskeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
+
+	"cosmossdk.io/math"
+
+	globalkeeper "github.com/KYVENetwork/chain/x/global/keeper"
 
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -42,6 +47,8 @@ func CreateUpgradeHandler(
 	stakingKeeper *stakingkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	bundlesKeeper bundleskeeper.Keeper,
+	globalKeeper globalkeeper.Keeper,
+	multiCoinRewardsKeeper multicoinrewardskeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 		sdkCtx := sdk.UnwrapSDKContext(ctx)
@@ -53,7 +60,13 @@ func CreateUpgradeHandler(
 
 		// Run KYVE migrations
 		migrateProtocolStakers(sdkCtx, delegationKeeper, stakersKeeper, stakingKeeper, bankKeeper)
-		EnsureMultiCoinDistributionAccount(sdkCtx, accountKeeper)
+		EnsureMultiCoinDistributionAccount(sdkCtx, accountKeeper, multicoinrewardstypes.ModuleName)
+		EnsureMultiCoinDistributionAccount(sdkCtx, accountKeeper, multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName)
+		AdjustGasConfig(sdkCtx, globalKeeper)
+
+		SetMultiCoinRewardsParams(sdkCtx, multiCoinRewardsKeeper)
+
+		// TODO set withdraw address
 
 		// Run Bundles Merkle Roots migrations
 		bundlesKeeper.SetBundlesMigrationUpgradeHeight(sdkCtx, uint64(sdkCtx.BlockHeight()))
@@ -64,21 +77,58 @@ func CreateUpgradeHandler(
 	}
 }
 
-func EnsureMultiCoinDistributionAccount(ctx sdk.Context, ak authkeeper.AccountKeeper) {
-	address := authTypes.NewModuleAddress(multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName)
+func SetMultiCoinRewardsParams(ctx sdk.Context, multiCoinRewardsKeeper multicoinrewardskeeper.Keeper) {
+	params := multiCoinRewardsKeeper.GetParams(ctx)
+	params.MultiCoinDistributionPendingTime = 60 * 60 * 24 * 14
+	// KYVE Public Good Funding address
+	params.MultiCoinDistributionPolicyAdminAddress = "kyve1t0uez3nn28ljnzlwndzxffyjuhean3edhtjee8"
+	multiCoinRewardsKeeper.SetParams(ctx, params)
+}
+
+func AdjustGasConfig(ctx sdk.Context, globalKeeper globalkeeper.Keeper) {
+	params := globalKeeper.GetParams(ctx)
+	params.MinGasPrice = math.LegacyMustNewDecFromStr("2")
+	params.GasAdjustments = []globalTypes.GasAdjustment{
+		{
+			Type:   "/cosmos.staking.v1beta1.MsgCreateValidator",
+			Amount: 50000000,
+		},
+		{
+			Type:   "/kyve.funders.v1beta1.MsgCreateFunder",
+			Amount: 50000000,
+		},
+	}
+	params.GasRefunds = []globalTypes.GasRefund{
+		{
+			Type:     "kyve.bundles.v1beta1.SubmitBundleProposal",
+			Fraction: math.LegacyMustNewDecFromStr("0.95"),
+		},
+		{
+			Type:     "kyve.bundles.v1beta1.VoteBundleProposal",
+			Fraction: math.LegacyMustNewDecFromStr("0.95"),
+		},
+		{
+			Type:     "kyve.bundles.v1beta1.SkipUploaderRole",
+			Fraction: math.LegacyMustNewDecFromStr("0.95"),
+		},
+	}
+	globalKeeper.SetParams(ctx, params)
+}
+
+func EnsureMultiCoinDistributionAccount(ctx sdk.Context, ak authkeeper.AccountKeeper, name string) {
+	address := authTypes.NewModuleAddress(name)
 	account := ak.GetAccount(ctx, address)
 
 	if account == nil {
 		// account doesn't exist, initialise a new module account.
-		newAcc := authTypes.NewEmptyModuleAccount(multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName)
-		account = ak.NewAccountWithAddress(ctx, newAcc.GetAddress())
+		account = authTypes.NewEmptyModuleAccount(name)
+		ak.NewAccount(ctx, account)
 	} else {
 		// account exists, adjust it to a module account.
 		baseAccount := authTypes.NewBaseAccount(address, nil, account.GetAccountNumber(), 0)
-		account = authTypes.NewModuleAccount(baseAccount, multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName)
+		account = authTypes.NewModuleAccount(baseAccount, name)
+		ak.SetAccount(ctx, account)
 	}
-
-	ak.SetAccount(ctx, account)
 }
 
 func migrateProtocolStakers(ctx sdk.Context, delegationKeeper delegationkeeper.Keeper,
@@ -89,8 +139,10 @@ func migrateProtocolStakers(ctx sdk.Context, delegationKeeper delegationkeeper.K
 	// Process current unbonding queue
 	delegationKeeper.FullyProcessDelegatorUnbondingQueue(ctx)
 
-	validatorMapping := ValidatorMappingsMainnet
-	if ctx.ChainID() == "kaon-1" {
+	var validatorMapping []ValidatorMapping
+	if ctx.ChainID() == "kyve-1" {
+		validatorMapping = ValidatorMappingsMainnet
+	} else if ctx.ChainID() == "kaon-1" {
 		validatorMapping = ValidatorMappingsKaon
 	}
 
