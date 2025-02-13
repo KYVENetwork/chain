@@ -30,7 +30,7 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, genState types.GenesisState)
 
 	k.SetQueueState(ctx, types.QUEUE_IDENTIFIER_COMMISSION, genState.QueueStateCommission)
 	k.SetQueueState(ctx, types.QUEUE_IDENTIFIER_LEAVE, genState.QueueStateLeave)
-	k.SetQueueState(ctx, types.QUEUE_IDENTIFIER_STAKE_FRACTION, genState.QueueStateStateFraction)
+	k.SetQueueState(ctx, types.QUEUE_IDENTIFIER_STAKE_FRACTION, genState.QueueStateStakeFraction)
 }
 
 // ExportGenesis returns the capability module's exported genesis.
@@ -50,7 +50,7 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 
 	genesis.QueueStateLeave = k.GetQueueState(ctx, types.QUEUE_IDENTIFIER_LEAVE)
 
-	genesis.QueueStateStateFraction = k.GetQueueState(ctx, types.QUEUE_IDENTIFIER_STAKE_FRACTION)
+	genesis.QueueStateStakeFraction = k.GetQueueState(ctx, types.QUEUE_IDENTIFIER_STAKE_FRACTION)
 
 	return genesis
 }

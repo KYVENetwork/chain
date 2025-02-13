@@ -4,6 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	multicoinrewardstypes "github.com/KYVENetwork/chain/x/multi_coin_rewards/types"
+
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
 	bundleskeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
 
 	"github.com/KYVENetwork/chain/x/stakers/types"
@@ -31,6 +36,7 @@ var logger log.Logger
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
+	accountKeeper authkeeper.AccountKeeper,
 	delegationKeeper delegationkeeper.Keeper,
 	stakersKeeper *stakerskeeper.Keeper,
 	stakingKeeper *stakingkeeper.Keeper,
@@ -47,6 +53,7 @@ func CreateUpgradeHandler(
 
 		// Run KYVE migrations
 		migrateProtocolStakers(sdkCtx, delegationKeeper, stakersKeeper, stakingKeeper, bankKeeper)
+		EnsureMultiCoinDistributionAccount(sdkCtx, accountKeeper)
 
 		// Run Bundles Merkle Roots migrations
 		bundlesKeeper.SetBundlesMigrationUpgradeHeight(sdkCtx, uint64(sdkCtx.BlockHeight()))
@@ -55,6 +62,23 @@ func CreateUpgradeHandler(
 
 		return migratedVersionMap, err
 	}
+}
+
+func EnsureMultiCoinDistributionAccount(ctx sdk.Context, ak authkeeper.AccountKeeper) {
+	address := authTypes.NewModuleAddress(multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName)
+	account := ak.GetAccount(ctx, address)
+
+	if account == nil {
+		// account doesn't exist, initialise a new module account.
+		newAcc := authTypes.NewEmptyModuleAccount(multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName)
+		account = ak.NewAccountWithAddress(ctx, newAcc.GetAddress())
+	} else {
+		// account exists, adjust it to a module account.
+		baseAccount := authTypes.NewBaseAccount(address, nil, account.GetAccountNumber(), 0)
+		account = authTypes.NewModuleAccount(baseAccount, multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName)
+	}
+
+	ak.SetAccount(ctx, account)
 }
 
 func migrateProtocolStakers(ctx sdk.Context, delegationKeeper delegationkeeper.Keeper,

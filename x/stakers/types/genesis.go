@@ -73,10 +73,10 @@ func (gs GenesisState) Validate() error {
 		if _, ok := stakeFractionChangeMap[index]; ok {
 			return fmt.Errorf("duplicated index for stake fraction change entry %v", elem)
 		}
-		if elem.Index > gs.QueueStateStateFraction.HighIndex {
+		if elem.Index > gs.QueueStateStakeFraction.HighIndex {
 			return fmt.Errorf("stake fraction change entry index too high: %v", elem)
 		}
-		if elem.Index < gs.QueueStateStateFraction.LowIndex {
+		if elem.Index < gs.QueueStateStakeFraction.LowIndex {
 			return fmt.Errorf("stake fraction change entry index too low: %v", elem)
 		}
 

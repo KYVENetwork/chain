@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package kyve.multi_coin_rewards.v1beta1;
+
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "kyve/multi_coin_rewards/v1beta1/types.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/multi_coin_rewards/types";
+
+// Msg defines the Msg service.
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+
+  // UpdateParams defines a governance operation for updating the x/multi_coin_rewards module
+  // parameters. The authority is hard-coded to the x/gov module account.
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  // ToggleMultiCoinRewards ...
+  rpc ToggleMultiCoinRewards(MsgToggleMultiCoinRewards) returns (MsgToggleMultiCoinRewardsResponse);
+
+  // SetMultiCoinRewardDistributionPolicy ...
+  rpc SetMultiCoinRewardDistributionPolicy(MsgSetMultiCoinRewardsDistributionPolicy) returns (MsgSetMultiCoinRewardsDistributionPolicyResponse);
+}
+
+// MsgUpdateParams defines a SDK message for updating the module parameters.
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // payload defines the x/multi_coin_rewards parameters to update.
+  string payload = 2;
+}
+
+// MsgUpdateParamsResponse defines the Msg/UpdateParams response type.
+message MsgUpdateParamsResponse {}
+
+// MsgEnableMultiCoinReward enables multi-coin rewards for the sender address
+// and claims all current pending rewards.
+message MsgToggleMultiCoinRewards {
+  option (cosmos.msg.v1.signer) = "creator";
+  // creator ...
+  string creator = 1;
+  // enabled ...
+  bool enabled = 2;
+}
+
+// MsgEnableMultiCoinRewardResponse ...
+message MsgToggleMultiCoinRewardsResponse {}
+
+// MsgEnableMultiCoinReward enables multi-coin rewards for the sender address
+// and claims all current pending rewards.
+message MsgSetMultiCoinRewardsDistributionPolicy {
+  option (cosmos.msg.v1.signer) = "creator";
+  // creator ...
+  string creator = 1;
+  // policy ...
+  kyve.multi_coin_rewards.v1beta1.MultiCoinDistributionPolicy policy = 2;
+}
+
+// MsgEnableMultiCoinRewardResponse ...
+message MsgSetMultiCoinRewardsDistributionPolicyResponse {}

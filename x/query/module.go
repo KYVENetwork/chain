@@ -17,7 +17,6 @@ import (
 	teamKeeper "github.com/KYVENetwork/chain/x/team/keeper"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	distributionKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
 	// this line is used by starport scaffolding # 1
@@ -180,7 +179,7 @@ type ModuleInputs struct {
 
 	AccountKeeper      authkeeper.AccountKeeper
 	BankKeeper         bankKeeper.Keeper
-	DistributionKeeper distributionKeeper.Keeper
+	DistributionKeeper util.DistributionKeeper
 	UpgradeKeeper      util.UpgradeKeeper
 	PoolKeeper         *poolKeeper.Keeper
 	TeamKeeper         teamKeeper.Keeper

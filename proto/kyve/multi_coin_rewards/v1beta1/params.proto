@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package kyve.multi_coin_rewards.v1beta1;
+
+option go_package = "github.com/KYVENetwork/chain/x/multi_coin_rewards/types";
+
+// Params defines the multi_coin_rewards module parameters.
+message Params {
+  // multi_coin_distribution_policy_admin_address specifies an address which is allowed to adjust the weights for
+  // the coin redistribution. This address can not drain coins, but only modify the in which pools coins
+  // get re-distributed.
+  string multi_coin_distribution_policy_admin_address = 1;
+
+  // multi_coin_distribution_pending_time ...
+  uint64 multi_coin_distribution_pending_time = 2;
+}

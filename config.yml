@@ -69,6 +69,10 @@ genesis:
       supply:
         - denom: "tkyve"
           amount: "165000000000000000"
+    multi_coin_rewards:
+      params:
+        multi_coin_distribution_pending_time: 10
+        multi_coin_distribution_policy_admin_address: "kyve1jq304cthpx0lwhpqzrdjrcza559ukyy3zsl2vd"
     delegation:
       params:
         unbonding_delegation_time: 10

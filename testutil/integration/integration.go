@@ -230,6 +230,7 @@ type TestValidatorAddress struct {
 	PrivateKey *ed25519.PrivKey
 
 	Address        string
+	ValAddress     string
 	AccAddress     sdk.AccAddress
 	ConsAccAddress sdk.ConsAddress
 	ConsAddress    string
@@ -412,6 +413,7 @@ func GenerateTestValidatorAddress(moniker string) TestValidatorAddress {
 	a.AccAddress = sdk.AccAddress(a.PrivateKey.PubKey().Address())
 	bech32Address, _ := sdk.Bech32ifyAddressBytes("kyve", a.AccAddress)
 	a.Address = bech32Address
+	a.ValAddress = util.MustValaddressFromOperatorAddress(a.Address)
 
 	a.ConsAccAddress = sdk.ConsAddress(a.PrivateKey.PubKey().Address())
 	bech32ConsAddress, _ := sdk.Bech32ifyAddressBytes("kyvevalcons", a.AccAddress)

@@ -81,6 +81,8 @@ import (
 	funderskeeper "github.com/KYVENetwork/chain/x/funders/keeper"
 	_ "github.com/KYVENetwork/chain/x/global" // import for side-effects
 	globalkeeper "github.com/KYVENetwork/chain/x/global/keeper"
+	_ "github.com/KYVENetwork/chain/x/multi_coin_rewards" // import for side-effects
+	multicoinrewardskeeper "github.com/KYVENetwork/chain/x/multi_coin_rewards/keeper"
 	_ "github.com/KYVENetwork/chain/x/pool" // import for side-effects
 	poolkeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 	_ "github.com/KYVENetwork/chain/x/query" // import for side-effects
@@ -119,7 +121,7 @@ type App struct {
 	AccountKeeper      authkeeper.AccountKeeper
 	BankKeeper         bankkeeper.Keeper
 	StakingKeeper      *stakingkeeper.Keeper
-	DistributionKeeper distrkeeper.Keeper
+	DistributionKeeper *distrkeeper.Keeper
 	ConsensusKeeper    consensuskeeper.Keeper
 
 	SlashingKeeper slashingkeeper.Keeper
@@ -143,14 +145,15 @@ type App struct {
 	ScopedIBCTransferKeeper capabilitykeeper.ScopedKeeper
 
 	// KYVE
-	BundlesKeeper    bundleskeeper.Keeper
-	DelegationKeeper delegationkeeper.Keeper
-	GlobalKeeper     globalkeeper.Keeper
-	PoolKeeper       *poolkeeper.Keeper
-	QueryKeeper      querykeeper.Keeper
-	StakersKeeper    *stakerskeeper.Keeper
-	TeamKeeper       teamkeeper.Keeper
-	FundersKeeper    funderskeeper.Keeper
+	BundlesKeeper          bundleskeeper.Keeper
+	DelegationKeeper       delegationkeeper.Keeper
+	GlobalKeeper           globalkeeper.Keeper
+	PoolKeeper             *poolkeeper.Keeper
+	QueryKeeper            querykeeper.Keeper
+	StakersKeeper          *stakerskeeper.Keeper
+	TeamKeeper             teamkeeper.Keeper
+	FundersKeeper          funderskeeper.Keeper
+	MultiCoinRewardsKeeper multicoinrewardskeeper.Keeper
 
 	// simulation manager
 	// sm *module.SimulationManager
@@ -296,6 +299,7 @@ func New(
 		&app.StakersKeeper,
 		&app.TeamKeeper,
 		&app.FundersKeeper,
+		&app.MultiCoinRewardsKeeper,
 		// this line is used by starport scaffolding # stargate/app/keeperDefinition
 	); err != nil {
 		panic(err)
@@ -405,6 +409,7 @@ func New(
 		v2_0.CreateUpgradeHandler(
 			app.ModuleManager,
 			app.Configurator(),
+			app.AccountKeeper,
 			app.DelegationKeeper,
 			app.StakersKeeper,
 			app.StakingKeeper,
