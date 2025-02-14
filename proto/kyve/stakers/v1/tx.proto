@@ -26,7 +26,7 @@ service Msg {
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
-// MsgUpdateCommission ... // TODO: create v1 types and rename new to MsgUpdatePoolCommission
+// MsgUpdateCommission ...
 message MsgUpdateCommission {
   option (cosmos.msg.v1.signer) = "creator";
   // creator ...

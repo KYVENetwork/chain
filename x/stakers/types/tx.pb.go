@@ -31,7 +31,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MsgUpdateCommission ... // TODO: create v1 types and rename new to MsgUpdatePoolCommission
+// MsgUpdateCommission ...
 type MsgUpdateCommission struct {
 	// creator ...
 	Creator string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
