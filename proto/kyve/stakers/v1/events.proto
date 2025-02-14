@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package kyve.stakers.v1beta1;
+package kyve.stakers.v1;
 
 import "gogoproto/gogo.proto";
-import "kyve/stakers/v1beta1/params.proto";
-import "kyve/stakers/v1beta1/stakers.proto";
+import "kyve/stakers/v1/params.proto";
+import "kyve/stakers/v1/stakers.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/stakers/types";
 
@@ -12,9 +12,9 @@ option go_package = "github.com/KYVENetwork/chain/x/stakers/types";
 // emitted_by: MsgUpdateParams
 message EventUpdateParams {
   // old_params is the module's old parameters.
-  kyve.stakers.v1beta1.Params old_params = 1 [(gogoproto.nullable) = false];
+  kyve.stakers.v1.Params old_params = 1 [(gogoproto.nullable) = false];
   // new_params is the module's new parameters.
-  kyve.stakers.v1beta1.Params new_params = 2 [(gogoproto.nullable) = false];
+  kyve.stakers.v1.Params new_params = 2 [(gogoproto.nullable) = false];
   // payload is the parameter updates that were performed.
   string payload = 3;
 }

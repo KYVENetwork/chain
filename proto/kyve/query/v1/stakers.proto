@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package kyve.query.v1beta1;
+package kyve.query.v1;
 
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "gogoproto/gogo.proto";
@@ -13,23 +13,23 @@ option go_package = "github.com/KYVENetwork/chain/x/query/types";
 service QueryStakers {
   // Stakers queries for all stakers.
   rpc Stakers(QueryStakersRequest) returns (QueryStakersResponse) {
-    option (google.api.http).get = "/kyve/query/v1beta1/stakers";
+    option (google.api.http).get = "/kyve/query/v1/stakers";
   }
 
   // Staker queries for all stakers.
   rpc Staker(QueryStakerRequest) returns (QueryStakerResponse) {
-    option (google.api.http).get = "/kyve/query/v1beta1/staker/{address}";
+    option (google.api.http).get = "/kyve/query/v1/staker/{address}";
   }
 
   // StakersByPool queries for all stakers that are currently participating in the given pool
   rpc StakersByPool(QueryStakersByPoolRequest) returns (QueryStakersByPoolResponse) {
-    option (google.api.http).get = "/kyve/query/v1beta1/stakers_by_pool/{pool_id}";
+    option (google.api.http).get = "/kyve/query/v1/stakers_by_pool/{pool_id}";
   }
 
   // StakersByPool queries for all stakers and sorted them first by number of pools participating and
   // then by delegation
   rpc StakersByPoolCount(QueryStakersByPoolCountRequest) returns (QueryStakersByPoolCountResponse) {
-    option (google.api.http).get = "/kyve/query/v1beta1/stakers_by_pool_count";
+    option (google.api.http).get = "/kyve/query/v1/stakers_by_pool_count";
   }
 }
 
@@ -68,7 +68,7 @@ enum StakerStatus {
 // QueryStakersResponse is the response type for the Query/Stakers RPC method.
 message QueryStakersResponse {
   // stakers ...
-  repeated FullStaker stakers = 1 [(gogoproto.nullable) = false];
+  repeated kyve.query.v1beta1.FullStaker stakers = 1 [(gogoproto.nullable) = false];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -86,7 +86,7 @@ message QueryStakerRequest {
 // QueryStakerResponse is the response type for the Query/Staker RPC method.
 message QueryStakerResponse {
   // staker ...
-  FullStaker staker = 1 [(gogoproto.nullable) = false];
+  kyve.query.v1beta1.FullStaker staker = 1 [(gogoproto.nullable) = false];
 }
 
 // =========================
@@ -102,7 +102,7 @@ message QueryStakersByPoolRequest {
 // QueryStakersByPoolResponse is the response type for the Query/Staker RPC method.
 message QueryStakersByPoolResponse {
   // stakers ...
-  repeated FullStaker stakers = 1 [(gogoproto.nullable) = false];
+  repeated kyve.query.v1beta1.FullStaker stakers = 1 [(gogoproto.nullable) = false];
 }
 
 // =========================
@@ -118,7 +118,7 @@ message QueryStakersByPoolCountRequest {
 // QueryStakersByPoolCountResponse ...
 message QueryStakersByPoolCountResponse {
   // stakers ...
-  repeated FullStaker stakers = 1 [(gogoproto.nullable) = false];
+  repeated kyve.query.v1beta1.FullStaker stakers = 1 [(gogoproto.nullable) = false];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

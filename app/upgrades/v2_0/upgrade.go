@@ -55,6 +55,8 @@ func CreateUpgradeHandler(
 		migrateProtocolStakers(sdkCtx, delegationKeeper, stakersKeeper, stakingKeeper, bankKeeper)
 		EnsureMultiCoinDistributionAccount(sdkCtx, accountKeeper)
 
+		// TODO add new stakers types to gas refunds
+
 		// Run Bundles Merkle Roots migrations
 		bundlesKeeper.SetBundlesMigrationUpgradeHeight(sdkCtx, uint64(sdkCtx.BlockHeight()))
 

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package kyve.stakers.v1beta1;
+package kyve.stakers.v1;
 
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
@@ -60,7 +60,7 @@ message MsgUpdateStakeFraction {
 // MsgUpdateStakeFractionResponse ...
 message MsgUpdateStakeFractionResponse {}
 
-// MsgJoinPool ... // TODO: create v1 types
+// MsgJoinPool ...
 message MsgJoinPool {
   option (cosmos.msg.v1.signer) = "creator";
   // creator ...
