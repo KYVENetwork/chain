@@ -25,6 +25,7 @@ An '!' indicates a state machine breaking change.
 ### Improvements
 
 - (deps) [#213](https://github.com/KYVENetwork/chain/pull/213) Bump to CosmosSDK v0.50.11 and cleanup deps.
+- (deps) [#246](https://github.com/KYVENetwork/chain/pull/246) Bump stakers module version from v1beta1 to v1
 
 ### Bug Fixes
 

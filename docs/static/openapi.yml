@@ -4217,7 +4217,7 @@ paths:
           format: int64
       tags:
         - QueryPool
-  /kyve/query/v1beta1/staker/{address}:
+  /kyve/query/v1/staker/{address}:
     get:
       summary: Staker queries for all stakers.
       operationId: Staker
@@ -4919,7 +4919,7 @@ paths:
           type: string
       tags:
         - QueryStakers
-  /kyve/query/v1beta1/stakers:
+  /kyve/query/v1/stakers:
     get:
       summary: Stakers queries for all stakers.
       operationId: Stakers
@@ -5725,7 +5725,7 @@ paths:
           type: string
       tags:
         - QueryStakers
-  /kyve/query/v1beta1/stakers_by_pool/{pool_id}:
+  /kyve/query/v1/stakers_by_pool/{pool_id}:
     get:
       summary: >-
         StakersByPool queries for all stakers that are currently participating
@@ -6440,7 +6440,7 @@ paths:
           format: uint64
       tags:
         - QueryStakers
-  /kyve/query/v1beta1/stakers_by_pool_count:
+  /kyve/query/v1/stakers_by_pool_count:
     get:
       summary: >-
         StakersByPool queries for all stakers and sorted them first by number of
@@ -8821,7 +8821,7 @@ paths:
           default: FUNDING_STATUS_UNSPECIFIED
       tags:
         - QueryFunders
-  /kyve/stakers/v1beta1/params:
+  /kyve/stakers/v1/params:
     get:
       summary: Parameters queries the parameters of the module.
       operationId: StakersParams

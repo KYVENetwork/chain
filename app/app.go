@@ -89,7 +89,8 @@ import (
 	querykeeper "github.com/KYVENetwork/chain/x/query/keeper"
 	_ "github.com/KYVENetwork/chain/x/stakers" // import for side-effects
 	stakerskeeper "github.com/KYVENetwork/chain/x/stakers/keeper"
-	_ "github.com/KYVENetwork/chain/x/team" // import for side-effects
+	_ "github.com/KYVENetwork/chain/x/stakers/types_v1beta1" // import for side-effects
+	_ "github.com/KYVENetwork/chain/x/team"                  // import for side-effects
 	teamkeeper "github.com/KYVENetwork/chain/x/team/keeper"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 )

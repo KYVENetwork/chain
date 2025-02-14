@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package kyve.stakers.v1beta1;
+package kyve.stakers.v1;
 
 import "gogoproto/gogo.proto";
 

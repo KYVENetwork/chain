@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+package kyve.stakers.v1;
+
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/stakers/types";
+
+// Msg defines the Msg service.
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+  // JoinPool ...
+  rpc JoinPool(MsgJoinPool) returns (MsgJoinPoolResponse);
+  // LeavePool ...
+  rpc LeavePool(MsgLeavePool) returns (MsgLeavePoolResponse);
+
+  // UpdateCommission ...
+  rpc UpdateCommission(MsgUpdateCommission) returns (MsgUpdateCommissionResponse);
+  // UpdateStakeFraction ...
+  rpc UpdateStakeFraction(MsgUpdateStakeFraction) returns (MsgUpdateStakeFractionResponse);
+
+  // UpdateParams defines a governance operation for updating the x/stakers module
+  // parameters. The authority is hard-coded to the x/gov module account.
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+}
+
+// MsgUpdateCommission ...
+message MsgUpdateCommission {
+  option (cosmos.msg.v1.signer) = "creator";
+  // creator ...
+  string creator = 1;
+  // pool_id ...
+  uint64 pool_id = 2;
+  // commission ...
+  string commission = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// MsgUpdateCommissionResponse ...
+message MsgUpdateCommissionResponse {}
+
+// MsgUpdateStakeFraction ...
+message MsgUpdateStakeFraction {
+  option (cosmos.msg.v1.signer) = "creator";
+  // creator ...
+  string creator = 1;
+  // pool_id ...
+  uint64 pool_id = 2;
+  // commission ...
+  string stake_fraction = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// MsgUpdateStakeFractionResponse ...
+message MsgUpdateStakeFractionResponse {}
+
+// MsgJoinPool ...
+message MsgJoinPool {
+  option (cosmos.msg.v1.signer) = "creator";
+  // creator ...
+  string creator = 1;
+  // pool_id ...
+  uint64 pool_id = 2;
+  // pool_address ...
+  string pool_address = 3;
+  // amount ...
+  uint64 amount = 4;
+  // commission ...
+  string commission = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // stake_fraction ...
+  string stake_fraction = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// MsgJoinPoolResponse ...
+message MsgJoinPoolResponse {}
+
+// MsgLeavePool ...
+message MsgLeavePool {
+  option (cosmos.msg.v1.signer) = "creator";
+  // creator ...
+  string creator = 1;
+  // pool_id ...
+  uint64 pool_id = 2;
+}
+
+// MsgReactivateStakerResponse ...
+message MsgLeavePoolResponse {}
+
+// MsgUpdateParams defines a SDK message for updating the module parameters.
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // payload defines the x/stakers parameters to update.
+  string payload = 2;
+}
+
+// MsgUpdateParamsResponse defines the Msg/UpdateParams response type.
+message MsgUpdateParamsResponse {}
