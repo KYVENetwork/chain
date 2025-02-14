@@ -78,8 +78,6 @@ func CreateUpgradeHandler(
 		// TODO migrate stakers type url
 		// TODO add runtime upgrades
 
-		// TODO add new stakers types to gas refunds
-
 		// Run Bundles Merkle Roots migrations
 		bundlesKeeper.SetBundlesMigrationUpgradeHeight(sdkCtx, uint64(sdkCtx.BlockHeight()))
 
