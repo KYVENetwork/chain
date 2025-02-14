@@ -67,6 +67,10 @@ func CreateUpgradeHandler(
 		AdjustGasConfig(sdkCtx, globalKeeper)
 
 		SetMultiCoinRewardsParams(sdkCtx, multiCoinRewardsKeeper)
+		if err := SetMultiCoinRewardsPolicy(sdkCtx, multiCoinRewardsKeeper); err != nil {
+			return migratedVersionMap, err
+		}
+
 		SetPoolParams(sdkCtx, poolKeeper)
 
 		// TODO set withdraw address
@@ -86,6 +90,70 @@ func SetMultiCoinRewardsParams(ctx sdk.Context, multiCoinRewardsKeeper multicoin
 	// KYVE Public Good Funding address
 	params.MultiCoinDistributionPolicyAdminAddress = "kyve1t0uez3nn28ljnzlwndzxffyjuhean3edhtjee8"
 	multiCoinRewardsKeeper.SetParams(ctx, params)
+}
+
+func SetMultiCoinRewardsPolicy(ctx sdk.Context, multiCoinRewardsKeeper multicoinrewardskeeper.Keeper) error {
+	if ctx.ChainID() == "kyve-1" {
+		return multiCoinRewardsKeeper.MultiCoinDistributionPolicy.Set(ctx, multicoinrewardstypes.MultiCoinDistributionPolicy{
+			Entries: []*multicoinrewardstypes.MultiCoinDistributionDenomEntry{
+				{
+					Denom: "ibc/A59C9E368C043E72968615DE82D4AD4BC88E34E6F353262B6769781C07390E8A", // andromeda
+					PoolWeights: []*multicoinrewardstypes.MultiCoinDistributionPoolWeightEntry{
+						{
+							PoolId: 14,
+							Weight: math.LegacyMustNewDecFromStr("1"),
+						},
+					},
+				},
+				{
+					Denom: "ibc/F4E5517A3BA2E77906A0847014EBD39E010E28BEB4181378278144D22442DB91", // source
+					PoolWeights: []*multicoinrewardstypes.MultiCoinDistributionPoolWeightEntry{
+						{
+							PoolId: 11,
+							Weight: math.LegacyMustNewDecFromStr("1"),
+						},
+						{
+							PoolId: 12,
+							Weight: math.LegacyMustNewDecFromStr("1"),
+						},
+					},
+				},
+				{
+					Denom: "ibc/D0C5DCA29836D2FD5937714B21206DD8243E5E76B1D0F180741CCB43DCAC1584", // dydx
+					PoolWeights: []*multicoinrewardstypes.MultiCoinDistributionPoolWeightEntry{
+						{
+							PoolId: 13,
+							Weight: math.LegacyMustNewDecFromStr("1"),
+						},
+					},
+				},
+				{
+					Denom: "ibc/506478E08FB0A2D3B12D493E3B182572A3B0D7BD5DCBE71610D2F393DEDDF4CA", // xion
+					PoolWeights: []*multicoinrewardstypes.MultiCoinDistributionPoolWeightEntry{
+						{
+							PoolId: 16,
+							Weight: math.LegacyMustNewDecFromStr("1"),
+						},
+						{
+							PoolId: 17,
+							Weight: math.LegacyMustNewDecFromStr("1"),
+						},
+					},
+				},
+				{
+					Denom: "ibc/7D5A9AE91948931279BA58A04FBEB9BF4F7CA059F7D4BDFAC6C3C43705973E1E", // lava
+					PoolWeights: []*multicoinrewardstypes.MultiCoinDistributionPoolWeightEntry{
+						{
+							PoolId: 18,
+							Weight: math.LegacyMustNewDecFromStr("1"),
+						},
+					},
+				},
+			},
+		})
+	}
+
+	return nil
 }
 
 func SetPoolParams(ctx sdk.Context, poolKeeper *poolkeeper.Keeper) {
