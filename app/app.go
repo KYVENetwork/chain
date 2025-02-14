@@ -77,7 +77,8 @@ import (
 	bundleskeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
 	_ "github.com/KYVENetwork/chain/x/delegation" // import for side-effects
 	delegationkeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
-	_ "github.com/KYVENetwork/chain/x/funders" // import for side-effects
+	_ "github.com/KYVENetwork/chain/x/delegation/types" // import for side-effects
+	_ "github.com/KYVENetwork/chain/x/funders"          // import for side-effects
 	funderskeeper "github.com/KYVENetwork/chain/x/funders/keeper"
 	_ "github.com/KYVENetwork/chain/x/global" // import for side-effects
 	globalkeeper "github.com/KYVENetwork/chain/x/global/keeper"
