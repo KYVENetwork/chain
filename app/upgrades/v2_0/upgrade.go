@@ -3,6 +3,7 @@ package v2_0
 import (
 	"context"
 	"fmt"
+
 	poolkeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 
 	multicoinrewardskeeper "github.com/KYVENetwork/chain/x/multi_coin_rewards/keeper"
