@@ -179,20 +179,20 @@ func AdjustGasConfig(ctx sdk.Context, globalKeeper globalkeeper.Keeper) {
 	}
 	params.GasRefunds = []globalTypes.GasRefund{
 		{
-			Type:     "kyve.bundles.v1beta1.MsgSubmitBundleProposal",
-			Fraction: math.LegacyMustNewDecFromStr("0.95"),
+			Type:     "/kyve.bundles.v1beta1.MsgSubmitBundleProposal",
+			Fraction: math.LegacyMustNewDecFromStr("0.99"),
 		},
 		{
-			Type:     "kyve.bundles.v1beta1.MsgVoteBundleProposal",
-			Fraction: math.LegacyMustNewDecFromStr("0.95"),
+			Type:     "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
+			Fraction: math.LegacyMustNewDecFromStr("0.99"),
 		},
 		{
-			Type:     "kyve.bundles.v1beta1.MsgSkipUploaderRole",
-			Fraction: math.LegacyMustNewDecFromStr("0.95"),
+			Type:     "/kyve.bundles.v1beta1.MsgSkipUploaderRole",
+			Fraction: math.LegacyMustNewDecFromStr("0.99"),
 		},
 		{
-			Type:     "kyve.bundles.v1beta1.MsgClaimUploaderRole",
-			Fraction: math.LegacyMustNewDecFromStr("0.95"),
+			Type:     "/kyve.bundles.v1beta1.MsgClaimUploaderRole",
+			Fraction: math.LegacyMustNewDecFromStr("0.99"),
 		},
 	}
 	globalKeeper.SetParams(ctx, params)
