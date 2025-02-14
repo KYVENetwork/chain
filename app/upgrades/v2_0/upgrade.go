@@ -74,6 +74,9 @@ func CreateUpgradeHandler(
 		SetPoolParams(sdkCtx, poolKeeper)
 
 		// TODO set withdraw address
+		// TODO keep distribution params because of gov proposals
+		// TODO migrate stakers type url
+		// TODO add runtime upgrades
 
 		// Run Bundles Merkle Roots migrations
 		bundlesKeeper.SetBundlesMigrationUpgradeHeight(sdkCtx, uint64(sdkCtx.BlockHeight()))
@@ -86,9 +89,21 @@ func CreateUpgradeHandler(
 
 func SetMultiCoinRewardsParams(ctx sdk.Context, multiCoinRewardsKeeper multicoinrewardskeeper.Keeper) {
 	params := multiCoinRewardsKeeper.GetParams(ctx)
-	params.MultiCoinDistributionPendingTime = 60 * 60 * 24 * 14
-	// KYVE Public Good Funding address
-	params.MultiCoinDistributionPolicyAdminAddress = "kyve1t0uez3nn28ljnzlwndzxffyjuhean3edhtjee8"
+
+	if ctx.ChainID() == "kyve-1" {
+		params.MultiCoinDistributionPendingTime = 60 * 60 * 24 * 14
+		// KYVE Public Good Funding address
+		params.MultiCoinDistributionPolicyAdminAddress = "kyve1t0uez3nn28ljnzlwndzxffyjuhean3edhtjee8"
+	} else if ctx.ChainID() == "kaon-1" {
+		params.MultiCoinDistributionPendingTime = 60 * 60 * 24
+		// Kaon Ecosystem
+		params.MultiCoinDistributionPolicyAdminAddress = "kyve1z67jal9d9unjvmzsadps9jytzt9kx2m2vgc3wm"
+	} else if ctx.ChainID() == "korellia-2" {
+		params.MultiCoinDistributionPendingTime = 600
+		// Korellia Ecosystem
+		params.MultiCoinDistributionPolicyAdminAddress = "kyve1ygtqlzxhvp3t0wwcjd5lmq4zxl0qcck9g3mmgp"
+	}
+
 	multiCoinRewardsKeeper.SetParams(ctx, params)
 }
 
@@ -153,7 +168,9 @@ func SetMultiCoinRewardsPolicy(ctx sdk.Context, multiCoinRewardsKeeper multicoin
 		})
 	}
 
-	return nil
+	return multiCoinRewardsKeeper.MultiCoinDistributionPolicy.Set(ctx, multicoinrewardstypes.MultiCoinDistributionPolicy{
+		Entries: []*multicoinrewardstypes.MultiCoinDistributionDenomEntry{},
+	})
 }
 
 func SetPoolParams(ctx sdk.Context, poolKeeper *poolkeeper.Keeper) {
