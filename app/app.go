@@ -417,6 +417,7 @@ func New(
 			app.BundlesKeeper,
 			app.GlobalKeeper,
 			app.MultiCoinRewardsKeeper,
+			app.PoolKeeper,
 		),
 	)
 

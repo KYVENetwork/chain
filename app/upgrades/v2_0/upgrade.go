@@ -3,6 +3,7 @@ package v2_0
 import (
 	"context"
 	"fmt"
+	poolkeeper "github.com/KYVENetwork/chain/x/pool/keeper"
 
 	multicoinrewardskeeper "github.com/KYVENetwork/chain/x/multi_coin_rewards/keeper"
 	multicoinrewardstypes "github.com/KYVENetwork/chain/x/multi_coin_rewards/types"
@@ -49,6 +50,7 @@ func CreateUpgradeHandler(
 	bundlesKeeper bundleskeeper.Keeper,
 	globalKeeper globalkeeper.Keeper,
 	multiCoinRewardsKeeper multicoinrewardskeeper.Keeper,
+	poolKeeper *poolkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 		sdkCtx := sdk.UnwrapSDKContext(ctx)
@@ -65,6 +67,7 @@ func CreateUpgradeHandler(
 		AdjustGasConfig(sdkCtx, globalKeeper)
 
 		SetMultiCoinRewardsParams(sdkCtx, multiCoinRewardsKeeper)
+		SetPoolParams(sdkCtx, poolKeeper)
 
 		// TODO set withdraw address
 
@@ -85,6 +88,14 @@ func SetMultiCoinRewardsParams(ctx sdk.Context, multiCoinRewardsKeeper multicoin
 	multiCoinRewardsKeeper.SetParams(ctx, params)
 }
 
+func SetPoolParams(ctx sdk.Context, poolKeeper *poolkeeper.Keeper) {
+	params := poolKeeper.GetParams(ctx)
+
+	// TODO: set new mainnet inflation split
+
+	poolKeeper.SetParams(ctx, params)
+}
+
 func AdjustGasConfig(ctx sdk.Context, globalKeeper globalkeeper.Keeper) {
 	params := globalKeeper.GetParams(ctx)
 	params.MinGasPrice = math.LegacyMustNewDecFromStr("2")
@@ -100,15 +111,19 @@ func AdjustGasConfig(ctx sdk.Context, globalKeeper globalkeeper.Keeper) {
 	}
 	params.GasRefunds = []globalTypes.GasRefund{
 		{
-			Type:     "kyve.bundles.v1beta1.SubmitBundleProposal",
+			Type:     "kyve.bundles.v1beta1.MsgSubmitBundleProposal",
 			Fraction: math.LegacyMustNewDecFromStr("0.95"),
 		},
 		{
-			Type:     "kyve.bundles.v1beta1.VoteBundleProposal",
+			Type:     "kyve.bundles.v1beta1.MsgVoteBundleProposal",
 			Fraction: math.LegacyMustNewDecFromStr("0.95"),
 		},
 		{
-			Type:     "kyve.bundles.v1beta1.SkipUploaderRole",
+			Type:     "kyve.bundles.v1beta1.MsgSkipUploaderRole",
+			Fraction: math.LegacyMustNewDecFromStr("0.95"),
+		},
+		{
+			Type:     "kyve.bundles.v1beta1.MsgClaimUploaderRole",
 			Fraction: math.LegacyMustNewDecFromStr("0.95"),
 		},
 	}
@@ -144,6 +159,8 @@ func migrateProtocolStakers(ctx sdk.Context, delegationKeeper delegationkeeper.K
 		validatorMapping = ValidatorMappingsMainnet
 	} else if ctx.ChainID() == "kaon-1" {
 		validatorMapping = ValidatorMappingsKaon
+	} else if ctx.ChainID() == "korellia-2" {
+		validatorMapping = ValidatorMappingsKorellia
 	}
 
 	totalMigratedStake := uint64(0)
