@@ -3,6 +3,7 @@ package v2_0
 import (
 	"context"
 	"fmt"
+
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 
 	poolkeeper "github.com/KYVENetwork/chain/x/pool/keeper"
