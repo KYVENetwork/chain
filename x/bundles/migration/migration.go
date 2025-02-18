@@ -65,6 +65,10 @@ func init() {
 func MigrateBundlesModule(sdkCtx sdk.Context, bundlesKeeper bundleskeeper.Keeper, upgradeHeight int64) {
 	logger = sdkCtx.Logger().With("upgrade", "bundles-migration")
 
+	if sdkCtx.ChainID() != "kyve-1" {
+		return
+	}
+
 	if sdkCtx.BlockHeight()-upgradeHeight < WaitingBlockPeriod {
 		logger.Info("sdkCtx.BlockHeight()-upgradeHeight < WaitingBlockPeriod > return")
 		return
