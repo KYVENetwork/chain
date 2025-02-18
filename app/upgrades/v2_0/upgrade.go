@@ -4,6 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
+
+	poolkeeper "github.com/KYVENetwork/chain/x/pool/keeper"
+
 	multicoinrewardskeeper "github.com/KYVENetwork/chain/x/multi_coin_rewards/keeper"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
@@ -13,6 +17,10 @@ import (
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	bundleskeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
+
+	"cosmossdk.io/math"
+
+	globalkeeper "github.com/KYVENetwork/chain/x/global/keeper"
 
 	"github.com/KYVENetwork/chain/x/stakers/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -45,7 +53,9 @@ func CreateUpgradeHandler(
 	stakingKeeper *stakingkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	bundlesKeeper bundleskeeper.Keeper,
+	globalKeeper globalkeeper.Keeper,
 	multiCoinRewardsKeeper multicoinrewardskeeper.Keeper,
+	poolKeeper *poolkeeper.Keeper,
 	distrKeeper *distrkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
@@ -58,12 +68,20 @@ func CreateUpgradeHandler(
 
 		// Run KYVE migrations
 		migrateProtocolStakers(sdkCtx, delegationKeeper, stakersKeeper, stakingKeeper, bankKeeper)
-		EnsureMultiCoinDistributionAccount(sdkCtx, accountKeeper)
+		EnsureMultiCoinDistributionAccount(sdkCtx, accountKeeper, multicoinrewardstypes.ModuleName)
+		EnsureMultiCoinDistributionAccount(sdkCtx, accountKeeper, multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName)
+		AdjustGasConfig(sdkCtx, globalKeeper)
 
-		// TODO add new stakers types to gas refunds
+		SetMultiCoinRewardsParams(sdkCtx, multiCoinRewardsKeeper)
+		if err := SetMultiCoinRewardsPolicy(sdkCtx, multiCoinRewardsKeeper); err != nil {
+			return migratedVersionMap, err
+		}
+
+		SetPoolParams(sdkCtx, poolKeeper)
 
 		// Run Bundles Merkle Roots migrations
 		bundlesKeeper.SetBundlesMigrationUpgradeHeight(sdkCtx, uint64(sdkCtx.BlockHeight()))
+		UpgradeRuntimes(sdkCtx, poolKeeper)
 
 		// Set MultiCoinRewards and Withdraw address for the KYVE Foundation
 		if sdkCtx.ChainID() == "kyve-1" {
@@ -107,21 +125,150 @@ func SetWithdrawAddressAndMultiCoinRewards(
 	}
 }
 
-func EnsureMultiCoinDistributionAccount(ctx sdk.Context, ak authkeeper.AccountKeeper) {
-	address := authTypes.NewModuleAddress(multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName)
+func SetMultiCoinRewardsParams(ctx sdk.Context, multiCoinRewardsKeeper multicoinrewardskeeper.Keeper) {
+	params := multiCoinRewardsKeeper.GetParams(ctx)
+
+	if ctx.ChainID() == "kyve-1" {
+		params.MultiCoinDistributionPendingTime = 60 * 60 * 24 * 14
+		// KYVE Public Good Funding address
+		params.MultiCoinDistributionPolicyAdminAddress = "kyve1t0uez3nn28ljnzlwndzxffyjuhean3edhtjee8"
+	} else if ctx.ChainID() == "kaon-1" {
+		params.MultiCoinDistributionPendingTime = 60 * 60 * 24
+		// Kaon Ecosystem
+		params.MultiCoinDistributionPolicyAdminAddress = "kyve1z67jal9d9unjvmzsadps9jytzt9kx2m2vgc3wm"
+	} else if ctx.ChainID() == "korellia-2" {
+		params.MultiCoinDistributionPendingTime = 600
+		// Korellia Ecosystem
+		params.MultiCoinDistributionPolicyAdminAddress = "kyve1ygtqlzxhvp3t0wwcjd5lmq4zxl0qcck9g3mmgp"
+	}
+
+	multiCoinRewardsKeeper.SetParams(ctx, params)
+}
+
+func SetMultiCoinRewardsPolicy(ctx sdk.Context, multiCoinRewardsKeeper multicoinrewardskeeper.Keeper) error {
+	if ctx.ChainID() == "kyve-1" {
+		return multiCoinRewardsKeeper.MultiCoinDistributionPolicy.Set(ctx, multicoinrewardstypes.MultiCoinDistributionPolicy{
+			Entries: []*multicoinrewardstypes.MultiCoinDistributionDenomEntry{
+				{
+					Denom: "ibc/A59C9E368C043E72968615DE82D4AD4BC88E34E6F353262B6769781C07390E8A", // andromeda
+					PoolWeights: []*multicoinrewardstypes.MultiCoinDistributionPoolWeightEntry{
+						{
+							PoolId: 14,
+							Weight: math.LegacyMustNewDecFromStr("1"),
+						},
+					},
+				},
+				{
+					Denom: "ibc/F4E5517A3BA2E77906A0847014EBD39E010E28BEB4181378278144D22442DB91", // source
+					PoolWeights: []*multicoinrewardstypes.MultiCoinDistributionPoolWeightEntry{
+						{
+							PoolId: 11,
+							Weight: math.LegacyMustNewDecFromStr("1"),
+						},
+						{
+							PoolId: 12,
+							Weight: math.LegacyMustNewDecFromStr("1"),
+						},
+					},
+				},
+				{
+					Denom: "ibc/D0C5DCA29836D2FD5937714B21206DD8243E5E76B1D0F180741CCB43DCAC1584", // dydx
+					PoolWeights: []*multicoinrewardstypes.MultiCoinDistributionPoolWeightEntry{
+						{
+							PoolId: 13,
+							Weight: math.LegacyMustNewDecFromStr("1"),
+						},
+					},
+				},
+				{
+					Denom: "ibc/506478E08FB0A2D3B12D493E3B182572A3B0D7BD5DCBE71610D2F393DEDDF4CA", // xion
+					PoolWeights: []*multicoinrewardstypes.MultiCoinDistributionPoolWeightEntry{
+						{
+							PoolId: 16,
+							Weight: math.LegacyMustNewDecFromStr("1"),
+						},
+						{
+							PoolId: 17,
+							Weight: math.LegacyMustNewDecFromStr("1"),
+						},
+					},
+				},
+				{
+					Denom: "ibc/7D5A9AE91948931279BA58A04FBEB9BF4F7CA059F7D4BDFAC6C3C43705973E1E", // lava
+					PoolWeights: []*multicoinrewardstypes.MultiCoinDistributionPoolWeightEntry{
+						{
+							PoolId: 18,
+							Weight: math.LegacyMustNewDecFromStr("1"),
+						},
+					},
+				},
+			},
+		})
+	}
+
+	return multiCoinRewardsKeeper.MultiCoinDistributionPolicy.Set(ctx, multicoinrewardstypes.MultiCoinDistributionPolicy{
+		Entries: []*multicoinrewardstypes.MultiCoinDistributionDenomEntry{},
+	})
+}
+
+func SetPoolParams(ctx sdk.Context, poolKeeper *poolkeeper.Keeper) {
+	params := poolKeeper.GetParams(ctx)
+
+	if ctx.ChainID() == "kyve-1" {
+		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("0.4")
+	}
+
+	poolKeeper.SetParams(ctx, params)
+}
+
+func AdjustGasConfig(ctx sdk.Context, globalKeeper globalkeeper.Keeper) {
+	params := globalKeeper.GetParams(ctx)
+	params.MinGasPrice = math.LegacyMustNewDecFromStr("2")
+	params.GasAdjustments = []globalTypes.GasAdjustment{
+		{
+			Type:   "/cosmos.staking.v1beta1.MsgCreateValidator",
+			Amount: 50000000,
+		},
+		{
+			Type:   "/kyve.funders.v1beta1.MsgCreateFunder",
+			Amount: 50000000,
+		},
+	}
+	params.GasRefunds = []globalTypes.GasRefund{
+		{
+			Type:     "/kyve.bundles.v1beta1.MsgSubmitBundleProposal",
+			Fraction: math.LegacyMustNewDecFromStr("0.99"),
+		},
+		{
+			Type:     "/kyve.bundles.v1beta1.MsgVoteBundleProposal",
+			Fraction: math.LegacyMustNewDecFromStr("0.99"),
+		},
+		{
+			Type:     "/kyve.bundles.v1beta1.MsgSkipUploaderRole",
+			Fraction: math.LegacyMustNewDecFromStr("0.99"),
+		},
+		{
+			Type:     "/kyve.bundles.v1beta1.MsgClaimUploaderRole",
+			Fraction: math.LegacyMustNewDecFromStr("0.99"),
+		},
+	}
+	globalKeeper.SetParams(ctx, params)
+}
+
+func EnsureMultiCoinDistributionAccount(ctx sdk.Context, ak authkeeper.AccountKeeper, name string) {
+	address := authTypes.NewModuleAddress(name)
 	account := ak.GetAccount(ctx, address)
 
 	if account == nil {
 		// account doesn't exist, initialise a new module account.
-		newAcc := authTypes.NewEmptyModuleAccount(multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName)
-		account = ak.NewAccountWithAddress(ctx, newAcc.GetAddress())
+		account = authTypes.NewEmptyModuleAccount(name)
+		ak.NewAccount(ctx, account)
 	} else {
 		// account exists, adjust it to a module account.
 		baseAccount := authTypes.NewBaseAccount(address, nil, account.GetAccountNumber(), 0)
-		account = authTypes.NewModuleAccount(baseAccount, multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName)
+		account = authTypes.NewModuleAccount(baseAccount, name)
+		ak.SetAccount(ctx, account)
 	}
-
-	ak.SetAccount(ctx, account)
 }
 
 func migrateProtocolStakers(ctx sdk.Context, delegationKeeper delegationkeeper.Keeper,
@@ -132,9 +279,13 @@ func migrateProtocolStakers(ctx sdk.Context, delegationKeeper delegationkeeper.K
 	// Process current unbonding queue
 	delegationKeeper.FullyProcessDelegatorUnbondingQueue(ctx)
 
-	validatorMapping := ValidatorMappingsMainnet
-	if ctx.ChainID() == "kaon-1" {
+	var validatorMapping []ValidatorMapping
+	if ctx.ChainID() == "kyve-1" {
+		validatorMapping = ValidatorMappingsMainnet
+	} else if ctx.ChainID() == "kaon-1" {
 		validatorMapping = ValidatorMappingsKaon
+	} else if ctx.ChainID() == "korellia-2" {
+		validatorMapping = ValidatorMappingsKorellia
 	}
 
 	totalMigratedStake := uint64(0)
@@ -189,4 +340,66 @@ func migrateProtocolStakers(ctx sdk.Context, delegationKeeper delegationkeeper.K
 	stakersParams.VoteSlash = delegationParams.VoteSlash
 
 	stakersKeeper.SetParams(ctx, stakersParams)
+}
+
+func UpgradeRuntimes(sdkCtx sdk.Context, poolKeeper *poolkeeper.Keeper) {
+	// Upgrade duration set to 10mins
+	upgrades := []poolTypes.MsgScheduleRuntimeUpgrade{
+		{
+			Runtime:     "@kyvejs/tendermint",
+			Version:     "1.3.0",
+			ScheduledAt: uint64(sdkCtx.BlockTime().Unix()),
+			Duration:    600,
+			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.3.0/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.3.0/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.3.0/kyve-macos-x64.zip\"}",
+		},
+		{
+			Runtime:     "@kyvejs/tendermint-bsync",
+			Version:     "1.2.9",
+			ScheduledAt: uint64(sdkCtx.BlockTime().Unix()),
+			Duration:    600,
+			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.9/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.9/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.9/kyve-macos-x64.zip\"}",
+		},
+		{
+			Runtime:     "@kyvejs/tendermint-ssync",
+			Version:     "1.3.0",
+			ScheduledAt: uint64(sdkCtx.BlockTime().Unix()),
+			Duration:    600,
+			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.3.0/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.3.0/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.3.0/kyve-macos-x64.zip\"}",
+		},
+	}
+
+	for _, upgrade := range upgrades {
+		affectedPools := make([]uint64, 0)
+		for _, pool := range poolKeeper.GetAllPools(sdkCtx) {
+			// only schedule upgrade if the runtime matches
+			if pool.Runtime != upgrade.Runtime {
+				continue
+			}
+
+			// only schedule upgrade if there is no upgrade already
+			if pool.UpgradePlan.ScheduledAt != 0 {
+				continue
+			}
+
+			pool.UpgradePlan = &poolTypes.UpgradePlan{
+				Version:     upgrade.Version,
+				Binaries:    upgrade.Binaries,
+				ScheduledAt: upgrade.ScheduledAt,
+				Duration:    upgrade.Duration,
+			}
+
+			affectedPools = append(affectedPools, pool.Id)
+
+			poolKeeper.SetPool(sdkCtx, pool)
+		}
+
+		_ = sdkCtx.EventManager().EmitTypedEvent(&poolTypes.EventRuntimeUpgradeScheduled{
+			Runtime:       upgrade.Runtime,
+			Version:       upgrade.Version,
+			ScheduledAt:   upgrade.ScheduledAt,
+			Duration:      upgrade.Duration,
+			Binaries:      upgrade.Binaries,
+			AffectedPools: affectedPools,
+		})
+	}
 }

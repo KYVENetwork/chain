@@ -3,7 +3,9 @@ package keeper_test
 import (
 	"cosmossdk.io/math"
 	multicoinrewardstypes "github.com/KYVENetwork/chain/x/multi_coin_rewards/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -25,6 +27,7 @@ TEST CASES - msg_server_leave_pool.go
 * MultiCoin claim pending rewards
 * MultiCoin enabled, claim, disable, claim again
 * Claim after period is over
+* Claim rewards indirectly by delegation
 
 */
 
@@ -305,6 +308,35 @@ var _ = Describe("msg_server_toggle_test.go", Ordered, func() {
 		Expect(s.App().BankKeeper.GetAllBalances(s.Ctx(), validator1.AccAddress).String()).To(Equal("10000000000acoin,10000000000bcoin,10000000000ccoin,9200000000tkyve"))
 		Expect(s.GetCoinsFromModule(multicoinrewardstypes.ModuleName).String()).To(BeEmpty())
 		Expect(s.GetCoinsFromModule(multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName).String()).To(Equal("100acoin,50bcoin"))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), validator1.Address, validator1.Address)).To(BeEmpty())
+	})
+
+	It("Claim rewards indirectly through another delegation", func() {
+		// Arrange
+		payoutRewards(s, validator1.Address, i.KYVECoins(200*i.T_KYVE))
+		payoutRewards(s, validator1.Address, i.ACoins(100))
+		payoutRewards(s, validator1.Address, i.BCoins(50))
+
+		Expect(s.App().BankKeeper.GetAllBalances(s.Ctx(), validator1.AccAddress).String()).To(Equal("10000000000acoin,10000000000bcoin,10000000000ccoin,9000000000tkyve"))
+		Expect(s.GetCoinsFromModule(multicoinrewardstypes.ModuleName).String()).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), validator1.Address, validator1.Address).String()).To(Equal("100acoin,50bcoin,200000000tkyve"))
+
+		// ACT
+		s.CommitAfterSeconds(s.App().MultiCoinRewardsKeeper.GetParams(s.Ctx()).MultiCoinDistributionPendingTime)
+		s.CommitAfterSeconds(1)
+		s.RunTxSuccess(&stakingTypes.MsgDelegate{
+			DelegatorAddress: validator1.Address,
+			ValidatorAddress: validator1.ValAddress,
+			Amount:           i.KYVECoin(400 * i.T_KYVE),
+		})
+
+		// ASSERT
+		// 9,000 + 200 (rewards) - 400 (delegation) = 8,800
+		Expect(s.App().BankKeeper.GetAllBalances(s.Ctx(), validator1.AccAddress).String()).To(Equal("10000000000acoin,10000000000bcoin,10000000000ccoin,8800000000tkyve"))
+		cosmosValidator, _ := s.App().StakingKeeper.GetValidator(s.Ctx(), sdk.ValAddress(validator1.AccAddress))
+		Expect(cosmosValidator.Tokens.Int64()).To(Equal(1400 * i.T_KYVE))
+		Expect(s.GetCoinsFromModule(multicoinrewardstypes.ModuleName).String()).To(Equal("100acoin,50bcoin"))
+		Expect(s.GetCoinsFromModule(multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName).String()).To(BeEmpty())
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), validator1.Address, validator1.Address)).To(BeEmpty())
 	})
 })

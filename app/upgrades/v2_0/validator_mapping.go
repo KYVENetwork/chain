@@ -34,6 +34,7 @@ func init() {
 
 	ValidatorMappingsMainnet = parseDirectory("validator-proofs/mainnet")
 	ValidatorMappingsKaon = parseDirectory("validator-proofs/kaon")
+	ValidatorMappingsKorellia = parseDirectory("validator-proofs/korellia")
 }
 
 type ValidatorMapping struct {
@@ -47,3 +48,5 @@ type ValidatorMapping struct {
 var ValidatorMappingsMainnet []ValidatorMapping
 
 var ValidatorMappingsKaon []ValidatorMapping
+
+var ValidatorMappingsKorellia []ValidatorMapping
