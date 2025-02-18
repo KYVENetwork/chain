@@ -178,7 +178,9 @@ func SetMultiCoinRewardsPolicy(ctx sdk.Context, multiCoinRewardsKeeper multicoin
 func SetPoolParams(ctx sdk.Context, poolKeeper *poolkeeper.Keeper) {
 	params := poolKeeper.GetParams(ctx)
 
-	// TODO: set new mainnet inflation split
+	if ctx.ChainID() == "kyve-1" {
+		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("0.4")
+	}
 
 	poolKeeper.SetParams(ctx, params)
 }
