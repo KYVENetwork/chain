@@ -420,6 +420,7 @@ func New(
 			app.GlobalKeeper,
 			app.MultiCoinRewardsKeeper,
 			app.PoolKeeper,
+			app.DistributionKeeper,
 		),
 	)
 
