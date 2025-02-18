@@ -416,6 +416,8 @@ func New(
 			app.StakingKeeper,
 			app.BankKeeper,
 			app.BundlesKeeper,
+			app.MultiCoinRewardsKeeper,
+			app.DistributionKeeper,
 		),
 	)
 

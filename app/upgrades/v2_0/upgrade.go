@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	multicoinrewardskeeper "github.com/KYVENetwork/chain/x/multi_coin_rewards/keeper"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+
 	multicoinrewardstypes "github.com/KYVENetwork/chain/x/multi_coin_rewards/types"
 
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -42,6 +45,8 @@ func CreateUpgradeHandler(
 	stakingKeeper *stakingkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	bundlesKeeper bundleskeeper.Keeper,
+	multiCoinRewardsKeeper multicoinrewardskeeper.Keeper,
+	distrKeeper *distrkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 		sdkCtx := sdk.UnwrapSDKContext(ctx)
@@ -60,9 +65,45 @@ func CreateUpgradeHandler(
 		// Run Bundles Merkle Roots migrations
 		bundlesKeeper.SetBundlesMigrationUpgradeHeight(sdkCtx, uint64(sdkCtx.BlockHeight()))
 
+		// Set MultiCoinRewards and Withdraw address for the KYVE Foundation
+		if sdkCtx.ChainID() == "kyve-1" {
+			SetWithdrawAddressAndMultiCoinRewards(
+				sdkCtx, multiCoinRewardsKeeper, accountKeeper, distrKeeper,
+				"kyve1dur8kw9qh28p00urmjulmnxyt0m34k3j7veehz", "kyve173pnpz27lcn6zq4x37392n09y8mnz5vadjx2m9")
+		}
+
 		logger.Info(fmt.Sprintf("finished upgrade %v", UpgradeName))
 
 		return migratedVersionMap, err
+	}
+}
+
+// SetWithdrawAddressAndMultiCoinRewards sets a withdraw-address and enables multi-coin rewards for
+// a given delegator
+func SetWithdrawAddressAndMultiCoinRewards(
+	ctx sdk.Context,
+	multiCoinRewardsKeeper multicoinrewardskeeper.Keeper,
+	accountKeeper authkeeper.AccountKeeper,
+	distrKeeper *distrkeeper.Keeper,
+	delegatorAddress string,
+	withdrawAddress string,
+) {
+	delegatorAccAddress, err := accountKeeper.AddressCodec().StringToBytes(delegatorAddress)
+	if err != nil {
+		panic(err)
+	}
+
+	withdrawAccAddress, err := accountKeeper.AddressCodec().StringToBytes(withdrawAddress)
+	if err != nil {
+		panic(err)
+	}
+
+	if err = distrKeeper.SetWithdrawAddr(ctx, delegatorAccAddress, withdrawAccAddress); err != nil {
+		panic(err)
+	}
+
+	if err := multiCoinRewardsKeeper.MultiCoinRewardsEnabled.Set(ctx, delegatorAccAddress); err != nil {
+		panic(err)
 	}
 }
 
