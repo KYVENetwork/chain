@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	multicoinrewardskeeper "github.com/KYVENetwork/chain/x/multi_coin_rewards/keeper"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+
 	multicoinrewardstypes "github.com/KYVENetwork/chain/x/multi_coin_rewards/types"
 
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -42,6 +45,8 @@ func CreateUpgradeHandler(
 	stakingKeeper *stakingkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	bundlesKeeper bundleskeeper.Keeper,
+	multiCoinRewardsKeeper multicoinrewardskeeper.Keeper,
+	distrKeeper *distrkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 		sdkCtx := sdk.UnwrapSDKContext(ctx)
@@ -59,7 +64,7 @@ func CreateUpgradeHandler(
 
 		// Run Bundles Merkle Roots migrations
 		bundlesKeeper.SetBundlesMigrationUpgradeHeight(sdkCtx, uint64(sdkCtx.BlockHeight()))
-		
+
 		// Set MultiCoinRewards and Withdraw address for the KYVE Foundation
 		if sdkCtx.ChainID() == "kyve-1" {
 			SetWithdrawAddressAndMultiCoinRewards(
