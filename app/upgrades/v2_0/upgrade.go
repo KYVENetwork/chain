@@ -82,6 +82,9 @@ func CreateUpgradeHandler(
 		// Run Bundles Merkle Roots migrations
 		bundlesKeeper.SetBundlesMigrationUpgradeHeight(sdkCtx, uint64(sdkCtx.BlockHeight()))
 		UpgradeRuntimes(sdkCtx, poolKeeper)
+		UpdateUploadIntervals(sdkCtx, poolKeeper)
+
+		// TODO: update coin weights and storage cost for mainnet
 
 		// Set MultiCoinRewards and Withdraw address for the KYVE Foundation
 		if sdkCtx.ChainID() == "kyve-1" {
@@ -216,6 +219,7 @@ func SetPoolParams(ctx sdk.Context, poolKeeper *poolkeeper.Keeper) {
 
 	if ctx.ChainID() == "kyve-1" {
 		params.ProtocolInflationShare = math.LegacyMustNewDecFromStr("0.4")
+		params.MaxVotingPowerPerPool = math.LegacyNewDec(1).QuoInt64(3)
 	}
 
 	poolKeeper.SetParams(ctx, params)
@@ -401,5 +405,16 @@ func UpgradeRuntimes(sdkCtx sdk.Context, poolKeeper *poolkeeper.Keeper) {
 			Binaries:      upgrade.Binaries,
 			AffectedPools: affectedPools,
 		})
+	}
+}
+
+func UpdateUploadIntervals(sdkCtx sdk.Context, poolKeeper *poolkeeper.Keeper) {
+	if sdkCtx.ChainID() == "kyve-1" {
+		for _, pool := range poolKeeper.GetAllPools(sdkCtx) {
+			if pool.Id == 4 || pool.Id == 8 || pool.Id == 10 {
+				pool.UploadInterval = 120
+				poolKeeper.SetPool(sdkCtx, pool)
+			}
+		}
 	}
 }
