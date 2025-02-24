@@ -53,9 +53,7 @@ import (
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	groupkeeper "github.com/cosmos/cosmos-sdk/x/group/keeper"
-	_ "github.com/cosmos/cosmos-sdk/x/group/module" // import for side-effects
-	_ "github.com/cosmos/cosmos-sdk/x/mint"         // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/mint" // import for side-effects
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	_ "github.com/cosmos/cosmos-sdk/x/params" // import for side-effects
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
@@ -135,7 +133,6 @@ type App struct {
 	AuthzKeeper    authzkeeper.Keeper
 	EvidenceKeeper evidencekeeper.Keeper
 	FeeGrantKeeper feegrantkeeper.Keeper
-	GroupKeeper    groupkeeper.Keeper
 
 	// IBC
 	IBCKeeper         *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
@@ -290,7 +287,6 @@ func New(
 		&app.AuthzKeeper,
 		&app.EvidenceKeeper,
 		&app.FeeGrantKeeper,
-		&app.GroupKeeper,
 
 		// Kyve keepers
 		&app.BundlesKeeper,
