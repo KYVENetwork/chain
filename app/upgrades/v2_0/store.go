@@ -10,7 +10,7 @@ import (
 func CreateStoreLoader(upgradeHeight int64) baseapp.StoreLoader {
 	storeUpgrades := storetypes.StoreUpgrades{
 		Added:   []string{multicoinrewardstypes.ModuleName},
-		Deleted: []string{},
+		Deleted: []string{"group"},
 	}
 
 	return upgradetypes.UpgradeStoreLoader(upgradeHeight, &storeUpgrades)
