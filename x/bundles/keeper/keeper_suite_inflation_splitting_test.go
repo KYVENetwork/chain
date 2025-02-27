@@ -42,6 +42,8 @@ TEST CASES - inflation splitting
 * Produce a valid bundle with no funders, 10% inflation splitting and pool-0 = 0.1 weight and pool-1 = 1.0 weight
 * Produce a valid bundle with no funders, 10% inflation splitting and pool-0 = 1.0 weight and pool-1 = 1.0 weight
 
+* Check if already existing pool accounts would cause a panic
+
 */
 
 /*
@@ -2032,5 +2034,23 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// assert total pool funds
 		Expect(s.App().FundersKeeper.GetTotalActiveFunding(s.Ctx(), fundingState.PoolId)).To(BeZero())
 		Expect(fundingState.ActiveFunderAddresses).To(BeEmpty())
+	})
+
+	It("Check if already existing pool accounts would cause a panic", func() {
+		// ARRANGE
+		// this is the address of pool/1
+		found := s.App().AccountKeeper.HasAccount(s.Ctx(), sdk.MustAccAddressFromBech32("kyve1zqdz48xggheknnh4yrz5xx9h5jtg9kvjd24lud"))
+		Expect(found).To(BeFalse())
+
+		err := s.App().BankKeeper.SendCoins(s.Ctx(), sdk.MustAccAddressFromBech32(i.ALICE), sdk.MustAccAddressFromBech32("kyve1zqdz48xggheknnh4yrz5xx9h5jtg9kvjd24lud"), i.KYVECoins(1*i.T_KYVE))
+		Expect(err).NotTo(HaveOccurred())
+
+		// ACT
+		s.App().PoolKeeper.EnsurePoolAccount(s.Ctx(), 1)
+
+		// ASSERT
+		account := s.App().AccountKeeper.GetAccount(s.Ctx(), sdk.MustAccAddressFromBech32("kyve1zqdz48xggheknnh4yrz5xx9h5jtg9kvjd24lud"))
+		_, ok := account.(sdk.ModuleAccountI)
+		Expect(ok).To(BeTrue())
 	})
 })
