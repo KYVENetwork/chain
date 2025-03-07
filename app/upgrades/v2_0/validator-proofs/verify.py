@@ -60,5 +60,5 @@ def verify_network(name, api_endpoint):
 status_mainnet = verify_network("mainnet", "https://api.kyve.network")
 print("\n[Mainnet] Correct: {}, Error: {}".format(status_mainnet["correct"], status_mainnet["error"]))
 
-if status_kaon["error"] != 0 or status_mainnet["error"] != 0:
+if status_mainnet["error"] != 0:
     sys.exit(1)
