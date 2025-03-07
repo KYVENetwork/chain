@@ -57,11 +57,6 @@ def verify_network(name, api_endpoint):
     return status
 
 
-status_kaon = verify_network("kaon", "https://api.kaon.kyve.network")
-print("\n[Kaon] Correct: {}, Error: {}".format(status_kaon["correct"], status_kaon["error"]))
-
-print("\n")
-
 status_mainnet = verify_network("mainnet", "https://api.kyve.network")
 print("\n[Mainnet] Correct: {}, Error: {}".format(status_mainnet["correct"], status_mainnet["error"]))
 
