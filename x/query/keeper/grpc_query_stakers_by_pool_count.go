@@ -35,7 +35,6 @@ func (k Keeper) StakersByPoolCount(c context.Context, req *types.QueryStakersByP
 	var err error
 
 	pageRes, err = k.stakerKeeper.GetPaginatedStakersByPoolCount(ctx, req.Pagination, accumulator)
-
 	if err != nil {
 		return nil, err
 	}
