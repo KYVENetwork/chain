@@ -25,6 +25,7 @@ TEST CASES - msg_server_leave_pool.go
 * MultiCoin enabled, Mixed rewards
 * MultiCoin empty claim
 * MultiCoin claim pending rewards
+* MultiCoin claim pending rewards twice
 * MultiCoin enabled, claim, disable, claim again
 * Claim after period is over
 * Claim rewards indirectly by delegation
@@ -227,6 +228,46 @@ var _ = Describe("msg_server_toggle_test.go", Ordered, func() {
 		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), validator1.Address, validator1.Address)).To(BeEmpty())
 
 		// ACT
+		s.RunTxSuccess(&multicoinrewardstypes.MsgToggleMultiCoinRewards{
+			Creator: validator1.Address,
+			Enabled: true,
+		})
+
+		// ASSERT
+		Expect(s.App().BankKeeper.GetAllBalances(s.Ctx(), validator1.AccAddress).String()).To(Equal("10000000100acoin,10000000050bcoin,10000000000ccoin,9200000000tkyve"))
+		Expect(s.GetCoinsFromModule(multicoinrewardstypes.ModuleName).String()).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), validator1.Address, validator1.Address)).To(BeEmpty())
+	})
+
+	It("MultiCoin claim pending rewards twice", func() {
+		// Arrange
+		payoutRewards(s, validator1.Address, i.KYVECoins(200*i.T_KYVE))
+		payoutRewards(s, validator1.Address, i.ACoins(100))
+		payoutRewards(s, validator1.Address, i.BCoins(50))
+
+		s.RunTxSuccess(&distributionTypes.MsgWithdrawDelegatorReward{
+			DelegatorAddress: validator1.Address,
+			ValidatorAddress: validator1.ValAddress,
+		})
+
+		Expect(s.App().BankKeeper.GetAllBalances(s.Ctx(), validator1.AccAddress).String()).To(Equal("10000000000acoin,10000000000bcoin,10000000000ccoin,9200000000tkyve"))
+		Expect(s.GetCoinsFromModule(multicoinrewardstypes.ModuleName).String()).To(Equal("100acoin,50bcoin"))
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), validator1.Address, validator1.Address)).To(BeEmpty())
+
+		s.RunTxSuccess(&multicoinrewardstypes.MsgToggleMultiCoinRewards{
+			Creator: validator1.Address,
+			Enabled: true,
+		})
+
+		Expect(s.App().BankKeeper.GetAllBalances(s.Ctx(), validator1.AccAddress).String()).To(Equal("10000000100acoin,10000000050bcoin,10000000000ccoin,9200000000tkyve"))
+		Expect(s.GetCoinsFromModule(multicoinrewardstypes.ModuleName).String()).To(BeEmpty())
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), validator1.Address, validator1.Address)).To(BeEmpty())
+
+		// ACT
+		s.RunTxSuccess(&multicoinrewardstypes.MsgToggleMultiCoinRewards{
+			Creator: validator1.Address,
+			Enabled: false,
+		})
 		s.RunTxSuccess(&multicoinrewardstypes.MsgToggleMultiCoinRewards{
 			Creator: validator1.Address,
 			Enabled: true,

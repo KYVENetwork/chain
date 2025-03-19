@@ -27,9 +27,11 @@ func (k msgServer) ToggleMultiCoinRewards(ctx context.Context, toggle *types.Msg
 			return nil, types.ErrMultiCoinRewardsAlreadyEnabled
 		}
 
-		rewards, _ := k.GetMultiCoinPendingRewardsEntriesByIndex2(sdk.UnwrapSDKContext(ctx), accountAddress.String())
+		goCtx := sdk.UnwrapSDKContext(ctx)
+		rewards, _ := k.GetMultiCoinPendingRewardsEntriesByIndex2(goCtx, accountAddress.String())
 		for _, reward := range rewards {
 			totalRewards = totalRewards.Add(reward.Rewards...)
+			k.RemoveMultiCoinPendingRewardsEntry(goCtx, &reward)
 		}
 
 		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, accountAddress, totalRewards); err != nil {
