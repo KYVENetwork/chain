@@ -39,7 +39,7 @@ import (
 )
 
 const (
-	UpgradeName = "v2.0.0"
+	UpgradeName = "v2.0.0-kaon2"
 )
 
 var logger log.Logger

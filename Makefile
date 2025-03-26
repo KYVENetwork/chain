@@ -2,7 +2,7 @@ COMMIT := $(shell git log -1 --format='%H')
 GO_VERSION := $(shell go version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f1,2)
 
 # VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
-VERSION := v2.0.0
+VERSION := v2.0.0-kaon2
 
 BUILD_TIME := 202502100800.00 # format [[CC]YY]MMDDhhmm[.ss]
 
