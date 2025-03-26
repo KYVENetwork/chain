@@ -1,5 +1,5 @@
 FROM bufbuild/buf:latest as BUILDER
-FROM golang:1.22-alpine
+FROM golang:1.23-alpine
 
 # Install packages
 RUN apk add --no-cache \

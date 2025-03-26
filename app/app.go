@@ -70,6 +70,11 @@ import (
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 
+	_ "github.com/bcp-innovations/hyperlane-cosmos/x/core"
+	hyperlaneKeeper "github.com/bcp-innovations/hyperlane-cosmos/x/core/keeper"
+	_ "github.com/bcp-innovations/hyperlane-cosmos/x/warp"
+	warpKeeper "github.com/bcp-innovations/hyperlane-cosmos/x/warp/keeper"
+
 	// Kyve modules
 	_ "github.com/KYVENetwork/chain/x/bundles"
 	bundleskeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
@@ -138,6 +143,10 @@ type App struct {
 	IBCKeeper         *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	CapabilityKeeper  *capabilitykeeper.Keeper
 	IBCTransferKeeper ibctransferkeeper.Keeper
+
+	// Hyperlane
+	HyperlaneKeeper *hyperlaneKeeper.Keeper
+	WarpKeeper      warpKeeper.Keeper
 
 	// Scoped IBC
 	ScopedIBCKeeper         capabilitykeeper.ScopedKeeper
@@ -287,6 +296,10 @@ func New(
 		&app.AuthzKeeper,
 		&app.EvidenceKeeper,
 		&app.FeeGrantKeeper,
+
+		// Hyperlane keepers
+		&app.HyperlaneKeeper,
+		&app.WarpKeeper,
 
 		// Kyve keepers
 		&app.BundlesKeeper,
