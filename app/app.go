@@ -417,19 +417,9 @@ func New(
 
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v2_0.UpgradeName,
-		v2_0.CreateUpgradeHandler(
+		v2_0.CreateKaon2UpgradeHandler(
 			app.ModuleManager,
 			app.Configurator(),
-			app.AccountKeeper,
-			app.DelegationKeeper,
-			app.StakersKeeper,
-			app.StakingKeeper,
-			app.BankKeeper,
-			app.BundlesKeeper,
-			app.GlobalKeeper,
-			app.MultiCoinRewardsKeeper,
-			app.PoolKeeper,
-			app.DistributionKeeper,
 		),
 	)
 
