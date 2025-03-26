@@ -14,7 +14,12 @@
 
 An '!' indicates a state machine breaking change.
 
-## [v2.0.0](https://github.com/KYVENetwork/chain/releases/tag/v2.0.0) - 2025-02-27
+### Unreleased
+
+### Features
+- (deps) [#254](https://github.com/KYVENetwork/chain/pull/254) Hyperlane: Import `x/core` and `x/warp`.
+
+## [v2.0.0-rc1](https://github.com/KYVENetwork/chain/releases/tag/v2.0.0) - 2025-02-27
 
 ### Features
 

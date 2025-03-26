@@ -33,6 +33,8 @@ import (
 	querymodulev1 "github.com/KYVENetwork/chain/api/kyve/query/module"
 	stakersmodulev1 "github.com/KYVENetwork/chain/api/kyve/stakers/module"
 	teammodulev1 "github.com/KYVENetwork/chain/api/kyve/team/module"
+	hyperlanemodulev1 "github.com/bcp-innovations/hyperlane-cosmos/api/core/module/v1"
+	warpmodulev1 "github.com/bcp-innovations/hyperlane-cosmos/api/warp/module/v1"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -60,6 +62,9 @@ import (
 	querytypes "github.com/KYVENetwork/chain/x/query/types"
 	stakerstypes "github.com/KYVENetwork/chain/x/stakers/types"
 	teamtypes "github.com/KYVENetwork/chain/x/team/types"
+
+	hyperlanetypes "github.com/bcp-innovations/hyperlane-cosmos/x/core/types"
+	warptypes "github.com/bcp-innovations/hyperlane-cosmos/x/warp/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
 
@@ -91,6 +96,9 @@ var (
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		consensustypes.ModuleName,
+
+		warptypes.ModuleName,
+		hyperlanetypes.ModuleName,
 
 		// KYVE modules
 		bundlestypes.ModuleName,
@@ -182,6 +190,10 @@ var (
 		{Account: multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName},
 		{Account: teamtypes.ModuleName},
 		{Account: funderstypes.ModuleName},
+
+		// Hyperlane,
+		{Account: hyperlanetypes.ModuleName},
+		{Account: warptypes.ModuleName, Permissions: []string{authtypes.Burner, authtypes.Minter}},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 
@@ -350,6 +362,19 @@ var (
 			{
 				Name:   multicoinrewardstypes.ModuleName,
 				Config: appconfig.WrapAny(&multicoinrewardsmodulev1.Module{}),
+			},
+			{
+				Name: warptypes.ModuleName,
+				Config: appconfig.WrapAny(&warpmodulev1.Module{
+					EnabledTokens: []int32{
+						int32(warptypes.HYP_TOKEN_TYPE_COLLATERAL),
+						int32(warptypes.HYP_TOKEN_TYPE_SYNTHETIC),
+					},
+				}),
+			},
+			{
+				Name:   hyperlanetypes.ModuleName,
+				Config: appconfig.WrapAny(&hyperlanemodulev1.Module{}),
 			},
 			// this line is used by starport scaffolding # stargate/app/moduleConfig
 		},
