@@ -18,6 +18,7 @@ An '!' indicates a state machine breaking change.
 
 ### Features
 - (deps) [#254](https://github.com/KYVENetwork/chain/pull/254) Hyperlane: Import `x/core` and `x/warp`.
+- (deps) [#256](https://github.com/KYVENetwork/chain/pull/256) bump `hyperlane-cosmos` to `v1.0.0-beta0`.
 
 ## [v2.0.0-rc1](https://github.com/KYVENetwork/chain/releases/tag/v2.0.0) - 2025-02-27
 
