@@ -133,8 +133,8 @@ func SetMultiCoinRewardsParams(ctx sdk.Context, multiCoinRewardsKeeper multicoin
 
 	if ctx.ChainID() == "kyve-1" {
 		params.MultiCoinDistributionPendingTime = 60 * 60 * 24 * 14
-		// KYVE Public Good Funding address
-		params.MultiCoinDistributionPolicyAdminAddress = "kyve1t0uez3nn28ljnzlwndzxffyjuhean3edhtjee8"
+		// KYVE Foundation Funding Wallet
+		params.MultiCoinDistributionPolicyAdminAddress = "kyve17vydsvqjpz7vswh488fjn7kt8h8ag3f2y8lzgx"
 	} else if ctx.ChainID() == "kaon-1" {
 		params.MultiCoinDistributionPendingTime = 60 * 60 * 24
 		// Kaon Ecosystem
