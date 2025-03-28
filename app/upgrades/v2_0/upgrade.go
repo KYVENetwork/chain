@@ -4,6 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	bundlestypes "github.com/KYVENetwork/chain/x/bundles/types"
+	funderskeeper "github.com/KYVENetwork/chain/x/funders/keeper"
+	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
+
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 
 	poolkeeper "github.com/KYVENetwork/chain/x/pool/keeper"
@@ -57,6 +61,7 @@ func CreateUpgradeHandler(
 	multiCoinRewardsKeeper multicoinrewardskeeper.Keeper,
 	poolKeeper *poolkeeper.Keeper,
 	distrKeeper *distrkeeper.Keeper,
+	fundersKeeper funderskeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 		sdkCtx := sdk.UnwrapSDKContext(ctx)
@@ -84,7 +89,7 @@ func CreateUpgradeHandler(
 		UpgradeRuntimes(sdkCtx, poolKeeper)
 		UpdateUploadIntervals(sdkCtx, poolKeeper)
 
-		// TODO: update coin weights and storage cost for mainnet
+		UpdateCoinWeights(sdkCtx, bundlesKeeper, fundersKeeper)
 
 		// Set MultiCoinRewards and Withdraw address for the KYVE Foundation
 		if sdkCtx.ChainID() == "kyve-1" {
@@ -97,6 +102,79 @@ func CreateUpgradeHandler(
 
 		return migratedVersionMap, err
 	}
+}
+
+func UpdateCoinWeights(ctx sdk.Context, bundlesKeeper bundleskeeper.Keeper, fundersKeeper funderskeeper.Keeper) {
+	bundlesParams, err := bundlesKeeper.BundlesParams.Get(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	bundlesParams.StorageCosts = []bundlestypes.StorageCost{
+		{StorageProviderId: 1, Cost: math.LegacyMustNewDecFromStr("0.00000001633")},
+		{StorageProviderId: 2, Cost: math.LegacyMustNewDecFromStr("0.00000003071")},
+		{StorageProviderId: 3, Cost: math.LegacyMustNewDecFromStr("0")},
+		{StorageProviderId: 4, Cost: math.LegacyMustNewDecFromStr("0.00000001898")},
+	}
+
+	err = bundlesKeeper.BundlesParams.Set(ctx, bundlesParams)
+	if err != nil {
+		panic(err)
+	}
+
+	fundersParams := fundersKeeper.GetParams(ctx)
+	fundersParams.CoinWhitelist = []*funderstypes.WhitelistCoinEntry{
+		{
+			// KYVE
+			CoinDenom:                 "ukyve",
+			CoinDecimals:              6,
+			MinFundingAmount:          math.NewInt(100_000_000),
+			MinFundingAmountPerBundle: math.NewInt(100_000),
+			CoinWeight:                math.LegacyMustNewDecFromStr("0.016"),
+		},
+		{
+			// Source
+			CoinDenom:                 "ibc/F4E5517A3BA2E77906A0847014EBD39E010E28BEB4181378278144D22442DB91",
+			CoinDecimals:              6,
+			MinFundingAmount:          math.NewInt(100_000_000),
+			MinFundingAmountPerBundle: math.NewInt(100_000),
+			CoinWeight:                math.LegacyMustNewDecFromStr("0.001"),
+		},
+		{
+			// Andromeda
+			CoinDenom:                 "ibc/A59C9E368C043E72968615DE82D4AD4BC88E34E6F353262B6769781C07390E8A",
+			CoinDecimals:              6,
+			MinFundingAmount:          math.NewInt(100_000_000),
+			MinFundingAmountPerBundle: math.NewInt(100_000),
+			CoinWeight:                math.LegacyMustNewDecFromStr("0.009"),
+		},
+		{
+			// dYdX
+			CoinDenom:                 "ibc/D0C5DCA29836D2FD5937714B21206DD8243E5E76B1D0F180741CCB43DCAC1584",
+			CoinDecimals:              18,
+			MinFundingAmount:          math.NewInt(10_000_000_000).MulRaw(1_000_000_000),
+			MinFundingAmountPerBundle: math.NewInt(10_000_000_000_000_000),
+			CoinWeight:                math.LegacyMustNewDecFromStr("0.69"),
+		},
+		{
+			// XION
+			CoinDenom:                 "ibc/506478E08FB0A2D3B12D493E3B182572A3B0D7BD5DCBE71610D2F393DEDDF4CA",
+			CoinDecimals:              6,
+			MinFundingAmount:          math.NewInt(1_000_000),
+			MinFundingAmountPerBundle: math.NewInt(1_000),
+			CoinWeight:                math.LegacyMustNewDecFromStr("1.5"),
+		},
+		{
+			// Lava
+			CoinDenom:                 "ibc/7D5A9AE91948931279BA58A04FBEB9BF4F7CA059F7D4BDFAC6C3C43705973E1E",
+			CoinDecimals:              6,
+			MinFundingAmount:          math.NewInt(100_000_000),
+			MinFundingAmountPerBundle: math.NewInt(10_000),
+			CoinWeight:                math.LegacyMustNewDecFromStr("0.066"),
+		},
+	}
+
+	fundersKeeper.SetParams(ctx, fundersParams)
 }
 
 // SetWithdrawAddressAndMultiCoinRewards sets a withdraw-address and enables multi-coin rewards for
@@ -133,8 +211,8 @@ func SetMultiCoinRewardsParams(ctx sdk.Context, multiCoinRewardsKeeper multicoin
 
 	if ctx.ChainID() == "kyve-1" {
 		params.MultiCoinDistributionPendingTime = 60 * 60 * 24 * 14
-		// KYVE Public Good Funding address
-		params.MultiCoinDistributionPolicyAdminAddress = "kyve1t0uez3nn28ljnzlwndzxffyjuhean3edhtjee8"
+		// KYVE Foundation Funding Wallet
+		params.MultiCoinDistributionPolicyAdminAddress = "kyve17vydsvqjpz7vswh488fjn7kt8h8ag3f2y8lzgx"
 	} else if ctx.ChainID() == "kaon-1" {
 		params.MultiCoinDistributionPendingTime = 60 * 60 * 24
 		// Kaon Ecosystem
@@ -336,12 +414,11 @@ func migrateProtocolStakers(ctx sdk.Context, delegationKeeper delegationkeeper.K
 	stakersKeeper.Migration_ResetOldState(ctx)
 
 	// Migrate Params
-	delegationParams := delegationKeeper.GetParams(ctx)
 	stakersParams := stakersKeeper.GetParams(ctx)
 
-	stakersParams.TimeoutSlash = delegationParams.TimeoutSlash
-	stakersParams.UploadSlash = delegationParams.UploadSlash
-	stakersParams.VoteSlash = delegationParams.VoteSlash
+	stakersParams.TimeoutSlash = math.LegacyMustNewDecFromStr("0.002")
+	stakersParams.UploadSlash = math.LegacyMustNewDecFromStr("0.005")
+	stakersParams.VoteSlash = math.LegacyMustNewDecFromStr("0.005")
 
 	stakersKeeper.SetParams(ctx, stakersParams)
 }
@@ -351,24 +428,24 @@ func UpgradeRuntimes(sdkCtx sdk.Context, poolKeeper *poolkeeper.Keeper) {
 	upgrades := []poolTypes.MsgScheduleRuntimeUpgrade{
 		{
 			Runtime:     "@kyvejs/tendermint",
-			Version:     "1.3.0",
+			Version:     "1.3.6",
 			ScheduledAt: uint64(sdkCtx.BlockTime().Unix()),
 			Duration:    600,
-			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.3.0/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.3.0/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.3.0/kyve-macos-x64.zip\"}",
+			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.3.6/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.3.6/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.3.6/kyve-macos-x64.zip\"}",
 		},
 		{
 			Runtime:     "@kyvejs/tendermint-bsync",
-			Version:     "1.2.9",
+			Version:     "1.2.11",
 			ScheduledAt: uint64(sdkCtx.BlockTime().Unix()),
 			Duration:    600,
-			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.9/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.9/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.9/kyve-macos-x64.zip\"}",
+			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.11/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.11/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.11/kyve-macos-x64.zip\"}",
 		},
 		{
 			Runtime:     "@kyvejs/tendermint-ssync",
-			Version:     "1.3.0",
+			Version:     "1.3.6",
 			ScheduledAt: uint64(sdkCtx.BlockTime().Unix()),
 			Duration:    600,
-			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.3.0/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.3.0/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.3.0/kyve-macos-x64.zip\"}",
+			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.3.6/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.3.6/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.3.6/kyve-macos-x64.zip\"}",
 		},
 	}
 
