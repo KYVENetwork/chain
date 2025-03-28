@@ -111,8 +111,8 @@ func UpdateCoinWeights(ctx sdk.Context, bundlesKeeper bundleskeeper.Keeper, fund
 	}
 
 	bundlesParams.StorageCosts = []bundlestypes.StorageCost{
-		{StorageProviderId: 1, Cost: math.LegacyMustNewDecFromStr("0.00000001633283766514")},
-		{StorageProviderId: 2, Cost: math.LegacyMustNewDecFromStr("0.00000003071168098927")},
+		{StorageProviderId: 1, Cost: math.LegacyMustNewDecFromStr("0.00000001633")},
+		{StorageProviderId: 2, Cost: math.LegacyMustNewDecFromStr("0.00000003071")},
 		{StorageProviderId: 3, Cost: math.LegacyMustNewDecFromStr("0")},
 		{StorageProviderId: 4, Cost: math.LegacyMustNewDecFromStr("0.00000001898")},
 	}
@@ -173,6 +173,8 @@ func UpdateCoinWeights(ctx sdk.Context, bundlesKeeper bundleskeeper.Keeper, fund
 			CoinWeight:                math.LegacyMustNewDecFromStr("0.066"),
 		},
 	}
+
+	fundersKeeper.SetParams(ctx, fundersParams)
 }
 
 // SetWithdrawAddressAndMultiCoinRewards sets a withdraw-address and enables multi-coin rewards for
