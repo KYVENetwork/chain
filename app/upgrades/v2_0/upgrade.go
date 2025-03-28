@@ -336,12 +336,11 @@ func migrateProtocolStakers(ctx sdk.Context, delegationKeeper delegationkeeper.K
 	stakersKeeper.Migration_ResetOldState(ctx)
 
 	// Migrate Params
-	delegationParams := delegationKeeper.GetParams(ctx)
 	stakersParams := stakersKeeper.GetParams(ctx)
 
-	stakersParams.TimeoutSlash = delegationParams.TimeoutSlash
-	stakersParams.UploadSlash = delegationParams.UploadSlash
-	stakersParams.VoteSlash = delegationParams.VoteSlash
+	stakersParams.TimeoutSlash = math.LegacyMustNewDecFromStr("0.002")
+	stakersParams.UploadSlash = math.LegacyMustNewDecFromStr("0.005")
+	stakersParams.VoteSlash = math.LegacyMustNewDecFromStr("0.005")
 
 	stakersKeeper.SetParams(ctx, stakersParams)
 }
@@ -351,24 +350,24 @@ func UpgradeRuntimes(sdkCtx sdk.Context, poolKeeper *poolkeeper.Keeper) {
 	upgrades := []poolTypes.MsgScheduleRuntimeUpgrade{
 		{
 			Runtime:     "@kyvejs/tendermint",
-			Version:     "1.3.0",
+			Version:     "1.3.6",
 			ScheduledAt: uint64(sdkCtx.BlockTime().Unix()),
 			Duration:    600,
-			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.3.0/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.3.0/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.3.0/kyve-macos-x64.zip\"}",
+			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.3.6/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.3.6/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint%401.3.6/kyve-macos-x64.zip\"}",
 		},
 		{
 			Runtime:     "@kyvejs/tendermint-bsync",
-			Version:     "1.2.9",
+			Version:     "1.2.11",
 			ScheduledAt: uint64(sdkCtx.BlockTime().Unix()),
 			Duration:    600,
-			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.9/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.9/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.9/kyve-macos-x64.zip\"}",
+			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.11/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.11/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-bsync%401.2.11/kyve-macos-x64.zip\"}",
 		},
 		{
 			Runtime:     "@kyvejs/tendermint-ssync",
-			Version:     "1.3.0",
+			Version:     "1.3.6",
 			ScheduledAt: uint64(sdkCtx.BlockTime().Unix()),
 			Duration:    600,
-			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.3.0/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.3.0/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.3.0/kyve-macos-x64.zip\"}",
+			Binaries:    "{\"kyve-linux-arm64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.3.6/kyve-linux-arm64.zip\",\"kyve-linux-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.3.6/kyve-linux-x64.zip\",\"kyve-macos-x64\":\"https://github.com/KYVENetwork/kyvejs/releases/download/%40kyvejs%2Ftendermint-ssync%401.3.6/kyve-macos-x64.zip\"}",
 		},
 	}
 
