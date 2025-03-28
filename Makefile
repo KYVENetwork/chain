@@ -4,7 +4,7 @@ GO_VERSION := $(shell go version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f1,2)
 # VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 VERSION := v2.0.0
 
-BUILD_TIME := 202502100800.00 # format [[CC]YY]MMDDhhmm[.ss]
+BUILD_TIME := 202503280800.00 # format [[CC]YY]MMDDhhmm[.ss]
 
 TEAM_ALLOCATION := 165000000000000
 ifeq ($(ENV),kaon)
