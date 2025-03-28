@@ -4,6 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	bundlestypes "github.com/KYVENetwork/chain/x/bundles/types"
+	funderskeeper "github.com/KYVENetwork/chain/x/funders/keeper"
+	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
+
 	poolTypes "github.com/KYVENetwork/chain/x/pool/types"
 
 	poolkeeper "github.com/KYVENetwork/chain/x/pool/keeper"
@@ -57,6 +61,7 @@ func CreateUpgradeHandler(
 	multiCoinRewardsKeeper multicoinrewardskeeper.Keeper,
 	poolKeeper *poolkeeper.Keeper,
 	distrKeeper *distrkeeper.Keeper,
+	fundersKeeper funderskeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 		sdkCtx := sdk.UnwrapSDKContext(ctx)
@@ -84,7 +89,7 @@ func CreateUpgradeHandler(
 		UpgradeRuntimes(sdkCtx, poolKeeper)
 		UpdateUploadIntervals(sdkCtx, poolKeeper)
 
-		// TODO: update coin weights and storage cost for mainnet
+		UpdateCoinWeights(sdkCtx, bundlesKeeper, fundersKeeper)
 
 		// Set MultiCoinRewards and Withdraw address for the KYVE Foundation
 		if sdkCtx.ChainID() == "kyve-1" {
@@ -96,6 +101,77 @@ func CreateUpgradeHandler(
 		logger.Info(fmt.Sprintf("finished upgrade %v", UpgradeName))
 
 		return migratedVersionMap, err
+	}
+}
+
+func UpdateCoinWeights(ctx sdk.Context, bundlesKeeper bundleskeeper.Keeper, fundersKeeper funderskeeper.Keeper) {
+	bundlesParams, err := bundlesKeeper.BundlesParams.Get(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	bundlesParams.StorageCosts = []bundlestypes.StorageCost{
+		{StorageProviderId: 1, Cost: math.LegacyMustNewDecFromStr("0.00000001633283766514")},
+		{StorageProviderId: 2, Cost: math.LegacyMustNewDecFromStr("0.00000003071168098927")},
+		{StorageProviderId: 3, Cost: math.LegacyMustNewDecFromStr("0")},
+		{StorageProviderId: 4, Cost: math.LegacyMustNewDecFromStr("0.00000001898")},
+	}
+
+	err = bundlesKeeper.BundlesParams.Set(ctx, bundlesParams)
+	if err != nil {
+		panic(err)
+	}
+
+	fundersParams := fundersKeeper.GetParams(ctx)
+	fundersParams.CoinWhitelist = []*funderstypes.WhitelistCoinEntry{
+		{
+			// KYVE
+			CoinDenom:                 "ukyve",
+			CoinDecimals:              6,
+			MinFundingAmount:          math.NewInt(100_000_000),
+			MinFundingAmountPerBundle: math.NewInt(100_000),
+			CoinWeight:                math.LegacyMustNewDecFromStr("0.016"),
+		},
+		{
+			// Source
+			CoinDenom:                 "ibc/F4E5517A3BA2E77906A0847014EBD39E010E28BEB4181378278144D22442DB91",
+			CoinDecimals:              6,
+			MinFundingAmount:          math.NewInt(100_000_000),
+			MinFundingAmountPerBundle: math.NewInt(100_000),
+			CoinWeight:                math.LegacyMustNewDecFromStr("0.001"),
+		},
+		{
+			// Andromeda
+			CoinDenom:                 "ibc/A59C9E368C043E72968615DE82D4AD4BC88E34E6F353262B6769781C07390E8A",
+			CoinDecimals:              6,
+			MinFundingAmount:          math.NewInt(100_000_000),
+			MinFundingAmountPerBundle: math.NewInt(100_000),
+			CoinWeight:                math.LegacyMustNewDecFromStr("0.009"),
+		},
+		{
+			// dYdX
+			CoinDenom:                 "ibc/D0C5DCA29836D2FD5937714B21206DD8243E5E76B1D0F180741CCB43DCAC1584",
+			CoinDecimals:              18,
+			MinFundingAmount:          math.NewInt(10_000_000_000).MulRaw(1_000_000_000),
+			MinFundingAmountPerBundle: math.NewInt(10_000_000_000_000_000),
+			CoinWeight:                math.LegacyMustNewDecFromStr("0.69"),
+		},
+		{
+			// XION
+			CoinDenom:                 "ibc/506478E08FB0A2D3B12D493E3B182572A3B0D7BD5DCBE71610D2F393DEDDF4CA",
+			CoinDecimals:              6,
+			MinFundingAmount:          math.NewInt(1_000_000),
+			MinFundingAmountPerBundle: math.NewInt(1_000),
+			CoinWeight:                math.LegacyMustNewDecFromStr("1.5"),
+		},
+		{
+			// Lava
+			CoinDenom:                 "ibc/7D5A9AE91948931279BA58A04FBEB9BF4F7CA059F7D4BDFAC6C3C43705973E1E",
+			CoinDecimals:              6,
+			MinFundingAmount:          math.NewInt(100_000_000),
+			MinFundingAmountPerBundle: math.NewInt(10_000),
+			CoinWeight:                math.LegacyMustNewDecFromStr("0.066"),
+		},
 	}
 }
 

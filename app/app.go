@@ -430,6 +430,7 @@ func New(
 			app.MultiCoinRewardsKeeper,
 			app.PoolKeeper,
 			app.DistributionKeeper,
+			app.FundersKeeper,
 		),
 	)
 
