@@ -5,7 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/KYVENetwork/chain/app/upgrades/v2_0"
+	"github.com/KYVENetwork/chain/app/upgrades/v2_1"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -78,10 +79,7 @@ import (
 	// Kyve modules
 	_ "github.com/KYVENetwork/chain/x/bundles"
 	bundleskeeper "github.com/KYVENetwork/chain/x/bundles/keeper"
-	_ "github.com/KYVENetwork/chain/x/delegation" // import for side-effects
-	delegationkeeper "github.com/KYVENetwork/chain/x/delegation/keeper"
-	_ "github.com/KYVENetwork/chain/x/delegation/types" // import for side-effects
-	_ "github.com/KYVENetwork/chain/x/funders"          // import for side-effects
+	_ "github.com/KYVENetwork/chain/x/funders" // import for side-effects
 	funderskeeper "github.com/KYVENetwork/chain/x/funders/keeper"
 	_ "github.com/KYVENetwork/chain/x/global" // import for side-effects
 	globalkeeper "github.com/KYVENetwork/chain/x/global/keeper"
@@ -154,7 +152,6 @@ type App struct {
 
 	// KYVE
 	BundlesKeeper          bundleskeeper.Keeper
-	DelegationKeeper       delegationkeeper.Keeper
 	GlobalKeeper           globalkeeper.Keeper
 	PoolKeeper             *poolkeeper.Keeper
 	QueryKeeper            querykeeper.Keeper
@@ -303,7 +300,6 @@ func New(
 
 		// Kyve keepers
 		&app.BundlesKeeper,
-		&app.DelegationKeeper,
 		&app.GlobalKeeper,
 		&app.PoolKeeper,
 		&app.QueryKeeper,
@@ -416,21 +412,10 @@ func New(
 	})
 
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v2_0.UpgradeName,
-		v2_0.CreateUpgradeHandler(
+		v2_1.UpgradeName,
+		v2_1.CreateUpgradeHandler(
 			app.ModuleManager,
 			app.Configurator(),
-			app.AccountKeeper,
-			app.DelegationKeeper,
-			app.StakersKeeper,
-			app.StakingKeeper,
-			app.BankKeeper,
-			app.BundlesKeeper,
-			app.GlobalKeeper,
-			app.MultiCoinRewardsKeeper,
-			app.PoolKeeper,
-			app.DistributionKeeper,
-			app.FundersKeeper,
 		),
 	)
 
@@ -439,9 +424,9 @@ func New(
 		return nil, err
 	}
 
-	if upgradeInfo.Name == v2_0.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+	if upgradeInfo.Name == v2_1.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
-		app.SetStoreLoader(v2_0.CreateStoreLoader(upgradeInfo.Height))
+		app.SetStoreLoader(v2_1.CreateStoreLoader(upgradeInfo.Height))
 	}
 
 	if err := app.Load(loadLatest); err != nil {

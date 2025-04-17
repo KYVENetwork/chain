@@ -25,7 +25,6 @@ import (
 	"cosmossdk.io/x/feegrant"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	bundlesmodulev1 "github.com/KYVENetwork/chain/api/kyve/bundles/module"
-	delegationmodulev1 "github.com/KYVENetwork/chain/api/kyve/delegation/module"
 	fundersmodulev1 "github.com/KYVENetwork/chain/api/kyve/funders/module"
 	globalmodulev1 "github.com/KYVENetwork/chain/api/kyve/global/module"
 	multicoinrewardsmodulev1 "github.com/KYVENetwork/chain/api/kyve/multi_coin_rewards/module"
@@ -54,7 +53,6 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 
 	bundlestypes "github.com/KYVENetwork/chain/x/bundles/types"
-	delegationtypes "github.com/KYVENetwork/chain/x/delegation/types"
 	funderstypes "github.com/KYVENetwork/chain/x/funders/types"
 	globaltypes "github.com/KYVENetwork/chain/x/global/types"
 	multicoinrewardstypes "github.com/KYVENetwork/chain/x/multi_coin_rewards/types"
@@ -102,7 +100,6 @@ var (
 
 		// KYVE modules
 		bundlestypes.ModuleName,
-		delegationtypes.ModuleName,
 		pooltypes.ModuleName,
 		querytypes.ModuleName,
 		stakerstypes.ModuleName,
@@ -138,7 +135,6 @@ var (
 		ibctransfertypes.ModuleName,
 
 		// KYVE modules
-		delegationtypes.ModuleName,
 		stakerstypes.ModuleName,
 		multicoinrewardstypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
@@ -183,7 +179,6 @@ var (
 
 		// KYVE
 		{Account: bundlestypes.ModuleName},
-		{Account: delegationtypes.ModuleName},
 		{Account: pooltypes.ModuleName},
 		{Account: stakerstypes.ModuleName},
 		{Account: multicoinrewardstypes.ModuleName},
@@ -210,7 +205,6 @@ var (
 
 		// KYVE
 		bundlestypes.ModuleName,
-		delegationtypes.ModuleName,
 		pooltypes.ModuleName,
 		stakerstypes.ModuleName,
 		teamtypes.ModuleName,
@@ -330,10 +324,6 @@ var (
 			{
 				Name:   bundlestypes.ModuleName,
 				Config: appconfig.WrapAny(&bundlesmodulev1.Module{}),
-			},
-			{
-				Name:   delegationtypes.ModuleName,
-				Config: appconfig.WrapAny(&delegationmodulev1.Module{}),
 			},
 			{
 				Name:   globaltypes.ModuleName,
