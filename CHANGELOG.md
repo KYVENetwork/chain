@@ -16,7 +16,7 @@ An '!' indicates a state machine breaking change.
 
 ### Unreleased
 
-- ! (deps) [#XXX](https://github.com/KYVENetwork/chain/pull/XXX) bump `hyperlane-cosmos` to `v1.0.0-rc0`.
+- ! (deps) [#258](https://github.com/KYVENetwork/chain/pull/258) bump `hyperlane-cosmos` to `v1.0.0-rc0`.
 
 ### [v2.0.0](https://github.com/KYVENetwork/chain/releases/tag/v2.0.0) - 2025-03-28
 
