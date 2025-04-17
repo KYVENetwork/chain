@@ -14,8 +14,11 @@
 
 An '!' indicates a state machine breaking change.
 
-### Unreleased
+## Unreleased
 
+### Improvements
+
+- (deps) [#260](https://github.com/KYVENetwork/chain/pull/260) Bump x/net, x/crypto, go-ethereum & Go version.
 - [#259](https://github.com/KYVENetwork/chain/pull/259) Remove deprecated delegation module.
 
 ### [v2.0.0](https://github.com/KYVENetwork/chain/releases/tag/v2.0.0) - 2025-03-28

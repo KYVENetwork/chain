@@ -1,6 +1,6 @@
-go 1.22.11
+go 1.23.8
 
-toolchain go1.22.11
+toolchain go1.23.8
 
 use (
 	.
