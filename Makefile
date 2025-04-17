@@ -116,8 +116,8 @@ ifndef ENV
 endif
 
 ensure_version:
-ifneq ($(GO_VERSION),1.22)
-	$(error ❌  Please run Go v1.22.x..)
+ifneq ($(GO_VERSION),1.23)
+	$(error ❌  Please run Go v1.23.x..)
 endif
 
 ###############################################################################
@@ -135,7 +135,7 @@ dev-continue:
 ###############################################################################
 
 gofumpt_cmd=mvdan.cc/gofumpt
-golangci_lint_cmd=github.com/golangci/golangci-lint/cmd/golangci-lint@v1.62.2
+golangci_lint_cmd=github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.8
 
 format:
 	@echo "🤖 Running formatter..."
