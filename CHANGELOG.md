@@ -14,6 +14,10 @@
 
 An '!' indicates a state machine breaking change.
 
+### Unreleased
+
+- (deps) [#260](https://github.com/KYVENetwork/chain/pull/260) Bump x/net, x/crypto, go-ethereum & Go version.
+
 ### [v2.0.0](https://github.com/KYVENetwork/chain/releases/tag/v2.0.0) - 2025-03-28
 
 - (deps) [#256](https://github.com/KYVENetwork/chain/pull/256) bump `hyperlane-cosmos` to `v1.0.0-beta0`.
