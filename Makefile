@@ -116,7 +116,7 @@ ifndef ENV
 endif
 
 ensure_version:
-ifneq ($(GO_VERSION),1.22)
+ifneq ($(GO_VERSION),1.23)
 	$(error ❌  Please run Go v1.22.x..)
 endif
 
