@@ -22,6 +22,7 @@ An '!' indicates a state machine breaking change.
 - ! (deps) [#258](https://github.com/KYVENetwork/chain/pull/258) bump `hyperlane-cosmos` to `v1.0.0-rc0`.
 - (deps) [#260](https://github.com/KYVENetwork/chain/pull/260) Bump x/net, x/crypto, go-ethereum & Go version.
 - [#259](https://github.com/KYVENetwork/chain/pull/259) Remove deprecated delegation module.
+- ! (deps) [#262](https://github.com/KYVENetwork/chain/pull/262) bump `hyperlane-cosmos` to `v1.0.0`.
 
 ### [v2.0.0](https://github.com/KYVENetwork/chain/releases/tag/v2.0.0) - 2025-03-28
 
