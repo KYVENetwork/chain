@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	UpgradeName = "v2.1"
+	UpgradeName = "v2.1.0"
 )
 
 var logger log.Logger

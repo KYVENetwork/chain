@@ -14,17 +14,17 @@
 
 An '!' indicates a state machine breaking change.
 
-## Unreleased
+## [v2.1.0](https://github.com/KYVENetwork/chain/releases/tag/v2.1.0) - 2025-04-29
 
 ### Improvements
 
+- ! (deps) [#262](https://github.com/KYVENetwork/chain/pull/262) bump `hyperlane-cosmos` to `v1.0.0`.
 - [#261](https://github.com/KYVENetwork/chain/pull/261) Remove completed bundles migration logic.
 - ! (deps) [#258](https://github.com/KYVENetwork/chain/pull/258) bump `hyperlane-cosmos` to `v1.0.0-rc0`.
-- (deps) [#260](https://github.com/KYVENetwork/chain/pull/260) Bump x/net, x/crypto, go-ethereum & Go version.
+- ! (deps) [#260](https://github.com/KYVENetwork/chain/pull/260) Bump x/net, x/crypto, go-ethereum & Go version.
 - [#259](https://github.com/KYVENetwork/chain/pull/259) Remove deprecated delegation module.
-- ! (deps) [#262](https://github.com/KYVENetwork/chain/pull/262) bump `hyperlane-cosmos` to `v1.0.0`.
 
-### [v2.0.0](https://github.com/KYVENetwork/chain/releases/tag/v2.0.0) - 2025-03-28
+## [v2.0.0](https://github.com/KYVENetwork/chain/releases/tag/v2.0.0) - 2025-03-28
 
 ### Improvements
 
