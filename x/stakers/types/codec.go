@@ -1,6 +1,7 @@
 package types
 
 import (
+	"github.com/KYVENetwork/chain/x/stakers/types_delegation_v1beta1"
 	"github.com/KYVENetwork/chain/x/stakers/types_v1beta1"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -23,6 +24,7 @@ func RegisterInterfaces(registry codecTypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgLeavePool{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgUpdateParams{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &types_v1beta1.MsgUpdateParams{})
+	registry.RegisterImplementations((*sdk.Msg)(nil), &types_delegation_v1beta1.MsgUpdateParams{})
 }
 
 var Amino = codec.NewLegacyAmino()
