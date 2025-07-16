@@ -257,9 +257,9 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 		return
 	}
 
-	// subtract storage cost from remaining total payout. We split the storage cost between all coins and charge
-	// the amount per coin, the idea is that every coin should contribute the same USD value to the total storage
-	// reward. This is done by defining the storage cost as USD / byte and the coin weights as USD / coin denom.
+	// subtract storage cost from remaining total payout. We first try to cover the storage cost with the
+	// native $KYVE coin, if that is not enough the remaining USD value is split equally between the remaining
+	// coins.
 	//
 	// If there is not enough of a coin available to cover the storage reward per coin we simply charge what is left,
 	// so there can be the case that the storageRewards are less than what we actually wanted to pay out. This is
@@ -267,15 +267,45 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 	// funds left of each coin, and in the case there are not enough the coins are removed and therefore for the
 	// next bundle we split between the other remaining coins.
 	whitelist := k.fundersKeeper.GetCoinWhitelistMap(ctx)
+	storageCost := k.GetStorageCost(ctx, bundleProposal.StorageProviderId).MulInt64(int64(bundleProposal.DataSize))
+
+	kyveWeight := whitelist[globalTypes.Denom].CoinWeight
+	kyveCurrencyUnit := math.LegacyNewDec(10).Power(uint64(whitelist[globalTypes.Denom].CoinDecimals))
+
+	if !kyveWeight.IsZero() {
+		kyveAmount := sdk.NewCoins(sdk.NewCoin(globalTypes.Denom, storageCost.Mul(kyveWeight).Quo(kyveCurrencyUnit).TruncateInt()))
+		bundleReward.UploaderStorageCost = totalPayout.Min(kyveAmount)
+		totalPayout = totalPayout.Sub(bundleReward.UploaderStorageCost...)
+		if totalPayout.IsZero() {
+			return
+		}
+
+		// calculate how much of the storage reward was initially paid with native
+		// kyve and give the remainder to the other coins
+		storageCostPaid := bundleReward.UploaderStorageCost.AmountOf(globalTypes.Denom)
+		storageCostPaidUsd := math.LegacyNewDec(storageCostPaid.Int64()).Mul(kyveCurrencyUnit).Quo(kyveWeight)
+
+		if storageCost.GTE(storageCostPaidUsd) {
+			storageCost = storageCost.Sub(storageCostPaidUsd)
+		}
+	}
+
+	// get the amount of non-native $KYVE coins
+	storageCostCoinsLength := int64(totalPayout.Len())
+	if found, _ := totalPayout.Find(globalTypes.Denom); found {
+		storageCostCoinsLength--
+	}
+
 	// wantedStorageRewards are the amounts based on the current storage cost we want to pay out, this can be more
 	// than we have available in totalPayout
 	wantedStorageRewards := sdk.NewCoins()
 	// storageCostPerCoin is the storage cost in $USD for each coin. This implies that each coin contributes the same
 	// amount of value to the storage rewards
-	storageCostPerCoin := k.GetStorageCost(ctx, bundleProposal.StorageProviderId).MulInt64(int64(bundleProposal.DataSize)).QuoInt64(int64(totalPayout.Len()))
+	storageCostPerCoin := storageCost.QuoInt64(storageCostCoinsLength)
 	for _, coin := range totalPayout {
 		weight := whitelist[coin.Denom].CoinWeight
-		if weight.IsZero() {
+		// skip the native kyve denom since we already subtracted it above
+		if coin.Denom == globalTypes.Denom || weight.IsZero() {
 			continue
 		}
 
