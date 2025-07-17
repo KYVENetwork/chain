@@ -269,11 +269,13 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 	whitelist := k.fundersKeeper.GetCoinWhitelistMap(ctx)
 	storageCost := k.GetStorageCost(ctx, bundleProposal.StorageProviderId).MulInt64(int64(bundleProposal.DataSize))
 
+	kyveCoinFound, kyveCoin := totalPayout.Find(globalTypes.Denom)
+
 	kyveWeight := whitelist[globalTypes.Denom].CoinWeight
 	kyveCurrencyUnit := math.LegacyNewDec(10).Power(uint64(whitelist[globalTypes.Denom].CoinDecimals))
 
-	if !kyveWeight.IsZero() {
-		kyveAmount := sdk.NewCoins(sdk.NewCoin(globalTypes.Denom, storageCost.Mul(kyveWeight).Quo(kyveCurrencyUnit).TruncateInt()))
+	if kyveCoinFound && !kyveWeight.IsZero() {
+		kyveAmount := sdk.NewCoins(sdk.NewCoin(globalTypes.Denom, storageCost.Mul(kyveCurrencyUnit).Quo(kyveWeight).TruncateInt()))
 		bundleReward.UploaderStorageCost = totalPayout.Min(kyveAmount)
 		totalPayout = totalPayout.Sub(bundleReward.UploaderStorageCost...)
 		if totalPayout.IsZero() {
@@ -283,49 +285,51 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 		// calculate how much of the storage reward was initially paid with native
 		// kyve and give the remainder to the other coins
 		storageCostPaid := bundleReward.UploaderStorageCost.AmountOf(globalTypes.Denom)
-		storageCostPaidUsd := math.LegacyNewDec(storageCostPaid.Int64()).Mul(kyveCurrencyUnit).Quo(kyveWeight)
+		storageCostPaidUsd := math.LegacyNewDec(storageCostPaid.Int64()).Mul(kyveWeight).Quo(kyveCurrencyUnit)
 
 		if storageCost.GTE(storageCostPaidUsd) {
 			storageCost = storageCost.Sub(storageCostPaidUsd)
 		}
 	}
 
-	// get the amount of non-native $KYVE coins
-	storageCostCoinsLength := int64(totalPayout.Len())
-	if found, _ := totalPayout.Find(globalTypes.Denom); found {
-		storageCostCoinsLength--
+	kyveCoinFound, kyveCoin = totalPayout.Find(globalTypes.Denom)
+	remainingCoins := totalPayout
+	if kyveCoinFound {
+		remainingCoins = totalPayout.Sub(kyveCoin)
 	}
 
-	// wantedStorageRewards are the amounts based on the current storage cost we want to pay out, this can be more
-	// than we have available in totalPayout
-	wantedStorageRewards := sdk.NewCoins()
-	// storageCostPerCoin is the storage cost in $USD for each coin. This implies that each coin contributes the same
-	// amount of value to the storage rewards
-	storageCostPerCoin := storageCost.QuoInt64(storageCostCoinsLength)
-	for _, coin := range totalPayout {
-		weight := whitelist[coin.Denom].CoinWeight
-		// skip the native kyve denom since we already subtracted it above
-		if coin.Denom == globalTypes.Denom || weight.IsZero() {
-			continue
+	if !storageCost.IsZero() && int64(remainingCoins.Len()) > 0 {
+		// wantedStorageRewards are the amounts based on the current storage cost we want to pay out, this can be more
+		// than we have available in totalPayout
+		wantedStorageRewards := sdk.NewCoins()
+		// storageCostPerCoin is the storage cost in $USD for each coin. This implies that each coin contributes the same
+		// amount of value to the storage rewards
+		storageCostPerCoin := storageCost.QuoInt64(int64(remainingCoins.Len()))
+		for _, coin := range remainingCoins {
+			weight := whitelist[coin.Denom].CoinWeight
+			// skip the native kyve denom since we already subtracted it above
+			if coin.Denom == globalTypes.Denom || weight.IsZero() {
+				continue
+			}
+
+			// currencyUnit is the amount of base denoms of the currency
+			currencyUnit := math.LegacyNewDec(10).Power(uint64(whitelist[coin.Denom].CoinDecimals))
+			// amount is the value of storageCostPerCoin in the base denomination of the currency. We calculate this
+			// by multiplying first with the amount of base denoms of the currency and then divide this by the $USD
+			// value per currency unit which is the weight.
+			amount := storageCostPerCoin.Mul(currencyUnit).Quo(weight).TruncateInt()
+			wantedStorageRewards = wantedStorageRewards.Add(sdk.NewCoin(coin.Denom, amount))
 		}
 
-		// currencyUnit is the amount of base denoms of the currency
-		currencyUnit := math.LegacyNewDec(10).Power(uint64(whitelist[coin.Denom].CoinDecimals))
-		// amount is the value of storageCostPerCoin in the base denomination of the currency. We calculate this
-		// by multiplying first with the amount of base denoms of the currency and then divide this by the $USD
-		// value per currency unit which is the weight.
-		amount := storageCostPerCoin.Mul(currencyUnit).Quo(weight).TruncateInt()
-		wantedStorageRewards = wantedStorageRewards.Add(sdk.NewCoin(coin.Denom, amount))
-	}
+		// we take the min here since there can be the case where we want to charge more coins for the storage
+		// reward than we have left in the total payout
+		bundleReward.UploaderStorageCost = totalPayout.Min(wantedStorageRewards)
 
-	// we take the min here since there can be the case where we want to charge more coins for the storage
-	// reward than we have left in the total payout
-	bundleReward.UploaderStorageCost = totalPayout.Min(wantedStorageRewards)
-
-	// the remaining total payout is split between the uploader and his delegators.
-	totalPayout = totalPayout.Sub(bundleReward.UploaderStorageCost...)
-	if totalPayout.IsZero() {
-		return
+		// the remaining total payout is split between the uploader and his delegators.
+		totalPayout = totalPayout.Sub(bundleReward.UploaderStorageCost...)
+		if totalPayout.IsZero() {
+			return
+		}
 	}
 
 	commission := k.stakerKeeper.GetValidatorPoolCommission(ctx, bundleProposal.Uploader, poolId)
