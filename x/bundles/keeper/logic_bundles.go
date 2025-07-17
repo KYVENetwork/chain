@@ -269,12 +269,10 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 	whitelist := k.fundersKeeper.GetCoinWhitelistMap(ctx)
 	storageCost := k.GetStorageCost(ctx, bundleProposal.StorageProviderId).MulInt64(int64(bundleProposal.DataSize))
 
-	kyveCoinFound, kyveCoin := totalPayout.Find(globalTypes.Denom)
-
 	kyveWeight := whitelist[globalTypes.Denom].CoinWeight
 	kyveCurrencyUnit := math.LegacyNewDec(10).Power(uint64(whitelist[globalTypes.Denom].CoinDecimals))
 
-	if kyveCoinFound && !kyveWeight.IsZero() {
+	if found, _ := totalPayout.Find(globalTypes.Denom); found && !kyveWeight.IsZero() {
 		kyveAmount := sdk.NewCoins(sdk.NewCoin(globalTypes.Denom, storageCost.Mul(kyveCurrencyUnit).Quo(kyveWeight).TruncateInt()))
 		bundleReward.UploaderStorageCost = totalPayout.Min(kyveAmount)
 		totalPayout = totalPayout.Sub(bundleReward.UploaderStorageCost...)
@@ -292,7 +290,7 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 		}
 	}
 
-	kyveCoinFound, kyveCoin = totalPayout.Find(globalTypes.Denom)
+	kyveCoinFound, kyveCoin := totalPayout.Find(globalTypes.Denom)
 	remainingCoins := totalPayout
 	if kyveCoinFound {
 		remainingCoins = totalPayout.Sub(kyveCoin)
