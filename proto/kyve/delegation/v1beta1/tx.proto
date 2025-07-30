@@ -8,11 +8,10 @@ import "cosmos_proto/cosmos.proto";
 option go_package = "github.com/KYVENetwork/chain/x/stakers/types_delegation_v1beta1";
 
 /*
-  NOTICE:
-  This file needs to be kept for backwards compatibility with the governance module.
-  Otherwise, it is not possible to decode legacy delegation param update proposals.
+   NOTICE:
+   This file needs to be kept for backwards compatibility with the governance module.
+   Otherwise, it is not possible to decode legacy delegation param update proposals.
 */
-
 
 // Msg defines the Msg service.
 service Msg {
