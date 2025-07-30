@@ -5,13 +5,13 @@
 syntax = "proto3";
 package kyve.liquid.v1beta1;
 
+import "amino/amino.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/query/v1/query.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "kyve/liquid/v1beta1/liquid.proto";
-import "cosmos/base/v1beta1/coin.proto";
-import "cosmos/query/v1/query.proto";
-import "amino/amino.proto";
 
 option go_package = "github.com/KYVENetwork/chain/x/liquid/types";
 
@@ -21,73 +21,55 @@ service Query {
   //
   // When called from another module, this query might consume a high amount of
   // gas if the pagination field is incorrectly set.
-  rpc LiquidValidators(QueryLiquidValidatorsRequest)
-      returns (QueryLiquidValidatorsResponse) {
+  rpc LiquidValidators(QueryLiquidValidatorsRequest) returns (QueryLiquidValidatorsResponse) {
     option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get = "/gaia/liquid/v1beta1/liquid_validators";
   }
 
   // Query for an individual liquid validator by validator address
-  rpc LiquidValidator(QueryLiquidValidatorRequest)
-      returns (QueryLiquidValidatorResponse) {
-    option (google.api.http).get =
-        "/gaia/liquid/v1beta1/liquid_validator/{validator_addr}";
+  rpc LiquidValidator(QueryLiquidValidatorRequest) returns (QueryLiquidValidatorResponse) {
+    option (google.api.http).get = "/gaia/liquid/v1beta1/liquid_validator/{validator_addr}";
   }
 
   // Query for individual tokenize share record information by share by id
-  rpc TokenizeShareRecordById(QueryTokenizeShareRecordByIdRequest)
-      returns (QueryTokenizeShareRecordByIdResponse) {
-    option (google.api.http).get =
-        "/gaia/liquid/v1beta1/tokenize_share_record_by_id/{id}";
+  rpc TokenizeShareRecordById(QueryTokenizeShareRecordByIdRequest) returns (QueryTokenizeShareRecordByIdResponse) {
+    option (google.api.http).get = "/gaia/liquid/v1beta1/tokenize_share_record_by_id/{id}";
   }
 
   // Query for individual tokenize share record information by share denom
-  rpc TokenizeShareRecordByDenom(QueryTokenizeShareRecordByDenomRequest)
-      returns (QueryTokenizeShareRecordByDenomResponse) {
-    option (google.api.http).get =
-        "/gaia/liquid/v1beta1/tokenize_share_record_by_denom/{denom}";
+  rpc TokenizeShareRecordByDenom(QueryTokenizeShareRecordByDenomRequest) returns (QueryTokenizeShareRecordByDenomResponse) {
+    option (google.api.http).get = "/gaia/liquid/v1beta1/tokenize_share_record_by_denom/{denom}";
   }
 
   // Query tokenize share records by address
-  rpc TokenizeShareRecordsOwned(QueryTokenizeShareRecordsOwnedRequest)
-      returns (QueryTokenizeShareRecordsOwnedResponse) {
-    option (google.api.http).get =
-        "/gaia/liquid/v1beta1/tokenize_share_record_owned/{owner}";
+  rpc TokenizeShareRecordsOwned(QueryTokenizeShareRecordsOwnedRequest) returns (QueryTokenizeShareRecordsOwnedResponse) {
+    option (google.api.http).get = "/gaia/liquid/v1beta1/tokenize_share_record_owned/{owner}";
   }
 
   // Query for all tokenize share records
-  rpc AllTokenizeShareRecords(QueryAllTokenizeShareRecordsRequest)
-      returns (QueryAllTokenizeShareRecordsResponse) {
-    option (google.api.http).get =
-        "/gaia/liquid/v1beta1/tokenize_share_records";
+  rpc AllTokenizeShareRecords(QueryAllTokenizeShareRecordsRequest) returns (QueryAllTokenizeShareRecordsResponse) {
+    option (google.api.http).get = "/gaia/liquid/v1beta1/tokenize_share_records";
   }
 
   // Query for last tokenize share record id
-  rpc LastTokenizeShareRecordId(QueryLastTokenizeShareRecordIdRequest)
-      returns (QueryLastTokenizeShareRecordIdResponse) {
-    option (google.api.http).get =
-        "/gaia/liquid/v1beta1/last_tokenize_share_record_id";
+  rpc LastTokenizeShareRecordId(QueryLastTokenizeShareRecordIdRequest) returns (QueryLastTokenizeShareRecordIdResponse) {
+    option (google.api.http).get = "/gaia/liquid/v1beta1/last_tokenize_share_record_id";
   }
 
   // Query for total tokenized staked assets
-  rpc TotalTokenizeSharedAssets(QueryTotalTokenizeSharedAssetsRequest)
-      returns (QueryTotalTokenizeSharedAssetsResponse) {
-    option (google.api.http).get =
-        "/gaia/liquid/v1beta1/total_tokenize_shared_assets";
+  rpc TotalTokenizeSharedAssets(QueryTotalTokenizeSharedAssetsRequest) returns (QueryTotalTokenizeSharedAssetsResponse) {
+    option (google.api.http).get = "/gaia/liquid/v1beta1/total_tokenize_shared_assets";
   }
 
   // Query for total liquid staked (including tokenized shares or owned by an
   // liquid staking provider)
-  rpc TotalLiquidStaked(QueryTotalLiquidStaked)
-      returns (QueryTotalLiquidStakedResponse) {
+  rpc TotalLiquidStaked(QueryTotalLiquidStaked) returns (QueryTotalLiquidStakedResponse) {
     option (google.api.http).get = "/gaia/liquid/v1beta1/total_liquid_staked";
   }
 
   // Query tokenize share locks
-  rpc TokenizeShareLockInfo(QueryTokenizeShareLockInfo)
-      returns (QueryTokenizeShareLockInfoResponse) {
-    option (google.api.http).get =
-        "/gaia/liquid/v1beta1/tokenize_share_lock_info/{address}";
+  rpc TokenizeShareLockInfo(QueryTokenizeShareLockInfo) returns (QueryTokenizeShareLockInfoResponse) {
+    option (google.api.http).get = "/gaia/liquid/v1beta1/tokenize_share_lock_info/{address}";
   }
 
   // Parameters queries the liquid parameters.
@@ -97,22 +79,24 @@ service Query {
   }
 
   // TokenizeShareRecordReward queries the tokenize share record rewards
-  rpc TokenizeShareRecordReward(QueryTokenizeShareRecordRewardRequest)
-      returns (QueryTokenizeShareRecordRewardResponse) {
-    option (google.api.http).get =
-        "/gaia/liquid/v1beta1/{owner_address}/tokenize_share_record_rewards";
+  rpc TokenizeShareRecordReward(QueryTokenizeShareRecordRewardRequest) returns (QueryTokenizeShareRecordRewardResponse) {
+    option (google.api.http).get = "/gaia/liquid/v1beta1/{owner_address}/tokenize_share_record_rewards";
   }
 }
 
 // QueryLiquidValidatorRequest is the request type for the Query/LiquidValidator
 // RPC method.
-message QueryLiquidValidatorRequest { string validator_addr = 1; }
+message QueryLiquidValidatorRequest {
+  string validator_addr = 1;
+}
 
 // QueryLiquidValidatorResponse is the response type for the
 // Query/LiquidValidator RPC method.
 message QueryLiquidValidatorResponse {
-  LiquidValidator liquid_validator = 1
-      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  LiquidValidator liquid_validator = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // QueryLiquidValidatorsRequest is request type for the
@@ -125,8 +109,10 @@ message QueryLiquidValidatorsRequest {
 // QueryLiquidValidatorsResponse is response type for the
 // Query/QueryLiquidValidators RPC method.
 message QueryLiquidValidatorsResponse {
-  repeated LiquidValidator liquid_validators = 1
-      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  repeated LiquidValidator liquid_validators = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -137,38 +123,46 @@ message QueryParamsRequest {}
 // QueryParamsResponse is response type for the Query/Params RPC method.
 message QueryParamsResponse {
   // params holds all the parameters of this module.
-  Params params = 1
-      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // QueryTokenizeShareRecordByIdRequest is request type for the
 // Query/QueryTokenizeShareRecordById RPC method.
-message QueryTokenizeShareRecordByIdRequest { uint64 id = 1; }
+message QueryTokenizeShareRecordByIdRequest {
+  uint64 id = 1;
+}
 
 // QueryTokenizeShareRecordByIdRequest is response type for the
 // Query/QueryTokenizeShareRecordById RPC method.
 message QueryTokenizeShareRecordByIdResponse {
-  TokenizeShareRecord record = 1 [ (gogoproto.nullable) = false ];
+  TokenizeShareRecord record = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryTokenizeShareRecordByDenomRequest is request type for the
 // Query/QueryTokenizeShareRecordByDenom RPC method.
-message QueryTokenizeShareRecordByDenomRequest { string denom = 1; }
+message QueryTokenizeShareRecordByDenomRequest {
+  string denom = 1;
+}
 
 // QueryTokenizeShareRecordByDenomResponse is response type for the
 // Query/QueryTokenizeShareRecordByDenom RPC method.
 message QueryTokenizeShareRecordByDenomResponse {
-  TokenizeShareRecord record = 1 [ (gogoproto.nullable) = false ];
+  TokenizeShareRecord record = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryTokenizeShareRecordsOwnedRequest is request type for the
 // Query/QueryTokenizeShareRecordsOwned RPC method.
-message QueryTokenizeShareRecordsOwnedRequest { string owner = 1; }
+message QueryTokenizeShareRecordsOwnedRequest {
+  string owner = 1;
+}
 
 // QueryTokenizeShareRecordsOwnedResponse is response type for the
 // Query/QueryTokenizeShareRecordsOwned RPC method.
 message QueryTokenizeShareRecordsOwnedResponse {
-  repeated TokenizeShareRecord records = 1 [ (gogoproto.nullable) = false ];
+  repeated TokenizeShareRecord records = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryAllTokenizeShareRecordsRequest is request type for the
@@ -181,7 +175,7 @@ message QueryAllTokenizeShareRecordsRequest {
 // QueryAllTokenizeShareRecordsResponse is response type for the
 // Query/QueryAllTokenizeShareRecords RPC method.
 message QueryAllTokenizeShareRecordsResponse {
-  repeated TokenizeShareRecord records = 1 [ (gogoproto.nullable) = false ];
+  repeated TokenizeShareRecord records = 1 [(gogoproto.nullable) = false];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -192,7 +186,9 @@ message QueryLastTokenizeShareRecordIdRequest {}
 
 // QueryLastTokenizeShareRecordIdResponse is response type for the
 // Query/QueryLastTokenizeShareRecordId RPC method.
-message QueryLastTokenizeShareRecordIdResponse { uint64 id = 1; }
+message QueryLastTokenizeShareRecordIdResponse {
+  uint64 id = 1;
+}
 
 // QueryTotalTokenizeSharedAssetsRequest is request type for the
 // Query/QueryTotalTokenizeSharedAssets RPC method.
@@ -201,7 +197,7 @@ message QueryTotalTokenizeSharedAssetsRequest {}
 // QueryTotalTokenizeSharedAssetsResponse is response type for the
 // Query/QueryTotalTokenizeSharedAssets RPC method.
 message QueryTotalTokenizeSharedAssetsResponse {
-  cosmos.base.v1beta1.Coin value = 1 [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin value = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryTotalLiquidStakedRequest is request type for the
@@ -210,11 +206,15 @@ message QueryTotalLiquidStaked {}
 
 // QueryTotalLiquidStakedResponse is response type for the
 // Query/QueryQueryTotalLiquidStaked RPC method.
-message QueryTotalLiquidStakedResponse { string tokens = 1; }
+message QueryTotalLiquidStakedResponse {
+  string tokens = 1;
+}
 
 // QueryTokenizeShareLockInfo queries the tokenize share lock information
 // associated with given account
-message QueryTokenizeShareLockInfo { string address = 1; }
+message QueryTokenizeShareLockInfo {
+  string address = 1;
+}
 
 // QueryTokenizeShareLockInfoResponse is the response from the
 // QueryTokenizeShareLockInfo query
@@ -229,15 +229,14 @@ message QueryTokenizeShareRecordRewardRequest {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
-  string owner_address = 1 [ (gogoproto.moretags) = "yaml:\"owner_address\"" ];
+  string owner_address = 1 [(gogoproto.moretags) = "yaml:\"owner_address\""];
 }
 
 // QueryTokenizeShareRecordRewardResponse is the response type for the
 // Query/TokenizeShareRecordReward RPC method.
 message QueryTokenizeShareRecordRewardResponse {
   // rewards defines all the rewards accrued by a delegator.
-  repeated TokenizeShareRecordReward rewards = 1
-      [ (gogoproto.nullable) = false ];
+  repeated TokenizeShareRecordReward rewards = 1 [(gogoproto.nullable) = false];
   // total defines the sum of all the rewards.
   repeated cosmos.base.v1beta1.DecCoin total = 2 [
     (gogoproto.nullable) = false,

@@ -5,22 +5,23 @@
 syntax = "proto3";
 package kyve.liquid.v1beta1;
 
-option go_package = "github.com/KYVENetwork/chain/x/liquid/types";
-
-import "gogoproto/gogo.proto";
-import "kyve/liquid/v1beta1/liquid.proto";
 import "amino/amino.proto";
+import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
+import "kyve/liquid/v1beta1/liquid.proto";
+
+option go_package = "github.com/KYVENetwork/chain/x/liquid/types";
 
 // GenesisState defines the liquid module's genesis state.
 message GenesisState {
   // params defines all the parameters of related to deposit.
-  Params params = 1
-      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 
   // store tokenize share records to provide reward to record owners
-  repeated TokenizeShareRecord tokenize_share_records = 9
-      [ (gogoproto.nullable) = false ];
+  repeated TokenizeShareRecord tokenize_share_records = 9 [(gogoproto.nullable) = false];
 
   // last tokenize share record id, used for next share record id calculation
   uint64 last_tokenize_share_record_id = 10;
@@ -33,8 +34,7 @@ message GenesisState {
   ];
 
   // tokenize shares locks at genesis
-  repeated TokenizeShareLock tokenize_share_locks = 12
-      [ (gogoproto.nullable) = false ];
+  repeated TokenizeShareLock tokenize_share_locks = 12 [(gogoproto.nullable) = false];
 }
 
 // TokenizeSharesLock required for specifying account locks at genesis

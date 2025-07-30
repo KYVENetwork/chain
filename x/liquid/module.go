@@ -6,10 +6,12 @@ package liquid
 
 import (
 	"context"
-	"cosmossdk.io/core/store"
-	"cosmossdk.io/depinject"
 	"encoding/json"
 	"fmt"
+
+	"cosmossdk.io/core/store"
+	"cosmossdk.io/depinject"
+
 	authKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
