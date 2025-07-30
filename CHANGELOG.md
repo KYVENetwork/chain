@@ -16,9 +16,13 @@ An '!' indicates a state machine breaking change.
 
 ## Unreleased
 
+### Features
+
+- ! (`x/liquid`) [#267](https://github.com/KYVENetwork/chain/pull/267) Add Cosmos Liquid Staking module.
+
 ### Improvements
 
-- ! [#266](https://github.com/KYVENetwork/chain/pull/266) Improve storage cost payout.
+- ! (`x/bundles`) [#266](https://github.com/KYVENetwork/chain/pull/266) Improve storage cost payout.
 
 ## [v2.1.0](https://github.com/KYVENetwork/chain/releases/tag/v2.1.0) - 2025-04-29
 
