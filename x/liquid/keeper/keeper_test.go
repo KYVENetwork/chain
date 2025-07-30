@@ -1,3 +1,8 @@
+// This file was modified from its original version.
+// https://github.com/cosmos/gaia/blob/b3583a755ad2947582f8e9c969806b187668ea23/x/liquid/keeper/keeper_test.go
+// Modifications made by KYVE, 2025.
+// - Changed import paths
+
 package keeper_test
 
 import (
