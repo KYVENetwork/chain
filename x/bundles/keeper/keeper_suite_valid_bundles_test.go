@@ -1962,7 +1962,7 @@ var _ = Describe("valid bundles", Ordered, func() {
 		// commission rewards and the amount of the other coins are lower because the uploader reward includes the storage
 		// cost (if kyve is used first the contribution of the remaining coins will be lower)
 		// VALUES BEFORE: 99_143acoin,116_661_015_771_428_571bcoin,100_765ccoin,125_973tkyve
-		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), poolAccountUploader.Staker).String()).To(Equal(sdk.NewCoins(i.KYVECoin(87_012), i.ACoin(99_000), i.BCoin(99_000_163_885_714_285), i.CCoin(99_000)).String()))
+		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), poolAccountUploader.Staker).String()).To(Equal(sdk.NewCoins(i.KYVECoin(206_892), i.ACoin(99_000), i.BCoin(99_000_163_885_714_285), i.CCoin(99_000)).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// (amount_per_bundle - (amount_per_bundle * 0.01) - _((29970208 * 0.000000006288 * 1**coin_decimals) / (4 * coin_weight))_) * (1 - 0.1)
 

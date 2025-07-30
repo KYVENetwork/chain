@@ -287,6 +287,8 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 
 		if storageCost.GTE(storageCostPaidUsd) {
 			storageCost = storageCost.Sub(storageCostPaidUsd)
+		} else {
+			storageCost = math.LegacyZeroDec()
 		}
 	}
 
@@ -321,10 +323,11 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 
 		// we take the min here since there can be the case where we want to charge more coins for the storage
 		// reward than we have left in the total payout
-		bundleReward.UploaderStorageCost = totalPayout.Min(wantedStorageRewards)
+		multiCoinStorageCostReward := totalPayout.Min(wantedStorageRewards)
+		bundleReward.UploaderStorageCost = bundleReward.UploaderStorageCost.Add(multiCoinStorageCostReward...)
 
 		// the remaining total payout is split between the uploader and his delegators.
-		totalPayout = totalPayout.Sub(bundleReward.UploaderStorageCost...)
+		totalPayout = totalPayout.Sub(multiCoinStorageCostReward...)
 		if totalPayout.IsZero() {
 			return
 		}
