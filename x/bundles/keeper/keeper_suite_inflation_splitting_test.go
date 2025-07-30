@@ -1512,12 +1512,21 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// for kyve coin (7410 - (7410 * 0.01) - _((100 * 0.5) / (3 * 1))_) * 0.1 + _((100 * 0.5) / (3 * 1))_
 		// for acoin (10_000 - (10_000 * 0.01) - _((100 * 0.5) / (3 * 1))_) * 0.1 + _((100 * 0.5) / (3 * 1))_
 		// for bcoin coins (20_000 - (20_000 * 0.01) - _((100 * 0.5) / (3 * 2))_) * 0.1 + _((100 * 0.5) / (3 * 2))_
-		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(748), i.ACoin(1004), i.BCoin(1987)).String()))
+
+		// STORAGE COST UPDATE: with $KYVE being used first for storage cost the kyve amount is higher for the uploader
+		// commission rewards and the amount of the other coins are lower because the uploader reward includes the storage
+		// cost (if kyve is used first the contribution of the remaining coins will be lower)
+		// VALUES BEFORE: 1004acoin,1987bcoin,748tkyve
+		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(778), i.ACoin(990), i.BCoin(1980)).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// for kyve coin (7410 - (7410 * 0.01) - _((100 * 0.5) / (3 * 1))_) * (1 - 0.1)
 		// for acoin (10_000 - (10_000 * 0.01) - _((100 * 0.5) / (3 * 1))_) * (1 - 0.1)
 		// for bcoin (20_000 - (20_000 * 0.01) - _((100 * 0.5) / (3 * 2))_) * (1 - 0.1)
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(6588), i.ACoin(8896), i.BCoin(17813)).String()))
+
+		// STORAGE COST UPDATE: with $KYVE being used first for storage cost the delegators receive less kyve and more
+		// of the remaining coins
+		// VALUES BEFORE: 8896acoin,17813bcoin,6588tkyve
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(6558), i.ACoin(8910), i.BCoin(17820)).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 
@@ -1622,12 +1631,21 @@ var _ = Describe("inflation splitting", Ordered, func() {
 		// for kyve coin (24720 - (24720 * 0.01) - _((100 * 0.5) / (3 * 1))_) * 0.1 + _((100 * 0.5) / (3 * 1))_
 		// for acoin (10_000 - (10_000 * 0.01) - _((100 * 0.5) / (3 * 1))_) * 0.1 + _((100 * 0.5) / (3 * 1))_
 		// for bcoin coins (20_000 - (20_000 * 0.01) - _((100 * 0.5) / (3 * 2))_) * 0.1 + _((100 * 0.5) / (3 * 2))_
-		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(2461), i.ACoin(1004), i.BCoin(1987)).String()))
+
+		// STORAGE COST UPDATE: with $KYVE being used first for storage cost the kyve amount is higher for the uploader
+		// commission rewards and the amount of the other coins are lower because the uploader reward includes the storage
+		// cost (if kyve is used first the contribution of the remaining coins will be lower)
+		// VALUES BEFORE: 1004acoin,1987bcoin,2461tkyve
+		Expect(s.App().StakersKeeper.GetOutstandingCommissionRewards(s.Ctx(), i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(2492), i.ACoin(990), i.BCoin(1980)).String()))
 		// assert uploader self delegation rewards (here we round up since the result of delegation rewards is the remainder minus the truncated commission rewards)
 		// for kyve coin (24720 - (24720 * 0.01) - _((100 * 0.5) / (3 * 1))_) * (1 - 0.1)
 		// for acoin (10_000 - (10_000 * 0.01) - _((100 * 0.5) / (3 * 1))_) * (1 - 0.1)
 		// for bcoin (20_000 - (20_000 * 0.01) - _((100 * 0.5) / (3 * 2))_) * (1 - 0.1)
-		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(22012), i.ACoin(8896), i.BCoin(17813)).String()))
+
+		// STORAGE COST UPDATE: with $KYVE being used first for storage cost the delegators receive less kyve and more
+		// of the remaining coins
+		// VALUES BEFORE: 8896acoin,17813bcoin,22012tkyve
+		Expect(s.App().StakersKeeper.GetOutstandingRewards(s.Ctx(), i.STAKER_0, i.STAKER_0).String()).To(Equal(sdk.NewCoins(i.KYVECoin(21981), i.ACoin(8910), i.BCoin(17820)).String()))
 
 		fundingState, _ := s.App().FundersKeeper.GetFundingState(s.Ctx(), 0)
 

@@ -257,9 +257,9 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 		return
 	}
 
-	// subtract storage cost from remaining total payout. We split the storage cost between all coins and charge
-	// the amount per coin, the idea is that every coin should contribute the same USD value to the total storage
-	// reward. This is done by defining the storage cost as USD / byte and the coin weights as USD / coin denom.
+	// subtract storage cost from remaining total payout. We first try to cover the storage cost with the
+	// native $KYVE coin, if that is not enough the remaining USD value is split equally between the remaining
+	// coins.
 	//
 	// If there is not enough of a coin available to cover the storage reward per coin we simply charge what is left,
 	// so there can be the case that the storageRewards are less than what we actually wanted to pay out. This is
@@ -267,35 +267,70 @@ func (k Keeper) calculatePayouts(ctx sdk.Context, poolId uint64, totalPayout sdk
 	// funds left of each coin, and in the case there are not enough the coins are removed and therefore for the
 	// next bundle we split between the other remaining coins.
 	whitelist := k.fundersKeeper.GetCoinWhitelistMap(ctx)
-	// wantedStorageRewards are the amounts based on the current storage cost we want to pay out, this can be more
-	// than we have available in totalPayout
-	wantedStorageRewards := sdk.NewCoins()
-	// storageCostPerCoin is the storage cost in $USD for each coin. This implies that each coin contributes the same
-	// amount of value to the storage rewards
-	storageCostPerCoin := k.GetStorageCost(ctx, bundleProposal.StorageProviderId).MulInt64(int64(bundleProposal.DataSize)).QuoInt64(int64(totalPayout.Len()))
-	for _, coin := range totalPayout {
-		weight := whitelist[coin.Denom].CoinWeight
-		if weight.IsZero() {
-			continue
+	storageCost := k.GetStorageCost(ctx, bundleProposal.StorageProviderId).MulInt64(int64(bundleProposal.DataSize))
+
+	kyveWeight := whitelist[globalTypes.Denom].CoinWeight
+	kyveCurrencyUnit := math.LegacyNewDec(10).Power(uint64(whitelist[globalTypes.Denom].CoinDecimals))
+
+	if found, _ := totalPayout.Find(globalTypes.Denom); found && !kyveWeight.IsZero() {
+		kyveAmount := sdk.NewCoins(sdk.NewCoin(globalTypes.Denom, storageCost.Mul(kyveCurrencyUnit).Quo(kyveWeight).TruncateInt()))
+		bundleReward.UploaderStorageCost = totalPayout.Min(kyveAmount)
+		totalPayout = totalPayout.Sub(bundleReward.UploaderStorageCost...)
+		if totalPayout.IsZero() {
+			return
 		}
 
-		// currencyUnit is the amount of base denoms of the currency
-		currencyUnit := math.LegacyNewDec(10).Power(uint64(whitelist[coin.Denom].CoinDecimals))
-		// amount is the value of storageCostPerCoin in the base denomination of the currency. We calculate this
-		// by multiplying first with the amount of base denoms of the currency and then divide this by the $USD
-		// value per currency unit which is the weight.
-		amount := storageCostPerCoin.Mul(currencyUnit).Quo(weight).TruncateInt()
-		wantedStorageRewards = wantedStorageRewards.Add(sdk.NewCoin(coin.Denom, amount))
+		// calculate how much of the storage reward was initially paid with native
+		// kyve and give the remainder to the other coins
+		storageCostPaid := bundleReward.UploaderStorageCost.AmountOf(globalTypes.Denom)
+		storageCostPaidUsd := math.LegacyNewDec(storageCostPaid.Int64()).Mul(kyveWeight).Quo(kyveCurrencyUnit)
+
+		if storageCost.GTE(storageCostPaidUsd) {
+			storageCost = storageCost.Sub(storageCostPaidUsd)
+		} else {
+			storageCost = math.LegacyZeroDec()
+		}
 	}
 
-	// we take the min here since there can be the case where we want to charge more coins for the storage
-	// reward than we have left in the total payout
-	bundleReward.UploaderStorageCost = totalPayout.Min(wantedStorageRewards)
+	kyveCoinFound, kyveCoin := totalPayout.Find(globalTypes.Denom)
+	remainingCoins := totalPayout
+	if kyveCoinFound {
+		remainingCoins = totalPayout.Sub(kyveCoin)
+	}
 
-	// the remaining total payout is split between the uploader and his delegators.
-	totalPayout = totalPayout.Sub(bundleReward.UploaderStorageCost...)
-	if totalPayout.IsZero() {
-		return
+	if !storageCost.IsZero() && int64(remainingCoins.Len()) > 0 {
+		// wantedStorageRewards are the amounts based on the current storage cost we want to pay out, this can be more
+		// than we have available in totalPayout
+		wantedStorageRewards := sdk.NewCoins()
+		// storageCostPerCoin is the storage cost in $USD for each coin. This implies that each coin contributes the same
+		// amount of value to the storage rewards
+		storageCostPerCoin := storageCost.QuoInt64(int64(remainingCoins.Len()))
+		for _, coin := range remainingCoins {
+			weight := whitelist[coin.Denom].CoinWeight
+			// skip the native kyve denom since we already subtracted it above
+			if coin.Denom == globalTypes.Denom || weight.IsZero() {
+				continue
+			}
+
+			// currencyUnit is the amount of base denoms of the currency
+			currencyUnit := math.LegacyNewDec(10).Power(uint64(whitelist[coin.Denom].CoinDecimals))
+			// amount is the value of storageCostPerCoin in the base denomination of the currency. We calculate this
+			// by multiplying first with the amount of base denoms of the currency and then divide this by the $USD
+			// value per currency unit which is the weight.
+			amount := storageCostPerCoin.Mul(currencyUnit).Quo(weight).TruncateInt()
+			wantedStorageRewards = wantedStorageRewards.Add(sdk.NewCoin(coin.Denom, amount))
+		}
+
+		// we take the min here since there can be the case where we want to charge more coins for the storage
+		// reward than we have left in the total payout
+		multiCoinStorageCostReward := totalPayout.Min(wantedStorageRewards)
+		bundleReward.UploaderStorageCost = bundleReward.UploaderStorageCost.Add(multiCoinStorageCostReward...)
+
+		// the remaining total payout is split between the uploader and his delegators.
+		totalPayout = totalPayout.Sub(multiCoinStorageCostReward...)
+		if totalPayout.IsZero() {
+			return
+		}
 	}
 
 	commission := k.stakerKeeper.GetValidatorPoolCommission(ctx, bundleProposal.Uploader, poolId)
