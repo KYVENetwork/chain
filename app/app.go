@@ -163,7 +163,7 @@ type App struct {
 	MultiCoinRewardsKeeper multicoinrewardskeeper.Keeper
 
 	// Cosmos
-	LiquidKeeper liquidkeeper.Keeper
+	LiquidKeeper *liquidkeeper.Keeper
 
 	// simulation manager
 	// sm *module.SimulationManager

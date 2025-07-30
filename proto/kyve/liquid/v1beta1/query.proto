@@ -23,64 +23,64 @@ service Query {
   // gas if the pagination field is incorrectly set.
   rpc LiquidValidators(QueryLiquidValidatorsRequest) returns (QueryLiquidValidatorsResponse) {
     option (cosmos.query.v1.module_query_safe) = true;
-    option (google.api.http).get = "/gaia/liquid/v1beta1/liquid_validators";
+    option (google.api.http).get = "/kyve/liquid/v1beta1/liquid_validators";
   }
 
   // Query for an individual liquid validator by validator address
   rpc LiquidValidator(QueryLiquidValidatorRequest) returns (QueryLiquidValidatorResponse) {
-    option (google.api.http).get = "/gaia/liquid/v1beta1/liquid_validator/{validator_addr}";
+    option (google.api.http).get = "/kyve/liquid/v1beta1/liquid_validator/{validator_addr}";
   }
 
   // Query for individual tokenize share record information by share by id
   rpc TokenizeShareRecordById(QueryTokenizeShareRecordByIdRequest) returns (QueryTokenizeShareRecordByIdResponse) {
-    option (google.api.http).get = "/gaia/liquid/v1beta1/tokenize_share_record_by_id/{id}";
+    option (google.api.http).get = "/kyve/liquid/v1beta1/tokenize_share_record_by_id/{id}";
   }
 
   // Query for individual tokenize share record information by share denom
   rpc TokenizeShareRecordByDenom(QueryTokenizeShareRecordByDenomRequest) returns (QueryTokenizeShareRecordByDenomResponse) {
-    option (google.api.http).get = "/gaia/liquid/v1beta1/tokenize_share_record_by_denom/{denom}";
+    option (google.api.http).get = "/kyve/liquid/v1beta1/tokenize_share_record_by_denom/{denom}";
   }
 
   // Query tokenize share records by address
   rpc TokenizeShareRecordsOwned(QueryTokenizeShareRecordsOwnedRequest) returns (QueryTokenizeShareRecordsOwnedResponse) {
-    option (google.api.http).get = "/gaia/liquid/v1beta1/tokenize_share_record_owned/{owner}";
+    option (google.api.http).get = "/kyve/liquid/v1beta1/tokenize_share_record_owned/{owner}";
   }
 
   // Query for all tokenize share records
   rpc AllTokenizeShareRecords(QueryAllTokenizeShareRecordsRequest) returns (QueryAllTokenizeShareRecordsResponse) {
-    option (google.api.http).get = "/gaia/liquid/v1beta1/tokenize_share_records";
+    option (google.api.http).get = "/kyve/liquid/v1beta1/tokenize_share_records";
   }
 
   // Query for last tokenize share record id
   rpc LastTokenizeShareRecordId(QueryLastTokenizeShareRecordIdRequest) returns (QueryLastTokenizeShareRecordIdResponse) {
-    option (google.api.http).get = "/gaia/liquid/v1beta1/last_tokenize_share_record_id";
+    option (google.api.http).get = "/kyve/liquid/v1beta1/last_tokenize_share_record_id";
   }
 
   // Query for total tokenized staked assets
   rpc TotalTokenizeSharedAssets(QueryTotalTokenizeSharedAssetsRequest) returns (QueryTotalTokenizeSharedAssetsResponse) {
-    option (google.api.http).get = "/gaia/liquid/v1beta1/total_tokenize_shared_assets";
+    option (google.api.http).get = "/kyve/liquid/v1beta1/total_tokenize_shared_assets";
   }
 
   // Query for total liquid staked (including tokenized shares or owned by an
   // liquid staking provider)
   rpc TotalLiquidStaked(QueryTotalLiquidStaked) returns (QueryTotalLiquidStakedResponse) {
-    option (google.api.http).get = "/gaia/liquid/v1beta1/total_liquid_staked";
+    option (google.api.http).get = "/kyve/liquid/v1beta1/total_liquid_staked";
   }
 
   // Query tokenize share locks
   rpc TokenizeShareLockInfo(QueryTokenizeShareLockInfo) returns (QueryTokenizeShareLockInfoResponse) {
-    option (google.api.http).get = "/gaia/liquid/v1beta1/tokenize_share_lock_info/{address}";
+    option (google.api.http).get = "/kyve/liquid/v1beta1/tokenize_share_lock_info/{address}";
   }
 
   // Parameters queries the liquid parameters.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (cosmos.query.v1.module_query_safe) = true;
-    option (google.api.http).get = "/gaia/liquid/v1beta1/params";
+    option (google.api.http).get = "/kyve/liquid/v1beta1/params";
   }
 
   // TokenizeShareRecordReward queries the tokenize share record rewards
   rpc TokenizeShareRecordReward(QueryTokenizeShareRecordRewardRequest) returns (QueryTokenizeShareRecordRewardResponse) {
-    option (google.api.http).get = "/gaia/liquid/v1beta1/{owner_address}/tokenize_share_record_rewards";
+    option (google.api.http).get = "/kyve/liquid/v1beta1/{owner_address}/tokenize_share_record_rewards";
   }
 }
 

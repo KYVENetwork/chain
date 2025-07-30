@@ -193,6 +193,7 @@ var (
 		{Account: teamtypes.ModuleName},
 		{Account: funderstypes.ModuleName},
 
+		// Liquid
 		{Account: liquidtypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
 
 		// Hyperlane,
