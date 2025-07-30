@@ -63,6 +63,9 @@ import (
 
 	hyperlanetypes "github.com/bcp-innovations/hyperlane-cosmos/x/core/types"
 	warptypes "github.com/bcp-innovations/hyperlane-cosmos/x/warp/types"
+
+	liquidmodulev1 "github.com/KYVENetwork/chain/api/kyve/liquid/module/v1"
+	liquidtypes "github.com/KYVENetwork/chain/x/liquid/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
 
@@ -107,6 +110,8 @@ var (
 		teamtypes.ModuleName,
 		funderstypes.ModuleName,
 		multicoinrewardstypes.ModuleName,
+
+		liquidtypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	}
 
@@ -137,6 +142,8 @@ var (
 		// KYVE modules
 		stakerstypes.ModuleName,
 		multicoinrewardstypes.ModuleName,
+
+		liquidtypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	}
 
@@ -185,6 +192,8 @@ var (
 		{Account: multicoinrewardstypes.MultiCoinRewardsRedistributionAccountName},
 		{Account: teamtypes.ModuleName},
 		{Account: funderstypes.ModuleName},
+
+		{Account: liquidtypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
 
 		// Hyperlane,
 		{Account: hyperlanetypes.ModuleName},
@@ -365,6 +374,10 @@ var (
 			{
 				Name:   hyperlanetypes.ModuleName,
 				Config: appconfig.WrapAny(&hyperlanemodulev1.Module{}),
+			},
+			{
+				Name:   liquidtypes.ModuleName,
+				Config: appconfig.WrapAny(&liquidmodulev1.Module{}),
 			},
 			// this line is used by starport scaffolding # stargate/app/moduleConfig
 		},
