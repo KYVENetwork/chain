@@ -23,6 +23,11 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 	}
 
 	k.SetQueueState(ctx, types.QUEUE_IDENTIFIER_MULTI_COIN_REWARDS, genState.QueueStatePendingRewards)
+
+	err := k.MultiCoinDistributionPolicy.Set(ctx, *genState.MultiCoinDistributionPolicy)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // ExportGenesis returns the capability module's exported genesis.

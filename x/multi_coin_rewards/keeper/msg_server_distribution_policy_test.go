@@ -128,8 +128,9 @@ var _ = Describe("msg_server_distribution_policy_test.go", Ordered, func() {
 
 		// ASSERT
 		Expect(err.Error()).To(Equal("duplicate entry for denom acoin"))
-		_, err = s.App().MultiCoinRewardsKeeper.MultiCoinDistributionPolicy.Get(s.Ctx())
-		Expect(err).NotTo(BeNil())
+		policy, err := s.App().MultiCoinRewardsKeeper.MultiCoinDistributionPolicy.Get(s.Ctx())
+		Expect(err).To(BeNil())
+		Expect(policy.Entries).To(HaveLen(0))
 	})
 
 	It("Invalid Policy: Duplicate pool entries for same denom", func() {
@@ -167,8 +168,9 @@ var _ = Describe("msg_server_distribution_policy_test.go", Ordered, func() {
 
 		// ASSERT
 		Expect(err.Error()).To(Equal("duplicate distribution weight for pool id 0"))
-		_, err = s.App().MultiCoinRewardsKeeper.MultiCoinDistributionPolicy.Get(s.Ctx())
-		Expect(err).NotTo(BeNil())
+		policy, err := s.App().MultiCoinRewardsKeeper.MultiCoinDistributionPolicy.Get(s.Ctx())
+		Expect(err).To(BeNil())
+		Expect(policy.Entries).To(HaveLen(0))
 	})
 
 	It("Invalid Policy: Negative weights", func() {
@@ -194,8 +196,9 @@ var _ = Describe("msg_server_distribution_policy_test.go", Ordered, func() {
 
 		// ASSERT
 		Expect(err.Error()).To(Equal("invalid weight for pool id 0"))
-		_, err = s.App().MultiCoinRewardsKeeper.MultiCoinDistributionPolicy.Get(s.Ctx())
-		Expect(err).NotTo(BeNil())
+		policy, err := s.App().MultiCoinRewardsKeeper.MultiCoinDistributionPolicy.Get(s.Ctx())
+		Expect(err).To(BeNil())
+		Expect(policy.Entries).To(HaveLen(0))
 	})
 
 	It("Invalid Policy: Zero weights", func() {
@@ -221,7 +224,8 @@ var _ = Describe("msg_server_distribution_policy_test.go", Ordered, func() {
 
 		// ASSERT
 		Expect(err.Error()).To(Equal("invalid weight for pool id 0"))
-		_, err = s.App().MultiCoinRewardsKeeper.MultiCoinDistributionPolicy.Get(s.Ctx())
-		Expect(err).NotTo(BeNil())
+		policy, err := s.App().MultiCoinRewardsKeeper.MultiCoinDistributionPolicy.Get(s.Ctx())
+		Expect(err).To(BeNil())
+		Expect(policy.Entries).To(HaveLen(0))
 	})
 })
