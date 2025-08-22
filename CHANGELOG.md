@@ -18,7 +18,11 @@ An '!' indicates a state machine breaking change.
 
 ### Improvements
 
-- ! [#266](https://github.com/KYVENetwork/chain/pull/266) Improve storage cost payout.
+- ! (`x/bundles`) [#266](https://github.com/KYVENetwork/chain/pull/266) Improve storage cost payout.
+
+### Bug Fixes
+
+- (`x/multi_coin_rewards`) [#269](https://github.com/KYVENetwork/chain/pull/269) Correctly export policy in genesis.
 
 ## [v2.1.0](https://github.com/KYVENetwork/chain/releases/tag/v2.1.0) - 2025-04-29
 
