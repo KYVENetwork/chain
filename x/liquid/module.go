@@ -9,6 +9,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
 
@@ -193,6 +195,7 @@ type ModuleOutputs struct {
 
 	LiquidKeeper *keeper.Keeper
 	Module       appmodule.AppModule
+	Hooks        stakingTypes.StakingHooksWrapper
 }
 
 func ProvideModule(in ModuleInputs) ModuleOutputs {
@@ -216,8 +219,8 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		k,
 		in.AccountKeeper,
 		in.BankKeeper,
-		stakingKeeper.Keeper{},
+		in.StakingKeeper,
 	)
 
-	return ModuleOutputs{LiquidKeeper: k, Module: m}
+	return ModuleOutputs{LiquidKeeper: k, Module: m, Hooks: stakingTypes.StakingHooksWrapper{StakingHooks: k.Hooks()}}
 }

@@ -1068,29 +1068,29 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Query_LiquidValidators_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"gaia", "liquid", "v1beta1", "liquid_validators"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_LiquidValidators_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"kyve", "liquid", "v1beta1", "liquid_validators"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_LiquidValidator_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"gaia", "liquid", "v1beta1", "liquid_validator", "validator_addr"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_LiquidValidator_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"kyve", "liquid", "v1beta1", "liquid_validator", "validator_addr"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_TokenizeShareRecordById_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"gaia", "liquid", "v1beta1", "tokenize_share_record_by_id", "id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_TokenizeShareRecordById_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"kyve", "liquid", "v1beta1", "tokenize_share_record_by_id", "id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_TokenizeShareRecordByDenom_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"gaia", "liquid", "v1beta1", "tokenize_share_record_by_denom", "denom"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_TokenizeShareRecordByDenom_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"kyve", "liquid", "v1beta1", "tokenize_share_record_by_denom", "denom"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_TokenizeShareRecordsOwned_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"gaia", "liquid", "v1beta1", "tokenize_share_record_owned", "owner"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_TokenizeShareRecordsOwned_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"kyve", "liquid", "v1beta1", "tokenize_share_record_owned", "owner"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_AllTokenizeShareRecords_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"gaia", "liquid", "v1beta1", "tokenize_share_records"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_AllTokenizeShareRecords_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"kyve", "liquid", "v1beta1", "tokenize_share_records"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_LastTokenizeShareRecordId_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"gaia", "liquid", "v1beta1", "last_tokenize_share_record_id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_LastTokenizeShareRecordId_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"kyve", "liquid", "v1beta1", "last_tokenize_share_record_id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_TotalTokenizeSharedAssets_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"gaia", "liquid", "v1beta1", "total_tokenize_shared_assets"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_TotalTokenizeSharedAssets_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"kyve", "liquid", "v1beta1", "total_tokenize_shared_assets"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_TotalLiquidStaked_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"gaia", "liquid", "v1beta1", "total_liquid_staked"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_TotalLiquidStaked_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"kyve", "liquid", "v1beta1", "total_liquid_staked"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_TokenizeShareLockInfo_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"gaia", "liquid", "v1beta1", "tokenize_share_lock_info", "address"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_TokenizeShareLockInfo_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"kyve", "liquid", "v1beta1", "tokenize_share_lock_info", "address"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"gaia", "liquid", "v1beta1", "params"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"kyve", "liquid", "v1beta1", "params"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_TokenizeShareRecordReward_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"gaia", "liquid", "v1beta1", "owner_address", "tokenize_share_record_rewards"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_TokenizeShareRecordReward_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"kyve", "liquid", "v1beta1", "owner_address", "tokenize_share_record_rewards"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

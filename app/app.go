@@ -423,6 +423,8 @@ func New(
 		v2_2.CreateUpgradeHandler(
 			app.ModuleManager,
 			app.Configurator(),
+			app.LiquidKeeper,
+			app.StakingKeeper,
 		),
 	)
 
