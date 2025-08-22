@@ -19,6 +19,7 @@ An '!' indicates a state machine breaking change.
 ### Improvements
 
 - ! (`x/bundles`) [#266](https://github.com/KYVENetwork/chain/pull/266) Improve storage cost payout.
+- (deps) [#268](https://github.com/KYVENetwork/chain/pull/268) Bump to Cosmos SDK v0.50.14 and prepare upgrade handler.
 
 ### Bug Fixes
 

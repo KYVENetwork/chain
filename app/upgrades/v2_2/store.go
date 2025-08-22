@@ -1,4 +1,4 @@
-package v2_1
+package v2_2
 
 import (
 	storetypes "cosmossdk.io/store/types"
@@ -8,7 +8,7 @@ import (
 
 func CreateStoreLoader(upgradeHeight int64) baseapp.StoreLoader {
 	storeUpgrades := storetypes.StoreUpgrades{
-		Deleted: []string{"delegation"},
+		Added: []string{""},
 	}
 
 	return upgradetypes.UpgradeStoreLoader(upgradeHeight, &storeUpgrades)
