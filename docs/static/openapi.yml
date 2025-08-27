@@ -9428,6 +9428,796 @@ paths:
           format: uint64
       tags:
         - QueryTeam
+  /kyve/liquid/v1beta1/last_tokenize_share_record_id:
+    get:
+      summary: Query for last tokenize share record id
+      operationId: LastTokenizeShareRecordId
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uint64
+            description: |-
+              QueryLastTokenizeShareRecordIdResponse is response type for the
+              Query/QueryLastTokenizeShareRecordId RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - QueryLiquid
+  /kyve/liquid/v1beta1/liquid_validator/{validator_addr}:
+    get:
+      summary: Query for an individual liquid validator by validator address
+      operationId: LiquidValidator
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              liquid_validator:
+                type: object
+                properties:
+                  operator_address:
+                    type: string
+                    description: >-
+                      operator_address defines the address of the validator's
+                      operator; bech
+
+                      encoded in JSON.
+                  liquid_shares:
+                    type: string
+                    title: >-
+                      Number of shares either tokenized or owned by a liquid
+                      staking provider
+                description: >-
+                  LiquidValidator is the storage layout for details about a
+                  validator's liquid
+
+                  stake.
+            description: |-
+              QueryLiquidValidatorResponse is the response type for the
+              Query/LiquidValidator RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      parameters:
+        - name: validator_addr
+          in: path
+          required: true
+          type: string
+      tags:
+        - QueryLiquid
+  /kyve/liquid/v1beta1/liquid_validators:
+    get:
+      summary: LiquidValidators queries all liquid validators.
+      description: >-
+        When called from another module, this query might consume a high amount
+        of
+
+        gas if the pagination field is incorrectly set.
+      operationId: LiquidValidators
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              liquid_validators:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    operator_address:
+                      type: string
+                      description: >-
+                        operator_address defines the address of the validator's
+                        operator; bech
+
+                        encoded in JSON.
+                    liquid_shares:
+                      type: string
+                      title: >-
+                        Number of shares either tokenized or owned by a liquid
+                        staking provider
+                  description: >-
+                    LiquidValidator is the storage layout for details about a
+                    validator's liquid
+
+                    stake.
+              pagination:
+                description: pagination defines the pagination in the response.
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+            description: |-
+              QueryLiquidValidatorsResponse is response type for the
+              Query/QueryLiquidValidators RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+
+
+            Since: cosmos-sdk 0.43
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - QueryLiquid
+  /kyve/liquid/v1beta1/params:
+    get:
+      summary: Parameters queries the liquid parameters.
+      operationId: LiquidParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                description: params holds all the parameters of this module.
+                type: object
+                properties:
+                  global_liquid_staking_cap:
+                    type: string
+                    title: >-
+                      global_liquid_staking_cap represents a cap on the portion
+                      of stake that
+
+                      comes from liquid staking providers
+                  validator_liquid_staking_cap:
+                    type: string
+                    title: >-
+                      validator_liquid_staking_cap represents a cap on the
+                      portion of stake that
+
+                      comes from liquid staking providers for a specific
+                      validator
+            description: >-
+              QueryParamsResponse is response type for the Query/Params RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - QueryLiquid
+  /kyve/liquid/v1beta1/tokenize_share_lock_info/{address}:
+    get:
+      summary: Query tokenize share locks
+      operationId: TokenizeShareLockInfo
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+              expiration_time:
+                type: string
+            title: |-
+              QueryTokenizeShareLockInfoResponse is the response from the
+              QueryTokenizeShareLockInfo query
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+      tags:
+        - QueryLiquid
+  /kyve/liquid/v1beta1/tokenize_share_record_by_denom/{denom}:
+    get:
+      summary: Query for individual tokenize share record information by share denom
+      operationId: TokenizeShareRecordByDenom
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              record:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uint64
+                  owner:
+                    type: string
+                  module_account:
+                    type: string
+                    title: module account take the role of delegator
+                  validator:
+                    type: string
+                    title: validator delegated to for tokenize share record creation
+                title: TokenizeShareRecord represents a tokenized delegation
+            description: |-
+              QueryTokenizeShareRecordByDenomResponse is response type for the
+              Query/QueryTokenizeShareRecordByDenom RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      parameters:
+        - name: denom
+          in: path
+          required: true
+          type: string
+      tags:
+        - QueryLiquid
+  /kyve/liquid/v1beta1/tokenize_share_record_by_id/{id}:
+    get:
+      summary: Query for individual tokenize share record information by share by id
+      operationId: TokenizeShareRecordById
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              record:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uint64
+                  owner:
+                    type: string
+                  module_account:
+                    type: string
+                    title: module account take the role of delegator
+                  validator:
+                    type: string
+                    title: validator delegated to for tokenize share record creation
+                title: TokenizeShareRecord represents a tokenized delegation
+            description: |-
+              QueryTokenizeShareRecordByIdResponse is response type for the
+              Query/QueryTokenizeShareRecordById RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+          format: uint64
+      tags:
+        - QueryLiquid
+  /kyve/liquid/v1beta1/tokenize_share_record_owned/{owner}:
+    get:
+      summary: Query tokenize share records by address
+      operationId: TokenizeShareRecordsOwned
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              records:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uint64
+                    owner:
+                      type: string
+                    module_account:
+                      type: string
+                      title: module account take the role of delegator
+                    validator:
+                      type: string
+                      title: >-
+                        validator delegated to for tokenize share record
+                        creation
+                  title: TokenizeShareRecord represents a tokenized delegation
+            description: |-
+              QueryTokenizeShareRecordsOwnedResponse is response type for the
+              Query/QueryTokenizeShareRecordsOwned RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          type: string
+      tags:
+        - QueryLiquid
+  /kyve/liquid/v1beta1/tokenize_share_records:
+    get:
+      summary: Query for all tokenize share records
+      operationId: AllTokenizeShareRecords
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              records:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uint64
+                    owner:
+                      type: string
+                    module_account:
+                      type: string
+                      title: module account take the role of delegator
+                    validator:
+                      type: string
+                      title: >-
+                        validator delegated to for tokenize share record
+                        creation
+                  title: TokenizeShareRecord represents a tokenized delegation
+              pagination:
+                description: pagination defines the pagination in the response.
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+            description: |-
+              QueryAllTokenizeShareRecordsResponse is response type for the
+              Query/QueryAllTokenizeShareRecords RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+
+
+            Since: cosmos-sdk 0.43
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - QueryLiquid
+  /kyve/liquid/v1beta1/total_liquid_staked:
+    get:
+      summary: |-
+        Query for total liquid staked (including tokenized shares or owned by an
+        liquid staking provider)
+      operationId: TotalLiquidStaked
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              tokens:
+                type: string
+            description: |-
+              QueryTotalLiquidStakedResponse is response type for the
+              Query/QueryTotalLiquidStaked RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - QueryLiquid
+  /kyve/liquid/v1beta1/total_tokenize_shared_assets:
+    get:
+      summary: Query for total tokenized staked assets
+      operationId: TotalTokenizeSharedAssets
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              value:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  Coin defines a token with a denomination and an amount.
+
+
+                  NOTE: The amount field is an Int which implements the custom
+                  method
+
+                  signatures required by gogoproto.
+            description: |-
+              QueryTotalTokenizeSharedAssetsResponse is response type for the
+              Query/QueryTotalTokenizeSharedAssets RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - QueryLiquid
+  /kyve/liquid/v1beta1/{owner_address}/tokenize_share_record_rewards:
+    get:
+      summary: TokenizeShareRecordReward queries the tokenize share record rewards
+      operationId: TokenizeShareRecordReward
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              rewards:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    record_id:
+                      type: string
+                      format: uint64
+                    reward:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          DecCoin defines a token with a denomination and a
+                          decimal amount.
+
+
+                          NOTE: The amount field is an Dec which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                  title: >-
+                    TokenizeShareRecordReward represents the properties of
+                    tokenize share
+                description: rewards defines all the rewards accrued by a delegator.
+              total:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    DecCoin defines a token with a denomination and a decimal
+                    amount.
+
+
+                    NOTE: The amount field is an Dec which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+                description: total defines the sum of all the rewards.
+            description: >-
+              QueryTokenizeShareRecordRewardResponse is the response type for
+              the
+
+              Query/TokenizeShareRecordReward RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      parameters:
+        - name: owner_address
+          in: path
+          required: true
+          type: string
+      tags:
+        - QueryLiquid
   /cosmos/auth/v1beta1/account_info/{address}:
     get:
       summary: AccountInfo queries account info which is common to all account types.

@@ -83,6 +83,7 @@ import (
 	funderskeeper "github.com/KYVENetwork/chain/x/funders/keeper"
 	_ "github.com/KYVENetwork/chain/x/global" // import for side-effects
 	globalkeeper "github.com/KYVENetwork/chain/x/global/keeper"
+	_ "github.com/KYVENetwork/chain/x/liquid"
 	_ "github.com/KYVENetwork/chain/x/multi_coin_rewards" // import for side-effects
 	multicoinrewardskeeper "github.com/KYVENetwork/chain/x/multi_coin_rewards/keeper"
 	_ "github.com/KYVENetwork/chain/x/pool" // import for side-effects
@@ -95,6 +96,7 @@ import (
 	_ "github.com/KYVENetwork/chain/x/team"                  // import for side-effects
 	teamkeeper "github.com/KYVENetwork/chain/x/team/keeper"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
+	liquidkeeper "github.com/KYVENetwork/chain/x/liquid/keeper"
 )
 
 const (
@@ -159,6 +161,9 @@ type App struct {
 	TeamKeeper             teamkeeper.Keeper
 	FundersKeeper          funderskeeper.Keeper
 	MultiCoinRewardsKeeper multicoinrewardskeeper.Keeper
+
+	// Cosmos
+	LiquidKeeper *liquidkeeper.Keeper
 
 	// simulation manager
 	// sm *module.SimulationManager
@@ -307,6 +312,8 @@ func New(
 		&app.TeamKeeper,
 		&app.FundersKeeper,
 		&app.MultiCoinRewardsKeeper,
+
+		&app.LiquidKeeper,
 		// this line is used by starport scaffolding # stargate/app/keeperDefinition
 	); err != nil {
 		panic(err)
@@ -416,6 +423,8 @@ func New(
 		v2_2.CreateUpgradeHandler(
 			app.ModuleManager,
 			app.Configurator(),
+			app.LiquidKeeper,
+			app.StakingKeeper,
 		),
 	)
 
