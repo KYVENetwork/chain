@@ -356,7 +356,7 @@ func (m *QueryTokenizeShareRecordByIdRequest) GetId() uint64 {
 	return 0
 }
 
-// QueryTokenizeShareRecordByIdRequest is response type for the
+// QueryTokenizeShareRecordByIdResponse is response type for the
 // Query/QueryTokenizeShareRecordById RPC method.
 type QueryTokenizeShareRecordByIdResponse struct {
 	Record TokenizeShareRecord `protobuf:"bytes,1,opt,name=record,proto3" json:"record"`
@@ -905,7 +905,7 @@ func (m *QueryTotalLiquidStaked) XXX_DiscardUnknown() {
 var xxx_messageInfo_QueryTotalLiquidStaked proto.InternalMessageInfo
 
 // QueryTotalLiquidStakedResponse is response type for the
-// Query/QueryQueryTotalLiquidStaked RPC method.
+// Query/QueryTotalLiquidStaked RPC method.
 type QueryTotalLiquidStakedResponse struct {
 	Tokens string `protobuf:"bytes,1,opt,name=tokens,proto3" json:"tokens,omitempty"`
 }

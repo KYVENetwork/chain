@@ -14,7 +14,7 @@ option go_package = "github.com/KYVENetwork/chain/x/liquid/types";
 
 // Params defines the parameters for the x/liquid module.
 message Params {
-  option (amino.name) = "gaia/x/liquid/Params";
+  option (amino.name) = "kyve/x/liquid/Params";
   option (gogoproto.equal) = true;
 
   // global_liquid_staking_cap represents a cap on the portion of stake that

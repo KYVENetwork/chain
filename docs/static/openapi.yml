@@ -9831,7 +9831,7 @@ paths:
                     title: validator delegated to for tokenize share record creation
                 title: TokenizeShareRecord represents a tokenized delegation
             description: |-
-              QueryTokenizeShareRecordByIdRequest is response type for the
+              QueryTokenizeShareRecordByIdResponse is response type for the
               Query/QueryTokenizeShareRecordById RPC method.
         default:
           description: An unexpected error response.
@@ -10060,7 +10060,7 @@ paths:
                 type: string
             description: |-
               QueryTotalLiquidStakedResponse is response type for the
-              Query/QueryQueryTotalLiquidStaked RPC method.
+              Query/QueryTotalLiquidStaked RPC method.
         default:
           description: An unexpected error response.
           schema:

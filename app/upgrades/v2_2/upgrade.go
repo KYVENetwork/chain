@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"cosmossdk.io/math"
 	liquidkeeper "github.com/KYVENetwork/chain/x/liquid/keeper"
+	liquidtypes "github.com/KYVENetwork/chain/x/liquid/types"
 	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	"cosmossdk.io/log"
@@ -33,15 +35,26 @@ func CreateUpgradeHandler(
 
 		// Run cosmos migrations
 		migratedVersionMap, err := mm.RunMigrations(ctx, configurator, fromVM)
+		if err != nil {
+			return nil, err
+		}
 
 		// Run KYVE migrations
-		validators, _ := stakingKeeper.GetValidators(ctx, 1_000)
+		validators, _ := stakingKeeper.GetAllValidators(ctx)
 		for _, v := range validators {
 			valAddress, _ := sdk.ValAddressFromBech32(v.OperatorAddress)
 			err := liquidStakingKeeper.Hooks().AfterValidatorCreated(ctx, valAddress)
 			if err != nil {
 				return nil, err
 			}
+		}
+
+		err = liquidStakingKeeper.SetParams(ctx, liquidtypes.Params{
+			GlobalLiquidStakingCap:    math.LegacyMustNewDecFromStr("0.25"),
+			ValidatorLiquidStakingCap: math.LegacyMustNewDecFromStr("0.25"),
+		})
+		if err != nil {
+			return nil, err
 		}
 
 		logger.Info(fmt.Sprintf("finished upgrade %v", UpgradeName))

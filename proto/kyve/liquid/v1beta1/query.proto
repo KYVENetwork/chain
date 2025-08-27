@@ -135,7 +135,7 @@ message QueryTokenizeShareRecordByIdRequest {
   uint64 id = 1;
 }
 
-// QueryTokenizeShareRecordByIdRequest is response type for the
+// QueryTokenizeShareRecordByIdResponse is response type for the
 // Query/QueryTokenizeShareRecordById RPC method.
 message QueryTokenizeShareRecordByIdResponse {
   TokenizeShareRecord record = 1 [(gogoproto.nullable) = false];
@@ -205,7 +205,7 @@ message QueryTotalTokenizeSharedAssetsResponse {
 message QueryTotalLiquidStaked {}
 
 // QueryTotalLiquidStakedResponse is response type for the
-// Query/QueryQueryTotalLiquidStaked RPC method.
+// Query/QueryTotalLiquidStaked RPC method.
 message QueryTotalLiquidStakedResponse {
   string tokens = 1;
 }

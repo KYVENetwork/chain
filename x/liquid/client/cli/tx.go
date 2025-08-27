@@ -1,7 +1,6 @@
 // This file was modified from its original version.
 // Original source: https://github.com/cosmos/gaia/blob/b3583a755ad2947582f8e9c969806b187668ea23/x/liquid/client/cli/tx.go
 // Modifications made by KYVE, 2025.
-// - Changed import paths
 
 package cli
 
@@ -274,7 +273,7 @@ func NewWithdrawAllTokenizeShareRecordRewardCmd(ac address.Codec) *cobra.Command
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Withdraw reward for all owned TokenizeShareRecord
 Example:
-$ %s tx distribution withdraw-all-tokenize-share-rewards --from mykey
+$ %s tx liquid withdraw-all-tokenize-share-rewards --from mykey
 `,
 				version.AppName,
 			),
@@ -310,7 +309,7 @@ func NewWithdrawTokenizeShareRecordRewardCmd(ac address.Codec) *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Withdraw reward for an owned TokenizeShareRecord
 Example:
-$ %s tx distribution withdraw-tokenize-share-rewards 1 --from mykey
+$ %s tx liquid withdraw-tokenize-share-rewards 1 --from mykey
 `,
 				version.AppName,
 			),

@@ -54,7 +54,7 @@ service Msg {
 // MsgUpdateParams is the Msg/UpdateParams request type.
 message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
-  option (amino.name) = "gaia/liquid/MsgUpdateParams";
+  option (amino.name) = "kyve/liquid/MsgUpdateParams";
 
   // authority is the address that controls the module (defaults to x/gov unless
   // overwritten).
@@ -75,7 +75,7 @@ message MsgUpdateParamsResponse {}
 // MsgTokenizeShares tokenizes a delegation
 message MsgTokenizeShares {
   option (cosmos.msg.v1.signer) = "delegator_address";
-  option (amino.name) = "gaia/MsgTokenizeShares";
+  option (amino.name) = "kyve/MsgTokenizeShares";
 
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
