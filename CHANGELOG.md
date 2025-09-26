@@ -14,7 +14,7 @@
 
 An '!' indicates a state machine breaking change.
 
-## Unreleased
+## [v2.2.0](https://github.com/KYVENetwork/chain/releases/tag/v2.2.0) - 2025-09-26
 
 ### Features
 
@@ -23,7 +23,7 @@ An '!' indicates a state machine breaking change.
 ### Improvements
 
 - ! (`x/bundles`) [#266](https://github.com/KYVENetwork/chain/pull/266) Improve storage cost payout.
-- (deps) [#268](https://github.com/KYVENetwork/chain/pull/268) Bump to Cosmos SDK v0.50.14 and prepare upgrade handler.
+- (deps) [#268](https://github.com/KYVENetwork/chain/pull/268) Bump to Cosmos SDK v0.50.14.
 
 ### Bug Fixes
 
